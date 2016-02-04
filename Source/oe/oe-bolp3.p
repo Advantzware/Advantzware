@@ -82,6 +82,8 @@ DEF VAR invstatus-log AS LOG NO-UNDO.
 DEF VAR ldShip-qty AS DEC NO-UNDO.
 DEF VAR ld-Inv AS DEC NO-UNDO.
 DEF VAR cRelSCode AS CHAR NO-UNDO.
+DEF VAR iTotalIScode AS INT NO-UNDO.
+DEF VAR iTotalSScode AS INT NO-UNDO.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
 DEF BUFFER bf-oe-boll FOR oe-boll.
 
@@ -370,7 +372,7 @@ STATUS DEFAULT "Processing BOL Posting 1........ BOL#: " + STRING(oe-bolh.bol-no
     STATUS DEFAULT "Processing BOL Posting 2........ BOL#: " + STRING(oe-bolh.bol-no).
     /* Note: oe-bolp3 requires locks on oe-ord, oe-ordl, oe-bolh, oe-boll */
     {oe/oe-bolp3.i "report" "key-03"}
-
+    
     CREATE tt-report.
     BUFFER-COPY report TO tt-report.
     DELETE report.
@@ -410,9 +412,11 @@ STATUS DEFAULT "Processing BOL Posting 1........ BOL#: " + STRING(oe-bolh.bol-no
             BY oe-boll.rel-no
             BY oe-boll.b-ord-no:
     STATUS DEFAULT "Processing BOL Posting 3........ BOL#: " + STRING(oe-bolh.bol-no).       
-    {oe/oe-relbo.i oe-boll.b-ord-no}
-  END.
     
+    {oe/oe-relbo.i oe-boll.b-ord-no}
+
+  END.
+
   FOR EACH tt-report WHERE tt-report.term-id EQ v-term,
 
       FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ tt-report.rec-id,
@@ -420,6 +424,9 @@ STATUS DEFAULT "Processing BOL Posting 1........ BOL#: " + STRING(oe-bolh.bol-no
       FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ oe-boll.b-no
       BREAK BY oe-boll.r-no BY oe-boll.i-no BY oe-boll.ord-no:
       STATUS DEFAULT "Processing BOL Posting 4........ BOL#: " + STRING(oe-bolh.bol-no).
+
+
+
 
       IF LAST-OF(oe-boll.ord-no) THEN DO:
         FIND FIRST oe-rell WHERE oe-rell.r-no EQ oe-boll.r-no
@@ -465,7 +472,68 @@ STATUS DEFAULT "Processing BOL Posting 1........ BOL#: " + STRING(oe-bolh.bol-no
       END. /* last-of ord-no */
 
   END. /* each tt-report */
+
 END. /* Do trans */
+
+FOR EACH tt-report WHERE tt-report.term-id EQ v-term,
+
+  FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ tt-report.rec-id,
+
+  FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ oe-boll.b-no
+  BREAK BY oe-boll.i-no BY oe-boll.ord-no:
+
+      /* If the release is ship-only and we're posting the BOL,               */
+      /* clean up the fg-bin records that are placeholders, total the + and - */
+      IF  oe-boll.s-code EQ "S" THEN do: 
+          
+          FIND FIRST oe-rell WHERE oe-rell.r-no EQ oe-boll.r-no
+               and oe-rell.i-no eq oe-boll.i-no
+            NO-LOCK NO-ERROR.          
+
+          IF AVAIL oe-rell THEN 
+            RUN oe/cleanShipOnlyBins.p (INPUT ROWID(oe-rell)).
+ 
+          FIND FIRST oe-ordl WHERE oe-ordl.company EQ oe-boll.company
+              AND oe-ordl.ord-no EQ oe-boll.ord-no
+              AND oe-ordl.LINE EQ oe-boll.LINE
+              NO-LOCK NO-ERROR.
+          
+          IF NOT AVAIL oe-ordl THEN
+            NEXT.
+
+          iTotalISCode = 0.
+          iTotalSScode = 0.
+          FOR EACH oe-rel WHERE oe-rel.company EQ oe-boll.company
+            AND oe-rel.ord-no EQ oe-boll.ord-no
+            AND oe-rel.i-no   EQ oe-boll.i-no
+            NO-LOCK:
+            RUN getOeRelSCode (INPUT ROWID(oe-rel), OUTPUT cRelSCode).
+
+            IF cRelSCode EQ "I" THEN
+              iTotalISCode = iTotaliSCode + oe-rel.qty.
+            ELSE
+              IF cRelSCode EQ "S" THEN
+                iTotalSSCode = iTotalSSCode + oe-rel.qty.
+
+          END.
+       
+
+          
+          IF iTotalISCode GT 0 AND iTotalISCode NE iTotalSSCode THEN DO:
+ 
+            /* Missing a placeholder records, so run fg-mkbin */
+            FIND FIRST itemfg WHERE itemfg.company EQ oe-boll.company
+               AND itemfg.i-no EQ oe-boll.i-no
+              NO-LOCK NO-ERROR.
+            IF AVAIL itemfg THEN
+              RUN fg/fg-mkbin.p (INPUT RECID(itemfg)).
+            
+
+
+         END.
+         LEAVE.
+      END.
+END.
 
 FOR EACH w-inv:
   /*RUN oe/invcheck.p (w-rowid).*/

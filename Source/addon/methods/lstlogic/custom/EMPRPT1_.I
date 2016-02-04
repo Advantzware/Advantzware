@@ -95,13 +95,13 @@ FOR EACH emptrack.employee WHERE
           machtran.job_number  ","
           IF AVAILABLE empmach THEN empmach.gl_account ELSE ""  ","
           machemp.start_date  ","
-          STRING(machemp.start_time,'HH:MM am')  ","
+          trim(STRING(machemp.start_time,'HH:MM am'))  ","
           machemp.end_date  ","
-          STRING(machemp.end_time,'HH:MM am')  ","
+          trim(STRING(machemp.end_time,'HH:MM am'))  ","
           machemp.shift  ","
           op-rate  ","
           machemp.rate  ","
-          STRING(machemp.total_time,'HH:MM')  ","
+          trim(STRING(machemp.total_time,'HH:MM'))  ","
           STRING(machemp.total_time / 3600,'->>>.99')  ","
           SKIP.
   IF LAST-OF(machemp.employee) THEN
@@ -110,7 +110,7 @@ FOR EACH emptrack.employee WHERE
     DISPLAY STRING(emp-time,'HH:MM') @ total-time
       emp-time / 3600 @ grand-time.
     IF tb_excel THEN PUT STREAM excel ",,,,,,,,,,,,," /* to place under total time */
-       STRING(emp-time,'HH:MM') "," string(emp-time / 3600,"->>>.99") SKIP.
+       trim(STRING(emp-time,'HH:MM')) "," string(emp-time / 3600,"->>>.99") SKIP.
     PUT UNFORMATTED SKIP FILL('-',132) SKIP.
     grand-total-time = grand-total-time + emp-time.
     IF tb_excel THEN PUT STREAM excel UNFORMATTED SKIP FILL('-',132) SKIP.

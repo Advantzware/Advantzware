@@ -197,7 +197,12 @@ FOR EACH report
           BY report.key-03
           BY report.key-04
           BY report.key-06 DESC:
-    
+    ASSIGN
+        cCoating = ""
+        cInks = ""
+        cBoard = ""
+        dWeight = 0.
+
     /* If last of item */
     IF LAST-OF(report.key-06) THEN DO:
         iWorksheetCount = iWorksheetCount + 1.

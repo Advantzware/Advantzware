@@ -1016,7 +1016,7 @@ FUNCTION getValue-estf RETURNS CHARACTER
         END.
         WHEN "start-time"  THEN DO:
             IF AVAIL emplogin THEN
-                lc-return = IF emplogin.start_time <> ? THEN string(emplogin.start_time,"HH:MM am") ELSE "".
+                lc-return = IF emplogin.start_time <> ? THEN trim(string(emplogin.start_time,"HH:MM am")) ELSE "".
             ELSE lc-return = "" .
         END.
          WHEN "end-date"  THEN DO:
@@ -1026,7 +1026,7 @@ FUNCTION getValue-estf RETURNS CHARACTER
         END.
          WHEN "end-time"  THEN DO:
              IF AVAIL emplogin THEN
-                 lc-return = if emplogin.end_date <> ? THEN string(emplogin.end_time,"HH:MM am") ELSE "" .
+                 lc-return = if emplogin.end_date <> ? THEN TRIM(string(emplogin.end_time,"HH:MM am")) ELSE "" .
              ELSE lc-return = "" .
         END.  
          WHEN "mach"  THEN DO:
@@ -1050,8 +1050,8 @@ FUNCTION getValue-estf RETURNS CHARACTER
          WHEN "tot"  THEN DO:
              IF AVAIL emplogin THEN do:
                  li-t-time = emplogin.total_time .
-                 lc-return = STRING(TRUNCATE(li-t-time / 3600,0),">>>>9") + ":" + 
-                                  STRING(((li-t-time MOD 3600) / 60),"99")  .
+                 lc-return = trim(STRING(TRUNCATE(li-t-time / 3600,0),">>>>9") + ":" + 
+                                  STRING(((li-t-time MOD 3600) / 60),"99"))  .
              END.
              ELSE lc-return = "" .
         END.

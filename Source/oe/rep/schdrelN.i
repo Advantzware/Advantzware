@@ -61,6 +61,7 @@ if chosen eq 2 then DO:
             CASE cTmpField:                               
                 WHEN "ttl-alc" THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.q-alloc,"->,>>>,>>9") ELSE "".
                 WHEN "ttl-avl" THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.q-avail,"->,>>>,>>9") ELSE "".
+                WHEN "fg-cat"  THEN cVarValue = IF AVAIL itemfg THEN  STRING(itemfg.procat,"x(5)") ELSE "".
                 WHEN "style" THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.style) ELSE "".
                 WHEN "v-del-zone" THEN cVarValue = string(v-del-zone).
                 WHEN "v-terr" THEN cVarValue = string(v-terr).                

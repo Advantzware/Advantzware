@@ -20,6 +20,7 @@ DEF {1} SHARED VAR v-print-components AS LOG NO-UNDO.
 DEF {1} SHARED VAR v-print-shipnotes AS LOG NO-UNDO.
 DEF {1} SHARED VAR v-print-dept AS LOG NO-UNDO.
 DEF {1} SHARED VAR v-depts AS CHAR NO-UNDO.
+DEF {1} SHARED VAR v-sort AS log NO-UNDO.
 
 def var v-last-page         as   int.
 def var v-page-tot          as   dec format ">>9".

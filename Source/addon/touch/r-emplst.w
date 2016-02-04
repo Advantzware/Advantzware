@@ -960,12 +960,12 @@ FOR EACH emplogin OF emptrack.employee NO-LOCK WITH STREAM-IO TITLE '---- Login/
   IF tb_excel THEN PUT STREAM excel UNFORMATTED
       (IF NOT firstlogin THEN ",,,,,,,," ELSE "")
       (IF emplogin.start_date = ? THEN "" ELSE string(emplogin.start_date)) ","
-      STRING(emplogin.start_time,'HH:MM am') ","
+      TRIM(STRING(emplogin.start_time,'HH:MM am'))","
       emplogin.machine ","
       (IF emplogin.end_date = ? THEN "" ELSE string(emplogin.end_date)) ","
-      (IF emplogin.end_time NE 0 THEN STRING(emplogin.end_time,'HH:MM am') ELSE "") ","
+      (IF emplogin.end_time NE 0 THEN trim(STRING(emplogin.end_time,'HH:MM am')) ELSE "") ","
       emplogin.shift ","
-      STRING(emplogin.total_time,'HH:MM') SKIP.
+      trim(STRING(emplogin.total_time,'HH:MM')) SKIP.
   ASSIGN firstlogin = NO.
 END.
 

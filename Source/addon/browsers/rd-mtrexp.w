@@ -1022,19 +1022,19 @@ FOR EACH machtran WHERE machtran.company = cocode
          CASE ttRptSelected.FieldList:                                                                                       
              
              WHEN "strt-time" THEN do:
-                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(machtran.start_time,'HH:MM am')).                          
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(trim(STRING(machtran.start_time,'HH:MM am'))).                          
              END.
              WHEN "end-time" THEN do:
                  IF machtran.end_time = 0 AND machtran.end_date EQ ? THEN
                      v-excel-detail-lines = v-excel-detail-lines + "," .
                  ELSE
-                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(machtran.end_time,'HH:MM am')).                          
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(trim(STRING(machtran.end_time,'HH:MM am'))).                          
              END.
              WHEN "ttl-time" THEN do:
                  IF machtran.total_time = 0 AND machtran.end_date EQ ? THEN
                      v-excel-detail-lines = v-excel-detail-lines + "," .
                  ELSE
-                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(machtran.total_time,'HH:MM')).                          
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(trim(STRING(machtran.total_time,'HH:MM'))).                          
              END.
              
          END CASE. 

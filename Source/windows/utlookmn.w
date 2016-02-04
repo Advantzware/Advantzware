@@ -36,6 +36,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+{methods/defines/hndldefs.i}
+{methods/prgsecur.i }
+
 session:set-wait-state("").
 
 /* _UIB-CODE-BLOCK-END */
@@ -119,7 +122,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/containr.i}
-
+/*{methods/template/windows.i}*/
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -222,6 +225,8 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartBrowser h_mnu-item. */
        RUN add-link IN adm-broker-hdl ( h_p-updmnu , 'TableIO':U , h_mnu-item ).
+
+        RUN add-link IN adm-broker-hdl ( h_p-updmnu , 'chk-sec':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updmnu ,
@@ -357,6 +362,52 @@ PROCEDURE state-changed :
 -------------------------------------------------------------*/
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
   DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Allow-Create W-Win 
+PROCEDURE Allow-Create :
+/*------------------------------------------------------------------------------
+  Purpose:     Check Security Access to Allow Create
+  Parameters:  OUTPUT allow-flag
+  Notes:       
+------------------------------------------------------------------------------*/
+  &Scoped-define ACCESSTYPE create
+  {methods/template/securitynm.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Allow-Delete W-Win 
+PROCEDURE Allow-Delete :
+/*------------------------------------------------------------------------------
+  Purpose:     Check Security Access to Allow Delete
+  Parameters:  OUTPUT allow-flag
+  Notes:       
+------------------------------------------------------------------------------*/
+  &Scoped-define ACCESSTYPE delete
+  {methods/template/securitynm.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Allow-Update W-Win 
+PROCEDURE Allow-Update :
+/*------------------------------------------------------------------------------
+  Purpose:     Check Security Access to Allow Update
+  Parameters:  OUTPUT allow-flag
+  Notes:       
+------------------------------------------------------------------------------*/
+  &Scoped-define ACCESSTYPE update
+  {methods/template/securitynm.i}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

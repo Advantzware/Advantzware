@@ -115,12 +115,12 @@ DEF BUFFER b-cust   FOR cust.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 stmt-date tb_cust-list ~
 btnCustList begin_cust-no end_cust-no stmt-msg fi_contact tb_detailed ~
-tb_past-due rd-dest tb_BatchMail tb_HideDialog tb_emailpdf lines-per-page ~
-lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
+tb_past-due tb_curr-bal tb_HideDialog rd-dest tb_BatchMail tb_emailpdf ~
+lines-per-page lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS stmt-date tb_cust-list begin_cust-no ~
 end_cust-no stmt-msg fi_contact lbl_detailed tb_detailed lbl_past-due ~
-tb_past-due rd-dest tb_BatchMail tb_HideDialog tb_emailpdf lines-per-page ~
-lv-ornt lv-font-no lv-font-name td-show-parm 
+tb_past-due lbl_curr-bal tb_curr-bal tb_HideDialog rd-dest tb_BatchMail ~
+tb_emailpdf lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -145,7 +145,7 @@ FUNCTION formatDate RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -171,6 +171,10 @@ DEFINE VARIABLE fi_contact AS CHARACTER FORMAT "X(40)":U
      LABEL "Attention" 
      VIEW-AS FILL-IN 
      SIZE 56 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lbl_curr-bal AS CHARACTER FORMAT "X(256)":U INITIAL "Include customers with 0 current balance?" 
+     VIEW-AS FILL-IN 
+     SIZE 44 BY .95 NO-UNDO.
 
 DEFINE VARIABLE lbl_detailed AS CHARACTER FORMAT "X(256)":U INITIAL "Detailed?" 
      VIEW-AS FILL-IN 
@@ -224,16 +228,21 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 10.24.
+     SIZE 93 BY 9.52.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 9.29.
+     SIZE 94 BY 10.
 
 DEFINE VARIABLE tb_BatchMail AS LOGICAL INITIAL no 
      LABEL "&Batch Mail" 
      VIEW-AS TOGGLE-BOX
      SIZE 19.4 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_curr-bal AS LOGICAL INITIAL no 
+     LABEL "Include customers with 0 current balance?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 3 BY .95 NO-UNDO.
 
 DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
@@ -282,23 +291,25 @@ DEFINE FRAME FRAME-A
      tb_detailed AT ROW 7.62 COL 51
      lbl_past-due AT ROW 8.81 COL 27 COLON-ALIGNED NO-LABEL
      tb_past-due AT ROW 8.81 COL 51
-     rd-dest AT ROW 12.1 COL 6 NO-LABEL
-     tb_BatchMail AT ROW 12.14 COL 31
+     lbl_curr-bal AT ROW 9.86 COL 7 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     tb_curr-bal AT ROW 9.86 COL 51 WIDGET-ID 12
      tb_HideDialog AT ROW 12.14 COL 46.6
-     tb_emailpdf AT ROW 12.14 COL 67.2
-     lines-per-page AT ROW 13.62 COL 84 COLON-ALIGNED
-     lv-ornt AT ROW 13.67 COL 31 NO-LABEL
-     lv-font-no AT ROW 15.29 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 16.24 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 18 COL 31
+     rd-dest AT ROW 13.14 COL 6 NO-LABEL
+     tb_BatchMail AT ROW 13.19 COL 31
+     tb_emailpdf AT ROW 13.19 COL 67.2
+     lines-per-page AT ROW 14.67 COL 84 COLON-ALIGNED
+     lv-ornt AT ROW 14.71 COL 31 NO-LABEL
+     lv-font-no AT ROW 16.33 COL 34 COLON-ALIGNED
+     lv-font-name AT ROW 17.29 COL 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 19.05 COL 31
      btn-ok AT ROW 20.81 COL 20
      btn-cancel AT ROW 20.81 COL 58
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 10.29 COL 4
+          SIZE 18 BY .62 AT ROW 11.62 COL 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 4
           BGCOLOR 2 
-     RECT-6 AT ROW 10.29 COL 2
+     RECT-6 AT ROW 11 COL 2
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -369,6 +380,8 @@ ASSIGN
        fi_contact:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN lbl_curr-bal IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lbl_detailed IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lbl_past-due IN FRAME FRAME-A
@@ -381,6 +394,10 @@ ASSIGN
 
 ASSIGN 
        stmt-msg:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_curr-bal:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -442,6 +459,21 @@ END.
 
 
 &Scoped-define SELF-NAME begin_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
+ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
@@ -700,6 +732,20 @@ END.
 
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
+ON HELP OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
      assign {&self-name}.
@@ -757,37 +803,6 @@ DO:
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME begin_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
-ON HELP OF begin_cust-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
-ON HELP OF end_cust-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -865,6 +880,17 @@ END.
 ON VALUE-CHANGED OF tb_BatchMail IN FRAME FRAME-A /* Batch Mail */
 DO:
     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_curr-bal
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_curr-bal C-Win
+ON VALUE-CHANGED OF tb_curr-bal IN FRAME FRAME-A /* Include customers with 0 current balance? */
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1211,13 +1237,13 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY stmt-date tb_cust-list begin_cust-no end_cust-no stmt-msg fi_contact 
-          lbl_detailed tb_detailed lbl_past-due tb_past-due rd-dest tb_BatchMail 
-          tb_HideDialog tb_emailpdf lines-per-page lv-ornt lv-font-no 
-          lv-font-name td-show-parm 
+          lbl_detailed tb_detailed lbl_past-due tb_past-due lbl_curr-bal 
+          tb_curr-bal tb_HideDialog rd-dest tb_BatchMail tb_emailpdf 
+          lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 stmt-date tb_cust-list btnCustList begin_cust-no 
-         end_cust-no stmt-msg fi_contact tb_detailed tb_past-due rd-dest 
-         tb_BatchMail tb_HideDialog tb_emailpdf lines-per-page lv-ornt 
+         end_cust-no stmt-msg fi_contact tb_detailed tb_past-due tb_curr-bal 
+         tb_HideDialog rd-dest tb_BatchMail tb_emailpdf lines-per-page lv-ornt 
          lv-font-no td-show-parm btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
@@ -1458,12 +1484,12 @@ def var zz as int no-undo.
 def var v-print-align   as log format "Y/N" no-undo.
 def var v-align-ok      as log format "Y/N" no-undo.
 def var save_id         as recid no-undo.
-def var v-balance as dec label "Balance" format '>>>,>>>,>>>.99CR' NO-UNDO.
+def var v-balance as dec label "Balance" format '->>,>>>,>>>.99CR' NO-UNDO.
 def var v-age as int no-undo. /* number of days old */
 def var v-per as int no-undo. /* hash of v-age into aging periods */
 def var v-aged as dec no-undo extent 5 format ">>,>>>,>>>.99CR" .   /* aging buckets */
 def var v-days-in-per as int no-undo init 30.
-def var ln-total as int no-undo init 51.
+def var ln-total as int no-undo init 48.
 def var adv as int no-undo.
 def var ws_letterhead as char format 'x(80)' no-undo extent 6.
 def var ws_addr as char format 'x(35)' no-undo extent 6.
@@ -1703,7 +1729,7 @@ FOR EACH ttCustList
           AND cust.cust-no EQ ttCustList.cust-no
     /*     cust.cust-no ge v-lo-cust and */
     /*     cust.cust-no le v-hi-cust and */
-          AND cust.acc-bal ne 0 
+          AND ((cust.acc-bal ne 0 AND NOT tb_curr-bal) OR (tb_curr-bal))
         BREAK BY cust.cust-no
     transaction:
 
@@ -1729,8 +1755,8 @@ FOR EACH ttCustList
       where ar-inv.company  eq cust.company
         and ar-inv.cust-no  eq cust.cust-no
         and ar-inv.posted   eq yes
-        /*and ar-inv.due      ne 0*/
-        and ar-inv.terms    ne "CASH"
+        /*and ar-inv.due      ne 0           */
+        and ar-inv.terms    ne "CASH"      
         and ar-inv.inv-date le v-stmt-date
       no-lock:
 
@@ -1743,7 +1769,7 @@ FOR EACH ttCustList
 
     for each ar-cashl
         where ar-cashl.company  eq ar-inv.company
-          and ar-cashl.posted   eq yes
+          and ar-cashl.posted   eq yes  
           and ar-cashl.cust-no  eq ar-inv.cust-no
           and ar-cashl.inv-no   eq ar-inv.inv-no
         use-index inv-no no-lock,
@@ -1766,6 +1792,11 @@ FOR EACH ttCustList
     end.
 
     IF ld-due NE 0 THEN DO:
+        FIND FIRST tt-inv 
+            WHERE tt-inv.cust-no EQ cust.cust-no
+              AND tt-inv.DESCRIPTION EQ "No Balance Due"
+            NO-ERROR.
+        IF AVAIL tt-inv THEN DELETE tt-inv.
       create tt-inv.
       assign
        tt-inv.cust-no    = cust.cust-no
@@ -1783,7 +1814,7 @@ FOR EACH ttCustList
                           else ar-inv.due
        tt-inv.po-no      = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "")
        tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
-      
+        
      IF v-stmt-char = "Printers" THEN
           tt-inv.bol-no = (IF AVAIL ar-invl AND ar-invl.job-no NE "" 
                                 THEN "  " + ar-invl.job-no
@@ -1845,6 +1876,17 @@ FOR EACH ttCustList
            tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1.
 
       end.
+    END.
+    ELSE IF tb_curr-bal THEN DO:
+        IF NOT CAN-FIND(FIRST tt-inv WHERE tt-inv.cust-no EQ cust.cust-no
+                        AND tt-inv.DESCRIPTION EQ "No Balance Due")
+        THEN DO: 
+            CREATE tt-inv.
+            ASSIGN
+                tt-inv.cust-no = cust.cust-no
+                tt-inv.DESCRIPTION = "No Balance Due"
+                .
+        END.
     END.
   end.
   
@@ -2240,12 +2282,12 @@ def var v-print-align   as log format "Y/N" no-undo.
 def var v-align-ok      as log format "Y/N" no-undo.
 def var v-print         like ar-inv.printed NO-UNDO.
 def var save_id         as recid no-undo.
-def var v-balance as dec label "Balance" format '>>>,>>>,>>>.99CR'.
+def var v-balance as dec label "Balance" format '->>,>>>,>>>.99CR'.
 def var v-age as int no-undo. /* number of days old */
 def var v-per as int no-undo. /* hash of v-age into aging periods */
 def var v-aged as dec no-undo extent 5 format ">>,>>>,>>>.99CR" .   /* aging buckets */
 def var v-days-in-per as int no-undo init 30.
-def var ln-total as int no-undo init 51.
+def var ln-total as int no-undo init 48.
 def var adv as int no-undo.
 def var ws_letterhead as char format 'x(80)' no-undo extent 6.
 def var ws_addr as char format 'x(35)' no-undo extent 6.
@@ -2491,7 +2533,7 @@ FIRST cust no-lock
       AND cust.cust-no EQ ttCustList.cust-no
       AND (cust.cust-no EQ v-lo-cust OR v-lo-cust = "")
       AND (cust.cust-no EQ v-hi-cust  OR v-hi-cust = "")
-      AND cust.acc-bal ne 0 
+      AND ((cust.acc-bal ne 0 AND NOT tb_curr-bal) OR (tb_curr-bal))
     BREAK BY cust.cust-no
     transaction:
 
@@ -2555,6 +2597,11 @@ FIRST cust no-lock
     end.
 
     IF ld-due NE 0 THEN DO:
+        FIND FIRST tt-inv 
+            WHERE tt-inv.cust-no EQ cust.cust-no
+              AND tt-inv.DESCRIPTION EQ "No Balance Due"
+            NO-ERROR.
+        IF AVAIL tt-inv THEN DELETE tt-inv.
       create tt-inv.
       assign
        tt-inv.sort-fld   = "0" + STRING(ar-inv.inv-no,"9999999999") + "0"
@@ -2617,6 +2664,17 @@ FIRST cust no-lock
            tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1.
            
       end.
+    END.
+    ELSE IF tb_curr-bal THEN DO:
+        IF NOT CAN-FIND(FIRST tt-inv WHERE tt-inv.cust-no EQ cust.cust-no
+                        AND tt-inv.DESCRIPTION EQ "No Balance Due")
+        THEN DO: 
+            CREATE tt-inv.
+            ASSIGN
+                tt-inv.cust-no = cust.cust-no
+                tt-inv.DESCRIPTION = "No Balance Due"
+                .
+        END.
     END.
   end.
   
@@ -2936,7 +2994,7 @@ FIRST cust no-lock
          "<=2><R+2>" v-aged[1] AT 12 v-aged[2] AT 30  v-aged[3] AT 50  (v-aged[4] + v-aged[5]) AT 70
          skip(1).
       ELSE 
-      PUT "<R60><C1><#2>"SKIP
+      PUT "<R57><C1><#2>"SKIP
       "<=2>      Current         30 Days         60 Days         90 Days        >90 Days" skip
       "<=2><R+1.3><FROM><C+80><LINE>" SKIP
       "<=2><R+2>" v-aged[1 for 5]
@@ -2989,7 +3047,7 @@ def var zz as int no-undo.
 def var v-print-align   as log format "Y/N" no-undo.
 def var v-align-ok      as log format "Y/N" no-undo.
 def var save_id         as recid no-undo.
-def var v-balance as dec label "Balance" format '>>>,>>>,>>>.99CR' NO-UNDO.
+def var v-balance as dec label "Balance" format '->>,>>>,>>>.99CR' NO-UNDO.
 def var v-age as int no-undo. /* number of days old */
 def var v-per as int no-undo. /* hash of v-age into aging periods */
 def var v-aged as dec no-undo extent 5 format ">>,>>>,>>>.99CR" .   /* aging buckets */
@@ -3200,11 +3258,11 @@ FIRST cust no-lock
       AND cust.cust-no EQ ttCustList.cust-no
       AND (cust.cust-no EQ v-lo-cust OR v-lo-cust = "")             
       AND (cust.cust-no EQ v-hi-cust OR v-hi-cust = "")            
-      AND cust.acc-bal ne 0 
+      AND ((cust.acc-bal ne 0 AND NOT tb_curr-bal) OR (tb_curr-bal))
     BREAK BY cust.cust-no
     transaction:
-
-  IF NOT v-asi-excel THEN
+    
+    IF NOT v-asi-excel THEN
      EMPTY TEMP-TABLE tt-inv.
 
   ASSIGN v-last-amt  = 0
@@ -3263,6 +3321,11 @@ FIRST cust no-lock
     end.
 
     IF ld-due NE 0 THEN DO:
+        FIND FIRST tt-inv 
+            WHERE tt-inv.cust-no EQ cust.cust-no
+              AND tt-inv.DESCRIPTION EQ "No Balance Due"
+            NO-ERROR.
+        IF AVAIL tt-inv THEN DELETE tt-inv.
       create tt-inv.
       assign
        tt-inv.cust-no    = cust.cust-no
@@ -3342,6 +3405,17 @@ FIRST cust no-lock
            tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1.
 
       end.
+    END.
+    ELSE IF tb_curr-bal THEN DO:
+        IF NOT CAN-FIND(FIRST tt-inv WHERE tt-inv.cust-no EQ cust.cust-no
+                        AND tt-inv.DESCRIPTION EQ "No Balance Due")
+        THEN DO: 
+            CREATE tt-inv.
+            ASSIGN
+                tt-inv.cust-no = cust.cust-no
+                tt-inv.DESCRIPTION = "No Balance Due"
+                .
+        END.
     END.
   end.
   
@@ -3656,7 +3730,7 @@ def var zz as int no-undo.
 def var v-print-align   as log format "Y/N" no-undo.
 def var v-align-ok      as log format "Y/N" no-undo.
 def var save_id         as recid no-undo.
-def var v-balance as dec label "Balance" format '>>>,>>>,>>>.99CR'.
+def var v-balance as dec label "Balance" format '->>,>>>,>>>.99CR'.
 def var v-age as int no-undo. /* number of days old */
 def var v-per as int no-undo. /* hash of v-age into aging periods */
 def var v-aged as dec no-undo extent 5
@@ -3851,7 +3925,7 @@ FOR EACH ttCustList
       AND cust.cust-no EQ ttCustList.cust-no
 /*     cust.cust-no ge v-lo-cust and */
 /*     cust.cust-no le v-hi-cust and */
-      AND cust.acc-bal ne 0
+      AND ((cust.acc-bal ne 0 AND NOT tb_curr-bal) OR (tb_curr-bal))
     transaction:
 
   for each tt-inv:
@@ -3909,6 +3983,11 @@ FOR EACH ttCustList
     end.
 
     IF ld-due NE 0 THEN DO:
+        FIND FIRST tt-inv 
+            WHERE tt-inv.cust-no EQ cust.cust-no
+              AND tt-inv.DESCRIPTION EQ "No Balance Due"
+            NO-ERROR.
+        IF AVAIL tt-inv THEN DELETE tt-inv.
       create tt-inv.
       assign
        tt-inv.sort-fld   = "0" + STRING(ar-inv.inv-no,"9999999999") + "0"
@@ -3968,6 +4047,17 @@ FOR EACH ttCustList
            tt-inv.type   = "P"
            tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1.
       end.
+    END.
+    ELSE IF tb_curr-bal THEN DO:
+        IF NOT CAN-FIND(FIRST tt-inv WHERE tt-inv.cust-no EQ cust.cust-no
+                        AND tt-inv.DESCRIPTION EQ "No Balance Due")
+        THEN DO: 
+            CREATE tt-inv.
+            ASSIGN
+                tt-inv.cust-no = cust.cust-no
+                tt-inv.DESCRIPTION = "No Balance Due"
+                .
+        END.
     END.
   end.
   
@@ -4189,7 +4279,7 @@ def var zz as int no-undo.
 def var v-print-align   as log format "Y/N" no-undo.
 def var v-align-ok      as log format "Y/N" no-undo.
 def var save_id         as recid no-undo.
-def var v-balance as dec label "Balance" format '>>>,>>>,>>>.99CR'.
+def var v-balance as dec label "Balance" format '->>,>>>,>>>.99CR'.
 def var v-age as int no-undo. /* number of days old */
 def var v-per as int no-undo. /* hash of v-age into aging periods */
 def var v-aged as dec no-undo extent 5
@@ -4381,7 +4471,7 @@ FOR EACH ttCustList
       AND cust.cust-no EQ ttCustList.cust-no
 /*     cust.cust-no ge v-lo-cust and */
 /*     cust.cust-no le v-hi-cust and */
-      AND cust.acc-bal ne 0
+      AND ((cust.acc-bal ne 0 AND NOT tb_curr-bal) OR (tb_curr-bal))
     transaction:
 
   for each tt-inv:
@@ -4439,6 +4529,11 @@ FOR EACH ttCustList
     end.
 
     IF ld-due NE 0 THEN DO:
+        FIND FIRST tt-inv 
+            WHERE tt-inv.cust-no EQ cust.cust-no
+              AND tt-inv.DESCRIPTION EQ "No Balance Due"
+            NO-ERROR.
+        IF AVAIL tt-inv THEN DELETE tt-inv.
       create tt-inv.
       assign
        tt-inv.sort-fld   = "0" + STRING(ar-inv.inv-no,"9999999999") + "0"
@@ -4498,6 +4593,17 @@ FOR EACH ttCustList
            tt-inv.type   = "P"
            tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1.
       end.
+    END.
+    ELSE IF tb_curr-bal THEN DO:
+        IF NOT CAN-FIND(FIRST tt-inv WHERE tt-inv.cust-no EQ cust.cust-no
+                        AND tt-inv.DESCRIPTION EQ "No Balance Due")
+        THEN DO: 
+            CREATE tt-inv.
+            ASSIGN
+                tt-inv.cust-no = cust.cust-no
+                tt-inv.DESCRIPTION = "No Balance Due"
+                .
+        END.
     END.
   end.
   

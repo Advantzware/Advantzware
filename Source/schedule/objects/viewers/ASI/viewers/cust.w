@@ -84,7 +84,7 @@ job.est-no job-mch.line
 &Scoped-define SECOND-DISPLAYED-TABLE job-mch
 &Scoped-define THIRD-DISPLAYED-TABLE job
 &Scoped-Define DISPLAYED-OBJECTS setupStart runStart setupEnd runEnd ~
-lastShipDate 
+lastShipDate mfgDate 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,updateFields,updateButtons,List-5,List-6 */
@@ -144,8 +144,14 @@ DEFINE VARIABLE errorMsg AS CHARACTER
 DEFINE VARIABLE lastShipDate AS DATE FORMAT "99/99/9999":U 
      LABEL "Last Ship" 
      VIEW-AS FILL-IN 
-     SIZE 16.4 BY 1
+     SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE mfgDate AS DATE FORMAT "99/99/9999":U 
+     LABEL "Mfg" 
+     VIEW-AS FILL-IN 
+     SIZE 16.4 BY 1
+     BGCOLOR 9 FGCOLOR 15 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE runEnd AS CHARACTER FORMAT "X(256)":U 
      LABEL "@" 
@@ -196,7 +202,7 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1
           BGCOLOR 15 
      setupStart AT ROW 1.24 COL 95 COLON-ALIGNED
-     job-mch.start-date AT ROW 1.24 COL 121 COLON-ALIGNED
+     job-mch.start-date AT ROW 1.24 COL 120 COLON-ALIGNED
           LABEL "Run Start"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -221,7 +227,7 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1
           BGCOLOR 15 
      setupEnd AT ROW 2.43 COL 95 COLON-ALIGNED
-     job-mch.end-date AT ROW 2.43 COL 121 COLON-ALIGNED
+     job-mch.end-date AT ROW 2.43 COL 120 COLON-ALIGNED
           LABEL "Run  End"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -250,7 +256,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 14 
-     job-mch.run-hr AT ROW 3.62 COL 121 COLON-ALIGNED FORMAT ">>>9.99"
+     job-mch.run-hr AT ROW 3.62 COL 120 COLON-ALIGNED FORMAT ">>>9.99"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 14 
@@ -279,7 +285,8 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
           BGCOLOR 15 
-     job.est-no AT ROW 4.81 COL 95 COLON-ALIGNED FORMAT "x(8)"
+     job.est-no AT ROW 4.81 COL 85 COLON-ALIGNED
+          LABEL "Est#" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 10.6 BY 1
           BGCOLOR 15 
@@ -289,11 +296,13 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     job-mch.line AT ROW 4.81 COL 121 COLON-ALIGNED
+     job-mch.line AT ROW 4.81 COL 101 COLON-ALIGNED
+          LABEL "Ln#"
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
           BGCOLOR 15 
-     lastShipDate AT ROW 4.81 COL 141 COLON-ALIGNED
+     lastShipDate AT ROW 4.81 COL 120 COLON-ALIGNED
+     mfgDate AT ROW 4.81 COL 141 COLON-ALIGNED
      btnSave AT ROW 4.81 COL 160 HELP
           "Update/Save"
      btnReset AT ROW 4.81 COL 166 HELP
@@ -392,12 +401,14 @@ ASSIGN
        errorMsg:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* SETTINGS FOR FILL-IN job.est-no IN FRAME F-Main
-   NO-ENABLE EXP-FORMAT                                                 */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN job-mch.frm IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lastShipDate IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN job-mch.line IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN mfgDate IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN job-mch.mr-hr IN FRAME F-Main
    NO-ENABLE 3 EXP-LABEL                                                */
@@ -796,6 +807,13 @@ PROCEDURE local-row-available :
                                 AND oe-ord.job-no2 EQ job-mch.job-no2 NO-ERROR.
     lastShipDate:SCREEN-VALUE = IF NOT AVAILABLE oe-ord THEN ''
                                 ELSE STRING(oe-ord.last-date).
+    FIND FIRST oe-ordl NO-LOCK
+         WHERE oe-ordl.company EQ job-mch.company
+           AND oe-ordl.job-no EQ job-mch.job-no
+           AND oe-ordl.job-no2 EQ job-mch.job-no2 
+           AND oe-ordl.i-no EQ job-mch.i-no NO-ERROR.
+    mfgDate:SCREEN-VALUE = IF NOT AVAILABLE oe-ordl THEN ''
+                           ELSE STRING(oe-ordl.prom-date).
   END.
   ELSE
   ASSIGN

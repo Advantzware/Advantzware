@@ -78,9 +78,10 @@ DEF {1} SHARED TEMP-TABLE w-ord
   /* gdm - 08130804 */
   FIELD linenum like oe-ordl.e-num
   /* gdm - 07170905 */
-
   FIELD unit-wt  LIKE loadtag.misc-dec[1]
   FIELD pallt-wt LIKE loadtag.misc-dec[2]
   FIELD pallt-no LIKE eb.tr-no
   FIELD ship-notes LIKE oe-rel.ship-i
+  /* rstark - zoho13731 */
+  FIELD SSCC AS CHARACTER FORMAT "x(20)"
   .

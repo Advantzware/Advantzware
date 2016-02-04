@@ -135,7 +135,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -391,16 +391,16 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 26.43 COL 59
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 13.1 COL 2 WIDGET-ID 38
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1 COL 3
-          BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 19.14 COL 4
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 13.1 COL 59.4 WIDGET-ID 44
      "Transaction Types" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 7.38 COL 14
           FONT 6
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 13.1 COL 59.4 WIDGET-ID 44
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 19.14 COL 4
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1 COL 3
+          BGCOLOR 2 
      RECT-6 AT ROW 19.05 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -595,6 +595,21 @@ END.
 
 
 &Scoped-define SELF-NAME begin_cust
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
+ON HELP OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
 ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 DO:
@@ -795,6 +810,20 @@ END.
 
 &Scoped-define SELF-NAME end_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
+ON HELP OF end_cust IN FRAME FRAME-A /* Ending Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
 ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
 DO:
      assign {&self-name}.
@@ -874,35 +903,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME begin_cust
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
-ON HELP OF begin_cust IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_cust
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
-ON HELP OF end_cust IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
@@ -1345,25 +1345,22 @@ PROCEDURE calc-fg-value :
     IF NOT AVAIL bf-fg-rdtlh THEN
         RETURN.
 
-    find first uom
-        where uom.uom  eq ipv-sell-uom
-          and uom.mult ne 0 no-lock no-error.
-    IF avail uom THEN DO:
-        IF ipv-sell-uom = "L" THEN
-            ASSIGN opv-fg-value = ipv-sell-price.
-        ELSE
-            ASSIGN opv-fg-value = ipv-sell-price * (bf-fg-rdtlh.qty / uom.mult).
-    END.
-    else
-    if ipv-sell-uom = "L" THEN
+    IF ipv-sell-uom = "L" THEN
         opv-fg-value = ipv-sell-price. /*  * bf-fg-rdtlh.qty.*/
 
-    else
-    if ipv-sell-uom = "CS" then
-      opv-fg-value = ipv-sell-price * (bf-fg-rdtlh.qty / bf-fg-rdtlh.qty-case).
-
-    else
-      opv-fg-value = ipv-sell-price * (bf-fg-rdtlh.qty / 1000).
+    ELSE
+    IF ipv-sell-uom = "CS" THEN
+        opv-fg-value = ipv-sell-price * (bf-fg-rdtlh.qty / bf-fg-rdtlh.qty-case).
+    ELSE IF ipv-sell-uom = "M" THEN
+        opv-fg-value = ipv-sell-price * (bf-fg-rdtlh.qty / 1000).
+    ELSE DO:
+        FIND first uom
+            WHERE uom.uom  EQ ipv-sell-uom
+            AND uom.mult NE 0 NO-LOCK NO-ERROR.
+        IF AVAIL uom THEN
+            ASSIGN opv-fg-value = ipv-sell-price * (bf-fg-rdtlh.qty / uom.mult).
+    
+    END.
 
 END PROCEDURE.
 

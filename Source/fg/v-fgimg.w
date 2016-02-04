@@ -44,7 +44,7 @@ DEF VAR ll-box-refreshed AS LOG NO-UNDO.
 PROCEDURE ShellExecuteA EXTERNAL "shell32":u :
       define input parameter hwnd as long.
       define input parameter lpOperation as char.
-      define input parameter lpFile as char.
+      define input parameter lpFile as CHAR .
       define input parameter lpParameters as char.
       define input parameter lpDirectory as char.
       define input parameter nShowCmd as long.
@@ -589,13 +589,17 @@ PROCEDURE update-fgitem-img :
   DEF VAR lv-quote AS cha INIT '"' NO-UNDO.
   DEF VAR lv-return AS INT NO-UNDO.
   DEF VAR tInt AS INT NO-UNDO.
-
+  DEF VAR ls-image1 AS cha FORM "x(300)" NO-UNDO.
+  DEF VAR v-program AS CHAR NO-UNDO.
+  
+  v-program = "mspaint.exe" .
   lv-cmd = "custom\mspaint.exe".
 
   IF AVAIL itemfg AND itemfg.box-image <> "" THEN DO:
 
      IF itemfg.box-image MATCHES "*.pdf*"  THEN DO:
         RUN ShellExecuteA(0, "open", itemfg.box-image, "", "", 0, OUTPUT tInt).
+      
         IF tInt LE 32 THEN
         DO:
            RUN custom/runapdf.p (OUTPUT lv-cmd).
@@ -603,8 +607,21 @@ PROCEDURE update-fgitem-img :
            RUN WinExec (INPUT lv-cmd, INPUT 1,OUTPUT lv-return).
         END.
      END.
-     ELSE           
-        OS-COMMAND SILENT value(itemfg.box-image).
+     ELSE do: 
+         ASSIGN ls-image1 = itemfg.box-image .
+         lv-cmd = chr(34) + ls-image1 + " " + CHR(34).
+
+         RUN ShellExecuteA(0, "open", lv-cmd, "", "", 0, OUTPUT tInt).
+
+        IF tInt LE 32 THEN
+            DO:
+            IF ls-image1 <> "" THEN do:
+                
+                OS-COMMAND SILENT START value(trim(v-program)) value(lv-cmd).
+           END.
+        END.
+       /* OS-COMMAND SILENT value(itemfg.box-image). */
+      END.
   END.
 
   ll-box-refreshed = NO.

@@ -75,6 +75,7 @@ def var v-tot-lab as dec format "->>,>>>,>>9.99" extent 3 no-undo.
 DEF VAR v-bin-msf AS DECIMAL NO-UNDO.
 DEF VAR v-po-rel AS CHAR NO-UNDO.
 DEF VAR v-sales-rep AS CHAR NO-UNDO.
+DEF VAR v-cust-name AS CHAR NO-UNDO.
 
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
@@ -85,21 +86,21 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
                                 
-ASSIGN cTextListToSelect = "CUSTOMER,FG ITEM #,TAG#,FG LOT#,CUST PART#,ITEM NAME,JOB#,REC DATE," +
+ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,ITEM #,TAG#,FULL TAG#,FG LOT#,CUST PART#,DESCRIPTION,JOB#,REC DATE," +
                            "WHSE,BIN,MSF OH,C-UOM,REL QTY,QTY ON HAND,LAST SALE,FG CAT," +
                            "VIEW PO,LINE PO#,REL PO#,FG PRICE,ORDER PRICE,UOM COST,TOTAL COST,MAT COST,LABOR COST,REP," +
-                           "SELL VAL(FG),SELL VAL(ORD),DAYS OLD,CUST OWN,SET HEADER,QTY PER SET,H/C"
-           cFieldListToSelect = "itemfg.cust-no,itemfg.i-no,tag,fg-lot-val,itemfg.part-no,itemfg.i-name,v-job-no,recdate," +
+                           "SELL VAL(FG),SELL VAL(ORD),DAYS OLD,CUST OWN,SET HEADER,QTY PER SET"
+           cFieldListToSelect = "itemfg.cust-no,cust-name,itemfg.i-no,tag#,tag,fg-lot-val,itemfg.part-no,itemfg.i-name,v-job-no,recdate," +
                                 "loc,bin,msf-on-hand,cost-uom,rel-qty,qty-on-hand,last-sale,itemfg.procat," +
                                 "view-po,line-po,rel-po,sell-price,ord-pr,uom-cost,v-tot-cost,mat-cost,lab-cost,sale-rep," + 
-                                "sell-value-fg,sell-value-ord,days-old,custno,set-header,qty-per-set,hc"
-           cFieldLength = "8,15,6,20,15,30,10,8," + "5,8,8,5,11,11,9,7," + "11,11,11,11,11,11,11,11,11,3," + "14,14,7,8,15,11,3"
-           cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,i,c,i,i,c,c," + "c,c,c,i,i,i,i,i,i,c," + "i,i,i,c,c,i,c"
+                                "sell-value-fg,sell-value-ord,days-old,custno,set-header,qty-per-set"
+           cFieldLength = "8,30,15,6,24,20,15,30,10,8," + "5,8,8,5,11,11,9,7," + "11,11,11,11,11,11,11,11,11,3," + "14,14,7,8,15,11"
+           cFieldType = "c,c,c,c,c,c,c,c,c,c,c," + "c,c,i,c,i,i,c,c," + "c,c,c,i,i,i,i,i,i,c," + "i,i,i,c,c,i"
            .
 
 {sys/inc/ttRptSel.i}
 
-ASSIGN cTextListToDefault  = "CUSTOMER,ITEM #,TAG#,FG LOT#,REC DATE,CUST PART#,DESCRIPTION,WHSE,BIN,JOB#," +
+ASSIGN cTextListToDefault  = "CUSTOMER,CUST NAME,ITEM #,FULL TAG#,FG LOT#,REC DATE,CUST PART#,DESCRIPTION,WHSE,BIN,JOB#," +
                              "MSF OH,C-UOM,UOM COST,TOTAL COST,LINE PO#,REL QTY" .
 
 
@@ -1904,7 +1905,6 @@ DEF VAR v-tot-ordsell AS DEC EXTENT 4 NO-UNDO.
 {sys/form/r-top5DL.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-DEF VARIABLE v-hc AS CHAR NO-UNDO .
 
 form header
      "        "
@@ -2397,6 +2397,8 @@ display "" with frame r-top.
       END.
     END.
 
+    v-cust-name = "" .
+
    if v-sort-by-cust eq "Cu" THEN do:
         for each tt-itemfg use-index cust-no no-lock,
         {fg/rep/fg-ibtagn.i tt-itemfg.cust-no tt-itemfg.i-no}
@@ -2447,6 +2449,7 @@ display "" with frame r-top.
                 WHEN "itemfg.i-name" THEN cVarValue = "" .
                 WHEN "itemfg.procat" THEN cVarValue = "" .
                 WHEN "tag" THEN cVarValue = "" .
+                WHEN "tag#" THEN cVarValue = "" .
                 WHEN "fg-lot-val" THEN cvarValue = "" .
                 WHEN "v-job-no" THEN cVarValue = "" .
                 WHEN "recdate" THEN cVarValue = "" .
@@ -2472,8 +2475,8 @@ display "" with frame r-top.
                 WHEN "sell-value-fg" THEN cVarValue = STRING(v-tot-fgsell[3],"->>,>>>,>>9.99") .
                 WHEN "custno" THEN cVarValue = "" .
                 WHEN "set-header" THEN cVarValue = "" .
-                WHEN "qty-per-set" THEN cVarValue = "" .
-                WHEN "hc" THEN cVarValue =  "" .
+                WHEN "qty-per-set" THEN cVarValue = "" . 
+                WHEN "cust-name" THEN cVarValue = "" . 
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -2653,4 +2656,5 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 

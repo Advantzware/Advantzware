@@ -322,7 +322,9 @@ for each tt-report where tt-report.term-id eq "" no-lock,
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
-                     cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".
+                     IF ENTRY(i,cSelectedList) = "Job#" THEN
+                     cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + (IF fg-rcpth.job-no  <> "" THEN  "-" + string(fg-rcpth.job-no2,"99") ELSE  "") + ",".
+                     ELSE cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".
                  END.
                  ELSE DO:
                     cTmpField = substring(cFieldName,1,int( entry( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  

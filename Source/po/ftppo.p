@@ -224,49 +224,64 @@ IF AVAIL sys-ctrl THEN DO:
 
   ELSE
   IF ip-ftp-where EQ "GP" THEN DO:
-    
-    OUTPUT TO VALUE(".\po\ftpcmdgp.txt").   /* ftp text file */
+    IF LOOKUP(sys-ctrl.char-fld, "PremierPkg,Woodland,Trilakes,Michcor,ST.Clair,NStock") GT 0 THEN do:
 
+      OUTPUT TO VALUE(".\po\ftpcmdgp.txt").   /* ftp text file */
+  
+  
+      /* New Destination in 2015 */
+      PUT UNFORMATTED 
+          "option batch abort"   SKIP.
+      PUT UNFORMATTED 
+          "option confirm off"   SKIP.
+      IF sys-ctrl.char-fld EQ "PremierPkg" THEN 
+        cWinScpIniFile = "n:\rcode\po\winscp.ini".
+      IF sys-ctrl.char-fld EQ "Woodland" THEN  /* Woodland */
+      PUT UNFORMATTED "open WOODLNDM:WDFTP3@van-ftp.nubridges.net" SKIP.
+  
+      ELSE
+      IF sys-ctrl.module EQ "T"          OR
+         sys-ctrl.char-fld EQ "Trilakes" THEN /* Trilakes */
+         PUT UNFORMATTED "open trilake:Triftp1@van-ftp.nubridges.net" SKIP.
+  
+      ELSE
+      IF sys-ctrl.char-fld EQ "Michcor" THEN  /* Michcor */
+      PUT UNFORMATTED "open michor:Micftp9@van-ftp.nubridges.net" SKIP.
+  
+      ELSE
+      IF sys-ctrl.char-fld EQ "PremierPkg" THEN  /* PremierPkg */
+        PUT UNFORMATTED "open PREMPKG:PREMFTP8@van-ftp.nubridges.net" SKIP.
+  
+      ELSE
+      IF sys-ctrl.char-fld EQ "ST.Clair" THEN  /* ST.Clair */
+       PUT UNFORMATTED "open STCLAIRPKG:STCLPFTP8@van-ftp.nubridges.net" SKIP.
+  
+      ELSE
+      IF sys-ctrl.char-fld EQ "NStock" THEN  /* NStock */
+         PUT UNFORMATTED "open NSTOCKBOX:NSTOCKFTP4@van-ftp.nubridges.net" SKIP.
+      PUT UNFORMATTED
+        "cd inbox"                 SKIP.       /* test or prod */
+      PUT UNFORMATTED
+          "put " ip-exp-file       SKIP .      /* file to transfer */
+      PUT UNFORMATTED    "close" SKIP .     
+      PUT UNFORMATTED "Exit" SKIP.   
+  
+  
+      OUTPUT CLOSE.
 
-    /* New Destination in 2015 */
-    PUT UNFORMATTED 
-        "option batch abort"   SKIP.
-    PUT UNFORMATTED 
-        "option confirm off"   SKIP.
-    IF sys-ctrl.char-fld EQ "PremierPkg" THEN 
-      cWinScpIniFile = "n:\rcode\po\winscp.ini".
-    IF sys-ctrl.char-fld EQ "Woodland" THEN  /* Woodland */
-    PUT UNFORMATTED "open WOODLNDM:WDFTP3@van-ftp.nubridges.net" SKIP.
-
-    ELSE
-    IF sys-ctrl.module EQ "T"          OR
-       sys-ctrl.char-fld EQ "Trilakes" THEN /* Trilakes */
-       PUT UNFORMATTED "open trilake:Triftp1@van-ftp.nubridges.net" SKIP.
-
-    ELSE
-    IF sys-ctrl.char-fld EQ "Michcor" THEN  /* Michcor */
-    PUT UNFORMATTED "open michor:Micftp9@van-ftp.nubridges.net" SKIP.
-
-    ELSE
-    IF sys-ctrl.char-fld EQ "PremierPkg" THEN  /* PremierPkg */
-      PUT UNFORMATTED "open PREMPKG:PREMFTP8@van-ftp.nubridges.net" SKIP.
-
-    ELSE
-    IF sys-ctrl.char-fld EQ "ST.Clair" THEN  /* ST.Clair */
-     PUT UNFORMATTED "open STCLAIRPKG:STCLPFTP8@van-ftp.nubridges.net" SKIP.
-
-    ELSE
-    IF sys-ctrl.char-fld EQ "NStock" THEN  /* NStock */
-       PUT UNFORMATTED "open NSTOCKBOX:NSTOCKFTP4@van-ftp.nubridges.net" SKIP.
-    PUT UNFORMATTED
-      "cd inbox"                 SKIP.       /* test or prod */
-    PUT UNFORMATTED
-        "put " ip-exp-file       SKIP .      /* file to transfer */
-    PUT UNFORMATTED    "close" SKIP .     
-    PUT UNFORMATTED "Exit" SKIP.   
-
-
-    OUTPUT CLOSE.
+    END. /* hard coded setups */
+    ELSE IF lConfigBased THEN DO:
+          FIND FIRST ttConfig 
+              WHERE ttConfig.exportFormat EQ ip-ftp-where
+                AND ttConfig.destName EQ sys-ctrl.char-fld
+              NO-LOCK NO-ERROR.
+            
+          IF AVAIL ttconfig THEN DO:     
+               OUTPUT CLOSE.
+               RUN config-based-script.
+          END.
+    END.
+        .
   END. /* GP  */
   ELSE
      IF ip-ftp-where EQ "Smurfit" THEN DO:
@@ -592,6 +607,7 @@ PROCEDURE load-config:
 
   EMPTY TEMP-TABLE ttConfig.
 
+  IF SEARCH("po/poexport.dat") NE ? THEN DO:
 
   INPUT FROM po/poexport.dat.
   REPEAT:
@@ -606,7 +622,7 @@ PROCEDURE load-config:
 
   END.
   INPUT CLOSE.
-
+  END.
 END PROCEDURE. /* load-config */
 
 PROCEDURE set-config-based:

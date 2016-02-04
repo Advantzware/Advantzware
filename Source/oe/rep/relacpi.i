@@ -23,11 +23,13 @@ def workfile w-bin
    field w-par like oe-ordl.part-dscr1
    field w-x   as   log
    FIELD w-i-no AS cha
-   FIELD w-po-no AS cha.
+   FIELD w-po-no AS cha 
+   FIELD w-count-pro AS INT .
 
 def buffer b-cust  for cust.
 def buffer b-ship  for shipto.
 def buffer b-w-bin for w-bin.
+def buffer bff-w-bin for w-bin.
 
 def var v-frt-pay-dscr as char format "x(11)" no-undo.
 def var v-bin as char no-undo.
@@ -634,7 +636,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              w-i-no = fg-bin.i-no
              w-po-no = w-oe-rell.po-no
              i        = i + 1.
-
+             
             assign
              w-pal = (if fg-bin.case-count   eq 0 then 1 else fg-bin.case-count)   *
                      (if fg-bin.cases-unit   eq 0 then 1 else fg-bin.cases-unit)   *
@@ -657,6 +659,13 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               v-qty = 0.
             end.
           end.
+           i = 0 .
+          for each w-bin  by w-qty[2] desc by w-qty[1] desc:  /* Strang problem in w-qty[2] sorting */
+              ASSIGN 
+                  w-par = "" 
+                  w-count-pro = i 
+                  i = i + 1 .
+          END.
           
           if i eq 0 then do:
             find first b-cust
@@ -680,49 +689,53 @@ if v-zone-p then v-zone-hdr = "Route No.:".
          
           do i = i to 6:
             create w-bin.
+            FOR EACH bff-w-bin NO-LOCK BY w-count-pro DESC  :
+                w-bin.w-count-pro = bff-w-bin.w-count-pro + 1 .
+                LEAVE.
+            END.
           end.
-
-          for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] desc:
+           
+          for each w-bin where w-par eq "" BY w-count-pro by w-qty[2] desc by w-qty[1] desc:
             w-par = if w-oe-rell.seq eq 0 then oe-ordl.part-no
                                           else itemfg.part-no.
             leave.
           end. 
         
-          for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] desc:
+          for each w-bin where w-par eq "" BY w-count-pro by w-qty[2] desc by w-qty[1] desc:
             w-par = /*if w-oe-rell.seq eq 0 then*/ oe-ordl.i-name
                                           /*else itemfg.i-name*/.
             leave.
           end.
         
-          for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] DESC:
+          for each w-bin where w-par eq "" BY w-count-pro by w-qty[2] desc by w-qty[1] DESC:
             w-par = /*if w-oe-rell.seq eq 0 AND*/ IF oe-ordl.part-dscr1 NE "" then oe-ordl.part-dscr1
                                           else itemfg.part-dscr1.
             leave.
           end.
             
-          for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] DESC:
+          for each w-bin where w-par eq "" BY w-count-pro by w-qty[2] desc by w-qty[1] DESC:
             w-par = /*if w-oe-rell.seq eq 0 AND */ IF oe-ordl.part-dscr2 NE "" then oe-ordl.part-dscr2
                                           else itemfg.part-dscr2.
             LEAVE.
           end.
           
-          for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] DESC:
+          for each w-bin where w-par eq "" BY w-count-pro by w-qty[2] desc by w-qty[1] DESC:
             w-par = /*if w-oe-rell.seq eq 0 AND*/ IF oe-ordl.part-dscr3 NE "" then oe-ordl.part-dscr3
                                           else itemfg.part-dscr3.
             leave.
           end.
           
-          for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] desc:
+          for each w-bin where w-par eq "" BY w-count-pro by w-qty[2] desc by w-qty[1] desc:
             w-par = w-oe-rell.i-no.
             leave.
           end.
          
-          for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] desc:
+          for each w-bin where w-par eq "" BY w-count-pro by w-qty[2] desc by w-qty[1] desc:
             if w-oe-rell.po-no ne "" then w-par = "PO#: " + w-oe-rell.po-no.
             leave.
           end.
 
-          for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] desc:
+          for each w-bin where w-par eq ""  BY w-count-pro by w-qty[2] desc by w-qty[1] desc:
             
               FIND FIRST ref-lot-no WHERE
                    ref-lot-no.reftable EQ "oe-rell.lot-no" AND

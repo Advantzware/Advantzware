@@ -59,8 +59,8 @@ DEF VAR v-ldpalwt LIKE loadtag.misc-dec[2] NO-UNDO.
 DEFINE QUERY external_tables FOR loadtag, rfidtag.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS loadtag.sts loadtag.i-no loadtag.i-name ~
-loadtag.ord-no loadtag.po-no loadtag.tag-date loadtag.shift loadtag.loc ~
-loadtag.loc-bin loadtag.job-no loadtag.job-no2 loadtag.qty-case ~
+loadtag.ord-no loadtag.po-no loadtag.loc loadtag.loc-bin loadtag.tag-date ~
+loadtag.shift loadtag.job-no loadtag.job-no2 loadtag.qty-case ~
 loadtag.case-bundle loadtag.pallet-count loadtag.misc-dec[1] ~
 loadtag.misc-char[2] loadtag.partial loadtag.misc-dec[2] ~
 loadtag.misc-char[1] loadtag.tot-cases loadtag.misc-dec[3] loadtag.crew ~
@@ -70,11 +70,12 @@ loadtag.completed
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-FIELDS loadtag.tag-no loadtag.sts loadtag.i-no ~
 loadtag.i-name rfidtag.rfidtag loadtag.ord-no loadtag.po-no ~
-loadtag.tag-date loadtag.shift loadtag.loc loadtag.loc-bin loadtag.job-no ~
-loadtag.job-no2 loadtag.qty-case loadtag.case-bundle loadtag.pallet-count ~
-loadtag.misc-dec[1] loadtag.misc-char[2] loadtag.partial ~
-loadtag.misc-dec[2] loadtag.misc-char[1] loadtag.tot-cases ~
-loadtag.misc-dec[3] loadtag.crew loadtag.completed 
+loadtag.spare-char-1 loadtag.loc loadtag.loc-bin loadtag.tag-date ~
+loadtag.shift loadtag.job-no loadtag.job-no2 loadtag.qty-case ~
+loadtag.case-bundle loadtag.pallet-count loadtag.misc-dec[1] ~
+loadtag.misc-char[2] loadtag.partial loadtag.misc-dec[2] ~
+loadtag.misc-char[1] loadtag.tot-cases loadtag.misc-dec[3] loadtag.crew ~
+loadtag.completed 
 &Scoped-define DISPLAYED-TABLES loadtag rfidtag
 &Scoped-define FIRST-DISPLAYED-TABLE loadtag
 &Scoped-define SECOND-DISPLAYED-TABLE rfidtag
@@ -154,55 +155,60 @@ DEFINE RECTANGLE RECT-5
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     loadtag.tag-no AT ROW 1.48 COL 18 COLON-ALIGNED FORMAT "X(23)"
+     loadtag.tag-no AT ROW 1.24 COL 16 COLON-ALIGNED FORMAT "X(23)"
           VIEW-AS FILL-IN 
           SIZE 43 BY 1
-     loadtag.sts AT ROW 1.48 COL 99 COLON-ALIGNED
+     loadtag.sts AT ROW 1.24 COL 93 COLON-ALIGNED
           LABEL "Status"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEMS "","Printed","Received","On Hand","Bill of Lading","Invoiced","Completed","Deleted","Issued","Transferred" 
           DROP-DOWN
           SIZE 23 BY 1
-     loadtag.i-no AT ROW 2.43 COL 18 COLON-ALIGNED
+     loadtag.i-no AT ROW 2.43 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-     loadtag.i-name AT ROW 2.43 COL 44 COLON-ALIGNED NO-LABEL
+     loadtag.i-name AT ROW 2.43 COL 42 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     rfidtag.rfidtag AT ROW 2.67 COL 97 COLON-ALIGNED WIDGET-ID 14
+     rfidtag.rfidtag AT ROW 2.43 COL 93 COLON-ALIGNED WIDGET-ID 14
           LABEL "RFID Tag" FORMAT "x(24)"
           VIEW-AS FILL-IN 
           SIZE 46 BY 1
-     loadtag.ord-no AT ROW 3.62 COL 18 COLON-ALIGNED
+     loadtag.ord-no AT ROW 3.62 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     loadtag.po-no AT ROW 3.62 COL 45 COLON-ALIGNED
+     loadtag.po-no AT ROW 3.62 COL 42 COLON-ALIGNED
           LABEL "PO #"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     loadtag.tag-date AT ROW 3.86 COL 88 COLON-ALIGNED
-          LABEL "Tag Date"
+     loadtag.spare-char-1 AT ROW 3.62 COL 93 COLON-ALIGNED HELP
+          "" WIDGET-ID 16
+          LABEL "SSCC" FORMAT "x(20)"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     loadtag.shift AT ROW 3.86 COL 117 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 5 BY 1
-     loadtag.loc AT ROW 4.81 COL 18 COLON-ALIGNED
+          SIZE 46 BY 1
+     loadtag.loc AT ROW 4.81 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     loadtag.loc-bin AT ROW 4.81 COL 45 COLON-ALIGNED
+     loadtag.loc-bin AT ROW 4.81 COL 42 COLON-ALIGNED
           LABEL "Bin"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     v-tagtime AT ROW 4.81 COL 88 COLON-ALIGNED
-     loadtag.job-no AT ROW 6 COL 18 COLON-ALIGNED
+     loadtag.tag-date AT ROW 4.81 COL 93 COLON-ALIGNED
+          LABEL "Tag Date"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     loadtag.shift AT ROW 4.81 COL 129 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 5 BY 1
+     loadtag.job-no AT ROW 6 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     loadtag.job-no2 AT ROW 6 COL 31 COLON-ALIGNED NO-LABEL
+     loadtag.job-no2 AT ROW 6 COL 29 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     loadtag.qty AT ROW 6 COL 119 COLON-ALIGNED
-          LABEL "Qty(Pallet Count)"
+     v-tagtime AT ROW 6 COL 93 COLON-ALIGNED
+     loadtag.qty AT ROW 6 COL 129 COLON-ALIGNED
+          LABEL "Qty(Pallet Cnt)"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      loadtag.qty-case AT ROW 8.14 COL 28 COLON-ALIGNED
@@ -241,11 +247,6 @@ DEFINE FRAME F-Main
           LABEL "Loaded Pallet Wt" FORMAT "->>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     loadtag.misc-char[1] AT ROW 13.48 COL 97.2 COLON-ALIGNED HELP
-          "" WIDGET-ID 10
-          LABEL "Vendor Tag#" FORMAT "x(25)"
-          VIEW-AS FILL-IN 
-          SIZE 27.8 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -253,6 +254,11 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     loadtag.misc-char[1] AT ROW 13.48 COL 97.2 COLON-ALIGNED HELP
+          "" WIDGET-ID 10
+          LABEL "Vendor Tag#" FORMAT "x(25)"
+          VIEW-AS FILL-IN 
+          SIZE 27.8 BY 1
      loadtag.tot-cases AT ROW 14.57 COL 28 COLON-ALIGNED
           LABEL "Total Units O/H"
           VIEW-AS FILL-IN 
@@ -370,6 +376,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN rfidtag.rfidtag IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
+/* SETTINGS FOR FILL-IN loadtag.spare-char-1 IN FRAME F-Main
+   NO-ENABLE EXP-LABEL EXP-FORMAT EXP-HELP                              */
 /* SETTINGS FOR FILL-IN loadtag.std-cost IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 

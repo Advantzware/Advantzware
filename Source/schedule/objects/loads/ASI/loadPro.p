@@ -1,4 +1,4 @@
-/* loadPro.p - ASI */
+/* loadPro.p - ASI as of 2.3.2016 @ 6:40pm */
 
 &SCOPED-DEFINE sbDB nosweat
 &SCOPED-DEFINE ID ASI/ALL
@@ -6,7 +6,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 84
+&SCOPED-DEFINE nextUserField 85
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -38,11 +38,10 @@ DEFINE VARIABLE ufEF AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufEst AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufGetSalesRep AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufIPJobMaterial AS LOGICAL NO-UNDO INIT YES.
+DEFINE VARIABLE ufIPJobMatField AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufIPJobSet AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufItemFG AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufJobMch AS LOGICAL NO-UNDO INIT YES.
-DEFINE VARIABLE ufJobMaterial AS LOGICAL NO-UNDO INIT YES.
-DEFINE VARIABLE ufJobMatField AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufOEOrdl AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufOERel AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufPOOrdl AS LOGICAL NO-UNDO INIT YES.
@@ -53,10 +52,7 @@ DEFINE VARIABLE useNotes AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE useSalesRep AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE useStatus AS LOGICAL NO-UNDO INIT YES.
 
-DEFINE BUFFER bJobHdr FOR job-hdr.
 DEFINE BUFFER bJobMch FOR job-mch.
-DEFINE BUFFER beb1 FOR eb.
-DEFINE BUFFER beb2 FOR eb.
 
 DEFINE TEMP-TABLE rptLayout NO-UNDO
   FIELD rptID AS CHARACTER
@@ -84,85 +80,68 @@ FUNCTION getItemName RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARAC
   DEFINE VARIABLE itemName AS CHARACTER NO-UNDO.
 
   DEFINE BUFFER bItemFG FOR itemfg.
-  DEFINE BUFFER bFGSet FOR fg-set.
 
-  itemName = job-mch.i-name.
-  IF itemName EQ '' THEN DO:
-    FIND bJobHdr NO-LOCK
-         WHERE bJobHdr.company EQ ipCompany
-           AND bJobHdr.job EQ ipJob
-           AND bJobHdr.job-no EQ ipJobNo
-           AND bJobHdr.job-no2 EQ ipJobNo2
-           AND bJobHdr.frm EQ ipForm
-           AND (bJobHdr.blank-no EQ ipBlank OR ipBlank EQ 0)
-         NO-ERROR.
-    IF AVAILABLE bJobHdr THEN
-    FIND FIRST bItemFG NO-LOCK
-         WHERE bItemFG.company EQ bJobHdr.company
-           AND bItemFG.i-no EQ bJobHdr.i-no NO-ERROR.
-    IF AVAILABLE bItemFG THEN DO:
+  IF traceON THEN
+  PUT UNFORMATTED 'Function getItemName @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
+
+  IF AVAILABLE itemfg THEN DO:
+    FOR FIRST fg-set NO-LOCK
+        WHERE fg-set.company EQ itemfg.company
+          AND fg-set.set-no EQ itemfg.i-no,
+        FIRST bItemFG NO-LOCK
+        WHERE bItemFG.company EQ fg-set.company
+          AND bItemFG.i-no EQ fg-set.part-no
+          AND bItemFG.i-name GT ''.
       itemName = bItemFG.i-name.
-      IF itemName EQ '' THEN DO:
-        FOR FIRST bFGSet NO-LOCK
-            WHERE bFGSet.company EQ bItemFG.company
-              AND bFGSet.set-no EQ bItemFG.i-no,
-            FIRST bItemFG NO-LOCK
-            WHERE bItemFG.i-no EQ bFGSet.part-no
-              AND bItemFG.i-name GT ''.
+    END. /* for first */
+  
+    IF itemName EQ '' THEN DO:
+      FOR EACH fg-set NO-LOCK
+          WHERE fg-set.company EQ itemfg.company
+            AND fg-set.set-no EQ itemfg.i-no:
+        FIND FIRST bItemFG NO-LOCK
+             WHERE bItemFG.company EQ fg-set.company
+               AND bItemFG.i-no EQ fg-set.part-no NO-ERROR.
+        IF AVAILABLE bItemFG AND bItemFG.i-name NE '' THEN DO:
           itemName = bItemFG.i-name.
-        END. /* for first */
-      END. /* itemname blank */
-    END. /* avail bitemfg */
-  END. /* itemname blank */
-  IF itemName EQ '' AND
-     AVAILABLE(job-mch) AND
-     job-mch.i-no NE '' THEN DO:
-    FIND FIRST bItemFG NO-LOCK
-         WHERE bItemFG.company EQ job-mch.company
-           AND bItemFG.i-no EQ job-mch.i-no NO-ERROR.
-    IF AVAILABLE bItemFG THEN DO:
-      itemName = bItemFG.i-name.
-      IF itemName EQ '' THEN DO:
-        FOR EACH bFGSet NO-LOCK
-            WHERE bFGSet.company EQ bItemFG.company
-              AND bFGSet.set-no EQ bItemFG.i-no:
-          FIND FIRST bItemFG NO-LOCK
-               WHERE bItemFG.i-no EQ bFGSet.part-no NO-ERROR.
-          IF AVAILABLE bItemFG AND bItemFG.i-name NE '' THEN DO:
-            itemName = bItemFG.i-name.
-            LEAVE.
-          END. /* avail bitemfg */
-        END. /* for first */
-      END. /* itemname blank */
-    END. /* avail bitemfg */
-  END. /* itemname blank and avail job-mch */
+          LEAVE.
+        END. /* avail bitemfg */
+      END. /* each fg-set */
+    END. /* itemname blank */
+  END. /* avail itemfg */
+
   RETURN itemName.
 END FUNCTION.
-
+/*
 FUNCTION getItemNo RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARACTER,
-                                      ipJobNo2 AS INTEGER,ipForm AS INTEGER):
+                                      ipJobNo2 AS INTEGER,ipForm AS INTEGER,
+                                      ipItemNo AS CHARACTER):
   DEFINE VARIABLE itemNo AS CHARACTER NO-UNDO.
 
   FOR EACH bJobMch NO-LOCK
      WHERE bJobMch.company EQ ipCompany
        AND bJobMch.job-no EQ ipJobNo
        AND bJobMch.job-no2 EQ ipJobNo2
-       AND bJobMch.frm EQ ipForm:
+       AND bJobMch.frm EQ ipForm
+       AND bJobMch.i-no GT '':
     IF bJobMch.i-no NE '' AND bJobMch.i-no NE itemNo THEN
     itemNo = IF itemNo EQ '' THEN bJobMch.i-no
         ELSE IF itemNo NE bJobMch.i-no THEN '<Multi Item>'
         ELSE ''.
     IF itemNo EQ '<Multi Item>' THEN LEAVE.
   END. /* each bjobmch */
-  IF itemNo EQ '' THEN itemNo = '<Multi Item>'.
+  IF itemNo EQ '' THEN itemNo = ipItemNo.
   RETURN itemNo.
 END FUNCTION.
-
+*/
 FUNCTION getSetPOQtyRec RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARACTER,
                                            ipJobNo2 AS INTEGER,ipForm AS INTEGER,
                                            ipINo AS CHARACTER):
   DEFINE VARIABLE qty AS DECIMAL NO-UNDO.
   DEFINE VARIABLE rtnQty AS DECIMAL NO-UNDO.
+
+  IF traceON THEN
+  PUT UNFORMATTED 'Function getSetPOQtyRec @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
 
   FOR EACH rm-rcpth NO-LOCK
       WHERE rm-rcpth.company EQ ipCompany
@@ -193,17 +172,16 @@ END FUNCTION.
 
 FUNCTION prodQty RETURNS CHARACTER (ipCompany AS CHARACTER,ipResource AS CHARACTER,
                                     ipJobNo AS CHARACTER,ipJobNo2 AS INTEGER,
-                                    ipFrm AS INTEGER,ipBlankNo AS INTEGER):
-  DEFINE VARIABLE prodQtyProgram AS CHARACTER NO-UNDO.
+                                    ipFrm AS INTEGER,ipBlankNo AS INTEGER,
+                                    ipProdQtyProgram AS CHARACTER):
   DEFINE VARIABLE prodQty AS INTEGER NO-UNDO.
 
   IF NOT ufProdQty THEN RETURN ''.
 
-  IF CONNECTED('emptrack') THEN DO:
-    prodQtyProgram = SEARCH(findProgram('{&loads}/',ID,'/prodQty.p')).
-    IF prodQtyProgram NE ? THEN
-    RUN VALUE(prodQtyProgram) (ipCompany,ipResource,ipJobNo,ipJobNo2,ipFrm,ipBlankNo,OUTPUT prodQty).
-  END. /* emptrack connected */
+  IF traceON THEN
+  PUT UNFORMATTED 'Function prodQty @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
+
+  RUN VALUE(ipProdQtyProgram) (ipCompany,ipResource,ipJobNo,ipJobNo2,ipFrm,ipBlankNo,OUTPUT prodQty).
   RETURN LEFT-TRIM(STRING(prodQty,'zzz,zzz,zz9')).
 END FUNCTION.
 
@@ -289,8 +267,10 @@ DEFINE VARIABLE lvCode2 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvNoteKey AS CHARACTER NO-UNDO.
 DEFINE VARIABLE noDate AS LOGICAL NO-UNDO.
 DEFINE VARIABLE prodDate AS DATE NO-UNDO.
+DEFINE VARIABLE prodQtyProgram AS CHARACTER NO-UNDO.
 DEFINE VARIABLE resourceDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE resSeq AS INTEGER NO-UNDO.
+DEFINE VARIABLE runMSF AS DECIMAL NO-UNDO.
 DEFINE VARIABLE salesRep AS CHARACTER NO-UNDO.
 DEFINE VARIABLE salesRepFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE scheduleResource AS CHARACTER NO-UNDO.
@@ -316,14 +296,14 @@ DEFINE TEMP-TABLE tResource NO-UNDO
 
 DISABLE TRIGGERS FOR LOAD OF reftable.
 
-FUNCTION boardName RETURNS CHARACTER (ipBoard AS CHARACTER):
+FUNCTION boardName RETURNS CHARACTER (ipMatType1 AS CHARACTER):
   IF traceON THEN
   PUT UNFORMATTED 'Function boardName @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
 
   IF NOT ufBoardName THEN RETURN ''.
   
   FIND FIRST item NO-LOCK WHERE item.company EQ asiCompany
-                            AND item.i-no EQ ipBoard NO-ERROR.
+                            AND item.i-no EQ ipMatType1 NO-ERROR.
   RETURN IF AVAILABLE item THEN item.i-name ELSE ''.
 END FUNCTION.
 
@@ -348,6 +328,9 @@ FUNCTION getLiveUpdate RETURNS LOGICAL
 
   DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.
 
+  IF traceON THEN
+  PUT UNFORMATTED 'Function getLiveUpdate @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
+  
   lvCode = ipJobNo + ',' + STRING(ipJobNo2) + ',' + STRING(ipForm) + ',' + ipMCode.
   FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ 'sbLiveUpdate'
                                 AND reftable.company EQ ipCompany
@@ -398,58 +381,6 @@ FUNCTION jobBoard RETURN LOGICAL (ipCompany AS CHARACTER, ipJob AS INTEGER,
     RETURN YES.
   END. /* each job-mat */
   RETURN NO.
-END FUNCTION.
-
-FUNCTION jobMaterial RETURN CHARACTER (ipCompany AS CHARACTER, ipJob AS INTEGER,
-                                       ipJobNo AS CHARACTER, ipJobNo2 AS INTEGER,
-                                       ipForm AS INTEGER,ipMatType AS CHARACTER):
-  DEFINE VARIABLE rtnValue AS CHARACTER NO-UNDO.
-
-  IF NOT ufJobMaterial THEN RETURN ''.
-
-  IF traceON THEN
-  PUT UNFORMATTED 'Function jobMaterial (' AT 15 ipMatType ') @ ' STRING(TIME,'hh:mm:ss') ' ' ETIME.
-  
-  FOR EACH job-mat NO-LOCK WHERE job-mat.company eq ipCompany
-                             AND job-mat.job EQ ipJob
-                             AND job-mat.job-no EQ ipJobNo
-                             AND job-mat.job-no2 EQ ipJobNo2
-                             AND job-mat.frm EQ ipForm,
-        FIRST item OF job-mat NO-LOCK WHERE item.mat-type EQ ipMatType:
-    IF CAN-DO(rtnValue,job-mat.i-no) THEN NEXT.
-    rtnValue = rtnValue + comma(rtnValue) + job-mat.i-no.
-  END. /* each job-mat */
-  IF traceON THEN
-  PUT UNFORMATTED ' (' rtnValue ') ' ETIME SKIP.
-  RETURN rtnValue.
-END FUNCTION.
-
-FUNCTION jobMatField RETURN CHARACTER (ipCompany AS CHARACTER, ipJNo AS INTEGER, ipINo AS CHARACTER,
-                                       ipForm AS INTEGER, ipBlank AS INTEGER,
-                                       ipMatField AS CHARACTER, ipFormat AS CHARACTER):
-  DEFINE VARIABLE rtnValue AS CHARACTER NO-UNDO.
-
-  IF NOT ufJobMatField THEN RETURN ''.
-
-  IF traceON THEN
-  PUT UNFORMATTED 'Function jobMatField @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
-  
-  FIND FIRST job-mat NO-LOCK WHERE job-mat.company eq ipCompany
-                               AND job-mat.j-no EQ ipJNo
-                               AND job-mat.i-no EQ ipINo
-                               AND job-mat.frm EQ ipForm
-                               AND job-mat.blank-no EQ ipBlank
-                               AND job-mat.qty GT 0 NO-ERROR.
-  IF AVAILABLE job-mat THEN
-  CASE ipMatField:
-    WHEN 'totalMRP' THEN
-    rtnValue = STRING(job-mat.qty,ipFormat).
-    WHEN 'matLength' THEN
-    rtnValue = STRING(job-mat.len,ipFormat).
-    WHEN '#Up' THEN
-    rtnValue = STRING(job-mat.n-up,ipFormat).
-  END CASE.
-  RETURN rtnValue.
 END FUNCTION.
 
 FUNCTION k16 RETURN CHARACTER (ipArrayValue AS DECIMAL,
@@ -568,28 +499,47 @@ END. /* avail sys-ctrl */
 ASSIGN
   beginEstType = IF CAN-DO('ASI/ALL*,ASI/Folding*,{&HOP}',ID) THEN 0 ELSE 5
   endEstType = IF CAN-DO('ASI/ALL*,ASI/Corrugated*,{&Fleetwood}',ID) THEN 99 ELSE 4.
+
+IF CONNECTED('emptrack') THEN
+prodQtyProgram = SEARCH(findProgram('{&loads}/',ID,'/prodQty.r')).
   
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company EQ asiCompany
       AND job-hdr.opened EQ YES
-    BREAK BY job-hdr.job-no
+      &IF DEFINED(jobNo) NE 0 &THEN
+      AND job-hdr.job-no GE '{&jobNo}'
+      &ENDIF
+   ,EACH job OF job-hdr NO-LOCK
+   ,FIRST est OF job NO-LOCK
+    WHERE est.est-type GE beginEstType
+      AND est.est-type LE endEstType
+    BREAK BY est.est-type
+          BY job-hdr.job-no
           BY job-hdr.job-no2
-          BY job-hdr.frm:
+          BY job-hdr.frm
+          BY job-hdr.blank-no:
 
-  IF FIRST-OF(job-hdr.job-no2) THEN
-  FOR EACH job OF job-hdr NO-LOCK {&jobNo} {&joinTable},
-      FIRST est OF job NO-LOCK WHERE est.est-type GE beginEstType
-                                 AND est.est-type LE endEstType,
-      EACH job-mch NO-LOCK WHERE job-mch.company EQ job.company
-                             AND job-mch.job EQ job.job
-                             AND job-mch.job-no EQ job.job-no
-                             AND job-mch.job-no2 EQ job.job-no2
-                             {&startDatePhrase}
-                             AND job-mch.run-complete EQ NO,
-      FIRST mach NO-LOCK WHERE mach.company EQ job.company
-                           AND mach.loc EQ job.loc
-                           AND mach.m-code EQ job-mch.m-code
-      BREAK BY job.job BY job-mch.frm BY job-mch.blank-no BY job-mch.line:
+  FOR EACH job-mch NO-LOCK
+      WHERE job-mch.company EQ job.company
+        AND job-mch.job EQ job.job
+        AND job-mch.job-no EQ job.job-no
+        AND job-mch.job-no2 EQ job.job-no2
+        AND job-mch.run-complete EQ NO
+     ,FIRST mach NO-LOCK
+      WHERE mach.company EQ job.company
+        AND mach.loc EQ job.loc
+        AND mach.m-code EQ job-mch.m-code
+      BREAK BY job-mch.job
+            BY job-mch.frm
+            BY job-mch.blank-no
+            BY job-mch.line:
+
+    IF est.est-type EQ 3 OR est.est-type EQ 4 OR
+       est.est-type EQ 7 OR est.est-type EQ 8 THEN DO:
+      IF job-mch.frm NE job-hdr.frm THEN NEXT.
+      IF job-hdr.blank-no LE 1 AND job-mch.blank-no GT 1 THEN NEXT.
+      IF job-hdr.blank-no GT 1 AND job-hdr.blank-no NE job-mch.blank-no THEN NEXT.
+    END. /* tandem or combo */
     
     IF traceON THEN DO:
       debugCount = debugCount + 1.
@@ -600,14 +550,12 @@ FOR EACH job-hdr NO-LOCK
         job-mch.job-no2 '.'
         job-mch.frm ' -- '
         job-mch.line ' : '
-        STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
+        STRING(TIME,'hh:mm:ss') ' ' ETIME
+        SKIP
+        .
     END.
     
     IF FIRST-OF(job-mch.frm) OR NOT cascadeJob THEN resSeq = 0.
-    
-    IF FIRST-OF(job-mch.frm) THEN
-    itemDescription = IF job-mch.i-no NE '' THEN job-mch.i-no
-                      ELSE getItemNo(job-mch.company,job-mch.job-no,job-mch.job-no2,job-mch.frm).
     
     scheduleResource = IF mach.sch-m-code NE '' THEN mach.sch-m-code ELSE mach.m-code.
     {{&loads}/resourceUse.i scheduleResource}
@@ -626,10 +574,12 @@ FOR EACH job-hdr NO-LOCK
       customVal = ''
       dimFormat = '>>9.99999'
       dueDate = IF job.due-date NE ? THEN job.due-date ELSE {{&includes}/lastDate.i}
-      jobSort = job-mch.job-no + '-' + STRING(job-mch.job-no2,'99') +
-                '.' + STRING(job-mch.frm,'99')
-      jobNumber = LEFT-TRIM(job-mch.job-no + '-' + STRING(job-mch.job-no2) +
-                  '.' + STRING(job-mch.frm))
+      jobSort = job-mch.job-no + '-'
+              + STRING(job-mch.job-no2,'99')
+              + '.' + STRING(job-mch.frm,'99')
+      jobNumber = LEFT-TRIM(job-mch.job-no + '-'
+                + STRING(job-mch.job-no2)
+                + '.' + STRING(job-mch.frm))
       jobStatus = useSalesRep
       resSeq = resSeq + 1
       resourceDescription = mach.m-dscr
@@ -637,12 +587,15 @@ FOR EACH job-hdr NO-LOCK
       startDate = job-mch.start-date-su
       startTime = fixTime(job-mch.start-time-su)
       strRowID = STRING(ROWID(job)) + ',' + STRING(ROWID(job-mch))
-      keyValues = job-mch.company + ',' + job-mch.m-code + ',' +
-                  STRING(job-mch.job) + ',' + job-mch.job-no + ',' +
-                  STRING(job-mch.job-no2)
+      keyValues = job-mch.company + ','
+                + job-mch.m-code + ','
+                + STRING(job-mch.job) + ','
+                + job-mch.job-no + ','
+                + STRING(job-mch.job-no2)
       timeSpan = calcJobTime(job-mch.mr-hr,job-mch.run-hr)
       unitFound = NO
-      userField = ''.
+      userField = ''
+      .
   
     /* surely, jobs shouldn't be this old, if any, move to pending */
     IF startDate LT TODAY - 365 THEN startDate = ?.
@@ -658,10 +611,16 @@ FOR EACH job-hdr NO-LOCK
     IF NoDate(job-mch.company) AND (job-mch.end-date-su EQ ? OR job-mch.end-date EQ ?) THEN
     ASSIGN
       startDate = ?
-      startTime = timeSpan.
+      startTime = timeSpan
+      .
     ELSE IF startDate NE ? THEN
-    RUN calcEnd (startDate,startTime,job-mch.mr-hr,job-mch.run-hr,
-                 OUTPUT endDate,OUTPUT endTime).
+    RUN calcEnd (startDate
+                ,startTime
+                ,job-mch.mr-hr
+                ,job-mch.run-hr
+                ,OUTPUT endDate
+                ,OUTPUT endTime
+                 ).
     ELSE /* used for pending job, need to store total job time */
     startTime = timeSpan.
 
@@ -685,9 +644,12 @@ FOR EACH job-hdr NO-LOCK
             userField[37] = setUserField(37,STRING(oe-rel.qty,'->>,>>>,>>9'))
             userField[38] = setUserField(38,STRING(oe-rel.rel-date,'99.99.9999'))
             userField[39] = setUserField(39,oe-rel.ship-addr[1])
-            userField[40] = setUserField(40,oe-rel.ship-city + ', ' + oe-rel.ship-state + ' ' + oe-rel.ship-zip)
+            userField[40] = setUserField(40,oe-rel.ship-city + ', '
+                          + oe-rel.ship-state + ' '
+                          + oe-rel.ship-zip)
             userField[52] = setUserField(52,STRING(oe-rel.qty))
-            userField[63] = setUserField(63,oe-ordl.po-no).
+            userField[63] = setUserField(63,oe-ordl.po-no)
+            .
         END. /* each oe-rel */
       END. /* ufoerel */
     END. /* avail oe-ordl */
@@ -714,7 +676,8 @@ FOR EACH job-hdr NO-LOCK
           dueDate = oe-ord.due-date
           prodDate = oe-ord.prod-date
           userField[36] = setUserField(36,getSalesRep(oe-ord.company,oe-ord.sman[1]))
-          salesRepFound = YES.
+          salesRepFound = YES
+          .
       END. /* avail oe-ord */
     END. /* not avail oe-ordl or reg-date eq ? */
     ELSE dueDate = oe-ordl.req-date.
@@ -726,7 +689,10 @@ FOR EACH job-hdr NO-LOCK
     PUT UNFORMATTED 'Available oe-ordl @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
     IF AVAILABLE oe-ordl THEN DO:
       IF ufOEOrdl THEN
-      userField[82] = setUserField(82,STRING(oe-ordl.prom-date,'99/99/9999')).
+      ASSIGN
+        userField[82] = setUserField(82,STRING(oe-ordl.prom-date,'99/99/9999'))
+        userField[84] = setUserField(84,STRING(oe-ordl.t-price))
+        .
       FIND FIRST oe-ord OF oe-ordl NO-LOCK NO-ERROR.
       IF AVAILABLE oe-ord THEN DO:
         IF useSalesRep THEN DO:
@@ -736,7 +702,8 @@ FOR EACH job-hdr NO-LOCK
         ASSIGN
           prodDate = oe-ord.prod-date
           userField[36] = setUserField(36,getSalesRep(oe-ord.company,oe-ord.sman[1]))
-          salesRepFound = YES.
+          salesRepFound = YES
+          .
       END. /* avail oe-ord */
       IF ufPOOrdl THEN DO:
         FIND FIRST po-ord NO-LOCK WHERE po-ord.company EQ job-mch.company
@@ -831,11 +798,15 @@ FOR EACH job-hdr NO-LOCK
                            AND style.style EQ eb.style NO-ERROR.
       IF AVAILABLE style THEN DO:
         IF style.industry EQ '2' AND est.est-type LT 5 THEN dimFormat = '->>9.99'.
-        RUN ipJobSet (job.company,job.est-no,style.dim-df,kFrac,decimalFormat,
-                      OUTPUT userField[65],
-                      OUTPUT userField[66],
-                      OUTPUT userField[67],
-                      OUTPUT userField[68]).
+        RUN ipJobSet (job.company
+                     ,job.est-no
+                     ,style.dim-df
+                     ,kFrac,decimalFormat
+                     ,OUTPUT userField[65]
+                     ,OUTPUT userField[66]
+                     ,OUTPUT userField[67]
+                     ,OUTPUT userField[68]
+                      ).
       END. /* avail stype */
       
       FIND FIRST reftable NO-LOCK
@@ -852,9 +823,24 @@ FOR EACH job-hdr NO-LOCK
       END. /* do i */
     END. /* avail eb */
     
-    IF ufCust THEN
-    RUN getCustomer (job-mch.company,job-mch.job-no,job-mch.job-no2,job-mch.frm,
-                     OUTPUT custNo,OUTPUT custName,OUTPUT salesRep).
+    IF ufCust THEN DO:
+      ASSIGN
+        custNo = ''
+        custName = ''
+        salesRep = ''
+        .
+      FIND FIRST cust NO-LOCK
+           WHERE cust.company EQ job-hdr.company
+             AND cust.cust-no EQ job-hdr.cust-no
+           NO-ERROR.
+      IF AVAILABLE cust THEN
+      ASSIGN
+        custNo = cust.cust-no
+        custName = cust.name
+        salesRep = cust.sman
+        .
+    END. /* if ufcust */
+    
     IF NOT salesRepFound THEN DO:
       IF useSalesRep THEN DO:
         i = LOOKUP(salesRep,customValueList) - 1.
@@ -864,28 +850,12 @@ FOR EACH job-hdr NO-LOCK
     END. /* not salesrepfound */
 
     IF ufItemFG THEN DO:
-      RELEASE bJobHdr.
       RELEASE itemfg.
-      IF job-mch.blank-no NE 0 THEN
-      FIND FIRST bJobHdr NO-LOCK
-           WHERE bJobHdr.company EQ job-mch.company
-             AND bJobHdr.job-no EQ job-mch.job-no
-             AND bJobHdr.job-no2 EQ job-mch.job-no2
-             AND bJobHdr.frm EQ job-mch.frm
-             AND bJobHdr.blank-no EQ job-mch.blank-no
-           NO-ERROR.
-      IF NOT AVAILABLE bJobHdr THEN
-      FIND FIRST bJobHdr NO-LOCK
-           WHERE bJobHdr.company EQ job-mch.company
-             AND bJobHdr.job-no EQ job-mch.job-no
-             AND bJobHdr.job-no2 EQ job-mch.job-no2
-             AND bJobHdr.frm EQ job-mch.frm
-           NO-ERROR.
-      IF AVAILABLE bJobHdr THEN
+      IF job-mch.i-no NE '' THEN
       FIND FIRST itemfg NO-LOCK
-           WHERE itemfg.company EQ bJobHdr.company
-             AND itemfg.i-no EQ bJobHdr.i-no NO-ERROR.
-      IF NOT AVAILABLE itemfg THEN
+           WHERE itemfg.company EQ job-mch.company
+             AND itemfg.i-no EQ job-mch.i-no NO-ERROR.
+      ELSE
       FIND FIRST itemfg NO-LOCK
            WHERE itemfg.company EQ job-hdr.company
              AND itemfg.i-no EQ job-hdr.i-no NO-ERROR.
@@ -893,6 +863,20 @@ FOR EACH job-hdr NO-LOCK
 
     IF traceON THEN
     PUT UNFORMATTED 'Assign Fields @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
+    
+    IF FIRST-OF(job-mch.frm) THEN
+    itemDescription = IF job-mch.i-no NE '' THEN job-mch.i-no
+                 ELSE IF CAN-FIND(FIRST bJobMch
+                                  WHERE bJobMch.company EQ job-mch.company
+                                    AND bJobMch.job EQ job-mch.job
+                                    AND bJobMch.job-no EQ job-mch.job-no
+                                    AND bJobMch.job-no2 EQ job-mch.job-no2
+                                    AND bJobMch.frm EQ job-mch.frm
+                                    AND bJobMch.i-no NE job-hdr.i-no
+                                    AND bJobMch.i-no NE '') THEN '<Multi Item>'
+                 ELSE job-hdr.i-no.
+              /* ELSE getItemNo(job-mch.company,job-mch.job-no,job-mch.job-no2,job-mch.frm,job-hdr.i-no). */
+
     ASSIGN
       customVal = SUBSTR(customValueList,2)
       statusTimeStamp = ''
@@ -908,7 +892,7 @@ FOR EACH job-hdr NO-LOCK
                                     ELSE IF job-mch.i-no NE '' THEN job-mch.i-no
                                     ELSE itemDescription)
       userField[9] = setUserField(9,IF job-mch.i-name NE '' THEN job-mch.i-name
-                               ELSE IF AVAILABLE itemfg AND job-mch.i-no NE '' THEN itemfg.i-name
+                               ELSE IF AVAILABLE itemfg AND itemfg.i-name NE '' THEN itemfg.i-name
                                ELSE IF userField[8] EQ '<Multi Item>' THEN '<Multiple Items>'
                                ELSE getItemName(job-mch.company,job-mch.job-no,job-mch.job,
                                                 job-mch.job-no2,job-mch.frm,job-mch.blank-no))
@@ -928,11 +912,6 @@ FOR EACH job-hdr NO-LOCK
       userField[24] = setUserField(24,IF AVAILABLE eb THEN eb.adhesive ELSE '')
       userField[25] = setUserField(25,IF AVAILABLE eb THEN STRING(eb.i-coat,'z9') ELSE '')
       userField[28] = setUserField(28,IF AVAILABLE eb THEN eb.i-coldscr ELSE '')
-      userField[29] = setUserField(29,jobMatField(job-mch.company,job-mch.j-no,job-mch.i-no,job-mch.frm,job-mch.blank-no,'totalMrp','>>,>>>,>>9.99<'))
-      userField[30] = setUserField(30,jobMatField(job-mch.company,job-mch.j-no,job-mch.i-no,job-mch.frm,job-mch.blank-no,'matLength','>>9.99<<'))
-      userField[31] = setUserField(31,jobMatField(job-mch.company,job-mch.j-no,job-mch.i-no,job-mch.frm,job-mch.blank-no,'#Up','>>>9'))
-      userField[32] = setUserField(32,STRING(DECIMAL(userField[29]) * (DECIMAL(userField[30]) / 12),'>>,>>>,>>9')) /* was >>,>>>,>>9.99< */
-      userField[33] = setUserField(33,STRING(DECIMAL(userField[29]) * DECIMAL(userField[31]),'>>,>>>,>>9.99<'))
       userField[34] = setUserField(34,IF AVAILABLE itemfg THEN itemfg.cad-no ELSE '')
       userField[35] = setUserField(35,IF AVAILABLE eb AND eb.est-type EQ 6 THEN getSetPOQtyRec(job-mch.company,job-mch.job-no,job-mch.job-no2,eb.form-no,eb.stock-no)
                                  ELSE IF AVAILABLE po-ordl THEN STRING(po-ordl.t-rec-qty,'->,>>>,>>>,>>9.99<<<')
@@ -940,15 +919,15 @@ FOR EACH job-hdr NO-LOCK
       userField[51] = setUserField(51,IF AVAILABLE eb THEN eb.tr-no ELSE '')
       userField[52] = setUserField(52,IF AVAILABLE itemfg THEN STRING(DECIMAL(userField[52]) * itemfg.t-sqft / 1000,'->,>>9.999') ELSE '')
       userField[53] = setUserField(53,IF AVAILABLE eb THEN STRING(eb.tab-in,'In/Out') ELSE '')
-      userField[54] = setUserField(54,IF AVAILABLE itemfg AND job-mch.run-qty NE ? AND job-mch.run-qty * itemfg.t-sqft / 10000 LT 1000 THEN
-                                      STRING(job-mch.run-qty * itemfg.t-sqft / 1000,'->>>,>>9.99999') ELSE '')
+      runMSF = 0
+      runMSF = job-mch.run-qty * itemfg.t-sqft / 10000 WHEN AVAILABLE itemfg AND job-mch.run-qty NE ?
+      userField[54] = setUserField(54,IF runMSF LT 1000 THEN STRING(runMSF,'->>>,>>9.99999') ELSE '')
+      userField[57] = ''
       userField[57] = setUserField(57,prodQty(job-mch.company,job-mch.m-code,job-mch.job-no,
-                                              job-mch.job-no2,job-mch.frm,job-mch.blank-no))
+                                              job-mch.job-no2,job-mch.frm,job-mch.blank-no,prodQtyProgram)) WHEN prodQtyProgram NE ?
       userField[58] = setUserField(58,IF AVAILABLE ef THEN STRING(ef.gsh-len,'>>9.9999') ELSE '')
       userField[59] = setUserField(59,IF AVAILABLE ef THEN STRING(ef.gsh-wid,'>>9.9999') ELSE '')
       userField[60] = setUserField(60,IF AVAILABLE eb THEN eb.cas-no ELSE '')
-      userField[61] = setUserField(61,jobMaterial(job-mch.company,job-mch.job,job-mch.job-no,job-mch.job-no2,job-mch.frm,'5'))
-      userField[62] = setUserField(62,jobMaterial(job-mch.company,job-mch.job,job-mch.job-no,job-mch.job-no2,job-mch.frm,'6'))
       userField[64] = setUserField(64,IF AVAILABLE itemfg THEN itemfg.part-no ELSE '')
       userField[83] = setUserField(83,job.stat)
       jobDescription = jobText
@@ -961,6 +940,7 @@ FOR EACH job-hdr NO-LOCK
             'FG Total SqFt:' itemfg.t-sqft SKIP
             'Run MSF:' job-mch.run-qty * itemfg.t-sqft / 1000
         VIEW-AS ALERT-BOX TITLE 'Run MSF Error'.
+
     RUN ipJobMaterial (job-mch.company,
                        job-mch.job,
                        job-mch.job-no,
@@ -968,19 +948,38 @@ FOR EACH job-hdr NO-LOCK
                        job-mch.frm,
                        job-mch.blank-no,
                        job-mch.i-no,
-                       'B','I','D','V','A','C','W',
-                       OUTPUT userField[3],
-                       OUTPUT userField[14],
                        OUTPUT boardLength,
                        OUTPUT boardWidth,
                        OUTPUT jobBoard,
-                       OUTPUT userField[55],
-                       OUTPUT userField[56],
-                       OUTPUT userField[70],
-                       OUTPUT userField[71],
-                       OUTPUT userField[78],
-                       OUTPUT userField[79],
-                       OUTPUT userField[81]).
+                       OUTPUT userField[3],  /* B */
+                       OUTPUT userField[14], /* I */
+                       OUTPUT userField[55], /* D */
+                       OUTPUT userField[56], /* D */
+                       OUTPUT userField[61], /* 5 */
+                       OUTPUT userField[62], /* 6 */
+                       OUTPUT userField[70], /* V */
+                       OUTPUT userField[71], /* A */
+                       OUTPUT userField[78], /* C */
+                       OUTPUT userField[79], /* C */
+                       OUTPUT userField[81]) /* W */
+                       .
+
+    RUN ipJobMatField (job-mch.company,
+                       job-mch.j-no,
+                       job-mch.i-no,
+                       job-mch.frm,
+                       job-mch.blank-no,
+                       '>>,>>>,>>9.99<',
+                       '>>9.99<<',
+                       '>>>9',
+                       OUTPUT userField[29],
+                       OUTPUT userField[30],
+                       OUTPUT userField[31]).
+    ASSIGN
+      userField[32] = setUserField(32,STRING(DECIMAL(userField[29]) * (DECIMAL(userField[30]) / 12),'>>,>>>,>>9'))
+      userField[33] = setUserField(33,STRING(DECIMAL(userField[29]) * DECIMAL(userField[31]),'>>,>>>,>>9.99<'))
+      .
+
     IF useField[71] THEN
     DO i = 1 TO NUM-ENTRIES(userField[71]):
       userField[71 + i] = ENTRY(i,userField[71]).
@@ -1138,7 +1137,7 @@ FOR EACH job-hdr NO-LOCK
       &customValue=customVal
       &strRowID=strRowID
       &keyValue=keyValues}
-  END. /* each job */
+  END. /* each job-mch */
 END. /* each job-hdr */
 
 PROCEDURE ipJobSet:
@@ -1153,31 +1152,34 @@ PROCEDURE ipJobSet:
   DEFINE OUTPUT PARAMETER opInternalWidth AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opEndCellWidth AS CHARACTER NO-UNDO.
 
+  DEFINE BUFFER bEB1 FOR eb.
+  DEFINE BUFFER bEB2 FOR eb.
+  
   IF NOT ufIPJobSet THEN RETURN.
 
-  FIND FIRST beb1 NO-LOCK
-       WHERE beb1.company EQ ipCompany
-         AND beb1.est-no  EQ ipEstNo
-         AND beb1.form-no NE 0
-         AND beb1.blank-no NE 0
+  FIND FIRST bEB1 NO-LOCK
+       WHERE bEB1.company EQ ipCompany
+         AND bEB1.est-no  EQ ipEstNo
+         AND bEB1.form-no NE 0
+         AND bEB1.blank-no NE 0
        USE-INDEX est-qty NO-ERROR.
   
-  IF AVAIL beb1 THEN DO:
+  IF AVAIL bEB1 THEN DO:
     ASSIGN
-      opInternalLength = setUserField(65,k16(beb1.k-len-array2[2],ipKFrac,ipDecimalFormat))
-      opEndCellLength = setUserField(66,k16(beb1.k-len-array2[ipDimDF + 1],ipKFrac,ipDecimalFormat)).
-    FIND FIRST beb2 NO-LOCK
-         WHERE beb2.company EQ ipCompany
-           AND beb2.est-no  EQ ipEstNo
-           AND beb2.form-no NE 0
-           AND beb2.blank-no NE 0
-           AND ROWID(beb2) NE ROWID(beb1)
+      opInternalLength = setUserField(65,k16(bEB1.k-len-array2[2],ipKFrac,ipDecimalFormat))
+      opEndCellLength = setUserField(66,k16(bEB1.k-len-array2[ipDimDF + 1],ipKFrac,ipDecimalFormat)).
+    FIND FIRST bEB2 NO-LOCK
+         WHERE bEB2.company EQ ipCompany
+           AND bEB2.est-no  EQ ipEstNo
+           AND bEB2.form-no NE 0
+           AND bEB2.blank-no NE 0
+           AND ROWID(bEB2) NE ROWID(bEB1)
          USE-INDEX est-qty NO-ERROR.
-    IF AVAIL beb2 THEN
+    IF AVAIL bEB2 THEN
     ASSIGN
-      opInternalWidth = setUserField(67,k16(beb2.k-len-array2[2],ipKFrac,ipDecimalFormat))
-      opEndCellWidth = setUserField(68,k16(beb2.k-len-array2[ipDimDF + 1],ipKFrac,ipDecimalFormat)).
-  END. /* if avail beb1 */
+      opInternalWidth = setUserField(67,k16(bEB2.k-len-array2[2],ipKFrac,ipDecimalFormat))
+      opEndCellWidth = setUserField(68,k16(bEB2.k-len-array2[ipDimDF + 1],ipKFrac,ipDecimalFormat)).
+  END. /* if avail bEB1 */
 END PROCEDURE.
 
 PROCEDURE ipJobMaterial:
@@ -1188,81 +1190,130 @@ PROCEDURE ipJobMaterial:
   DEFINE INPUT PARAMETER ipForm AS INTEGER NO-UNDO.
   DEFINE INPUT PARAMETER ipBlankNo AS INTEGER NO-UNDO.
   DEFINE INPUT PARAMETER ipItemNo AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMatType1 AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMatType2 AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMatType3 AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMatType4 AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMatType5 AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMatType6 AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMatType7 AS CHARACTER NO-UNDO.
 
-  DEFINE OUTPUT PARAMETER opBoard AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opInk AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opBoardLength AS DECIMAL NO-UNDO.
   DEFINE OUTPUT PARAMETER opBoardWidth AS DECIMAL NO-UNDO.
   DEFINE OUTPUT PARAMETER opJobBoard AS LOGICAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER opPallet AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opTotMRP AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opVarnish AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opAdders AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opNoCases AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opCasesName AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opFilmName AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opBoard AS CHARACTER NO-UNDO.     /*  3,B */
+  DEFINE OUTPUT PARAMETER opInk AS CHARACTER NO-UNDO.       /* 14,I */
+  DEFINE OUTPUT PARAMETER opPallet AS CHARACTER NO-UNDO.    /* 55,D */
+  DEFINE OUTPUT PARAMETER opTotMRP AS CHARACTER NO-UNDO.    /* 56,D */
+  DEFINE OUTPUT PARAMETER opMatType5 AS CHARACTER NO-UNDO.  /* 61,5 */
+  DEFINE OUTPUT PARAMETER opMatType6 AS CHARACTER NO-UNDO.  /* 62,6 */
+  DEFINE OUTPUT PARAMETER opVarnish AS CHARACTER NO-UNDO.   /* 70,V */
+  DEFINE OUTPUT PARAMETER opAdders AS CHARACTER NO-UNDO.    /* 71,A */
+  DEFINE OUTPUT PARAMETER opNoCases AS CHARACTER NO-UNDO.   /* 78,C */
+  DEFINE OUTPUT PARAMETER opCasesName AS CHARACTER NO-UNDO. /* 79,C */
+  DEFINE OUTPUT PARAMETER opFilmName AS CHARACTER NO-UNDO.  /* 81,W */
 
   DEFINE VARIABLE noCases AS DECIMAL NO-UNDO.
-
+  
   IF NOT ufIPJobMaterial THEN RETURN.
 
   IF traceON THEN
   PUT UNFORMATTED 'Procedure ipJobMaterial @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME.
   
-  FOR EACH job-mat NO-LOCK WHERE job-mat.company eq ipCompany
-                             AND job-mat.job EQ ipJob
-                             AND job-mat.job-no EQ ipJobNo
-                             AND job-mat.job-no2 EQ ipJobNo2
-                             AND job-mat.frm EQ ipForm,
-      FIRST item OF job-mat NO-LOCK:
-    IF item.mat-type EQ 'B' AND NOT opJobBoard THEN
-    ASSIGN
-      opBoardLength = job-mat.len
-      opBoardWidth = job-mat.wid
-      opJobBoard = CAN-FIND(FIRST mat-act
-         WHERE mat-act.company EQ job-mat.company
-           AND mat-act.job EQ job-mat.job
-           AND mat-act.job-no EQ job-mat.job-no
-           AND mat-act.job-no2 EQ job-mat.job-no2
-           AND mat-act.i-no EQ job-mat.i-no
-           AND mat-act.s-num EQ job-mat.frm
-           AND mat-act.b-num EQ job-mat.blank-no USE-INDEX job).
-    IF item.mat-type EQ ipMatType1 AND NOT CAN-DO(opBoard,job-mat.i-no) THEN
-    opBoard = opBoard + comma(opBoard) + job-mat.i-no.
-    IF item.mat-type EQ ipMatType2 AND NOT CAN-DO(opInk,job-mat.i-no) THEN
-    opInk = opInk + comma(opInk) + job-mat.i-no.
-    IF item.mat-type EQ ipMatType3 AND opPallet EQ '' AND opTotMRP EQ '' THEN
-    ASSIGN
-      opPallet = item.i-name
-      opTotMRP = STRING(job-mat.qty,'>,>>>,>>9.9<<<<<').
-    IF item.mat-type EQ ipMatType4 AND NOT CAN-DO(opVarnish,job-mat.i-no) THEN
-    opVarnish = opVarnish + comma(opVarnish) + job-mat.i-no.
-    IF item.mat-type EQ ipMatType5 AND NOT CAN-DO(opAdders,job-mat.i-no) THEN
-    opAdders = opAdders + comma(opAdders) + job-mat.i-no.
-    IF item.mat-type EQ ipMatType6 AND ipBlankNo EQ job-mat.blank-no THEN
-    ASSIGN
-      noCases = noCases + job-mat.qty
-      opCasesName = item.i-name.
-    IF item.mat-type EQ ipMatType7 THEN
-    opFilmName = REPLACE(item.i-name,'"','').
+  FOR EACH job-mat NO-LOCK
+      WHERE job-mat.company eq ipCompany
+        AND job-mat.job EQ ipJob
+        AND job-mat.job-no EQ ipJobNo
+        AND job-mat.job-no2 EQ ipJobNo2
+        AND job-mat.frm EQ ipForm:
+    FOR EACH item OF job-mat NO-LOCK:
+      CASE item.mat-type:
+        WHEN '5' THEN
+          IF NOT CAN-DO(opMatType5,job-mat.i-no) THEN
+          opMatType5 = opMatType5 + comma(opMatType5) + job-mat.i-no.
+        WHEN '6' THEN
+          IF NOT CAN-DO(opMatType6,job-mat.i-no) THEN
+          opMatType6 = opMatType6 + comma(opMatType6) + job-mat.i-no.
+        WHEN 'A' THEN
+          IF NOT CAN-DO(opAdders,job-mat.i-no) THEN
+          opAdders = opAdders + comma(opAdders) + job-mat.i-no.
+        WHEN 'B' THEN DO:
+          IF NOT opJobBoard THEN
+          ASSIGN
+            opBoardLength = job-mat.len
+            opBoardWidth = job-mat.wid
+            opJobBoard = CAN-FIND(FIRST mat-act
+                                  WHERE mat-act.company EQ job-mat.company
+                                    AND mat-act.job EQ job-mat.job
+                                    AND mat-act.job-no EQ job-mat.job-no
+                                    AND mat-act.job-no2 EQ job-mat.job-no2
+                                    AND mat-act.i-no EQ job-mat.i-no
+                                    AND mat-act.s-num EQ job-mat.frm
+                                    AND mat-act.b-num EQ job-mat.blank-no USE-INDEX job).
+          IF NOT CAN-DO(opBoard,job-mat.i-no) THEN
+          opBoard = opBoard + comma(opBoard) + job-mat.i-no.
+        END. /* B */
+        WHEN 'C' THEN
+          IF ipBlankNo EQ job-mat.blank-no THEN
+          ASSIGN
+            noCases = noCases + job-mat.qty
+            opCasesName = item.i-name.
+        WHEN 'D' THEN
+          IF opPallet EQ '' AND opTotMRP EQ '' THEN
+          ASSIGN
+            opPallet = item.i-name
+            opTotMRP = STRING(job-mat.qty,'>,>>>,>>9.9<<<<<').
+        WHEN 'I' THEN
+          IF NOT CAN-DO(opInk,job-mat.i-no) THEN
+          opInk = opInk + comma(opInk) + job-mat.i-no.
+        WHEN 'V' THEN
+          IF NOT CAN-DO(opVarnish,job-mat.i-no) THEN
+          opVarnish = opVarnish + comma(opVarnish) + job-mat.i-no.
+        WHEN 'W' THEN
+        opFilmName = REPLACE(item.i-name,'"','').
+      END CASE.
+    END. /* each item */
   END. /* each job-mat */
   opNoCases = STRING(noCases,'>,>>>,>>9.9<<<<<').
   IF traceON THEN
-  PUT UNFORMATTED ipMatType1 AT 20 ' ' opBoard
-                  ipMatType2 AT 20 ' ' opInk
-                  ipMatType3 AT 20 ' ' opPallet ' ' opTotMRP
-                  ipMatType4 AT 20 ' ' opVarnish ' '
-                  ipMatType5 AT 20 ' ' opAdders ' '
-                  ipMatType6 AT 20 ' ' opNoCases ' '
-                  ipMatType6 AT 20 ' ' opCasesName ' '
-                  ipMatType7 AT 20 ' ' opFilmName ETIME SKIP.
+  PUT UNFORMATTED
+    '5 ' AT 20 opMatType5
+    '6 ' AT 20 opMatType6
+    'A ' AT 20 opAdders
+    'B ' AT 20 opBoard
+    'C ' AT 20 opNoCases ' ' opCasesName
+    'D ' AT 20 opPallet ' ' opTotMRP
+    'I ' AT 20 opInk
+    'V ' AT 20 opVarnish
+    'W ' AT 20 opFilmName
+    'Time: ' AT 20 ETIME
+    SKIP.
+END PROCEDURE.
+
+PROCEDURE ipJobMatField:
+  DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipJNo AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipINo AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipForm AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipBlank AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipFormat29 AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipFormat30 AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipFormat31 AS CHARACTER NO-UNDO.
+
+  DEFINE OUTPUT PARAMETER opUserField29 AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opUserField30 AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opUserField31 AS CHARACTER NO-UNDO.
+
+  IF NOT ufIPJobMatField THEN RETURN ''.
+
+  IF traceON THEN
+  PUT UNFORMATTED 'Function ipJobMatField @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
+  
+  FIND FIRST job-mat NO-LOCK WHERE job-mat.company eq ipCompany
+                               AND job-mat.j-no EQ ipJNo
+                               AND job-mat.i-no EQ ipINo
+                               AND job-mat.frm EQ ipForm
+                               AND job-mat.blank-no EQ ipBlank
+                               AND job-mat.qty GT 0 NO-ERROR.
+  IF AVAILABLE job-mat THEN
+  ASSIGN
+    opUserField29 = STRING(job-mat.qty,ipFormat29)
+    opUserField30 = STRING(job-mat.len,ipFormat30)
+    opUserField31 = STRING(job-mat.n-up,ipFormat31)
+    .
 END PROCEDURE.
 
 {{&loads}/loadProEnd.i}
@@ -1272,33 +1323,6 @@ END PROCEDURE.
 &ELSE
 RUN loadUserFieldLabelWidth.
 &ENDIF
-
-PROCEDURE getCustomer:
-  DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipJobNo AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipJobNo2 AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ipFrm AS INTEGER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opCustNo AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opCustName AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opSalesRep AS CHARACTER NO-UNDO.
-
-  FIND FIRST bJobHdr NO-LOCK WHERE bJobHdr.company EQ ipCompany
-                               AND bJobHdr.job-no EQ ipJobNo
-                               AND bJobHdr.job-no2 EQ ipJobNo2
-                               AND bJobHdr.frm EQ ipFrm NO-ERROR.
-  IF NOT AVAILABLE bJobHdr THEN
-  FIND FIRST bJobHdr NO-LOCK WHERE bJobHdr.company EQ ipCompany
-                               AND bJobHdr.job-no EQ ipJobNo
-                               AND bJobHdr.job-no2 EQ ipJobNo2 NO-ERROR.
-  IF AVAILABLE bJobHdr THEN
-  FIND cust NO-LOCK WHERE cust.company EQ bJobHdr.company
-                      AND cust.cust-no EQ bJobHdr.cust-no NO-ERROR.
-  IF AVAILABLE cust THEN
-  ASSIGN
-    opCustNo = cust.cust-no
-    opCustName = cust.name
-    opSalesRep = cust.sman.
-END PROCEDURE.
 
 PROCEDURE customValueList:
   DEFINE OUTPUT PARAMETER opCustomValueList AS CHARACTER NO-UNDO.
@@ -1654,6 +1678,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[81] = 'Film Name'       userWidth[81] = 45
     userLabel[82] = 'Mfg Date'        userWidth[82] = 15
     userLabel[83] = 'Job Status'      userWidth[83] = 12
+    userLabel[84] = 'Total Price'     userWidth[84] = 20
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1713,13 +1738,12 @@ PROCEDURE setUseFields:
     ufEF = useField[3] OR useField[22] OR useField[23] OR useField[58] OR useField[59]
     ufEst = useField[26] OR useField[27]
     ufGetSalesRep = useField[36]
-    ufIPJobMaterial = useField[3] OR useField[14] OR useField[55] OR useField[56] OR useField[70] OR useField[71] OR useField[78] OR useField[79] OR useField[81]
+    ufIPJobMaterial = useField[3] OR useField[14] OR useField[55] OR useField[56] OR useField[61] OR useField[62] OR useField[70] OR useField[71] OR useField[78] OR useField[79] OR useField[81]
+    ufIPJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64]
     ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20]
-    ufJobMaterial = useField[61] OR useField[62]
-    ufJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
-    ufOEOrdl = useField[82]
+    ufOEOrdl = useField[82] OR useField[84]
     ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]
     ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35]
     ufProdQty = useField[57]

@@ -12,7 +12,6 @@
 /* commented out by DGD 04/01/2007 to remove error messages. */
 
 /* revised by DGD on 04/01/2007 */
-/* Version 5 no longer active */
 CONNECT -H asisbs -N TCP -S 3703 -db nosweat   -ld NOSWEAT.
 CONNECT -H asisbs -N tcp -S 3701 -db	asi       -ld ASI.
 CONNECT -H asisbs -N tcp -S 3714 -db asihelp   -ld ASIHLP.

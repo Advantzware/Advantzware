@@ -11,7 +11,12 @@ def buffer xitemfg      for itemfg.
 
 {oe/rep/oe-lad.i}
 
-def var v-fob               as   char format "x(12)".
+def var v-fob               as   char format "x(7)".
+def var v-terms              as   char format "x(12)".
+def var v-name              as   char format "x(30)".
+def var v-price              as   INT format ">>>>>>>>".
+def var v-tot-price              as   INT format ">>>>>>>>>>".
+def var v-dscr              as   char format "x(30)".
 def var v-ord-bol           as   char format "x(15)".
 def var v-ord-date          like oe-ord.ord-date.
 def var v-part-qty          as   dec.
@@ -197,13 +202,18 @@ for each report   where report.term-id eq v-term-id no-lock,
 
     assign
      v-fob      = ""
+     v-dscr     = ""
+     v-name     = ""
+     v-terms    = ""
+     v-price    = 0
+     v-tot-price  = 0 
      v-ord-bol  = trim(string(oe-bolh.ord-no,">>>>>9")) + " / " +
                   trim(string(oe-bolh.bol-no,">>>>>9"))
      v-ord-date = oe-bolh.bol-date.
 
     find first oe-ord
         where oe-ord.company eq cocode
-          and oe-ord.ord-no  eq oe-bolh.ord-no
+          and oe-ord.ord-no  eq oe-boll.ord-no
         no-lock no-error.
 
     if avail oe-ord then do:
@@ -214,9 +224,11 @@ for each report   where report.term-id eq v-term-id no-lock,
           no-lock no-error.
 
       assign
-       v-fob      = if oe-ord.fob-code begins "ORIG" then "Origin"
-                                                     else "Destination"
-       v-ord-date = oe-ord.ord-date.
+       v-fob      = if oe-ord.fob-code begins "ORIG" then "ORIG"
+                                                     else "DEST"
+       v-ord-date = oe-ord.ord-date
+       v-terms    = oe-ord.terms               .
+
     end.
     {oe/rep/cocpryst.i}
     /*page.
@@ -233,19 +245,27 @@ for each report   where report.term-id eq v-term-id no-lock,
   
   if last-of(report.key-06) then do:
     v-qty-alf = trim(string(v-bol-qty,">>>>>9")).
-
     find first oe-ordl
         where oe-ordl.company eq cocode
-          and oe-ordl.ord-no  eq oe-bolh.ord-no
+          and oe-ordl.ord-no  eq oe-boll.ord-no
           and oe-ordl.i-no    eq oe-boll.i-no
           and oe-ordl.line    eq oe-boll.line
         no-lock no-error.
+    ASSIGN
+        v-name = IF AVAIL oe-ordl AND oe-ordl.i-name <> "" THEN oe-ordl.i-name ELSE itemfg.i-name 
+        v-dscr = IF AVAIL oe-ordl AND oe-ordl.part-dscr1 <> "" THEN oe-ordl.part-dscr1 ELSE itemfg.part-dscr1
+        v-price = IF AVAIL oe-ordl  THEN oe-ordl.price ELSE 0
+        v-tot-price = IF AVAIL oe-ordl  THEN oe-ordl.t-price ELSE 0 .
 
-    display v-qty-alf
-            itemfg.i-name
+    PUT  "<R30></b>    " v-qty-alf  SPACE(5)
+            /*" <C59>" v-price 
+            "<C70>"  v-tot-price*/
+            "<c19>" itemfg.i-no SKIP
+             "<c19>" v-name SKIP
+             "<c19>" v-dscr  /*
               oe-ordl.i-name when avail oe-ordl and oe-ordl.i-name ne ""
-              @ itemfg.i-name.
-
+              @ itemfg.i-name */ .
+                                 
     assign
      i     = 0
      j     = 0
@@ -312,7 +332,10 @@ for each report   where report.term-id eq v-term-id no-lock,
     do j = (j + 1) to 5:
       put skip(1).
     end.
-    
+    IF NOT last(report.key-06)  THEN DO:
+        PAGE.
+        {oe/rep/cocpryst.i}
+    END.
     v-bol-qty = 0.
   end.
 end. /* for each report */

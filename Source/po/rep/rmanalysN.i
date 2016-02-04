@@ -1,8 +1,9 @@
 
 for each {1}
     where {1}.company eq cocode
-      and {1}.i-code  ge b-itemcode#
-      and {1}.i-code  le e-itemcode#
+      /*and {1}.i-code  ge b-itemcode#
+      and {1}.i-code  le e-itemcode#*/
+      AND ( {1}.i-code EQ b-itemcode# OR   b-itemcode# = "B" OR v-type = "F" )
       and {1}.procat  ge b-category#
       and {1}.procat  le e-category#
       and (("{1}" eq "item" and index(v-mattype-list,{1}.mat-type) gt 0

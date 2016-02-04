@@ -999,7 +999,7 @@ PROCEDURE local-open-query :
      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
      ll-is-a-return = AVAIL reftable OR ar-cashl.dscr MATCHES "*oe return*".
   END.
- if ar-cash.memo AND AVAIL ar-cashl and ar-cashl.amt-disc gt 0 THEN do: 
+ IF AVAIL ar-cash AND ar-cash.memo AND AVAIL ar-cashl and ar-cashl.amt-disc gt 0 THEN do: 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"disableadd-target",OUTPUT char-hdl).
        RUN add-return-proc IN WIDGET-HANDLE(char-hdl)(YES).
  END.

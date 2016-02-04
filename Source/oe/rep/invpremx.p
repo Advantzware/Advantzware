@@ -126,7 +126,8 @@ RUN XMLOutput (lXMLOutput,'','','Header').
     for each report where report.term-id eq v-term-id no-lock,
         first xinv-head where recid(xinv-head) eq report.rec-id no-lock
         break by report.key-01
-              by report.key-02:
+              by (IF v-sort THEN "" ELSE report.key-02)
+              BY report.key-03:
 
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.

@@ -150,7 +150,7 @@ IF LvOutputSelection = "email" THEN
 assign CurActivePrinter = SESSION:PRINTER-NAME
        AdobePrinter     = "PDFcamp Printer".
 
-vcTemplateFile   = "Template\invoice-py.xls".
+vcTemplateFile   = "Template\invoice-py.xlt".
 
 FIND FIRST users WHERE
      users.user_id EQ USERID("NOSWEAT")
@@ -193,7 +193,7 @@ if search (chFile) = ? then do:
    apply 'CLOSE':U to this-procedure.
 end.
 
-CurrDir = SUBSTRING (chFile, 1, INDEX (chFile, "Template\invoice-py.xls") - 2)
+CurrDir = SUBSTRING (chFile, 1, INDEX (chFile, "Template\invoice-py.xlt") - 2)
           no-error.
 
 chExcelApplication:VISIBLE = TRUE.
@@ -560,13 +560,13 @@ ELSE lv-comp-color = "BLACK".
             assign v-inv-qty = ar-invl.qty
                    v-ship-qty = ar-invl.ship-qty
                    v-i-no = ar-invl.i-no
-                   v-i-dscr = ar-invl.part-dscr1
+                 /*  v-i-dscr = ar-invl.part-dscr1*/
                    v-price = ar-invl.unit-pr * (1 - (ar-invl.disc / 100))
                    v-t-price = ar-invl.amt
                    v-subtot-lines = v-subtot-lines + ar-invl.amt
                    v-cartot-lines = v-cartot-lines + ar-invl.ship-qty .
-            IF v-i-dscr = "" THEN
-                    v-i-dscr = ar-invl.i-dscr .
+            /*IF v-i-dscr = "" THEN
+                    v-i-dscr = ar-invl.i-dscr .*/
 
             find first oe-ordl where oe-ordl.company = cocode and
                                    oe-ordl.ord-no = ar-invl.ord-no and
@@ -574,6 +574,9 @@ ELSE lv-comp-color = "BLACK".
                                    no-lock no-error.
 
             IF AVAIL oe-ordl THEN DO:
+
+                ASSIGN v-i-dscr = oe-ordl.i-name  .
+
               FIND FIRST oe-ord
                   WHERE oe-ord.company EQ oe-ordl.company
                     AND oe-ord.ord-no  EQ oe-ordl.ord-no
@@ -585,8 +588,13 @@ ELSE lv-comp-color = "BLACK".
             END.
 
             ELSE
-              v-bo-qty = IF ar-invl.qty - ar-invl.ship-qty LT 0
-                         THEN 0 ELSE (ar-invl.qty - ar-invl.ship-qty).
+              ASSIGN
+                  v-i-dscr = ar-invl.part-dscr1
+                  v-bo-qty = IF ar-invl.qty - ar-invl.ship-qty LT 0
+                                    THEN 0 ELSE (ar-invl.qty - ar-invl.ship-qty).
+
+            IF v-i-dscr = "" THEN
+                v-i-dscr = ar-invl.i-dscr .
 
             FOR EACH oe-boll
                 WHERE oe-boll.company EQ ar-invl.company
@@ -768,7 +776,7 @@ ELSE lv-comp-color = "BLACK".
     chExcelApplication:Rows(v-cell):SELECT.
     chExcelApplication:SELECTION:DELETE.
 
-    ASSIGN v-cell = "R" + STRING(inrowcount) + "C45".
+    ASSIGN v-cell = "R" + STRING(inrowcount) + "C39".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN chExcelApplication:ActiveCell:Value = v-cartot-lines.
 

@@ -220,6 +220,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Add C-WIn
 ON CHOOSE OF Btn-Add IN FRAME Panel-Frame /* Add */
 DO:
+
   add-active = yes.
 
   RUN notify ('add-record':U).
@@ -342,8 +343,10 @@ END.
       FRAME {&FRAME-NAME}:DEFAULT-BUTTON = Btn-Save:HANDLE.
   
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-    RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
+    RUN dispatch IN THIS-PROCEDURE ('initialize':U). 
+
   &ENDIF
+  
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -581,7 +584,36 @@ DO WITH FRAME Panel-Frame:
 &ENDIF
 
   END. /* panel-state = action-chosen */
+ /* task 01281602 */
+  def var char-hdl as cha no-undo.
+    DEFINE VAR op-flag AS LOGICAL NO-UNDO.
 
+ RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"chk-sec-target",OUTPUT char-hdl).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN Allow-Create IN WIDGET-HANDLE(char-hdl)(OUTPUT op-flag) .
+      IF op-flag = NO THEN do:
+          &IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             Btn-Copy:SENSITIVE = NO.
+         &ENDIF
+         &IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+           Btn-Add:SENSITIVE = NO . 
+         &ENDIF
+      END.
+
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+          RUN Allow-Delete IN WIDGET-HANDLE(char-hdl)(OUTPUT op-flag) .
+      IF op-flag = NO THEN
+          &IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+          Btn-Delete:SENSITIVE = NO.
+          &ENDIF
+
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+          RUN Allow-Update IN WIDGET-HANDLE(char-hdl)(OUTPUT op-flag) .
+      IF op-flag = NO THEN
+          &IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+          Btn-Save:SENSITIVE = NO.
+          &ENDIF
+      
 END. /* DO WITH FRAME */
 
 END PROCEDURE.

@@ -227,6 +227,20 @@ RUN sys/ref/nk1look.p (INPUT cocode,
                        OUTPUT lFound).
 IF lFound THEN
   lLabelMatrixLock = LOGICAL(cResult).
+
+/* rstark - zoho13731 */
+DEF VAR lSSCC AS LOG NO-UNDO.
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "LoadTagSSCC",
+                       INPUT "L",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT cResult,
+                       OUTPUT lFound).
+lSSCC = LOGICAL(cResult).
+
 /* gdm - 09210907 */
 DEF VAR v-bardir AS LOG NO-UNDO.
 DEF VAR v-bardir-chr AS CHAR NO-UNDO.
@@ -3026,6 +3040,20 @@ PROCEDURE create-loadtag :
         AND SUBSTR(loadtag.tag-no,1,15) EQ w-ord.i-no
       USE-INDEX tag NO-ERROR.
   io-tag-no = (IF AVAIL loadtag THEN INT(SUBSTR(loadtag.tag-no,16,5)) ELSE 0) + 1.
+  
+  /* rstark - zoho13731 */
+  IF CAN-FIND(FIRST sys-ctrl
+              WHERE sys-ctrl.company EQ cocode
+                AND sys-ctrl.name EQ 'LoadTagSSCC'
+                AND sys-ctrl.log-fld EQ YES) AND
+     CAN-FIND(FIRST sys-ctrl-shipto
+              WHERE sys-ctrl-shipto.company EQ cocode
+                AND sys-ctrl-shipto.name EQ 'LoadTagSSCC'
+                AND sys-ctrl-shipto.cust-vend EQ YES
+                AND sys-ctrl-shipto.cust-vend-no EQ w-ord.cust-no
+                AND sys-ctrl-shipto.log-fld EQ YES) THEN
+  RUN oerep/ldtagSSCC.p (cocode,w-ord.cust-no,OUTPUT w-ord.SSCC).
+
   CREATE loadtag.
   ASSIGN
    loadtag.company      = cocode
@@ -3051,8 +3079,10 @@ PROCEDURE create-loadtag :
    /* gdm - 07170905 */
    loadtag.misc-dec[1] = w-ord.unit-wt 
    loadtag.misc-dec[2] = w-ord.pallt-wt
-   loadtag.misc-char[2] = w-ord.lot.
+   loadtag.misc-char[2] = w-ord.lot
    /* gdm - 07170905  end */
+   loadtag.spare-char-1 = w-ord.SSCC
+   .
 
    /* gdm - 08260916 */
    IF loadtagFunction EQ 'PO' 
@@ -3342,7 +3372,7 @@ PROCEDURE create-text-file :
   DEF VAR iStartPalletID AS INT NO-UNDO.
   DEF VAR iEndPalletID AS INT NO-UNDO.
   DEF VAR cTotalUnit AS CHAR NO-UNDO.
-  DEF VAR cRFIDTag AS cha NO-UNDO.
+  DEF VAR cRFIDTag AS CHAR NO-UNDO.
   DEF VAR vError AS LOG NO-UNDO.
   DEF VAR liTagCounter AS INT NO-UNDO.
   DEF VAR cTmpFile AS CHAR NO-UNDO.
@@ -3421,19 +3451,22 @@ PROCEDURE create-text-file :
       /* it is not picked up before it is complete */
       OUTPUT TO VALUE(cTmpFile).
       PUT UNFORMATTED
-          "CUSTOMER,ORDNUMBER,JOBNUMBER,ITEM,CUSTPARTNO,CUSTPONO,PCS,BUNDLE,TOTAL," +
-          "SHIPCODE,SHIPNAME,SHIPADD1,SHIPADD2,SHIPCITY,SHIPSTATE,SHIPCOUNTRY,SHIPZIP," +
-          "SOLDCODE,SOLDNAME,SOLDADD1,SOLDADD2,SOLDCITY,SOLDSTATE,SOLDCOUNTRY,SOLDZIP," +
-          "INAME,DUEDATE,RELDATE,UPCNO,LENGTH,WIDTH,DEPTH,FLUTE,TEST,VENDOR,GROSSWGT," +
+          "CUSTOMER,ORDNUMBER,JOBNUMBER,ITEM,CUSTPARTNO,CUSTPONO,PCS,BUNDLE,TOTAL,"
+          "SHIPCODE,SHIPNAME,SHIPADD1,SHIPADD2,SHIPCITY,SHIPSTATE,SHIPCOUNTRY,SHIPZIP,"
+          "SOLDCODE,SOLDNAME,SOLDADD1,SOLDADD2,SOLDCITY,SOLDSTATE,SOLDCOUNTRY,SOLDZIP,"
+          "INAME,DUEDATE,RELDATE,UPCNO,LENGTH,WIDTH,DEPTH,FLUTE,TEST,VENDOR,GROSSWGT,"
           "TAREWGT,NETWGT,SHEETWGT,UOM,STYLE,STYLEDESC,RELLOTNO,MIDDLESEXJOBNUMBER,MIDDLESEXCUSTPONO,"
-          "TAG#,PARTIAL,CASECODE,SN1,SN2,SN3,SN4,SN5,SN6,SN7,SN8,PONO,DN1,DN2,DN3,DN4,"+
+          "TAG#,PARTIAL,CASECODE,SN1,SN2,SN3,SN4,SN5,SN6,SN7,SN8,PONO,DN1,DN2,DN3,DN4,"
           "DN5,DN6,DN7,DN8,DN9,DN10,EST#,ORDDESC1,ORDDESC2".
-      IF LOOKUP(v-loadtag,"ASI,SSLABEL") GT 0 THEN
+      IF CAN-DO("ASI,SSLABEL",v-loadtag) THEN
          PUT UNFORMATTED ",COUNTER#,RFIDTag".
 
-      PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#," +
-                       "PalletCode,PalletID,TagCounter,TagCountTotal," +
+      PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
+                       "PalletCode,PalletID,TagCounter,TagCountTotal,"
                        "RN1,RN2,RN3,RN4".
+      
+      /* rstark - */
+      IF lSSCC THEN PUT UNFORMATTED ",SSCC".
       
       PUT SKIP.
       FOR EACH w-ord:
@@ -3518,16 +3551,6 @@ PROCEDURE create-text-file :
                  END.
               END.
 
-/*              FOR EACH oe-ordl NO-LOCK
-                  WHERE oe-ordl.company EQ cocode
-                    AND oe-ordl.ord-no  EQ w-ord.ord-no,
-                  EACH notes NO-LOCK WHERE notes.rec_key EQ oe-ordl.rec_key
-                       AND CAN-DO(v-dept-list,notes.note_code)
-                       AND notes.note_form_no = w-ord.form-no
-                  BY oe-ordl.LINE:
-                    lv-text = lv-text + " " + TRIM(notes.note_text) + CHR(10).
-              END.
-*/
            END.
            IF lv-text NE "" THEN DO:
               DO li = 1 TO 10:
@@ -3562,7 +3585,7 @@ PROCEDURE create-text-file :
                             TRIM(lv-middlesex-po).
 
         IF w-ord.total-tags gt 0 THEN DO:
-          lv-how-many-tags =  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 OR w-ord.total-tags = 1 THEN w-ord.total-tags
+          lv-how-many-tags =  IF CAN-DO("SSLABEL,CentBox",v-loadtag) OR w-ord.total-tags = 1 THEN w-ord.total-tags
                               ELSE (w-ord.total-tags - 1).
           FIND bf-cust WHERE bf-cust.company = cocode
                          AND bf-cust.cust-no EQ w-ord.cust-no
@@ -3588,7 +3611,7 @@ PROCEDURE create-text-file :
 
              END.
 
-             IF LOOKUP(v-loadtag,"ASI,SSLABEL") GT 0 THEN DO:
+             IF CAN-DO("ASI,SSLABEL",v-loadtag) THEN DO:
                 
                 FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.
                 cRFIDTag = IF AVAIL rfidtag THEN rfidtag.rfidtag ELSE "".
@@ -3599,7 +3622,7 @@ PROCEDURE create-text-file :
              iPalletID = iPalletID + 1.
           end. /* DO i = 1 TO (lv-how-many-tags * w-ord.mult): */
 
-          IF lookup(v-loadtag,"SSLABEL,CentBox") = 0 THEN DO:
+          IF NOT CAN-DO("SSLABEL,CentBox",v-loadtag) THEN DO:
               RUN incrementPalletID (BUFFER bf-cust, w-ord.mult,
                        OUTPUT iStartPalletID, OUTPUT iEndPalletID).
               IF iEndPalletID EQ -1 THEN DO:
@@ -4643,6 +4666,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
                 ASSIGN lv-job-no = b-job-hdr.job-no
                        lv-job-no2 = b-job-hdr.job-no2.
       END.
+      IF lv-job-no = "" THEN lv-job-no = oe-ordl.job-no.
+      IF lv-job-no2 = 0 THEN lv-job-no2 = oe-ordl.job-no2.
       IF lv-job-no = "" THEN lv-job-no = oe-ord.job-no.
       IF lv-job-no2 = 0 THEN lv-job-no2 = oe-ord.job-no2.
       IF oe-ordl.est-no NE "" THEN
@@ -7268,7 +7293,7 @@ PROCEDURE write-loadtag-line :
   "~""  removeChars(w-ord.ord-desc1)    "~","
   "~""  removeChars(w-ord.ord-desc2)    "~","
   .
- IF LOOKUP(v-loadtag,"ASI,SSLABEL") GT 0 THEN DO:
+ IF CAN-DO("ASI,SSLABEL",v-loadtag) THEN DO:
     
 /*    FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.
     cRFIDTag = IF AVAIL rfidtag THEN rfidtag.rfidtag ELSE "".  */
@@ -7300,8 +7325,10 @@ PROCEDURE write-loadtag-line :
      "~"" w-ord.ship-notes[3] "~","
      "~"" w-ord.ship-notes[4] "~""
       .
+ /* rstark - zoho13731 */
+ IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
 
- PUT SKIP.
+ PUT UNFORMATTED SKIP.
 
 
 

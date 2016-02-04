@@ -11,7 +11,8 @@ FOR EACH tt-boll,
       and itemfg.i-no    eq tt-boll.i-no
     no-lock
 
-    BREAK BY tt-boll.i-no
+    BREAK BY ( IF v-sort THEN  tt-boll.i-no ELSE "")
+          BY ( IF NOT v-sort THEN tt-boll.job-no + STRING(tt-boll.job-no2) ELSE "")
           BY tt-boll.po-no
           BY tt-boll.ord-no
           BY tt-boll.line

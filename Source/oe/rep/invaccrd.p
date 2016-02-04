@@ -705,3 +705,4 @@ ELSE lv-comp-color = "BLACK".
     end. /* each xinv-head */
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */
+

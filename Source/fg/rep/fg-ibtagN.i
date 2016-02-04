@@ -59,7 +59,12 @@
 
      
              v-sales-rep = "" .
+
+            IF AVAIL CUST THEN ASSIGN v-cust-name = cust.NAME .
+            ELSE ASSIGN v-cust-name = "" .
+
             IF AVAIL cust AND cust.ACTIVE NE "X" THEN do:
+
                  FOR EACH cust-part WHERE cust-part.company = itemfg.company   
                      AND cust-part.i-no = itemfg.i-no
                      AND cust-part.cust-no EQ cust.cust-no
@@ -453,8 +458,7 @@
            LEAVE.
        END.
 
-      ASSIGN v-po-rel = ""
-             v-hc     = "" . 
+      ASSIGN v-po-rel = "" . 
         IF lProcessRel THEN
         FOR EACH oe-relh FIELDS(company r-no)
             WHERE oe-relh.company EQ tt-fg-bin.company
@@ -476,13 +480,6 @@
        FIND FIRST fg-set
            WHERE fg-set.company EQ itemfg.company
            AND fg-set.part-no EQ itemfg.i-no NO-LOCK NO-ERROR .
-  
-       IF itemfg.isaset THEN
-           v-hc = "H" .
-       ELSE IF AVAIL fg-set THEN
-           v-hc = "C".
-       ELSE v-hc = "" .
-
 /*                                                        */
 /*         FOR EACH oe-relh FIELDS(company r-no)          */
 /*             WHERE oe-relh.company EQ tt-fg-bin.company */
@@ -528,7 +525,8 @@
        END.
        ELSE DO:            
             CASE cTmpField:               
-                WHEN "tag" THEN cVarValue = (SUBSTR(tt-fg-bin.tag,16,8)) .
+                WHEN "tag" THEN cVarValue = tt-fg-bin.tag /*(SUBSTR(tt-fg-bin.tag,16,8))*/ .
+                WHEN "tag#" THEN cVarValue = (SUBSTR(tt-fg-bin.tag,16,6)) .
                 WHEN "fg-lot-val" THEN cvarValue = STRING(fg-lot-val,"x(20)") .
                 WHEN "v-job-no" THEN cVarValue = string(v-job-no) .
                 WHEN "recdate" THEN cVarValue = IF lv-rct-date NE ? THEN STRING(lv-rct-date) ELSE "" .
@@ -544,7 +542,7 @@
                 WHEN "rel-po" THEN cVarValue = STRING(v-po-rel,"x(11)") .
                 WHEN "ord-pr" THEN cVarValue = STRING(lv-sell-price-ord,"->>>,>>9.99").
                 WHEN "sell-price" THEN cVarValue = STRING(itemfg.sell-price,"->>>,>>9.99").
-                WHEN "uom-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-tot-bin-sum,"->>>>>9.999") ELSE "") . /*Task# 01271402 */
+                WHEN "uom-cost" THEN cVarValue = /*(IF ll-secure THEN STRING(v-tot-bin-sum,"->>>>>9.999") ELSE*/ "" . /*Task# 01271402 */
                 WHEN "v-tot-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-ext-bin-sum,"->>>,>>9.99") ELSE "").
                 WHEN "lab-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-costl,"->>>,>>9.99") ELSE "") .
                 WHEN "mat-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-costm,"->>>,>>9.99") ELSE "") .
@@ -553,8 +551,8 @@
                 WHEN "sell-value-fg" THEN cVarValue = STRING(lv-sell-value-fg-s,"->>,>>>,>>9.99") .           /*Task# 01101401*/
                 WHEN "custno" THEN cVarValue = STRING(tt-fg-bin.cust-no,"x(8)") .   
                 WHEN "set-header" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.set-no,"X(15)") ELSE "" .
-                WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND NOT itemfg.isaset  AND v-job-no <> "" THEN STRING(fg-set.part-qty,"->>,>>>,>>9") ELSE IF itemfg.isaset AND  v-job-no <> "" THEN string(1,"->>,>>>,>>9") ELSE  "" .
-                WHEN "hc" THEN cVarValue = IF v-job-no <> "" THEN STRING(v-hc) ELSE ""  .
+                WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.part-qty,"->>,>>>,>>9") ELSE "" .
+                WHEN "cust-name" THEN cVarValue = STRING(v-cust-name,"X(30)") .
                 
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -598,7 +596,8 @@
        END.
        ELSE DO:            
             CASE cTmpField:               
-                WHEN "tag" THEN cVarValue = (SUBSTR(tt-fg-bin.tag,16,8)) .
+                WHEN "tag" THEN cVarValue = tt-fg-bin.tag.
+                WHEN "tag#" THEN cVarValue = IF SUBSTR(tt-fg-bin.tag,1,15) EQ tt-fg-bin.i-no THEN (SUBSTR(tt-fg-bin.tag,16,5)) ELSE  "" .
                 WHEN "fg-lot-val" THEN cvarValue = STRING(fg-lot-val,"x(20)") .
                 WHEN "v-job-no" THEN cVarValue = string(v-job-no) .
                 WHEN "recdate" THEN cVarValue = IF lv-rct-date NE ? THEN STRING(lv-rct-date) ELSE "" .
@@ -624,8 +623,9 @@
                 WHEN "sell-value-fg" THEN cVarValue = STRING(lv-sell-value-fg,"->>,>>>,>>9.99") .
                 WHEN "custno" THEN cVarValue = STRING(tt-fg-bin.cust-no,"x(8)") .
                 WHEN "set-header" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.set-no,"X(15)") ELSE "" .
-                WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND NOT itemfg.isaset AND v-job-no <> "" THEN STRING(fg-set.part-qty,"->>,>>>,>>9") ELSE IF itemfg.isaset AND  v-job-no <> "" THEN string(1,"->>,>>>,>>9") ELSE  "" .
-                WHEN "hc" THEN cVarValue = IF v-job-no <> "" THEN STRING(v-hc) ELSE "" .  
+                WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.part-qty,"->>,>>>,>>9") ELSE "" .
+                WHEN "cust-name" THEN cVarValue = STRING(v-cust-name,"X(30)") .
+                   
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -772,6 +772,7 @@
                 WHEN "itemfg.i-name" THEN cVarValue = "" .
                 WHEN "itemfg.procat" THEN cVarValue = "" .
                 WHEN "tag" THEN cVarValue = "" .
+                WHEN "tag#" THEN cVarValue = "" .
                 WHEN "fg-lot-val" THEN cvarValue = "" .
                 WHEN "v-job-no" THEN cVarValue = "" .
                 WHEN "recdate" THEN cVarValue = "" .
@@ -798,7 +799,7 @@
                 WHEN "custno" THEN cVarValue = "" .
                 WHEN "set-header" THEN cVarValue = "" .
                 WHEN "qty-per-set" THEN cVarValue = "" .
-                WHEN "hc" THEN cVarValue =  "" .
+                WHEN "cust-name" THEN cVarValue = "" .
                 
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -814,7 +815,7 @@
      END.
         
         end.  /*  v-prnt[1] and v-subt*/
-        /*put skip(1).*/
+        put skip(1).
       /*end.*/
 
       /*IF v-excel = TRUE /*AND v-subt*/ THEN DO:
@@ -882,6 +883,7 @@
                 WHEN "itemfg.i-name" THEN cVarValue = "" .
                 WHEN "itemfg.procat" THEN cVarValue = "" .
                 WHEN "tag" THEN cVarValue = "" .
+                WHEN "tag#" THEN cVarValue = "" .
                 WHEN "fg-lot-val" THEN cvarValue = "" .
                 WHEN "v-job-no" THEN cVarValue = "" .
                 WHEN "recdate" THEN cVarValue = "" .
@@ -908,7 +910,7 @@
                 WHEN "custno" THEN cVarValue = "" .
                 WHEN "set-header" THEN cVarValue = "" .
                 WHEN "qty-per-set" THEN cVarValue = "" .
-                WHEN "hc" THEN cVarValue =  "" .
+                WHEN "cust-name" THEN cVarValue = "" .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -990,4 +992,5 @@
     
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */
+
 

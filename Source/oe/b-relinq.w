@@ -883,6 +883,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR v-rel-no AS INT NO-UNDO.
+DEF VAR v-rel-cust AS CHAR NO-UNDO.
+FIND CURRENT oe-relh NO-LOCK NO-ERROR .
+
+IF AVAIL oe-relh THEN ASSIGN
+    v-rel-no = oe-relh.release#
+    v-rel-cust = oe-relh.cust-no .
+RUN oeinq/rel-expi.w (INPUT v-rel-no,
+                        INPUT v-rel-cust,
+                        INPUT "").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE first-query B-table-Win 
 PROCEDURE first-query :
 /*------------------------------------------------------------------------------

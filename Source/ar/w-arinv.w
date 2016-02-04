@@ -301,7 +301,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/options.w':U ,
+             INPUT  'smartobj/options4.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
@@ -619,6 +619,22 @@ PROCEDURE select_add :
   run select-page(2).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-inv-target", output char-hdl).
   run add-inv in widget-handle(char-hdl).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_notes_spec W-Win 
+PROCEDURE Select_notes_spec :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN Get_Procedure IN Persistent-Handle ('specnote.',OUTPUT run-proc,no).
+    IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .      
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

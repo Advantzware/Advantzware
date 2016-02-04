@@ -548,8 +548,6 @@ DEF BUFFER io-oe-retl FOR oe-retl.
       FIRST itemfg
           where itemfg.company eq cocode
             and itemfg.i-no    eq tt-report.key-07
-            AND itemfg.part-no GE fpartno
-            AND itemfg.part-no LE tpartno
           NO-LOCK
 
       break by tt-report.key-01

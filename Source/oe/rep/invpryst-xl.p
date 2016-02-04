@@ -517,10 +517,14 @@ for each report where report.term-id eq v-term-id no-lock,
                                    oe-ordl.i-no = inv-line.i-no
                                    no-lock no-error.
 
+          IF AVAIL oe-ordl THEN
+              ASSIGN v-i-dscr = oe-ordl.i-name  .
+          ELSE v-i-dscr = inv-line.part-dscr1 .
+
+
           assign v-inv-qty = inv-line.qty
                  v-ship-qty = inv-line.ship-qty
                  v-i-no = inv-line.i-no
-                 v-i-dscr = inv-line.part-dscr1
                  v-price = inv-line.price * (1 - (inv-line.disc / 100))
                  v-t-price = inv-line.t-price
                  v-subtot-lines = v-subtot-lines + inv-line.t-price
@@ -818,7 +822,7 @@ for each report where report.term-id eq v-term-id no-lock,
     chExcelApplication:Rows(v-cell):SELECT.
     chExcelApplication:SELECTION:DELETE. 
 
-    ASSIGN v-cell = "R" + STRING(inrowcount) + "C45".
+    ASSIGN v-cell = "R" + STRING(inrowcount) + "C39".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN chExcelApplication:ActiveCell:Value = v-cartot-lines.
 
@@ -923,11 +927,10 @@ for each report where report.term-id eq v-term-id no-lock,
       ASSIGN tt-FileCtr  = LvCtr
              tt-FileName = v-dir + "invoice.pdf".
     END.
-    ELSE IF LvOutputSelection = "Screen" THEN
-    DO:
-      chExcelApplication:ActiveSheet:Range("A15"):SELECT.
-      /*chExcelApplication:ActiveSheet:Protect("advance4me").*/
-    END.
+/*     ELSE IF LvOutputSelection = "Screen" THEN               */
+/*     DO:                                                     */
+/*       chExcelApplication:ActiveSheet:Protect("advance4me"). */
+/*     END.                                                    */
 
     /* RELEASE OBJECTS */
     RELEASE OBJECT chWorkbook NO-ERROR.

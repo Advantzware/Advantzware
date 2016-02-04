@@ -161,21 +161,43 @@ IF NOT AVAIL fg-bin
   
     /* This find is here to prevent error related to the unique index */
     /* in case the record was not found above 08211403                */
-    IF tt-boll.s-code EQ "S" THEN
+    IF tt-boll.s-code EQ "S" THEN DO:
+      /* No match on loc since placeholder always has default loc */
       FIND FIRST fg-bin 
-        WHERE fg-bin.company    EQ cocode
-          /* AND fg-bin.bol-no     eq tt-bolh.bol-no */
+        WHERE fg-bin.company    EQ cocode          
           AND fg-bin.i-no       EQ tt-boll.i-no
-          /* AND fg-bin.loc        eq tt-boll.loc */
           AND fg-bin.job-no     EQ tt-boll.job-no
           AND fg-bin.job-no2    EQ tt-boll.job-no2
-/*          AND (fg-bin.ord-no     eq oe-ordl.ord-no OR fg-bin.ord-no EQ 0) */
           AND fg-bin.tag        EQ "" /* tt-boll.tag */
           AND fg-bin.loc-bin    EQ "" /* tt-boll.loc-bin */
           AND fg-bin.cust-no    EQ lv-{2}-cust-no
           AND ((fg-bin.qty LT 0 AND fg-bin.cust-no EQ "") OR (fg-bin.qty GT 0 AND fg-bin.cust-no GT "")) 
         NO-ERROR.
-    
+
+      /* Try without job-no and ord-no */
+      IF NOT AVAIL fg-bin THEN
+      FIND FIRST fg-bin 
+        WHERE fg-bin.company    EQ cocode
+          AND fg-bin.i-no       EQ tt-boll.i-no
+          AND fg-bin.tag        EQ "" /* tt-boll.tag */
+          AND fg-bin.loc-bin    EQ "" /* tt-boll.loc-bin */
+          AND fg-bin.cust-no    EQ lv-{2}-cust-no
+          AND ((fg-bin.qty LT 0 AND fg-bin.cust-no EQ "") OR (fg-bin.qty GT 0 AND fg-bin.cust-no GT "")) 
+        NO-ERROR.
+
+     /* Try without cust-no */
+     IF NOT AVAIL fg-bin THEN         
+     FIND FIRST fg-bin 
+        WHERE fg-bin.company    EQ cocode
+          AND fg-bin.i-no       EQ tt-boll.i-no
+          AND fg-bin.tag        EQ "" /* tt-boll.tag */
+          AND fg-bin.loc-bin    EQ "" /* tt-boll.loc-bin */
+          AND fg-bin.cust-no    EQ ""
+          AND ((fg-bin.qty LT 0 AND fg-bin.cust-no EQ "") OR (fg-bin.qty GT 0 AND fg-bin.cust-no GT "")) 
+        NO-ERROR.
+
+ 
+    END. /* s-code eq 'S' */
     
     
     /* Make sure no duplicate with unique index */
@@ -186,6 +208,7 @@ IF NOT AVAIL fg-bin
             AND fg-bin.loc        EQ tt-boll.loc
             /* This is wrong, the placeholder record never has a loc-bin */
             /* AND fg-bin.loc-bin    EQ (IF tt-boll.s-code EQ "S" THEN tt-boll.loc-bin ELSE  "") */
+            AND fg-bin.loc-bin    EQ ""
             /* This is wrong, placeholder record should never have a tag */
             /*  AND fg-bin.tag        EQ (IF tt-boll.s-code EQ "S" THEN tt-boll.tag ELSE "") */
             AND fg-bin.job-no     EQ (IF AVAIL b-fg-bin THEN  b-fg-bin.job-no ELSE tt-boll.job-no)
@@ -397,8 +420,8 @@ IF AVAIL(fg-bin) THEN DO:
    END.
 
    IF fg-bin.qty = 0 AND tt-boll.s-code NE "S" THEN
-      DELETE fg-bin. 
-END.
+     DELETE fg-bin. 
+ END.
 
 /* end ---------------------------------- copr. 1999  advanced software, inc. */
 

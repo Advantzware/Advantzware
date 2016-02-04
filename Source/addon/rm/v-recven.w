@@ -500,14 +500,14 @@ DO:
          APPLY "ENTRY" TO scr-po-line.
          RETURN NO-APPLY.
       END.
-      ELSE IF po-ordl.stat EQ "C" THEN
+ /*     ELSE IF po-ordl.stat EQ "C" THEN
       DO:
          op-error = YES.
          MESSAGE "Sorry, PO Line is Closed."
              VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO scr-po-line.
          RETURN NO-APPLY.
-      END.
+      END.*/
       ELSE IF po-ordl.item-type EQ NO THEN
       DO:
          op-error = YES.

@@ -80,7 +80,6 @@ DEF TEMP-TABLE w-est-no
 
 RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -112,9 +111,9 @@ itemfg.die-no itemfg.plate-no itemfg.cad-no itemfg.spc-no itemfg.upc-no ~
 itemfg.cust-no itemfg.cust-name itemfg.stat itemfg.pur-man itemfg.ship-meth ~
 itemfg.i-code itemfg.sell-price itemfg.sell-uom itemfg.curr-code[1] ~
 itemfg.procat itemfg.procat-desc itemfg.type-code itemfg.def-loc ~
-itemfg.def-loc-bin itemfg.case-count itemfg.weight-100 itemfg.frt-class ~
-itemfg.frt-class-dscr itemfg.class itemfg.cc-code itemfg.prod-code ~
-itemfg.prod-notes itemfg.std-mat-cost itemfg.std-lab-cost ~
+itemfg.def-loc-bin itemfg.case-count itemfg.case-pall itemfg.weight-100 ~
+itemfg.frt-class itemfg.frt-class-dscr itemfg.class itemfg.cc-code ~
+itemfg.prod-code itemfg.prod-notes itemfg.std-mat-cost itemfg.std-lab-cost ~
 itemfg.std-var-cost itemfg.std-fix-cost itemfg.spare-dec-1 ~
 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost itemfg.prod-uom 
 &Scoped-define ENABLED-TABLES itemfg
@@ -128,11 +127,12 @@ itemfg.style-desc itemfg.die-no itemfg.plate-no itemfg.cad-no itemfg.spc-no ~
 itemfg.upc-no itemfg.cust-no itemfg.cust-name itemfg.stat itemfg.pur-man ~
 itemfg.ship-meth itemfg.i-code itemfg.sell-price itemfg.sell-uom ~
 itemfg.curr-code[1] itemfg.procat itemfg.procat-desc itemfg.type-code ~
-itemfg.def-loc itemfg.def-loc-bin itemfg.case-count itemfg.weight-100 ~
-itemfg.frt-class itemfg.frt-class-dscr itemfg.class itemfg.cc-code ~
-itemfg.prod-code itemfg.prod-notes itemfg.std-mat-cost itemfg.std-lab-cost ~
-itemfg.std-var-cost itemfg.std-fix-cost itemfg.spare-dec-1 ~
-itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost itemfg.prod-uom 
+itemfg.def-loc itemfg.def-loc-bin itemfg.case-count itemfg.case-pall ~
+itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr itemfg.class ~
+itemfg.cc-code itemfg.prod-code itemfg.prod-notes itemfg.std-mat-cost ~
+itemfg.std-lab-cost itemfg.std-var-cost itemfg.std-fix-cost ~
+itemfg.spare-dec-1 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost ~
+itemfg.prod-uom 
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
 &Scoped-Define DISPLAYED-OBJECTS tb_taxable tgVaried tg-Freeze-weight ~
@@ -179,7 +179,7 @@ DEFINE VARIABLE fi_type-dscr AS CHARACTER FORMAT "X(15)":U
 
 DEFINE RECTANGLE RECT-10
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 76 BY 5.24.
+     SIZE 76.5 BY 5.24.
 
 DEFINE RECTANGLE RECT-11
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -187,7 +187,7 @@ DEFINE RECTANGLE RECT-11
 
 DEFINE RECTANGLE RECT-12
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 76 BY 4.1.
+     SIZE 76.5 BY 4.1.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -195,19 +195,19 @@ DEFINE RECTANGLE RECT-8
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 76 BY 7.62.
+     SIZE 76.5 BY 7.62.
 
-DEFINE VARIABLE tb_taxable AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_taxable AS LOGICAL INITIAL no 
      LABEL "Taxable?" 
      VIEW-AS TOGGLE-BOX
      SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tg-Freeze-weight AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tg-Freeze-weight AS LOGICAL INITIAL no 
      LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 3 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tgVaried AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tgVaried AS LOGICAL INITIAL no 
      LABEL "Varied" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.4 BY .81 NO-UNDO.
@@ -300,14 +300,14 @@ DEFINE FRAME F-Main
           "" NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
-                    "Purchased", YES,
-"Manufactured", NO
+                    "Purchased", yes,
+"Manufactured", no
           SIZE 38.2 BY .95
      itemfg.ship-meth AT ROW 4 COL 85.4 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
-                    "Case", YES,
-"Pallet", NO
+                    "Case", yes,
+"Pallet", no
           SIZE 22 BY .95
      itemfg.i-code AT ROW 4 COL 108.2 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
@@ -330,7 +330,7 @@ DEFINE FRAME F-Main
           LABEL "UOM" FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     itemfg.curr-code[1] AT ROW 5.57 COL 131.6 COLON-ALIGNED
+     itemfg.curr-code[1] AT ROW 5.57 COL 132 COLON-ALIGNED
           LABEL "Currency"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -341,7 +341,7 @@ DEFINE FRAME F-Main
      itemfg.procat-desc AT ROW 6.57 COL 94 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 23 BY .95
-     itemfg.type-code AT ROW 6.57 COL 137.6 COLON-ALIGNED NO-LABEL
+     itemfg.type-code AT ROW 6.57 COL 138 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
      itemfg.def-loc AT ROW 7.57 COL 81.6 COLON-ALIGNED
@@ -353,31 +353,37 @@ DEFINE FRAME F-Main
           SIZE 16.4 BY 1
      itemfg.case-count AT ROW 9.52 COL 81.6 COLON-ALIGNED HELP
           "Enter Qty per Case, Bundle or Pallet"
-          LABEL "Count" FORMAT ">>>,>>9"
+          LABEL "Count" FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 16.4 BY 1
+          SIZE 10.4 BY 1
+     itemfg.case-pall AT ROW 9.52 COL 104.2 COLON-ALIGNED HELP
+          ""
+          LABEL "Unit/Pall" FORMAT ">>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
      itemfg.weight-100 AT ROW 10.52 COL 81.6 COLON-ALIGNED
           LABEL "Lbs/ 100" FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 16.4 BY 1
      tg-Freeze-weight AT ROW 10.52 COL 100 WIDGET-ID 14
-     itemfg.frt-class AT ROW 11.57 COL 84.8 COLON-ALIGNED HELP
+     itemfg.frt-class AT ROW 11.57 COL 85 COLON-ALIGNED HELP
           "Enter A,B,C"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     itemfg.frt-class-dscr AT ROW 11.57 COL 96.6 COLON-ALIGNED NO-LABEL
+     itemfg.frt-class-dscr AT ROW 11.57 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 45 BY 1
-     itemfg.class AT ROW 7.57 COL 124.6 COLON-ALIGNED
+     itemfg.class AT ROW 7.57 COL 128.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 17 BY .95
-     itemfg.cc-code AT ROW 8.52 COL 124.6 COLON-ALIGNED
+          SIZE 13.8 BY .95
+     itemfg.cc-code AT ROW 8.52 COL 128.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 17 BY .95
-     itemfg.prod-code AT ROW 9.48 COL 124.6 COLON-ALIGNED FORMAT "X(6)"
+          SIZE 13.8 BY .95
+     itemfg.prod-code AT ROW 9.48 COL 128.4 COLON-ALIGNED 
+          LABEL "Prod Code" FORMAT "X(6)"
           VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-     itemfg.prod-notes AT ROW 10.52 COL 113.6 COLON-ALIGNED
+          SIZE 13.8 BY 1
+     itemfg.prod-notes AT ROW 10.52 COL 114 COLON-ALIGNED
           LABEL "Pk Note"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
@@ -397,10 +403,6 @@ DEFINE FRAME F-Main
           LABEL "Std Fix OH Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     itemfg.spare-dec-1 AT ROW 16.91 COL 88.6 COLON-ALIGNED WIDGET-ID 4
-          LABEL "Full Cost" FORMAT "->>>>>>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -408,6 +410,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     itemfg.spare-dec-1 AT ROW 16.91 COL 88.6 COLON-ALIGNED WIDGET-ID 4
+          LABEL "Full Cost" FORMAT "->>>>>>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      itemfg.total-std-cost AT ROW 13.1 COL 124.6 COLON-ALIGNED
           LABEL "Total Std Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
@@ -501,6 +507,11 @@ ASSIGN
 /* SETTINGS FOR FILL-IN itemfg.cad-no IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.case-count IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+/* SETTINGS FOR FILL-IN itemfg.case-pall IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+
+/* SETTINGS FOR FILL-IN itemfg.prod-code IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN itemfg.curr-code[1] IN FRAME F-Main
    EXP-LABEL                                                            */

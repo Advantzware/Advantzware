@@ -97,6 +97,7 @@ DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-oerel AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-relhs AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-oereh AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -332,6 +333,14 @@ PROCEDURE adm-create-objects :
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 69.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'oe/b-relinq.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -343,6 +352,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_b-relinq. */
        RUN add-link IN adm-broker-hdl ( h_options , 'prnt-hld':U , h_b-relinq ).
        RUN add-link IN adm-broker-hdl ( h_b-relinq , 'Record':U , THIS-PROCEDURE ).
+
+       /* Links to SmartViewer h_export. */
+       RUN add-link IN adm-broker-hdl ( h_b-relinq , 'export-xl':U , h_export ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-relinq ,

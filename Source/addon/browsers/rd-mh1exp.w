@@ -1084,19 +1084,19 @@ FOR EACH machemp WHERE machemp.posted = no
                  ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
              END.
              WHEN "strd-dt" THEN do:
-                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(machemp.start_time,'HH:MM am')).                          
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(trim(STRING(machemp.start_time,'HH:MM am'))).                          
              END.
              WHEN "ended" THEN do:
                  IF machemp.end_time = 0 AND machemp.end_date EQ ? THEN
                      v-excel-detail-lines = v-excel-detail-lines + "," .
                  ELSE
-                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(machemp.end_time,'HH:MM am')).                          
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(trim(STRING(machemp.end_time,'HH:MM am'))).                          
              END.
              WHEN "total" THEN do:
                  IF machemp.total_time = 0 AND machemp.end_date EQ ? THEN
                      v-excel-detail-lines = v-excel-detail-lines + "," .
                  ELSE
-                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(machemp.total_time,'HH:MM')).                          
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(trim(STRING(machemp.total_time,'HH:MM'))).                          
              END.
              WHEN "rate_usage" THEN do:
                  IF machemp.rate_usage = YES THEN

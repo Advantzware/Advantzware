@@ -98,14 +98,14 @@ ASSIGN cTextListToDefault  = "Item#,PTD MSF,PTD Cost,YTD MSF,YTD Cost"  .
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_due-date begin_vend-no ~
-end_vend-no begin_i-code end_i-code begin_prod-cat end_prod-cat begin_flute ~
-end_flute begin_cal end_cal begin_acct end_acct tb_det select-mat rd_fg-rm ~
+end_vend-no begin_prod-cat end_prod-cat begin_flute end_flute begin_cal ~
+end_cal begin_acct end_acct tb_det rd_fg-rm select-mat rd_item-code ~
 btn_SelectColumns lv-ornt lines-per-page rd-dest lv-font-no ~
 td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_due-date begin_vend-no end_vend-no ~
-begin_i-code end_i-code begin_prod-cat end_prod-cat begin_flute end_flute ~
-begin_cal end_cal begin_acct end_acct tb_det select-mat lbl_fg-rm rd_fg-rm ~
-lv-ornt lines-per-page rd-dest lv-font-no lv-font-name ~
+begin_prod-cat end_prod-cat begin_flute end_flute begin_cal end_cal ~
+begin_acct end_acct tb_det lbl_fg-rm rd_fg-rm select-mat lbl_fg-rm-2 ~
+rd_item-code lv-ornt lines-per-page rd-dest lv-font-no lv-font-name ~
 td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
@@ -163,11 +163,6 @@ DEFINE VARIABLE begin_flute AS CHARACTER FORMAT "X(15)"
      VIEW-AS FILL-IN 
      SIZE 16 BY 1.
 
-DEFINE VARIABLE begin_i-code AS CHARACTER FORMAT "X":U INITIAL "E" 
-     LABEL "Beginning RM Item Code" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
 DEFINE VARIABLE begin_prod-cat AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning Product Cat." 
      VIEW-AS FILL-IN 
@@ -193,11 +188,6 @@ DEFINE VARIABLE end_flute AS CHARACTER FORMAT "X(15)" INITIAL "zzz"
      VIEW-AS FILL-IN 
      SIZE 16 BY 1.
 
-DEFINE VARIABLE end_i-code AS CHARACTER FORMAT "X":U INITIAL "R" 
-     LABEL "Ending RM Item Code" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
 DEFINE VARIABLE end_prod-cat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending Product Cat." 
      VIEW-AS FILL-IN 
@@ -215,6 +205,10 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-venanl.c
      FGCOLOR 9 .
 
 DEFINE VARIABLE lbl_fg-rm AS CHARACTER FORMAT "X(256)":U INITIAL "Print?" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY .91 NO-UNDO.
+
+DEFINE VARIABLE lbl_fg-rm-2 AS CHARACTER FORMAT "X(256)":U INITIAL "Print?" 
      VIEW-AS FILL-IN 
      SIZE 7 BY .91 NO-UNDO.
 
@@ -262,6 +256,14 @@ DEFINE VARIABLE rd_fg-rm AS CHARACTER INITIAL "Both"
 "RM", "RM",
 "Both", "Both"
      SIZE 26 BY .95 NO-UNDO.
+
+DEFINE VARIABLE rd_item-code AS CHARACTER INITIAL "Both" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Real", "Real",
+"Estimated", "Estimated",
+"Both", "Both"
+     SIZE 31.2 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -315,31 +317,29 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Vendor Number"
      end_vend-no AT ROW 3.38 COL 69 COLON-ALIGNED HELP
           "Enter Ending Vendor number"
-     begin_i-code AT ROW 4.33 COL 28 COLON-ALIGNED HELP
-          "Enter Beginning Item Code"
-     end_i-code AT ROW 4.33 COL 69 COLON-ALIGNED HELP
-          "Enter Ending Item Code"
-     begin_prod-cat AT ROW 5.29 COL 28 COLON-ALIGNED HELP
+     begin_prod-cat AT ROW 4.33 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Product Category"
-     end_prod-cat AT ROW 5.29 COL 69 COLON-ALIGNED HELP
+     end_prod-cat AT ROW 4.33 COL 69 COLON-ALIGNED HELP
           "Enter Ending Product Category"
-     begin_flute AT ROW 6.24 COL 28 COLON-ALIGNED HELP
+     begin_flute AT ROW 5.29 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Flute"
-     end_flute AT ROW 6.24 COL 69 COLON-ALIGNED HELP
+     end_flute AT ROW 5.29 COL 69 COLON-ALIGNED HELP
           "Enter Ending Flute"
-     begin_cal AT ROW 7.19 COL 28 COLON-ALIGNED HELP
+     begin_cal AT ROW 6.24 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Caliper"
-     end_cal AT ROW 7.19 COL 69 COLON-ALIGNED HELP
+     end_cal AT ROW 6.24 COL 69 COLON-ALIGNED HELP
           "Enter Ending Caliper"
-     begin_acct AT ROW 8.38 COL 20 COLON-ALIGNED HELP
+     begin_acct AT ROW 7.48 COL 20 COLON-ALIGNED HELP
           "Enter Beginning Account Number"
-     end_acct AT ROW 8.38 COL 64 COLON-ALIGNED HELP
+     end_acct AT ROW 7.48 COL 64 COLON-ALIGNED HELP
           "Enter Ending Account Number"
-     tb_det AT ROW 9.95 COL 15.8
+     tb_det AT ROW 9.05 COL 15.8
+     lbl_fg-rm AT ROW 10.19 COL 5.8 COLON-ALIGNED NO-LABEL
+     rd_fg-rm AT ROW 10.24 COL 15.8 NO-LABEL
      select-mat AT ROW 10.76 COL 50 HELP
           "Enter description of this Material Type." NO-LABEL
-     lbl_fg-rm AT ROW 11.14 COL 5.8 COLON-ALIGNED NO-LABEL
-     rd_fg-rm AT ROW 11.14 COL 15.8 NO-LABEL
+     lbl_fg-rm-2 AT ROW 11.38 COL 5.8 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+     rd_item-code AT ROW 11.43 COL 15.8 NO-LABEL WIDGET-ID 32
      mat-types AT ROW 12.38 COL 45.6 COLON-ALIGNED
      btn_SelectColumns AT ROW 13.81 COL 4 WIDGET-ID 10
      lv-ornt AT ROW 15.95 COL 31 NO-LABEL
@@ -359,10 +359,10 @@ DEFINE FRAME FRAME-A
      "Select/Deselect Material Types" VIEW-AS TEXT
           SIZE 38 BY 1 AT ROW 9.81 COL 51
           FONT 6
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.76 COL 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1 COL 5
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 15.76 COL 3
      RECT-6 AT ROW 15.52 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -439,10 +439,6 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       begin_i-code:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
        begin_prod-cat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -463,10 +459,6 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       end_i-code:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
        end_prod-cat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -484,6 +476,12 @@ ASSIGN
        lbl_fg-rm:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_fg-rm".
 
+/* SETTINGS FOR FILL-IN lbl_fg-rm-2 IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_fg-rm-2:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_fg-rm".
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN mat-types IN FRAME FRAME-A
@@ -495,6 +493,10 @@ ASSIGN
 
 ASSIGN 
        rd_fg-rm:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       rd_item-code:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -597,17 +599,6 @@ END.
 ON LEAVE OF begin_flute IN FRAME FRAME-A /* Beginning Flute */
 DO:
      assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME begin_i-code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-code C-Win
-ON LEAVE OF begin_i-code IN FRAME FRAME-A /* Beginning RM Item Code */
-DO:
-  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -759,17 +750,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_i-code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-code C-Win
-ON LEAVE OF end_i-code IN FRAME FRAME-A /* Ending RM Item Code */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME end_prod-cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_prod-cat C-Win
 ON LEAVE OF end_prod-cat IN FRAME FRAME-A /* Ending Product Cat. */
@@ -886,6 +866,17 @@ END.
 &Scoped-define SELF-NAME rd_fg-rm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_fg-rm C-Win
 ON VALUE-CHANGED OF rd_fg-rm IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rd_item-code
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_item-code C-Win
+ON VALUE-CHANGED OF rd_item-code IN FRAME FRAME-A
 DO:
   assign {&self-name}.
 END.
@@ -1226,17 +1217,17 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_due-date begin_vend-no end_vend-no begin_i-code end_i-code 
-          begin_prod-cat end_prod-cat begin_flute end_flute begin_cal end_cal 
-          begin_acct end_acct tb_det select-mat lbl_fg-rm rd_fg-rm lv-ornt 
+  DISPLAY begin_due-date begin_vend-no end_vend-no begin_prod-cat end_prod-cat 
+          begin_flute end_flute begin_cal end_cal begin_acct end_acct tb_det 
+          lbl_fg-rm rd_fg-rm select-mat lbl_fg-rm-2 rd_item-code lv-ornt 
           lines-per-page rd-dest lv-font-no lv-font-name td-show-parm 
           tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 begin_due-date begin_vend-no end_vend-no begin_i-code 
-         end_i-code begin_prod-cat end_prod-cat begin_flute end_flute begin_cal 
-         end_cal begin_acct end_acct tb_det select-mat rd_fg-rm 
-         btn_SelectColumns lv-ornt lines-per-page rd-dest lv-font-no
-         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 begin_due-date begin_vend-no end_vend-no begin_prod-cat 
+         end_prod-cat begin_flute end_flute begin_cal end_cal begin_acct 
+         end_acct tb_det rd_fg-rm select-mat rd_item-code btn_SelectColumns 
+         lv-ornt lines-per-page rd-dest lv-font-no td-show-parm 
+         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1443,8 +1434,8 @@ assign
  p-date#       = begin_due-date
  b-vendor#     = begin_vend-no
  e-vendor#     = end_vend-no
- b-itemcode#   = begin_i-code
- e-itemcode#   = end_i-code
+ /*b-itemcode#   = begin_i-code
+ e-itemcode#   = end_i-code*/
  b-category#   = begin_prod-cat
  e-category#   = end_prod-cat
  b-flute#      = begin_flute
@@ -1453,6 +1444,7 @@ assign
  e-caliper#    = end_cal
  detail-flag#  = tb_det
  v-type        = substr(rd_fg-rm,1,1)
+ b-itemcode#   = SUBSTRING(rd_item-code,1,1)
  v-mattype-list = "".
 
 do with frame {&frame-name}:          

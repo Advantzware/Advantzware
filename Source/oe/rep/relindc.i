@@ -102,14 +102,15 @@ IF ll-display-comp THEN DO:
 
 format
   tt-rell.ord-no
-  tt-rell.po-no at 8
-  tt-rell.loc-bin  AT 23  FORM "x(5)"
+  tt-rell.po-no at 9
+  /*tt-rell.loc-bin  AT 23  FORM "x(5)"*/
   tt-rell.i-no at 29  oe-ordl.i-name at 44
   oe-ordl.qty format "->>>>>>>9" to 83
   tt-rell.qty format "->>>>>>>9" SKIP
   with down frame relprint no-box no-label STREAM-IO width 110.
 
 FORMAT
+  tt-rell.loc-bin  AT 9  FORM "x(9)"
   v-tag AT 29 FORM "x(15)"
   oe-ordl.part-dscr1 at 44 format "x(30)" 
   tt-rell.partial  TO 83 
@@ -320,7 +321,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               and oe-ordl.i-no    eq tt-rell.i-no
               and oe-ordl.line    eq tt-rell.line
             no-lock no-error.
-
+   
         if v-headers then do:
           find itemfg of tt-rell no-lock no-error.
           locbin = "".
@@ -345,7 +346,6 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              display
               tt-rell.ord-no
               tt-rell.po-no
-              tt-rell.loc-bin  
               tt-rell.i-no
               tt-rell.qty-case @ oe-ordl.qty
               tt-rell.cases @ tt-rell.qty
@@ -364,6 +364,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               END.
 
               DISPLAY
+               tt-rell.loc-bin  
                v-tag
                oe-ordl.part-no WHEN s-print-part-no
                oe-ordl.part-dscr1 when avail oe-ordl   /* CTS */
@@ -379,10 +380,10 @@ if v-zone-p then v-zone-hdr = "Route No.:".
 
             display
               tt-rell.ord-no
-              tt-rell.po-no  AT 8
+              tt-rell.po-no  AT 9
               tt-rell.i-no   AT 29
               tt-rell.qty-case @ oe-ordl.qty TO 83
-              tt-rell.cases @ tt-rell.qty
+              tt-rell.cases @ tt-rell.qty 
               with frame ln-s-comp STREAM-IO NO-BOX NO-LABELS WIDTH 120.
              v-printline = v-printline + 2.
             down with frame ln-s-comp.
@@ -418,8 +419,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
 
           display
             tt-rell.ord-no
-            tt-rell.po-no       AT 8
-            tt-rell.loc-bin     AT 23   FORMAT "x(5)"   WHEN v-p-bin
+            tt-rell.po-no       AT 9
+            /*tt-rell.loc-bin     AT 23   FORMAT "x(5)"   WHEN v-p-bin*/
             tt-rell.i-no        AT 29
             tt-rell.qty-case @ oe-ordl.qty TO 83
             tt-rell.cases @ tt-rell.qty
@@ -444,6 +445,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                  v-part-dscr = if i eq 1 then oe-ordl.i-name
                                else if i eq 2 then oe-ordl.part-dscr1
                                else   oe-ordl.part-dscr2.
+                 IF i = 1 AND v-p-bin THEN PUT tt-rell.loc-bin     AT 9   FORMAT "x(9)" .
                  IF i = 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 29.              
                  if v-part-dscr ne "" then put v-part-dscr at 44 FORM "x(25)" .
                  IF lv-partial > 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              

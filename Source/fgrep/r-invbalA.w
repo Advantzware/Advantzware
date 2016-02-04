@@ -1036,13 +1036,16 @@ display "" with frame r-top.
 
       if v-rebuild then 
         run fg/rep/fg-reset.p (recid(itemfg)). 
-      else                                    
+      ELSE DO:                                    
+          RUN fg/calcqa&b.p (ROWID(itemfg), OUTPUT v-q-alloc,
+                                        OUTPUT v-q-back).
         assign
          v-q-onh   = itemfg.q-onh
          v-q-ono   = itemfg.q-ono
-         v-q-alloc = itemfg.q-alloc
-         v-q-back  = itemfg.q-back.
-
+/*          v-q-alloc = itemfg.q-alloc */
+/*          v-q-back  = itemfg.q-back  */
+            .
+      END.
       if first-of(itemfg.cust-no) and not first(itemfg.cust-no) then page.
 
       display itemfg.cust-no    when first-of(itemfg.cust-no)

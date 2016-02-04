@@ -40,12 +40,13 @@ DEFINE TEMP-TABLE statusCheckOffs NO-UNDO
 
 RUN updateColumns. /* add newly added columns incase they are missing */
 
-OUTPUT TO VALUE(installDir + 'schedule\load.log') APPEND.
-PUT UNFORMATTED 'Start Load: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' by ' sbUser SKIP.
-OUTPUT CLOSE.
 traceON = SEARCH(findProgram('{&startDir}/','','traceON.dat')) NE ?.
 
 &IF '{&Board}' NE 'View' &THEN
+OUTPUT TO VALUE('schedule\load.log') APPEND.
+PUT UNFORMATTED 'Start Load: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' sbUser SKIP.
+OUTPUT CLOSE.
+
 OUTPUT STREAM sCapacity TO VALUE(SEARCH('{&data}/' + ID + '/capacity.dat')).
 OUTPUT STREAM sJobNotes TO VALUE(SEARCH('{&data}/' + ID + '/jobNotes.dat')).
 OUTPUT STREAM sPending  TO VALUE(SEARCH('{&data}/' + ID + '/Pending.dat')).

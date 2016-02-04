@@ -46,6 +46,8 @@ DEFINE VARIABLE total-time AS CHARACTER NO-UNDO.
 /* gdm - 11210805*/
 &SCOPED-DEFINE yellowColumnsName machtran2
 
+&SCOPED-DEFINE browse2 touch\j-machtran2.i
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

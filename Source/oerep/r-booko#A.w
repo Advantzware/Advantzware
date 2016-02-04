@@ -1062,7 +1062,7 @@ for each oe-ord
     no-lock
 
     break by oe-ord.ord-no:
-     {custom/statusMsg.i "'Processing Order # ' + string(oe-ordl.ord-no)"} 
+     {custom/statusMsg.i "'Processing Order # ' + string(b-oe-ordl.ord-no)"} 
     display 
         oe-ord.ord-no
         trim(oe-ord.est-no)   @ oe-ord.est-no
@@ -1092,7 +1092,19 @@ for each oe-ord
 
         if v-qty-lft lt 0 then v-qty-lft = 0.  
 
-        if oe-ordl.pr-uom begins "L" then
+         find first itemfg {sys/look/itemfgrl.w} 
+                   and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
+
+        RUN  oe/GetPriceTotal.p(
+          INPUT oe-ordl.qty,
+          INPUT oe-ordl.price,
+          INPUT oe-ordl.pr-uom,
+          INPUT ( IF AVAIL itemfg THEN itemfg.case-count ELSE 0),
+          INPUT oe-ordl.disc,
+          OUTPUT v-ext-price
+          ).  /* task 01241601 */
+
+        /*if oe-ordl.pr-uom begins "L" then
           v-ext-price = 
             oe-ordl.price - round((oe-ordl.price * oe-ordl.disc) / 100, 2).
         else if oe-ordl.pr-uom eq "CS" then 
@@ -1123,7 +1135,7 @@ for each oe-ord
         else /** DEFAULT PER THOUSAND **/
           v-ext-price = ((v-qty-lft / 1000) * oe-ordl.price) -
                     round((((v-qty-lft / 1000) *
-                            oe-ordl.price) * oe-ordl.disc) / 100, 2).
+                            oe-ordl.price) * oe-ordl.disc) / 100, 2).*/
 
        /** CALCULATE FREIGHT CHARGES **/
         v-tot-freight = v-tot-freight +

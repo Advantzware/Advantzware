@@ -54,10 +54,10 @@ DEF VAR cFieldLength AS cha NO-UNDO.
 DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 
-ASSIGN cTextListToSelect = "FG Part #,Name,Qty Per Set,On-hand,POs/Jobs On Order,Allocated To Orders,Back Order," +
-                                                "Available,Set Header"
+ASSIGN cTextListToSelect = "Item #,Item Name,Qty Per Set,On-hand,POs/Jobs On Order,Allocated To Orders,Back Order," +
+                                                "Available,Set Header,H/C"
             cFieldListToSelect = "part-no,name,qty-per,oh-qty,po-job,allo-ord,bck-ord," +
-                                             "avbl,set-hdr"  .
+                                             "avbl,set-hdr,v-hc"  .
 
 {sys/inc/ttRptSel.i}
 
@@ -945,6 +945,7 @@ def var lv-q-avl  like itemfg.q-avail no-undo.
 DEF VAR lv-part-name AS CHAR NO-UNDO .
 DEF VAR lv-avail LIKE lv-q-all NO-UNDO .
 DEF BUFFER b-itemfg FOR itemfg.
+DEF VARIABLE v-hc AS CHAR NO-UNDO .
  
 ASSIGN
    lv-q-onh = 0
@@ -986,8 +987,8 @@ IF tb_excel THEN
           cSlist = cSlist + ttRptSelected.FieldList + ",".
  END.
    
- /*IF tb_excel THEN
-   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.*/
+ IF tb_excel THEN
+   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
  
    
  FOR EACH itemfg WHERE itemfg.company eq cocode
@@ -997,19 +998,46 @@ IF tb_excel THEN
      AND itemfg.cust-no LE  end_cust
      AND itemfg.isaset EQ YES NO-LOCK :
 
-     /* IF FIRST-OF(itemfg.i-no) THEN do:*/
-          IF tb_excel THEN
-           PUT STREAM excel UNFORMATTED
-               '"' "Item No"                                 '",'
-               '"' "Item Name"                                  '",'
-               '"' "Qty On-Hand"   '",' SKIP
-               '"' STRING(itemfg.i-no)   '",'
-               '"' STRING(itemfg.i-name)  '",'
-               '"' STRING(itemfg.q-onh)   '",'
-               SKIP.
-          PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-    /* END. */
+     
+       v-hc = "H" .
+          
+        ASSIGN cDisplay = ""
+            cTmpField = ""
+            cVarValue = ""
+            cExcelDisplay = ""
+            cExcelVarValue = "".
 
+     DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+       cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+   
+
+             CASE cTmpField:    
+                  WHEN "part-no" THEN cVarValue = STRING(itemfg.i-no). 
+                  WHEN "name" THEN cVarValue = STRING(itemfg.i-name). 
+                  WHEN "qty-per" THEN cVarValue = "1". 
+                  WHEN "oh-qty" THEN cVarValue = STRING(itemfg.q-onh,"->,>>>,>>>,>>9"). 
+
+                  WHEN "po-job" THEN cVarValue = STRING(itemfg.q-ono,"->,>>>,>>>,>>9"). 
+                  WHEN "allo-ord" THEN cVarValue = STRING(itemfg.q-alloc,"->,>>>,>>>,>>9"). 
+                  WHEN "bck-ord" THEN cVarValue = STRING(itemfg.q-back,"->,>>>,>>>,>>9"). 
+                  WHEN "avbl" THEN cVarValue = STRING((itemfg.q-onh + itemfg.q-ono) - itemfg.q-alloc,"->,>>>,>>>,>>9"). 
+
+                  WHEN "set-hdr" THEN cVarValue = "". 
+                  WHEN "v-hc" THEN cVarValue = STRING(v-hc) .
+
+             END CASE.
+
+             cExcelVarValue = cVarValue.
+           /*  cDisplay = cDisplay + cVarValue +
+                                   FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). */
+                       cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".          
+     END.
+      
+     IF tb_excel THEN DO:
+         PUT STREAM excel UNFORMATTED  
+               cExcelDisplay SKIP .
+     END.
+   
   FOR  EACH fg-set WHERE fg-set.company = itemfg.company
      AND fg-set.set-no = itemfg.i-no NO-LOCK BREAK BY fg-set.set-no:
    
@@ -1026,6 +1054,9 @@ IF tb_excel THEN
           lv-q-bak = b-itemfg.q-back
           lv-part-name = b-itemfg.i-name .
           lv-avail = (lv-q-onh + lv-q-ono) - lv-q-all .
+
+      
+        v-hc = "C" .
           
         ASSIGN cDisplay = ""
             cTmpField = ""
@@ -1048,7 +1079,8 @@ IF tb_excel THEN
                   WHEN "bck-ord" THEN cVarValue = STRING(lv-q-bak,"->,>>>,>>>,>>9"). 
                   WHEN "avbl" THEN cVarValue = STRING(lv-avail,"->,>>>,>>>,>>9"). 
 
-                  WHEN "set-hdr"               THEN cVarValue = STRING(fg-set.set-no). 
+                  WHEN "set-hdr" THEN cVarValue = STRING(fg-set.set-no). 
+                  WHEN "v-hc" THEN cVarValue = STRING(v-hc) .
              END CASE.
 
              cExcelVarValue = cVarValue.
@@ -1064,7 +1096,7 @@ IF tb_excel THEN
      
    
   END. /* for each */
- PUT STREAM excel UNFORMATTED SKIP(1) .
+ /*PUT STREAM excel UNFORMATTED SKIP(1) .*/
 END.
   
 IF tb_excel THEN DO:

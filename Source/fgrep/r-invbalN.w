@@ -322,12 +322,12 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 23.43 COL 57
      "Available Columns" VIEW-AS TEXT
           SIZE 20 BY .95 AT ROW 7.48 COL 5 WIDGET-ID 38
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 7.62 COL 59.4 WIDGET-ID 44
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 14.86 COL 2
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 5
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 7.62 COL 59.4 WIDGET-ID 44
      RECT-12 AT ROW 1 COL 1
      RECT-6 AT ROW 14.62 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -1482,12 +1482,16 @@ display "" with frame r-top.
 
       if v-rebuild then 
         run fg/rep/fg-reset.p (recid(itemfg)). 
-      else                                    
+      else  DO:                                  
+      RUN fg/calcqa&b.p (ROWID(itemfg), OUTPUT v-q-alloc,
+                                            OUTPUT v-q-back).
         assign
          v-q-onh   = itemfg.q-onh
          v-q-ono   = itemfg.q-ono
-         v-q-alloc = itemfg.q-alloc
-         v-q-back  = itemfg.q-back.
+/*          v-q-alloc = itemfg.q-alloc */
+/*          v-q-back  = itemfg.q-back  */
+            .
+      END.
 
       if first-of(itemfg.cust-no) and not first(itemfg.cust-no) then page.
 

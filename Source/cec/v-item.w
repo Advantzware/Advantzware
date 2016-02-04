@@ -1902,6 +1902,7 @@ PROCEDURE local-assign-record :
             item.q-comm   = 0
             item.q-back   = 0
             item.q-avail  = 0
+            item.mat-type = lv-mat-type
             item.pur-uom  = if bf-item.pur-uom  EQ "" then "MSF"
                                                       else bf-item.pur-uom
             item.cons-uom = if bf-item.cons-uom EQ "" then "EA"

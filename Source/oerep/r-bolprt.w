@@ -222,17 +222,17 @@ DEFINE TEMP-TABLE ediOutFile NO-UNDO
 &Scoped-Define ENABLED-OBJECTS RECT-6 begin_cust end_cust begin_bol# ~
 begin_ord# end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
-tb_print-barcode tb_print-binstags fi_specs tb_print-spec rd_bolcert ~
-tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice tb_freight-bill ~
-lv-ornt lines-per-page lv-font-no tb_post-bol td-show-parm btn-ok ~
-btn-cancel 
+tb_print-barcode tb_print-binstags rd_bol-sort fi_specs tb_print-spec ~
+rd_bolcert tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice ~
+tb_freight-bill lv-ornt lines-per-page lv-font-no tb_post-bol td-show-parm ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_bol# begin_ord# ~
 end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
-tb_print-barcode tb_print-binstags fi_specs tb_print-spec lbl_bolcert ~
-rd_bolcert tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice ~
-tb_freight-bill lv-ornt lines-per-page lv-font-no lv-font-name tb_post-bol ~
-td-show-parm 
+tb_print-barcode tb_print-binstags lbl_bolsort rd_bol-sort fi_specs ~
+tb_print-spec lbl_bolcert rd_bolcert tb_EMailAdvNotice rd-dest ~
+tb_MailBatchMode tb_ComInvoice tb_freight-bill lv-ornt lines-per-page ~
+lv-font-no lv-font-name tb_post-bol td-show-parm 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -317,6 +317,10 @@ DEFINE VARIABLE lbl_bolcert AS CHARACTER FORMAT "X(256)":U INITIAL "Print?"
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
+DEFINE VARIABLE lbl_bolsort AS CHARACTER FORMAT "X(256)":U INITIAL "Sort By?" 
+     VIEW-AS FILL-IN 
+     SIZE 9.4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
@@ -348,6 +352,13 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 "To Email", 5,
 "To Port Directly", 6
      SIZE 23 BY 7.86 NO-UNDO.
+
+DEFINE VARIABLE rd_bol-sort AS CHARACTER INITIAL "Item #" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Item #", "Item #",
+"Job #", "Job #"
+     SIZE 24.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd_bolcert AS CHARACTER INITIAL "BOL" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -474,10 +485,12 @@ DEFINE FRAME FRAME-A
      tb_barcode AT ROW 10.57 COL 34
      fi_depts AT ROW 11.33 COL 53.6 COLON-ALIGNED HELP
           "Enter Dept Codes separated by commas" NO-LABEL
-     tb_print_ship AT ROW 11.43 COL 34 WIDGET-ID 4
      tb_print-dept AT ROW 11.43 COL 34
+     tb_print_ship AT ROW 11.43 COL 34 WIDGET-ID 4
      tb_print-barcode AT ROW 12.29 COL 34 WIDGET-ID 2
      tb_print-binstags AT ROW 13.24 COL 34 WIDGET-ID 6
+     lbl_bolsort AT ROW 13.86 COL 21.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     rd_bol-sort AT ROW 13.86 COL 34.6 NO-LABEL WIDGET-ID 14
      fi_specs AT ROW 14 COL 53.6 COLON-ALIGNED HELP
           "Enter Dept Codes separated by commas" NO-LABEL WIDGET-ID 8
      tb_print-spec AT ROW 14.1 COL 34 WIDGET-ID 10
@@ -612,10 +625,20 @@ ASSIGN
        lbl_bolcert:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_bolcert".
 
+/* SETTINGS FOR FILL-IN lbl_bolsort IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_bolsort:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_bolcert".
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
        lv-font-name:READ-ONLY IN FRAME FRAME-A        = TRUE.
+
+ASSIGN 
+       rd_bol-sort:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        rd_bolcert:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -1369,6 +1392,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rd_bol-sort
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_bol-sort C-Win
+ON VALUE-CHANGED OF rd_bol-sort IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME rd_bolcert
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_bolcert C-Win
 ON VALUE-CHANGED OF rd_bolcert IN FRAME FRAME-A
@@ -1728,12 +1762,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_print-spec:HIDDEN = YES
         fi_specs:HIDDEN = YES.
 
+   IF v-print-fmt = "XPrint2" THEN  /* task 01121601 */
+       ASSIGN
+        lbl_bolsort:HIDDEN = NO
+        rd_bol-sort:HIDDEN = NO .
+   ELSE
+       ASSIGN
+        lbl_bolsort:HIDDEN = YES
+        rd_bol-sort:HIDDEN = YES .
+
     RUN new-bol#.
 
     tb_EMailAdvNotice:SENSITIVE = YES.
     APPLY 'value-changed':u TO rd-dest.
     
   END.
+
 
   /* gdm - 07240906 */
   ASSIGN v-tglflg = YES.
@@ -2728,17 +2772,19 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date end_date 
           tb_reprint tb_pallet tb_posted tb_print-component tb_print-shipnote 
-          tb_barcode tb_print_ship tb_print-barcode tb_print-binstags fi_specs 
-          tb_print-spec lbl_bolcert rd_bolcert tb_EMailAdvNotice rd-dest 
-          tb_MailBatchMode tb_ComInvoice tb_freight-bill lv-ornt lines-per-page 
-          lv-font-no lv-font-name tb_post-bol td-show-parm 
+          tb_barcode tb_print_ship tb_print-barcode tb_print-binstags 
+          lbl_bolsort rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert 
+          tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice 
+          tb_freight-bill lv-ornt lines-per-page lv-font-no lv-font-name 
+          tb_post-bol td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date 
          end_date tb_reprint tb_pallet tb_posted tb_print-component 
          tb_print-shipnote tb_barcode tb_print_ship tb_print-barcode 
-         tb_print-binstags fi_specs tb_print-spec rd_bolcert tb_EMailAdvNotice 
-         rd-dest tb_MailBatchMode tb_ComInvoice tb_freight-bill lv-ornt 
-         lines-per-page lv-font-no tb_post-bol td-show-parm btn-ok btn-cancel 
+         tb_print-binstags rd_bol-sort fi_specs tb_print-spec rd_bolcert 
+         tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice 
+         tb_freight-bill lv-ornt lines-per-page lv-font-no tb_post-bol 
+         td-show-parm btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -3694,7 +3740,8 @@ PROCEDURE run-report :
     v-print-dept        = tb_print-dept
     v-ship-inst         = tb_print_ship    
     lv-run-bol          = ""
-    lv-run-commercial   = "".
+    lv-run-commercial   = ""
+    v-sort              = rd_bol-sort EQ "Item #" .
 
   IF ip-sys-ctrl-ship-to THEN
      ASSIGN
@@ -4422,5 +4469,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

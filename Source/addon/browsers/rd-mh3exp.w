@@ -1097,7 +1097,7 @@ FOR EACH machemp WHERE machemp.posted = YES
              END.
              WHEN "strd" THEN do:
                  IF machemp.start_time NE ? THEN
-                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(machemp.start_time,'HH:MM am')).                          
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(trim(STRING(machemp.start_time,'HH:MM am'))).                          
                  ELSE
                      v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING("")).   
              END.
@@ -1107,7 +1107,7 @@ FOR EACH machemp WHERE machemp.posted = YES
                  ELSE IF machemp.end_time EQ ? THEN
                      v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING("")).   
                  ELSE 
-                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(machemp.end_time,'HH:MM am')).                          
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(trim(STRING(machemp.end_time,'HH:MM am'))).                          
              END.
              WHEN "total" THEN do:
                  IF machemp.total_time = 0 AND machemp.end_date EQ ? THEN
@@ -1115,7 +1115,7 @@ FOR EACH machemp WHERE machemp.posted = YES
                  ELSE IF machemp.total_time EQ ? THEN
                      v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING("")).   
                  ELSE
-                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(machemp.total_time,'HH:MM')).                          
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(trim(STRING(machemp.total_time,'HH:MM'))).                          
              END.
              
          END CASE. 

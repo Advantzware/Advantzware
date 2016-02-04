@@ -30,6 +30,7 @@ DEF VAR v-ship-city AS CHAR NO-UNDO .
 DEF VAR v-ship-stat AS CHAR NO-UNDO .
 DEF VAR v-ship-zip AS CHAR NO-UNDO .
 DEF VAR v-ship-name AS CHAR NO-UNDO .
+DEF VAR v-fg-cat AS CHAR INIT "" NO-UNDO .
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 

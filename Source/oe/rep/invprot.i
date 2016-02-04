@@ -28,7 +28,7 @@ IF TRIM(v-addr3) NE ""
 IF TRIM(v-sold-addr3) NE ""
   THEN PUT "<C56>" v-sold-addr3 SKIP.
 
-PUT "<R16><C6>ATTENTION: " v-contact.
+PUT "<R16><C6>ATTENTION: " v-contact FORMAT "x(30)".
 
 PUT  "</B>" SKIP.
 

@@ -104,18 +104,17 @@ ASSIGN cTextListToSelect = "Fg Item,Item Name,Customer#,Customer Name,Customer P
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_cust-list btnCustList ~
-begin_cust-no end_cust-no begin_ship end_ship begin_slmn end_slmn ~
-tgChooseSalesReps begin_part-no end_part-no begin_i-no end_i-no ~
-begin_inv-date end_inv-date tb_detailed tb_fin-chg rd_sort sl_avail ~
-sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down lv-ornt ~
-lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
-btn-ok btn-cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 tb_cust-list ~
+btnCustList begin_cust-no end_cust-no begin_ship end_ship begin_slmn ~
+end_slmn tgChooseSalesReps begin_i-no end_i-no begin_inv-date end_inv-date ~
+tb_detailed tb_fin-chg rd_sort sl_avail Btn_Def sl_selected Btn_Add ~
+Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no ~
+td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
-begin_ship end_ship begin_slmn end_slmn tgChooseSalesReps begin_part-no ~
-end_part-no begin_i-no end_i-no begin_inv-date end_inv-date tb_detailed ~
-tb_fin-chg lbl_sort rd_sort sl_avail sl_selected lv-ornt lines-per-page ~
-rd-dest lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+begin_ship end_ship begin_slmn end_slmn tgChooseSalesReps begin_i-no ~
+end_i-no begin_inv-date end_inv-date tb_detailed tb_fin-chg lbl_sort ~
+rd_sort sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no ~
+lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -178,11 +177,6 @@ DEFINE VARIABLE begin_inv-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_part-no AS CHARACTER FORMAT "X(15)" 
-     LABEL "Beginning Cust Part#" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
-
 DEFINE VARIABLE begin_ship AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Ship-To#" 
      VIEW-AS FILL-IN 
@@ -207,11 +201,6 @@ DEFINE VARIABLE end_inv-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      LABEL "Ending Invoice Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
-
-DEFINE VARIABLE end_part-no AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
-     LABEL "Ending Cust Part#" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
 
 DEFINE VARIABLE end_ship AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Ship-To#" 
@@ -273,19 +262,23 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Finished Goods"
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 91 BY 8.62.
+     SIZE 104 BY 8.62.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 92 BY 11.38.
+     SIZE 104 BY 18.05.
+
+DEFINE RECTANGLE RECT-8
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 70 BY 7.62.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 35.8 BY 6.19 NO-UNDO.
+     SIZE 27 BY 6.19 NO-UNDO.
 
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 35.8 BY 6.19 NO-UNDO.
+     SIZE 25 BY 6.19 NO-UNDO.
 
 DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
@@ -343,59 +336,56 @@ DEFINE FRAME FRAME-A
      end_slmn AT ROW 4.76 COL 69 COLON-ALIGNED HELP
           "Enter Ending Sales Rep#"
      tgChooseSalesReps AT ROW 5.81 COL 30 WIDGET-ID 156
-     begin_part-no AT ROW 6.76 COL 28 COLON-ALIGNED HELP
-          "Enter Beginning Item Number" WIDGET-ID 158
-     end_part-no AT ROW 6.76 COL 69 COLON-ALIGNED HELP
-          "Enter Ending Customer Number" WIDGET-ID 160
-     begin_i-no AT ROW 7.81 COL 28 COLON-ALIGNED HELP
+     begin_i-no AT ROW 6.67 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
-     end_i-no AT ROW 7.81 COL 69 COLON-ALIGNED HELP
+     end_i-no AT ROW 6.67 COL 69 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_inv-date AT ROW 8.76 COL 28 COLON-ALIGNED HELP
+     begin_inv-date AT ROW 7.62 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Invoice Date"
-     end_inv-date AT ROW 8.76 COL 69 COLON-ALIGNED HELP
+     end_inv-date AT ROW 7.62 COL 69 COLON-ALIGNED HELP
           "Enter Ending Invoice Date"
-     tb_detailed AT ROW 10.05 COL 48.2 RIGHT-ALIGNED
-     tb_fin-chg AT ROW 10.05 COL 54.4
-     lbl_sort AT ROW 11.19 COL 24.2 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 11.19 COL 33.2 NO-LABEL
-     sl_avail AT ROW 13.57 COL 4.4 NO-LABEL WIDGET-ID 146
-     sl_selected AT ROW 13.57 COL 56.8 NO-LABEL WIDGET-ID 148
-     Btn_Def AT ROW 13.76 COL 41.6 HELP
+     tb_detailed AT ROW 9.05 COL 50 RIGHT-ALIGNED
+     tb_fin-chg AT ROW 9.05 COL 56.2
+     lbl_sort AT ROW 10.24 COL 26 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 10.24 COL 35 NO-LABEL
+     sl_avail AT ROW 12.43 COL 27.2 NO-LABEL WIDGET-ID 146
+     Btn_Def AT ROW 12.43 COL 55.6 HELP
           "Default Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 14.95 COL 41.6 HELP
+     sl_selected AT ROW 12.43 COL 70.8 NO-LABEL WIDGET-ID 148
+     Btn_Add AT ROW 13.62 COL 55.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 138
-     Btn_Remove AT ROW 16.1 COL 41.6 HELP
+     Btn_Remove AT ROW 14.76 COL 55.6 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 142
-     btn_Up AT ROW 17.33 COL 41.6 WIDGET-ID 144
-     btn_down AT ROW 18.52 COL 41.6 WIDGET-ID 140
-     lv-ornt AT ROW 20.76 COL 31 NO-LABEL
-     lines-per-page AT ROW 20.76 COL 84 COLON-ALIGNED
-     rd-dest AT ROW 21.48 COL 7 NO-LABEL
-     lv-font-no AT ROW 22.67 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 23.62 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 25.05 COL 30
-     tb_excel AT ROW 26.24 COL 67.8 RIGHT-ALIGNED
-     tb_runExcel AT ROW 26.24 COL 89.6 RIGHT-ALIGNED
-     fi_file AT ROW 27.05 COL 45.8 COLON-ALIGNED HELP
+     btn_Up AT ROW 16 COL 55.6 WIDGET-ID 144
+     btn_down AT ROW 17.19 COL 55.6 WIDGET-ID 140
+     rd-dest AT ROW 20 COL 7 NO-LABEL
+     lv-ornt AT ROW 20.24 COL 31 NO-LABEL
+     lines-per-page AT ROW 20.24 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 22.14 COL 34 COLON-ALIGNED
+     lv-font-name AT ROW 23.1 COL 28 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 24.29 COL 30
+     tb_excel AT ROW 25.86 COL 50.4 RIGHT-ALIGNED
+     tb_runExcel AT ROW 25.86 COL 71.4 RIGHT-ALIGNED
+     fi_file AT ROW 26.67 COL 28.4 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 29.14 COL 23
-     btn-cancel AT ROW 29.14 COL 59
+     btn-ok AT ROW 28.43 COL 23
+     btn-cancel AT ROW 28.43 COL 59
      "Available Columns" VIEW-AS TEXT
-          SIZE 27.2 BY .62 AT ROW 12.76 COL 5.8 WIDGET-ID 150
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.81 COL 57.8 WIDGET-ID 152
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 20.62 COL 4.6
+          SIZE 20 BY .62 AT ROW 11.48 COL 28.2 WIDGET-ID 150
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.29 COL 5
           BGCOLOR 2 
-     RECT-6 AT ROW 20.1 COL 2
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 19.19 COL 5
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 11.48 COL 61.8 WIDGET-ID 152
+     RECT-6 AT ROW 19.57 COL 2
      RECT-7 AT ROW 1.05 COL 2
+     RECT-8 AT ROW 10.24 COL 26.6 WIDGET-ID 154
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 93.8 BY 30.
+         SIZE 106.4 BY 28.86.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -415,8 +405,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Sales Analysis By Item/Cust/Ship"
-         HEIGHT             = 30.24
-         WIDTH              = 94.8
+         HEIGHT             = 29.1
+         WIDTH              = 108.4
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
@@ -462,10 +452,6 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       begin_part-no:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
        begin_ship:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -483,10 +469,6 @@ ASSIGN
 
 ASSIGN 
        end_inv-date:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       end_part-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -615,17 +597,6 @@ END.
 ON LEAVE OF begin_inv-date IN FRAME FRAME-A /* Beginning Invoice Date */
 DO:
   assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME begin_part-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_part-no C-Win
-ON LEAVE OF begin_part-no IN FRAME FRAME-A /* Beginning Cust Part# */
-DO:
-   assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -874,17 +845,6 @@ END.
 ON LEAVE OF end_inv-date IN FRAME FRAME-A /* Ending Invoice Date */
 DO:
   assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_part-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_part-no C-Win
-ON LEAVE OF end_part-no IN FRAME FRAME-A /* Ending Cust Part# */
-DO:
-     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1455,18 +1415,17 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust-no end_cust-no begin_ship end_ship begin_slmn 
-          end_slmn tgChooseSalesReps begin_part-no end_part-no begin_i-no 
-          end_i-no begin_inv-date end_inv-date tb_detailed tb_fin-chg lbl_sort 
-          rd_sort sl_avail sl_selected lv-ornt lines-per-page rd-dest lv-font-no 
-          lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          end_slmn tgChooseSalesReps begin_i-no end_i-no begin_inv-date 
+          end_inv-date tb_detailed tb_fin-chg lbl_sort rd_sort sl_avail 
+          sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
+          td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 tb_cust-list btnCustList begin_cust-no end_cust-no 
-         begin_ship end_ship begin_slmn end_slmn tgChooseSalesReps 
-         begin_part-no end_part-no begin_i-no end_i-no begin_inv-date 
-         end_inv-date tb_detailed tb_fin-chg rd_sort sl_avail sl_selected 
-         Btn_Def Btn_Add Btn_Remove btn_Up btn_down lv-ornt lines-per-page 
-         rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok 
-         btn-cancel 
+  ENABLE RECT-6 RECT-7 RECT-8 tb_cust-list btnCustList begin_cust-no 
+         end_cust-no begin_ship end_ship begin_slmn end_slmn tgChooseSalesReps 
+         begin_i-no end_i-no begin_inv-date end_inv-date tb_detailed tb_fin-chg 
+         rd_sort sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up 
+         btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
+         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1615,8 +1574,6 @@ def var fship as ch init "" no-undo.
 def var tship like fcust init "zzzzzzzz" no-undo.
 def var fitem like itemfg.i-no init " " no-undo.
 def var titem like fitem init "zzzzzzzzzzzzzzzzzzz" no-undo.
-def var fpartno like itemfg.part-no init " " no-undo.
-def var tpartno like fpartno init "zzzzzzzzzzzzzzzzzzz" no-undo.
 def var fsman as char format "x(3)" init "" no-undo.
 def var tsman like fsman init "zzz" no-undo.
 def var fdate as date format "99/99/9999" no-undo.
@@ -1751,8 +1708,6 @@ ASSIGN
  tsman      = END_slmn
  fitem      = begin_i-no
  titem      = END_i-no
- fpartno   = begin_part-no
- tpartno   = end_part-no
  fdate      = begin_inv-date
  tdate      = end_inv-date
  v-det      = tb_detailed                  
@@ -1921,4 +1876,5 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 

@@ -98,7 +98,7 @@ ASSIGN ls-image2 = "images\protinvfoot.jpg"
 
 DEF VAR v-tel     AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-fax     AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-contact AS CHAR FORMAT "x(20)" NO-UNDO .
+DEF VAR v-contact AS CHAR FORMAT "x(30)" NO-UNDO .
 
 DEF VAR v-comp-add1 AS cha FORMAT "x(30)" NO-UNDO.
 DEF VAR v-comp-add2 AS cha FORMAT "x(30)" NO-UNDO.
@@ -169,13 +169,11 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     lv-fob = xinv-head.fob.
     lv-terms = xinv-head.terms-d.
 
-
     IF xinv-head.multi-invoice THEN DO:
-
-
 
         FOR EACH b-inv-h WHERE b-inv-h.company = xinv-head.company
             AND b-inv-h.inv-date = xinv-head.inv-date
+            AND b-inv-h.inv-no = xinv-head.inv-no
             AND b-inv-h.cust-no = xinv-head.cust-no
             AND NOT b-inv-h.multi-invoice
             AND b-inv-h.stat NE "H"
@@ -208,12 +206,12 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     lv-fob = b-inv-h.fob
                     lv-terms = b-inv-h.terms-d.
                 LEAVE.
-            END. /* If b-inv-h.contact ne v-contact */
+            END. /* If b-inv-h.contact ne v-contact */  
         END. /* each b-inv-h */
 
 
     END. /* If multi-invoice */
-    ELSE 
+    ELSE
         ASSIGN
             v-shipto-name = xinv-head.sold-name
             v-shipto-addr[1] = xinv-head.sold-addr[1]

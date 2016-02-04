@@ -308,11 +308,11 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 19.81 COL 57
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 8.62 COL 21
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 10.76 COL 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 10.76 COL 3
      RECT-6 AT ROW 10.29 COL 2
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -1418,11 +1418,11 @@ display "" with frame r-top.
                   fg-rdtlh.qty LT 0
                   NO-LOCK:
      
-               IF NOT CAN-FIND(FIRST tt-neg-po-line WHERE
-                  tt-neg-po-line.po-no EQ po-ordl.po-no AND
-                  tt-neg-po-line.i-no EQ po-ordl.i-no and
-                  tt-neg-po-line.item-type EQ po-ordl.item-type) THEN
-                  DO:
+/*                IF NOT CAN-FIND(FIRST tt-neg-po-line WHERE             */
+/*                   tt-neg-po-line.po-no EQ po-ordl.po-no AND           */
+/*                   tt-neg-po-line.i-no EQ po-ordl.i-no and             */
+/*                   tt-neg-po-line.item-type EQ po-ordl.item-type) THEN */
+/*                   DO:                                                 */
                      CREATE tt-neg-po-line.
                      ASSIGN tt-neg-po-line.po-no = po-ordl.po-no
                             tt-neg-po-line.i-no = po-ordl.i-no
@@ -1431,7 +1431,7 @@ display "" with frame r-top.
                             tt-neg-po-line.rcp-date = fg-rdtlh.trans-date
                             tt-neg-po-line.amt = fg-rdtlh.qty / 1000 * fg-rdtlh.cost.
                      RELEASE tt-neg-po-line.
-                  END. 
+/*                   END. */
         end.
       end.
       
@@ -1465,14 +1465,15 @@ display "" with frame r-top.
             end.
             ELSE
             DO:
-               FIND FIRST tt-neg-po-line WHERE
+               FOR EACH tt-neg-po-line WHERE
                     tt-neg-po-line.po-no = po-ordl.po-no AND
                     tt-neg-po-line.i-no = po-ordl.i-no AND
                     tt-neg-po-line.item-type = po-ordl.item-type
-                    NO-ERROR.
-              
-               IF AVAIL tt-neg-po-line THEN
-               DO:
+/*                     NO-ERROR. */
+/*                                             */
+/*                IF AVAIL tt-neg-po-line THEN */
+/*                DO                           */
+                   :
                   ll-neg-inv-found = NO.
                   for each reftable
                       {ap/ap-reftb.w po-ordl.po-no}
@@ -1519,14 +1520,15 @@ display "" with frame r-top.
          END.
          ELSE
          DO:
-            FIND FIRST tt-neg-po-line WHERE
+            FOR EACH tt-neg-po-line WHERE
                  tt-neg-po-line.po-no = po-ordl.po-no AND
                  tt-neg-po-line.i-no = po-ordl.i-no AND
                  tt-neg-po-line.item-type = po-ordl.item-type
-                 NO-ERROR.
-
-            IF AVAIL tt-neg-po-line THEN
-            DO:
+/*                  NO-ERROR.               */
+/*                                          */
+/*             IF AVAIL tt-neg-po-line THEN */
+/*             DO                           */
+                :
                ll-neg-inv-found = NO.
                for each reftable
                    {ap/ap-reftb.w po-ordl.po-no}

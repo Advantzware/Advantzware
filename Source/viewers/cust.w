@@ -1863,6 +1863,8 @@ PROCEDURE local-assign-record :
   DEF BUFFER bf-cust FOR cust.
   DEF BUFFER bf-shipto FOR shipto.
   DEF BUFFER bf-soldto FOR soldto.
+  DEF BUFFER bf-usercust FOR usercust .
+  DEF BUFFER bff-cust FOR cust.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   v-cust-recid-prev = RECID(cust).
@@ -1945,6 +1947,14 @@ PROCEDURE local-assign-record :
 
 
    IF adm-new-record THEN DO:
+       
+       FOR EACH bf-usercust WHERE bf-usercust.company = cocode
+                 AND bf-usercust.USER_id EQ USERID("nosweat") NO-LOCK,
+            FIRST bff-cust WHERE bff-cust.company EQ bf-usercust.company 
+                          AND bff-cust.cust-no EQ bf-usercust.cust-no NO-LOCK :
+           LEAVE.
+       END.
+       IF AVAIL bff-cust  THEN
        IF ou-log AND NOT CAN-FIND(FIRST usercust WHERE
              usercust.user_id EQ USERID("nosweat") AND
              usercust.company EQ cocode AND

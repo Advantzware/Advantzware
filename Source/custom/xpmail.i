@@ -26,6 +26,7 @@ DEFINE VARIABLE lv-mailbody         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-mailattach       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE vlSilentMode        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE vcRecordID          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-to-list2         AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER b2-cust               FOR cust.
 
@@ -74,22 +75,50 @@ ELSE IF ipType BEGINS 'SHIPTO' THEN DO:
                        input  ipGroupTitle,   /* Title          */
                        output ls-to-list).    /* Recepients     */
    END.
-   ELSE ls-to-list = ''.
+   ELSE ls-to-list = ''.   
 
+END.
+ELSE IF ipType begins 'SoldTo' THEN DO:
+  /*==
+   FIND FIRST cust NO-LOCK
+        WHERE cust.company EQ g_company
+          AND cust.cust-no EQ entry(1,ipIdxKey,"|") NO-ERROR.
+   
+   IF AVAILABLE cust THEN DO:
+      vcRecordId = cust.cust-no.
+      RUN buildToList (input  cust.rec_key,   /* Rec_Key        */
+                       input  cust.email,     /* Email Address  */
+                       input  ipGroupTitle,   /* Title          */
+                       output ls-to-list).    /* Recepients     */
+   END.
+   ELSE ls-to-list = ''.
+   =========*/
    FIND FIRST soldto NO-LOCK
           WHERE soldto.company EQ g_company
-            AND soldto.rec_key EQ ipIdxKey NO-ERROR.
+            AND soldto.cust-no EQ ENTRY(1,ipIdxKey,"|")
+            AND soldto.sold-id EQ (entry(2,ipIdxKey,"|")) NO-ERROR.
 
-      IF AVAILABLE soldto THEN DO:
+   IF AVAILABLE soldto THEN DO:
          vcRecordId = soldto.cust-no + ' ' + soldto.sold-id.
          RUN buildToList (input  soldto.rec_key, /* Rec_Key        */
                           input  '',             /* Email Address  */
                           input  ipGroupTitle,   /* Title          */
                           output ls-to-list).    /* Recepients     */
-      END.
-      ELSE ls-to-list = ''.
+         FIND cust OF soldto NO-LOCK NO-ERROR.
+         IF AVAIL cust THEN DO:
+            ls-to-list2 = "".
+            RUN buildToList (input  cust.rec_key, /* Rec_Key        */
+                             input  '',             /* Email Address  */
+                             input  ipGroupTitle,   /* Title          */
+                             output ls-to-list2).    /* Recepients     */
+            IF ls-to-list2 <> "" THEN
+                ls-to-list = ls-to-list2 + ";" + ls-to-list.
+         END.
+   END.
+   ELSE ls-to-list = ''.
 
 END.
+
 ELSE IF ipType begins 'SalesRep' THEN DO:
 
    FIND FIRST sman NO-LOCK
