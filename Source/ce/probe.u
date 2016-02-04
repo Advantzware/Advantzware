@@ -1,0 +1,289 @@
+/* ---------------------------------------------------- ce/probe.u 03/96 JLF  */
+/* 'What if' UPDATE                                                           */
+/* -------------------------------------------------------------------------- */
+
+v-form-no = 1.
+
+/*for each b-probe where b-probe.company eq est.company
+                   and b-probe.est-no  eq est.est-no:
+   qtty[b-probe.line] = b-probe.est-qty.
+end.*/
+
+find first xeb
+     where xeb.company eq est.company
+       and xeb.est-no  eq est.est-no
+       and xeb.form-no ne 0
+    no-lock no-error.
+
+find first sman
+    where sman.company eq xeb.company
+      and sman.sman    eq xeb.sman
+    no-lock no-error.
+
+for each probeit where probeit.company eq probe.company
+                   and probeit.est-no  eq probe.est-no
+                   and probeit.line    eq probe.line:
+   assign
+    probeit.gross-profit  = probe.gross-profit
+    probeit.net-profit    = probe.net-profit.
+
+   if ce-ctrl.sell-by = "G" then
+     assign
+      v-pct               = probeit.gross-profit + xeb.comm
+      probeit.sell-price  = round(probeit.fact-cost / (1 - (v-pct / 100)),2).
+
+   else
+     assign
+      v-pct               = probeit.net-profit   + xeb.comm
+      probeit.sell-price  = round(probeit.full-cost / (1 - (v-pct / 100)),2).
+
+   v-sell[1] = v-sell[1] + probeit.sell-price.
+end.
+
+if v-sell[1] ne probe.sell-price then do:
+   for each probeit where probeit.est-no = est.est-no:
+      assign
+       probeit.sell-price =
+                    round(probe.sell-price * (probeit.sell-price / v-sell[1]),2)
+       v-sell[2]          = v-sell[2] + probeit.sell-price.
+   end.
+   if v-sell[2] ne probe.sell-price then do:
+      find last probeit where probeit.est-no = est.est-no no-error.
+      if avail probeit then probeit.sell-price =
+                            probeit.sell-price + (probe.sell-price - v-sell[2]).
+   end.
+end.
+
+v-pct = if ce-ctrl.sell-by = "G" then probe.gross-profit
+                                 else probe.net-profit.
+
+if not vmclean then do:
+
+   if probe.line LT 100 then
+   DO:
+      if opsys = "unix" then
+         unix silent copy value(tmp-dir + trim(est.est-no) + ".v"
+                                                        + string(probe.line,"99"))
+                          value(tmp-dir + trim(est.est-no) + ".s"
+                                                        + string(probe.line,"99")).
+      else /* if opsys = "MSDOS" then */
+         dos silent copy value(tmp-dir + trim(est.est-no) + ".v"
+                                                        + string(probe.line,"99"))
+                         value(tmp-dir + trim(est.est-no) + ".s"
+                                                        + string(probe.line,"99")).
+      output to value(tmp-dir + trim(est.est-no) + ".s"
+                                                 + string(probe.line,"99")) append.
+   end.
+   else
+   do:
+      if opsys = "unix" then
+         unix silent copy value(tmp-dir + trim(est.est-no) + ".v"
+                                                        + string(probe.line,"999"))
+                          value(tmp-dir + trim(est.est-no) + ".s"
+                                                        + string(probe.line,"999")).
+      else /* if opsys = "MSDOS" then */
+         dos silent copy value(tmp-dir + trim(est.est-no) + ".v"
+                                                        + string(probe.line,"999"))
+                         value(tmp-dir + trim(est.est-no) + ".s"
+                                                        + string(probe.line,"999")).
+      output to value(tmp-dir + trim(est.est-no) + ".s"
+                                                 + string(probe.line,"999")) append.
+   end.
+
+   put "Commission"  string(xeb.comm,">>9.99") + "%" to 30
+       probe.sell-price * (xeb.comm / 100) to {&spot}
+       probe.sell-price * (xeb.comm / 100) * (probe.est-qty / 1000) to 80 skip
+       
+       "Profit - " + trim(string(v-pct,"->>9.99")) +
+            (if ce-ctrl.sell-by eq "N" then
+               "% on Full Cost" else "% on Fact Cost") format "x(30)"
+       probe.sell-price * (v-pct / 100) to {&spot}
+       probe.sell-price * (v-pct / 100) * (probe.est-qty / 1000) to 80 skip
+
+       "SELLING PRICE"
+       probe.sell-price to {&spot}
+       probe.sell-price * (probe.est-qty / 1000) to 80 skip(1).
+        
+   output close.
+end.
+
+else do:
+   vmcl = probe.line.
+   
+   vmcl-desc = "Commission - " + string(xeb.comm,"->>9.99%").
+   
+   FIND FIRST est-summ
+       WHERE est-summ.company  EQ probe.company
+         AND est-summ.est-no   EQ probe.est-no
+         AND est-summ.e-num    EQ probe.line
+         AND est-summ.summ-tot BEGINS STRING("commission","x(20)")   +
+                                      STRING(v-form-no,"9999999999") +
+                                      SUBSTR(vmcl-desc,1,13)
+    NO-ERROR.
+
+   IF NOT AVAIL est-summ THEN DO:
+     {cec/est-summ.i vmcl-desc vmcl-cost}
+   END.
+   ASSIGN
+    est-summ.summ-tot = STRING("commission","x(20)")   +
+                        STRING(v-form-no,"9999999999") +
+                        vmcl-desc
+    est-summ.per-m    = probe.sell-price * (xeb.comm / 100).
+
+   vmcl-desc = "Profit on " + (if ce-ctrl.sell-by eq "N" then "Full Cost"
+                                                         else "Fact Cost").
+                                                         
+   FIND FIRST est-summ
+       WHERE est-summ.company  EQ probe.company
+         AND est-summ.est-no   EQ probe.est-no
+         AND est-summ.e-num    EQ probe.line
+         AND est-summ.summ-tot BEGINS STRING("profit","x(20)")       +
+                                      STRING(v-form-no,"9999999999") +
+                                      SUBSTR(vmcl-desc,1,10)
+      NO-ERROR.
+      
+
+   IF NOT AVAIL est-summ THEN DO:
+     {cec/est-summ.i vmcl-desc vmcl-cost}
+   END.
+   ASSIGN
+    est-summ.summ-tot = STRING("profit","x(20)")   +
+                        STRING(v-form-no,"9999999999") +
+                        vmcl-desc
+    est-summ.per-m    = probe.sell-price * (v-pct / 100).
+
+   vmcl-desc = "    Profit %".
+   
+   FIND FIRST est-summ
+      WHERE est-summ.company  EQ probe.company
+        AND est-summ.est-no   EQ probe.est-no
+        AND est-summ.e-num    EQ probe.line
+        AND est-summ.summ-tot EQ STRING("profit","x(20)")       +
+                                 STRING(v-form-no,"9999999999") +
+                                 vmcl-desc
+      NO-ERROR.
+
+   IF NOT AVAIL est-summ THEN DO:
+     {cec/est-summ.i vmcl-desc vmcl-cost}
+   END.
+   ASSIGN
+    est-summ.summ-tot = STRING("profit","x(20)")   +
+                        STRING(v-form-no,"9999999999") +
+                        vmcl-desc
+   est-summ.per-m     = v-pct.
+      
+   vmcl-desc = "SELLING PRICE".
+   {cec/est-summ.i vmcl-desc vmcl-cost}
+   est-summ.per-m = probe.sell-price.
+   
+   li = 0.
+   
+   FOR EACH mclean:
+      DELETE mclean.
+   END.
+   
+   FOR EACH b-probe
+       WHERE b-probe.company    EQ probe.company
+         AND b-probe.est-no     EQ probe.est-no
+         AND b-probe.probe-date EQ probe.probe-date
+       NO-LOCK
+       BY b-probe.est-qty
+       BY b-probe.freight
+       BY b-probe.rec_key:
+
+      IF li GE 5 THEN v = 0.
+
+      li = li + 1.
+
+      IF li EQ 1 THEN v-start = b-probe.line.
+
+      IF ROWID(b-probe) EQ ROWID(probe) THEN LEAVE.
+   END.
+   
+   ASSIGN
+    li   = 0
+    qtty = 0.
+   
+   FOR EACH b-probe
+       WHERE b-probe.company    EQ probe.company
+         AND b-probe.est-no     EQ probe.est-no
+         AND b-probe.probe-date EQ probe.probe-date
+       NO-LOCK
+       BY b-probe.est-qty
+       BY b-probe.freight
+       BY b-probe.rec_key:
+
+      li = li + 1.
+
+      qtty[li] = b-probe.est-qty.
+      rels[li] = if qtty[li] <> 0 then b-probe.freight else 0.
+      FOR EACH est-summ
+          WHERE est-summ.company EQ b-probe.company
+            AND est-summ.est-no  EQ b-probe.est-no
+            AND est-summ.e-num   EQ b-probe.line
+            AND SUBSTR(est-summ.summ-tot,31) NE ""
+          USE-INDEX est-qty NO-LOCK:
+          
+         v-form-no = INT(SUBSTR(est-summ.summ-tot,21,10)).
+
+         {ce/pr4-mcln.i SUBSTR(est-summ.summ-tot,31) li est-summ.per-m}
+         mclean.rec-type = SUBSTR(est-summ.summ-tot,01,20).
+      END.
+
+      IF li GE 5 THEN LEAVE.
+   END.
+   
+   li = 0.
+   
+   FOR EACH b-probe
+      WHERE b-probe.company EQ probe.company
+        AND b-probe.est-no  EQ probe.est-no
+        AND b-probe.line    GE v-start
+      NO-LOCK
+      BY b-probe.probe-date
+      BY b-probe.est-qty:
+          
+      if b-probe.line lt 100 then
+      DO:
+         if opsys = "unix" then
+            unix silent copy value(tmp-dir + trim(est.est-no) + ".v"
+                                                        + string(b-probe.line,"99"))
+                             value(tmp-dir + trim(est.est-no) + ".s"
+                                                        + string(b-probe.line,"99")).
+         else /* if opsys = "MSDOS" then */
+            dos silent copy value(tmp-dir + trim(est.est-no) + ".v"
+                                                        + string(b-probe.line,"99"))
+                            value(tmp-dir + trim(est.est-no) + ".s"
+                                                        + string(b-probe.line,"99")).
+         output to value(tmp-dir + trim(est.est-no) + ".s"
+                                                 + string(b-probe.line,"99")) append.
+      end.
+      else
+      DO:
+         if opsys = "unix" then
+            unix silent copy value(tmp-dir + trim(est.est-no) + ".v"
+                                                        + string(b-probe.line,"999"))
+                             value(tmp-dir + trim(est.est-no) + ".s"
+                                                        + string(b-probe.line,"999")).
+         else /* if opsys = "MSDOS" then */
+            dos silent copy value(tmp-dir + trim(est.est-no) + ".v"
+                                                        + string(b-probe.line,"999"))
+                            value(tmp-dir + trim(est.est-no) + ".s"
+                                                        + string(b-probe.line,"999")).
+         output to value(tmp-dir + trim(est.est-no) + ".s"
+                                                 + string(b-probe.line,"999")) append.
+      END.
+      
+      vhld = 1.
+       
+      {ce/mclean.i 1}
+
+      output close.                                                  
+                                                   
+      li = li + 1.
+
+      IF li GE 5 THEN LEAVE.
+   end.                                                  
+end.                                                   
+
+/* end ---------------------------------- copr. 1996  advanced software, inc. */

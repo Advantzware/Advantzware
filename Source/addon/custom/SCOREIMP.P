@@ -1,0 +1,155 @@
+/* scoreimp.p */
+
+DEFINE INPUT PARAMETER import-file AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE table-name AS CHARACTER NO-UNDO.
+DEFINE VARIABLE fill# AS INTEGER NO-UNDO.
+
+DEFINE TEMP-TABLE ttbl_jobs NO-UNDO LIKE jobs.
+DEFINE TEMP-TABLE ttbl_jobitems NO-UNDO LIKE jobitems.
+DEFINE TEMP-TABLE ttbl_jobmatl NO-UNDO LIKE jobmatl.
+DEFINE TEMP-TABLE ttbl_jobmach NO-UNDO LIKE jobmach.
+DEFINE TEMP-TABLE ttbl_jobsheet NO-UNDO LIKE jobsheet.
+DEFINE TEMP-TABLE ttbl_jobcad NO-UNDO LIKE jobcad.
+DEFINE TEMP-TABLE ttbl_jobstack NO-UNDO LIKE jobstack.
+DEFINE TEMP-TABLE ttbl_jobnotes NO-UNDO LIKE jobnotes.
+
+INPUT FROM VALUE(import-file) NO-ECHO.
+REPEAT:
+  IMPORT UNFORMATTED table-name.
+  CASE table-name:
+    WHEN 'jobs' THEN
+    DO:
+      CREATE ttbl_jobs.
+      IMPORT DELIMITER '~~' ttbl_jobs EXCEPT ttbl_jobs.rec_key.
+      ASSIGN
+        ttbl_jobs.cadcam_status = 'Imported'
+        ttbl_jobs.estimate = FILL(' ',5 - LENGTH(ttbl_jobs.estimate)) +
+                             ttbl_jobs.estimate.
+      RUN Fill_Job_Number (INPUT-OUTPUT ttbl_jobs.job).
+    END.
+    WHEN 'jobitems' THEN
+    DO:
+      CREATE ttbl_jobitems.
+      IMPORT DELIMITER '~~' ttbl_jobitems EXCEPT ttbl_jobitems.rec_key.
+      RUN Fill_Job_Number (INPUT-OUTPUT ttbl_jobitems.job).
+    END.
+    WHEN 'jobmatl' THEN
+    DO:
+      CREATE ttbl_jobmatl.
+      IMPORT DELIMITER '~~' ttbl_jobmatl EXCEPT ttbl_jobmatl.rec_key.
+      RUN Fill_Job_Number (INPUT-OUTPUT ttbl_jobmatl.job).
+    END.
+    WHEN 'jobmach' THEN
+    DO:
+      CREATE ttbl_jobmach.
+      IMPORT DELIMITER '~~' ttbl_jobmach EXCEPT ttbl_jobmach.rec_key.
+      RUN Fill_Job_Number (INPUT-OUTPUT ttbl_jobmach.job).
+    END.
+    WHEN 'jobsheet' THEN
+    DO:
+      CREATE ttbl_jobsheet.
+      IMPORT DELIMITER '~~' ttbl_jobsheet EXCEPT ttbl_jobsheet.rec_key.
+      RUN Fill_Job_Number (INPUT-OUTPUT ttbl_jobsheet.job).
+    END.
+    WHEN 'jobcad' THEN
+    DO:
+      CREATE ttbl_jobcad.
+      IMPORT DELIMITER '~~' ttbl_jobcad EXCEPT ttbl_jobcad.rec_key.
+      RUN Fill_Job_Number (INPUT-OUTPUT ttbl_jobcad.job).
+    END.
+    WHEN 'jobstack' THEN
+    DO:
+      CREATE ttbl_jobstack.
+      IMPORT DELIMITER '~~' ttbl_jobstack EXCEPT ttbl_jobstack.rec_key.
+      RUN Fill_Job_Number (INPUT-OUTPUT ttbl_jobstack.job).
+    END.
+    WHEN 'jobnotes' THEN
+    DO:
+      CREATE ttbl_jobnotes.
+      IMPORT DELIMITER '~~' ttbl_jobnotes EXCEPT ttbl_jobnotes.rec_key.
+      RUN Fill_Job_Number (INPUT-OUTPUT ttbl_jobnotes.job).
+    END.
+  END CASE.
+END.
+INPUT CLOSE.
+FOR EACH ttbl_jobs NO-LOCK:
+  FIND jobs WHERE jobs.job = ttbl_jobs.job EXCLUSIVE-LOCK NO-ERROR.
+  IF NOT AVAILABLE jobs THEN
+  CREATE jobs.
+  BUFFER-COPY ttbl_jobs TO jobs.
+END.
+FOR EACH ttbl_jobitems NO-LOCK:
+  FIND jobitems WHERE jobitems.job = ttbl_jobitems.job
+                  AND jobitems.form_number = ttbl_jobitems.form_number
+                  AND jobitems.blank_number = ttbl_jobitems.blank_number
+                  AND jobitems.fg_item = ttbl_jobitems.fg_item
+                EXCLUSIVE-LOCK NO-ERROR.
+  IF NOT AVAILABLE jobitems THEN
+  CREATE jobitems.
+  BUFFER-COPY ttbl_jobitems TO jobitems.
+END.
+FOR EACH ttbl_jobmatl NO-LOCK:
+  FIND jobmatl WHERE jobmatl.job = ttbl_jobmatl.job
+                  AND jobmatl.form_number = ttbl_jobmatl.form_number
+                  AND jobmatl.blank_number = ttbl_jobmatl.blank_number
+                  AND jobmatl.item_number = ttbl_jobmatl.item_number
+                EXCLUSIVE-LOCK NO-ERROR.
+  IF NOT AVAILABLE jobmatl THEN
+  CREATE jobmatl.
+  BUFFER-COPY ttbl_jobmatl TO jobmatl.
+END.
+FOR EACH ttbl_jobmach NO-LOCK:
+  FIND jobmach WHERE jobmach.job = ttbl_jobmach.job
+                  AND jobmach.sequence = ttbl_jobmach.sequence
+                EXCLUSIVE-LOCK NO-ERROR.
+  IF NOT AVAILABLE jobmach THEN
+  CREATE jobmach.
+  BUFFER-COPY ttbl_jobmach TO jobmach.
+END.
+FOR EACH ttbl_jobsheet NO-LOCK:
+  FIND jobsheet WHERE jobsheet.job = ttbl_jobsheet.job
+                  AND jobsheet.form_number = ttbl_jobsheet.form_number
+                  AND jobsheet.blank_number = ttbl_jobsheet.blank_number
+                  AND jobsheet.item_number = ttbl_jobsheet.item_number
+                EXCLUSIVE-LOCK NO-ERROR.
+  IF NOT AVAILABLE jobsheet THEN
+  CREATE jobsheet.
+  BUFFER-COPY ttbl_jobsheet TO jobsheet.
+END.
+FOR EACH ttbl_jobcad NO-LOCK:
+  FIND jobcad WHERE jobcad.job = ttbl_jobcad.job
+                AND jobcad.form_number = ttbl_jobcad.form_number
+                AND jobcad.blank_number = ttbl_jobcad.blank_number
+                AND jobcad.cad_number = ttbl_jobcad.cad_number
+              EXCLUSIVE-LOCK NO-ERROR.
+  IF NOT AVAILABLE jobcad THEN
+  CREATE jobcad.
+  BUFFER-COPY ttbl_jobcad TO jobcad.
+END.
+FOR EACH ttbl_jobstack NO-LOCK:
+  FIND jobstack WHERE jobstack.job = ttbl_jobstack.job
+                  AND jobstack.form_number = ttbl_jobstack.form_number
+                  AND jobstack.blank_number = ttbl_jobstack.blank_number
+                EXCLUSIVE-LOCK NO-ERROR.
+  IF NOT AVAILABLE jobstack THEN
+  CREATE jobstack.
+  BUFFER-COPY ttbl_jobstack TO jobstack.
+END.
+FOR EACH ttbl_jobnotes NO-LOCK:
+  FIND jobnotes WHERE jobnotes.job = ttbl_jobnotes.job
+                  AND jobnotes.department = ttbl_jobnotes.department
+                EXCLUSIVE-LOCK NO-ERROR.
+  IF NOT AVAILABLE jobnotes THEN
+  CREATE jobnotes.
+  BUFFER-COPY ttbl_jobnotes TO jobnotes.
+END.
+OS-DELETE VALUE(import-file).
+
+PROCEDURE Fill_Job_Number:
+  DEFINE INPUT-OUTPUT PARAMETER job-number AS CHARACTER NO-UNDO.
+
+  ASSIGN
+    fill# = 6 - LENGTH(SUBSTR(job-number,1,INDEX(job-number,'-') - 1))
+    job-number = FILL(' ',fill#) + job-number.
+END PROCEDURE.

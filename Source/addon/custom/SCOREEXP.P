@@ -1,0 +1,231 @@
+/* scoreexp.p */
+
+DEFINE INPUT PARAMETER selected-option AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER jobs-rowid AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER job-rowid AS ROWID NO-UNDO.
+
+DEFINE VARIABLE text-line AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-joint AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-adders AS CHARACTER NO-UNDO.
+DEFINE VARIABLE i AS INTEGER NO-UNDO.
+DEFINE VARIABLE j AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-del AS CHAR INITIAL '~~' NO-UNDO.
+
+FIND optconfg WHERE optconfg.description = selected-option NO-LOCK.
+IF optconfg.file_location = '' THEN
+RETURN.
+
+FIND job WHERE ROWID(job) = job-rowid NO-LOCK NO-ERROR.
+FIND jobs WHERE ROWID(jobs) = jobs-rowid EXCLUSIVE-LOCK.
+jobs.cadcam_status = 'Exported'.
+OUTPUT TO VALUE(optconfg.file_location + '\' + TRIM(jobs.job) + '.tmp').
+FOR EACH jobitems OF jobs NO-LOCK
+    BREAK BY jobitems.form_number BY jobitems.blank_number:
+  IF FIRST-OF(jobitems.blank_number) THEN
+  DO:
+    RELEASE fg-bin.
+    RELEASE oe-ordl.
+    RELEASE job-mch.
+    RELEASE item.
+    FIND FIRST oe-ord WHERE oe-ord.company = job.company
+                        AND oe-ord.ord-no = jobitems.order_number
+                      NO-LOCK NO-ERROR.
+    FIND FIRST job-hdr WHERE job-hdr.company = job.company
+                         AND job-hdr.job = job.job
+                         AND job-hdr.i-no = jobitems.fg_item
+                       NO-LOCK NO-ERROR.
+    IF AVAILABLE job-hdr THEN
+    DO:
+      FIND FIRST fg-bin WHERE fg-bin.company = job-hdr.company
+                          AND fg-bin.i-no = job-hdr.i-no
+                          AND fg-bin.job-no = job-hdr.job-no
+                          AND fg-bin.job-no2 = job-hdr.job-no2
+                          AND fg-bin.loc = job-hdr.loc
+                          AND fg-bin.qty NE 0
+                        NO-LOCK NO-ERROR.
+      FIND FIRST oe-ordl
+           WHERE oe-ordl.company = job.company
+             AND oe-ordl.ord-no = job-hdr.ord-no
+             AND oe-ordl.job-no = job-hdr.job-no
+             AND oe-ordl.job-no2 = job-hdr.job-no2
+             AND oe-ordl.i-no = job-hdr.i-no
+           NO-LOCK NO-ERROR.
+      FIND FIRST job-mch
+           WHERE job-mch.company = job-hdr.company
+             AND job-mch.job = job-hdr.job
+             AND job-mch.job-no = job-hdr.job-no
+             AND job-mch.job-no2 = job-hdr.job-no2
+             AND job-mch.frm = jobitems.form_number
+           NO-LOCK NO-ERROR.
+    END.
+    FIND FIRST item WHERE item.company = job.company
+                      AND item.i-no = jobitems.adhesive
+                    NO-LOCK NO-ERROR.
+    FIND FIRST eb WHERE eb.e-num = job.e-num
+                    AND eb.form-no = jobitems.form_number
+                  NO-LOCK NO-ERROR.
+    ASSIGN
+      v-joint = IF AVAILABLE item THEN item.i-name ELSE ''
+      v-joint = v-joint + (IF v-joint NE '' AND eb.tab-in NE ? THEN ' - TAB ' +
+                           STRING(eb.tab-in,'IN/OUT') ELSE '').
+    FIND FIRST ef WHERE ef.e-num = job.e-num
+                    AND ef.form-no = jobitems.form_number
+                  NO-LOCK NO-ERROR.
+    IF AVAILABLE ef THEN
+    DO:
+      v-adders = ef.adder[1] + ' ' + ef.adder[2] + ' ' + ef.adder[3] + ' ' +
+                 ef.adder[4] + ' ' + ef.adder[5] + ' ' + ef.adder[6].
+      FIND FIRST item WHERE item.company = job.company
+                        AND item.i-no = ef.board
+                      NO-LOCK NO-ERROR.
+    END.
+    FIND jobsheet WHERE jobsheet.job = jobitems.job
+                    AND jobsheet.form_number = jobitems.form_number
+                    AND jobsheet.blank_number = jobitems.blank_number
+                  NO-LOCK NO-ERROR.
+    EXPORT DELIMITER '~~'
+      jobs.job
+      jobs.estimate
+      jobitems.form_number
+      jobitems.order_number
+      jobitems.fg_item
+      jobitems.description
+      oe-ord.ord-date WHEN AVAILABLE(oe-ord)
+      '' WHEN NOT AVAILABLE(oe-ord)
+      jobitems.due_date
+      fg-bin.loc WHEN AVAILABLE(fg-bin)
+      '' WHEN NOT AVAILABLE(fg-bin)
+      fg-bin.loc-bin WHEN AVAILABLE(fg-bin)
+      '' WHEN NOT AVAILABLE(fg-bin)
+      jobs.name
+      jobs.address1
+      jobs.address2
+      jobs.city
+      jobs.state
+      jobs.zip
+      jobitems.po
+      jobitems.qty
+      oe-ordl.qty WHEN AVAILABLE(oe-ordl)
+      0 WHEN NOT AVAILABLE(oe-ordl)
+      jobitems.part_number
+      jobs.overrun
+      jobs.underrun
+      jobitems.style
+      jobitems.style_description
+      jobitems.item_length
+      jobitems.item_width
+      jobitems.item_depth
+      v-joint
+      v-adders
+      job-mch.run-qty WHEN AVAILABLE(job-mch)
+      0 WHEN NOT AVAILABLE(job-mch)
+     (jobsheet.sheet_length * jobsheet.sheet_width * .007) WHEN AVAILABLE(jobsheet)
+      0 WHEN NOT AVAILABLE(jobsheet)
+      jobsheet.sheet_width WHEN AVAILABLE(jobsheet)
+      0 WHEN NOT AVAILABLE(jobsheet)
+      jobsheet.sheet_length WHEN AVAILABLE(jobsheet)
+      0 WHEN NOT AVAILABLE(jobsheet)
+     (job-mch.run-qty * (jobsheet.sheet_length * jobsheet.sheet_width * .007) / 1000) WHEN AVAILABLE(job-mch) AND AVAILABLE(jobsheet)
+      0 WHEN NOT AVAILABLE(jobsheet) OR NOT AVAILABLE(job-mch)
+      item.i-no WHEN AVAILABLE(item)
+      '' WHEN NOT AVAILABLE(item)
+      item.i-name WHEN AVAILABLE(item)
+      '' WHEN NOT AVAILABLE(item)
+      eb.i-coldscr WHEN AVAILABLE(eb)
+      '' WHEN NOT AVAILABLE(eb)
+      jobsheet.die_number WHEN AVAILABLE(jobsheet)
+      '' WHEN NOT AVAILABLE(jobsheet)
+      eb.cad-no WHEN AVAILABLE(eb)
+      '' WHEN NOT AVAILABLE(eb)
+      jobitems.blank_width
+      jobitems.blank_length
+      eb.num-wid WHEN AVAILABLE(eb)
+      '' WHEN NOT AVAILABLE(eb)
+      eb.num-len WHEN AVAILABLE(eb)
+      '' WHEN NOT AVAILABLE(eb)
+      ef.n-out WHEN AVAILABLE(ef)
+      '' WHEN NOT AVAILABLE(ef)
+      ef.n-out-l WHEN AVAILABLE(ef)
+      '' WHEN NOT AVAILABLE(ef)
+      ef.nsh-wid WHEN AVAILABLE(ef)
+      '' WHEN NOT AVAILABLE(ef)
+      ef.nsh-len WHEN AVAILABLE(ef)
+      '' WHEN NOT AVAILABLE(ef)
+      eb.tr-no WHEN AVAILABLE(eb)
+      '' WHEN NOT AVAILABLE(eb)
+      eb.cas-cnt WHEN AVAILABLE(eb)
+      '' WHEN NOT AVAILABLE(eb)
+      eb.tr-cnt WHEN AVAILABLE(eb)
+      '' WHEN NOT AVAILABLE(eb)
+      eb.stack-code WHEN AVAILABLE(eb)
+      '' WHEN NOT AVAILABLE(eb)
+      eb.tr-len WHEN AVAILABLE(eb)
+      '' WHEN NOT AVAILABLE(eb)
+      eb.tr-wid WHEN AVAILABLE(eb)
+      '' WHEN NOT AVAILABLE(eb)
+      jobs.ship_name
+      jobs.ship_address1
+      jobs.ship_address2
+      jobs.ship_city
+      jobs.ship_state
+      jobs.ship_zip
+      jobitems.po
+      ''.
+    DO i = 1 TO EXTENT(jobitems.width_panels):
+      PUT UNFORMATTED jobitems.width_panels[i] v-del SKIP.
+    END.
+    j = 0.
+    FOR EACH jobmatl OF jobs NO-LOCK
+        WHERE jobmatl.material_type = 'I'
+          AND jobmatl.form_number = jobitems.form_number
+          AND jobmatl.blank_number = jobitems.blank_number:
+      EXPORT DELIMITER '~~'
+        jobmatl.item_description
+        jobmatl.qty
+        jobmatl.qty_uom
+        ''.
+      j = j + 1.
+    END.
+    DO i = j TO 8:
+      EXPORT DELIMITER '~~' '' '' ''.
+    END.
+    j = 0.
+    FOR EACH jobmach OF jobs NO-LOCK
+        WHERE jobmach.form_number = jobitems.form_number
+          AND jobmach.blank_number = jobitems.blank_number:
+      EXPORT DELIMITER '~~'
+        jobmach.description
+        jobmach.make_ready
+        jobmach.speed
+        ''.
+      j = j + 1.
+    END.
+    DO i = j TO 8:
+      EXPORT DELIMITER '~~' '' '' ''.
+    END.
+    j = 0.
+    FOR EACH jobnotes OF jobs NO-LOCK:
+      EXPORT DELIMITER '~~'
+        jobnotes.department
+        jobnotes.note
+        ''.
+      j = j + 1.
+    END.
+    DO i = j TO 12:
+      EXPORT DELIMITER '~~' '' ''.
+    END.
+    PUT UNFORMATTED 'ENDOFTICKET' SKIP.
+  END.
+END.
+OUTPUT CLOSE.
+
+INPUT FROM VALUE(optconfg.file_location + '\' + TRIM(jobs.job) + '.tmp') NO-ECHO.
+OUTPUT TO VALUE(optconfg.file_location + '\' + TRIM(jobs.job) + '.txt').
+REPEAT:
+  IMPORT UNFORMATTED text-line.
+  text-line = REPLACE(text-line,'"','').
+  PUT UNFORMATTED text-line SKIP.
+END.
+OUTPUT CLOSE.
+INPUT CLOSE.
+OS-DELETE VALUE(optconfg.file_location + '\' + TRIM(jobs.job) + '.tmp').
