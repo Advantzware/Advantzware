@@ -43,7 +43,20 @@ END.
 g_track_usage = users.track_usage.
 
 FOR EACH parmfile NO-LOCK:
-  CONNECT -pf VALUE(parmfile.parmfile) NO-ERROR.
+
+  IF SEARCH (parmfile.parmfile) > "" THEN 
+    CONNECT -pf VALUE(parmfile.parmfile) NO-ERROR.
+  ELSE 
+      IF SEARCH (REPLACE (parmfile.parmfile, ".~\", "")) > "" THEN   
+        CONNECT -pf VALUE(SEARCH(REPLACE (parmfile.parmfile, ".~\", ""))) NO-ERROR.
+  ELSE DO:
+      MESSAGE "Cannot find .pf file: " parmfile.parmfile SKIP 
+      REPLACE (parmfile.parmfile, ".~\", "")
+          VIEW-AS ALERT-BOX ERROR .
+          
+      RETURN .     
+  END.
+  
   IF ERROR-STATUS:ERROR THEN
   DO i = 1 TO ERROR-STATUS:NUM-MESSAGES:
     MESSAGE ERROR-STATUS:GET-NUMBER(i) ERROR-STATUS:GET-MESSAGE(i)
