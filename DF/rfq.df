@@ -1,0 +1,2632 @@
+ADD TABLE "bolh"
+  AREA "Schema Area"
+  DESCRIPTION "order entry bill of lading"
+  DUMP-NAME "bolh"
+
+ADD FIELD "bol-no" OF "bolh" AS integer 
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "enter Bill of Lading Number"
+  ORDER 2060
+
+ADD FIELD "ord-no" OF "bolh" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Order#"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 80
+
+ADD FIELD "po-no" OF "bolh" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "P.O. Num"
+  POSITION 4
+  MAX-WIDTH 30
+  HELP "Customer P.O. Number"
+  ORDER 90
+
+ADD FIELD "rel-date" OF "bolh" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "Date Last Counted"
+  POSITION 5
+  MAX-WIDTH 4
+  HELP "enter Release dates for line items by ship-to by date"
+  ORDER 110
+
+ADD FIELD "rel-no" OF "bolh" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 100
+
+ADD FIELD "trailer" OF "bolh" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 16
+  COLUMN-LABEL "Trailer No."
+  ORDER 130
+
+ADD FIELD "cust-no" OF "bolh" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customer"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "Enter customer number."
+  ORDER 60
+
+ADD FIELD "b-ord-no" OF "bolh" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "Backorder #"
+  ORDER 2030
+
+ADD FIELD "b-no" OF "bolh" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  POSITION 10
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "bol-date" OF "bolh" AS date 
+  FORMAT "99/99/99"
+  INITIAL "today"
+  LABEL "BOL Date"
+  POSITION 11
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "company" OF "bolh" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 12
+  MAX-WIDTH 6
+  HELP "Enter the company code."
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "loc" OF "bolh" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Warehouse"
+  POSITION 13
+  MAX-WIDTH 10
+  HELP "Enter the plant/warehouse location"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "carrier" OF "bolh" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Carrier"
+  POSITION 14
+  MAX-WIDTH 10
+  HELP "Enter the common carrier code"
+  ORDER 120
+  MANDATORY
+
+ADD FIELD "posted" OF "bolh" AS logical 
+  FORMAT "y/n"
+  INITIAL "no"
+  LABEL "Posted"
+  POSITION 15
+  MAX-WIDTH 1
+  ORDER 140
+
+ADD FIELD "deleted" OF "bolh" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 16
+  MAX-WIDTH 1
+  ORDER 2050
+
+ADD FIELD "INV-NO" OF "bolh" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Invoice Number"
+  POSITION 17
+  MAX-WIDTH 4
+  COLUMN-LABEL "Invoice!Number"
+  HELP "Invoice Bill Of Ladding was shipped on."
+  ORDER 2110
+
+ADD FIELD "printed" OF "bolh" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  LABEL "Printed?"
+  POSITION 18
+  MAX-WIDTH 1
+  HELP "Has this Release been printed?"
+  ORDER 2040
+
+ADD FIELD "ship-date" OF "bolh" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 19
+  MAX-WIDTH 4
+  COLUMN-LABEL "Ship Date"
+  ORDER 980
+
+ADD FIELD "ship-i" OF "bolh" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Shipping Instructions"
+  POSITION 20
+  MAX-WIDTH 488
+  HELP "Shipping Instructions for Released Items."
+  EXTENT 4
+  ORDER 2020
+
+ADD FIELD "ship-no" OF "bolh" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Ship To #"
+  POSITION 21
+  MAX-WIDTH 4
+  ORDER 28
+  MANDATORY
+
+ADD FIELD "tot-qty" OF "bolh" AS decimal 
+  FORMAT "->>,>>>,>>9"
+  INITIAL "0"
+  POSITION 22
+  MAX-WIDTH 18
+  HELP "Enter quantity received."
+  DECIMALS 3
+  ORDER 1050
+  MANDATORY
+
+ADD FIELD "w-ord" OF "bolh" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 23
+  MAX-WIDTH 1
+  HELP "Release on order entry orders."
+  ORDER 970
+
+ADD FIELD "r-no" OF "bolh" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  POSITION 24
+  MAX-WIDTH 4
+  ORDER 2070
+
+ADD FIELD "tot-wt" OF "bolh" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "total weight"
+  POSITION 25
+  MAX-WIDTH 4
+  ORDER 2080
+
+ADD FIELD "freight" OF "bolh" AS decimal 
+  FORMAT ">>,>>9.99"
+  INITIAL "0"
+  LABEL "Freight"
+  POSITION 26
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 2090
+
+ADD FIELD "cwt" OF "bolh" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Rate/Hundred Wt"
+  POSITION 27
+  MAX-WIDTH 17
+  HELP "Rate per Hundred."
+  DECIMALS 2
+  ORDER 2100
+
+ADD FIELD "ship-id" OF "bolh" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Ship To ID"
+  POSITION 28
+  MAX-WIDTH 16
+  HELP "Ship To Id, Maybe a Billable Customer Id."
+  ORDER 2120
+
+ADD FIELD "tot-pallets" OF "bolh" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  LABEL "Total Pallets"
+  POSITION 29
+  MAX-WIDTH 4
+  HELP "Enter the total number of pallets"
+  ORDER 2130
+
+ADD FIELD "sold-id" OF "bolh" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 30
+  MAX-WIDTH 16
+  ORDER 2140
+
+ADD FIELD "sold-no" OF "bolh" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 31
+  MAX-WIDTH 4
+  ORDER 2150
+
+ADD FIELD "master-bol-no" OF "bolh" AS integer 
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  LABEL "Master BOL No"
+  POSITION 32
+  MAX-WIDTH 4
+  COLUMN-LABEL "Master!BOL No"
+  ORDER 2160
+
+ADD FIELD "master-bol-printed" OF "bolh" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Master BOL Printed?"
+  POSITION 33
+  MAX-WIDTH 1
+  COLUMN-LABEL "Master BOL!Printed?"
+  ORDER 2170
+
+ADD FIELD "user-id" OF "bolh" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 34
+  MAX-WIDTH 20
+  ORDER 2180
+
+ADD FIELD "frt-pay" OF "bolh" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  LABEL "Freight Payment Method"
+  POSITION 35
+  MAX-WIDTH 2
+  ORDER 2190
+
+ADD FIELD "rec_key" OF "bolh" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 36
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 2200
+
+ADD FIELD "bol-status" OF "bolh" AS character 
+  DESCRIPTION "Hold, Approved"
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Status"
+  POSITION 37
+  MAX-WIDTH 16
+  ORDER 2210
+
+ADD INDEX "b-no" ON "bolh" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "b-no" ASCENDING 
+
+ADD INDEX "bol-date" ON "bolh" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "bol-date" ASCENDING 
+  INDEX-FIELD "bol-no" ASCENDING 
+  INDEX-FIELD "cust-no" ASCENDING 
+
+ADD INDEX "bol-no" ON "bolh" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "bol-no" ASCENDING 
+  INDEX-FIELD "bol-date" ASCENDING 
+  INDEX-FIELD "cust-no" ASCENDING 
+
+ADD INDEX "cust" ON "bolh" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "cust-no" ASCENDING 
+  INDEX-FIELD "bol-no" ASCENDING 
+  INDEX-FIELD "bol-date" ASCENDING 
+
+ADD INDEX "deleted" ON "bolh" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "deleted" ASCENDING 
+  INDEX-FIELD "bol-no" ASCENDING 
+  INDEX-FIELD "ord-no" ASCENDING 
+
+ADD INDEX "master-bol" ON "bolh" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "carrier" ASCENDING 
+  INDEX-FIELD "sold-id" ASCENDING 
+  INDEX-FIELD "ship-id" ASCENDING 
+
+ADD INDEX "order-no" ON "bolh" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "ord-no" ASCENDING 
+  INDEX-FIELD "rel-no" ASCENDING 
+  INDEX-FIELD "b-ord-no" ASCENDING 
+
+ADD INDEX "post" ON "bolh" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "posted" ASCENDING 
+  INDEX-FIELD "printed" DESCENDING 
+  INDEX-FIELD "bol-no" ASCENDING 
+  INDEX-FIELD "ord-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "bolh" 
+  AREA "Schema Area"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "rel-no" ON "bolh" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "rel-no" ASCENDING 
+  INDEX-FIELD "b-ord-no" ASCENDING 
+
+ADD TABLE "boll"
+  AREA "Schema Area"
+  DESCRIPTION "Order Entry Bill of Lading Lines"
+  DUMP-NAME "boll"
+
+ADD FIELD "b-no" OF "boll" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "bol-date" OF "boll" AS date 
+  FORMAT "99/99/99"
+  INITIAL "today"
+  LABEL "BOL Date"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 90
+
+ADD FIELD "bol-no" OF "boll" AS integer 
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  POSITION 4
+  MAX-WIDTH 4
+  HELP "enter Bill of Lading Number"
+  ORDER 130
+
+ADD FIELD "company" OF "boll" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 5
+  MAX-WIDTH 6
+  HELP "Enter the company code."
+  ORDER 140
+  MANDATORY
+
+ADD FIELD "i-no" OF "boll" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Item No"
+  POSITION 6
+  MAX-WIDTH 30
+  HELP "Finished Goods Item Number"
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "line" OF "boll" AS integer 
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Line"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "qty-case" OF "boll" AS integer 
+  FORMAT "->>>,>>Z"
+  INITIAL "0"
+  LABEL "Quantity Per Case"
+  POSITION 8
+  MAX-WIDTH 4
+  HELP "Quantity per case shipped."
+  ORDER 190
+  MANDATORY
+
+ADD FIELD "loc" OF "boll" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Warehouse"
+  POSITION 9
+  MAX-WIDTH 10
+  HELP "Enter the plant/warehouse location"
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "loc-bin" OF "boll" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Primary Bin Loc."
+  POSITION 10
+  MAX-WIDTH 16
+  HELP "Enter Bin Location where Item is Stocked"
+  ORDER 60
+
+ADD FIELD "partial" OF "boll" AS decimal 
+  FORMAT ">>>,>>9"
+  INITIAL "0"
+  POSITION 11
+  MAX-WIDTH 18
+  HELP "Enter partial case quantity received."
+  DECIMALS 3
+  ORDER 70
+  MANDATORY
+
+ADD FIELD "ord-no" OF "boll" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Order#"
+  POSITION 12
+  MAX-WIDTH 4
+  ORDER 150
+
+ADD FIELD "cases" OF "boll" AS integer 
+  FORMAT "->>>,>>Z"
+  INITIAL "0"
+  LABEL "Number of Cases Shipped"
+  POSITION 13
+  MAX-WIDTH 4
+  HELP "Number of cases Shipped."
+  ORDER 200
+  MANDATORY
+
+ADD FIELD "tag" OF "boll" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 14
+  MAX-WIDTH 16
+  HELP "Enter tag identification."
+  ORDER 30
+
+ADD FIELD "tot-qty" OF "boll" AS decimal 
+  FORMAT "->>,>>>,>>9"
+  INITIAL "0"
+  POSITION 15
+  MAX-WIDTH 18
+  HELP "Enter quantity received."
+  DECIMALS 3
+  ORDER 80
+  MANDATORY
+
+ADD FIELD "posted" OF "boll" AS logical 
+  FORMAT "y/n"
+  INITIAL "no"
+  LABEL "Posted"
+  POSITION 16
+  MAX-WIDTH 1
+  ORDER 100
+
+ADD FIELD "printed" OF "boll" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  LABEL "Printed?"
+  POSITION 17
+  MAX-WIDTH 1
+  HELP "Has this Release been printed?"
+  ORDER 120
+
+ADD FIELD "qty" OF "boll" AS integer 
+  FORMAT "->>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Quantity Shipped"
+  POSITION 18
+  MAX-WIDTH 4
+  HELP "Quantity Shipped."
+  ORDER 210
+
+ADD FIELD "s-code" OF "boll" AS character 
+  FORMAT "x"
+  INITIAL ""
+  LABEL "Ship Code"
+  POSITION 19
+  MAX-WIDTH 2
+  HELP "Enter (I)nvoice only, (S)hip only, or (B)oth invoice & ship."
+  ORDER 110
+
+ADD FIELD "r-no" OF "boll" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  POSITION 20
+  MAX-WIDTH 4
+  ORDER 160
+
+ADD FIELD "weight" OF "boll" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "weight"
+  POSITION 21
+  MAX-WIDTH 4
+  ORDER 170
+
+ADD FIELD "deleted" OF "boll" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  POSITION 22
+  MAX-WIDTH 1
+  ORDER 180
+
+ADD FIELD "INV-NO" OF "boll" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Invoice Nunmber"
+  POSITION 23
+  MAX-WIDTH 4
+  COLUMN-LABEL "Invoice!Number"
+  HELP "Invoice number item was shipped on from O/E."
+  ORDER 220
+
+ADD FIELD "job-no" OF "boll" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Job Number"
+  POSITION 24
+  MAX-WIDTH 12
+  HELP "Enter the Job Number for this BOL line"
+  ORDER 230
+
+ADD FIELD "job-no2" OF "boll" AS integer 
+  FORMAT "99"
+  INITIAL "0"
+  POSITION 25
+  MAX-WIDTH 4
+  HELP "Enter the Job Number for this BOL line"
+  ORDER 240
+
+ADD FIELD "po-no" OF "boll" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Customer PO"
+  POSITION 26
+  MAX-WIDTH 30
+  HELP "Enter the Customer PO number for this BOL line"
+  ORDER 250
+
+ADD FIELD "p-c" OF "boll" AS logical 
+  FORMAT "C/P"
+  INITIAL "no"
+  LABEL "Partial/Complete"
+  POSITION 27
+  MAX-WIDTH 1
+  ORDER 260
+
+ADD FIELD "bol-line" OF "boll" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "BOL Line"
+  POSITION 28
+  MAX-WIDTH 4
+  ORDER 270
+
+ADD FIELD "rec_key" OF "boll" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 29
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 280
+
+ADD FIELD "rel-no" OF "boll" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  POSITION 30
+  MAX-WIDTH 4
+  ORDER 290
+
+ADD FIELD "rel-date" OF "boll" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "Date Last Counted"
+  POSITION 31
+  MAX-WIDTH 4
+  HELP "enter Release dates for line items by ship-to by date"
+  ORDER 300
+
+ADD INDEX "b-no" ON "boll" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "b-no" ASCENDING 
+  INDEX-FIELD "i-no" ASCENDING 
+
+ADD INDEX "b-no2" ON "boll" 
+  AREA "Schema Area"
+  INDEX-FIELD "b-no" ASCENDING 
+  INDEX-FIELD "i-no" ASCENDING 
+
+ADD INDEX "bol-line" ON "boll" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "b-no" ASCENDING 
+  INDEX-FIELD "bol-line" ASCENDING 
+
+ADD INDEX "bol-no" ON "boll" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "bol-no" ASCENDING 
+  INDEX-FIELD "i-no" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "loc-bin" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+ADD INDEX "i-no" ON "boll" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "i-no" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "loc-bin" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+ADD INDEX "job-no" ON "boll" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "job-no" ASCENDING 
+  INDEX-FIELD "job-no2" ASCENDING 
+
+ADD INDEX "po-no" ON "boll" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "po-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "boll" 
+  AREA "Schema Area"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "cust-itm"
+  AREA "Schema Area"
+  LABEL "Customer Inventory"
+  DUMP-NAME "cust-itm"
+
+ADD FIELD "cust-no" OF "cust-itm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customer"
+  POSITION 2
+  MAX-WIDTH 16
+  HELP "Enter customer number."
+  ORDER 60
+
+ADD FIELD "loc" OF "cust-itm" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Warehouse"
+  POSITION 3
+  MAX-WIDTH 30
+  HELP "Enter the plant/warehouse location"
+  ORDER 70
+  MANDATORY
+
+ADD FIELD "i-no" OF "cust-itm" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "FG Item #"
+  POSITION 4
+  MAX-WIDTH 30
+  HELP "Enter finished goods item number."
+  ORDER 80
+
+ADD FIELD "qty" OF "cust-itm" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "On Hand Qty"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 90
+
+ADD FIELD "consum" OF "cust-itm" AS integer 
+  FORMAT "->>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Annual Consumption"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 100
+
+ADD FIELD "rec_key" OF "cust-itm" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 7
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 110
+
+ADD FIELD "company" OF "cust-itm" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 8
+  MAX-WIDTH 6
+  HELP "Enter the company code."
+  ORDER 120
+  MANDATORY
+
+ADD INDEX "cust" ON "cust-itm" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "cust-no" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "i-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "cust-itm" 
+  AREA "Schema Area"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "rfq"
+  AREA "Schema Area"
+  LABEL "Rfq"
+  DESCRIPTION "Request For Quote Master Table"
+  DUMP-NAME "rfq"
+
+ADD FIELD "rfq-no" OF "rfq" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "RFQ#"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "cust-no" OF "rfq" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Cust.#"
+  POSITION 3
+  MAX-WIDTH 16
+  HELP "Enter Customer Number of Lookup by Description"
+  ORDER 20
+
+ADD FIELD "req-date" OF "rfq" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Request Date"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "due-date" OF "rfq" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Due Date"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "chg-method" OF "rfq" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Charge Method"
+  POSITION 6
+  MAX-WIDTH 2
+  HELP "Enter (P)repaid,(Collect),(Bill) separately."
+  ORDER 50
+
+ADD FIELD "wh-month" OF "rfq" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Whse.Month"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "sman" OF "rfq" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Salesman"
+  POSITION 8
+  MAX-WIDTH 6
+  HELP "Enter initials or code salesman that handles this customer"
+  ORDER 70
+
+ADD FIELD "comm" OF "rfq" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Comm.%"
+  POSITION 9
+  MAX-WIDTH 17
+  HELP "Enter Salesman's Commission rate for this RFQ."
+  DECIMALS 2
+  ORDER 80
+
+ADD FIELD "inst" OF "rfq" AS character 
+  FORMAT "X(1000)"
+  INITIAL ""
+  LABEL "Special Instruction"
+  POSITION 10
+  MAX-WIDTH 2000
+  ORDER 90
+
+ADD FIELD "fob-code" OF "rfq" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "FOB Code"
+  POSITION 11
+  MAX-WIDTH 10
+  HELP "Enter Warehouse Location for Freight on Board Code"
+  ORDER 100
+
+ADD FIELD "ship-addr" OF "rfq" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Address"
+  POSITION 12
+  MAX-WIDTH 124
+  EXTENT 2
+  ORDER 110
+
+ADD FIELD "ship-city" OF "rfq" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "City"
+  POSITION 13
+  MAX-WIDTH 30
+  ORDER 120
+
+ADD FIELD "ship-name" OF "rfq" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Cust. Name"
+  POSITION 14
+  MAX-WIDTH 60
+  ORDER 130
+
+ADD FIELD "ship-state" OF "rfq" AS character 
+  FORMAT "x(2)"
+  INITIAL ""
+  LABEL "State"
+  POSITION 15
+  MAX-WIDTH 4
+  ORDER 140
+
+ADD FIELD "ship-zip" OF "rfq" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Postal Code"
+  POSITION 16
+  MAX-WIDTH 20
+  HELP "Enter the postal code for this Customer."
+  ORDER 150
+
+ADD FIELD "company" OF "rfq" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 17
+  MAX-WIDTH 6
+  HELP "Enter company Code for this estimate."
+  ORDER 160
+  MANDATORY
+
+ADD FIELD "loc" OF "rfq" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Warehouse"
+  POSITION 18
+  MAX-WIDTH 10
+  HELP "Enter the plant/warehouse location"
+  ORDER 170
+  MANDATORY
+
+ADD FIELD "rec_key" OF "rfq" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 19
+  MAX-WIDTH 40
+  ORDER 180
+
+ADD INDEX "rfq" ON "rfq" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "rfq-no" ASCENDING 
+
+ADD INDEX "cust-no" ON "rfq" 
+  AREA "Schema Area"
+  INDEX-FIELD "cust-no" ASCENDING 
+
+ADD TABLE "rfq-ctrl"
+  AREA "Schema Area"
+  DESCRIPTION "Request For Quote control file"
+  DUMP-NAME "rfq-ctrl"
+
+ADD FIELD "rfq-num" OF "rfq-ctrl" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "1"
+  LABEL "RFQ#"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Enter next rfq number to be used"
+  ORDER 30
+
+ADD FIELD "rfq-range" OF "rfq-ctrl" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "RFQ# Range"
+  POSITION 3
+  MAX-WIDTH 28
+  HELP "Enter range of valid rfq numbers"
+  EXTENT 2
+  ORDER 40
+
+ADD FIELD "q-num" OF "rfq-ctrl" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "1"
+  LABEL "Quote#"
+  POSITION 4
+  MAX-WIDTH 4
+  HELP "Enter next quote number to be used in quote processing"
+  ORDER 50
+
+ADD FIELD "q-range" OF "rfq-ctrl" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Quote# Range"
+  POSITION 5
+  MAX-WIDTH 28
+  HELP "Enter range of valid quote numbers"
+  EXTENT 2
+  ORDER 60
+
+ADD FIELD "sho-labor" OF "rfq-ctrl" AS logical 
+  FORMAT "Yes/No"
+  INITIAL "yes"
+  LABEL "Labor Rates"
+  POSITION 6
+  MAX-WIDTH 1
+  HELP "Show labor rates on estimate print out?"
+  ORDER 70
+
+ADD FIELD "trunc-99" OF "rfq-ctrl" AS logical 
+  FORMAT "Yes/No"
+  INITIAL "no"
+  LABEL "Round $"
+  POSITION 7
+  MAX-WIDTH 1
+  HELP "Round costs on estimate print out to nearest dollar?"
+  ORDER 80
+
+ADD FIELD "ls-width" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Layout Sheet Width"
+  POSITION 8
+  MAX-WIDTH 19
+  HELP "Enter Sheet Width to calculate Estimated Sheet Size & Layout?"
+  DECIMALS 4
+  ORDER 90
+
+ADD FIELD "ls-length" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Layout Sheet Length"
+  POSITION 9
+  MAX-WIDTH 19
+  HELP "Enter Sheet Length to calculate Estimated Sheet Size & Layout?"
+  DECIMALS 4
+  ORDER 110
+
+ADD FIELD "def-ink" OF "rfq-ctrl" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Def. Ink#"
+  POSITION 10
+  MAX-WIDTH 20
+  HELP "Enter code of ink to use when there's no default in Style file."
+  ORDER 130
+
+ADD FIELD "def-case" OF "rfq-ctrl" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Def. Case #"
+  POSITION 11
+  MAX-WIDTH 20
+  HELP "Enter code of case to use when there's no defualt in Style file"
+  ORDER 140
+
+ADD FIELD "def-pal" OF "rfq-ctrl" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Def. Pallet"
+  POSITION 12
+  MAX-WIDTH 20
+  HELP "Enter raw mat'l pallet code to transfer to every estimate"
+  ORDER 150
+
+ADD FIELD "def-inkcov" OF "rfq-ctrl" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Def.Ink Coverage %"
+  POSITION 13
+  MAX-WIDTH 4
+  HELP "Enter ink coverage % to tranfer to all inks on every estimate"
+  ORDER 160
+
+ADD FIELD "avg-cswt" OF "rfq-ctrl" AS decimal 
+  FORMAT ">9.99"
+  INITIAL "0"
+  LABEL "Avg. Case Weight"
+  POSITION 14
+  MAX-WIDTH 17
+  HELP "Enter average weight in pounds for a standard case"
+  DECIMALS 2
+  ORDER 170
+
+ADD FIELD "avg-cscost" OF "rfq-ctrl" AS decimal 
+  FORMAT ">9.99"
+  INITIAL "0"
+  LABEL "Avg. Case Cost"
+  POSITION 15
+  MAX-WIDTH 17
+  HELP "Enter average cost per case if case code was left blank!"
+  DECIMALS 2
+  ORDER 180
+
+ADD FIELD "avg-palwt" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>>9.9<"
+  INITIAL "0"
+  LABEL "Avg. Pallet Weight"
+  POSITION 16
+  MAX-WIDTH 18
+  HELP "Enter average weight per pallet"
+  DECIMALS 3
+  ORDER 190
+
+ADD FIELD "avg-palcost" OF "rfq-ctrl" AS decimal 
+  FORMAT ">9.99"
+  INITIAL "0"
+  LABEL "Avg. Pallet Cost"
+  POSITION 17
+  MAX-WIDTH 17
+  HELP "Enter average cost per pallet if pallet code was left blank!"
+  DECIMALS 2
+  ORDER 200
+
+ADD FIELD "fg-rate" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "FG Handling Rate/CWT"
+  POSITION 18
+  MAX-WIDTH 17
+  HELP "You may add a finished goods handling rate per hundred weight"
+  DECIMALS 2
+  ORDER 210
+
+ADD FIELD "rm-rate" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "RM Handling Rate/CWT"
+  POSITION 19
+  MAX-WIDTH 17
+  HELP "You may add a raw material handling rate per hundred weight"
+  DECIMALS 2
+  ORDER 220
+
+ADD FIELD "spec-lab" OF "rfq-ctrl" AS character 
+  FORMAT "x(20)"
+  INITIAL "Special Markup"
+  LABEL "Special MarkUp"
+  POSITION 20
+  MAX-WIDTH 40
+  HELP "Enter description for this Special Markup."
+  ORDER 230
+
+ADD FIELD "spec-pct" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Special %"
+  POSITION 21
+  MAX-WIDTH 17
+  HELP "Enter Dollar amount or Percentage(.25 for 25%) of Markup."
+  DECIMALS 2
+  ORDER 240
+
+ADD FIELD "hand-pct" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Handling Chg. as %"
+  POSITION 22
+  MAX-WIDTH 17
+  HELP "Enter a handling percentage to be multiplied by materials cost"
+  DECIMALS 2
+  ORDER 250
+
+ADD FIELD "shp-mrkup" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Shipping Weight Mark Up"
+  POSITION 23
+  MAX-WIDTH 17
+  HELP "Enter a carton weight markup percentage for cases & pallets"
+  DECIMALS 2
+  ORDER 260
+
+ADD FIELD "whse-mrkup" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Warehousing Mark Up %"
+  POSITION 24
+  MAX-WIDTH 17
+  HELP "Enter a warehousing mark up percentage for warehousing"
+  DECIMALS 2
+  ORDER 270
+
+ADD FIELD "comm-mrkup" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Commissions Mark Up"
+  POSITION 25
+  MAX-WIDTH 17
+  HELP "Enter a commission percentage if salesman are not defined"
+  DECIMALS 2
+  ORDER 280
+
+ADD FIELD "comm-calc" OF "rfq-ctrl" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Calculate Commissions on ?"
+  POSITION 26
+  MAX-WIDTH 2
+  VALEXP "comm-calc not entered or index(""SNG"",comm-calc) > 0"
+  HELP "Calculate commissions on (S)ell price or (G)ross profit?"
+  ORDER 290
+
+ADD FIELD "mat-cost" OF "rfq-ctrl" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Cost"
+  POSITION 27
+  MAX-WIDTH 96
+  HELP "Enter Material Cost level for this GS&A Mat'l Overhead markup"
+  EXTENT 6
+  ORDER 300
+
+ADD FIELD "mat-pct" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Mat'l Pct."
+  POSITION 28
+  MAX-WIDTH 84
+  HELP "Enter GS&A overhead markup percent for this mat'l cost level"
+  EXTENT 6
+  DECIMALS 2
+  ORDER 310
+
+ADD FIELD "lab-pct" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Labor Pct."
+  POSITION 29
+  MAX-WIDTH 84
+  HELP "Enter markup percent for this GS&A labor overhead level"
+  EXTENT 6
+  DECIMALS 2
+  ORDER 330
+
+ADD FIELD "hd-net" OF "rfq-ctrl" AS character 
+  FORMAT "x(6)"
+  INITIAL "Net%"
+  LABEL "What If Net % Heading"
+  POSITION 30
+  MAX-WIDTH 12
+  HELP "Enter Heading for Net Profit % for What if Analysis screen"
+  ORDER 340
+
+ADD FIELD "hd-gross" OF "rfq-ctrl" AS character 
+  FORMAT "x(6)"
+  INITIAL "Gross%"
+  LABEL "What If Gross % Heading"
+  POSITION 31
+  MAX-WIDTH 12
+  HELP "Enter Heading for Gross Profit % in the what if analysis screen"
+  ORDER 350
+
+ADD FIELD "sell-by" OF "rfq-ctrl" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Sell by Net or Gross ?"
+  POSITION 32
+  MAX-WIDTH 2
+  VALEXP "sell-by not entered or index(""NG"",sell-by) > 0"
+  HELP "Calculate the selling price by (N)et or (G)ross Profit?"
+  ORDER 360
+
+ADD FIELD "prof-mrkup" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Profit % Mark Up"
+  POSITION 33
+  MAX-WIDTH 17
+  HELP "Enter gross or net profit percentage mark up percentage"
+  DECIMALS 2
+  ORDER 370
+
+ADD FIELD "comm-add" OF "rfq-ctrl" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  LABEL "Add Commissions on Estimate"
+  POSITION 34
+  MAX-WIDTH 1
+  HELP "Add commissions to the estimate print out?"
+  ORDER 380
+
+ADD FIELD "shp-add" OF "rfq-ctrl" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  LABEL "Add Freight to factory Cost"
+  POSITION 35
+  MAX-WIDTH 1
+  HELP "Add freight cost to factory cost?"
+  ORDER 390
+
+ADD FIELD "company" OF "rfq-ctrl" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 36
+  MAX-WIDTH 6
+  HELP "Enter company number"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "lab-cost" OF "rfq-ctrl" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Cost"
+  POSITION 37
+  MAX-WIDTH 96
+  HELP "Enter Labor Cost Level for this GS&A labor overhead markup"
+  EXTENT 6
+  ORDER 320
+
+ADD FIELD "loc" OF "rfq-ctrl" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Warehouse"
+  POSITION 38
+  MAX-WIDTH 10
+  HELP "Enter the plant/warehouse location"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "ls-trimw" OF "rfq-ctrl" AS decimal 
+  FORMAT "9.9999"
+  INITIAL "0"
+  POSITION 39
+  MAX-WIDTH 19
+  HELP "Enter trim width to deduct from Layout Sheet Width."
+  DECIMALS 4
+  ORDER 100
+
+ADD FIELD "ls-triml" OF "rfq-ctrl" AS decimal 
+  FORMAT "9.9999"
+  INITIAL "0"
+  POSITION 40
+  MAX-WIDTH 19
+  HELP "Enter trim length to deduct from Layout Sheet Length."
+  DECIMALS 4
+  ORDER 120
+
+ADD FIELD "r-cost" OF "rfq-ctrl" AS logical 
+  FORMAT "Avg. Cost/Last Cost"
+  INITIAL "no"
+  POSITION 41
+  MAX-WIDTH 1
+  HELP "Enter (A)verage or (L)ast Cost for Real Raw Materials."
+  ORDER 400
+  MANDATORY
+
+ADD FIELD "win-margin" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99<<"
+  INITIAL ".625"
+  LABEL "Window Glue Margin"
+  POSITION 42
+  MAX-WIDTH 19
+  HELP "Enter width of window film needed for glueing."
+  DECIMALS 4
+  ORDER 410
+
+ADD FIELD "def-cas-w" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "2"
+  LABEL "Default Case Weight"
+  POSITION 43
+  MAX-WIDTH 17
+  HELP "Enter default weight of a single Case."
+  DECIMALS 2
+  ORDER 420
+
+ADD FIELD "def-pal-w" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "50"
+  LABEL "Default Pallet Weight"
+  POSITION 44
+  MAX-WIDTH 17
+  HELP "Enter weight of One Pallet."
+  DECIMALS 2
+  ORDER 430
+
+ADD FIELD "def-coat" OF "rfq-ctrl" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Default Coating"
+  POSITION 45
+  MAX-WIDTH 20
+  HELP "Enter default Coating code."
+  ORDER 440
+
+ADD FIELD "spec-l" OF "rfq-ctrl" AS character 
+  FORMAT "x(20)"
+  INITIAL "Special Markup"
+  LABEL "Special Markup"
+  POSITION 46
+  MAX-WIDTH 210
+  HELP "Enter description for this Special Markup."
+  EXTENT 5
+  ORDER 450
+
+ADD FIELD "spec-%" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Special Markup %"
+  POSITION 47
+  MAX-WIDTH 70
+  HELP "Enter Dollar amount or Percentage(.25 for 25%) for Markup."
+  EXTENT 5
+  DECIMALS 4
+  ORDER 460
+
+ADD FIELD "spec-add" OF "rfq-ctrl" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  LABEL "Add in Fact. Costs?"
+  POSITION 48
+  MAX-WIDTH 40
+  HELP "Add this item into Factory Costs?"
+  EXTENT 10
+  ORDER 470
+
+ADD FIELD "num-len" OF "rfq-ctrl" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "# on Length"
+  POSITION 49
+  MAX-WIDTH 4
+  HELP "Enter Number of Blanks on Length."
+  ORDER 480
+
+ADD FIELD "num-wid" OF "rfq-ctrl" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "# on Width"
+  POSITION 50
+  MAX-WIDTH 4
+  HELP "Enter Number of Blanks on Width."
+  ORDER 490
+
+ADD FIELD "whse-add" OF "rfq-ctrl" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 51
+  MAX-WIDTH 1
+  HELP "Add Warehouse Mark Up to Direct Factory Cost?"
+  ORDER 500
+
+ADD FIELD "leaf-o" OF "rfq-ctrl" AS decimal 
+  FORMAT ">9.9999"
+  INITIAL "0"
+  LABEL "Window Overlap"
+  POSITION 52
+  MAX-WIDTH 19
+  HELP "Enter amount to add to window size for film calculation"
+  DECIMALS 4
+  ORDER 510
+
+ADD FIELD "misc-item" OF "rfq-ctrl" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Misc Items"
+  POSITION 53
+  MAX-WIDTH 440
+  COLUMN-LABEL "Misc Items"
+  EXTENT 20
+  ORDER 520
+
+ADD FIELD "whs-unit" OF "rfq-ctrl" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Warehouse Charge Per"
+  POSITION 54
+  MAX-WIDTH 6
+  VALEXP "lookup(ce-ctrl.whs-unit,""PAL,SF,MTH"") ne 0"
+  VALMSG "ERROR: Must be PAL, SF, or MTH"
+  HELP "Enter if whs charge is by (PAL=Pallet, SF=SqFt, or MTH=Month)"
+  ORDER 530
+
+ADD FIELD "whs-charge" OF "rfq-ctrl" AS decimal 
+  FORMAT ">>,>>9.99<<<"
+  INITIAL "0"
+  LABEL "Warehouse Charge"
+  POSITION 55
+  MAX-WIDTH 20
+  HELP "Enter the warehouse charge"
+  DECIMALS 5
+  ORDER 540
+
+ADD FIELD "rec_key" OF "rfq-ctrl" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 56
+  MAX-WIDTH 40
+  ORDER 550
+
+ADD INDEX "ce-ctrl" ON "rfq-ctrl" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+
+ADD TABLE "rfqitem"
+  AREA "Schema Area"
+  LABEL "RFQ Item"
+  DESCRIPTION "RFQ Item table"
+  DUMP-NAME "rfqitem"
+
+ADD FIELD "part-no" OF "rfqitem" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Cust Part#"
+  POSITION 2
+  MAX-WIDTH 30
+  HELP "Enter Customer's Part Number for this Item."
+  ORDER 10
+
+ADD FIELD "rfq-no" OF "rfqitem" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "RFQ#"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "seq" OF "rfqitem" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Seq#"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "procat" OF "rfqitem" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Category"
+  POSITION 5
+  MAX-WIDTH 10
+  HELP "Enter Product Category Code"
+  ORDER 40
+
+ADD FIELD "part-dscr1" OF "rfqitem" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Item Description"
+  POSITION 6
+  MAX-WIDTH 120
+  HELP "Enter Item Description."
+  ORDER 50
+
+ADD FIELD "style" OF "rfqitem" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Style Code"
+  POSITION 7
+  MAX-WIDTH 8
+  HELP "Enter Style for this RFQ."
+  ORDER 60
+
+ADD FIELD "qty" OF "rfqitem" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "rfq-qty"
+  POSITION 8
+  MAX-WIDTH 2178
+  EXTENT 99
+  ORDER 70
+
+ADD FIELD "len" OF "rfqitem" AS decimal 
+  FORMAT ">9.99999"
+  INITIAL "0"
+  LABEL "Length"
+  POSITION 9
+  MAX-WIDTH 20
+  HELP "Enter blank length."
+  DECIMALS 6
+  ORDER 80
+
+ADD FIELD "wid" OF "rfqitem" AS decimal 
+  FORMAT ">9.99999"
+  INITIAL "0"
+  LABEL "Width"
+  POSITION 10
+  MAX-WIDTH 20
+  HELP "Enter blank width."
+  DECIMALS 6
+  ORDER 90
+
+ADD FIELD "dep" OF "rfqitem" AS decimal 
+  FORMAT ">9.99999"
+  INITIAL "0"
+  LABEL "Depth"
+  POSITION 11
+  MAX-WIDTH 20
+  HELP "Enter blank depth."
+  DECIMALS 6
+  ORDER 100
+
+ADD FIELD "dust" OF "rfqitem" AS decimal 
+  FORMAT ">9.99999"
+  INITIAL "0"
+  LABEL "Dust Flap"
+  POSITION 12
+  MAX-WIDTH 20
+  HELP "Enter blank's Dust Flap Dimension."
+  DECIMALS 6
+  ORDER 110
+
+ADD FIELD "fpanel" OF "rfqitem" AS decimal 
+  FORMAT ">9.99999"
+  INITIAL "0"
+  LABEL "Fifth Panel"
+  POSITION 13
+  MAX-WIDTH 20
+  HELP "Enter Fifth Panel's Dimension."
+  DECIMALS 6
+  ORDER 120
+
+ADD FIELD "tuck" OF "rfqitem" AS decimal 
+  FORMAT ">9.99999"
+  INITIAL "0"
+  LABEL "Tuck"
+  POSITION 14
+  MAX-WIDTH 20
+  HELP "Enter Tuck's dimension."
+  DECIMALS 6
+  ORDER 130
+
+ADD FIELD "k-len" OF "rfqitem" AS decimal 
+  FORMAT ">9.99999"
+  INITIAL "0"
+  LABEL "DK Length"
+  POSITION 15
+  MAX-WIDTH 20
+  HELP "Enter DK dimension."
+  DECIMALS 6
+  ORDER 140
+
+ADD FIELD "k-wid" OF "rfqitem" AS decimal 
+  FORMAT ">9.99999"
+  INITIAL "0"
+  LABEL "DK Width"
+  POSITION 16
+  MAX-WIDTH 20
+  HELP "Enter DK Width dimension."
+  DECIMALS 6
+  ORDER 150
+
+ADD FIELD "adhesive" OF "rfqitem" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Adhesive Code"
+  POSITION 17
+  MAX-WIDTH 20
+  HELP "Enter Item number from RM File."
+  ORDER 160
+
+ADD FIELD "gluelap" OF "rfqitem" AS decimal 
+  FORMAT ">9.99999"
+  INITIAL "0"
+  LABEL "Glue Lap"
+  POSITION 18
+  MAX-WIDTH 20
+  HELP "Enter dimesion of Blank's Glue Lap."
+  DECIMALS 6
+  ORDER 170
+
+ADD FIELD "lin-in" OF "rfqitem" AS decimal 
+  FORMAT ">9.9999"
+  INITIAL "0"
+  LABEL "Lin Inches"
+  POSITION 19
+  MAX-WIDTH 19
+  HELP "Enter Lineal Inches per box for this adhesive."
+  DECIMALS 6
+  ORDER 180
+
+ADD FIELD "t-len" OF "rfqitem" AS decimal 
+  FORMAT ">>>9.999<<"
+  INITIAL "0"
+  LABEL "Blank Length"
+  POSITION 20
+  MAX-WIDTH 20
+  DECIMALS 6
+  ORDER 190
+
+ADD FIELD "t-wid" OF "rfqitem" AS decimal 
+  FORMAT ">>>9.999<<"
+  INITIAL "0"
+  LABEL "Blank Width"
+  POSITION 21
+  MAX-WIDTH 20
+  DECIMALS 6
+  ORDER 200
+
+ADD FIELD "t-sqin" OF "rfqitem" AS decimal 
+  FORMAT ">>>9.999<<"
+  INITIAL "0"
+  LABEL "Blank Sq.In."
+  POSITION 22
+  MAX-WIDTH 20
+  DECIMALS 6
+  ORDER 210
+
+ADD FIELD "cad-no" OF "rfqitem" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  POSITION 23
+  MAX-WIDTH 30
+  HELP "Enter CAD or Sample Number."
+  ORDER 220
+
+ADD FIELD "die-no" OF "rfqitem" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Die #"
+  POSITION 24
+  MAX-WIDTH 30
+  HELP "Enter Die Number"
+  ORDER 230
+
+ADD FIELD "plate-no" OF "rfqitem" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Plate #"
+  POSITION 25
+  MAX-WIDTH 30
+  HELP "Enter Plate #"
+  ORDER 240
+
+ADD FIELD "ship-id" OF "rfqitem" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Ship To ID"
+  POSITION 26
+  MAX-WIDTH 16
+  HELP "Ship To Id, Maybe a Billable Customer Id."
+  ORDER 250
+
+ADD FIELD "spc-no" OF "rfqitem" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  POSITION 27
+  MAX-WIDTH 30
+  HELP "Enter SPC/QC Number."
+  ORDER 260
+
+ADD FIELD "stock-no" OF "rfqitem" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Stock Box #"
+  POSITION 28
+  MAX-WIDTH 30
+  HELP "Enter finished goods item number."
+  ORDER 270
+
+ADD FIELD "upc-no" OF "rfqitem" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  POSITION 29
+  MAX-WIDTH 30
+  HELP "Enter UPC Number."
+  ORDER 280
+
+ADD FIELD "flute" OF "rfqitem" AS character 
+  FORMAT "XXX"
+  INITIAL ""
+  LABEL "Flute"
+  POSITION 30
+  MAX-WIDTH 6
+  HELP "Enter Flute Code for this style."
+  ORDER 290
+
+ADD FIELD "i-col" OF "rfqitem" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Colors"
+  POSITION 31
+  MAX-WIDTH 4
+  HELP "Enter Number of Colors for this BLANK."
+  ORDER 300
+
+ADD FIELD "i-pass" OF "rfqitem" AS integer 
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "Passes"
+  POSITION 32
+  MAX-WIDTH 4
+  HELP "Enter Number of Passes for this Blank."
+  ORDER 310
+
+ADD FIELD "i-coat" OF "rfqitem" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Coating"
+  POSITION 33
+  MAX-WIDTH 4
+  HELP "Enter Number of Coatings for this BLANK"
+  ORDER 320
+
+ADD FIELD "i-coldscr" OF "rfqitem" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Color Desc."
+  POSITION 34
+  MAX-WIDTH 40
+  HELP "Enter Description for this Blank's Colors."
+  ORDER 330
+
+ADD FIELD "i-ps" OF "rfqitem" AS integer 
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "PS"
+  POSITION 35
+  MAX-WIDTH 60
+  HELP "Enter Pass # that uses this INK."
+  EXTENT 10
+  ORDER 340
+
+ADD FIELD "i-code" OF "rfqitem" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Code"
+  POSITION 36
+  MAX-WIDTH 220
+  HELP "Enter Standard or Actual Ink Item Code from Raw Materials File."
+  EXTENT 10
+  ORDER 350
+
+ADD FIELD "i-dscr" OF "rfqitem" AS character 
+  FORMAT "x(19)"
+  INITIAL ""
+  LABEL "Desc"
+  POSITION 37
+  MAX-WIDTH 400
+  HELP "Enter Raw Material Description of INK."
+  EXTENT 10
+  ORDER 360
+
+ADD FIELD "i-%" OF "rfqitem" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "%"
+  POSITION 38
+  MAX-WIDTH 80
+  HELP "Enter % Coverage for this INK."
+  EXTENT 10
+  ORDER 370
+
+ADD FIELD "cas-no" OF "rfqitem" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  POSITION 39
+  MAX-WIDTH 20
+  ORDER 380
+
+ADD FIELD "cas-cost" OF "rfqitem" AS decimal 
+  FORMAT ">9.99"
+  INITIAL "0"
+  LABEL "Cost/ea."
+  POSITION 40
+  MAX-WIDTH 17
+  HELP "Enter Case cost, or enter '0' to use Item file values."
+  DECIMALS 2
+  ORDER 390
+
+ADD FIELD "cas-cnt" OF "rfqitem" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Count"
+  POSITION 41
+  MAX-WIDTH 4
+  ORDER 400
+
+ADD FIELD "cas-len" OF "rfqitem" AS decimal 
+  FORMAT ">9.9999"
+  INITIAL "0"
+  LABEL "Length"
+  POSITION 42
+  MAX-WIDTH 19
+  DECIMALS 6
+  ORDER 410
+
+ADD FIELD "cas-wid" OF "rfqitem" AS decimal 
+  FORMAT ">9.9999"
+  INITIAL "0"
+  LABEL "Width"
+  POSITION 43
+  MAX-WIDTH 19
+  DECIMALS 6
+  ORDER 420
+
+ADD FIELD "cas-dep" OF "rfqitem" AS decimal 
+  FORMAT ">9.9999"
+  INITIAL "0"
+  LABEL "Depth"
+  POSITION 44
+  MAX-WIDTH 19
+  DECIMALS 6
+  ORDER 430
+
+ADD FIELD "cas-pal" OF "rfqitem" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Cases/Pall"
+  POSITION 45
+  MAX-WIDTH 4
+  ORDER 440
+
+ADD FIELD "cas-wt" OF "rfqitem" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Lbs/Case"
+  POSITION 46
+  MAX-WIDTH 17
+  HELP "Enter number of pounds per Case."
+  DECIMALS 2
+  ORDER 450
+
+ADD FIELD "tr-no" OF "rfqitem" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Pallet #"
+  POSITION 47
+  MAX-WIDTH 20
+  HELP "Enter a vaild Pallet number"
+  ORDER 460
+
+ADD FIELD "tr-cost" OF "rfqitem" AS decimal 
+  FORMAT ">9.99"
+  INITIAL "0"
+  LABEL "Cost/ea."
+  POSITION 48
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 470
+
+ADD FIELD "tr-cnt" OF "rfqitem" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Count"
+  POSITION 49
+  MAX-WIDTH 4
+  ORDER 480
+
+ADD FIELD "tr-len" OF "rfqitem" AS decimal 
+  FORMAT ">9.9999"
+  INITIAL "0"
+  LABEL "Length"
+  POSITION 50
+  MAX-WIDTH 19
+  DECIMALS 6
+  ORDER 490
+
+ADD FIELD "tr-wid" OF "rfqitem" AS decimal 
+  FORMAT ">9.9999"
+  INITIAL "0"
+  LABEL "Width"
+  POSITION 51
+  MAX-WIDTH 19
+  DECIMALS 6
+  ORDER 500
+
+ADD FIELD "tr-dep" OF "rfqitem" AS decimal 
+  FORMAT ">9.9999"
+  INITIAL "0"
+  LABEL "Height"
+  POSITION 52
+  MAX-WIDTH 19
+  DECIMALS 6
+  ORDER 510
+
+ADD FIELD "tr-cas" OF "rfqitem" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "# of Layers"
+  POSITION 53
+  MAX-WIDTH 4
+  HELP "Enter Number of Layers High"
+  ORDER 520
+
+ADD FIELD "weight-m" OF "rfqitem" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Weight per M"
+  POSITION 54
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 530
+
+ADD FIELD "m-code" OF "rfqitem" AS character 
+  DESCRIPTION "Operation number that identifies the specific machine or operation."
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Code"
+  POSITION 55
+  MAX-WIDTH 12
+  HELP "Enter alpha numeric machine code"
+  ORDER 540
+
+ADD FIELD "m-dscr" OF "rfqitem" AS character 
+  DESCRIPTION "Description of Machine or Operation."
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 56
+  MAX-WIDTH 40
+  COLUMN-LABEL "Desc"
+  HELP "Enter machine description"
+  ORDER 550
+
+ADD FIELD "lsh-len" OF "rfqitem" AS decimal 
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Layout Sheet Size"
+  POSITION 57
+  MAX-WIDTH 19
+  HELP "Enter Maximum sheet length."
+  DECIMALS 6
+  ORDER 560
+
+ADD FIELD "lsh-wid" OF "rfqitem" AS decimal 
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Layout Sheet Width"
+  POSITION 58
+  MAX-WIDTH 19
+  HELP "Enter maximum layout sheet width."
+  DECIMALS 6
+  ORDER 570
+
+ADD FIELD "xgrain" OF "rfqitem" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Crossgrain"
+  POSITION 59
+  MAX-WIDTH 2
+  VALEXP "index(""NSB"",xgrain) > 0 or xgrain = """""
+  HELP "Enter (N)o, (S)heet or (B)lank"
+  ORDER 580
+
+ADD FIELD "board" OF "rfqitem" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Board"
+  POSITION 60
+  MAX-WIDTH 20
+  HELP "Enter Board Mat'l Code"
+  ORDER 590
+
+ADD FIELD "brd-dscr" OF "rfqitem" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 61
+  MAX-WIDTH 40
+  HELP "Enter description for this board."
+  ORDER 600
+
+ADD FIELD "cal" OF "rfqitem" AS decimal 
+  FORMAT "9.99999"
+  INITIAL "0"
+  LABEL "Caliper"
+  POSITION 62
+  MAX-WIDTH 20
+  HELP "Enter Caliper Dimension for Board or Paper Material"
+  DECIMALS 5
+  ORDER 610
+
+ADD FIELD "nc" OF "rfqitem" AS logical 
+  FORMAT "C/N"
+  INITIAL "Yes"
+  LABEL "NC"
+  POSITION 63
+  MAX-WIDTH 1
+  HELP "Enter (N) for no charge or (C) for chargeable."
+  ORDER 620
+
+ADD FIELD "weight" OF "rfqitem" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Weight"
+  POSITION 64
+  MAX-WIDTH 17
+  HELP "Enter Basis weight for board."
+  DECIMALS 2
+  ORDER 630
+
+ADD FIELD "cost-msh" OF "rfqitem" AS decimal 
+  FORMAT ">>>>9.999"
+  INITIAL "0"
+  LABEL "Cost M/Sheets"
+  POSITION 65
+  MAX-WIDTH 18
+  HELP "Enter cost per Thousand Sheets."
+  DECIMALS 3
+  ORDER 640
+
+ADD FIELD "fr-msh" OF "rfqitem" AS decimal 
+  FORMAT ">>9.999"
+  INITIAL "0"
+  LABEL "Freight/M Sheets"
+  POSITION 66
+  MAX-WIDTH 18
+  HELP "Enter freight cost from your supplier, if separate."
+  DECIMALS 3
+  ORDER 650
+
+ADD FIELD "roll" OF "rfqitem" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  LABEL "Roll"
+  POSITION 67
+  MAX-WIDTH 1
+  HELP "Is this a Roll material?"
+  ORDER 660
+
+ADD FIELD "roll-wid" OF "rfqitem" AS decimal 
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Width"
+  POSITION 68
+  MAX-WIDTH 19
+  HELP "Enter roll width."
+  DECIMALS 6
+  ORDER 670
+
+ADD FIELD "die-in" OF "rfqitem" AS decimal 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Die Inches"
+  POSITION 69
+  MAX-WIDTH 19
+  HELP "Enter Total die inches required for the layout."
+  DECIMALS 6
+  ORDER 680
+
+ADD FIELD "nsh-len" OF "rfqitem" AS decimal 
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Length"
+  POSITION 70
+  MAX-WIDTH 19
+  DECIMALS 6
+  ORDER 690
+
+ADD FIELD "nsh-wid" OF "rfqitem" AS decimal 
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Net Sheet Width"
+  POSITION 71
+  MAX-WIDTH 19
+  DECIMALS 6
+  ORDER 700
+
+ADD FIELD "gsh-len" OF "rfqitem" AS decimal 
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Length"
+  POSITION 72
+  MAX-WIDTH 19
+  DECIMALS 6
+  ORDER 710
+
+ADD FIELD "gsh-wid" OF "rfqitem" AS decimal 
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Gross Sheet Width"
+  POSITION 73
+  MAX-WIDTH 19
+  DECIMALS 6
+  ORDER 720
+
+ADD FIELD "lam-code" OF "rfqitem" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Laminate Code"
+  POSITION 74
+  MAX-WIDTH 20
+  HELP "Enter Item number from Raw Material File."
+  ORDER 730
+
+ADD FIELD "medium" OF "rfqitem" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Liner"
+  POSITION 75
+  MAX-WIDTH 20
+  HELP "Enter Raw Material Item Code."
+  ORDER 740
+
+ADD FIELD "n-cuts" OF "rfqitem" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Number Cuts"
+  POSITION 76
+  MAX-WIDTH 4
+  HELP "Enter number of cuts required on Gross Sheet."
+  ORDER 750
+
+ADD FIELD "n-out" OF "rfqitem" AS integer 
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "Number Out"
+  POSITION 77
+  MAX-WIDTH 4
+  HELP "Enter number of Net sheets on the Gross Sheet."
+  ORDER 760
+
+ADD FIELD "trim-l" OF "rfqitem" AS decimal 
+  FORMAT ">>9.99<<"
+  INITIAL "0"
+  LABEL "Trim Length"
+  POSITION 78
+  MAX-WIDTH 19
+  HELP "Enter dimension of margin on Sheet Length."
+  DECIMALS 6
+  ORDER 770
+
+ADD FIELD "trim-w" OF "rfqitem" AS decimal 
+  FORMAT ">>9.99<<"
+  INITIAL "0"
+  LABEL "Trim Width"
+  POSITION 79
+  MAX-WIDTH 19
+  HELP "Enter dimension of Trim on Sheet Width."
+  DECIMALS 6
+  ORDER 780
+
+ADD FIELD "cost-uom" OF "rfqitem" AS character 
+  FORMAT "x(4)"
+  INITIAL "TON"
+  POSITION 80
+  MAX-WIDTH 8
+  HELP "Enter Unit of Measure for this Board Cost."
+  ORDER 790
+
+ADD FIELD "fr-uom" OF "rfqitem" AS character 
+  FORMAT "x(4)"
+  INITIAL "CWT"
+  POSITION 81
+  MAX-WIDTH 8
+  HELP "Enter Unit of Measure for Freight In Charges."
+  ORDER 800
+
+ADD FIELD "leaf" OF "rfqitem" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Leaf/Film"
+  POSITION 82
+  MAX-WIDTH 88
+  HELP "Enter Leaf/Film Material Code."
+  EXTENT 4
+  ORDER 810
+
+ADD FIELD "leaf-dscr" OF "rfqitem" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 83
+  MAX-WIDTH 168
+  HELP "Enter descrition for this Leaf/Film."
+  EXTENT 4
+  ORDER 820
+
+ADD FIELD "leaf-snum" OF "rfqitem" AS integer 
+  FORMAT "9"
+  INITIAL "1"
+  LABEL "S/B"
+  POSITION 84
+  MAX-WIDTH 16
+  HELP "Enter Sheet number"
+  EXTENT 4
+  ORDER 830
+
+ADD FIELD "leaf-bnum" OF "rfqitem" AS integer 
+  FORMAT "99"
+  INITIAL "1"
+  POSITION 85
+  MAX-WIDTH 24
+  HELP "Enter Blank Number"
+  EXTENT 4
+  ORDER 840
+
+ADD FIELD "leaf-w" OF "rfqitem" AS decimal 
+  FORMAT ">9.9999"
+  INITIAL "0"
+  LABEL "Width"
+  POSITION 86
+  MAX-WIDTH 64
+  HELP "Enter Width."
+  EXTENT 4
+  DECIMALS 4
+  ORDER 850
+
+ADD FIELD "leaf-l" OF "rfqitem" AS decimal 
+  FORMAT ">9.9999"
+  INITIAL "0"
+  LABEL "Length"
+  POSITION 87
+  MAX-WIDTH 64
+  HELP "Enter Length."
+  EXTENT 4
+  DECIMALS 4
+  ORDER 860
+
+ADD FIELD "lock" OF "rfqitem" AS decimal 
+  FORMAT ">9.99999"
+  INITIAL "0"
+  LABEL "Lock Tab"
+  POSITION 88
+  MAX-WIDTH 20
+  HELP "Enter Lock Tab Dimension."
+  DECIMALS 5
+  ORDER 870
+
+ADD FIELD "company" OF "rfqitem" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 89
+  MAX-WIDTH 6
+  HELP "Enter company Code for this estimate."
+  ORDER 880
+  MANDATORY
+
+ADD FIELD "loc" OF "rfqitem" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Warehouse"
+  POSITION 90
+  MAX-WIDTH 10
+  HELP "Enter the plant/warehouse location"
+  ORDER 890
+  MANDATORY
+
+ADD FIELD "rec_key" OF "rfqitem" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 91
+  MAX-WIDTH 40
+  ORDER 900
+
+ADD FIELD "num-len" OF "rfqitem" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "# on Length"
+  POSITION 92
+  MAX-WIDTH 4
+  HELP "Enter Number of Blanks on Length."
+  ORDER 910
+
+ADD FIELD "num-up" OF "rfqitem" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "# UP"
+  POSITION 93
+  MAX-WIDTH 4
+  HELP "Enter Total Quantity of this Blank on Sheet. (Number Up)"
+  ORDER 920
+
+ADD FIELD "item-code" OF "rfqitem" AS character 
+  FORMAT "x"
+  INITIAL ""
+  LABEL "Item Code"
+  POSITION 94
+  MAX-WIDTH 2
+  ORDER 930
+
+ADD FIELD "adh-code" OF "rfqitem" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Adhesive Code"
+  POSITION 95
+  MAX-WIDTH 20
+  HELP "Enter Item Number from Raw Material File."
+  ORDER 940
+
+ADD FIELD "adh-sqin" OF "rfqitem" AS decimal 
+  FORMAT ">>>9.9999"
+  INITIAL "0"
+  LABEL "Sq.Inches"
+  POSITION 96
+  MAX-WIDTH 19
+  HELP "Enter total square inches per box for this adhesive."
+  DECIMALS 6
+  ORDER 950
+
+ADD FIELD "num-wid" OF "rfqitem" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "# on Width"
+  POSITION 97
+  MAX-WIDTH 4
+  HELP "Enter Number of Blanks on Width."
+  ORDER 960
+
+ADD FIELD "adder" OF "rfqitem" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Adder"
+  POSITION 98
+  MAX-WIDTH 264
+  HELP "Enter Code for this Board Adder Item."
+  EXTENT 12
+  ORDER 970
+
+ADD FIELD "carrier" OF "rfqitem" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Carrier"
+  POSITION 99
+  MAX-WIDTH 10
+  HELP "Enter the common carrier code"
+  ORDER 980
+
+ADD FIELD "carr-dscr" OF "rfqitem" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 100
+  MAX-WIDTH 30
+  ORDER 990
+
+ADD FIELD "part-dscr2" OF "rfqitem" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Item Description"
+  POSITION 101
+  MAX-WIDTH 120
+  HELP "Enter Item Description."
+  ORDER 1000
+
+ADD FIELD "part-dscr3" OF "rfqitem" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Item Description"
+  POSITION 102
+  MAX-WIDTH 120
+  HELP "Enter Item Description."
+  ORDER 1010
+
+ADD FIELD "i-name" OF "rfqitem" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Item Name"
+  POSITION 103
+  MAX-WIDTH 120
+  HELP "Enter Item Name"
+  ORDER 1020
+
+ADD FIELD "test" OF "rfqitem" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Test"
+  POSITION 104
+  MAX-WIDTH 12
+  HELP "Enter Test for this Board."
+  ORDER 1030
+
+ADD FIELD "est-no" OF "rfqitem" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Estimate#"
+  POSITION 105
+  MAX-WIDTH 10
+  HELP "Enter Estimate Number"
+  ORDER 1040
+
+ADD FIELD "form-no" OF "rfqitem" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Form No."
+  POSITION 106
+  MAX-WIDTH 4
+  ORDER 1050
+
+ADD FIELD "blank-no" OF "rfqitem" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Blank No."
+  POSITION 107
+  MAX-WIDTH 4
+  ORDER 1060
+
+ADD FIELD "spec-no" OF "rfqitem" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "RM Item#"
+  POSITION 108
+  MAX-WIDTH 176
+  HELP "Enter Raw Material Code for this special item."
+  EXTENT 8
+  ORDER 1070
+
+ADD FIELD "spec-dscr" OF "rfqitem" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 109
+  MAX-WIDTH 336
+  HELP "Enter description of this special raw material item."
+  EXTENT 8
+  ORDER 1080
+
+ADD FIELD "spec-qty" OF "rfqitem" AS decimal 
+  FORMAT ">>>9.9<<<"
+  INITIAL "0"
+  LABEL "QTY"
+  POSITION 110
+  MAX-WIDTH 112
+  HELP "Enter Quantity for this Item"
+  EXTENT 8
+  DECIMALS 2
+  ORDER 1090
+
+ADD FIELD "spec-uom" OF "rfqitem" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "UOM"
+  POSITION 111
+  MAX-WIDTH 64
+  EXTENT 8
+  ORDER 1100
+
+ADD FIELD "tab-in" OF "rfqitem" AS logical 
+  FORMAT "In/Out"
+  INITIAL "In"
+  LABEL "Tab"
+  POSITION 112
+  MAX-WIDTH 1
+  HELP "Is Tab In or Out for this blank?"
+  ORDER 1110
+
+ADD FIELD "qty-price" OF "rfqitem" AS decimal 
+  DESCRIPTION "Qty Quote Price"
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Price"
+  POSITION 113
+  MAX-WIDTH 2178
+  EXTENT 99
+  DECIMALS 2
+  ORDER 1120
+
+ADD FIELD "qty-uom" OF "rfqitem" AS character 
+  DESCRIPTION "Qty UOM"
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "UOM"
+  POSITION 114
+  MAX-WIDTH 1782
+  EXTENT 99
+  ORDER 1130
+
+ADD FIELD "qty-date" OF "rfqitem" AS date 
+  DESCRIPTION "Qty Quote Date"
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Date"
+  POSITION 115
+  MAX-WIDTH 2178
+  EXTENT 99
+  ORDER 1140
+
+ADD FIELD "delivery" OF "rfqitem" AS integer 
+  DESCRIPTION "Delivery Count"
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Deliveries"
+  POSITION 116
+  MAX-WIDTH 792
+  EXTENT 99
+  ORDER 1150
+
+ADD FIELD "k-wid-array2" OF "rfqitem" AS decimal 
+  FORMAT ">>9.999999"
+  INITIAL "0"
+  LABEL ""
+  POSITION 117
+  MAX-WIDTH 2200
+  COLUMN-LABEL ""
+  EXTENT 100
+  DECIMALS 6
+  ORDER 1160
+
+ADD FIELD "k-len-array2" OF "rfqitem" AS decimal 
+  FORMAT ">>9.999999"
+  INITIAL "0"
+  LABEL ""
+  POSITION 118
+  MAX-WIDTH 2200
+  COLUMN-LABEL ""
+  EXTENT 100
+  DECIMALS 6
+  ORDER 1170
+
+ADD FIELD "k-wid-scr-type2" OF "rfqitem" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Width Score Type"
+  POSITION 119
+  MAX-WIDTH 400
+  COLUMN-LABEL ""
+  EXTENT 100
+  ORDER 1180
+
+ADD FIELD "k-len-scr-type2" OF "rfqitem" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Length Score Type"
+  POSITION 120
+  MAX-WIDTH 400
+  COLUMN-LABEL ""
+  EXTENT 100
+  ORDER 1190
+
+ADD INDEX "rfqseq" ON "rfqitem" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "rfq-no" ASCENDING 
+  INDEX-FIELD "seq" ASCENDING 
+
+ADD INDEX "est-no" ON "rfqitem" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "est-no" ASCENDING 
+
+ADD INDEX "part-no" ON "rfqitem" 
+  AREA "Schema Area"
+  INDEX-FIELD "part-no" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000054816
