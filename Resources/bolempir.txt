@@ -1,0 +1,55 @@
+
+
+NT DEV Box & Carton Corp                             Bill of Lading #:  384
+123 Best Drive                                                 Page #:  1 of 0
+Yardley, PA  19067                                               Date:10/09/2006
+
+
+
+         Ship To:
+         IBM CORP                                   Carrier:    Our Truck
+         123 Nowhere                              Trailer #:
+                                              Freight Terms:    Prepaid
+         Rochester, NY  15989                          Zone:    100
+         (800)123-4567                                  FOB:    Origin
+
+ Shipping Instructions:                       Payment Terms:    2% 10, Net 30 d
+Dock Times: 7AM to 4PM, Must Shrink Wrap Pallets
+
+
+
+Part #          PO#
+File #          JOB #           Description                    Unit-Qty  P/C Wgt
+--------------------------------------------------------------------------------
+CUST PART#                                                        4@   250
+WWWMV90WWM2ZMW6
+                                                           ---------------
+                                                               4=   1000  P   10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

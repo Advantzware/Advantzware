@@ -1,0 +1,29 @@
+
+
+
+
+
+BILL TO:              DEVPACCO          SHIP TO:              DEVPACCO
+     DEVINE PACKAGING COMPANY                DEVINE PACKAGING COMPANY
+     1234 NORTH MAIN STREET                  1234 NORTH MAIN STREET
+
+     ANYWHERE        PA 19020-6789           ANYWHERE        PA 19020-1234
+
+RPI ORDER# 202891
+BOL# 004037 TO SHIP VIA Our Truck                     DUE ON  03/25/2011
+CUSTOMER PO#                      TRAILER #                      BILL
+                                                                PAGE 01 OF 007
+--------
+LOC     ITEM NUMBER      PRODUCT DESCRIPTION              QUANTITY IN ONE THOU
+------  ---------------  ------------------------------  ----------------------
+                                                          TO SHIP     SHIPPED
+                                                         ----------  ---------
+A-200   CDEVPACCO0006A   DEV02022011                         1,000    _______
+
+A-200   DEV121212        12X12X12 RSC                        3,000    _______
+                         Description 1                 
+
+A-200   DEV8x8x8200B     RSC 200B                            1,298    _______
+
+          These are notes entered on the Ship-To Screen.              
+

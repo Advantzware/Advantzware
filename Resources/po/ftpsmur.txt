@@ -1,0 +1,6 @@
+open gwftpe.smurfit.com
+ContainerServices
+5946KTAyTj
+cd /In
+put Q:\rcode\smurfit\export\dataxfer\in\ShtOrd_20111116851.dat
+quit

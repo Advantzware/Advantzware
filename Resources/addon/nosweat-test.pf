@@ -1,0 +1,10 @@
+-db E:\Data\Progress\asi10test\db1010\addon\nosweat
+-ld NOSWEAT-test
+-H asisbs
+-S 3810
+-N TCP
+-mmax 10000
+-T c:\tmp
+-F
+-h 8
+

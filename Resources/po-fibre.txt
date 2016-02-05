@@ -1,0 +1,51 @@
+
+                                                      P U R C H A S E  O R D E R
+                                                      **************************
+
+
+
+
+
+
+
+
+                                                  PAGE: 1 OF 1
+
+                                                  DATE: 08/05/04
+
+
+          TO:                                    SHIP TO:
+          Stone Container Corp                   NT DEV Box & Carton Corp
+          123 Stone Blvd                         123 Best Drive
+
+          Valley Forge, PA  18990                Yardley, PA  19067
+Phone:215-6871000 Fax:215-3697801
+
+      ATTN: John Stone                             PO#:     98
+--------------------------------------------------------------------------------
+   QTY DESC/NOTES                     ADDER     JOB #       COST/DUE  TOTALS/MSF
+--------------------------------------------------------------------------------
+ 10000 200 C Name For estimating purp           699-00.01     35.351 MSF  39.688
+       Description                                         08/06/04     1,403.02
+       Overrun/Underrun: 0/0                    Setup:      0.00
+       11301-00                                          
+       W:  18.00  L:  31.12  Flute: C    200   
+       Score: 2.10  10.06  2.10                                                 
+
+PO# 98 first line .......... 1231231                                            
+9u09w8709w - 2nd line                                                           
+--------------------------------------------------------------------------------
+ 10000 Bundle 25 per                            699-00.01     35.351 EA      0.0
+                                                           08/06/04   353,512.00
+       Overrun/Underrun: 0/0                    Setup:      0.00
+       11301-00                                          
+       W:   0.00  L:   0.00  Flute:            
+       Score: 2.10  10.06  2.10                                                 
+
+PO# 98 first line .......... 1231231                                            
+9u09w8709w - 2nd line                                                           
+--------------------------------------------------------------------------------
+
+Vendor Stone Notes - first line                                                 
+Second line's here.....                                                         
+

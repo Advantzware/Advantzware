@@ -1,0 +1,7 @@
+option batch abort
+option confirm off
+open PREMPKG:PREMFTP8@van-ftp.nubridges.net
+cd inbox
+put Q:\rcode\gp\export\dataxfer\in\po_SultanaGP150928053435.xml
+close
+Exit

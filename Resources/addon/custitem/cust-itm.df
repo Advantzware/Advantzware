@@ -1,0 +1,69 @@
+ADD TABLE "cust-itm"
+  LABEL "Customer Inventory"
+  DUMP-NAME "cust-itm"
+
+ADD FIELD "cust-no" OF "cust-itm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customer"
+  HELP "Enter customer number."
+  ORDER 60
+
+ADD FIELD "loc" OF "cust-itm" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Warehouse"
+  HELP "Enter the plant/warehouse location"
+  ORDER 70
+  MANDATORY
+
+ADD FIELD "i-no" OF "cust-itm" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "FG Item #"
+  HELP "Enter finished goods item number."
+  ORDER 80
+
+ADD FIELD "qty" OF "cust-itm" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "On Hand Qty"
+  ORDER 90
+
+ADD FIELD "consum" OF "cust-itm" AS integer 
+  FORMAT "->>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Annual Consumption"
+  ORDER 100
+
+ADD FIELD "rec_key" OF "cust-itm" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  HELP "Enter Rec Key"
+  ORDER 110
+
+ADD FIELD "company" OF "cust-itm" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  HELP "Enter the company code."
+  ORDER 120
+  MANDATORY
+
+ADD INDEX "cust" ON "cust-itm" 
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "cust-no" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "i-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "cust-itm" 
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+codepage=iso8859-1
+.
+0000001371

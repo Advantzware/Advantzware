@@ -1,0 +1,6 @@
+option batch abort
+option confirm off
+open ftp:FluTre850:lFp7QmshvOHbg7R@Edi.schwarzdata.com
+dir 
+close
+Exit

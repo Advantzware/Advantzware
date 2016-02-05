@@ -1,0 +1,17 @@
+"v2.014"
+no no yes yes no yes yes yes no no ? 0 yes 8 no no yes 15 no 14 yes no yes 9 0 15 60 14 no 1 15 yes no 14 10 no no 1 5 yes 1 365 180 yes 1 2 3 ? ? 7 no yes 0 yes no ? no no no no 500 12 0
+14 15 16 1 2 3 4 5 6 7 8 9 10 11 12 13 17 18 19 20 21 22 23 24 25 26 27 28
+"Downtime" 0 "W/F Board" "Board" 28 15 15
+"Completed" 15 "W/F Label" "Material" 11 0 0
+"Pending Run" 2 "W/F Tooling" "Tooling" 3 15 15
+"Pending Late" 4 "W/F Dies" "Dies" 6 15 0
+"Pending Past Due" 4 "" "Artwork" ? 15 0
+"Running" 10 "" "Blueprint" ? 0 0
+"Running Late" 12 "" "Plates" ? 0 0
+"Running Past Due" 12 "" "Status-1" ? 0 0
+"Late" 12 "" "Status-2" ? 0 0
+"Past Due Late" 4 "" "Status-3" ? 0 0
+"Past Due" 4 "" "Status-4" ? 0 0
+"Late Past Due" 22 "" "Status-5" ? 15 0
+"Past Due Running" 4 "" "Status-6" ? 0 0
+"Past Due Pending" 4 "" "Status-7" ? 15 0

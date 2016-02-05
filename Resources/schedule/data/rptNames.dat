@@ -1,0 +1,10 @@
+"" "errorException" "Error Exception Report" yes
+"" "jobByResource" "Job by Resource Report" no
+"" "jobText" "Job Text" no
+"" "jobToolTip" "Job ToolTip" no
+"" "pendingJobs" "Pending Jobs Report" no
+"" "status" "Status Report" no
+"ASI" "dieCutting" "Die Cutting Report" no
+"ASI" "finishing" "Finishing Report" no
+"ASI" "printing" "Printing Report" no
+"ASI" "sheeting" "Sheeting Report" no
