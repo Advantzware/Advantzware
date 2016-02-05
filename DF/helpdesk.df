@@ -1,0 +1,2861 @@
+ADD SEQUENCE "patchid"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT yes
+  MIN-VAL 0
+
+ADD TABLE "attach"
+  AREA "Schema Area"
+  LABEL "Attach"
+  DUMP-NAME "attach"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\attach.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\attach.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\attach.p" CRC "?" 
+
+ADD FIELD "attach-file" OF "attach" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Attached File"
+  POSITION 2
+  MAX-WIDTH 100
+  ORDER 10
+
+ADD FIELD "rec_key" OF "attach" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 3
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 20
+
+ADD FIELD "link-table" OF "attach" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Link Table"
+  POSITION 4
+  MAX-WIDTH 20
+  ORDER 30
+
+ADD FIELD "company" OF "attach" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 5
+  MAX-WIDTH 6
+  HELP "Enter the company code."
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "creat-date" OF "attach" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Created Date"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "file-type" OF "attach" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "File Type"
+  POSITION 7
+  MAX-WIDTH 16
+  ORDER 60
+
+ADD FIELD "i-no" OF "attach" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Item No"
+  POSITION 8
+  MAX-WIDTH 30
+  HELP "Enter F/G Item Number"
+  ORDER 70
+  MANDATORY
+
+ADD FIELD "est-no" OF "attach" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Estimate #"
+  POSITION 9
+  MAX-WIDTH 10
+  HELP "Enter Estimate Number."
+  ORDER 80
+  MANDATORY
+
+ADD FIELD "run-program" OF "attach" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Program to excute"
+  POSITION 10
+  MAX-WIDTH 100
+  ORDER 90
+
+ADD FIELD "run-application" OF "attach" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Application"
+  POSITION 11
+  MAX-WIDTH 60
+  ORDER 100
+
+ADD INDEX "rec_key" ON "attach" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "est-no" ON "attach" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "est-no" ASCENDING 
+
+ADD INDEX "i-no" ON "attach" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "i-no" ASCENDING 
+
+ADD INDEX "link" ON "attach" 
+  AREA "Schema Area"
+  INDEX-FIELD "link-table" ASCENDING 
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "contact"
+  AREA "Schema Area"
+  LABEL "Contacts"
+  DESCRIPTION "Contacts"
+  DUMP-NAME "contact"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/contact.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/contact.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/contact.p" CRC "?" 
+
+ADD FIELD "company" OF "contact" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "cust-no" OF "contact" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Customer Number"
+  POSITION 3
+  MAX-WIDTH 16
+  HELP "Enter Customer Number"
+  ORDER 20
+
+ADD FIELD "ship-id" OF "contact" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Shipto ID"
+  POSITION 4
+  MAX-WIDTH 16
+  HELP "Enter Shipto ID"
+  ORDER 30
+
+ADD FIELD "first-name" OF "contact" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "First Name"
+  POSITION 5
+  MAX-WIDTH 60
+  HELP "Enter Contact First Name"
+  ORDER 50
+
+ADD FIELD "last-name" OF "contact" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Last Name"
+  POSITION 6
+  MAX-WIDTH 60
+  HELP "Enter Contact Last Name"
+  ORDER 60
+
+ADD FIELD "middle-initial" OF "contact" AS character 
+  FORMAT "X(1)"
+  INITIAL ""
+  LABEL "Middle Initial"
+  POSITION 7
+  MAX-WIDTH 2
+  HELP "Enter Contact Middle Initial"
+  ORDER 70
+
+ADD FIELD "sirname" OF "contact" AS character 
+  FORMAT "X(4)"
+  INITIAL ""
+  LABEL "Sir Name"
+  POSITION 8
+  MAX-WIDTH 8
+  HELP "Enter Contact Sir Name"
+  ORDER 80
+
+ADD FIELD "contact-title" OF "contact" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  LABEL "Title"
+  POSITION 9
+  MAX-WIDTH 100
+  HELP "Enter Contact Title"
+  ORDER 90
+
+ADD FIELD "maillist" OF "contact" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Mail List"
+  POSITION 10
+  MAX-WIDTH 1
+  HELP "Put Contact on Mailing List?"
+  ORDER 100
+
+ADD FIELD "type" OF "contact" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "Type"
+  POSITION 11
+  MAX-WIDTH 6
+  HELP "Enter Contact Type"
+  ORDER 110
+
+ADD FIELD "contact-loc" OF "contact" AS character 
+  FORMAT "X(1)"
+  INITIAL ""
+  LABEL "Location"
+  POSITION 12
+  MAX-WIDTH 2
+  HELP "Enter Contact Location (i.e. ""C""ust, ""S""hipto or Blank)"
+  ORDER 120
+
+ADD FIELD "addr1" OF "contact" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Address1"
+  POSITION 13
+  MAX-WIDTH 60
+  HELP "Enter Contact Address"
+  ORDER 140
+
+ADD FIELD "addr2" OF "contact" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Address2"
+  POSITION 14
+  MAX-WIDTH 60
+  HELP "Enter Contact Address"
+  ORDER 150
+
+ADD FIELD "city" OF "contact" AS character 
+  FORMAT "X(15)"
+  INITIAL ""
+  LABEL "City"
+  POSITION 15
+  MAX-WIDTH 30
+  HELP "Enter Contact City"
+  ORDER 160
+
+ADD FIELD "state" OF "contact" AS character 
+  FORMAT "X(2)"
+  INITIAL ""
+  LABEL "State"
+  POSITION 16
+  MAX-WIDTH 4
+  HELP "Enter Contact State"
+  ORDER 170
+
+ADD FIELD "zip" OF "contact" AS character 
+  FORMAT "X(10)"
+  INITIAL ""
+  LABEL "Zip"
+  POSITION 17
+  MAX-WIDTH 20
+  HELP "Enter Contact Zip"
+  ORDER 180
+
+ADD FIELD "country" OF "contact" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Country"
+  POSITION 18
+  MAX-WIDTH 40
+  HELP "Enter Contact Country"
+  ORDER 190
+
+ADD FIELD "county" OF "contact" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "County"
+  POSITION 19
+  MAX-WIDTH 40
+  HELP "Enter Contact County"
+  ORDER 200
+
+ADD FIELD "access-code" OF "contact" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Access Code"
+  POSITION 20
+  MAX-WIDTH 40
+  HELP "Enter Contact Phone Access Code"
+  ORDER 220
+
+ADD FIELD "phone" OF "contact" AS character 
+  FORMAT "XXX-XXX-XXXX"
+  INITIAL ""
+  LABEL "Phone"
+  POSITION 21
+  MAX-WIDTH 24
+  HELP "Enter Contact Phone"
+  ORDER 230
+
+ADD FIELD "fax" OF "contact" AS character 
+  FORMAT "XXX-XXX-XXXX"
+  INITIAL ""
+  LABEL "Fax"
+  POSITION 22
+  MAX-WIDTH 24
+  HELP "Enter Contact Fax"
+  ORDER 250
+
+ADD FIELD "extension" OF "contact" AS character 
+  FORMAT "XXXXX"
+  INITIAL ""
+  LABEL "Extension"
+  POSITION 23
+  MAX-WIDTH 10
+  HELP "Enter Contact Extension"
+  ORDER 260
+
+ADD FIELD "email" OF "contact" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  LABEL "Email"
+  POSITION 24
+  MAX-WIDTH 100
+  HELP "Enter Contact Email Address"
+  ORDER 270
+
+ADD FIELD "website" OF "contact" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  LABEL "Website"
+  POSITION 25
+  MAX-WIDTH 100
+  HELP "Enter Contact Website"
+  ORDER 280
+
+ADD FIELD "sman" OF "contact" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "Salesman"
+  POSITION 26
+  MAX-WIDTH 6
+  HELP "Enter Contact Salesman"
+  ORDER 40
+
+ADD FIELD "rec_key" OF "contact" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 27
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 290
+
+ADD FIELD "cust-name" OF "contact" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 28
+  MAX-WIDTH 60
+  ORDER 130
+
+ADD FIELD "territory" OF "contact" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "Territory"
+  POSITION 29
+  MAX-WIDTH 6
+  HELP "Enter Contact Territory"
+  ORDER 210
+
+ADD FIELD "cell-phone" OF "contact" AS character 
+  FORMAT "XXX-XXX-XXXX"
+  INITIAL ""
+  LABEL "Cell Phone"
+  POSITION 30
+  MAX-WIDTH 24
+  HELP "Enter Contact Cell Phone"
+  ORDER 240
+
+ADD FIELD "list-no" OF "contact" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "List#"
+  POSITION 31
+  MAX-WIDTH 4
+  ORDER 300
+
+ADD FIELD "list-name" OF "contact" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "List Name"
+  POSITION 32
+  MAX-WIDTH 60
+  ORDER 310
+
+ADD FIELD "notes" OF "contact" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Notes"
+  POSITION 33
+  MAX-WIDTH 1020
+  EXTENT 10
+  ORDER 320
+
+ADD FIELD "net_ip" OF "contact" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Network IP Address"
+  POSITION 34
+  MAX-WIDTH 60
+  ORDER 330
+
+ADD FIELD "vp-user-id" OF "contact" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "VPN Login Id"
+  POSITION 35
+  MAX-WIDTH 60
+  ORDER 340
+
+ADD FIELD "vpn_pwd" OF "contact" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "VPN Login Password"
+  POSITION 36
+  MAX-WIDTH 60
+  ORDER 350
+
+ADD FIELD "pcanywhere-id" OF "contact" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "PC Anywhere Login Id"
+  POSITION 37
+  MAX-WIDTH 60
+  ORDER 360
+
+ADD FIELD "pcanywhere-password" OF "contact" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "PCAnywhere Login Password"
+  POSITION 38
+  MAX-WIDTH 60
+  ORDER 370
+
+ADD FIELD "contact-name" OF "contact" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Contact Name"
+  POSITION 39
+  MAX-WIDTH 120
+  COLUMN-LABEL "Contact!Name"
+  ORDER 380
+
+ADD FIELD "computer-id" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Computer ID"
+  POSITION 40
+  MAX-WIDTH 40
+  COLUMN-LABEL "Computer ID"
+  ORDER 390
+
+ADD FIELD "computer-password" OF "contact" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Computer Password"
+  POSITION 41
+  MAX-WIDTH 100
+  COLUMN-LABEL "Computer!Password"
+  ORDER 400
+
+ADD FIELD "computer-vendor" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Computer Vendor"
+  POSITION 42
+  MAX-WIDTH 40
+  COLUMN-LABEL "Computer Vendor"
+  ORDER 410
+
+ADD FIELD "gateway-ip" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Gateway IP"
+  POSITION 43
+  MAX-WIDTH 40
+  COLUMN-LABEL "Gateway IP"
+  ORDER 420
+
+ADD FIELD "dns" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "DNS"
+  POSITION 44
+  MAX-WIDTH 40
+  COLUMN-LABEL "DNS"
+  ORDER 430
+
+ADD FIELD "dhcp" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "DHCP"
+  POSITION 45
+  MAX-WIDTH 40
+  COLUMN-LABEL "DHCP"
+  ORDER 440
+
+ADD FIELD "processor" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Processor"
+  POSITION 46
+  MAX-WIDTH 40
+  COLUMN-LABEL "Processor"
+  ORDER 450
+
+ADD FIELD "operating-system" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Operating System"
+  POSITION 47
+  MAX-WIDTH 40
+  COLUMN-LABEL "Operating!System"
+  ORDER 460
+
+ADD FIELD "service-pack" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Service Pack"
+  POSITION 48
+  MAX-WIDTH 40
+  COLUMN-LABEL "Service Pack"
+  ORDER 470
+
+ADD FIELD "mac-address" OF "contact" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "MAC Address"
+  POSITION 49
+  MAX-WIDTH 60
+  COLUMN-LABEL "MAC Address"
+  ORDER 480
+
+ADD FIELD "disk-drive-1" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Disk Drive 1"
+  POSITION 50
+  MAX-WIDTH 40
+  COLUMN-LABEL "Disk Drive 1"
+  ORDER 490
+
+ADD FIELD "disk-drive-2" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Disk Drive 2"
+  POSITION 51
+  MAX-WIDTH 40
+  COLUMN-LABEL "Disk Drive 2"
+  ORDER 500
+
+ADD FIELD "disk-drive-3" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Disk Drive 3"
+  POSITION 52
+  MAX-WIDTH 40
+  COLUMN-LABEL "Disk Drive 3"
+  ORDER 510
+
+ADD FIELD "disk-drive-4" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Disk Drive 4"
+  POSITION 53
+  MAX-WIDTH 40
+  COLUMN-LABEL "Disk Drive 4"
+  ORDER 520
+
+ADD FIELD "disk-drive-5" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Disk Drive 5"
+  POSITION 54
+  MAX-WIDTH 40
+  COLUMN-LABEL "Disk Drive 5"
+  ORDER 530
+
+ADD FIELD "raid-version" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Raid Version"
+  POSITION 55
+  MAX-WIDTH 40
+  COLUMN-LABEL "Raid Version"
+  ORDER 540
+
+ADD FIELD "ms-exchange" OF "contact" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Microsoft Exchange"
+  POSITION 56
+  MAX-WIDTH 1
+  COLUMN-LABEL "Microsoft!Exchange"
+  ORDER 550
+
+ADD FIELD "exchange-version" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Exchange Version"
+  POSITION 57
+  MAX-WIDTH 40
+  COLUMN-LABEL "Exchange Version"
+  ORDER 560
+
+ADD FIELD "software" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Software"
+  POSITION 58
+  MAX-WIDTH 840
+  COLUMN-LABEL "Software"
+  EXTENT 20
+  ORDER 570
+
+ADD FIELD "zz--char" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 59
+  MAX-WIDTH 210
+  EXTENT 5
+  ORDER 580
+
+ADD FIELD "zz-int" OF "contact" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 60
+  MAX-WIDTH 110
+  EXTENT 5
+  ORDER 590
+
+ADD FIELD "zz-dec" OF "contact" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 61
+  MAX-WIDTH 110
+  EXTENT 5
+  DECIMALS 2
+  ORDER 600
+
+ADD FIELD "backup-software" OF "contact" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Backup Software"
+  POSITION 62
+  MAX-WIDTH 40
+  COLUMN-LABEL "Backup Software"
+  ORDER 610
+
+ADD INDEX "pi-contact" ON "contact" 
+  AREA "Schema Area"
+  PRIMARY
+  DESCRIPTION "Contact Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "cust-no" ASCENDING 
+  INDEX-FIELD "ship-id" ASCENDING 
+  INDEX-FIELD "last-name" ASCENDING 
+  INDEX-FIELD "first-name" ASCENDING 
+  INDEX-FIELD "middle-initial" ASCENDING 
+
+ADD INDEX "si-location" ON "contact" 
+  AREA "Schema Area"
+  DESCRIPTION "Contact Location Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "contact-loc" ASCENDING 
+
+ADD INDEX "si-name" ON "contact" 
+  AREA "Schema Area"
+  DESCRIPTION "Contact Name Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "last-name" ASCENDING 
+  INDEX-FIELD "first-name" ASCENDING 
+  INDEX-FIELD "middle-initial" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "contact" 
+  AREA "Schema Area"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "si-sman" ON "contact" 
+  AREA "Schema Area"
+  DESCRIPTION "Contact Salesman Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "sman" ASCENDING 
+
+ADD INDEX "si-type" ON "contact" 
+  AREA "Schema Area"
+  DESCRIPTION "Contatct Type Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "type" ASCENDING 
+
+ADD TABLE "customer"
+  AREA "Schema Area"
+  DUMP-NAME "customer"
+
+ADD FIELD "code" OF "customer" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 16
+  ORDER 10
+
+ADD FIELD "name" OF "customer" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 80
+  ORDER 20
+
+ADD FIELD "addr1" OF "customer" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 80
+  ORDER 30
+
+ADD FIELD "addr2" OF "customer" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 80
+  ORDER 40
+
+ADD FIELD "addr3" OF "customer" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 80
+  ORDER 50
+
+ADD FIELD "addr4" OF "customer" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 80
+  ORDER 60
+
+ADD FIELD "contact" OF "customer" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 60
+  ORDER 70
+
+ADD FIELD "fax-number" OF "customer" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 24
+  ORDER 80
+
+ADD FIELD "phone-number" OF "customer" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 24
+  ORDER 90
+
+ADD FIELD "modem-number" OF "customer" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 24
+  ORDER 100
+
+ADD FIELD "version-number" OF "customer" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 16
+  ORDER 110
+
+ADD FIELD "package" OF "customer" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  POSITION 13
+  MAX-WIDTH 2
+  ORDER 120
+
+ADD FIELD "platform" OF "customer" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 14
+  MAX-WIDTH 16
+  ORDER 130
+
+ADD FIELD "serial-number" OF "customer" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 15
+  MAX-WIDTH 40
+  ORDER 140
+
+ADD FIELD "novell-version" OF "customer" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 16
+  MAX-WIDTH 16
+  ORDER 150
+
+ADD FIELD "communications" OF "customer" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 17
+  MAX-WIDTH 16
+  ORDER 160
+
+ADD FIELD "rcode-location" OF "customer" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 18
+  MAX-WIDTH 80
+  ORDER 170
+
+ADD FIELD "logon" OF "customer" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 19
+  MAX-WIDTH 16
+  ORDER 180
+
+ADD FIELD "password" OF "customer" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 20
+  MAX-WIDTH 16
+  ORDER 190
+
+ADD FIELD "our-version" OF "customer" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 21
+  MAX-WIDTH 16
+  ORDER 200
+
+ADD FIELD "software-support" OF "customer" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  LABEL "Software Annual Support"
+  POSITION 22
+  MAX-WIDTH 1
+  ORDER 210
+
+ADD FIELD "hardware-support" OF "customer" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  LABEL "Hardware Annual Support"
+  POSITION 23
+  MAX-WIDTH 1
+  ORDER 220
+
+ADD FIELD "progress-support" OF "customer" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  LABEL "Progress Annual Support"
+  POSITION 24
+  MAX-WIDTH 1
+  ORDER 230
+
+ADD FIELD "email" OF "customer" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "E-Mail"
+  POSITION 25
+  MAX-WIDTH 310
+  EXTENT 5
+  ORDER 240
+
+ADD FIELD "rec_key" OF "customer" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 26
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 250
+
+ADD FIELD "support-module" OF "customer" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Support"
+  POSITION 27
+  MAX-WIDTH 240
+  EXTENT 30
+  ORDER 260
+
+ADD FIELD "sman" OF "customer" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Sales Rep"
+  POSITION 28
+  MAX-WIDTH 6
+  ORDER 270
+
+ADD FIELD "city" OF "customer" AS character 
+  FORMAT "X(15)"
+  INITIAL ""
+  LABEL "City"
+  POSITION 29
+  MAX-WIDTH 30
+  HELP "Enter Customer City"
+  ORDER 280
+
+ADD FIELD "state" OF "customer" AS character 
+  FORMAT "X(2)"
+  INITIAL ""
+  LABEL "State"
+  POSITION 30
+  MAX-WIDTH 4
+  HELP "Enter Customer State"
+  ORDER 290
+
+ADD FIELD "zip" OF "customer" AS character 
+  FORMAT "X(10)"
+  INITIAL ""
+  LABEL "Zip"
+  POSITION 31
+  MAX-WIDTH 20
+  HELP "Enter Customer Zip"
+  ORDER 300
+
+ADD FIELD "country" OF "customer" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Country"
+  POSITION 32
+  MAX-WIDTH 40
+  HELP "Enter Customer Country"
+  ORDER 310
+
+ADD FIELD "proRenewDate" OF "customer" AS date 
+  DESCRIPTION "Progress renewal date"
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Progress renewal date"
+  POSITION 33
+  MAX-WIDTH 4
+  COLUMN-LABEL "Progress renewal date"
+  ORDER 320
+
+ADD FIELD "proCustVersion" OF "customer" AS character 
+  DESCRIPTION "Progress Version"
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Progress Version"
+  POSITION 38
+  MAX-WIDTH 20
+  COLUMN-LABEL "Progress Version"
+  ORDER 330
+
+ADD FIELD "proNumUsers" OF "customer" AS integer 
+  DESCRIPTION "Num Users"
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Num Users"
+  POSITION 39
+  MAX-WIDTH 4
+  COLUMN-LABEL "Num Users"
+  ORDER 340
+
+ADD FIELD "proWGSerial" OF "customer" AS integer 
+  DESCRIPTION "Workgroup Serial#"
+  FORMAT "999999999999"
+  INITIAL "0"
+  LABEL "Workgroup Serial#"
+  POSITION 40
+  MAX-WIDTH 4
+  COLUMN-LABEL "Workgroup Serial#"
+  ORDER 350
+
+ADD FIELD "proWGControl" OF "customer" AS character 
+  DESCRIPTION "Workgroup Control#"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Workgroup Control#"
+  POSITION 41
+  MAX-WIDTH 40
+  COLUMN-LABEL "Workgroup Control#"
+  ORDER 360
+
+ADD FIELD "proCNSerial" OF "customer" AS integer 
+  DESCRIPTION "Client Networking Serial#"
+  FORMAT "999999999999"
+  INITIAL "0"
+  LABEL "Client Networking Serial#"
+  POSITION 42
+  MAX-WIDTH 4
+  COLUMN-LABEL "Client Networking Serial#"
+  ORDER 370
+
+ADD FIELD "proCNControl" OF "customer" AS character 
+  DESCRIPTION "Client Networking Control#"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Client Networking Control#"
+  POSITION 43
+  MAX-WIDTH 40
+  COLUMN-LABEL "Client Networking Control#"
+  ORDER 380
+
+ADD INDEX "code" ON "customer" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "code" ASCENDING 
+
+ADD INDEX "name" ON "customer" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "name" ASCENDING 
+  INDEX-FIELD "code" ASCENDING 
+
+ADD TABLE "db_version"
+  AREA "Schema Area"
+  LABEL "DB_Version"
+  DESCRIPTION "DB version"
+  DUMP-NAME "db_versi"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\db_version.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\db_version.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\db_version.p" CRC "?" 
+
+ADD FIELD "db_version" OF "db_version" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "DB Version"
+  POSITION 2
+  MAX-WIDTH 60
+  ORDER 10
+
+ADD FIELD "descr" OF "db_version" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 3
+  MAX-WIDTH 100
+  ORDER 20
+
+ADD FIELD "db_path" OF "db_version" AS character 
+  DESCRIPTION "DB Path"
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "DB Path"
+  POSITION 4
+  MAX-WIDTH 100
+  ORDER 30
+
+ADD FIELD "upd_date" OF "db_version" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Updated Date"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "is_current" OF "db_version" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Is Current DB?"
+  POSITION 6
+  MAX-WIDTH 1
+  ORDER 50
+
+ADD FIELD "rec_key" OF "db_version" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 7
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 60
+
+ADD INDEX "db_version" ON "db_version" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "db_version" ASCENDING 
+
+ADD INDEX "is_current" ON "db_version" 
+  AREA "Schema Area"
+  INDEX-FIELD "upd_date" ASCENDING 
+
+ADD TABLE "employee"
+  AREA "Schema Area"
+  DESCRIPTION "Employee Master File"
+  DUMP-NAME "employee"
+
+ADD FIELD "id" OF "employee" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 6
+  ORDER 10
+
+ADD FIELD "name" OF "employee" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 30
+  ORDER 20
+
+ADD FIELD "active" OF "employee" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 4
+  MAX-WIDTH 1
+  ORDER 30
+
+ADD INDEX "id" ON "employee" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "id" ASCENDING 
+
+ADD INDEX "name" ON "employee" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "name" ASCENDING 
+  INDEX-FIELD "id" ASCENDING 
+
+ADD TABLE "hot-keys"
+  AREA "Schema Area"
+  DUMP-NAME "hot-keys"
+
+ADD FIELD "keystroke" OF "hot-keys" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 12
+  ORDER 10
+
+ADD FIELD "descript" OF "hot-keys" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 50
+  ORDER 20
+
+ADD FIELD "gui" OF "hot-keys" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 4
+  MAX-WIDTH 1
+  ORDER 30
+
+ADD INDEX "keystroke" ON "hot-keys" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "keystroke" ASCENDING 
+  INDEX-FIELD "gui" ASCENDING 
+
+ADD TABLE "mailcont"
+  AREA "Schema Area"
+  LABEL "Mail Contact"
+  DESCRIPTION "Mail contact list detail table"
+  DUMP-NAME "mailcont"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\mailcont.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\mailcont.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\mailcont.p" CRC "?" 
+
+ADD FIELD "list-no" OF "mailcont" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "List#"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "contact-rec" OF "mailcont" AS recid 
+  FORMAT ">>>>>>9"
+  INITIAL ?
+  LABEL "Contact Record"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "rec_key" OF "mailcont" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 30
+
+ADD FIELD "cust-no" OF "mailcont" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Customer Number"
+  POSITION 5
+  MAX-WIDTH 16
+  HELP "Enter Customer Number"
+  ORDER 40
+
+ADD FIELD "first-name" OF "mailcont" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "First Name"
+  POSITION 6
+  MAX-WIDTH 60
+  HELP "Enter Contact First Name"
+  ORDER 50
+
+ADD FIELD "last-name" OF "mailcont" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Last Name"
+  POSITION 7
+  MAX-WIDTH 60
+  HELP "Enter Contact Last Name"
+  ORDER 60
+
+ADD FIELD "middle-initial" OF "mailcont" AS character 
+  FORMAT "X(1)"
+  INITIAL ""
+  LABEL "Middle Initial"
+  POSITION 8
+  MAX-WIDTH 2
+  HELP "Enter Contact Middle Initial"
+  ORDER 70
+
+ADD FIELD "cust-name" OF "mailcont" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 9
+  MAX-WIDTH 60
+  ORDER 80
+
+ADD FIELD "contact-title" OF "mailcont" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  LABEL "Title"
+  POSITION 10
+  MAX-WIDTH 100
+  HELP "Enter Contact Title"
+  ORDER 90
+
+ADD FIELD "sman" OF "mailcont" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "Salesman"
+  POSITION 11
+  MAX-WIDTH 6
+  HELP "Enter Contact Salesman"
+  ORDER 100
+
+ADD FIELD "maillist" OF "mailcont" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Mail List"
+  POSITION 12
+  MAX-WIDTH 1
+  HELP "Put Contact on Mailing List?"
+  ORDER 110
+
+ADD INDEX "mailcont" ON "mailcont" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Mail contact index"
+  INDEX-FIELD "list-no" ASCENDING 
+  INDEX-FIELD "contact-rec" ASCENDING 
+
+ADD TABLE "maillist"
+  AREA "Schema Area"
+  LABEL "Mail list"
+  DESCRIPTION "Contact mail list table"
+  DUMP-NAME "maillist"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\maillist.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\maillist.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\maillist.p" CRC "?" 
+
+ADD FIELD "list-no" OF "maillist" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "List#"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "list-name" OF "maillist" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "List Name"
+  POSITION 3
+  MAX-WIDTH 60
+  ORDER 20
+
+ADD FIELD "rec_key" OF "maillist" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 30
+
+ADD FIELD "active" OF "maillist" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Is Active?"
+  POSITION 5
+  MAX-WIDTH 1
+  ORDER 40
+
+ADD FIELD "purpose" OF "maillist" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Purpose"
+  POSITION 6
+  MAX-WIDTH 60
+  ORDER 50
+
+ADD FIELD "list-date" OF "maillist" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "List Date"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "sman" OF "maillist" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "Salesman"
+  POSITION 8
+  MAX-WIDTH 6
+  HELP "Enter Contact Salesman"
+  ORDER 70
+
+ADD FIELD "list-for" OF "maillist" AS character 
+  FORMAT "x"
+  INITIAL ""
+  LABEL "List For"
+  POSITION 9
+  MAX-WIDTH 2
+  ORDER 80
+
+ADD INDEX "maillist" ON "maillist" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "maillist"
+  INDEX-FIELD "list-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "maillist" 
+  AREA "Schema Area"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "modem"
+  AREA "Schema Area"
+  LABEL "Modem"
+  DESCRIPTION "Modem Notes"
+  DUMP-NAME "modem"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\modem.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\modem.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\modem.p" CRC "?" 
+
+ADD FIELD "code" OF "modem" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customer"
+  POSITION 2
+  MAX-WIDTH 16
+  ORDER 10
+
+ADD FIELD "comm_soft" OF "modem" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  LABEL "Communication Software"
+  POSITION 3
+  MAX-WIDTH 100
+  ORDER 20
+
+ADD FIELD "net_ip" OF "modem" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Network IP Address"
+  POSITION 4
+  MAX-WIDTH 60
+  ORDER 30
+
+ADD FIELD "admin_id" OF "modem" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Network Admin Login Id"
+  POSITION 5
+  MAX-WIDTH 60
+  ORDER 40
+
+ADD FIELD "admin_pwd" OF "modem" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Network Admin Login Password"
+  POSITION 6
+  MAX-WIDTH 60
+  ORDER 50
+
+ADD FIELD "pcany_id" OF "modem" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Network PC Anywhere Login ID"
+  POSITION 7
+  MAX-WIDTH 60
+  ORDER 60
+
+ADD FIELD "pany_pwd" OF "modem" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Network PC Anywhere Password"
+  POSITION 8
+  MAX-WIDTH 60
+  ORDER 70
+
+ADD FIELD "vpn_id" OF "modem" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "VPN IP Address"
+  POSITION 9
+  MAX-WIDTH 60
+  ORDER 80
+
+ADD FIELD "vpn_pwd" OF "modem" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "VPN Password"
+  POSITION 10
+  MAX-WIDTH 60
+  ORDER 90
+
+ADD FIELD "patch_date" OF "modem" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Date ASI Patch Sent"
+  POSITION 11
+  MAX-WIDTH 4
+  ORDER 100
+
+ADD FIELD "addon_patch_date" OF "modem" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Date Addon Patch Sent"
+  POSITION 12
+  MAX-WIDTH 4
+  ORDER 110
+
+ADD FIELD "db_change_date" OF "modem" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "DB Changed Date"
+  POSITION 13
+  MAX-WIDTH 4
+  ORDER 120
+
+ADD FIELD "db_change" OF "modem" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "DB Changes"
+  POSITION 14
+  MAX-WIDTH 100
+  ORDER 130
+
+ADD FIELD "hot-keys" OF "modem" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Hot Keys"
+  POSITION 15
+  MAX-WIDTH 1400
+  EXTENT 100
+  ORDER 140
+
+ADD FIELD "hkey-sold" OF "modem" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Sold/Trial"
+  POSITION 16
+  MAX-WIDTH 800
+  EXTENT 100
+  ORDER 150
+
+ADD FIELD "hkey-trans-date" OF "modem" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "File Transfer Date"
+  POSITION 17
+  MAX-WIDTH 2200
+  EXTENT 100
+  ORDER 160
+
+ADD FIELD "hkey-exp-date" OF "modem" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "Trial Module Exp Date"
+  POSITION 18
+  MAX-WIDTH 2200
+  EXTENT 100
+  ORDER 170
+
+ADD FIELD "name" OF "modem" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 19
+  MAX-WIDTH 80
+  ORDER 180
+
+ADD FIELD "hkey_dscr" OF "modem" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  POSITION 20
+  MAX-WIDTH 5200
+  EXTENT 100
+  ORDER 190
+
+ADD FIELD "xprint" OF "modem" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Xprint Version"
+  POSITION 21
+  MAX-WIDTH 60
+  ORDER 200
+
+ADD FIELD "asi_patch" OF "modem" AS character 
+  FORMAT "X(25)"
+  INITIAL ""
+  LABEL "ASI Patch"
+  POSITION 23
+  MAX-WIDTH 50
+  ORDER 210
+
+ADD FIELD "addon_patch" OF "modem" AS character 
+  FORMAT "X(25)"
+  INITIAL ""
+  LABEL "Addon Patch"
+  POSITION 24
+  MAX-WIDTH 50
+  ORDER 220
+
+ADD FIELD "domain" OF "modem" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Domain Name"
+  POSITION 25
+  MAX-WIDTH 100
+  ORDER 230
+
+ADD FIELD "pcany-port" OF "modem" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Pcany Port#"
+  POSITION 26
+  MAX-WIDTH 44
+  EXTENT 2
+  ORDER 240
+
+ADD FIELD "remote-id" OF "modem" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Remote Desktop ID"
+  POSITION 27
+  MAX-WIDTH 60
+  ORDER 250
+
+ADD FIELD "remote-pswd" OF "modem" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Remote Desktop Password"
+  POSITION 28
+  MAX-WIDTH 60
+  ORDER 260
+
+ADD FIELD "hkey-support" OF "modem" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Support"
+  POSITION 29
+  MAX-WIDTH 800
+  EXTENT 100
+  ORDER 270
+
+ADD FIELD "hkey_sman" OF "modem" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "Sman"
+  POSITION 30
+  MAX-WIDTH 800
+  EXTENT 100
+  ORDER 280
+
+ADD FIELD "asi-user-password" OF "modem" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "ASI Login Password"
+  POSITION 31
+  MAX-WIDTH 60
+  ORDER 300
+
+ADD FIELD "asi-user-id" OF "modem" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "ASI Login Id"
+  POSITION 32
+  MAX-WIDTH 60
+  ORDER 290
+
+ADD INDEX "cust" ON "modem" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "code" ASCENDING 
+
+ADD TABLE "module"
+  AREA "Schema Area"
+  DESCRIPTION "Menu Key Definition for printing on screen."
+  DUMP-NAME "module"
+
+ADD FIELD "hot-keys" OF "module" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 12
+  ORDER 10
+
+ADD FIELD "description" OF "module" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 60
+  ORDER 20
+
+ADD INDEX "hot-keys" ON "module" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "hot-keys" ASCENDING 
+
+ADD TABLE "notes2"
+  AREA "Schema Area"
+  DUMP-NAME "notes"
+
+ADD FIELD "code" OF "notes2" AS character 
+  FORMAT "x(2)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "entry-date" OF "notes2" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "note" OF "notes2" AS character 
+  FORMAT "x(78)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 2528
+  EXTENT 16
+  ORDER 30
+
+ADD FIELD "page-no" OF "notes2" AS integer 
+  FORMAT "99"
+  INITIAL "0"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "user-id" OF "notes2" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 6
+  ORDER 50
+
+ADD FIELD "company" OF "notes2" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 16
+  ORDER 60
+
+ADD INDEX "dec-code" ON "notes2" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "code" ASCENDING 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "entry-date" DESCENDING 
+  INDEX-FIELD "page-no" ASCENDING 
+  INDEX-FIELD "user-id" ASCENDING 
+
+ADD INDEX "user-id" ON "notes2" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "code" ASCENDING 
+  INDEX-FIELD "user-id" ASCENDING 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "entry-date" DESCENDING 
+  INDEX-FIELD "page-no" ASCENDING 
+
+ADD TABLE "patchcdet"
+  AREA "Schema Area"
+  LABEL "Patch Customer Detail"
+  DUMP-NAME "patchcde"
+
+ADD FIELD "code" OF "patchcdet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Customer"
+  POSITION 2
+  MAX-WIDTH 16
+  HELP "Enter Customer Number"
+  ORDER 10
+
+ADD FIELD "patch" OF "patchcdet" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Patch#"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "version" OF "patchcdet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Version"
+  POSITION 4
+  MAX-WIDTH 16
+  ORDER 30
+
+ADD FIELD "seq" OF "patchcdet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Seq"
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 50
+
+ADD FIELD "run-order" OF "patchcdet" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Order"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "date-sent" OF "patchcdet" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Date Sent"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 70
+
+ADD FIELD "date-applied" OF "patchcdet" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Date Applied"
+  POSITION 8
+  MAX-WIDTH 4
+  ORDER 80
+
+ADD FIELD "sent-by" OF "patchcdet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Sent By"
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 90
+
+ADD FIELD "applied-by" OF "patchcdet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Applied By"
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 100
+
+ADD FIELD "id" OF "patchcdet" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Unique ID"
+  POSITION 11
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD INDEX "patchcdet" ON "patchcdet" 
+  AREA "Schema Area"
+  PRIMARY
+  DESCRIPTION "Patch Customer Detail Primary Index"
+  INDEX-FIELD "code" ASCENDING 
+  INDEX-FIELD "patch" ASCENDING 
+  INDEX-FIELD "version" ASCENDING 
+  INDEX-FIELD "seq" ASCENDING 
+  INDEX-FIELD "run-order" ASCENDING 
+
+ADD INDEX "patchid" ON "patchcdet" 
+  AREA "Schema Area"
+  UNIQUE
+  DESCRIPTION "Patch Customer Detail by Unique ID"
+  INDEX-FIELD "code" ASCENDING 
+  INDEX-FIELD "id" ASCENDING 
+
+ADD TABLE "patchchdr"
+  AREA "Schema Area"
+  LABEL "Patch Customer Header"
+  DUMP-NAME "patchchd"
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\patchchdr.p" CRC "169" 
+
+ADD FIELD "code" OF "patchchdr" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Customer"
+  POSITION 2
+  MAX-WIDTH 16
+  HELP "Enter Customer Number"
+  ORDER 10
+
+ADD FIELD "patch" OF "patchchdr" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Patch#"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "version" OF "patchchdr" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Version"
+  POSITION 4
+  MAX-WIDTH 16
+  ORDER 30
+
+ADD FIELD "seq" OF "patchchdr" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Seq"
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 40
+
+ADD FIELD "send-complete" OF "patchchdr" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Send Complete"
+  POSITION 6
+  MAX-WIDTH 1
+  ORDER 50
+
+ADD FIELD "apply-complete" OF "patchchdr" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Apply Complete"
+  POSITION 7
+  MAX-WIDTH 1
+  ORDER 60
+
+ADD INDEX "patchchdr" ON "patchchdr" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Patch Customer Header Primary Index"
+  INDEX-FIELD "code" ASCENDING 
+  INDEX-FIELD "patch" ASCENDING 
+  INDEX-FIELD "version" ASCENDING 
+  INDEX-FIELD "seq" ASCENDING 
+
+ADD TABLE "patchdet"
+  AREA "Schema Area"
+  LABEL "Patch Detail"
+  DUMP-NAME "patchdet"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\patchdet.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\patchdet.p" CRC "?" 
+
+ADD FIELD "patch" OF "patchdet" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Patch#"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "version" OF "patchdet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Version"
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 20
+
+ADD FIELD "seq" OF "patchdet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Seq"
+  POSITION 4
+  MAX-WIDTH 16
+  ORDER 30
+
+ADD FIELD "run-order" OF "patchdet" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Order"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "utility" OF "patchdet" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  LABEL "Utility Name"
+  POSITION 6
+  MAX-WIDTH 100
+  ORDER 60
+
+ADD FIELD "run-once" OF "patchdet" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Run Once"
+  POSITION 7
+  MAX-WIDTH 1
+  ORDER 70
+
+ADD FIELD "descr" OF "patchdet" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 8
+  MAX-WIDTH 100
+  ORDER 80
+
+ADD FIELD "dependancy" OF "patchdet" AS character 
+  DESCRIPTION "Comma Delimited List of Dependant Program needed to execute prior to this program"
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Dependancy"
+  POSITION 9
+  MAX-WIDTH 60
+  ORDER 90
+
+ADD FIELD "id" OF "patchdet" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Unique ID"
+  POSITION 10
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD INDEX "patchdet" ON "patchdet" 
+  AREA "Schema Area"
+  PRIMARY
+  DESCRIPTION "Patch Detail Primary Index"
+  INDEX-FIELD "patch" ASCENDING 
+  INDEX-FIELD "version" ASCENDING 
+  INDEX-FIELD "seq" ASCENDING 
+  INDEX-FIELD "run-order" ASCENDING 
+
+ADD INDEX "patchid" ON "patchdet" 
+  AREA "Schema Area"
+  UNIQUE
+  DESCRIPTION "Patch Detail by Unique ID"
+  INDEX-FIELD "id" ASCENDING 
+
+ADD TABLE "patchhdr"
+  AREA "Schema Area"
+  LABEL "Patch Header"
+  DUMP-NAME "patchhdr"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\patchhdr.p" CRC "?" 
+
+ADD FIELD "patch" OF "patchhdr" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Patch#"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "version" OF "patchhdr" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Version"
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 20
+
+ADD FIELD "seq" OF "patchhdr" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Seq"
+  POSITION 4
+  MAX-WIDTH 16
+  ORDER 30
+
+ADD FIELD "patch-date" OF "patchhdr" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Patch Date"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "descr" OF "patchhdr" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 6
+  MAX-WIDTH 100
+  ORDER 60
+
+ADD FIELD "dependancy" OF "patchhdr" AS character 
+  DESCRIPTION "Comma Delimited List of Dependant Program needed to execute prior to this program"
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Dependancy"
+  POSITION 7
+  MAX-WIDTH 60
+  ORDER 70
+
+ADD INDEX "patchhdr" ON "patchhdr" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Patch Header Primary Index"
+  INDEX-FIELD "patch" ASCENDING 
+  INDEX-FIELD "version" ASCENDING 
+  INDEX-FIELD "seq" ASCENDING 
+
+ADD TABLE "printer"
+  AREA "Schema Area"
+  DESCRIPTION "list of system printers"
+  DUMP-NAME "printer"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/printer.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/printer.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/printer.p" CRC "?" 
+
+ADD FIELD "pr-no" OF "printer" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Printer #"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "pr-name" OF "printer" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Printer Name"
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+
+ADD FIELD "pr-cmd" OF "printer" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "Printer Command"
+  POSITION 4
+  MAX-WIDTH 50
+  HELP "Enter initialization command"
+  ORDER 30
+
+ADD FIELD "max-col" OF "printer" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Max Cols"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "company" OF "printer" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 6
+  MAX-WIDTH 6
+  ORDER 5
+  MANDATORY
+
+ADD FIELD "loc" OF "printer" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Warehouse"
+  POSITION 7
+  MAX-WIDTH 10
+  HELP "Enter the plant/warehouse location"
+  ORDER 7
+  MANDATORY
+
+ADD FIELD "pr-port" OF "printer" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Port"
+  POSITION 8
+  MAX-WIDTH 40
+  HELP "Enter name of Port where Printer is connected. (eg LPT1,LP)"
+  ORDER 12
+
+ADD FIELD "l-margin" OF "printer" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "Left Margin"
+  POSITION 9
+  MAX-WIDTH 50
+  HELP "Enter command to set left margin."
+  ORDER 50
+
+ADD FIELD "pitch" OF "printer" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "Pitch"
+  POSITION 10
+  MAX-WIDTH 50
+  HELP "Enter command to set Pitch."
+  ORDER 60
+
+ADD FIELD "rec_key" OF "printer" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 11
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 70
+
+ADD INDEX "printer" ON "printer" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "pr-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "printer" 
+  AREA "Schema Area"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "stat-file"
+  AREA "Schema Area"
+  DESCRIPTION "Status Master"
+  DUMP-NAME "statfile"
+
+ADD FIELD "code" OF "stat-file" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 6
+  ORDER 10
+
+ADD FIELD "descript" OF "stat-file" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+
+ADD INDEX "code" ON "stat-file" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "code" ASCENDING 
+
+ADD TABLE "sysctrl"
+  AREA "Schema Area"
+  DUMP-NAME "sysctrl"
+
+ADD FIELD "company" OF "sysctrl" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 80
+  ORDER 10
+
+ADD FIELD "version-number" OF "sysctrl" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 12
+  ORDER 20
+
+ADD TABLE "task"
+  AREA "Schema Area"
+  DESCRIPTION "Task file"
+  DUMP-NAME "task"
+
+ADD FIELD "task-number" OF "task" AS integer 
+  FORMAT "99999999"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "type" OF "task" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 2
+  ORDER 20
+
+ADD FIELD "stat" OF "task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 6
+  ORDER 30
+
+ADD FIELD "recorder-id" OF "task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 6
+  ORDER 40
+
+ADD FIELD "programmer-id" OF "task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 6
+  ORDER 50
+
+ADD FIELD "test-id" OF "task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 6
+  ORDER 60
+
+ADD FIELD "sent-id" OF "task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 6
+  ORDER 220
+
+ADD FIELD "cust-code" OF "task" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "hot-keys" OF "task" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 12
+  ORDER 90
+
+ADD FIELD "priority" OF "task" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 2
+  ORDER 100
+
+ADD FIELD "billable" OF "task" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 12
+  MAX-WIDTH 1
+  ORDER 110
+
+ADD FIELD "method" OF "task" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  POSITION 13
+  MAX-WIDTH 2
+  ORDER 120
+
+ADD FIELD "sequence" OF "task" AS integer 
+  FORMAT "999"
+  INITIAL "0"
+  POSITION 14
+  MAX-WIDTH 4
+  ORDER 130
+
+ADD FIELD "hours" OF "task" AS decimal 
+  FORMAT "z9.99"
+  INITIAL "0"
+  POSITION 15
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 140
+
+ADD FIELD "cost" OF "task" AS decimal 
+  FORMAT ">>,>>9.99"
+  INITIAL "0"
+  POSITION 16
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 150
+
+ADD FIELD "overview" OF "task" AS character 
+  FORMAT "x(78)"
+  INITIAL ""
+  POSITION 17
+  MAX-WIDTH 156
+  ORDER 160
+
+ADD FIELD "fix-desc" OF "task" AS character 
+  FORMAT "x(78)"
+  INITIAL ""
+  POSITION 18
+  MAX-WIDTH 3160
+  EXTENT 20
+  ORDER 170
+
+ADD FIELD "determination" OF "task" AS character 
+  FORMAT "x(78)"
+  INITIAL ""
+  POSITION 19
+  MAX-WIDTH 156
+  ORDER 400
+
+ADD FIELD "recorded-date" OF "task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 20
+  MAX-WIDTH 4
+  ORDER 190
+
+ADD FIELD "assigned-date" OF "task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 21
+  MAX-WIDTH 4
+  ORDER 200
+
+ADD FIELD "test-date" OF "task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 22
+  MAX-WIDTH 4
+  ORDER 210
+
+ADD FIELD "sent-date" OF "task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 23
+  MAX-WIDTH 4
+  ORDER 230
+
+ADD FIELD "entry-date" OF "task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 24
+  MAX-WIDTH 4
+  ORDER 240
+
+ADD FIELD "module" OF "task" AS character 
+  FORMAT "x(2)"
+  INITIAL ""
+  POSITION 25
+  MAX-WIDTH 4
+  ORDER 250
+
+ADD FIELD "queued" OF "task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 26
+  MAX-WIDTH 6
+  ORDER 260
+
+ADD FIELD "package" OF "task" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  POSITION 27
+  MAX-WIDTH 2
+  ORDER 270
+
+ADD FIELD "quote-hours" OF "task" AS decimal 
+  FORMAT "zz9.9"
+  INITIAL "0"
+  POSITION 28
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 360
+
+ADD FIELD "send-hours" OF "task" AS decimal 
+  FORMAT "zz9.9"
+  INITIAL "0"
+  POSITION 29
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 370
+
+ADD FIELD "test-hours" OF "task" AS decimal 
+  FORMAT "zz9.9"
+  INITIAL "0"
+  POSITION 30
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 380
+
+ADD FIELD "program-hours" OF "task" AS decimal 
+  FORMAT "zz9.9"
+  INITIAL "0"
+  POSITION 31
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 390
+
+ADD FIELD "r-finished" OF "task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 32
+  MAX-WIDTH 4
+  ORDER 320
+
+ADD FIELD "a-finished" OF "task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 33
+  MAX-WIDTH 4
+  ORDER 330
+
+ADD FIELD "t-finished" OF "task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 34
+  MAX-WIDTH 4
+  ORDER 340
+
+ADD FIELD "s-finished" OF "task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 35
+  MAX-WIDTH 4
+  ORDER 350
+
+ADD FIELD "hot-key-desc" OF "task" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 36
+  MAX-WIDTH 60
+  ORDER 410
+
+ADD FIELD "version-number" OF "task" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  POSITION 37
+  MAX-WIDTH 12
+  ORDER 420
+
+ADD FIELD "round-task" OF "task" AS integer 
+  FORMAT "9999999999"
+  INITIAL "0"
+  LABEL "Roundtable Task"
+  POSITION 38
+  MAX-WIDTH 4
+  ORDER 430
+
+ADD FIELD "task-number-alf" OF "task" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  POSITION 39
+  MAX-WIDTH 16
+  ORDER 440
+
+ADD FIELD "task-version" OF "task" AS logical 
+  DESCRIPTION "Task Version(1: current, 2: previous)"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Task Version"
+  POSITION 40
+  MAX-WIDTH 40
+  EXTENT 5
+  ORDER 450
+
+ADD FIELD "asi-cost" OF "task" AS decimal 
+  FORMAT ">>>,>>9.99"
+  INITIAL "0"
+  POSITION 41
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 460
+
+ADD FIELD "sman" OF "task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Sales Rep"
+  POSITION 42
+  MAX-WIDTH 6
+  ORDER 470
+
+ADD FIELD "reporter-id" OF "task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 43
+  MAX-WIDTH 6
+  ORDER 480
+
+ADD FIELD "z-finished" OF "task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 44
+  MAX-WIDTH 4
+  ORDER 490
+
+ADD FIELD "reporter-name" OF "task" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  POSITION 45
+  MAX-WIDTH 60
+  ORDER 500
+
+ADD FIELD "quoted-by-id" OF "task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 46
+  MAX-WIDTH 6
+  ORDER 510
+
+ADD FIELD "reporter-email" OF "task" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  POSITION 47
+  MAX-WIDTH 60
+  ORDER 520
+
+ADD FIELD "deploy-date" OF "task" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 48
+  MAX-WIDTH 4
+  ORDER 530
+
+ADD FIELD "deploy-hours" OF "task" AS decimal 
+  FORMAT "zz9.9"
+  INITIAL "0"
+  POSITION 49
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 540
+
+ADD FIELD "deploy-id" OF "task" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 50
+  MAX-WIDTH 6
+  ORDER 550
+
+ADD INDEX "task-number" ON "task" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "task-number" ASCENDING 
+
+ADD INDEX "curr-status" ON "task" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "stat" ASCENDING 
+  INDEX-FIELD "entry-date" DESCENDING 
+  INDEX-FIELD "task-number" DESCENDING 
+
+ADD INDEX "customer" ON "task" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "cust-code" ASCENDING 
+  INDEX-FIELD "entry-date" DESCENDING 
+  INDEX-FIELD "task-number" DESCENDING 
+
+ADD INDEX "entry-date" ON "task" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "entry-date" DESCENDING 
+  INDEX-FIELD "task-number" DESCENDING 
+
+ADD INDEX "priority" ON "task" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "priority" ASCENDING 
+  INDEX-FIELD "sequence" ASCENDING 
+  INDEX-FIELD "entry-date" DESCENDING 
+  INDEX-FIELD "task-number" DESCENDING 
+
+ADD INDEX "prog-date" ON "task" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "assigned-date" ASCENDING 
+  INDEX-FIELD "programmer-id" ASCENDING 
+  INDEX-FIELD "entry-date" DESCENDING 
+  INDEX-FIELD "task-number" DESCENDING 
+
+ADD INDEX "programmer" ON "task" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "programmer-id" ASCENDING 
+  INDEX-FIELD "priority" ASCENDING 
+  INDEX-FIELD "sequence" ASCENDING 
+  INDEX-FIELD "entry-date" DESCENDING 
+  INDEX-FIELD "task-number" DESCENDING 
+
+ADD INDEX "queued" ON "task" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "queued" ASCENDING 
+  INDEX-FIELD "priority" ASCENDING 
+  INDEX-FIELD "sequence" ASCENDING 
+  INDEX-FIELD "entry-date" DESCENDING 
+  INDEX-FIELD "task-number" DESCENDING 
+
+ADD INDEX "recorder" ON "task" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "recorder-id" ASCENDING 
+  INDEX-FIELD "priority" ASCENDING 
+  INDEX-FIELD "sequence" ASCENDING 
+  INDEX-FIELD "entry-date" DESCENDING 
+  INDEX-FIELD "task-number" DESCENDING 
+
+ADD INDEX "sender" ON "task" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "sent-id" ASCENDING 
+  INDEX-FIELD "priority" ASCENDING 
+  INDEX-FIELD "sequence" ASCENDING 
+  INDEX-FIELD "entry-date" DESCENDING 
+  INDEX-FIELD "task-number" DESCENDING 
+
+ADD INDEX "task" ON "task" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "task-number" DESCENDING 
+
+ADD INDEX "task-alf" ON "task" 
+  AREA "Schema Area"
+  INDEX-FIELD "task-number-alf" ASCENDING 
+
+ADD INDEX "tester" ON "task" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "test-id" ASCENDING 
+  INDEX-FIELD "priority" ASCENDING 
+  INDEX-FIELD "sequence" ASCENDING 
+  INDEX-FIELD "entry-date" DESCENDING 
+  INDEX-FIELD "task-number" DESCENDING 
+
+ADD TABLE "taskdtl"
+  AREA "Schema Area"
+  DUMP-NAME "taskdtl"
+
+ADD FIELD "task-number" OF "taskdtl" AS integer 
+  FORMAT "99999999"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "page-no" OF "taskdtl" AS integer 
+  FORMAT "99"
+  INITIAL "0"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "document" OF "taskdtl" AS character 
+  FORMAT "x(78)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 3160
+  EXTENT 20
+  ORDER 30
+
+ADD FIELD "resolution" OF "taskdtl" AS character 
+  FORMAT "x(78)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 3160
+  EXTENT 20
+  ORDER 40
+
+ADD INDEX "task" ON "taskdtl" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "task-number" ASCENDING 
+  INDEX-FIELD "page-no" ASCENDING 
+
+ADD TABLE "taskfile"
+  AREA "Schema Area"
+  LABEL "Task File List"
+  DUMP-NAME "taskfile"
+
+ADD FIELD "task-number" OF "taskfile" AS integer 
+  FORMAT "99999999"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "file-list" OF "taskfile" AS character 
+  FORMAT "x(100)"
+  INITIAL ""
+  LABEL "Program List"
+  POSITION 4
+  MAX-WIDTH 200
+  ORDER 30
+
+ADD INDEX "tskfile" ON "taskfile" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "task-number" ASCENDING 
+  INDEX-FIELD "file-list" ASCENDING 
+
+ADD TABLE "taskprog"
+  AREA "Schema Area"
+  LABEL "Task Program List table"
+  DUMP-NAME "taskprog"
+
+ADD FIELD "task-number" OF "taskprog" AS integer 
+  FORMAT "99999999"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "prog-list" OF "taskprog" AS character 
+  FORMAT "x(100)"
+  INITIAL ""
+  LABEL "Program List"
+  POSITION 4
+  MAX-WIDTH 200
+  ORDER 30
+
+ADD INDEX "tskprog" ON "taskprog" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "task-number" ASCENDING 
+  INDEX-FIELD "prog-list" ASCENDING 
+
+ADD TABLE "time-sheet"
+  AREA "Schema Area"
+  DUMP-NAME "time-she"
+
+ADD FIELD "task-number" OF "time-sheet" AS integer 
+  FORMAT "99999999"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "emp-id" OF "time-sheet" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 6
+  ORDER 20
+
+ADD FIELD "start-date" OF "time-sheet" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "end-date" OF "time-sheet" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "start-time" OF "time-sheet" AS integer 
+  FORMAT "zzzz9"
+  INITIAL "0"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "end-time" OF "time-sheet" AS integer 
+  FORMAT "zzzz9"
+  INITIAL "0"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "actual-hours" OF "time-sheet" AS decimal 
+  FORMAT "zzz9.99"
+  INITIAL "0"
+  POSITION 8
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 70
+
+ADD FIELD "type" OF "time-sheet" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 2
+  ORDER 80
+
+ADD INDEX "emp-id" ON "time-sheet" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "emp-id" ASCENDING 
+  INDEX-FIELD "type" ASCENDING 
+  INDEX-FIELD "task-number" ASCENDING 
+  INDEX-FIELD "start-date" ASCENDING 
+  INDEX-FIELD "start-time" ASCENDING 
+
+ADD INDEX "type" ON "time-sheet" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "type" ASCENDING 
+  INDEX-FIELD "task-number" ASCENDING 
+  INDEX-FIELD "emp-id" ASCENDING 
+  INDEX-FIELD "start-date" ASCENDING 
+  INDEX-FIELD "start-time" ASCENDING 
+
+ADD TABLE "type-file"
+  AREA "Schema Area"
+  DUMP-NAME "typefile"
+
+ADD FIELD "code" OF "type-file" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 2
+  ORDER 10
+
+ADD FIELD "descript" OF "type-file" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 30
+  ORDER 20
+
+ADD INDEX "code" ON "type-file" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "code" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000058189

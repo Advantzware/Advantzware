@@ -1,0 +1,502 @@
+ADD TABLE "rm-rctd"
+  DESCRIPTION "Raw Material Receipts Detail File"
+  DUMP-NAME "rm-rctd"
+
+ADD FIELD "r-no" OF "rm-rctd" AS integer 
+  DESCRIPTION "Unique internal rm-rcpt number."
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  ORDER 10
+
+ADD FIELD "loc-bin" OF "rm-rctd" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Primary Bin Loc."
+  HELP "Enter Bin Location where Item is Stocked"
+  ORDER 40
+
+ADD FIELD "tag" OF "rm-rctd" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  HELP "Enter tag identification."
+  ORDER 50
+
+ADD FIELD "qty" OF "rm-rctd" AS decimal 
+  FORMAT "->>>>>>9.9<<"
+  INITIAL "0"
+  HELP "Enter quantity received."
+  DECIMALS 3
+  ORDER 60
+  MANDATORY
+
+ADD FIELD "cost" OF "rm-rctd" AS decimal 
+  FORMAT "->>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Costs"
+  HELP "Enter item unit cost"
+  DECIMALS 6
+  ORDER 70
+
+ADD FIELD "company" OF "rm-rctd" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  HELP "Enter company."
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "loc" OF "rm-rctd" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Warehouse"
+  HELP "Enter the plant/warehouse location"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "rita-code" OF "rm-rctd" AS character 
+  DESCRIPTION "Transaction Type Flag."
+  FORMAT "x(1)"
+  INITIAL ""
+  LABEL "RITA Code"
+  HELP "Enter 'R'eceipt, 'I'ssue, 'T'ransfer, 'A'djustment, 'C'ount"
+  ORDER 110
+  MANDATORY
+
+ADD FIELD "loc2" OF "rm-rctd" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "To Whse"
+  HELP "Enter The Destination Warehouse."
+  ORDER 80
+
+ADD FIELD "loc-bin2" OF "rm-rctd" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "To Bin"
+  HELP "Enter Bin at Destination Location."
+  ORDER 90
+
+ADD FIELD "tag2" OF "rm-rctd" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "To Tag"
+  HELP "Enter Tag Number at Destination Location."
+  ORDER 100
+
+ADD FIELD "s-num" OF "rm-rctd" AS integer 
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "Sheet #"
+  HELP "Enter Form #."
+  ORDER 120
+
+ADD FIELD "b-num" OF "rm-rctd" AS integer 
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "Blank #"
+  HELP "Enter Blank #"
+  ORDER 130
+
+ADD FIELD "pass" OF "rm-rctd" AS integer 
+  FORMAT "9"
+  INITIAL "1"
+  LABEL "Pass #"
+  HELP "Pass Sequence number"
+  ORDER 140
+
+ADD FIELD "job-no" OF "rm-rctd" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Job #"
+  COLUMN-LABEL "Job #"
+  ORDER 150
+
+ADD FIELD "job-no2" OF "rm-rctd" AS integer 
+  FORMAT "99"
+  INITIAL "0"
+  LABEL ""
+  COLUMN-LABEL ""
+  ORDER 160
+
+ADD FIELD "receiver-no" OF "rm-rctd" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Receiver No"
+  HELP "Enter the carrier BOL/Packing List number for AP invoicing"
+  ORDER 170
+
+ADD FIELD "po-no" OF "rm-rctd" AS character 
+  FORMAT "x(9)"
+  INITIAL ""
+  LABEL "PO#"
+  HELP "Enter purchase order number."
+  ORDER 180
+
+ADD FIELD "i-no" OF "rm-rctd" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Item No"
+  HELP "Raw Material Item Number"
+  ORDER 190
+  MANDATORY
+
+ADD FIELD "i-name" OF "rm-rctd" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Name"
+  HELP "Enter Raw Mat'l Name used for Alpha Numeric Searches."
+  ORDER 200
+
+ADD FIELD "pur-uom" OF "rm-rctd" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Purchased UOM"
+  HELP "Enter Unit of Measure for Purchasing this Raw Material"
+  ORDER 210
+
+ADD FIELD "rec_key" OF "rm-rctd" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  HELP "Enter Record Key Value"
+  ORDER 220
+
+ADD FIELD "cost-uom" OF "rm-rctd" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Cost UOM"
+  HELP "Enter Unit of Measure for Costing this Raw Material"
+  ORDER 230
+
+ADD FIELD "rct-date" OF "rm-rctd" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Receipt Date"
+  ORDER 240
+
+ADD FIELD "barcode" OF "rm-rctd" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "BarCode"
+  ORDER 250
+
+ADD FIELD "post-date" OF "rm-rctd" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Post Date"
+  ORDER 260
+
+ADD FIELD "po-line" OF "rm-rctd" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Ln#"
+  ORDER 270
+
+ADD INDEX "rct-detail" ON "rm-rctd" 
+  PRIMARY
+  DESCRIPTION "Receipt Detail"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "rct-date" ASCENDING 
+  INDEX-FIELD "po-no" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "loc-bin" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+ADD INDEX "rm-rctd" ON "rm-rctd" 
+  INDEX-FIELD "r-no" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "loc-bin" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+ADD INDEX "tag" ON "rm-rctd" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+ADD TABLE "fg-rctd"
+  LABEL "fg-rctd"
+  DESCRIPTION "Finished Goods Receipt Detail"
+  DUMP-NAME "fg-rctd"
+
+ADD FIELD "r-no" OF "fg-rctd" AS integer 
+  DESCRIPTION "Unique internal rm-rcpt number."
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  ORDER 10
+
+ADD FIELD "company" OF "fg-rctd" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  HELP "Enter company."
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "loc" OF "fg-rctd" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Warehouse"
+  HELP "Enter the plant/warehouse location"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "loc-bin" OF "fg-rctd" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Primary Bin Loc."
+  HELP "Enter Bin Location where Item is Stocked"
+  ORDER 40
+
+ADD FIELD "tag" OF "fg-rctd" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  HELP "Enter tag identification."
+  ORDER 50
+
+ADD FIELD "qty" OF "fg-rctd" AS decimal 
+  FORMAT "->>>>>>9.9<<"
+  INITIAL "0"
+  HELP "Enter quantity received."
+  DECIMALS 3
+  ORDER 60
+  MANDATORY
+
+ADD FIELD "cost" OF "fg-rctd" AS decimal 
+  FORMAT "->>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Costs"
+  HELP "Enter item unit cost"
+  DECIMALS 6
+  ORDER 70
+
+ADD FIELD "loc2" OF "fg-rctd" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "To Whse"
+  HELP "Enter The Destination Warehouse."
+  ORDER 80
+
+ADD FIELD "loc-bin2" OF "fg-rctd" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "To Bin"
+  HELP "Enter Bin at Destination Location."
+  ORDER 90
+
+ADD FIELD "tag2" OF "fg-rctd" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "To Tag"
+  HELP "Enter Tag Number at Destination Location."
+  ORDER 100
+
+ADD FIELD "rita-code" OF "fg-rctd" AS character 
+  DESCRIPTION "Transaction Type Flag."
+  FORMAT "x(1)"
+  INITIAL ""
+  LABEL "RITA Code"
+  HELP "Enter 'R'eceipt, 'I'ssue, 'T'ransfer, 'A'djustment, 'C'ount"
+  ORDER 110
+  MANDATORY
+
+ADD FIELD "s-num" OF "fg-rctd" AS integer 
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "Sheet #"
+  HELP "Enter Form #."
+  ORDER 120
+
+ADD FIELD "b-num" OF "fg-rctd" AS integer 
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "Blank #"
+  HELP "Enter Blank #"
+  ORDER 130
+
+ADD FIELD "pass" OF "fg-rctd" AS integer 
+  FORMAT "9"
+  INITIAL "1"
+  LABEL "Pass #"
+  HELP "Pass Sequence number"
+  ORDER 140
+
+ADD FIELD "job-no" OF "fg-rctd" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Job #"
+  COLUMN-LABEL "Job #"
+  ORDER 150
+
+ADD FIELD "job-no2" OF "fg-rctd" AS integer 
+  FORMAT "99"
+  INITIAL "0"
+  LABEL ""
+  COLUMN-LABEL ""
+  ORDER 160
+
+ADD FIELD "receiver-no" OF "fg-rctd" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Receiver No"
+  HELP "Enter the carrier BOL/Packing List number for AP invoicing"
+  ORDER 170
+
+ADD FIELD "po-no" OF "fg-rctd" AS character 
+  FORMAT "x(9)"
+  INITIAL ""
+  LABEL "PO#"
+  HELP "Enter purchase order number."
+  ORDER 180
+
+ADD FIELD "i-no" OF "fg-rctd" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Item No"
+  HELP "Raw Material Item Number"
+  ORDER 190
+  MANDATORY
+
+ADD FIELD "i-name" OF "fg-rctd" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Name"
+  HELP "Enter Raw Mat'l Name used for Alpha Numeric Searches."
+  ORDER 200
+
+ADD FIELD "pur-uom" OF "fg-rctd" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Purchased UOM"
+  HELP "Enter Unit of Measure for Purchasing this Raw Material"
+  ORDER 210
+
+ADD FIELD "rec_key" OF "fg-rctd" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  HELP "Enter Record Key Value"
+  ORDER 220
+
+ADD FIELD "cost-uom" OF "fg-rctd" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Cost UOM"
+  HELP "Enter Unit of Measure for Costing this Raw Material"
+  ORDER 230
+
+ADD FIELD "rct-date" OF "fg-rctd" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Receipt Date"
+  ORDER 240
+
+ADD FIELD "barcode" OF "fg-rctd" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "BarCode"
+  ORDER 250
+
+ADD FIELD "post-date" OF "fg-rctd" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Post Date"
+  ORDER 260
+
+ADD FIELD "po-line" OF "fg-rctd" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Ln#"
+  ORDER 270
+
+ADD FIELD "partial" OF "fg-rctd" AS integer 
+  FORMAT ">>>,>>9"
+  INITIAL "0"
+  HELP "Enter quantity received."
+  ORDER 280
+  MANDATORY
+
+ADD FIELD "cases" OF "fg-rctd" AS integer 
+  FORMAT ">>>,>>9"
+  INITIAL "0"
+  HELP "Enter number of cases received."
+  ORDER 290
+  MANDATORY
+
+ADD FIELD "qty-case" OF "fg-rctd" AS integer 
+  FORMAT ">>>,>>9"
+  INITIAL "0"
+  HELP "Enter quantity received."
+  ORDER 300
+  MANDATORY
+
+ADD FIELD "t-qty" OF "fg-rctd" AS decimal 
+  FORMAT "->>>,>>>,>>9.99"
+  INITIAL "0"
+  LABEL ""
+  DECIMALS 2
+  ORDER 310
+
+ADD FIELD "cases-stack" OF "fg-rctd" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  LABEL "Case/Bundles per Stack"
+  ORDER 320
+
+ADD FIELD "stacks-unit" OF "fg-rctd" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  LABEL "Stacks per Unit"
+  ORDER 330
+
+ADD FIELD "units-pallet" OF "fg-rctd" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  LABEL "Units per Pallet"
+  ORDER 340
+
+ADD FIELD "stack-code" OF "fg-rctd" AS character 
+  FORMAT "x"
+  INITIAL ""
+  LABEL "Stacking Code"
+  ORDER 350
+
+ADD FIELD "ext-cost" OF "fg-rctd" AS decimal 
+  FORMAT "->>>,>>9.99<<"
+  INITIAL "0"
+  HELP "Total Value Of Item Transaction."
+  DECIMALS 4
+  ORDER 360
+
+ADD FIELD "std-cost" OF "fg-rctd" AS decimal 
+  FORMAT ">>>,>>9.99<<"
+  INITIAL "0"
+  LABEL "Costs"
+  HELP "Enter item unit cost"
+  DECIMALS 4
+  ORDER 370
+
+ADD INDEX "rct-detail" ON "fg-rctd" 
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "rct-date" ASCENDING 
+  INDEX-FIELD "po-no" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "loc-bin" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+ADD INDEX "fg-rctd" ON "fg-rctd" 
+  INDEX-FIELD "r-no" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "loc-bin" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+ADD INDEX "tag" ON "fg-rctd" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+.
+PSC
+codepage=iso8859-1
+.
+0000010921

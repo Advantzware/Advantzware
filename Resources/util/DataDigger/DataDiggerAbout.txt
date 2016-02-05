@@ -1,0 +1,29 @@
+ ____    __   ____   __    ____  ____  ___   ___  ____  ____ 
+(  _ \  /__\ (_  _) /__\  (  _ \(_  _)/ __) / __)( ___)(  _ \
+ )(_) )/(__)\  )(  /(__)\  )(_) )_)(_( (_-.( (_-. )__)  )   /
+(____/(__)(__)(__)(__)(__)(____/(____)\___/ \___/(____)(_)\_)
+
+==============================================================
+
+In 2008 I needed a tool like this and ended up with DataHack
+made by Richard Tardivon. Soon I started fiddling with the
+program and after a few months I decided to fork it under the
+name of DataDigger. Build 13 of 13 jan 2010 was the first that
+appeared on the OpenEdge Hive.
+
+New versions can be found at:
+    http://www.oehive.org/project/datadigger
+
+Suggestions and bugreports are welcome. Please send them to
+    patrick@tingen.net
+
+==============================================================
+Special thanks to:
+
+  - Richard Tardivon for providing DataHack
+  - Jeroen Beugels for testing and the dump window
+  - Albert Flikkema for testing and ideas
+  - Richard Kelters for testing
+  - Tim Lewis for testing
+  
+==============================================================

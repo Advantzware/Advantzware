@@ -1,0 +1,11 @@
+-1
+-db c:\asigui9\db\nosweat
+-ld NOSWEAT
+#-mmax 10000
+#-T tmp
+#-F
+#-mmax 10000
+-T tmp
+#-F
+#-tok 1500
+#-inp 8192

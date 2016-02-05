@@ -1,0 +1,7 @@
+open cyber-trac.netfirms.com
+brad123
+brad123!
+bin
+get 7636.png C:\asi_gui10\pco1010\SIGNED_BOLS\7636.png
+rename 7636.png /RetrievedImages/7636.png
+quit

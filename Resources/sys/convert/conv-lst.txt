@@ -1,0 +1,12 @@
+
+  < DATABASE Conversion Programs TO RUN >
+     R:\asi_gui9\SOURCE\sys\CONVERT 
+        t-estqty.p
+        t-flute.p
+        t-blqty.p
+        t-quote.p
+        t-stax.p
+        t-sysctrl.p
+        t-order.p
+
+

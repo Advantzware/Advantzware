@@ -1,0 +1,3 @@
+/* custom/delete.i */
+
+loadtag

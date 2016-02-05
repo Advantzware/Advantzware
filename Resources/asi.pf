@@ -1,0 +1,6 @@
+-H asisbs
+-N tcp
+-S 3800
+-db Q:\Data\Progress\asi10test\db1010\asi
+-ld asi
+

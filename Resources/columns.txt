@@ -1,0 +1,13 @@
+&ELSEIF '{&yellowColumnsName}' EQ '' &THEN
+&SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Sheet' THEN STRING(mch.form-no,'999') ELSE ~
+  IF sortColumn EQ 'Blank' THEN STRING(mch.blank-no,'999') ELSE ~
+  IF sortColumn EQ 'Machine' THEN STRING(mch.m-code,'999') ELSE ~
+  IF sortColumn EQ 'FG Item#' THEN mch.i-no ELSE ~
+  IF sortColumn EQ 'Std Run FO' THEN STRING(mch.run-std,'9999999.99') ELSE ~
+  IF sortColumn EQ 'Act Run FO' THEN STRING(mch.run-act,'9999999.99') ELSE ~
+  IF sortColumn EQ 'Run FO Var' THEN STRING(mch.run-var,'-9999999.99') ELSE ~
+  IF sortColumn EQ 'Std MR FO' THEN STRING(mch.mr-std,'9999999.99') ELSE ~
+  IF sortColumn EQ 'Act MR FO' THEN STRING(mch.mr-act,'9999999.99') ELSE ~
+  IF sortColumn EQ 'MR FO Var' THEN STRING(mch.mr-var,'-9999999.99') ELSE ~
+/*lastField*/ ~{&SORTED}

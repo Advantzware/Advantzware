@@ -1,0 +1,3 @@
+/* gloc.i */
+
+DEFINE VARIABLE gloc AS CHARACTER NO-UNDO.

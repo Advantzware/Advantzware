@@ -1,0 +1,6 @@
+-H asisbs
+-N tcp
+-S 5039
+-db asi
+-ld asi
+

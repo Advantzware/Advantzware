@@ -1,0 +1,6 @@
+open ftp.corrchain.com
+ctiasiwelsh
+a1w2!2oiz
+cd /asi/southcorr/
+put Q:\rcode\cti_sdk\dataxfer\in\socorrWelsh_po_Xprintlacor120309135052.dat
+quit

@@ -1,0 +1,31 @@
+/* ----------------------------------------------------- oe/oe-ord.a 5/93 cd  */
+/* add module - o/e order entry                                               */
+/* -------------------------------------------------------------------------- */
+
+do:
+  RUN sys/ref/asiseq.p (INPUT cocode, INPUT "order_seq", OUTPUT v-n-ord) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN
+    MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
+        VIEW-AS ALERT-BOX INFO BUTTONS OK.
+  DO WHILE CAN-FIND(FIRST xoe-ord
+                    WHERE xoe-ord.company EQ cocode
+                      AND xoe-ord.ord-no  EQ v-n-ord):
+    
+      RUN sys/ref/asiseq.p (INPUT cocode, 
+                          INPUT "order_seq", 
+                          OUTPUT v-n-ord) NO-ERROR.    
+    
+  END.
+  
+  create xoe-ord.
+  assign
+   xoe-ord.company  = cocode
+   xoe-ord.loc      = locode
+   xoe-ord.ord-date = today
+   xoe-ord.ord-no   = v-n-ord
+   xoe-ord.user-id  = userid("nosweat")
+   nufile           = true
+   v-n-ord          = xoe-ord.ord-no.
+end.
+
+/* end ---------------------------------- copr. 1993  advanced software, inc. */

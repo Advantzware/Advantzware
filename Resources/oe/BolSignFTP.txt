@@ -1,0 +1,6 @@
+open cyber-trac.netfirms.com
+brad123
+brad123!
+put C:\tmp\BOLSignHeaders.xml
+put C:\tmp\BOLSignLines.xml
+quit

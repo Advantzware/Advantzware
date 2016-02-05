@@ -1,0 +1,96 @@
+ADD TABLE "user-batch"
+  AREA "Schema Area"
+  DUMP-NAME "user-bat"
+
+ADD FIELD "company" OF "user-batch" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 4
+  MAX-WIDTH 6
+  HELP "Enter the company code."
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "batch-seq" OF "user-batch" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 26
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "prog-seq" OF "user-batch" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 27
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "startDate" OF "user-batch" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Start Date"
+  POSITION 32
+  MAX-WIDTH 4
+  HELP "Enter Starting Date"
+  ORDER 40
+
+ADD FIELD "startTime" OF "user-batch" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Start Time"
+  POSITION 33
+  MAX-WIDTH 4
+  HELP "Enter Starting Time"
+  ORDER 50
+
+ADD FIELD "endDate" OF "user-batch" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "End Date"
+  POSITION 34
+  MAX-WIDTH 4
+  HELP "Enter Ending Date"
+  ORDER 60
+
+ADD FIELD "endTime" OF "user-batch" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "End Time"
+  POSITION 35
+  MAX-WIDTH 4
+  HELP "Enter Ending Time"
+  ORDER 70
+
+ADD FIELD "dayOfWeek" OF "user-batch" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Day Of Week"
+  POSITION 36
+  MAX-WIDTH 56
+  HELP "Select Day(s) of Week"
+  EXTENT 7
+  ORDER 80
+
+ADD FIELD "repeatWeekly" OF "user-batch" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Repeat Weekly"
+  POSITION 37
+  MAX-WIDTH 1
+  HELP "Repeat Weekly?"
+  ORDER 90
+
+ADD INDEX "user-batch" ON "user-batch" 
+  AREA "Schema Area"
+  PRIMARY
+  DESCRIPTION "Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "batch-seq" ASCENDING 
+  INDEX-FIELD "prog-seq" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000001848

@@ -1,0 +1,5 @@
+open cs.ftp.citonline.com
+ftpa1526
+none
+put c:\tmp\ARINV_Frankstn051012104413.dat "$$ ID=EP003F BID='DI1526' PASSWORD=NARF"
+quit

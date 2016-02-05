@@ -1,0 +1,38 @@
+
+                                                            RELEASE
+                                                             Date      Number
+                                                           04/23/13    6107
+
+Advanced Box Company 001 V10                                 PAGE  1 OF
+PO Box 1234                                                  04/23/13 10:54 AM
+1287 First Ave
+Langhorne       Pa 19047
+
+
+          SOLD To:                               SHIP To:
+          Matt Hentz                             Matt Hentz
+          123 Great Lane                         121 Seville Drive
+
+          Mytle Beach     SC 29976               Murrells Inlet  SC 29576
+
+Notes                                                                  Ship Date
+                                                                        04/17/13
+
+
+
+--------------------------------------------------------------------------------
+Ship Via                  DelZone      F.O.B.      Weight       Freight Terms
+Our Truck                 25           ORIG          8683       Bill
+--------------------------------------------------------------------------------
+
+Order# Item / Descrip       Tag/Whs/Bin          X #Pal #Cas     Count   Bin Qty
+  Job#
+------ --------------       ----------           - ---- ----     -----   -------
+206073 Matt21-11326         /MAIN/A-100
+       AckHead Corr Sch Rel
+       BMatt210073A99
+       Job#: 206073-00                                         Rel Qty     10000
+
+Pallets____________ Pulled by__________ Shipped by_________ Total Qty___________
+--------------------------------------------------------------------------------
+

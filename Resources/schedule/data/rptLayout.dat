@@ -1,0 +1,168 @@
+"" "jobByResource" "" "Downtime" "calcTimeField" 1 71 11
+"" "jobByResource" "" "Due Date" "dueDate" 1 48 8
+"" "jobByResource" "" "Due Time" "calcTimeField" 2 48 9
+"" "jobByResource" "" "End Date" "endDate" 1 37 6
+"" "jobByResource" "" "End Time" "calcTimeField" 2 37 7
+"" "jobByResource" "" "Job ID" "job" 1 5 2
+"" "jobByResource" "" "Job Time" "calcTimeField" 1 59 10
+"" "jobByResource" "" "Seq" "jobSequence" 1 1 1
+"" "jobByResource" "" "Start Date" "startDate" 1 26 4
+"" "jobByResource" "" "Start Time" "calcTimeField" 2 26 5
+"" "jobByResource" "" "Status" "status" 2 5 3
+"" "jobByResource" "" "Total Time" "calcTimeField" 1 83 12
+"" "jobText" "" "Job ID" "job" 1 1 0
+"" "jobText" "" "Customer" "userField01" 2 1 0
+"" "jobText" "" "Customer Name" "userField02" 2 12 0
+"" "jobText" "" "FG Item" "userField08" 3 1 0
+"" "jobText" "" "Item Name" "userField09" 3 17 0
+"" "jobToolTip" "" "Job ID" "job" 1 1 0 no ""
+"" "jobToolTip" "" "Seq" "jobSequence" 1 22 0 no ""
+"" "jobToolTip" "" "Resource" "resource" 1 26 0 no ""
+"" "jobToolTip" "" "Start Date" "startDate" 2 1 0 no ""
+"" "jobToolTip" "" "Start Time" "calcTimeField" 2 12 0 no ""
+"" "jobToolTip" "" "End Date" "endDate" 3 1 0 no ""
+"" "jobToolTip" "" "End Time" "calcTimeField" 3 12 0 no ""
+"" "jobToolTip" "" "Due Date" "dueDate" 4 1 0 no ""
+"" "jobToolTip" "" "Prod Date" "prodDate" 5 1 0 no ""
+"" "pendingJobs" "" "Due Date" "dueDate" 1 82 8
+"" "pendingJobs" "" "Due Time" "calcTimeField" 1 93 9
+"" "pendingJobs" "" "End Date" "endDate" 1 60 6
+"" "pendingJobs" "" "End Time" "calcTimeField" 1 71 7
+"" "pendingJobs" "" "Job ID" "job" 1 1 1
+"" "pendingJobs" "" "Resource" "resource" 1 22 2
+"" "pendingJobs" "" "ResSeq" "resourceSequence" 1 31 3
+"" "pendingJobs" "" "Start Date" "startDate" 1 38 4
+"" "pendingJobs" "" "Start Time" "calcTimeField" 1 49 5
+"" "status" "" "Due Date" "dueDate" 1 1 1
+"" "status" "" "Job ID" "job" 1 12 2
+"" "status" "" "Resource" "resource" 1 33 3
+"" "status" "" "Status-1" "jobStatus[1]" 1 47 5
+"" "status" "" "Status-10" "jobStatus[10]" 1 128 14
+"" "status" "" "Status-11" "jobStatus[11]" 1 138 15
+"" "status" "" "Status-12" "jobStatus[12]" 1 148 16
+"" "status" "" "Status-13" "jobStatus[13]" 1 158 17
+"" "status" "" "Status-14" "jobStatus[14]" 1 168 18
+"" "status" "" "Status-2" "jobStatus[2]" 1 56 6
+"" "status" "" "Status-3" "jobStatus[3]" 1 65 7
+"" "status" "" "Status-4" "jobStatus[4]" 1 74 8
+"" "status" "" "Status-5" "jobStatus[5]" 1 83 9
+"" "status" "" "Status-6" "jobStatus[6]" 1 92 10
+"" "status" "" "Status-7" "jobStatus[7]" 1 101 11
+"" "status" "" "Status-8" "jobStatus[8]" 1 110 12
+"" "status" "" "Status-9" "jobStatus[9]" 1 119 13
+"" "status" "" "Type" "jobType" 1 42 4
+"ASI" "dieCutting" "" "Blank" "userField19" 1 60 6
+"ASI" "dieCutting" "" "Caliper" "userField22" 1 162 13
+"ASI" "dieCutting" "" "Category" "userField21" 1 153 12
+"ASI" "dieCutting" "" "Customer" "userField01" 1 44 4
+"ASI" "dieCutting" "" "Die" "userField05" 1 137 11
+"ASI" "dieCutting" "" "FG Item" "userField08" 1 66 7
+"ASI" "dieCutting" "" "Form" "userField18" 1 55 5
+"ASI" "dieCutting" "" "Item Name" "userField09" 1 82 8
+"ASI" "dieCutting" "" "Job ID" "job" 1 1 1
+"ASI" "dieCutting" "" "PO Due" "userField16" 1 170 14
+"ASI" "dieCutting" "" "Sheet Qty" "userField23" 1 113 9
+"ASI" "dieCutting" "" "Start Date" "startDate" 1 22 2
+"ASI" "dieCutting" "" "Start Time" "calcTimeField" 1 33 3
+"ASI" "dieCutting" "" "Total Time" "calcTimeField" 1 125 10
+"ASI" "dieCutting" "" "Vendor" "userField17" 1 181 15
+"ASI" "finishing" "" "Adhesive" "userField24" 1 170 14
+"ASI" "finishing" "" "Blank" "userField19" 1 60 6
+"ASI" "finishing" "" "Caliper" "userField22" 1 162 13
+"ASI" "finishing" "" "Category" "userField21" 1 153 12
+"ASI" "finishing" "" "Customer" "userField01" 1 44 4
+"ASI" "finishing" "" "Die" "userField05" 1 137 11
+"ASI" "finishing" "" "FG Item" "userField08" 1 66 7
+"ASI" "finishing" "" "Form" "userField18" 1 55 5
+"ASI" "finishing" "" "Item Name" "userField09" 1 82 8
+"ASI" "finishing" "" "Job ID" "job" 1 1 1
+"ASI" "finishing" "" "Sheet Qty" "userField23" 1 113 9
+"ASI" "finishing" "" "Start Date" "startDate" 1 22 2
+"ASI" "finishing" "" "Start Time" "calcTimeField" 1 33 3
+"ASI" "finishing" "" "Total Time" "calcTimeField" 1 125 10
+"ASI" "jobByResource" "" "Board" "userField03" 2 81 11
+"ASI" "jobByResource" "" "Board Name" "userField04" 2 97 0
+"ASI" "jobByResource" "" "Color" "userField14" 0 0 21
+"ASI" "jobByResource" "" "Customer" "userField01" 1 81 10
+"ASI" "jobByResource" "" "Customer Name" "userField02" 1 97 0
+"ASI" "jobByResource" "" "Depth" "userField12" 3 71 19
+"ASI" "jobByResource" "" "Die" "userField05" 2 128 12
+"ASI" "jobByResource" "" "Downtime" "calcTimeField" 2 59 0
+"ASI" "jobByResource" "" "Due Date" "dueDate" 1 48 8
+"ASI" "jobByResource" "" "Due Time" "calcTimeField" 2 48 9
+"ASI" "jobByResource" "" "End Date" "endDate" 1 37 6
+"ASI" "jobByResource" "" "End Time" "calcTimeField" 2 37 7
+"ASI" "jobByResource" "" "FG Item" "userField08" 3 81 15
+"ASI" "jobByResource" "" "Item Name" "userField09" 3 97 16
+"ASI" "jobByResource" "" "Job ID" "job" 1 5 2
+"ASI" "jobByResource" "" "Job Time" "calcTimeField" 1 59 0
+"ASI" "jobByResource" "" "Length" "userField10" 1 71 17
+"ASI" "jobByResource" "" "Plate" "userField06" 1 128 13
+"ASI" "jobByResource" "" "PO" "userField07" 3 137 14
+"ASI" "jobByResource" "" "PO Due" "userField16" 3 26 0
+"ASI" "jobByResource" "" "Run Qty" "userField15" 3 48 0
+"ASI" "jobByResource" "" "Seq" "jobSequence" 1 1 1
+"ASI" "jobByResource" "" "Start Date" "startDate" 1 26 4
+"ASI" "jobByResource" "" "Start Time" "calcTimeField" 2 26 5
+"ASI" "jobByResource" "" "Status" "status" 2 5 3
+"ASI" "jobByResource" "" "Style" "userField13" 3 128 20
+"ASI" "jobByResource" "" "Total Time" "calcTimeField" 3 59 0
+"ASI" "jobByResource" "" "Vendor" "userField17" 3 37 0
+"ASI" "jobByResource" "" "Width" "userField11" 2 71 18
+"ASI" "printing" "" "Blank" "userField19" 1 38 6
+"ASI" "printing" "" "Caliper" "userField22" 1 103 13
+"ASI" "printing" "" "Category" "userField21" 1 111 12
+"ASI" "printing" "" "Coats" "userField25" 1 131 16
+"ASI" "printing" "" "Customer" "userField01" 1 64 4
+"ASI" "printing" "" "Die" "userField05" 1 87 11
+"ASI" "printing" "" "FG Item" "userField08" 1 44 7
+"ASI" "printing" "" "Form" "userField18" 1 33 5
+"ASI" "printing" "" "Ink-1" "userField41" 1 137 17
+"ASI" "printing" "" "Ink-10" "userField50" 2 221 26
+"ASI" "printing" "" "Ink-2" "userField42" 1 158 18
+"ASI" "printing" "" "Ink-3" "userField43" 1 179 19
+"ASI" "printing" "" "Ink-4" "userField44" 1 200 20
+"ASI" "printing" "" "Ink-5" "userField45" 1 221 21
+"ASI" "printing" "" "Ink-6" "userField46" 2 137 22
+"ASI" "printing" "" "Ink-7" "userField47" 2 158 23
+"ASI" "printing" "" "Ink-8" "userField48" 2 179 24
+"ASI" "printing" "" "Ink-9" "userField49" 2 200 25
+"ASI" "printing" "" "Item Name" "userField09" 2 44 8
+"ASI" "printing" "" "Job ID" "job" 1 1 1
+"ASI" "printing" "" "PO Due" "userField16" 1 120 14
+"ASI" "printing" "" "Sheet Qty" "userField23" 1 75 9
+"ASI" "printing" "" "Start Date" "startDate" 1 22 2
+"ASI" "printing" "" "Start Time" "calcTimeField" 2 22 3
+"ASI" "printing" "" "Total Time" "calcTimeField" 2 75 10
+"ASI" "printing" "" "Vendor" "userField17" 2 120 15
+"ASI" "sheeting" "" "Caliper" "userField22" 1 33 3
+"ASI" "sheeting" "" "Customer" "userField01" 1 22 2
+"ASI" "sheeting" "" "Due Date" "dueDate" 1 62 6
+"ASI" "sheeting" "" "End Date" "endDate" 1 95 9
+"ASI" "sheeting" "" "End Time" "calcTimeField" 1 106 10
+"ASI" "sheeting" "" "Job ID" "job" 1 1 1
+"ASI" "sheeting" "" "PO" "userField07" 1 117 11
+"ASI" "sheeting" "" "Run Qty" "userField15" 1 41 4
+"ASI" "sheeting" "" "Start Date" "startDate" 1 73 7
+"ASI" "sheeting" "" "Start Time" "calcTimeField" 1 84 8
+"ASI" "sheeting" "" "Total Time" "calcTimeField" 1 50 5
+"ASI" "status" "" "Customer" "userField01" 1 12 2
+"ASI" "status" "" "Customer Name" "userField02" 1 23 3
+"ASI" "status" "" "Due Date" "dueDate" 1 1 1
+"ASI" "status" "" "Job ID" "job" 1 54 4
+"ASI" "status" "" "Resource" "resource" 1 75 5
+"ASI" "status" "" "Status-1" "jobStatus[1]" 1 89 7
+"ASI" "status" "" "Status-10" "jobStatus[10]" 1 170 16
+"ASI" "status" "" "Status-11" "jobStatus[11]" 1 180 17
+"ASI" "status" "" "Status-12" "jobStatus[12]" 1 190 18
+"ASI" "status" "" "Status-13" "jobStatus[13]" 1 200 19
+"ASI" "status" "" "Status-14" "jobStatus[14]" 1 210 20
+"ASI" "status" "" "Status-2" "jobStatus[2]" 1 98 8
+"ASI" "status" "" "Status-3" "jobStatus[3]" 1 107 9
+"ASI" "status" "" "Status-4" "jobStatus[4]" 1 116 10
+"ASI" "status" "" "Status-5" "jobStatus[5]" 1 125 11
+"ASI" "status" "" "Status-6" "jobStatus[6]" 1 134 12
+"ASI" "status" "" "Status-7" "jobStatus[7]" 1 143 13
+"ASI" "status" "" "Status-8" "jobStatus[8]" 1 152 14
+"ASI" "status" "" "Status-9" "jobStatus[9]" 1 161 15
+"ASI" "status" "" "Type" "jobType" 1 84 6

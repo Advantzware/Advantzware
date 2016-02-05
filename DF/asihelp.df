@@ -1,0 +1,729 @@
+ADD TABLE "help-msg"
+  AREA "Schema Area"
+  DESCRIPTION "On-line application help message text file."
+  DUMP-NAME "help-msg"
+
+ADD FIELD "MSG-NUMBER" OF "help-msg" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "MESSAGE NUMBER"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Message Id Number."
+  ORDER 60
+
+ADD FIELD "MSG-LINE" OF "help-msg" AS integer 
+  FORMAT ">>>9"
+  INITIAL "1"
+  LABEL "MESSAGE LINE NUMBER"
+  POSITION 3
+  MAX-WIDTH 4
+  HELP "Message Line Number."
+  ORDER 70
+
+ADD FIELD "MSG-TXT" OF "help-msg" AS character 
+  FORMAT "x(76)"
+  INITIAL ""
+  LABEL "MESSAGE TEXT"
+  POSITION 4
+  MAX-WIDTH 152
+  HELP "Message Text."
+  ORDER 80
+
+ADD INDEX "HELP-MESS" ON "help-msg" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "MSG-NUMBER" ASCENDING 
+  INDEX-FIELD "MSG-LINE" ASCENDING 
+
+ADD TABLE "hlp-head"
+  AREA "Schema Area"
+  DESCRIPTION "On-line application help message header file."
+  DUMP-NAME "hlp-head"
+
+ADD FIELD "MSG-NUM" OF "hlp-head" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "MESSAGE NUMBER"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Unique Message Control Number."
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "FLD-NAME" OF "hlp-head" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "FIELD NAME"
+  POSITION 3
+  MAX-WIDTH 50
+  HELP "Help On Field Name."
+  ORDER 20
+
+ADD FIELD "FIL-NAME" OF "hlp-head" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "FILE NAME"
+  POSITION 4
+  MAX-WIDTH 30
+  ORDER 30
+
+ADD FIELD "DB-NAME" OF "hlp-head" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "DATABASE NAME"
+  POSITION 5
+  MAX-WIDTH 40
+  HELP "Database Name Field Is Found In."
+  ORDER 40
+
+ADD FIELD "LANGUAGE" OF "hlp-head" AS character 
+  FORMAT "x(2)"
+  INITIAL ""
+  LABEL "LANGUAGE"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "The Language The Text Is In."
+  ORDER 50
+
+ADD FIELD "FRM-NAME" OF "hlp-head" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "FRAME NAME"
+  POSITION 7
+  MAX-WIDTH 30
+  HELP "The Frame Name The Field Is In."
+  ORDER 60
+
+ADD FIELD "USR-TXT" OF "hlp-head" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "USER PROVIDED TEXT"
+  POSITION 8
+  MAX-WIDTH 1
+  HELP "Is User Provided Text Available For Field/File?"
+  ORDER 70
+
+ADD FIELD "FIELD-ORD" OF "hlp-head" AS integer 
+  FORMAT ">>9"
+  INITIAL "1"
+  LABEL "FIELD ORDER"
+  POSITION 9
+  MAX-WIDTH 4
+  HELP "The Order The Field Appears Within A Frame."
+  ORDER 80
+
+ADD FIELD "FRM-TITLE" OF "hlp-head" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "FRAME TITLE"
+  POSITION 10
+  MAX-WIDTH 40
+  HELP "Help Message Frame Title."
+  ORDER 90
+
+ADD FIELD "help-txt" OF "hlp-head" AS character 
+  FORMAT "x(10000)"
+  INITIAL ""
+  LABEL "Contents"
+  POSITION 11
+  MAX-WIDTH 20000
+  ORDER 100
+
+ADD FIELD "Updated" OF "hlp-head" AS logical 
+  DESCRIPTION "Is Help information updated by User?"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Updated"
+  POSITION 12
+  MAX-WIDTH 1
+  ORDER 110
+
+ADD INDEX "MESS-HEAD" ON "hlp-head" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "FLD-NAME" ASCENDING 
+  INDEX-FIELD "FIL-NAME" ASCENDING 
+  INDEX-FIELD "DB-NAME" ASCENDING 
+  INDEX-FIELD "FRM-NAME" ASCENDING 
+  INDEX-FIELD "LANGUAGE" ASCENDING 
+
+ADD INDEX "FLD-ORD" ON "hlp-head" 
+  AREA "Schema Area"
+  INDEX-FIELD "DB-NAME" ASCENDING 
+  INDEX-FIELD "FRM-NAME" ASCENDING 
+  INDEX-FIELD "USR-TXT" ASCENDING 
+  INDEX-FIELD "FIELD-ORD" ASCENDING 
+
+ADD INDEX "MESS-NUM" ON "hlp-head" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "MSG-NUM" ASCENDING 
+  INDEX-FIELD "USR-TXT" ASCENDING 
+
+ADD TABLE "XMLLayouts"
+  AREA "Schema Area"
+  DUMP-NAME "xmllayouts"
+
+ADD FIELD "ProjectId" OF "XMLLayouts" AS decimal 
+  FORMAT ">>>>>>>>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 15
+  DECIMALS 0
+  ORDER 10
+
+ADD FIELD "ProjectCode" OF "XMLLayouts" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 60
+  ORDER 30
+
+ADD FIELD "LayoutsId" OF "XMLLayouts" AS decimal 
+  FORMAT ">>>>>>>>>9"
+  INITIAL "0"
+  POSITION 4
+  MAX-WIDTH 15
+  DECIMALS 0
+  ORDER 40
+
+ADD INDEX "id" ON "XMLLayouts" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "ProjectId" ASCENDING 
+  INDEX-FIELD "ProjectCode" ASCENDING 
+  INDEX-FIELD "LayoutsId" ASCENDING 
+
+ADD TABLE "XMLLayoutsForm"
+  AREA "Schema Area"
+  DUMP-NAME "xmllayoutsform"
+
+ADD FIELD "ProjectCode" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 60
+  ORDER 30
+
+ADD FIELD "LayoutsId" OF "XMLLayoutsForm" AS decimal 
+  FORMAT ">>>>>>>>>9"
+  INITIAL "0"
+  POSITION 3
+  MAX-WIDTH 15
+  DECIMALS 0
+  ORDER 40
+
+ADD FIELD "formId" OF "XMLLayoutsForm" AS decimal 
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  POSITION 4
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 50
+
+ADD FIELD "Name" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 60
+  ORDER 60
+
+ADD FIELD "layerStatus" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 16
+  ORDER 70
+
+ADD FIELD "layerVersion" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "layoutNumber" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 16
+  ORDER 90
+
+ADD FIELD "fluteGrainDirection" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 100
+
+ADD FIELD "machineDirection" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 110
+
+ADD FIELD "NumberUp" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 16
+  ORDER 120
+
+ADD FIELD "GrossStockSheetX" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 16
+  ORDER 130
+
+ADD FIELD "grossStockSheetY" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 13
+  MAX-WIDTH 16
+  ORDER 140
+
+ADD FIELD "netFittedSheetX" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 14
+  MAX-WIDTH 16
+  ORDER 150
+
+ADD FIELD "newFittedsheetY" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 15
+  MAX-WIDTH 16
+  ORDER 160
+
+ADD FIELD "dieKnifeToKnifeX" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 16
+  MAX-WIDTH 16
+  ORDER 170
+
+ADD FIELD "dieKnifeToKnifeY" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 17
+  MAX-WIDTH 16
+  ORDER 180
+
+ADD FIELD "totalInches" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 18
+  MAX-WIDTH 16
+  ORDER 190
+
+ADD FIELD "imageName" OF "XMLLayoutsForm" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  POSITION 19
+  MAX-WIDTH 100
+  ORDER 200
+
+ADD FIELD "ProjectId" OF "XMLLayoutsForm" AS decimal 
+  FORMAT ">>>>>>>>>9"
+  INITIAL "0"
+  POSITION 20
+  MAX-WIDTH 15
+  DECIMALS 0
+  ORDER 210
+
+ADD INDEX "id" ON "XMLLayoutsForm" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "ProjectId" ASCENDING 
+  INDEX-FIELD "ProjectCode" ASCENDING 
+  INDEX-FIELD "LayoutsId" ASCENDING 
+  INDEX-FIELD "formId" ASCENDING 
+
+ADD TABLE "XMLLayoutsFormDesign"
+  AREA "Schema Area"
+  DUMP-NAME "xmllayoutsformdesign"
+
+ADD FIELD "ProjectCode" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 60
+  ORDER 30
+
+ADD FIELD "LayoutsId" OF "XMLLayoutsFormDesign" AS decimal 
+  FORMAT ">>>>>>>>>9"
+  INITIAL "0"
+  POSITION 3
+  MAX-WIDTH 15
+  DECIMALS 0
+  ORDER 40
+
+ADD FIELD "formId" OF "XMLLayoutsFormDesign" AS decimal 
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  POSITION 4
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 50
+
+ADD FIELD "designId" OF "XMLLayoutsFormDesign" AS decimal 
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  POSITION 5
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 60
+
+ADD FIELD "layoutName" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 60
+  ORDER 70
+
+ADD FIELD "oneUpLayerName" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "oneUpLayerStatus" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 16
+  ORDER 90
+
+ADD FIELD "oneUpLayerVersion" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 100
+
+ADD FIELD "oneUpLayerDescription" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 110
+
+ADD FIELD "oneUpLayerMaterialName" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 16
+  ORDER 120
+
+ADD FIELD "oneUpFluteGrainDirection" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 16
+  ORDER 130
+
+ADD FIELD "oneUpmachineDirection" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 13
+  MAX-WIDTH 16
+  ORDER 140
+
+ADD FIELD "oneUpDesignNumber" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 14
+  MAX-WIDTH 16
+  ORDER 150
+
+ADD FIELD "oneUpItemDescription" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 15
+  MAX-WIDTH 16
+  ORDER 160
+
+ADD FIELD "oneUpBoxLength" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 16
+  MAX-WIDTH 16
+  ORDER 170
+
+ADD FIELD "oneUpBoxWidth" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 17
+  MAX-WIDTH 16
+  ORDER 180
+
+ADD FIELD "oneUpBoxDepth" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 18
+  MAX-WIDTH 16
+  ORDER 190
+
+ADD FIELD "oneUpBoxStyle" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 19
+  MAX-WIDTH 16
+  ORDER 200
+
+ADD FIELD "oneUpBoxJoint" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 20
+  MAX-WIDTH 16
+  ORDER 210
+
+ADD FIELD "oneUpBoardGrade" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 21
+  MAX-WIDTH 16
+  ORDER 220
+
+ADD FIELD "oneUpBlankX" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 22
+  MAX-WIDTH 16
+  ORDER 230
+
+ADD FIELD "oneUpBlankY" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 23
+  MAX-WIDTH 16
+  ORDER 240
+
+ADD FIELD "oneUpComponentSetNumber" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 24
+  MAX-WIDTH 16
+  ORDER 250
+
+ADD FIELD "oneUpQtyPerSet" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 25
+  MAX-WIDTH 16
+  ORDER 260
+
+ADD FIELD "oneUpNumberUpX" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 26
+  MAX-WIDTH 16
+  ORDER 270
+
+ADD FIELD "oneUpNumberUpY" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 27
+  MAX-WIDTH 16
+  ORDER 280
+
+ADD FIELD "ProjectId" OF "XMLLayoutsFormDesign" AS decimal 
+  FORMAT ">>>>>>>>>9"
+  INITIAL "0"
+  POSITION 28
+  MAX-WIDTH 15
+  DECIMALS 0
+  ORDER 290
+
+ADD FIELD "OneUpCustomerPartNumber" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  POSITION 29
+  MAX-WIDTH 30
+  ORDER 300
+
+ADD FIELD "OneUpImageName" OF "XMLLayoutsFormDesign" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 30
+  MAX-WIDTH 60
+  ORDER 310
+
+ADD INDEX "id" ON "XMLLayoutsFormDesign" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "ProjectId" ASCENDING 
+  INDEX-FIELD "ProjectCode" ASCENDING 
+  INDEX-FIELD "LayoutsId" ASCENDING 
+  INDEX-FIELD "formId" ASCENDING 
+  INDEX-FIELD "designId" ASCENDING 
+
+ADD TABLE "XMLProject"
+  AREA "Schema Area"
+  DUMP-NAME "xmlproject"
+
+ADD FIELD "ProjectId" OF "XMLProject" AS decimal 
+  FORMAT ">>>>>>>>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 15
+  DECIMALS 0
+  ORDER 10
+
+ADD FIELD "CreatedDate" OF "XMLProject" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "CreatedTime" OF "XMLProject" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "Project_Source" OF "XMLProject" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 100
+  ORDER 40
+
+ADD FIELD "CreatedBy" OF "XMLProject" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 60
+  ORDER 50
+
+ADD INDEX "ProjectId" ON "XMLProject" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "ProjectId" ASCENDING 
+
+ADD TABLE "XMLProjectInfo"
+  AREA "Schema Area"
+  DUMP-NAME "xmlprojectinfo"
+
+ADD FIELD "ProjectId" OF "XMLProjectInfo" AS decimal 
+  FORMAT ">>>>>>>>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 15
+  DECIMALS 0
+  ORDER 10
+
+ADD FIELD "ProjectName" OF "XMLProjectInfo" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 60
+  ORDER 20
+
+ADD FIELD "ProjectCode" OF "XMLProjectInfo" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 60
+  ORDER 30
+
+ADD FIELD "ProjectRevision" OF "XMLProjectInfo" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 60
+  ORDER 40
+
+ADD FIELD "ProjectDesc" OF "XMLProjectInfo" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 60
+  ORDER 50
+
+ADD FIELD "ProjectSetPartNumber" OF "XMLProjectInfo" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 30
+  ORDER 60
+
+ADD FIELD "ProjectCustomer" OF "XMLProjectInfo" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 60
+  ORDER 70
+
+ADD FIELD "ProjectCustomerContactName" OF "XMLProjectInfo" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 60
+  ORDER 80
+
+ADD FIELD "ProjectMarketCategory" OF "XMLProjectInfo" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 60
+  ORDER 90
+
+ADD FIELD "ProjectCreatedDate" OF "XMLProjectInfo" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 40
+  ORDER 100
+
+ADD FIELD "ProjectCreatedBy" OF "XMLProjectInfo" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 60
+  ORDER 110
+
+ADD FIELD "ProjectModifiedDate" OF "XMLProjectInfo" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 13
+  MAX-WIDTH 40
+  ORDER 120
+
+ADD FIELD "ProjectModifiedBy" OF "XMLProjectInfo" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 14
+  MAX-WIDTH 60
+  ORDER 130
+
+ADD FIELD "ProjectFile" OF "XMLProjectInfo" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  POSITION 15
+  MAX-WIDTH 100
+  ORDER 140
+
+ADD INDEX "id" ON "XMLProjectInfo" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "ProjectId" ASCENDING 
+
+ADD INDEX "Code" ON "XMLProjectInfo" 
+  AREA "Schema Area"
+  INDEX-FIELD "ProjectCode" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000015060
