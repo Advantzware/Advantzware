@@ -27,6 +27,7 @@
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Framework.* FROM PROPATH .
+USING Consultingwerk.WindowIntegrationKit.Forms.WinKitForms FROM PROPATH.
 
 DEFINE VARIABLE oForm      AS Advantzware.WinKit.Samples.SampleMDIContainer                 NO-UNDO . 
 DEFINE VARIABLE oLocalizer AS Consultingwerk.Windows.Localization.ILocalizer                 NO-UNDO . 
@@ -44,6 +45,15 @@ oLoader:Load ("Advantzware/WinKit/services.xml":U) .
 
 DELETE OBJECT oLoader .
 
+
+
+
+/* Mike Fechner, Consultingwerk Ltd. 06.02.2016
+   For now - now MDI Forms */
+WinKitForms:DefaultMakeMdiChild = FALSE . 
+
+
+
 oForm = NEW Advantzware.WinKit.Samples.SampleMDIContainer () .
 
 oF10KeyHandler = NEW Consultingwerk.Support.F10KeyMessageFilter () .
@@ -54,7 +64,7 @@ System.Windows.Forms.Application:AddMessageFilter (oF10KeyHandler ) .
 /*WAIT-FOR System.Windows.Forms.Application:RUN (oForm) .*/
 oForm:Show () . 
 
-Consultingwerk.Design.WinKit.DesignManager:Close() .
+/*Consultingwerk.Design.WinKit.DesignManager:Close() .*/
 
 CATCH fioex AS System.IO.FileNotFoundException:
     DEFINE VARIABLE cStack AS CHARACTER NO-UNDO.
