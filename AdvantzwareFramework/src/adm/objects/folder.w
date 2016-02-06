@@ -1,5 +1,8 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r11 GUI
 &ANALYZE-RESUME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS Procedure
+USING Consultingwerk.WindowIntegrationKit.Forms.* FROM PROPATH.
+&ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*********************************************************************
@@ -520,6 +523,28 @@ PROCEDURE initialize-folder :
            (INPUT THIS-PROCEDURE, INPUT 'CONTAINER-SOURCE':U, OUTPUT char-hdl).
         ASSIGN container-hdl = WIDGET-HANDLE(char-hdl).
     END.
+      
+      
+      
+    /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
+       Create WinKit Tabs */
+    DEFINE VARIABLE oForm AS IEmbeddedWindowForm NO-UNDO . 
+    DEFINE VARIABLE iPage AS INTEGER             NO-UNDO .
+    
+    oForm = DYNAMIC-FUNCTION ("getEmbeddedWindowForm" IN container-hdl)  .   
+      
+
+    DO iPage = 1 TO NUM-ENTRIES (folder-labels, "|":U):  
+      
+        CAST (oForm, IEmbeddedWindowTabFolderForm):CreateTab (ENTRY (iPage, folder-labels, "|":U),
+                                                              iPage) .
+    END.
+      
+    CAST (oForm, IEmbeddedWindowTabFolderForm):AssignTabLabels (folder-labels, "|":U) .
+      
+      
+      
+      
       
     IF VALID-HANDLE(up-image) THEN DO:  /* Rebuilding an existing folder */
        temp-hdl = FRAME {&FRAME-NAME}:HANDLE.
