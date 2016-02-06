@@ -27,6 +27,7 @@
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 USING Consultingwerk.Framework.* FROM PROPATH .
+USING Consultingwerk.WindowIntegrationKit.Forms.WinKitForms FROM PROPATH.
 
 DEFINE VARIABLE oForm      AS Advantzware.WinKit.Samples.SampleMDIContainer                 NO-UNDO . 
 DEFINE VARIABLE oLocalizer AS Consultingwerk.Windows.Localization.ILocalizer                 NO-UNDO . 
@@ -43,6 +44,15 @@ oLoader = NEW ServiceLoader () .
 oLoader:Load ("Advantzware/WinKit/services.xml":U) .
 
 DELETE OBJECT oLoader .
+
+
+
+
+/* Mike Fechner, Consultingwerk Ltd. 06.02.2016
+   For now - now MDI Forms */
+WinKitForms:DefaultMakeMdiChild = FALSE . 
+
+
 
 oForm = NEW Advantzware.WinKit.Samples.SampleMDIContainer () .
 
