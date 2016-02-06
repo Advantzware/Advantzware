@@ -37,7 +37,8 @@ USING System.Windows.Forms.*                       FROM ASSEMBLY .
 
 CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm 
     INHERITS EmbeddedWindowTabFolderFormDesigner 
-    IMPLEMENTS IEmbeddedWindowForm, IFormWithUltraToolbarsManager, IEmbeddedWindowTabFolderForm
+    IMPLEMENTS IEmbeddedWindowForm, IFormWithUltraToolbarsManager, IEmbeddedWindowTabFolderForm,
+               INotes
         USE-WIDGET-POOL :
 
     DEFINE VARIABLE WinContainer AS Progress.Windows.WindowContainer NO-UNDO.
@@ -63,6 +64,79 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
         INDEX PageNum IS UNIQUE PRIMARY PageNum . 
     
     DEFINE VARIABLE oCustomizer AS Consultingwerk.WindowIntegrationKit.ITabFolderCustomizer NO-UNDO .
+      
+    // ******************************************************
+    // Begin Notes etc. implementation
+    // ******************************************************
+             
+    /*------------------------------------------------------------------------------
+        Purpose: 
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY HasAttachments AS LOGICAL NO-UNDO 
+    GET.
+    SET (arg AS LOGICAL):
+        ultraStatusBar1:Panels ["Attachments"]:Checked = arg . 
+    
+        THIS-OBJECT:HasAttachments = arg .
+    END SET . 
+
+    /*------------------------------------------------------------------------------
+        Purpose: 
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY HasCustomFields AS LOGICAL NO-UNDO 
+    GET.
+    SET (arg AS LOGICAL):
+        ultraStatusBar1:Panels ["CustomFields"]:Checked = arg . 
+    
+        THIS-OBJECT:HasCustomFields = arg .
+    END SET . 
+
+    /*------------------------------------------------------------------------------
+        Purpose: 
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY HasNotes AS LOGICAL NO-UNDO 
+    GET.
+    SET (arg AS LOGICAL):
+        ultraStatusBar1:Panels ["Notes"]:Checked = arg . 
+    
+        THIS-OBJECT:HasNotes = arg .
+    END SET . 
+    
+    /*------------------------------------------------------------------------------
+        Purpose: 
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID DisableNotes ():
+        
+        ASSIGN ultraStatusBar1:Panels ["Attachments"]:Enabled  = FALSE
+               ultraStatusBar1:Panels ["CustomFields"]:Enabled = FALSE  
+               ultraStatusBar1:Panels ["Notes"]:Enabled        = FALSE
+               .
+        
+    END METHOD . 
+
+    /*------------------------------------------------------------------------------
+        Purpose: 
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC VOID EnableNotes ():
+
+        ASSIGN ultraStatusBar1:Panels ["Attachments"]:Enabled  = TRUE
+               ultraStatusBar1:Panels ["CustomFields"]:Enabled = TRUE  
+               ultraStatusBar1:Panels ["Notes"]:Enabled        = TRUE
+               .
+        
+    END METHOD .
+    
+    // ******************************************************
+    // Begin Notes etc. implementation
+    // ******************************************************
+    
+    
+    
     
     /*------------------------------------------------------------------------------
         Purpose: Constructor of the EmbeddedWindowTabFolderForm class                                                                      
@@ -395,9 +469,11 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
         THIS-OBJECT:WindowContainers:Add (WinContainer) .
         
         THIS-OBJECT:ClientSize = NEW Size (phWindow:WIDTH-PIXELS + (THIS-OBJECT:ClientSize:Width - 
-                                                                    THIS-OBJECT:splitContainer1:Panel1:ClientSize:Width), 
+                                                                    0 //THIS-OBJECT:splitContainer1:Panel1:ClientSize:Width
+                                                                    ), 
                                            phWindow:HEIGHT-PIXELS +  (THIS-OBJECT:ClientSize:Height - 
-                                                                      THIS-OBJECT:splitContainer1:Panel1:ClientSize:Height)).
+                                                                      0 // THIS-OBJECT:splitContainer1:Panel1:ClientSize:Height
+                                                                      )).
         WinContainer:Size = NEW Size(phWindow:WIDTH-PIXELS, phWindow:HEIGHT-PIXELS).
         WinContainer:MinimumSize = NEW Size(phWindow:WIDTH-PIXELS, phWindow:HEIGHT-PIXELS).
         
@@ -459,8 +535,8 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
         WinContainer:Parent = THIS-OBJECT:ClientArea.
 
         WinContainer:Size = NEW System.Drawing.Size (
-                MAX(THIS-OBJECT:splitContainer1:Panel1:Width + deltaCol, 0),
-                MAX(THIS-OBJECT:splitContainer1:Panel1:Height + deltaRow, 0)).
+                MAX(THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Width + deltaCol, 0),
+                MAX(THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Height + deltaRow, 0)).
         
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Dock = System.Windows.Forms.DockStyle:Fill.
 
@@ -839,8 +915,8 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID SetSplitterFixed ():
         
-        THIS-OBJECT:splitContainer1:IsSplitterFixed = TRUE.
-        THIS-OBJECT:splitContainer1:SplitterWidth = 1.
+/*        THIS-OBJECT:splitContainer1:IsSplitterFixed = TRUE.*/
+/*        THIS-OBJECT:splitContainer1:SplitterWidth = 1.     */
         
     END METHOD .
 
@@ -1044,7 +1120,7 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
         IF VALID-OBJECT (THIS-OBJECT:ClientArea) THEN 
            RETURN THIS-OBJECT:ClientArea .
         ELSE  
-            RETURN THIS-OBJECT:splitContainer1:Panel1 .     
+            RETURN THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel .     
     END GET.
     PROTECTED SET (arg AS System.Windows.Forms.Control):
         THIS-OBJECT:ClientArea = arg . 
@@ -1056,10 +1132,10 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
     ------------------------------------------------------------------------------*/
     DEFINE PUBLIC PROPERTY SplitterDistance AS INTEGER NO-UNDO 
     GET:
-        RETURN splitContainer1:SplitterDistance . 
+/*        RETURN splitContainer1:SplitterDistance .*/
     END GET.
     SET(INPUT arg AS INTEGER):
-        ASSIGN splitContainer1:SplitterDistance = arg .     
+/*        ASSIGN splitContainer1:SplitterDistance = arg .*/
     END SET.
      
     /*------------------------------------------------------------------------------

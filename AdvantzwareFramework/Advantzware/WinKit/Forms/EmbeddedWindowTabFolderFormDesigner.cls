@@ -30,7 +30,7 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
     DEFINE PRIVATE VARIABLE components AS System.ComponentModel.IContainer.
 
 
-    DEFINE PROTECTED VARIABLE splitContainer1 AS System.Windows.Forms.SplitContainer NO-UNDO.
+    DEFINE PROTECTED VARIABLE ultraStatusBar1 AS Infragistics.Win.UltraWinStatusBar.UltraStatusBar NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraTabSharedControlsPage1 AS Infragistics.Win.UltraWinTabControl.UltraTabSharedControlsPage NO-UNDO.
     DEFINE PROTECTED VARIABLE ultraTabControl1 AS Infragistics.Win.UltraWinTabControl.UltraTabControl NO-UNDO.
     DEFINE PROTECTED VARIABLE ultraToolbarsManager1 AS Infragistics.Win.UltraWinToolbars.UltraToolbarsManager NO-UNDO.
@@ -71,22 +71,41 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         @VisualDesigner.FormMember (NeedsInitialize="true").
         DEFINE VARIABLE ribbonTab1 AS Infragistics.Win.UltraWinToolbars.RibbonTab NO-UNDO.
         ribbonTab1 = NEW Infragistics.Win.UltraWinToolbars.RibbonTab("ribbon1").
+        @VisualDesigner.FormMember (NeedsInitialize="true").
+        DEFINE VARIABLE stateButtonTool1 AS Infragistics.Win.UltraWinToolbars.StateButtonTool NO-UNDO.
+        stateButtonTool1 = NEW Infragistics.Win.UltraWinToolbars.StateButtonTool("Maintain Notes", "").
+        @VisualDesigner.FormMember (NeedsInitialize="true").
+        DEFINE VARIABLE stateButtonTool2 AS Infragistics.Win.UltraWinToolbars.StateButtonTool NO-UNDO.
+        stateButtonTool2 = NEW Infragistics.Win.UltraWinToolbars.StateButtonTool("Maintain Notes", "").
+        @VisualDesigner.FormMember (NeedsInitialize="true").
+        DEFINE VARIABLE ultraStatusPanel1 AS Infragistics.Win.UltraWinStatusBar.UltraStatusPanel NO-UNDO.
+        ultraStatusPanel1 = NEW Infragistics.Win.UltraWinStatusBar.UltraStatusPanel().
+        @VisualDesigner.FormMember (NeedsInitialize="true").
+        DEFINE VARIABLE ultraStatusPanel2 AS Infragistics.Win.UltraWinStatusBar.UltraStatusPanel NO-UNDO.
+        ultraStatusPanel2 = NEW Infragistics.Win.UltraWinStatusBar.UltraStatusPanel().
+        @VisualDesigner.FormMember (NeedsInitialize="true").
+        DEFINE VARIABLE ultraStatusPanel3 AS Infragistics.Win.UltraWinStatusBar.UltraStatusPanel NO-UNDO.
+        ultraStatusPanel3 = NEW Infragistics.Win.UltraWinStatusBar.UltraStatusPanel().
+        @VisualDesigner.FormMember (NeedsInitialize="true").
+        DEFINE VARIABLE ultraStatusPanel4 AS Infragistics.Win.UltraWinStatusBar.UltraStatusPanel NO-UNDO.
+        ultraStatusPanel4 = NEW Infragistics.Win.UltraWinStatusBar.UltraStatusPanel().
+        @VisualDesigner.FormMember (NeedsInitialize="true").
+        DEFINE VARIABLE ultraStatusPanel5 AS Infragistics.Win.UltraWinStatusBar.UltraStatusPanel NO-UNDO.
+        ultraStatusPanel5 = NEW Infragistics.Win.UltraWinStatusBar.UltraStatusPanel().
         THIS-OBJECT:ultraToolbarsManager1 = NEW Infragistics.Win.UltraWinToolbars.UltraToolbarsManager(THIS-OBJECT:components).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel = NEW System.Windows.Forms.Panel().
-        THIS-OBJECT:splitContainer1 = NEW System.Windows.Forms.SplitContainer().
         THIS-OBJECT:ultraTabControl1 = NEW Infragistics.Win.UltraWinTabControl.UltraTabControl().
         THIS-OBJECT:ultraTabSharedControlsPage1 = NEW Infragistics.Win.UltraWinTabControl.UltraTabSharedControlsPage().
+        THIS-OBJECT:ultraStatusBar1 = NEW Infragistics.Win.UltraWinStatusBar.UltraStatusBar().
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Left = NEW Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea().
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Right = NEW Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea().
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Top = NEW Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea().
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Bottom = NEW Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea().
         CAST(THIS-OBJECT:ultraToolbarsManager1, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:SuspendLayout().
-        CAST(THIS-OBJECT:splitContainer1, System.ComponentModel.ISupportInitialize):BeginInit().
-        THIS-OBJECT:splitContainer1:Panel2:SuspendLayout().
-        THIS-OBJECT:splitContainer1:SuspendLayout().
         CAST(THIS-OBJECT:ultraTabControl1, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:ultraTabControl1:SuspendLayout().
+        CAST(THIS-OBJECT:ultraStatusBar1, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:SuspendLayout().
         /*  */
         /* ultraToolbarsManager1 */
@@ -99,33 +118,30 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         DEFINE VARIABLE arrayvar0 AS Infragistics.Win.UltraWinToolbars.RibbonTab EXTENT 1 NO-UNDO.
         arrayvar0[1] = ribbonTab1.
         THIS-OBJECT:ultraToolbarsManager1:Ribbon:NonInheritedRibbonTabs:AddRange(arrayvar0).
+        @VisualDesigner.FormMember (NeedsInitialize="false", InitializeArray="true").
+        DEFINE VARIABLE arrayvar1 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 1 NO-UNDO.
+        arrayvar1[1] = stateButtonTool1.
+        THIS-OBJECT:ultraToolbarsManager1:Ribbon:TabItemToolbar:NonInheritedTools:AddRange(arrayvar1).
         THIS-OBJECT:ultraToolbarsManager1:Ribbon:Visible = TRUE.
+        THIS-OBJECT:ultraToolbarsManager1:ShowFullMenusDelay = 500.
         THIS-OBJECT:ultraToolbarsManager1:Style = Infragistics.Win.UltraWinToolbars.ToolbarStyle:Office2007.
+        stateButtonTool2:SharedPropsInternal:Caption = "Maintain Notes".
+        stateButtonTool2:SharedPropsInternal:DisplayStyle = Infragistics.Win.UltraWinToolbars.ToolDisplayStyle:TextOnlyAlways.
+        @VisualDesigner.FormMember (NeedsInitialize="false", InitializeArray="true").
+        DEFINE VARIABLE arrayvar2 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 1 NO-UNDO.
+        arrayvar2[1] = stateButtonTool2.
+        THIS-OBJECT:ultraToolbarsManager1:Tools:AddRange(arrayvar2).
         /*  */
         /* EmbeddedWindowTabFolderFormDesigner_Fill_Panel */
         /*  */
-        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Controls:Add(THIS-OBJECT:splitContainer1).
+        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Controls:Add(THIS-OBJECT:ultraTabControl1).
+        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Controls:Add(THIS-OBJECT:ultraStatusBar1).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Cursor = System.Windows.Forms.Cursors:Default.
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Dock = System.Windows.Forms.DockStyle:Fill.
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Location = NEW System.Drawing.Point(8, 162).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Name = "EmbeddedWindowTabFolderFormDesigner_Fill_Panel".
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Size = NEW System.Drawing.Size(495, 211).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:TabIndex = 0.
-        /*  */
-        /* splitContainer1 */
-        /*  */
-        THIS-OBJECT:splitContainer1:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:splitContainer1:FixedPanel = System.Windows.Forms.FixedPanel:Panel1.
-        THIS-OBJECT:splitContainer1:Location = NEW System.Drawing.Point(0, 0).
-        THIS-OBJECT:splitContainer1:Name = "splitContainer1".
-        THIS-OBJECT:splitContainer1:Orientation = System.Windows.Forms.Orientation:Horizontal.
-        /*  */
-        /* splitContainer1.Panel2 */
-        /*  */
-        THIS-OBJECT:splitContainer1:Panel2:Controls:Add(THIS-OBJECT:ultraTabControl1).
-        THIS-OBJECT:splitContainer1:Size = NEW System.Drawing.Size(495, 211).
-        THIS-OBJECT:splitContainer1:SplitterDistance = 96.
-        THIS-OBJECT:splitContainer1:TabIndex = 6.
         /*  */
         /* ultraTabControl1 */
         /*  */
@@ -140,7 +156,7 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         THIS-OBJECT:ultraTabControl1:SharedControlsPage = THIS-OBJECT:ultraTabSharedControlsPage1.
         THIS-OBJECT:ultraTabControl1:ShowPartialTabs = Infragistics.Win.DefaultableBoolean:True.
         THIS-OBJECT:ultraTabControl1:ShowTabListButton = Infragistics.Win.DefaultableBoolean:True.
-        THIS-OBJECT:ultraTabControl1:Size = NEW System.Drawing.Size(495, 111).
+        THIS-OBJECT:ultraTabControl1:Size = NEW System.Drawing.Size(495, 188).
         THIS-OBJECT:ultraTabControl1:TabIndex = 5.
         THIS-OBJECT:ultraTabControl1:TabLayoutStyle = Infragistics.Win.UltraWinTabs.TabLayoutStyle:MultiRowAutoSize.
         THIS-OBJECT:ultraTabControl1:TabOrientation = Infragistics.Win.UltraWinTabs.TabOrientation:TopLeft.
@@ -152,7 +168,39 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         /*  */
         THIS-OBJECT:ultraTabSharedControlsPage1:Location = NEW System.Drawing.Point(1, 20).
         THIS-OBJECT:ultraTabSharedControlsPage1:Name = "ultraTabSharedControlsPage1".
-        THIS-OBJECT:ultraTabSharedControlsPage1:Size = NEW System.Drawing.Size(493, 90).
+        THIS-OBJECT:ultraTabSharedControlsPage1:Size = NEW System.Drawing.Size(493, 167).
+        /*  */
+        /* ultraStatusBar1 */
+        /*  */
+        THIS-OBJECT:ultraStatusBar1:Location = NEW System.Drawing.Point(0, 188).
+        THIS-OBJECT:ultraStatusBar1:Name = "ultraStatusBar1".
+        ultraStatusPanel1:Key = "Notes".
+        ultraStatusPanel1:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Automatic.
+        ultraStatusPanel1:Style = Infragistics.Win.UltraWinStatusBar.PanelStyle:StateButton.
+        ultraStatusPanel1:Text = "Notes".
+        ultraStatusPanel1:WrapText = Infragistics.Win.DefaultableBoolean:False.
+        ultraStatusPanel2:Key = "Attachments".
+        ultraStatusPanel2:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Automatic.
+        ultraStatusPanel2:Style = Infragistics.Win.UltraWinStatusBar.PanelStyle:StateButton.
+        ultraStatusPanel2:Text = "Attachments".
+        ultraStatusPanel3:Key = "CustomFields".
+        ultraStatusPanel3:Style = Infragistics.Win.UltraWinStatusBar.PanelStyle:StateButton.
+        ultraStatusPanel3:Text = "Custom Fields".
+        ultraStatusPanel4:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Spring.
+        ultraStatusPanel5:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Automatic.
+        ultraStatusPanel5:Style = Infragistics.Win.UltraWinStatusBar.PanelStyle:Date.
+        @VisualDesigner.FormMember (NeedsInitialize="false", InitializeArray="true").
+        DEFINE VARIABLE arrayvar3 AS Infragistics.Win.UltraWinStatusBar.UltraStatusPanel EXTENT 5 NO-UNDO.
+        arrayvar3[1] = ultraStatusPanel1.
+        arrayvar3[2] = ultraStatusPanel2.
+        arrayvar3[3] = ultraStatusPanel3.
+        arrayvar3[4] = ultraStatusPanel4.
+        arrayvar3[5] = ultraStatusPanel5.
+        THIS-OBJECT:ultraStatusBar1:Panels:AddRange(arrayvar3).
+        THIS-OBJECT:ultraStatusBar1:Size = NEW System.Drawing.Size(495, 23).
+        THIS-OBJECT:ultraStatusBar1:SizeGripVisible = Infragistics.Win.DefaultableBoolean:True.
+        THIS-OBJECT:ultraStatusBar1:TabIndex = 0.
+        THIS-OBJECT:ultraStatusBar1:ViewStyle = Infragistics.Win.UltraWinStatusBar.ViewStyle:Office2007.
         /*  */
         /* EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Left */
         /*  */
@@ -214,11 +262,9 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         THIS-OBJECT:WindowPositionRegistryKey = "EmbeddedWindowTabFolderFormDesigner".
         CAST(THIS-OBJECT:ultraToolbarsManager1, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:ResumeLayout(FALSE).
-        THIS-OBJECT:splitContainer1:Panel2:ResumeLayout(FALSE).
-        CAST(THIS-OBJECT:splitContainer1, System.ComponentModel.ISupportInitialize):EndInit().
-        THIS-OBJECT:splitContainer1:ResumeLayout(FALSE).
         CAST(THIS-OBJECT:ultraTabControl1, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ultraTabControl1:ResumeLayout(FALSE).
+        CAST(THIS-OBJECT:ultraStatusBar1, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ResumeLayout(FALSE).
         CATCH e AS Progress.Lang.Error:
             UNDO, THROW e.
