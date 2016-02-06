@@ -5,6 +5,7 @@
 <propathentry env="all" kind="dir" path="@{ROOT}\addon" platform="All"/>
 <propathentry env="all" kind="folder" path="\AdvantzwareFramework" platform="All"/>
 <propathentry env="all" kind="folder" path="\AdvantzwareFramework\src" platform="All"/>
+<propathentry env="all" kind="folder" path="\SmartComponentLibrary" platform="All"/>
 <propathentry env="all" kind="dir" path="@{ROOT}\util\DataDigger" platform="All"/>
 <propathentry env="all" kind="folder" path="\Resources" platform="All"/>
 <propathentry env="gui" kind="con" path="com.openedge.pdt.text.GUI_LIBRARIES" platform="All"/>
