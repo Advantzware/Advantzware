@@ -1,0 +1,22 @@
+/*------------------------------------------------------------------------
+    File        : List&1
+    Purpose     : 
+    Syntax      : 
+    Description : 
+    Author(s)   : @USER@
+    Created     : &3 
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING &2.* FROM PROPATH .
+USING Progress.Lang.* FROM PROPATH .
+
+@FILEANNOTATION@
+
+CLASS &2.List&1 
+    INHERITS List&1_Generated: 
+
+
+END CLASS.

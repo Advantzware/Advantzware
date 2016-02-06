@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<dsMenuStyle xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartMenuStyle>
+    <MenuStyleGuid>95483a0e-0bb5-5ea3-e311-6e051ebb1c48</MenuStyleGuid>
+    <MenuStyleCode>RIBBON</MenuStyleCode>
+    <MenuStyleDescription>Ribbon Tab</MenuStyleDescription>
+  </eSmartMenuStyle>
+  <eSmartMenuStyle>
+    <MenuStyleGuid>95483a0e-0bb5-5ea3-e311-6e0581422c32</MenuStyleGuid>
+    <MenuStyleCode>APPLM</MenuStyleCode>
+    <MenuStyleDescription>Ribbon Application Menu</MenuStyleDescription>
+  </eSmartMenuStyle>
+  <eSmartMenuStyle>
+    <MenuStyleGuid>b64ab664-037e-199a-e311-c6006911a751</MenuStyleGuid>
+    <MenuStyleCode>TREE</MenuStyleCode>
+    <MenuStyleDescription>Menu Tree View</MenuStyleDescription>
+  </eSmartMenuStyle>
+  <eSmartMenuStyle>
+    <MenuStyleGuid>c1280dd2-fbba-93af-d613-9c2e7099be56</MenuStyleGuid>
+    <MenuStyleCode>EXPLORERBAR</MenuStyleCode>
+    <MenuStyleDescription>Explorer Bar Group</MenuStyleDescription>
+  </eSmartMenuStyle>
+  <eSmartMenuStyle>
+    <MenuStyleGuid>de6f067b-02e8-c084-d613-3e5d340f33eb</MenuStyleGuid>
+    <MenuStyleCode>TASKLIST</MenuStyleCode>
+    <MenuStyleDescription>Menu visualization as a tasklist (Explorerbar)</MenuStyleDescription>
+  </eSmartMenuStyle>
+</dsMenuStyle>

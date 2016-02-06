@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<ttServiceLoader xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ttServiceLoaderRow>
+    <Order>1</Order>
+    <ServiceTypeName>Consultingwerk.Framework.IMessagePublisher</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.Framework.MessagePublisher</ServiceClassName>
+  </ttServiceLoaderRow>
+  <ttServiceLoaderRow>
+    <Order>1</Order>
+    <ServiceTypeName>Consultingwerk.Framework.Server.IActionalInstrumentationService</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.Framework.Server.ActionalInteractionService</ServiceClassName>
+  </ttServiceLoaderRow>
+  <ttServiceLoaderRow>
+    <Order>2</Order>
+    <ServiceTypeName>Consultingwerk.Framework.RepositoryServices.IRepositoryService</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.Framework.RepositoryServices.Dynamics.SimpleDynamicsRepositoryService</ServiceClassName>
+    <RequiredDatabases>ICFDB</RequiredDatabases>
+  </ttServiceLoaderRow>
+  <ttServiceLoaderRow>
+    <Order>3</Order>
+    <ServiceTypeName>Consultingwerk.Framework.Server.ServerSessionActivator</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.Framework.Server.ServerSessionActivator</ServiceClassName>
+  </ttServiceLoaderRow>
+</ttServiceLoader>

@@ -1,0 +1,39 @@
+/*------------------------------------------------------------------------
+    File        : &2ToolbarController
+    Purpose     : 
+    Syntax      : 
+    Description : 
+    Author(s)   : &3
+    Created     : Sun Aug 07 20:55:57 CEST 2011
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+ 
+USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
+USING Progress.Lang.*                                 FROM PROPATH .
+
+CLASS &1.&2ToolbarController 
+    INHERITS SmartToolbarController 
+    USE-WIDGET-POOL: 
+		
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &2ToolbarController class
+        Notes:   
+        @param poContainer The IContainer to add the &2ToolbarController to                                                                        
+    ------------------------------------------------------------------------------*/
+	CONSTRUCTOR PUBLIC &2ToolbarController (poContainer AS System.ComponentModel.IContainer):
+		SUPER (INPUT poContainer).
+		
+	END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &2ToolbarController class
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC &2ToolbarController ():
+        SUPER ().
+        
+    END CONSTRUCTOR.
+
+END CLASS.

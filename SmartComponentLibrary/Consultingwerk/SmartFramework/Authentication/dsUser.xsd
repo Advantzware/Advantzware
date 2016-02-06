@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsUser" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartUser" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartUserBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="UserGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="UserName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+              <xsd:element name="LanguageGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="UserFullName" type="xsd:string" nillable="true" prodata:format="x(40)"/>
+              <xsd:element name="UserEmail" type="xsd:string" nillable="true" prodata:format="x(40)"/>
+              <xsd:element name="UserPassword" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+              <xsd:element name="UserPasswordChangedDate" type="xsd:date" nillable="true"/>
+              <xsd:element name="UserLastLogin" type="xsd:dateTime" nillable="true"/>
+              <xsd:element name="LoginCompanyGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ManagerUserGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="UserSecurityId" type="xsd:int" nillable="true" prodata:initial="prodata:unknown" prodata:format=">,>>>,>>9" prodata:label="User Security Id"/>
+              <xsd:element name="LanguageIsoCode" type="xsd:string" nillable="true" prodata:label="Language ISO Code"/>
+              <xsd:element name="LanguageName" type="xsd:string" nillable="true" prodata:format="X(40)" prodata:label="Language Name"/>
+              <xsd:element name="ManagerUserName" type="xsd:string" nillable="true" prodata:format="X(40)" prodata:label="Manager Name"/>
+              <xsd:element name="ManagerUserFullName" type="xsd:string" nillable="true" prodata:format="X(40)" prodata:label="Manager FullName"/>
+              <xsd:element name="LoginCompanyName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="UserGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartUser"/>
+      <xsd:field xpath="UserGuid"/>
+    </xsd:unique>
+    <xsd:unique name="UserNameLoginCompanyGuid">
+      <xsd:selector xpath=".//eSmartUser"/>
+      <xsd:field xpath="UserName"/>
+      <xsd:field xpath="LoginCompanyGuid"/>
+    </xsd:unique>
+    <xsd:unique name="UserSecurityId">
+      <xsd:selector xpath=".//eSmartUser"/>
+      <xsd:field xpath="UserSecurityId"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="ManagerUserGuid">
+        <prodata:table name="eSmartUser"/>
+        <prodata:field name="ManagerUserGuid"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

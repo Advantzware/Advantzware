@@ -1,0 +1,89 @@
+/*------------------------------------------------------------------------
+    File        : &1_Generated
+    Purpose     : Auto Generated portion of the &1 class
+    Syntax      : 
+    Description : 
+    Author(s)   : @USER@
+    Created     : @DATE@
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.OERA.* FROM PROPATH .
+USING &2.* FROM PROPATH .  
+USING Progress.Lang.* FROM PROPATH .
+
+@FILEANNOTATION@
+
+CLASS &2.&1_Generated 
+    INHERITS TableModel ABSTRACT: 
+
+&4
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the Filter Class for this TableModel
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY Filter AS &3 NO-UNDO 
+    GET:
+        DEFINE VARIABLE oFilter AS &3 NO-UNDO.
+        
+        oFilter = NEW &3 (THIS-OBJECT) .
+        
+        &&IF PROVERSION BEGINS "10" &&THEN
+        ASSIGN THIS-OBJECT:SavedFilterReference = oFilter .
+        &&ENDIF
+        
+        RETURN oFilter .      
+    END.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &1_Generated class
+        Notes:   
+        @param poDatasetModel The reference to the owning DatasetModel
+        @param phBufferHandle The handle of the ProDataset member buffer this TableModel represents
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC &1_Generated (poDatasetModel AS DatasetModel, phBufferHandle AS HANDLE):
+        
+        SUPER (poDatasetModel, phBufferHandle).
+        
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &1_Generated class
+        Notes:   Creates a view model
+        @param poTableModel The reference to &1 on which this &1 servers as a ViewModel
+        @param phBufferHandle The handle of the ProDataset member buffer this TableModel represents
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PROTECTED &1_Generated (poTableModel AS &1, phBufferHandle AS HANDLE):
+        
+        SUPER (poTableModel, phBufferHandle).
+        
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+       Purpose: Creates a new instance of the &1 as a view model for the current record
+       Notes:
+       @return The &1 as the view model
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC &1 CreateCurrentRecordView ():
+        
+        RETURN CAST (THIS-OBJECT:CreateCurrentRecordViewInternal (), 
+                     &1) . 
+        
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+       Purpose: Creates a new instance of the &1 as a view model
+       Notes:
+       @return The &1 as the view model
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC &1 CreateView ():
+        
+        RETURN CAST (THIS-OBJECT:CreateViewInternal (), 
+                     &1) . 
+        
+    END METHOD.
+    
+END CLASS.

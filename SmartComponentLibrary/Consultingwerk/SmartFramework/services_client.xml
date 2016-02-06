@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<!-- This is a service.xml file for an AppServer client -->
+
+<ttServiceLoader xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ 
+  <ttServiceLoaderRow>
+    <Order>1</Order>
+    <ServiceTypeName>Consultingwerk.SmartFramework.Authorization.ISecurityService</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.SmartFramework.Authorization.SecurityServiceClient</ServiceClassName>
+  </ttServiceLoaderRow>       
+
+</ttServiceLoader>

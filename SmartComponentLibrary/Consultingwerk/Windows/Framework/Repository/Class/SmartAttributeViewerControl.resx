@@ -1,0 +1,1589 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element msdata:IsDataSet="true" name="root">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+                <xsd:element minOccurs="0" msdata:Ordinal="2" name="comment" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute msdata:Ordinal="1" name="name" type="xsd:string" use="required"/>
+              <xsd:attribute msdata:Ordinal="3" name="type" type="xsd:string"/>
+              <xsd:attribute msdata:Ordinal="4" name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <data name="smartBusinessEntityBindingSource1.BindTo" xml:space="preserve">
+    <value>QUERY</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1.EntityJoin" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityBindingSource1.EntityName" xml:space="preserve">
+    <value>Consultingwerk.SmartFramework.Repository.Class.AttributeBusinessEntity</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1.EntityTable" xml:space="preserve">
+    <value>eSmartAttribute</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1.EntityView" xml:space="preserve">
+    <value/>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartAttribute_AttributeLabel_Label.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel_Label.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel_Label.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="appearance1.TextHAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="appearance1.TextVAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartAttribute_AttributeLabel_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel_Label.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel_Label.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel_Label.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel_Label.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel_Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="eSmartAttribute_AttributeLabel_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>19, 48</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel_Label.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel_Label.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 14</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel_Label.Text" xml:space="preserve">
+    <value>Attribute Label:</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeLabel_Label.Name" xml:space="preserve">
+    <value>eSmartAttribute_AttributeLabel_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeLabel_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeLabel_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeLabel_Label.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 44</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="eSmartAttribute_AttributeLabel.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeLabel.Name" xml:space="preserve">
+    <value>eSmartAttribute_AttributeLabel</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeLabel.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeLabel.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeLabel.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="appearance2.TextHAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="appearance2.TextVAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>19, 74</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>89, 14</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName_Label.Text" xml:space="preserve">
+    <value>Technical Name:</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_TechnicalName_Label.Name" xml:space="preserve">
+    <value>eSmartAttribute_TechnicalName_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_TechnicalName_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_TechnicalName_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_TechnicalName_Label.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 70</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="eSmartAttribute_TechnicalName.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_TechnicalName.Name" xml:space="preserve">
+    <value>eSmartAttribute_TechnicalName</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_TechnicalName.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_TechnicalName.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_TechnicalName.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="appearance3.TextHAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="appearance3.TextVAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>19, 100</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>64, 14</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription_Label.Text" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeDesription_Label.Name" xml:space="preserve">
+    <value>eSmartAttribute_AttributeDesription_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeDesription_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeDesription_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeDesription_Label.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 96</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.Multiline" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 94</value>
+  </data>
+  <data name="eSmartAttribute_AttributeDesription.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeDesription.Name" xml:space="preserve">
+    <value>eSmartAttribute_AttributeDesription</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeDesription.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeDesription.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_AttributeDesription.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 196</value>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.Size" type="System.Drawing.Size, System.Drawing">
+    <value>90, 17</value>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="eSmartAttribute_RuntimeOnly.Text" xml:space="preserve">
+    <value>Runtime Only</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_RuntimeOnly.Name" xml:space="preserve">
+    <value>eSmartAttribute_RuntimeOnly</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_RuntimeOnly.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_RuntimeOnly.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_RuntimeOnly.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.Location" type="System.Drawing.Point, System.Drawing">
+    <value>256, 196</value>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.Size" type="System.Drawing.Size, System.Drawing">
+    <value>53, 17</value>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="eSmartAttribute_VirtualProperty.Text" xml:space="preserve">
+    <value>Virtual</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_VirtualProperty.Name" xml:space="preserve">
+    <value>eSmartAttribute_VirtualProperty</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_VirtualProperty.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_VirtualProperty.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_VirtualProperty.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="appearance4.TextHAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="appearance4.TextVAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>19, 245</value>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>83, 14</value>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="eSmartAttribute_ConstantLevel_Label.Text" xml:space="preserve">
+    <value>Constant Level:</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_ConstantLevel_Label.Name" xml:space="preserve">
+    <value>eSmartAttribute_ConstantLevel_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_ConstantLevel_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_ConstantLevel_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_ConstantLevel_Label.ZOrder" xml:space="preserve">
+    <value>14</value>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="appearance5.TextHAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="appearance5.TextVAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>19, 271</value>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>73, 14</value>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="eSmartAttribute_LookupType_Label.Text" xml:space="preserve">
+    <value>Lookup Type:</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_LookupType_Label.Name" xml:space="preserve">
+    <value>eSmartAttribute_LookupType_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_LookupType_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_LookupType_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_LookupType_Label.ZOrder" xml:space="preserve">
+    <value>15</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="appearance6.TextHAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="appearance6.TextVAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>19, 297</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>82, 14</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>14</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues_Label.Text" xml:space="preserve">
+    <value>Lookup Values:</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_LookupValues_Label.Name" xml:space="preserve">
+    <value>eSmartAttribute_LookupValues_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_LookupValues_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_LookupValues_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_LookupValues_Label.ZOrder" xml:space="preserve">
+    <value>16</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_LookupValues.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_LookupValues.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_LookupValues.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_LookupValues.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 293</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="eSmartAttribute_LookupValues.TabIndex" type="System.Int32, mscorlib">
+    <value>15</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_LookupValues.Name" xml:space="preserve">
+    <value>eSmartAttribute_LookupValues</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_LookupValues.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_LookupValues.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_LookupValues.ZOrder" xml:space="preserve">
+    <value>17</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="appearance7.TextHAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="appearance7.TextVAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>19, 323</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>78, 14</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>16</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType_Label.Text" xml:space="preserve">
+    <value>Property Type:</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_PropertyType_Label.Name" xml:space="preserve">
+    <value>eSmartAttribute_PropertyType_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_PropertyType_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_PropertyType_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_PropertyType_Label.ZOrder" xml:space="preserve">
+    <value>18</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_PropertyType.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_PropertyType.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_PropertyType.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_PropertyType.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 319</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="eSmartAttribute_PropertyType.TabIndex" type="System.Int32, mscorlib">
+    <value>17</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_PropertyType.Name" xml:space="preserve">
+    <value>eSmartAttribute_PropertyType</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_PropertyType.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_PropertyType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_PropertyType.ZOrder" xml:space="preserve">
+    <value>19</value>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="appearance8.TextHAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="appearance8.TextVAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>19, 349</value>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>90, 14</value>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>18</value>
+  </data>
+  <data name="eSmartAttribute_RepositoryType_Label.Text" xml:space="preserve">
+    <value>Repository Type:</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_RepositoryType_Label.Name" xml:space="preserve">
+    <value>eSmartAttribute_RepositoryType_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_RepositoryType_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_RepositoryType_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_RepositoryType_Label.ZOrder" xml:space="preserve">
+    <value>20</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="appearance9.TextHAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="appearance9.TextVAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>19, 375</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>132, 14</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>20</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType_Label.Text" xml:space="preserve">
+    <value>SET Service Type Name:</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_SetServiceType_Label.Name" xml:space="preserve">
+    <value>eSmartAttribute_SetServiceType_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_SetServiceType_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_SetServiceType_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_SetServiceType_Label.ZOrder" xml:space="preserve">
+    <value>21</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 371</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="eSmartAttribute_SetServiceType.TabIndex" type="System.Int32, mscorlib">
+    <value>21</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_SetServiceType.Name" xml:space="preserve">
+    <value>eSmartAttribute_SetServiceType</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_SetServiceType.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_SetServiceType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartAttribute_SetServiceType.ZOrder" xml:space="preserve">
+    <value>22</value>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 241</value>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="ultraComboEditor_ConstantLevel.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor_ConstantLevel.Name" xml:space="preserve">
+    <value>ultraComboEditor_ConstantLevel</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor_ConstantLevel.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor_ConstantLevel.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor_ConstantLevel.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="ultraComboEditor_LookupType.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraComboEditor_LookupType.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraComboEditor_LookupType.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="ultraComboEditor_LookupType.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraComboEditor_LookupType.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraComboEditor_LookupType.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="ultraComboEditor_LookupType.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="ultraComboEditor_LookupType.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraComboEditor_LookupType.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraComboEditor_LookupType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 267</value>
+  </data>
+  <data name="ultraComboEditor_LookupType.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="ultraComboEditor_LookupType.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraComboEditor_LookupType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="ultraComboEditor_LookupType.TabIndex" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor_LookupType.Name" xml:space="preserve">
+    <value>ultraComboEditor_LookupType</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor_LookupType.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor_LookupType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor_LookupType.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="ultraLabelAttributeGroup.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabelAttributeGroup.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabelAttributeGroup.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="appearance10.TextHAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="appearance10.TextVAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="ultraLabelAttributeGroup.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraLabelAttributeGroup.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabelAttributeGroup.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="ultraLabelAttributeGroup.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="ultraLabelAttributeGroup.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabelAttributeGroup.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="ultraLabelAttributeGroup.Location" type="System.Drawing.Point, System.Drawing">
+    <value>19, 21</value>
+  </data>
+  <data name="ultraLabelAttributeGroup.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="ultraLabelAttributeGroup.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraLabelAttributeGroup.Size" type="System.Drawing.Size, System.Drawing">
+    <value>84, 14</value>
+  </data>
+  <data name="ultraLabelAttributeGroup.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="ultraLabelAttributeGroup.Text" xml:space="preserve">
+    <value>Attribute Group:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabelAttributeGroup.Name" xml:space="preserve">
+    <value>ultraLabelAttributeGroup</value>
+  </data>
+  <data name="&gt;&gt;ultraLabelAttributeGroup.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabelAttributeGroup.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabelAttributeGroup.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="smartComboEditor1.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="smartComboEditor1.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="smartComboEditor1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="smartComboEditor1.AppServerPartition" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartComboEditor1.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="smartComboEditor1.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="smartComboEditor1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="smartComboEditor1.DisplayFields" xml:space="preserve">
+    <value>AttributeGroupName</value>
+  </data>
+  <data name="smartComboEditor1.DisplaySubstitute" xml:space="preserve">
+    <value>&amp;1</value>
+  </data>
+  <data name="smartComboEditor1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="smartComboEditor1.EntityName" xml:space="preserve">
+    <value>Consultingwerk.SmartFramework.Repository.Class.AttributeGroupBusinessEntity</value>
+  </data>
+  <data name="smartComboEditor1.EntityTable" xml:space="preserve">
+    <value>eSmartAttributeGroup</value>
+  </data>
+  <data name="smartComboEditor1.FlagText" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartComboEditor1.FlagValue" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartComboEditor1.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="smartComboEditor1.ImageField" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartComboEditor1.ImageKeyField" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartComboEditor1.ImageKeyFieldSubstitute" xml:space="preserve">
+    <value>&amp;1</value>
+  </data>
+  <data name="smartComboEditor1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="smartComboEditor1.KeyField" xml:space="preserve">
+    <value>AttributeGroupGuid</value>
+  </data>
+  <data name="smartComboEditor1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 17</value>
+  </data>
+  <data name="smartComboEditor1.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="smartComboEditor1.QueryString" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartComboEditor1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="smartComboEditor1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="smartComboEditor1.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;smartComboEditor1.Name" xml:space="preserve">
+    <value>smartComboEditor1</value>
+  </data>
+  <data name="&gt;&gt;smartComboEditor1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartComboEditor, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartComboEditor1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartComboEditor1.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ultraOptionSet1.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraOptionSet1.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraOptionSet1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="ultraOptionSet1.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraOptionSet1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="ultraOptionSet1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="ultraOptionSet1.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraOptionSet1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="valueListItem1.DisplayText" xml:space="preserve">
+    <value>Property</value>
+  </data>
+  <data name="valueListItem2.DisplayText" xml:space="preserve">
+    <value>Event</value>
+  </data>
+  <data name="ultraOptionSet1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 219</value>
+  </data>
+  <data name="ultraOptionSet1.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="ultraOptionSet1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraOptionSet1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 16</value>
+  </data>
+  <data name="ultraOptionSet1.TabIndex" type="System.Int32, mscorlib">
+    <value>23</value>
+  </data>
+  <data name="ultraOptionSet1.Text" xml:space="preserve">
+    <value>Property</value>
+  </data>
+  <data name="&gt;&gt;ultraOptionSet1.Name" xml:space="preserve">
+    <value>ultraOptionSet1</value>
+  </data>
+  <data name="&gt;&gt;ultraOptionSet1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraOptionSet, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraOptionSet1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraOptionSet1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 344</value>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 21</value>
+  </data>
+  <data name="ultraComboEditor_RepositoryType.TabIndex" type="System.Int32, mscorlib">
+    <value>19</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor_RepositoryType.Name" xml:space="preserve">
+    <value>ultraComboEditor_RepositoryType</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor_RepositoryType.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor_RepositoryType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor_RepositoryType.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="$this.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.AutoScroll" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="$this.AutoSize" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="$this.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
+    <value>GrowOnly</value>
+  </data>
+  <data name="$this.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="$this.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="$this.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="$this.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="$this.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="$this.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="$this.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="$this.SecurityKey" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>341, 425</value>
+  </data>
+  <data name="$this.SmartTableIOState" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="$this.ViewerLogicClass" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartAttributeViewerControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartViewerControl, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+</root>
