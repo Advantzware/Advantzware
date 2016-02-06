@@ -128,6 +128,8 @@ IF VALID-OBJECT (oForm) AND NOT oForm:Finalized THEN DO:
         CAST(Consultingwerk.Framework.FrameworkSettings:MdiContainer,
              Consultingwerk.Framework.IMDIContainer):MdiChildActivateHandler () .
     END.
+    
+        
 END.
 &ENDIF
 

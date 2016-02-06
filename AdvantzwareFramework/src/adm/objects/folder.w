@@ -2,6 +2,7 @@
 &ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS Procedure
 USING Consultingwerk.WindowIntegrationKit.Forms.* FROM PROPATH.
+USING Consultingwerk.Util.* FROM PROPATH.
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -531,18 +532,20 @@ PROCEDURE initialize-folder :
     DEFINE VARIABLE oForm AS IEmbeddedWindowForm NO-UNDO . 
     DEFINE VARIABLE iPage AS INTEGER             NO-UNDO .
     
-    oForm = DYNAMIC-FUNCTION ("getEmbeddedWindowForm" IN container-hdl)  .   
-      
-
-    DO iPage = 1 TO NUM-ENTRIES (folder-labels, "|":U):  
-      
-        CAST (oForm, IEmbeddedWindowTabFolderForm):CreateTab (ENTRY (iPage, folder-labels, "|":U),
-                                                              iPage) .
-    END.
-      
-    CAST (oForm, IEmbeddedWindowTabFolderForm):AssignTabLabels (folder-labels, "|":U) .
-      
-      
+    IF Consultingwerk.Util.ProcedureHelper:HasEntry (container-hdl, "getEmbeddedWindowForm") THEN DO:
+         
+        oForm = DYNAMIC-FUNCTION ("getEmbeddedWindowForm" IN container-hdl)  .   
+          
+    
+        DO iPage = 1 TO NUM-ENTRIES (folder-labels, "|":U):  
+          
+            CAST (oForm, IEmbeddedWindowTabFolderForm):CreateTab (ENTRY (iPage, folder-labels, "|":U),
+                                                                  iPage) .
+        END.
+          
+        CAST (oForm, IEmbeddedWindowTabFolderForm):AssignTabLabels (folder-labels, "|":U) .
+          
+    END.   
       
       
       

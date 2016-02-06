@@ -64,7 +64,7 @@ System.Windows.Forms.Application:AddMessageFilter (oF10KeyHandler ) .
 /*WAIT-FOR System.Windows.Forms.Application:RUN (oForm) .*/
 oForm:Show () . 
 
-Consultingwerk.Design.WinKit.DesignManager:Close() .
+/*Consultingwerk.Design.WinKit.DesignManager:Close() .*/
 
 CATCH fioex AS System.IO.FileNotFoundException:
     DEFINE VARIABLE cStack AS CHARACTER NO-UNDO.

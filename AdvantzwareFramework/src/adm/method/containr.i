@@ -24,6 +24,9 @@
 
 DEFINE VARIABLE iWinKitTabInitialized AS INTEGER INIT 0 NO-UNDO.
 
+&GLOBAL-DEFINE ADM-DISPATCH-QUALIFIER winkit
+
+
 &IF DEFINED(adm-containr) = 0 &THEN
 &GLOB adm-containr yes
 
@@ -174,25 +177,27 @@ PROCEDURE init-object :
   ASSIGN iPage = Consultingwerk.Util.DataTypeHelper:ToInteger 
                       (RETURN-VALUE) .
 
-  IF VALID-OBJECT (oFormControl) AND iPage > 0 THEN DO:
-
-      DO iCreatePage = iWinKitTabInitialized + 1 TO iPage:
-          oFormControl:CreateTab (SUBSTITUTE ("Tab &1", iCreatePage),
-                                  iPage) .
-      END. 
-      
-      ASSIGN iWinKitTabInitialized = MAX (iWinKitTabInitialized, iPage) .
-      
-      ASSIGN hTabFrame = oFormControl:GetTabPageFrame (iPage) .
-      
-      IF VALID-HANDLE (hTabFrame) THEN 
-          ASSIGN p-parent-hdl = hTabFrame .
-      ELSE 
+  IF VALID-OBJECT (oFormControl) THEN DO:
+          IF iPage > 0 THEN DO:
+    
+          DO iCreatePage = iWinKitTabInitialized + 1 TO iPage:
+              oFormControl:CreateTab (SUBSTITUTE ("Tab &1", iCreatePage),
+                                      iPage) .
+          END. 
           
-        MESSAGE p-proc-name SKIP 
-                p-attr-list SKIP (2)
-                "Page" iPage
-            VIEW-AS ALERT-BOX.
+          ASSIGN iWinKitTabInitialized = MAX (iWinKitTabInitialized, iPage) .
+          
+          ASSIGN hTabFrame = oFormControl:GetTabPageFrame (iPage) .
+          
+          IF VALID-HANDLE (hTabFrame) THEN 
+              ASSIGN p-parent-hdl = hTabFrame .
+          ELSE 
+              
+            MESSAGE p-proc-name SKIP 
+                    p-attr-list SKIP (2)
+                    "Page" iPage
+                VIEW-AS ALERT-BOX.
+      END.
   END.  
   
   &ENDIF
@@ -201,6 +206,21 @@ PROCEDURE init-object :
   RUN broker-init-object IN adm-broker-hdl
       (INPUT THIS-PROCEDURE, INPUT p-proc-name, INPUT p-parent-hdl,
        INPUT p-attr-list, OUTPUT p-proc-hdl) NO-ERROR.
+       
+       
+  /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
+     When we've inited a SmartPanel, call into this to 
+     create a Ribbon Group for it */
+  &IF "{&WinKitFormType}" EQ "Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm" &THEN
+           
+  IF Consultingwerk.Util.ProcedureHelper:HasEntry (p-proc-hdl, "winkit-make-ribbon-group") THEN 
+      RUN winkit-make-ribbon-group IN p-proc-hdl 
+           (oForm, iPage) .
+
+  &ENDIF         
+         
+       
+       
   RETURN.
 END PROCEDURE.
 
@@ -331,6 +351,31 @@ PROCEDURE view-page :
       INPUT p-page#).
        
   END PROCEDURE.
+
+&IF DEFINED(EXCLUDE-winkit-initialize) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winkit-initialize Method-Library
+PROCEDURE winkit-initialize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    RUN dispatch IN THIS-PROCEDURE ("initialize") .
+
+    &IF DEFINED (WinKitFormType) NE 0 &THEN
+    Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
+    &ENDIF
+        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 /* This ENDIF statement needs to stay here (or with the last procedure in the
    include file) to balance the &IF adm-container at the top: */
 &ENDIF
