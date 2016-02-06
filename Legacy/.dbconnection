@@ -5,5 +5,5 @@
 <connectionentry identifier="asihelp"/>
 <connectionentry identifier="emptrack"/>
 <connectionentry identifier="jobs"/>
-<connectionentry identifier="rft"/>
+<connectionentry identifier="rfq"/>
 </connection>
