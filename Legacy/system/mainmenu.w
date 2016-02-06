@@ -315,8 +315,13 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
  
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
+    /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
+       Application:Exit will terminate the .NET WAIT-FOR in the 
+       Main Block */
+    System.Windows.Forms.Application:Exit ().
     RUN disable_UI.
+END.    
 
 /* These events will close the window and terminate the procedure.      */
 /* (NOTE: this will override any user-defined triggers previously       */
@@ -362,8 +367,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         boxes:LOAD-IMAGE(sys-ctrl.DESCrip).
   {methods/mainmenu.i}
   RUN Read_Menus.
+  
+  /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
+     Initialize the WinKit framework settings */
+  RUN Advantzware/WinKit/start.p .
+
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+   /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
+      For WinKit purposes, we need to use a GUI for .NET 
+      enabled WAIT-FOR in the main application */
+   /* WAIT-FOR CLOSE OF THIS-PROCEDURE.*/   
+   WAIT-FOR System.Windows.Forms.Application:Run() .
 END.
 
 /* _UIB-CODE-BLOCK-END */
