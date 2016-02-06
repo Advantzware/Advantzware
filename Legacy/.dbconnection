@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<connection>
+<connectionentry identifier="asi"/>
+<connectionentry identifier="nosweat"/>
+<connectionentry identifier="asihelp"/>
+<connectionentry identifier="emptrack"/>
+<connectionentry identifier="jobs"/>
+<connectionentry identifier="rft"/>
+</connection>
