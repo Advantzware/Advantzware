@@ -1,4 +1,4 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r2 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r2 GUI ADM1
 /* Procedure Description
 "This SmartPanel sends navigation messages
 to its NAVIGATION-TARGET. Its buttons have
@@ -64,10 +64,11 @@ DEFINE VARIABLE updating      AS LOGICAL INIT FALSE NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartPanel
+&Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Navigation-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -88,42 +89,41 @@ DEFINE VARIABLE updating      AS LOGICAL INIT FALSE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn-First 
      LABEL "&First" 
-     SIZE 8 BY 1.27
+     SIZE 8 BY 1.29
      FONT 4.
 
 DEFINE BUTTON Btn-Last 
      LABEL "&Last" 
-     SIZE 8 BY 1.27
+     SIZE 8 BY 1.29
      FONT 4.
 
 DEFINE BUTTON Btn-Next 
      LABEL "&Next" 
-     SIZE 8 BY 1.27
+     SIZE 8 BY 1.29
      FONT 4.
 
 DEFINE BUTTON Btn-Prev 
      LABEL "&Prev" 
-     SIZE 8 BY 1.27
+     SIZE 8 BY 1.29
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 34 BY 1.77.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 34 BY 1.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
-     Btn-First AT ROW 1.27 COL 2
-     Btn-Prev AT ROW 1.27 COL 10
-     Btn-Next AT ROW 1.27 COL 18
-     Btn-Last AT ROW 1.27 COL 26
+     Btn-First AT ROW 1.29 COL 2
+     Btn-Prev AT ROW 1.29 COL 10
+     Btn-Next AT ROW 1.29 COL 18
+     Btn-Last AT ROW 1.29 COL 26
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
- 
 
 /* *********************** Procedure Settings ************************ */
 
@@ -151,19 +151,31 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW P-Win ASSIGN
-         HEIGHT             = 3.04
-         WIDTH              = 38.57.
+         HEIGHT             = 3.05
+         WIDTH              = 38.6.
+/* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB P-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{advantzware/winkit/winkit-panel.i}
+{src/adm/method/panel.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW P-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -186,17 +198,6 @@ ASSIGN
  
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB P-Win 
-/* ************************* Included-Libraries *********************** */
-
-{advantzware/winkit/winkit-panel.i}
-{src/adm/method/panel.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 
 /* ************************  Control Triggers  ************************ */
 
@@ -205,6 +206,11 @@ ASSIGN
 ON CHOOSE OF Btn-First IN FRAME Panel-Frame /* First */
 DO:
     RUN notify IN THIS-PROCEDURE ('get-first':U).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:36 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -216,6 +222,11 @@ END.
 ON CHOOSE OF Btn-Last IN FRAME Panel-Frame /* Last */
 DO:
      RUN notify IN THIS-PROCEDURE ('get-last':U).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:36 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -227,6 +238,11 @@ END.
 ON CHOOSE OF Btn-Next IN FRAME Panel-Frame /* Next */
 DO:
   RUN notify IN THIS-PROCEDURE ('get-next':U).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:36 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -238,6 +254,11 @@ END.
 ON CHOOSE OF Btn-Prev IN FRAME Panel-Frame /* Prev */
 DO:
   RUN notify IN THIS-PROCEDURE ('get-prev':U).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:36 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -265,7 +286,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI P-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI P-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -283,7 +304,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable P-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -299,7 +319,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize P-Win 
 PROCEDURE local-initialize :
@@ -336,7 +355,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-buttons P-Win 
 PROCEDURE set-buttons :
@@ -452,7 +470,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed P-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -472,5 +489,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

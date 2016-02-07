@@ -128,7 +128,9 @@ END.
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
-       FRAME F-Main:HIDDEN           = TRUE.
+       FRAME F-Main:HIDDEN           = TRUE
+       FRAME F-Main:PRIVATE-DATA     = 
+                "Window".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -155,6 +157,11 @@ ON CHOOSE OF Select_Exit IN FRAME F-Main /* Exit */
 DO:
     
     {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:42 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 
 END.
 

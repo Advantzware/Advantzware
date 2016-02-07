@@ -213,6 +213,11 @@ DO:
 
   RUN notify ('add-record':U).
   
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:44 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -227,6 +232,11 @@ DO:
       add-active = no.
       RUN notify ('cancel-record':U).
    END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:44 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -238,6 +248,11 @@ END.
 ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
 DO:
    RUN notify ('delete-record':U).  
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:44 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -278,6 +293,11 @@ DO:
         RUN notify ('update-record':U).
      END.
   END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:44 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

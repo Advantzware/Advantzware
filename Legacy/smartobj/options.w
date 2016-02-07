@@ -168,7 +168,9 @@ END.
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
-       FRAME F-Main:HIDDEN           = TRUE.
+       FRAME F-Main:HIDDEN           = TRUE
+       FRAME F-Main:PRIVATE-DATA     = 
+                "Functions".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -194,6 +196,11 @@ ASSIGN
 ON CHOOSE OF Select_appl IN FRAME F-Main /* Util_appl */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:10 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -205,6 +212,11 @@ END.
 ON CHOOSE OF Select_frac IN FRAME F-Main /* Util_frac */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:10 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -216,6 +228,11 @@ END.
 ON CHOOSE OF Select_help IN FRAME F-Main /* Help */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:10 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -227,6 +244,11 @@ END.
 ON CHOOSE OF Select_Home IN FRAME F-Main /* Home */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:10 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -251,6 +273,11 @@ DO:
       RUN Print-List IN hHandle.
   ELSE
       {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:10 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -262,6 +289,11 @@ END.
 ON CHOOSE OF Select_Notes IN FRAME F-Main /* Notes */
 DO:
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:10 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -278,6 +310,11 @@ DO:
 
    IF char-hdl NE "" THEN
       RUN value-changed-proc IN WIDGET-HANDLE(char-hdl).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:10 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -303,6 +340,27 @@ RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pen-image s-object 
+PROCEDURE dept-pen-image :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
+
+   DO WITH FRAME {&FRAME-NAME}:
+
+      IF NOT ip-log THEN
+         Select_Notes:LOAD-IMAGE("images/edit.ico").
+      ELSE
+         Select_Notes:LOAD-IMAGE("images/edita.jpg").
+   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -391,27 +449,6 @@ PROCEDURE Spec-Book-Image :
          SELECT_spec:LOAD-IMAGE("images/dict.ico").
       ELSE
          SELECT_spec:LOAD-IMAGE("images/dicta.ico").
-   END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pen-image s-object 
-PROCEDURE dept-pen-image :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
-
-   DO WITH FRAME {&FRAME-NAME}:
-
-      IF NOT ip-log THEN
-         Select_Notes:LOAD-IMAGE("images/edit.ico").
-      ELSE
-         Select_Notes:LOAD-IMAGE("images/edita.jpg").
    END.
 END PROCEDURE.
 

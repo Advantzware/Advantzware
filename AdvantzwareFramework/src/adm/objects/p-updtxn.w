@@ -1,4 +1,4 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 /* Procedure Description
 "This SmartPanel starts a transaction 
 which remains open until the Commit
@@ -71,10 +71,11 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartPanel
+&Scoped-define DB-AWARE no
 
-&Scoped-define ADM-SUPPORTED-LINKS      TableIO-Source
+&Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -130,7 +131,7 @@ DEFINE BUTTON Btn-Update
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 65 BY 1.76.
 
 
@@ -164,7 +165,7 @@ DEFINE FRAME Panel-Frame
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT."
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
 END.
@@ -182,14 +183,25 @@ END.
                                                                         */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{advantzware/winkit/winkit-panel.i}
+{src/adm/method/panel.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -212,17 +224,6 @@ ASSIGN
  
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
-/* ************************* Included-Libraries *********************** */
-
-{advantzware/winkit/winkit-panel.i}
-{src/adm/method/panel.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 
 /* ************************  Control Triggers  ************************ */
 
@@ -235,6 +236,11 @@ DO:
     RUN notify ('add-record':U).
     
     RUN start-transaction.    
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:41 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -253,7 +259,12 @@ DO:
           add-active = no.
           APPLY "U1":U TO THIS-PROCEDURE.
       END.
-  END.
+  
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:41 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -266,6 +277,11 @@ DO:
     RUN notify ('copy-record':U).
     
     RUN start-transaction.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:41 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -277,6 +293,11 @@ END.
 ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
 DO:
   RUN notify ('delete-record':U).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:41 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -288,6 +309,11 @@ END.
 ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
 DO:
   RUN notify ('reset-record':U).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:41 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -305,6 +331,11 @@ DO:
 
      APPLY "U1":U TO THIS-PROCEDURE.
   END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:41 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -325,6 +356,11 @@ DO:
            RUN start-transaction. 
          END.
     END. 
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:41 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -365,7 +401,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-WIn _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-WIn  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -383,7 +419,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable C-WIn 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -400,7 +435,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize C-WIn 
 PROCEDURE local-initialize :
@@ -439,7 +473,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-UIB-mode C-WIn 
 PROCEDURE local-UIB-mode :
@@ -491,7 +524,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-buttons C-WIn 
 PROCEDURE set-buttons :
@@ -618,7 +650,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE start-transaction C-WIn 
 PROCEDURE start-transaction :
 /*------------------------------------------------------------------------------
@@ -658,7 +689,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed C-WIn 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -678,5 +708,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

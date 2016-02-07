@@ -156,6 +156,11 @@ ON CHOOSE OF Select_dept2 IN FRAME F-Main /* Notes */
 DO:
   
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:13:40 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

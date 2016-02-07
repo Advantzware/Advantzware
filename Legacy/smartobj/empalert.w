@@ -149,6 +149,11 @@ ASSIGN
 ON CHOOSE OF Select_empalert IN FRAME F-Main
 DO:
     {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:39 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
