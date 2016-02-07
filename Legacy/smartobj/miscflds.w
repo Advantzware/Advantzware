@@ -12,7 +12,8 @@
   Created: 1.6.2011
 
 ------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress UIB.             */
+/*          
+This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
 /* Create an unnamed pool to store all the widgets created 
@@ -111,6 +112,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
