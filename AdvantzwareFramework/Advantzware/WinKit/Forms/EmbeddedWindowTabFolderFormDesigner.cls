@@ -113,6 +113,7 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         THIS-OBJECT:ultraToolbarsManager1:DesignerFlags = 1.
         THIS-OBJECT:ultraToolbarsManager1:DockWithinContainer = THIS-OBJECT.
         THIS-OBJECT:ultraToolbarsManager1:DockWithinContainerBaseType = Progress.Util.TypeHelper:GetType("Consultingwerk.WindowIntegrationKit.Forms.EmbeddedWindowBaseForm").
+        THIS-OBJECT:ultraToolbarsManager1:Office2007UICompatibility = FALSE.
         ribbonTab1:Caption = "ribbon1".
         @VisualDesigner.FormMember (NeedsInitialize="false", InitializeArray="true").
         DEFINE VARIABLE arrayvar0 AS Infragistics.Win.UltraWinToolbars.RibbonTab EXTENT 1 NO-UNDO.
@@ -138,9 +139,9 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Controls:Add(THIS-OBJECT:ultraStatusBar1).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Cursor = System.Windows.Forms.Cursors:Default.
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Dock = System.Windows.Forms.DockStyle:Fill.
-        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Location = NEW System.Drawing.Point(8, 162).
+        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Location = NEW System.Drawing.Point(8, 189).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Name = "EmbeddedWindowTabFolderFormDesigner_Fill_Panel".
-        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Size = NEW System.Drawing.Size(495, 211).
+        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Size = NEW System.Drawing.Size(495, 184).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:TabIndex = 0.
         /*  */
         /* ultraTabControl1 */
@@ -156,7 +157,7 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         THIS-OBJECT:ultraTabControl1:SharedControlsPage = THIS-OBJECT:ultraTabSharedControlsPage1.
         THIS-OBJECT:ultraTabControl1:ShowPartialTabs = Infragistics.Win.DefaultableBoolean:True.
         THIS-OBJECT:ultraTabControl1:ShowTabListButton = Infragistics.Win.DefaultableBoolean:True.
-        THIS-OBJECT:ultraTabControl1:Size = NEW System.Drawing.Size(495, 188).
+        THIS-OBJECT:ultraTabControl1:Size = NEW System.Drawing.Size(495, 161).
         THIS-OBJECT:ultraTabControl1:TabIndex = 5.
         THIS-OBJECT:ultraTabControl1:TabLayoutStyle = Infragistics.Win.UltraWinTabs.TabLayoutStyle:MultiRowAutoSize.
         THIS-OBJECT:ultraTabControl1:TabOrientation = Infragistics.Win.UltraWinTabs.TabOrientation:TopLeft.
@@ -168,11 +169,11 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         /*  */
         THIS-OBJECT:ultraTabSharedControlsPage1:Location = NEW System.Drawing.Point(1, 20).
         THIS-OBJECT:ultraTabSharedControlsPage1:Name = "ultraTabSharedControlsPage1".
-        THIS-OBJECT:ultraTabSharedControlsPage1:Size = NEW System.Drawing.Size(493, 167).
+        THIS-OBJECT:ultraTabSharedControlsPage1:Size = NEW System.Drawing.Size(493, 140).
         /*  */
         /* ultraStatusBar1 */
         /*  */
-        THIS-OBJECT:ultraStatusBar1:Location = NEW System.Drawing.Point(0, 188).
+        THIS-OBJECT:ultraStatusBar1:Location = NEW System.Drawing.Point(0, 161).
         THIS-OBJECT:ultraStatusBar1:Name = "ultraStatusBar1".
         ultraStatusPanel1:Key = "Notes".
         ultraStatusPanel1:SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode:Automatic.
@@ -209,9 +210,9 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Left:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Left.
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Left:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Left:InitialResizeAreaExtent = 8.
-        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Left:Location = NEW System.Drawing.Point(0, 162).
+        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Left:Location = NEW System.Drawing.Point(0, 189).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Left:Name = "EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Left".
-        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Left:Size = NEW System.Drawing.Size(8, 211).
+        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Left:Size = NEW System.Drawing.Size(8, 184).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Left:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Right */
@@ -221,9 +222,9 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Right:DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition:Right.
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Right:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Right:InitialResizeAreaExtent = 8.
-        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Right:Location = NEW System.Drawing.Point(503, 162).
+        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Right:Location = NEW System.Drawing.Point(503, 189).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Right:Name = "EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Right".
-        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Right:Size = NEW System.Drawing.Size(8, 211).
+        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Right:Size = NEW System.Drawing.Size(8, 184).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Right:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Top */
@@ -234,7 +235,7 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderFormDesigner ABSTRACT
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Top:ForeColor = System.Drawing.SystemColors:ControlText.
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Top:Location = NEW System.Drawing.Point(0, 0).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Top:Name = "EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Top".
-        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Top:Size = NEW System.Drawing.Size(511, 162).
+        THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Top:Size = NEW System.Drawing.Size(511, 189).
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Top:ToolbarsManager = THIS-OBJECT:ultraToolbarsManager1.
         /*  */
         /* EmbeddedWindowTabFolderFormDesigner_Toolbars_Dock_Area_Bottom */

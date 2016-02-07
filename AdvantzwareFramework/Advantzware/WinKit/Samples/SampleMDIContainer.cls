@@ -99,7 +99,7 @@ CLASS Advantzware.WinKit.Samples.SampleMDIContainer INHERITS MDIContainer   :
         
         PROCESS EVENTS . 
        
-        LoadApplicationStyle ("Office2007Blue":U) .
+        LoadApplicationStyle ("Office2010Blue":U) .
         
         Consultingwerk.Framework.FrameworkSettings:MdiContainer = THIS-OBJECT . 
                 
