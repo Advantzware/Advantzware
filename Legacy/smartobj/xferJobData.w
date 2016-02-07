@@ -61,7 +61,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON xferJobData 
-     IMAGE-UP FILE "./images/xferjobdata.gif":U NO-FOCUS
+     IMAGE-UP FILE "images/xferjobdata.gif":U NO-FOCUS
      LABEL "Xfer Job Data" 
      SIZE 7.6 BY 1.81 TOOLTIP "Misc Fields"
      FONT 6.
@@ -112,6 +112,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */

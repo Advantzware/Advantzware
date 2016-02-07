@@ -461,7 +461,7 @@ for each box-design-hdr where box-design-hdr.design-no = 0 and
   buffer-copy box-design-hdr to w-box-h.
 end.
 
-{cec/est-6.del}
+{cec/est-6del.i}
 
 find first xest where xest.company = xeb.company and
                       xest.est-no = xeb.est-no

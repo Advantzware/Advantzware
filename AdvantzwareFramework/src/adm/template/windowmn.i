@@ -14,8 +14,11 @@ IF VALID-HANDLE({&WINDOW-NAME}) THEN DO:
 
     /* The CLOSE event can be used from inside or outside the procedure to  */
     /* terminate it.                                                        */
-    ON CLOSE OF THIS-PROCEDURE 
+    ON CLOSE OF THIS-PROCEDURE DO:
        RUN dispatch IN THIS-PROCEDURE ('destroy':U).
+       
+       {Advantzware/WinKit/closewindow.i}       
+    END.
 
     RUN dispatch ('create-objects':U).
 
@@ -33,11 +36,15 @@ IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
  
     /* Now enable the interface and wait for the exit condition.            */
        RUN dispatch ('initialize':U).
+              
        IF NOT THIS-PROCEDURE:PERSISTENT THEN
            WAIT-FOR CLOSE OF THIS-PROCEDURE.
     END.
 &IF DEFINED(UIB_IS_RUNNING) EQ 0 &THEN
 END.
+ELSE DO:
+   {Advantzware/WinKit/embedfinalize.i}       
+END.    
 &ENDIF
 END.
 
