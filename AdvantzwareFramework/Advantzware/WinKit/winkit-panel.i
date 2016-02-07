@@ -71,9 +71,10 @@ PROCEDURE winkit-make-ribbon-group:
     DEFINE INPUT PARAMETER poForm AS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm NO-UNDO .
     DEFINE INPUT PARAMETER piPage AS INTEGER                                                       NO-UNDO .
     
-    DEFINE VARIABLE cKey     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCaption AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTabKey  AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE cKey        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCaption    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTabKey     AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE cTabCaption AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE oContextual AS Infragistics.Win.UltraWinToolbars.ContextualTabGroup NO-UNDO . 
     DEFINE VARIABLE oRibbonTab AS Infragistics.Win.UltraWinToolbars.RibbonTab NO-UNDO . 
@@ -102,12 +103,18 @@ PROCEDURE winkit-make-ribbon-group:
             oRibbonTab = poForm:ToolbarsManager:Ribbon:Tabs [cTabKey]. 
 
         ELSE DO:
+
+            ASSIGN cTabCaption = CAST (poForm, 
+                                       Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):TabFolder:Tabs [piPage - 1]:Text . 
         
             oRibbonTab = poForm:ToolbarsManager:Ribbon:Tabs:Add (cTabKey) .
-            oRibbonTab:Caption = cCaption . 
+            oRibbonTab:Caption = cTabCaption . 
         
             oContextual = poForm:ToolbarsManager:Ribbon:ContextualTabGroups:Add (cTabKey) .
             oContextual:Tabs:Add (oRibbonTab) .
+            oContextual:Caption = cTabCaption . 
+            
+            
         
         END.
     END.

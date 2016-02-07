@@ -222,7 +222,14 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
             ASSIGN cLabel = ENTRY (i, pcLabels, pcDelimiter) .
             
             IF i <= THIS-OBJECT:TabFolder:Tabs:Count THEN 
-                THIS-OBJECT:TabFolder:Tabs [i - 1]:Text = cLabel . 
+                THIS-OBJECT:TabFolder:Tabs [i - 1]:Text = cLabel .
+                
+            IF THIS-OBJECT:ToolbarsManager:Ribbon:Tabs:Exists ("page_" + STRING (i)) THEN 
+                THIS-OBJECT:ToolbarsManager:Ribbon:Tabs["page_" + STRING (i)]:Caption = cLabel .     
+
+            IF THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups:Exists ("page_" + STRING (i)) THEN 
+                THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups["page_" + STRING (i)]:Caption = cLabel .     
+                 
         END.
 
     END METHOD.
