@@ -628,14 +628,11 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
- 
-&IF DEFINED(EXCLUDE-BuildFrameList) = 0 &THEN
-		
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildFrameList Include
-PROCEDURE BuildFrameList:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildFrameList C-Win 
+PROCEDURE BuildFrameList :
 /*------------------------------------------------------------------------------
-    Purpose:  																	  
-    Notes:  																	  
+    Purpose:                                                                                                                                      
+    Notes:                                                                                                                                        
 ------------------------------------------------------------------------------*/
 
     DEFINE VARIABLE hWindow AS HANDLE    NO-UNDO.
@@ -682,13 +679,9 @@ PROCEDURE BuildFrameList:
          INPUT-OUTPUT cCode). /* The code block */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ENDIF
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CheckAddFunction C-Win 
 PROCEDURE CheckAddFunction :
@@ -902,8 +895,8 @@ PROCEDURE CheckAddTrigger :
                                   of parameter 2 */
          INPUT-OUTPUT cCode). /* The code block */
     
-    IF NOT cCode MATCHES "*winkit/triggerend~.i*":U AND 
-       NOT cCode MATCHES "*winkit\triggerend~.i*":U THEN DO:
+    IF NOT cCode MATCHES "*Advantzware~\WinKit~\winkit-panel-triggerend~.i*":U AND 
+       NOT cCode MATCHES "*Advantzware/WinKit/winkit-panel-triggerend~.i*":U THEN DO:
         
         RUN StripEndStatement (INPUT-OUTPUT cCode, OUTPUT cEnd) .
                 
