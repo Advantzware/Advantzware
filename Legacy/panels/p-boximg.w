@@ -193,6 +193,11 @@ DO:
      IF valid-handle(widget-handle(char-hdl))
          THEN RUN UPDATE-image IN WIDGET-HANDLE(char-hdl).
 
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:08:21 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -208,6 +213,11 @@ DO:
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"image-target",OUTPUT char-hdl).
      IF valid-handle(widget-handle(char-hdl))
          THEN RUN refresh-boximg IN WIDGET-HANDLE(char-hdl).
+
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:08:21 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 
 END.
 

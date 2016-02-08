@@ -187,6 +187,11 @@ DO:
     run get-link-handle in adm-broker-hdl(this-procedure,"maillist-target",output char-hdl).
     run update-maillist in widget-handle(char-hdl).
 
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:06:05 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

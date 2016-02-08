@@ -160,6 +160,11 @@ DO:
 
   IF connected("asinos") THEN DISCONNECT value("asinos").
 
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:03 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

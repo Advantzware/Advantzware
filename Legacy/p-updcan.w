@@ -204,6 +204,11 @@ DO:
       add-active = no.
       RUN notify ('cancel-record':U).
    END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:16 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -244,6 +249,11 @@ DO:
         RUN notify ('update-record':U).
      END.
   END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:16 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

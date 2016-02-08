@@ -74,7 +74,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -125,7 +125,7 @@ DEFINE BUTTON Btn-Save
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 82 BY 1.76.
 
 
@@ -195,7 +195,7 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -232,6 +232,11 @@ DO:
 
   RUN notify ('add-record':U).
   
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:08:49 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -246,6 +251,11 @@ DO:
       add-active = no.
       RUN notify ('cancel-record':U).
    END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:08:49 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -259,6 +269,11 @@ DO:
    IF NOT v-can-create THEN RETURN no-apply.
 
    RUN notify ('copy-record':U).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:08:49 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -272,6 +287,11 @@ DO:
    IF NOT v-can-delete THEN RETURN no-apply.
 
    RUN notify ('delete-record':U).  
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:08:49 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -283,6 +303,11 @@ END.
 ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
 DO:
   RUN notify ('reset-record':U).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:08:49 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -323,6 +348,11 @@ DO:
         RUN notify ('update-record':U).
      END.
   END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:08:49 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

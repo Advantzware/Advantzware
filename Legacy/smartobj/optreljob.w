@@ -152,10 +152,15 @@ ASSIGN
 
 &Scoped-define SELF-NAME Select_jobrel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_jobrel s-object
-ON CHOOSE OF Select_jobrel IN FRAME F-Main /* Notes */
+ON CHOOSE OF Select_jobrel IN FRAME F-Main /* JobsCard */
 DO:
   
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:13:07 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

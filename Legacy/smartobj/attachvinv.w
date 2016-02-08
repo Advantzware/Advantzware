@@ -155,6 +155,11 @@ DO:
 
    IF char-hdl NE "" THEN
       RUN value-changed-proc IN WIDGET-HANDLE(char-hdl).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:34 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

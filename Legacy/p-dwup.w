@@ -226,6 +226,11 @@ ASSIGN
 ON CHOOSE OF Btn-down IN FRAME Panel-Frame /* Down */
 DO:
    {methods/run_link.i "tableio-target" "proc-down"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:48 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -237,6 +242,11 @@ END.
 ON CHOOSE OF Btn-first IN FRAME Panel-Frame /* First */
 DO:
      {methods/run_link.i "tableio-target" "proc-first"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:48 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -248,6 +258,11 @@ END.
 ON CHOOSE OF Btn-last IN FRAME Panel-Frame /* LAst */
 DO:
      {methods/run_link.i "tableio-target" "proc-last"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:48 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -259,6 +274,11 @@ END.
 ON CHOOSE OF Btn-left IN FRAME Panel-Frame /* Left */
 DO:
        {methods/run_link.i "tableio-target" "proc-left"}
+
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:48 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 
 END.
 
@@ -272,6 +292,11 @@ ON CHOOSE OF Btn-right IN FRAME Panel-Frame /* Right */
 DO:
        {methods/run_link.i "tableio-target" "proc-right"}
 
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:48 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -283,6 +308,11 @@ END.
 ON CHOOSE OF Btn-up IN FRAME Panel-Frame /* Up */
 DO:
        {methods/run_link.i "tableio-target" "proc-up"}
+
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:48 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 
 END.
 

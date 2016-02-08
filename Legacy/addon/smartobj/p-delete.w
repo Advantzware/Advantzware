@@ -192,6 +192,11 @@ ASSIGN
 ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
 DO:
    RUN notify ('delete-record':U).  
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:06:18 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
