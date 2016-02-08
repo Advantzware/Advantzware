@@ -33,7 +33,7 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 &scoped-define BaseRegistryKey Software~\Advantzware~\Advantzware~\
 &scoped-define DefaultAppServerPartition Default
 &scoped-define ServiceFile Consultingwerk/Windows/Framework/Reference/services.xml
-&scoped-define SmartServiceFile Consultingwerk/SmartFramework/services.xml
+&scoped-define SmartServiceFile Advantzware/Windows/SmartFramework/Menu/smartservices.xml
 &scoped-define SmartServiceFileClient Consultingwerk/SmartFramework/services_client.xml
 &scoped-define StartupForm Advantzware.Windows.SmartFramework.Menu.MainMenuForm
 &scoped-define TaskbarApplicationId com.advantzware.mainmenu

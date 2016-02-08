@@ -19,28 +19,28 @@ ASSIGN
   ldummy = SESSION:SET-WAIT-STATE("GENERAL")
   g_version = "2.1A-8.2A".
 
-m_id = OS-GETENV("opsysid").
+/*m_id = OS-GETENV("opsysid").                          */
+/*                                                      */
+/*IF m_id = ? THEN m_id = "".                           */
+/*                                                      */
+/*IF NOT SETUSERID(m_id,"","NOSWEAT") OR m_id EQ "" THEN*/
+/*RUN nosweat/login.w.                                  */
+/*                                                      */
+/*IF USERID("NOSWEAT") = "" OR quit_login  THEN         */
+/*DO:                                                   */
+/*  ldummy = SESSION:SET-WAIT-STATE("").                */
+/*  QUIT.                                               */
+/*END.                                                  */
 
-IF m_id = ? THEN m_id = "".
-
-IF NOT SETUSERID(m_id,"","NOSWEAT") OR m_id EQ "" THEN
-RUN nosweat/login.w.
-
-IF USERID("NOSWEAT") = "" OR quit_login  THEN
-DO:
-  ldummy = SESSION:SET-WAIT-STATE("").
-  QUIT.
-END.
-
-FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.
-IF NOT AVAILABLE users THEN
-DO:     
-  ldummy = SESSION:SET-WAIT-STATE("").
-  MESSAGE "User Login Does Not Exist in Users File" SKIP(1)
-    "Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
-  QUIT.
-END.
-g_track_usage = users.track_usage.
+/*FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.*/
+/*IF NOT AVAILABLE users THEN                                         */
+/*DO:                                                                 */
+/*  ldummy = SESSION:SET-WAIT-STATE("").                              */
+/*  MESSAGE "User Login Does Not Exist in Users File" SKIP(1)         */
+/*    "Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.              */
+/*  QUIT.                                                             */
+/*END.                                                                */
+/*g_track_usage = users.track_usage.                                  */
 
 FOR EACH parmfile NO-LOCK:
 
@@ -67,7 +67,7 @@ END.
   Load program & lookup data 
   =========*/
 
-IF userid("nosweat") = "ASI" OR USERID("nosweat") = "NOSWEAT" THEN RUN asiload.p.
+/*IF userid("nosweat") = "ASI" OR USERID("nosweat") = "NOSWEAT" THEN RUN asiload.p.*/
 
 RUN chkdate.p.
 IF CONNECTED("NOSWEAT") THEN
@@ -88,21 +88,21 @@ DO:
     init_menu = no.
 
 
-    RUN Advantzware/Windows/SmartFramework/Menu/mainmenu_stub.p PERSISTENT .
+/*    RUN Advantzware/Windows/SmartFramework/Menu/mainmenu_stub.p PERSISTENT .*/
 
-ASSIGN
-  g_init = TRUE 
-  g_company = ""
-  g_loc = "".
-RUN Get_Procedure IN Persistent-Handle ("comp_loc.",OUTPUT run-proc,yes).
-
-
-IF g_company = "" OR g_loc = "" THEN
-DO:
-  MESSAGE "No Company and/or Location found for your login ID." SKIP
-      "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.
-  RETURN.
-END.
+/*ASSIGN                                                                       */
+/*  g_init = TRUE                                                              */
+/*  g_company = ""                                                             */
+/*  g_loc = "".                                                                */
+/*RUN Get_Procedure IN Persistent-Handle ("comp_loc.",OUTPUT run-proc,yes).    */
+/*                                                                             */
+/*                                                                             */
+/*IF g_company = "" OR g_loc = "" THEN                                         */
+/*DO:                                                                          */
+/*  MESSAGE "No Company and/or Location found for your login ID." SKIP         */
+/*      "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.*/
+/*  RETURN.                                                                    */
+/*END.                                                                         */
 
 
 
