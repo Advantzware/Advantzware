@@ -119,6 +119,82 @@ Layout,Create-On-Add,SortBy-Case
 
 /* **********************  Internal Procedures  *********************** */
 
+<<<<<<< HEAD
+=======
+&IF DEFINED(EXCLUDE-winkit-initialize) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winkit-initialize Method-Library
+PROCEDURE winkit-initialize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    DEFINE VARIABLE oRenderedBrowseContext AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext NO-UNDO . 
+
+    DEFINE VARIABLE container-hdl AS HANDLE NO-UNDO.
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+    /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
+       Create WinKit Tabs */
+    DEFINE VARIABLE oForm AS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm NO-UNDO . 
+    DEFINE VARIABLE iPage AS INTEGER             NO-UNDO .
+
+    
+    RUN dispatch IN THIS-PROCEDURE ("initialize") .
+
+    RUN get-link-handle IN adm-broker-hdl
+           (INPUT THIS-PROCEDURE, INPUT 'CONTAINER-SOURCE':U, OUTPUT char-hdl).
+    ASSIGN container-hdl = WIDGET-HANDLE(char-hdl).
+
+    IF VALID-HANDLE (container-hdl) AND Consultingwerk.Util.ProcedureHelper:HasEntry (container-hdl, "getEmbeddedWindowForm") THEN DO:
+         
+        RUN get-attribute IN container-hdl ("current-page") .
+        
+        ASSIGN iPage = Consultingwerk.Util.DataTypeHelper:ToInteger (RETURN-VALUE) . 
+         
+        oForm = DYNAMIC-FUNCTION ("getEmbeddedWindowForm" IN container-hdl)  .   
+          
+        IF VALID-OBJECT (oForm) THEN DO:
+
+            ASSIGN oRenderedBrowseContext = NEW Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseContext () . 
+            
+            IF iPage = 0 THEN 
+                ASSIGN oRenderedBrowseContext:Parent = oForm:ClientArea .
+            ELSE 
+                IF TYPE-OF (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm) THEN 
+                    ASSIGN oRenderedBrowseContext:Parent =  CAST (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):GetTabPageControl (iPage) .
+            
+            ASSIGN oRenderedBrowseContext:Batching            = FALSE 
+                   oRenderedBrowseContext:BindingSourceFields = Consultingwerk.WindowIntegrationKit.Controls.BindingSourceFieldsEnum:BrowserFields 
+                   oRenderedBrowseContext:BrowseHandle        = BROWSE {&BROWSE-NAME}:HANDLE
+                   oRenderedBrowseContext:EmbeddedWindowForm  = oForm
+                   oRenderedBrowseContext:CallBackProcedure   = THIS-PROCEDURE 
+                   oRenderedBrowseContext:EnableSearch        = TRUE 
+                   . 
+                    
+            oRenderedBrowseControl = NEW Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl (oRenderedBrowseContext) .
+
+            IF Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE, "InitializeGrid") THEN 
+                RUN InitializeGrid IN THIS-PROCEDURE .  
+
+
+/*oRenderedBrowseControl:Dock = System.Windows.Forms.DockStyle:FILL.*/
+
+        END.
+    END.     
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+>>>>>>> c56b7c5... Fixed Tab Pages that are not init'ed initially
 &IF DEFINED(EXCLUDE-set-size) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-size Method-Library 

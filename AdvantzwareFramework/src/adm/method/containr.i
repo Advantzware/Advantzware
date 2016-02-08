@@ -115,6 +115,37 @@ PROCEDURE adm-change-page :
     -------------------------------------------------------------*/   
 
   RUN broker-change-page IN adm-broker-hdl (INPUT THIS-PROCEDURE) NO-ERROR.
+
+
+  &IF "{&WinKitFormType}" EQ "Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm" &THEN
+
+  DEFINE VARIABLE i     AS INTEGER NO-UNDO.
+  DEFINE VARIABLE iPage AS INTEGER NO-UNDO.
+
+  IF VALID-OBJECT (oFormControl) THEN DO:
+
+      RUN GET-ATTRIBUTE ("current-page") . 
+    
+      ASSIGN iPage = Consultingwerk.Util.DataTypeHelper:ToInteger 
+                          (RETURN-VALUE) .
+
+      oFormControl:FinalizeTabPage (iPage) .
+    
+      /* Mike Fechner, Consultingwerk Ltd. 11.11.2010
+         Set FRAME BGCOLOR to 33, which matches the Form Background color
+         of Office 2007 applications, color33=227,239,255 */
+      Consultingwerk.Util.WidgetHelper:SetFrameBackgroundColor
+              (oFormControl:GetTabPageWindow (iPage), 
+               Consultingwerk.WindowIntegrationKit.Forms.WinKitForms:TabFolderBGColor, 
+               15, 
+               15) .
+  END.
+
+  &ENDIF
+
+
+
+
   
   END PROCEDURE.
 
@@ -178,7 +209,7 @@ PROCEDURE init-object :
                       (RETURN-VALUE) .
 
   IF VALID-OBJECT (oFormControl) THEN DO:
-          IF iPage > 0 THEN DO:
+      IF iPage > 0 THEN DO:
     
           DO iCreatePage = iWinKitTabInitialized + 1 TO iPage:
               oFormControl:CreateTab (SUBSTITUTE ("Tab &1", iCreatePage),
@@ -317,8 +348,22 @@ PROCEDURE select-page :
      ensure the .NET side reflects that. */
   &IF "{&WinKitFormType}" EQ "Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm" &THEN
 
-  IF VALID-OBJECT (oFormControl) THEN 
+  IF VALID-OBJECT (oFormControl) THEN DO:
+
+/*          oFormControl:FinalizeTabPage (p-page#) .                                        */
+/*                                                                                          */
+/*          /* Mike Fechner, Consultingwerk Ltd. 11.11.2010                                 */
+/*             Set FRAME BGCOLOR to 33, which matches the Form Background color             */
+/*             of Office 2007 applications, color33=227,239,255 */                          */
+/*          Consultingwerk.Util.WidgetHelper:SetFrameBackgroundColor                        */
+/*                  (oFormControl:GetTabPageWindow (p-page#),                               */
+/*                   Consultingwerk.WindowIntegrationKit.Forms.WinKitForms:TabFolderBGColor,*/
+/*                   15,                                                                    */
+/*                   15) .                                                                  */
+
       oFormControl:SelectTab (p-page#) . 
+
+   END.
 
   &ENDIF    
     
