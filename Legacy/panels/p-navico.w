@@ -207,6 +207,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB P-Win 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */

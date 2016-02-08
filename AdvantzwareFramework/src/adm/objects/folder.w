@@ -532,7 +532,7 @@ PROCEDURE initialize-folder :
     DEFINE VARIABLE oForm AS IEmbeddedWindowForm NO-UNDO . 
     DEFINE VARIABLE iPage AS INTEGER             NO-UNDO .
     
-    IF Consultingwerk.Util.ProcedureHelper:HasEntry (container-hdl, "getEmbeddedWindowForm") THEN DO:
+    IF VALID-HANDLE (container-hdl) AND Consultingwerk.Util.ProcedureHelper:HasEntry (container-hdl, "getEmbeddedWindowForm") THEN DO:
          
         oForm = DYNAMIC-FUNCTION ("getEmbeddedWindowForm" IN container-hdl)  .   
           
