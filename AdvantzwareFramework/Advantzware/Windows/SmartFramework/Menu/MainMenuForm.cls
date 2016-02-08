@@ -47,6 +47,7 @@ USING Infragistics.Win.UltraWinExplorerBar.*                              FROM A
 USING Infragistics.Win.UltraWinToolbars.*                                 FROM ASSEMBLY . 
 USING Progress.Lang.*                                                     FROM PROPATH .
 USING System.Windows.Forms.*                                              FROM ASSEMBLY . 
+USING Consultingwerk.WindowIntegrationKit.Forms.* FROM PROPATH.
 
 CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm 
     INHERITS SmartWindowForm: 
@@ -1668,6 +1669,8 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         DEFINE VARIABLE oMessage         AS Consultingwerk.SmartFramework.Message          NO-UNDO . 
         DEFINE VARIABLE oSettingsService AS Consultingwerk.Framework.ISettingsService      NO-UNDO . 
         
+        DEFINE VARIABLE hProcedure AS HANDLE NO-UNDO.
+        
         oMessageProvider = {Consultingwerk/get-service.i Consultingwerk.SmartFramework.IMessageProvider} .
         
         IF NOT VALID-OBJECT (oCloseTimer) AND SessionManager:UserName > "":U AND VALID-OBJECT (oMessageProvider) THEN DO ON ERROR UNDO, THROW:
@@ -1712,8 +1715,13 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
                 
                 oChildForm = CAST (THIS-OBJECT:MdiChildren:GetValue(0),
                               System.Windows.Forms.Form) . 
-                
-                oChildForm:Close () .
+    
+                hProcedure = (CAST (oChildForm, IEmbeddedWindowForm):ProcedureHandle) .
+    
+                IF TYPE-OF (oChildForm, IEmbeddedWindowForm) THEN 
+                    APPLY "CLOSE" TO hProcedure .
+                ELSE 
+                    oChildForm:Close () .
                 
                 IF VALID-OBJECT (oChildForm) THEN 
                     DELETE OBJECT oChildForm .  
