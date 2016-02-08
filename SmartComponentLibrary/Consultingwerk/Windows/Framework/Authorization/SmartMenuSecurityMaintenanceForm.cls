@@ -88,7 +88,9 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
 	                                                       e AS Consultingwerk.EventArgs):
 		
 		ASSIGN smartToolbarController1:Tools["Save Settings":U]:SharedProps:Enabled = smartMenuSecurityMaintenanceControl1:HasPendingChanges
-		       smartToolbarController1:Tools["Cancel":U]:SharedProps:Enabled = smartMenuSecurityMaintenanceControl1:HasPendingChanges .
+		       smartToolbarController1:Tools["Cancel":U]:SharedProps:Enabled = smartMenuSecurityMaintenanceControl1:HasPendingChanges 
+               smartToolbarController1:Tools["Reload":U]:SharedProps:Enabled = NOT smartMenuSecurityMaintenanceControl1:HasPendingChanges 
+                                                                               .
 
 	END METHOD .
 
@@ -114,6 +116,9 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE buttonTool1 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
         buttonTool1 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Open Users and Groups":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE buttonTool7 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
+        buttonTool7 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Reload":U).
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE buttonTool2 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
         buttonTool2 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Save Settings":U).
@@ -148,6 +153,15 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
         DEFINE VARIABLE appearance6 AS Infragistics.Win.Appearance NO-UNDO.
         appearance6 = NEW Infragistics.Win.Appearance().
         @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE buttonTool8 AS Infragistics.Win.UltraWinToolbars.ButtonTool NO-UNDO.
+        buttonTool8 = NEW Infragistics.Win.UltraWinToolbars.ButtonTool("Reload":U).
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE appearance7 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance7 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
+        DEFINE VARIABLE appearance8 AS Infragistics.Win.Appearance NO-UNDO.
+        appearance8 = NEW Infragistics.Win.Appearance().
+        @VisualDesigner.FormMember (NeedsInitialize="true":U).
         DEFINE VARIABLE resources AS Progress.Util.ResourceManager NO-UNDO.
         resources = NEW Progress.Util.ResourceManager("Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanceForm":U).
         THIS-OBJECT:smartToolbarController1 = NEW Consultingwerk.SmartComponents.Implementation.SmartToolbarController(THIS-OBJECT:components).
@@ -170,14 +184,16 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
         resources:ApplyResources(ribbonTab1, "ribbonTab1":U).
         resources:ApplyResources(ribbonGroup1, "ribbonGroup1":U).
         buttonTool1:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
+        buttonTool7:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool2:InstanceProps:IsFirstInGroup = TRUE.
         buttonTool2:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         buttonTool3:InstanceProps:PreferredSizeOnRibbon = Infragistics.Win.UltraWinToolbars.RibbonToolSize:Large.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar0 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 3 NO-UNDO.
+        DEFINE VARIABLE arrayvar0 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 4 NO-UNDO.
         arrayvar0[1] = buttonTool1.
-        arrayvar0[2] = buttonTool2.
-        arrayvar0[3] = buttonTool3.
+        arrayvar0[2] = buttonTool7.
+        arrayvar0[3] = buttonTool2.
+        arrayvar0[4] = buttonTool3.
         ribbonGroup1:Tools:AddRange(arrayvar0).
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
         DEFINE VARIABLE arrayvar1 AS Infragistics.Win.UltraWinToolbars.RibbonGroup EXTENT 1 NO-UNDO.
@@ -188,6 +204,7 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
         arrayvar2[1] = ribbonTab1.
         THIS-OBJECT:smartToolbarController1:Ribbon:NonInheritedRibbonTabs:AddRange(arrayvar2).
         THIS-OBJECT:smartToolbarController1:Ribbon:Visible = TRUE.
+        THIS-OBJECT:smartToolbarController1:ShowFullMenusDelay = 500.
         THIS-OBJECT:smartToolbarController1:Style = Infragistics.Win.UltraWinToolbars.ToolbarStyle:Office2010.
         appearance1:Image = CAST(resources:GetObject("appearance1.Image":U), System.Object).
         buttonTool4:SharedPropsInternal:AppearancesLarge:Appearance = appearance1.
@@ -204,11 +221,18 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
         appearance6:Image = CAST(resources:GetObject("appearance6.Image":U), System.Object).
         buttonTool6:SharedPropsInternal:AppearancesSmall:Appearance = appearance6.
         buttonTool6:SharedPropsInternal:Caption = resources:GetString("resource.Caption2":U).
+        appearance7:Image = CAST(resources:GetObject("appearance7.Image":U), System.Object).
+        buttonTool8:SharedPropsInternal:AppearancesLarge:Appearance = appearance7.
+        appearance8:Image = CAST(resources:GetObject("appearance8.Image":U), System.Object).
+        buttonTool8:SharedPropsInternal:AppearancesSmall:Appearance = appearance8.
+        resources:ApplyResources(buttonTool8:SharedPropsInternal, "buttonTool8.SharedPropsInternal":U).
+        buttonTool8:ForceApplyResources = "SharedPropsInternal":U.
         @VisualDesigner.FormMember (NeedsInitialize="false":U, InitializeArray="true":U).
-        DEFINE VARIABLE arrayvar3 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 3 NO-UNDO.
+        DEFINE VARIABLE arrayvar3 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 4 NO-UNDO.
         arrayvar3[1] = buttonTool4.
         arrayvar3[2] = buttonTool5.
         arrayvar3[3] = buttonTool6.
+        arrayvar3[4] = buttonTool8.
         THIS-OBJECT:smartToolbarController1:Tools:AddRange(arrayvar3).
         THIS-OBJECT:smartToolbarController1:ToolClick:Subscribe(THIS-OBJECT:smartToolbarController1_ToolClick).
         /*  */
@@ -369,6 +393,9 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
 
                 THIS-OBJECT:smartMenuSecurityMaintenanceControl1:Cancel () .
             END. 
+            WHEN "Reload":U THEN DO:
+                THIS-OBJECT:smartMenuSecurityMaintenanceControl1:Reload () .
+            END.
         END CASE.
 
         CATCH ple AS Progress.Lang.Error :

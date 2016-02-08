@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2006-2013 by Consultingwerk Ltd. ("CW") -            *
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
  * www.consultingwerk.de and other contributors as listed             *
  * below.  All Rights Reserved.                                       *
  *                                                                    *
@@ -45,6 +45,9 @@ CLASS Consultingwerk.OERA.ServiceManagerImpl
         FIELD Managed    AS LOGICAL INIT TRUE 
         INDEX ServiceName IS UNIQUE ServiceName . 
 
+    DEFINE PRIVATE VARIABLE oService        AS IServiceNameMappingService NO-UNDO . 
+    DEFINE PRIVATE VARIABLE lServiceQueried AS LOGICAL                    NO-UNDO INIT FALSE .
+
     /*------------------------------------------------------------------------------
         Purpose: Deregisters an external Business Service from the ServiceManager class
         Notes:   External Business Services are launched externally, may even be 
@@ -87,6 +90,10 @@ CLASS Consultingwerk.OERA.ServiceManagerImpl
 
         DEFINE BUFFER ttServices FOR ttServices . 
         
+        &IF DEFINED (UseServiceNameMappingService) NE 0 &THEN
+        ASSIGN pcServiceName = THIS-OBJECT:GetMappedServiceName (pcServiceName) .
+        &ENDIF
+        
         FIND ttServices WHERE ttServices.ServiceName = pcServiceName NO-LOCK NO-ERROR . 
         
         ERROR-STATUS:ERROR = FALSE NO-ERROR . 
@@ -99,6 +106,47 @@ CLASS Consultingwerk.OERA.ServiceManagerImpl
     END METHOD.
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the mapped business service name from the current registerd
+                 implementation of the IServiceNameMappingService interface (can but 
+                 most not be an instance of this class here) 
+        Notes:   Returns the input parameter when no IServiceNameMappingService exists 
+                 or that implementation returns "" or ?
+        @param pcServiceName The service name as provided by the consumer
+        @return The name of the actual business service implementing class
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC CHARACTER GetMappedServiceName (pcServiceName AS CHARACTER):
+        
+        DEFINE VARIABLE cMappedServiceName AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE iPos               AS INTEGER   NO-UNDO .
+        
+        IF lServiceQueried = FALSE THEN DO:  
+            ASSIGN oService        = {Consultingwerk/get-service.i Consultingwerk.OERA.IServiceNameMappingService 
+                                                                   "NEW ServiceNameMappingService()"} 
+                   lServiceQueried = TRUE .
+        END.
+        
+        IF NOT VALID-OBJECT (oService) THEN 
+            RETURN pcServiceName .
+        
+        ASSIGN iPos = StringHelper:FirstOccurenceOf (pcServiceName, "|,#,":U + CHR (1)) . 
+    
+        IF iPos > 1 THEN 
+            ASSIGN cMappedServiceName = oService:GetBusinessServiceName (SUBSTRING (pcServiceName, 1, iPos - 1)) .
+        ELSE 
+            ASSIGN cMappedServiceName = oService:GetBusinessServiceName (pcServiceName) .
+        
+        IF cMappedServiceName > "":U THEN DO:
+            IF iPos > 1 THEN 
+                RETURN cMappedServiceName + SUBSTRING (pcServiceName, iPos).
+            ELSE 
+                RETURN cMappedServiceName . 
+        END.
+        ELSE 
+            RETURN pcServiceName .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Returns if the given Business Service is already running
         Notes:   Default version of the method only checks for externally launched 
                  (=registered) Business Services
@@ -108,6 +156,10 @@ CLASS Consultingwerk.OERA.ServiceManagerImpl
     METHOD PUBLIC LOGICAL IsRunning (pcServiceName AS CHARACTER):
         
         DEFINE BUFFER ttServices FOR ttServices . 
+        
+        &IF DEFINED (UseServiceNameMappingService) NE 0 &THEN
+        ASSIGN pcServiceName = THIS-OBJECT:GetMappedServiceName (pcServiceName) .
+        &ENDIF
         
         FIND ttServices WHERE ttServices.ServiceName = pcServiceName 
                           AND ttServices.Managed     = FALSE NO-ERROR . 
@@ -132,6 +184,10 @@ CLASS Consultingwerk.OERA.ServiceManagerImpl
                                      poServiceType AS BusinessServiceTypeEnum):
                                          
         DEFINE BUFFER ttServices FOR ttServices . 
+        
+        &IF DEFINED (UseServiceNameMappingService) NE 0 &THEN
+        ASSIGN pcServiceName = THIS-OBJECT:GetMappedServiceName (pcServiceName) .
+        &ENDIF
         
         IF NOT VALID-OBJECT (poServiceType) THEN 
             poServiceType = BusinessServiceTypeEnum:Any .                  
@@ -236,7 +292,7 @@ CLASS Consultingwerk.OERA.ServiceManagerImpl
         @param poInstance The instance of the business service
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID RegisterBusinessService (pcServiceName AS CHARACTER,
-                                                       poInstance AS IBusinessService):
+                                                poInstance AS IBusinessService):
         
         DEFINE BUFFER ttServices FOR ttServices . 
         
@@ -320,6 +376,10 @@ CLASS Consultingwerk.OERA.ServiceManagerImpl
         
         FIND ttServices WHERE ttServices.ServiceName = pcServiceName 
                           AND ttServices.Managed = TRUE NO-LOCK NO-ERROR . 
+
+        &IF DEFINED (UseServiceNameMappingService) NE 0 &THEN
+        ASSIGN pcServiceName = THIS-OBJECT:GetMappedServiceName (pcServiceName) .
+        &ENDIF
 
         ERROR-STATUS:ERROR = FALSE NO-ERROR .        
         

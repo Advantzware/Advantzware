@@ -1,23 +1,29 @@
 <?xml version="1.0"?>
 <ttServiceLoader xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ttServiceLoaderRow>
-    <Order>1</Order>
+    <Order>10</Order>
+    <ServiceTypeName>Consultingwerk.OERA.IServiceNameMappingService</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.OERA.ServiceNameMappingService</ServiceClassName>
+  </ttServiceLoaderRow>
+
+  <ttServiceLoaderRow>
+    <Order>20</Order>
     <ServiceTypeName>Consultingwerk.Framework.IMessagePublisher</ServiceTypeName>
     <ServiceClassName>Consultingwerk.Framework.MessagePublisher</ServiceClassName>
   </ttServiceLoaderRow>
   <ttServiceLoaderRow>
-    <Order>1</Order>
+    <Order>30</Order>
     <ServiceTypeName>Consultingwerk.Framework.Server.IActionalInstrumentationService</ServiceTypeName>
     <ServiceClassName>Consultingwerk.Framework.Server.ActionalInteractionService</ServiceClassName>
   </ttServiceLoaderRow>
   <ttServiceLoaderRow>
-    <Order>2</Order>
+    <Order>40</Order>
     <ServiceTypeName>Consultingwerk.Framework.RepositoryServices.IRepositoryService</ServiceTypeName>
     <ServiceClassName>Consultingwerk.Framework.RepositoryServices.Dynamics.SimpleDynamicsRepositoryService</ServiceClassName>
     <RequiredDatabases>ICFDB</RequiredDatabases>
   </ttServiceLoaderRow>
   <ttServiceLoaderRow>
-    <Order>3</Order>
+    <Order>50</Order>
     <ServiceTypeName>Consultingwerk.Framework.Server.ServerSessionActivator</ServiceTypeName>
     <ServiceClassName>Consultingwerk.Framework.Server.ServerSessionActivator</ServiceClassName>
   </ttServiceLoaderRow>

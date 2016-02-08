@@ -137,9 +137,21 @@
    has more functionality (e.g. FindOnServer, backwards batching) 
    we do not intend to implement an "ExcludeObjectOrientedOERA" 
    switch for customers that are not (yet) using OO business 
-   entities. */
-/*&GLOBAL-DEFINE ExcludeProceduralOERA*/
+   entities. 
+   
+   With SCL-1171 we are making this option the new default to support
+   the name mapping service in the ServiceManaager */
 &ENDIF 
+&GLOBAL-DEFINE ExcludeProceduralOERA
+
+&IF 1=0 &THEN
+/* SCL-1171 - optionally enable the service name mapping service 
+   from the ServiceManager. Customerds that are not using the 
+   ServiceNameMappingService can deactivate it here and avoid 
+   any performance impact by the service name lookup done for 
+   every call to the service interface */
+&ENDIF 
+&GLOBAL-DEFINE UseServiceNameMappingService
  
 &IF 1=0 &THEN
 /* Mike Fechner, Consultingwerk Ltd. 03.01.2012

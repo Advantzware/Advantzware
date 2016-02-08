@@ -270,7 +270,7 @@ CLASS Consultingwerk.Util.MessageFormHelper:
     /*------------------------------------------------------------------------------
         Purpose: Processes a list of questions
         Notes:   Displays each unanswered question from the list to the user. Returns 
-                 ture when there were unanswered questions that are answered during the 
+                 true when there were unanswered questions that are answered during the 
                  call and should be send to the server for further processing. Returns
                  FALSE when no unanswered questions have been present
         @param poQuestions The ListQuestion with the questions to process

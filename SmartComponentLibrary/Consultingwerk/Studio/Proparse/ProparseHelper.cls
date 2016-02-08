@@ -1050,6 +1050,42 @@ CLASS Consultingwerk.Studio.Proparse.ProparseHelper:
     END METHOD.
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the complete trigger Event_list node of a Trigger node                                                                        
+        Notes:   Returns "":U if no Event_list node is present, comma-delimited                                                             
+        @param poASTNode The JPNode of the Trigger itself (ON / Blocknode)
+        @return The Text of the Event_list node             
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC STATIC CHARACTER TriggerCompleteEventList (poASTNode AS JPNode):
+        
+        DEFINE VARIABLE oChild      AS JPNode NO-UNDO .
+        DEFINE VARIABLE oGrandChild AS JPNode NO-UNDO .
+    
+        DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+        ASSIGN oChild = poASTNode:firstChild () .
+        
+        DO WHILE VALID-OBJECT (oChild):    
+            
+            IF NodeTypes:getTypeName(oChild:getType()) = "Event_List":U THEN DO:
+                oGrandChild = oChild:firstChild () .
+                            
+                DO WHILE VALID-OBJECT (oGrandChild):            
+                    IF NodeTypes:getTypeName(oGrandChild:getType()) <> "COMMA":U THEN 
+                            
+                        ASSIGN cReturn = cReturn + ",":U + oGrandChild:getText () .
+                
+                    ASSIGN oGrandChild = oGrandChild:nextSibling () .
+                END.
+            END.
+    
+            oChild = oChild:nextSibling () .    
+        END.
+        
+        RETURN TRIM (cReturn, ",":U) .
+        
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
         Purpose: Returns the Text of the Widget_ref node of a Trigger node                                                                        
         Notes:   Returns "":U if no Widget_ref node is present, drills down into the 
                  Field_ref node if present (for UI widgets)                                                           

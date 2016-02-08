@@ -891,8 +891,6 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartObjectTypeForm
     ------------------------------------------------------------------------------*/
     METHOD OVERRIDE PROTECTED VOID OnFormClosed (e AS System.Windows.Forms.FormClosedEventArgs):
         
-        THIS-OBJECT:DeleteOnFormClosed = FALSE . 
-
         IF VALID-OBJECT (oTreeModel) THEN 
             oTreeModel:Dispose () . 
 
@@ -904,6 +902,35 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartObjectTypeForm
         
     END METHOD .
         
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the FormClosing event 
+        Notes:   
+        @param e The FormClosingEventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+	METHOD PROTECTED OVERRIDE VOID OnFormClosing (e AS FormClosingEventArgs):
+		
+		SUPER:OnFormClosing (e) .
+		
+        DockManagerHelper:StoreToSettingsService (ultraDockManager1,
+                                                  THIS-OBJECT:WindowPositionRegistryKey) .
+
+	END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Raises the Load event
+        Notes:   
+        @param e The System.EventArgs with the data for this event
+    ------------------------------------------------------------------------------*/
+	METHOD PROTECTED OVERRIDE VOID OnLoad (e AS System.EventArgs):
+		
+		SUPER:OnLoad (e) .
+		
+        /* DockManager */
+        DockManagerHelper:RestoreFromSettingsService (ultraDockManager1,
+                                                      THIS-OBJECT:WindowPositionRegistryKey) .
+
+	END METHOD .
+
     /*------------------------------------------------------------------------------
         Purpose: Raises the Shown event
         Notes:   
@@ -1004,7 +1031,6 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartObjectTypeForm
     ------------------------------------------------------------------------------*/
 	METHOD PRIVATE VOID tbSearchField_KeyDown (sender AS System.Object, 
 	                                           e AS System.Windows.Forms.KeyEventArgs):
-	
 		
 		IF (EnumHelper:AreEqual (e:KeyCode, Keys:Enter) OR
 		   EnumHelper:AreEqual (e:KeyCode, Keys:Return) OR
@@ -1041,6 +1067,9 @@ CLASS Consultingwerk.Windows.Framework.Repository.Class.SmartObjectTypeForm
         Notes:   
     ------------------------------------------------------------------------------*/
     DESTRUCTOR PUBLIC SmartObjectTypeForm ():
+
+        IF VALID-OBJECT (ultraDockManager1) THEN 
+            ultraDockManager1:Dispose () . 
 
         GarbageCollectorHelper:DeleteObject (oTreeModel) .
         GarbageCollectorHelper:ClearUltraTreeNodes (ultraTree1) .
