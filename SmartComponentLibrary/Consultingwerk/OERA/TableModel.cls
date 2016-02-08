@@ -417,6 +417,84 @@ CLASS Consultingwerk.OERA.TableModel
     {Consultingwerk/OERA/GetSetBufferField.i ROWID Rowid}
 
     /*------------------------------------------------------------------------------
+        Purpose: Returns the value of a buffer field as an Enum value
+        Notes:   
+        @param pcFieldName The name of the field
+        @param pcEnumType The name of the Enum to convert the field value to
+        @return The field value
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED Progress.Lang.Object GetCharacterEnumFieldValue (pcFieldName AS CHARACTER,
+                                                                      pcEnumType AS CHARACTER):
+        
+    &IF NOT PROVERSION BEGINS "10.2":U &THEN
+        
+        DEFINE VARIABLE oEnumClass AS Progress.Lang.Class NO-UNDO . 
+        
+        IF NOT THIS-OBJECT:BufferHandle:Available THEN 
+            UNDO, THROW NEW RecordNotAvailableException (SUBSTITUTE ("No &1 record is available."{&TRAN},
+                                                                     THIS-OBJECT:BufferName), 
+                                                         0) . 
+
+        oEnumClass = Progress.Lang.Class:GetClass (pcEnumType) . 
+
+        IF oEnumClass:IsA ("Consultingwerk.Enum":U) THEN 
+
+            RETURN DYNAMIC-INVOKE (pcEnumType, "FromString":U, THIS-OBJECT:BufferHandle:BUFFER-FIELD (pcFieldName):BUFFER-VALUE) .
+
+&IF DEFINED (NativeEnums) NE 0 &THEN        
+        ELSE IF oEnumClass:IsA ("Progress.Lang.Enum":U) THEN  
+          
+            RETURN Progress.Lang.Enum:ToObject (pcEnumType, THIS-OBJECT:BufferHandle:BUFFER-FIELD (pcFieldName):BUFFER-VALUE) .
+&ENDIF
+
+        RETURN ? . 
+    &ELSE
+    UNDO, THROW NEW Consultingwerk.Exceptions.NotSupportedException ("GetCharacterEnumFieldValue":U,
+                                                                     THIS-OBJECT:GetClass():TypeName) .
+    &ENDIF
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the value of a buffer field as an Enum value
+        Notes:   
+        @param pcFieldName The name of the field
+        @param pcEnumType The name of the Enum to convert the field value to
+        @return The field value
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED Progress.Lang.Object GetIntegerEnumFieldValue (pcFieldName AS CHARACTER,
+                                                                    pcEnumType AS CHARACTER):
+        
+    &IF NOT PROVERSION BEGINS "10.2":U &THEN
+        
+        DEFINE VARIABLE oEnumClass AS Progress.Lang.Class NO-UNDO . 
+        
+        IF NOT THIS-OBJECT:BufferHandle:Available THEN 
+            UNDO, THROW NEW RecordNotAvailableException (SUBSTITUTE ("No &1 record is available."{&TRAN},
+                                                                     THIS-OBJECT:BufferName), 
+                                                         0) . 
+
+        oEnumClass = Progress.Lang.Class:GetClass (pcEnumType) . 
+
+        IF oEnumClass:IsA ("Consultingwerk.Enum":U) THEN 
+
+            RETURN DYNAMIC-INVOKE (pcEnumType, "FromValue":U, THIS-OBJECT:BufferHandle:BUFFER-FIELD (pcFieldName):BUFFER-VALUE) .
+
+&IF DEFINED (NativeEnums) NE 0 &THEN        
+        ELSE IF oEnumClass:IsA ("Progress.Lang.Enum":U) THEN  
+          
+            RETURN Progress.Lang.Enum:ToObject (pcEnumType, INTEGER(THIS-OBJECT:BufferHandle:BUFFER-FIELD (pcFieldName):BUFFER-VALUE)) .
+&ENDIF
+
+        RETURN ? . 
+    &ELSE
+    UNDO, THROW NEW Consultingwerk.Exceptions.NotSupportedException ("GetCharacterEnumFieldValue":U,
+                                                                     THIS-OBJECT:GetClass():TypeName) .
+    &ENDIF
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Fills the TableModel based on the given data-source ROWID (DB-ROWID)
         Notes:   DB-ROWID passed as comma-delimited list in case there are joined 
                  data-source queries 
@@ -671,6 +749,55 @@ CLASS Consultingwerk.OERA.TableModel
 		END.
 
 	END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Assigns the value of a buffer field
+        Notes:   
+        @param pcFieldName The name of the field
+        @param poFieldValue The value for the field
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID SetCharacterEnumFieldValue (pcFieldName AS CHARACTER,
+                                                      poFieldValue AS Progress.Lang.Object):
+        
+        IF NOT THIS-OBJECT:BufferHandle:Available THEN
+            UNDO, THROW NEW RecordNotAvailableException (SUBSTITUTE ("No &1 record is available."{&TRAN},
+                                                                     THIS-OBJECT:BufferName),
+                                                         0) .
+
+        IF VALID-OBJECT (poFieldValue) THEN 
+            THIS-OBJECT:BufferHandle:BUFFER-FIELD (pcFieldName):BUFFER-VALUE = STRING (poFieldValue) .
+        ELSE 
+            THIS-OBJECT:BufferHandle:BUFFER-FIELD (pcFieldName):BUFFER-VALUE = ? .
+
+    END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Assigns the value of a buffer field
+        Notes:   
+        @param pcFieldName The name of the field
+        @param poFieldValue The value for the field
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID SetIntegerEnumFieldValue (pcFieldName AS CHARACTER,
+                                                    poFieldValue AS Progress.Lang.Object):
+        
+        IF NOT THIS-OBJECT:BufferHandle:Available THEN
+            UNDO, THROW NEW RecordNotAvailableException (SUBSTITUTE ("No &1 record is available."{&TRAN},
+                                                                     THIS-OBJECT:BufferName),
+                                                         0) .
+
+        IF VALID-OBJECT (poFieldValue) THEN DO:
+            
+            IF TYPE-OF (poFieldValue, Consultingwerk.Enum) THEN 
+                THIS-OBJECT:BufferHandle:BUFFER-FIELD (pcFieldName):BUFFER-VALUE = CAST (poFieldValue, Consultingwerk.Enum):Value .
+            &IF DEFINED (NativeEnums) NE 0 &THEN    
+            ELSE IF TYPE-OF (poFieldValue, Progress.Lang.Enum) THEN  
+                THIS-OBJECT:BufferHandle:BUFFER-FIELD (pcFieldName):BUFFER-VALUE = INTEGER(CAST (poFieldValue, Progress.Lang.Enum):GetValue()) .
+            &ENDIF 
+        END.    
+        ELSE 
+            THIS-OBJECT:BufferHandle:BUFFER-FIELD (pcFieldName):BUFFER-VALUE = ? .
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Returns the Buffer name of the TableMode instance

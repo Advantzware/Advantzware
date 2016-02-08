@@ -45,11 +45,11 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-img btn-refresh RECT-30 
+&Scoped-Define ENABLED-OBJECTS RECT-30 btn-img btn-refresh 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -93,7 +93,7 @@ DEFINE BUTTON btn-refresh
      SIZE 15 BY 1.67.
 
 DEFINE RECTANGLE RECT-30
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 33 BY 2.14.
 
 
@@ -143,6 +143,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -157,7 +158,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE
@@ -192,6 +193,11 @@ DO:
      IF valid-handle(widget-handle(char-hdl))
          THEN RUN UPDATE-image IN WIDGET-HANDLE(char-hdl).
 
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:08:21 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -207,6 +213,11 @@ DO:
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"image-target",OUTPUT char-hdl).
      IF valid-handle(widget-handle(char-hdl))
          THEN RUN refresh-boximg IN WIDGET-HANDLE(char-hdl).
+
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:08:21 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 
 END.
 

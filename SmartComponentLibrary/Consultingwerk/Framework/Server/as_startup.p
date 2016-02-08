@@ -11,24 +11,35 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : ab_startup.p
-    Purpose     : AppServer Startup Procedure
+    Purpose     : AppServer Startup Procedure for classic AppServer agent
+                  and PASOE session
 
-    Syntax      :
+    Syntax      :  
 
     Description : 
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Thu Jan 26 23:55:01 CET 2012
-    Notes       :
+    Notes       : Supported Parameters for startup procedure (comma delimited list):
+                  DebugMode:        Turn on FrameworkSettings:DebugMode for 
+                                    various logging/tracing options
+                  OeraSiOnly:       Use SESSION:EXPORT to only allow access to 
+                                    Service Interface procedures in AppServer calls
+                  CustomLogEntries: Pipe-delimited list of CustomLogEntries to be
+                                    activated. Note, that when DebugMode is set a 
+                                    default list of log entries will be activated
+                                    when this parameter is not set, sample
+                                    CustomLogEntries=ServiceInterface|DataAccess|ServiceLoader|ConfigurationProvider
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
 
 ROUTINE-LEVEL ON ERROR UNDO, THROW .
 
-USING Consultingwerk.Framework.*        FROM PROPATH .
-USING Consultingwerk.OERA.*             FROM PROPATH .
-USING Consultingwerk.Util.*             FROM PROPATH .
+USING Consultingwerk.Framework.*             FROM PROPATH .
+USING Consultingwerk.Framework.Collections.* FROM PROPATH .
+USING Consultingwerk.OERA.*                  FROM PROPATH .
+USING Consultingwerk.Util.*                  FROM PROPATH .
 
 {Consultingwerk/products.i}
 
@@ -36,19 +47,29 @@ DEFINE INPUT  PARAMETER pcParameter AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE oConfigurationProvider AS IConfigurationProvider NO-UNDO .
 
+DEFINE VARIABLE oParamDictionary       AS CharacterDictionary    NO-UNDO . 
+
 /* ***************************  Main Block  *************************** */
 
 {Consultingwerk/agentstart-log.i}
 
-IF ListHelper:CanDo (pcParameter, "DebugMode":U) THEN DO: 
+oParamDictionary = ListHelper:AlternatingListToDictionary (pcParameter, ",":U, "=":U) . 
+
+
+IF oParamDictionary:ContainsKey ("DebugMode":U) THEN DO: 
     FrameworkSettings:DebugMode = TRUE .
     DataAccess:LogFetchDataDetails = TRUE . 
-    LogManager:AddCustomLogEntries ("ServiceInterface,DataAccess,ServiceLoader,ConfigurationProvider":U) .
+    
+    IF NOT oParamDictionary:ContainsKey ("CustomLogEntries":U) THEN 
+        LogManager:AddCustomLogEntries ("ServiceInterface,DataAccess,ServiceLoader,ConfigurationProvider":U) .
 END.    
     
 /* Only support the Service Interface path to the SmartComponent Library client */
-IF ListHelper:CanDo (pcParameter, "OeraSiOnly":U) THEN
+IF oParamDictionary:ContainsKey ("OeraSiOnly":U) THEN
     SESSION:EXPORT ("{&OERASI}/*.*":U) .    
+      
+IF oParamDictionary:ContainsKey ("CustomLogEntries":U) THEN 
+    LogManager:AddCustomLogEntries (REPLACE (oParamDictionary:GetValue ("CustomLogEntries":U), "|":U, ",":U)) .
       
 /* Mike Fechner, Consultingwerk Ltd. 20.01.2013
    Integration of the ConfigutaionProvider */

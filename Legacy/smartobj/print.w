@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -110,6 +110,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -124,7 +125,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -153,6 +154,11 @@ ASSIGN
 ON CHOOSE OF selectPrint IN FRAME F-Main /* Print */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:13:31 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

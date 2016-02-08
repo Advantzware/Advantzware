@@ -36,7 +36,7 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartFunctionViewer
     DEFINE PRIVATE VARIABLE components                                                     AS System.ComponentModel.IContainer                                               NO-UNDO.
     DEFINE PRIVATE VARIABLE eSmartFunction_ExternalId_Label AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE eSmartFunction_ExternalId AS Infragistics.Win.UltraWinEditors.UltraTextEditor NO-UNDO.
-    DEFINE PRIVATE VARIABLE ModulLookup AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup NO-UNDO.
+    DEFINE PRIVATE VARIABLE ModuleLookup AS Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup NO-UNDO.
     DEFINE PRIVATE VARIABLE FunctionBindingSource_eSmartFunction_FunctionModuleGuid_Label AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
     DEFINE PRIVATE VARIABLE openFileDialog1                                                AS System.Windows.Forms.OpenFileDialog                                            NO-UNDO.
     DEFINE PRIVATE VARIABLE ultraLabel1 AS Infragistics.Win.Misc.UltraLabel NO-UNDO.
@@ -382,7 +382,7 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartFunctionViewer
         THIS-OBJECT:FunctionBindingSource_eSmartFunction_FunctionLargeImage_Label = NEW Infragistics.Win.Misc.UltraLabel().
         THIS-OBJECT:FunctionBindingSource_eSmartFunction_FunctionLargeImage = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
         THIS-OBJECT:ultraPanel1 = NEW Infragistics.Win.Misc.UltraPanel().
-        THIS-OBJECT:ModulLookup = NEW Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup().
+        THIS-OBJECT:ModuleLookup = NEW Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup().
         THIS-OBJECT:FunctionBindingSource_eSmartFunction_FunctionModuleGuid_Label = NEW Infragistics.Win.Misc.UltraLabel().
         THIS-OBJECT:eSmartFunction_ExternalId_Label = NEW Infragistics.Win.Misc.UltraLabel().
         THIS-OBJECT:eSmartFunction_ExternalId = NEW Infragistics.Win.UltraWinEditors.UltraTextEditor().
@@ -397,7 +397,7 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartFunctionViewer
         CAST(THIS-OBJECT:FunctionBindingSource_eSmartFunction_FunctionLargeImage, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:ultraPanel1:ClientArea:SuspendLayout().
         THIS-OBJECT:ultraPanel1:SuspendLayout().
-        CAST(THIS-OBJECT:ModulLookup, System.ComponentModel.ISupportInitialize):BeginInit().
+        CAST(THIS-OBJECT:ModuleLookup, System.ComponentModel.ISupportInitialize):BeginInit().
         CAST(THIS-OBJECT:eSmartFunction_ExternalId, System.ComponentModel.ISupportInitialize):BeginInit().
         THIS-OBJECT:ultraPanel2:ClientArea:SuspendLayout().
         THIS-OBJECT:ultraPanel2:SuspendLayout().
@@ -540,7 +540,7 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartFunctionViewer
         /*  */
         /* ultraPanel1.ClientArea */
         /*  */
-        THIS-OBJECT:ultraPanel1:ClientArea:Controls:Add(THIS-OBJECT:ModulLookup).
+        THIS-OBJECT:ultraPanel1:ClientArea:Controls:Add(THIS-OBJECT:ModuleLookup).
         THIS-OBJECT:ultraPanel1:ClientArea:Controls:Add(THIS-OBJECT:FunctionBindingSource_eSmartFunction_FunctionName).
         THIS-OBJECT:ultraPanel1:ClientArea:Controls:Add(THIS-OBJECT:FunctionBindingSource_eSmartFunction_FunctionModuleGuid_Label).
         THIS-OBJECT:ultraPanel1:ClientArea:Controls:Add(THIS-OBJECT:FunctionBindingSource_eSmartFunction_FunctionName_Label).
@@ -558,32 +558,32 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartFunctionViewer
         THIS-OBJECT:ultraPanel1:Size = NEW System.Drawing.Size(383, 267).
         THIS-OBJECT:ultraPanel1:TabIndex = 0.
         /*  */
-        /* ModulLookup */
+        /* ModuleLookup */
         /*  */
         DEFINE VARIABLE nestedvar4 AS System.Windows.Forms.AnchorStyles NO-UNDO.
         nestedvar4 = CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        THIS-OBJECT:ModulLookup:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar4, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        THIS-OBJECT:ModuleLookup:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar4, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
         editorButton3:Key = "ShowLookupDialog":U.
         editorButton3:Text = "...":U.
-        THIS-OBJECT:ModulLookup:ButtonsRight:Add(editorButton3).
-        THIS-OBJECT:ModulLookup:DataBindings:Add(NEW System.Windows.Forms.Binding("LookupKeyValue":U, THIS-OBJECT:FunctionBindingSource, "FunctionModuleGuid":U, TRUE)).
-        THIS-OBJECT:ModulLookup:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:FunctionBindingSource, "ModuleName":U, TRUE)).
-        THIS-OBJECT:ModulLookup:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
-        THIS-OBJECT:ModulLookup:Location = NEW System.Drawing.Point(173, 90).
-        THIS-OBJECT:ModulLookup:LookupBrowserFields = "ModuleName":U.
-        THIS-OBJECT:ModulLookup:LookupDialogFilterFields = "ModuleName":U.
-        THIS-OBJECT:ModulLookup:LookupDialogFilterOperators = "BEGINS":U.
-        THIS-OBJECT:ModulLookup:LookupDialogQueryString = "FOR EACH eSmartModul":U.
-        THIS-OBJECT:ModulLookup:LookupDialogTitle = "Modul Lookup":U.
-        THIS-OBJECT:ModulLookup:LookupEntityName = "Consultingwerk.SmartFramework.Menu.ModuleBusinessEntity":U.
-        THIS-OBJECT:ModulLookup:LookupEntityTable = "eSmartModule":U.
-        THIS-OBJECT:ModulLookup:LookupKeyField = "ModuleName":U.
-        THIS-OBJECT:ModulLookup:LookupKeyValueColumn = "ModuleGuid":U.
-        THIS-OBJECT:ModulLookup:LookupQueryString = "FOR EACH eSmartModul WHERE eSmartModul.ModuleGuid = '&1'":U.
-        THIS-OBJECT:ModulLookup:Name = "ModulLookup":U.
-        THIS-OBJECT:ModulLookup:OwningGrid = ?.
-        THIS-OBJECT:ModulLookup:Size = NEW System.Drawing.Size(197, 21).
-        THIS-OBJECT:ModulLookup:TabIndex = 7.
+        THIS-OBJECT:ModuleLookup:ButtonsRight:Add(editorButton3).
+        THIS-OBJECT:ModuleLookup:DataBindings:Add(NEW System.Windows.Forms.Binding("LookupKeyValue":U, THIS-OBJECT:FunctionBindingSource, "FunctionModuleGuid":U, TRUE)).
+        THIS-OBJECT:ModuleLookup:DataBindings:Add(NEW System.Windows.Forms.Binding("Value":U, THIS-OBJECT:FunctionBindingSource, "ModuleName":U, TRUE)).
+        THIS-OBJECT:ModuleLookup:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
+        THIS-OBJECT:ModuleLookup:Location = NEW System.Drawing.Point(173, 90).
+        THIS-OBJECT:ModuleLookup:LookupBrowserFields = "ModuleName":U.
+        THIS-OBJECT:ModuleLookup:LookupDialogFilterFields = "ModuleName":U.
+        THIS-OBJECT:ModuleLookup:LookupDialogFilterOperators = "BEGINS":U.
+        THIS-OBJECT:ModuleLookup:LookupDialogQueryString = "FOR EACH eSmartModule":U.
+        THIS-OBJECT:ModuleLookup:LookupDialogTitle = "Module Lookup":U.
+        THIS-OBJECT:ModuleLookup:LookupEntityName = "Consultingwerk.SmartFramework.Menu.ModuleBusinessEntity":U.
+        THIS-OBJECT:ModuleLookup:LookupEntityTable = "eSmartModule":U.
+        THIS-OBJECT:ModuleLookup:LookupKeyField = "ModuleName":U.
+        THIS-OBJECT:ModuleLookup:LookupKeyValueColumn = "ModuleGuid":U.
+        THIS-OBJECT:ModuleLookup:LookupQueryString = "FOR EACH eSmartModule WHERE eSmartModule.ModuleName BEGINS '&1' BY eSmartModule.ModuleName":U.
+        THIS-OBJECT:ModuleLookup:Name = "ModuleLookup":U.
+        THIS-OBJECT:ModuleLookup:OwningGrid = ?.
+        THIS-OBJECT:ModuleLookup:Size = NEW System.Drawing.Size(197, 21).
+        THIS-OBJECT:ModuleLookup:TabIndex = 7.
         /*  */
         /* FunctionBindingSource_eSmartFunction_FunctionModuleGuid_Label */
         /*  */
@@ -673,7 +673,7 @@ CLASS Consultingwerk.Windows.Framework.Menu.SmartFunctionViewer
         THIS-OBJECT:ultraPanel1:ClientArea:ResumeLayout(FALSE).
         THIS-OBJECT:ultraPanel1:ClientArea:PerformLayout().
         THIS-OBJECT:ultraPanel1:ResumeLayout(FALSE).
-        CAST(THIS-OBJECT:ModulLookup, System.ComponentModel.ISupportInitialize):EndInit().
+        CAST(THIS-OBJECT:ModuleLookup, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:eSmartFunction_ExternalId, System.ComponentModel.ISupportInitialize):EndInit().
         THIS-OBJECT:ultraPanel2:ClientArea:ResumeLayout(FALSE).
         THIS-OBJECT:ultraPanel2:ResumeLayout(FALSE).

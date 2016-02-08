@@ -2,5 +2,10 @@
 <connection>
 <connectionentry identifier="nosweat"/>
 <connectionentry identifier="temp-db"/>
+<<<<<<< HEAD
 <connectionentry identifier="smartDB"/>
+=======
+<connectionentry identifier="SmartDB"/>
+<connectionentry identifier="asi"/>
+>>>>>>> 14c8be9a873b049c9f7462230e8be596de93b335
 </connection>

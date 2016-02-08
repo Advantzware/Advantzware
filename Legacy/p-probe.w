@@ -74,7 +74,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -138,7 +138,7 @@ DEFINE BUTTON btn-whatif
      SIZE 10 BY 1.29.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 120 BY 1.76.
 
 
@@ -197,6 +197,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -211,7 +212,7 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -248,6 +249,11 @@ DO:
         
 
    END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:07 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -269,6 +275,11 @@ DO:
      run copy-item in widget-handle(source-str). 
   END.
   
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:07 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -282,6 +293,11 @@ DO:
    RUN notify ('delete-record':U).  
    enable btn-imp-price btn-view btn-item btn-print btn-quote btn-whatif
              with frame {&frame-name}.
+
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:07 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 
 END.
 
@@ -306,6 +322,11 @@ DO:
      run import-price in widget-handle(source-str). 
   END.
 
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:07 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -327,6 +348,11 @@ DO:
      run update-item in widget-handle(source-str). 
   END.
   
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:07 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -351,6 +377,11 @@ DO:
      run print-probe in widget-handle(source-str). 
   END.
 
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:07 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -374,6 +405,11 @@ DO:
   */  
      run update-quote in widget-handle(source-str). 
   END.
+
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:07 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 
 END.
 
@@ -435,6 +471,11 @@ DO:
                   .
      END.
   END.
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:07 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -457,6 +498,11 @@ DO:
   */  
      run display-probe in widget-handle(source-str). 
   END.
+
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:07 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 
 END.
 
@@ -481,6 +527,11 @@ DO:
     */
      run run-whatif in widget-handle(source-str). 
   END.
+
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:07 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 
 END.
 
@@ -630,6 +681,49 @@ PROCEDURE local-initialize :
               btn-whatif:COLUMN = btn-whatif:COLUMN - btn-copy:WIDTH 
               rect-1:WIDTH = rect-1:WIDTH - (btn-copy:WIDTH).    
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-init C-WIn 
+PROCEDURE reopen-init :
+/*------------------------------------------------------------------------------
+  Purpose:     This procedure sets the value of the panel-type variable 
+               whenever the SmartPanelType ADM attribute is set. This is
+               used internally within this object to know whether the
+               SmartPanel is in "Save" or "Update" mode.
+  Parameters:  new attribute value.
+  Notes:       This replaces code in local-initialize which set panel-type,
+               but which did not always get executed early enough.
+------------------------------------------------------------------------------*/
+  
+  DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
+    
+  RUN get-attribute IN THIS-PROCEDURE ('UIB-MODE':U).
+  IF RETURN-VALUE <> 'DESIGN':U THEN DO:
+     IF VALID-HANDLE (adm-broker-hdl) THEN DO:
+       DEFINE VAR tab-target-link AS CHARACTER NO-UNDO.
+       RUN get-link-handle IN adm-broker-hdl
+           (INPUT THIS-PROCEDURE, 'TABLEIO-TARGET':U, OUTPUT tab-target-link).
+       IF (tab-target-link EQ "":U) THEN
+         adm-panel-state = 'disable-all':U.
+       ELSE DO:
+         RUN request-attribute IN adm-broker-hdl
+            (INPUT THIS-PROCEDURE, INPUT 'TABLEIO-TARGET':U,
+             INPUT 'Query-Position':U).
+         query-position = RETURN-VALUE.
+         IF query-position = 'no-record-available':U THEN 
+           adm-panel-state = 'add-only':U.
+         ELSE IF query-position = 'no-external-record-available':U THEN 
+           adm-panel-state = 'disable-all':U.
+         ELSE adm-panel-state = 'initial':U.
+       END.
+     END.
+     RUN set-buttons (adm-panel-state).
+  END.
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -871,48 +965,5 @@ PROCEDURE use-smartpaneltype :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME       
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-init C-WIn 
-PROCEDURE reopen-init :
-/*------------------------------------------------------------------------------
-  Purpose:     This procedure sets the value of the panel-type variable 
-               whenever the SmartPanelType ADM attribute is set. This is
-               used internally within this object to know whether the
-               SmartPanel is in "Save" or "Update" mode.
-  Parameters:  new attribute value.
-  Notes:       This replaces code in local-initialize which set panel-type,
-               but which did not always get executed early enough.
-------------------------------------------------------------------------------*/
-  
-  DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
-    
-  RUN get-attribute IN THIS-PROCEDURE ('UIB-MODE':U).
-  IF RETURN-VALUE <> 'DESIGN':U THEN DO:
-     IF VALID-HANDLE (adm-broker-hdl) THEN DO:
-       DEFINE VAR tab-target-link AS CHARACTER NO-UNDO.
-       RUN get-link-handle IN adm-broker-hdl
-           (INPUT THIS-PROCEDURE, 'TABLEIO-TARGET':U, OUTPUT tab-target-link).
-       IF (tab-target-link EQ "":U) THEN
-         adm-panel-state = 'disable-all':U.
-       ELSE DO:
-         RUN request-attribute IN adm-broker-hdl
-            (INPUT THIS-PROCEDURE, INPUT 'TABLEIO-TARGET':U,
-             INPUT 'Query-Position':U).
-         query-position = RETURN-VALUE.
-         IF query-position = 'no-record-available':U THEN 
-           adm-panel-state = 'add-only':U.
-         ELSE IF query-position = 'no-external-record-available':U THEN 
-           adm-panel-state = 'disable-all':U.
-         ELSE adm-panel-state = 'initial':U.
-       END.
-     END.
-     RUN set-buttons (adm-panel-state).
-  END.
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

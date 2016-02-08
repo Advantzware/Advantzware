@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -150,6 +150,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -164,7 +165,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -193,6 +194,11 @@ ASSIGN
 ON CHOOSE OF Select_Add IN FRAME F-Main /* Add */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:32 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -204,6 +210,11 @@ END.
 ON CHOOSE OF Select_appl IN FRAME F-Main /* Util_appl */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:32 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -216,6 +227,11 @@ ON CHOOSE OF Select_dept IN FRAME F-Main /* Notes */
 DO:
   
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:32 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -227,6 +243,11 @@ END.
 ON CHOOSE OF Select_frac IN FRAME F-Main /* Util_frac */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:32 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -238,6 +259,11 @@ END.
 ON CHOOSE OF Select_help IN FRAME F-Main /* Help */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:32 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -249,6 +275,11 @@ END.
 ON CHOOSE OF Select_Home IN FRAME F-Main /* Home */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:32 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -260,6 +291,11 @@ END.
 ON CHOOSE OF Select_spec IN FRAME F-Main /* spec_note */
 DO:
     {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:32 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

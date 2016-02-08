@@ -18,6 +18,12 @@
 
 /* ***************************  Definitions  ************************** */
 
+
+{src/adm/method/browser.i}
+{src/adm/method/query.i}
+
+
+/**************************************+
 DEFINE VARIABLE adm-sts           AS LOGICAL NO-UNDO.
 DEFINE VARIABLE adm-brs-in-update AS LOGICAL NO-UNDO INIT no.
 DEFINE VARIABLE adm-brs-initted   AS LOGICAL NO-UNDO INIT no.
@@ -104,4 +110,4 @@ Layout,Create-On-Add,SortBy-Case
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
+************************/
