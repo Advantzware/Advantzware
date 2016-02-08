@@ -41,11 +41,13 @@ CLASS Advantzware.Windows.SmartFramework.Authentication.AdvDatabaseAuthenticatio
     METHOD PUBLIC OVERRIDE LOGICAL ValidateUser (poCredentials AS IUserCredentials):
 
         IF SUPER:ValidateUser (poCredentials) THEN DO:
-
             RUN Advantzware/Windows/SmartFramework/Menu/nosweat-after-auth.p . 
 
+            RETURN TRUE . 
         END.
-
+        ELSE 
+            RETURN FALSE . 
+    
     END METHOD .  
 
 END CLASS.

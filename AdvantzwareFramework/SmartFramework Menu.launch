@@ -8,7 +8,7 @@
 <booleanAttribute key="abl.abl.USE_DEBUG_ALERT" value="true"/>
 <booleanAttribute key="abl.abl.USE_SYSTEM_ALERT" value="true"/>
 <booleanAttribute key="abl.client.HIDE_TTY" value="false"/>
-<stringAttribute key="abl.client.PROVERSION" value="11.6"/>
+<stringAttribute key="abl.client.PROVERSION" value="11.6 (64-bit)"/>
 <listAttribute key="abl.databases.ABL_DATABASES">
 <listEntry value="nosweat"/>
 <listEntry value="asi"/>
@@ -27,13 +27,13 @@
 <stringAttribute key="abl.i18n.INTERNAL_CODE_PAGE" value="ISO8859-1"/>
 <stringAttribute key="abl.i18n.STREAM_CODE_PAGE" value="ISO8859-1"/>
 <intAttribute key="abl.i18n.THOUSANDS_SEP" value="46"/>
-<stringAttribute key="abl.logging.CLIENT_LOG" value="C:\Work\Advantzware\client.log"/>
+<stringAttribute key="abl.logging.CLIENT_LOG" value="C:\OpenEdge\WRK\client.log"/>
 <booleanAttribute key="abl.logging.LOGGING_ENABLED" value="true"/>
 <intAttribute key="abl.logging.LOGGING_THRESHOLD" value="500000"/>
 <intAttribute key="abl.performance.DIRECTORY_SIZE" value="500"/>
 <intAttribute key="abl.performance.MAXIMUM_MEMORY" value="65534"/>
 <intAttribute key="abl.performance.STACK_SIZE" value="200"/>
-<stringAttribute key="abl.performance.TEMP_DIRECTORY" value="c:/Work/OpenEdge116_64"/>
+<stringAttribute key="abl.performance.TEMP_DIRECTORY" value="${workspace_loc:/Resources}"/>
 <booleanAttribute key="abl.performance.USE_DEFALTS" value="false"/>
 <booleanAttribute key="abl.profiling.ENABLE_LISTING" value="false"/>
 <booleanAttribute key="abl.profiling.ENABLE_PROFILING" value="false"/>
@@ -41,7 +41,7 @@
 <stringAttribute key="abl.profiling.PROFILER_DESCRIPTION" value=""/>
 <stringAttribute key="abl.profiling.PROFILER_DIRECTORY" value=""/>
 <booleanAttribute key="abl.startup.ERROR_STACK_TRACE" value="true"/>
-<stringAttribute key="abl.startup.WORKING_DIRECTORY" value="C:\Work\Advantzware\Legacy"/>
+<stringAttribute key="abl.startup.WORKING_DIRECTORY" value="${workspace_loc:/Legacy}"/>
 <listAttribute key="logging.LOGGING_ENABLED_TYPES">
 <listEntry value="4GLMessages:4:true"/>
 <listEntry value="4GLTrace:4:true"/>
