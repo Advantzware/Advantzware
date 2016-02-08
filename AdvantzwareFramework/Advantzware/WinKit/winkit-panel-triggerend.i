@@ -28,21 +28,22 @@
 
     FINALLY:
         		
-        IF VALID-OBJECT (oForm) THEN 
+        IF VALID-OBJECT (oForm) THEN DO:
             Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
     
-        {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oTool in oForm:ToolbarsManager:Tools}
-        
-            hWinKitWidgetHandle = WIDGET-HANDLE (UNBOX (oTool:Tag)) .
-
-            IF VALID-HANDLE (hWinKitWidgetHandle) AND CAN-QUERY (hWinKitWidgetHandle, "LABEL":U) THEN DO:
-                oTool:SharedProps:Caption = hWinKitWidgetHandle:LABEL .
-
-                {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oInstance in oTool:SharedProps:ToolInstances }
-                
-                    oInstance:InstanceProps:Caption = hWinKitWidgetHandle:LABEL .
-                
-                END.        
+            {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oTool in oForm:ToolbarsManager:Tools}
+            
+                hWinKitWidgetHandle = WIDGET-HANDLE (UNBOX (oTool:Tag)) .
+    
+                IF VALID-HANDLE (hWinKitWidgetHandle) AND CAN-QUERY (hWinKitWidgetHandle, "LABEL":U) THEN DO:
+                    oTool:SharedProps:Caption = hWinKitWidgetHandle:LABEL .
+    
+                    {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oInstance in oTool:SharedProps:ToolInstances }
+                    
+                        oInstance:InstanceProps:Caption = hWinKitWidgetHandle:LABEL .
+                    
+                    END.        
+                END.
             END.
         END.
     
