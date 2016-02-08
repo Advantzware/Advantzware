@@ -33,6 +33,7 @@ USING Consultingwerk.SmartFramework.Authorization.*       FROM PROPATH .
 USING Consultingwerk.Util.*                               FROM PROPATH . 
 USING Consultingwerk.Windows.Framework.Authorization.*    FROM PROPATH .
 USING Consultingwerk.Windows.Util.*                       FROM PROPATH . 
+USING Infragistics.Win.*                                  FROM ASSEMBLY .
 USING Infragistics.Win.UltraWinTree.*                     FROM ASSEMBLY .  
 USING Progress.Lang.*                                     FROM PROPATH .
 
@@ -54,6 +55,7 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
     DEFINE VARIABLE oMenuDatasetController AS Consultingwerk.SmartFramework.Menu.MenuDatasetController NO-UNDO.
 
     {Consultingwerk/SmartFramework/Authorization/dsAuthorizationMaintenance.i}
+    {Consultingwerk/SmartFramework/Authentication/dsUser.i}     
 
     DEFINE VARIABLE oRealmValueListRestricted    AS Infragistics.Win.ValueList NO-UNDO.
     DEFINE VARIABLE oRealmValueListNotRestricted AS Infragistics.Win.ValueList NO-UNDO.
@@ -69,6 +71,9 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
     DEFINE VARIABLE lSynchronizing AS LOGICAL NO-UNDO.    
     
     DEFINE VARIABLE lVisibleChangedCalled AS LOGICAL NO-UNDO INIT FALSE .
+    
+    DEFINE VARIABLE oUserImage  AS System.Drawing.Bitmap NO-UNDO .
+    DEFINE VARIABLE oGroupImage AS System.Drawing.Bitmap NO-UNDO .
     
     /*------------------------------------------------------------------------------
         Purpose: Raised when the HasPendingChanges property has changed
@@ -145,7 +150,12 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
         IF NOT oSecurityRealm:SmartSecurityRealm:Available THEN 
             UNDO, THROW NEW AppError ("SecurityRealm 'SMF' does not exist!"{&TRAN}, 0).
         
-        ASSIGN cSecurityRealmGuid = oSecurityRealm:SmartSecurityRealm:SecurityRealmGuid.
+        ASSIGN cSecurityRealmGuid = oSecurityRealm:SmartSecurityRealm:SecurityRealmGuid
+        
+               oUserImage         = ImageHelper:Load ("Consultingwerk/Windows/Framework/Images/user_16.png":U).
+               oGroupImage        = ImageHelper:Load ("Consultingwerk/Windows/Framework/Images/users_16.png":U) .
+
+        THIS-OBJECT:FetchUsers () .
 
         CreateValueLists ().
 
@@ -257,6 +267,29 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
         oGroupValueListNotRestricted:ValueListItems:Add ("Unrestricted":U, "Unrestricted":U).
         oGroupValueListNotRestricted:ValueListItems:Add ("Default (NOTRESTRICTED-BY-GROUP)":U, "Default (NOTRESTRICTED-BY-GROUP)":U).
         
+	END METHOD .
+
+    /*------------------------------------------------------------------------------
+        Purpose: Fetches the SmartUser's from the Backend 
+        Notes:   
+    ------------------------------------------------------------------------------*/
+	METHOD PROTECTED VOID FetchUsers ():
+
+        DEFINE VARIABLE oRequest AS FetchDataRequest NO-UNDO . 
+		
+        IF SessionManager:LoginCompanyKey > "":U THEN 
+            oRequest = NEW FetchDataRequest ("eSmartUser":U,
+                                             SUBSTITUTE ("for each eSmartUser where eSmartUser.LoginCompanyGuid = &1 or eSmartUser.LoginCompanyGuid = &2":U,
+                                                         QUOTER (SessionManager:LoginCompanyKey),
+                                                         QUOTER ("":U))) .                    
+        ELSE         
+            oRequest = NEW FetchDataRequest ("eSmartUser":U) .
+        
+        FrameworkSettings:ServiceAdapter:RetrieveData ("":U,
+                                                       "Consultingwerk.SmartFramework.Authentication.UserBusinessEntity":U,
+                                                       oRequest,
+                                                       OUTPUT DATASET dsUser) .
+
 	END METHOD .
 
     /*------------------------------------------------------------------------------
@@ -650,7 +683,16 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
                 IF lEnableFiels THEN 
                     oTreeHelper:SetNodeColumnsEditable (poNode, 2).
                 
-                poNode:Cells[iColumn]:Column:Text = ENTRY (iColumn, oOwnerList:Values, oOwnerList:ValueDelimiter).
+                poNode:Cells[iColumn]:Column:Text = ENTRY (iColumn, oOwnerList:Values, oOwnerList:ValueDelimiter) .
+                
+                IF CAN-FIND (FIRST eSmartUser WHERE eSmartUser.UserGuid = ENTRY (iColumn, oOwnerList:Keys, oOwnerList:KeyDelimiter)) THEN  
+                    poNode:Cells[iColumn]:Column:HeaderAppearance:Image = oUserImage .
+                ELSE 
+                    poNode:Cells[iColumn]:Column:HeaderAppearance:Image = oGroupImage .
+                
+                poNode:Cells[iColumn]:Column:HeaderAppearance:ImageHAlign  = HAlign:Left . 
+                poNode:Cells[iColumn]:Column:HeaderAppearance:ImageVAlign  = VAlign:Middle . 
+                
             END.
             
             poNode:Cells[iColumn]:Column:Visible = lColumnVisible.
@@ -732,6 +774,17 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
     END METHOD .
 
     /*------------------------------------------------------------------------------
+        Purpose: Reloads authorization for the current owners 
+        Notes:   
+    ------------------------------------------------------------------------------*/
+	METHOD PUBLIC VOID Reload ():
+	
+	    IF VALID-OBJECT (oOwnerList) THEN 
+		    THIS-OBJECT:Cancel () .
+
+	END METHOD .
+
+    /*------------------------------------------------------------------------------
         Purpose: Selects the first real Menu Entry if possible
         Notes:   
     ------------------------------------------------------------------------------*/
@@ -781,7 +834,7 @@ CLASS Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanc
                             cColumnKeyPrefix = "Security":U
                             cKeySubstitute   = "&1&2":U
                             cColumnHeader    = "Security":U
-                            iColumnWidth     = 80
+                            iColumnWidth     = 220
                             .
                 END CASE.
                 

@@ -1,4 +1,4 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 /* Procedure Description
 "This SmartPanel sends navigation messages 
 to its NAVIGATION-TARGET. Its buttons have 
@@ -78,10 +78,11 @@ DEFINE VARIABLE updating      AS LOGICAL INIT FALSE NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartPanel
+&Scoped-define DB-AWARE no
 
-&Scoped-define ADM-SUPPORTED-LINKS  Navigation-Source
+&Scoped-define ADM-SUPPORTED-LINKS Navigation-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -125,7 +126,7 @@ DEFINE BUTTON Btn-Prev
      SIZE 4 BY 1.29 TOOLTIP "Previous".
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 18 BY 1.76.
 
 
@@ -141,7 +142,6 @@ DEFINE FRAME Panel-Frame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
- 
 
 /* *********************** Procedure Settings ************************ */
 
@@ -157,7 +157,7 @@ DEFINE FRAME Panel-Frame
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT."
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
 END.
@@ -171,17 +171,29 @@ END.
   CREATE WINDOW P-Win ASSIGN
          HEIGHT             = 3.67
          WIDTH              = 33.2.
+/* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB P-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{advantzware/winkit/winkit-panel.i}
+{src/adm/method/panel.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW P-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit Default                                      */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -204,16 +216,6 @@ ASSIGN
  
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB P-Win 
-/* ************************* Included-Libraries *********************** */
-
-{src/adm/method/panel.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 
 /* ************************  Control Triggers  ************************ */
 
@@ -223,6 +225,11 @@ ON CHOOSE OF Btn-First IN FRAME Panel-Frame /* First */
 DO:
   RUN notify IN THIS-PROCEDURE (IF first-on-left THEN 'get-first':U
                                                  ELSE 'get-last':U).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:27 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -235,6 +242,11 @@ ON CHOOSE OF Btn-Last IN FRAME Panel-Frame /* Last */
 DO:
   RUN notify IN THIS-PROCEDURE (IF first-on-left THEN 'get-last':U
                                                  ELSE 'get-first':U).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:27 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -247,6 +259,11 @@ ON CHOOSE OF Btn-Next IN FRAME Panel-Frame /* Next */
 DO:
   RUN notify IN THIS-PROCEDURE (IF first-on-left THEN 'get-next':U
                                                  ELSE 'get-prev':U).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:27 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -259,6 +276,11 @@ ON CHOOSE OF Btn-Prev IN FRAME Panel-Frame /* Prev */
 DO:
   RUN notify IN THIS-PROCEDURE (IF first-on-left THEN 'get-prev':U
                                                  ELSE 'get-next':U).
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:10:27 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -286,7 +308,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI P-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI P-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface

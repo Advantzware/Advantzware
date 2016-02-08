@@ -25,7 +25,7 @@ USING Consultingwerk.Framework.Enum.*                 FROM PROPATH .
 USING Consultingwerk.SmartComponents.*                FROM ASSEMBLY .
 USING Consultingwerk.SmartComponents.Base.*           FROM PROPATH . 
 USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
-USING Consultingwerk.SmartComponents.Interfaces.*     FROM PROPATH .
+USING Consultingwerk.SmartComponents.Interfaces.*     /* FROM PROPATH */ .
 USING Consultingwerk.SmartComponents.Support.*        FROM PROPATH .
 USING Progress.Lang.*                                 FROM PROPATH .
 

@@ -260,7 +260,7 @@ CLASS Consultingwerk.SmartFramework.Authentication.UserBusinessEntity
             oRequest = NEW FetchDataRequest ("eSmartUser":U,
                                              SUBSTITUTE ("FOR EACH eSmartUser WHERE eSmartUser.UserName = &1 AND eSmartUser.LoginCompanyGuid = &2":U,
                                                          QUOTER (poParameter:UserName),
-                                                         "":U)) .
+                                                         QUOTER ("":U))) .
             
             THIS-OBJECT:FetchData (oRequest) .
         

@@ -3,7 +3,7 @@
   <ttServiceLoaderRow>
     <Order>1</Order>
     <ServiceTypeName>Consultingwerk.WindowIntegrationKit.IToolImageProvider</ServiceTypeName>
-    <ServiceClassName>Consultingwerk.WindowIntegrationKit.ToolImageProvider</ServiceClassName>
+    <ServiceClassName>Advantzware.WinKit.ToolImageProvider</ServiceClassName>
   </ttServiceLoaderRow>
   <ttServiceLoaderRow>
     <Order>2</Order>

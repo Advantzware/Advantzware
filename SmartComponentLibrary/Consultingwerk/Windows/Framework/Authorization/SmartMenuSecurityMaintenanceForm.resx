@@ -136,8 +136,11 @@
   <data name="smartMenuSecurityMaintenanceControl1.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
+  <data name="smartMenuSecurityMaintenanceControl1.MenuBusinessEntityName" xml:space="preserve">
+    <value>Consultingwerk.SmartFramework.Menu.MenuBusinessEntity</value>
+  </data>
   <data name="smartMenuSecurityMaintenanceControl1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>703, 311</value>
+    <value>703, 286</value>
   </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
   <data name="smartMenuSecurityMaintenanceControl1.TabIndex" type="System.Int32, mscorlib">
@@ -147,7 +150,7 @@
     <value>smartMenuSecurityMaintenanceControl1</value>
   </data>
   <data name="&gt;&gt;smartMenuSecurityMaintenanceControl1.Type" xml:space="preserve">
-    <value>Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanceControl, OEProxyAssembly, Version=11.5.0.1, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.Windows.Framework.Authorization.SmartMenuSecurityMaintenanceControl, OEProxyAssembly, Version=11.6.0.1, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;smartMenuSecurityMaintenanceControl1.Parent" xml:space="preserve">
     <value>SmartMenuSecurityMaintenanceForm_Fill_Panel.ClientArea</value>
@@ -159,7 +162,7 @@
     <value>SmartMenuSecurityMaintenanceForm_Fill_Panel.ClientArea</value>
   </data>
   <data name="&gt;&gt;SmartMenuSecurityMaintenanceForm_Fill_Panel.ClientArea.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;SmartMenuSecurityMaintenanceForm_Fill_Panel.ClientArea.Parent" xml:space="preserve">
     <value>SmartMenuSecurityMaintenanceForm_Fill_Panel</value>
@@ -171,10 +174,10 @@
     <value>Fill</value>
   </data>
   <data name="SmartMenuSecurityMaintenanceForm_Fill_Panel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>8, 151</value>
+    <value>8, 176</value>
   </data>
   <data name="SmartMenuSecurityMaintenanceForm_Fill_Panel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>703, 311</value>
+    <value>703, 286</value>
   </data>
   <data name="SmartMenuSecurityMaintenanceForm_Fill_Panel.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -183,7 +186,7 @@
     <value>SmartMenuSecurityMaintenanceForm_Fill_Panel</value>
   </data>
   <data name="&gt;&gt;SmartMenuSecurityMaintenanceForm_Fill_Panel.Type" xml:space="preserve">
-    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;SmartMenuSecurityMaintenanceForm_Fill_Panel.Parent" xml:space="preserve">
     <value>$this</value>
@@ -192,16 +195,16 @@
     <value>0</value>
   </data>
   <data name="m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Left.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 151</value>
+    <value>0, 176</value>
   </data>
   <data name="m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Left.Size" type="System.Drawing.Size, System.Drawing">
-    <value>8, 311</value>
+    <value>8, 286</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Left.Name" xml:space="preserve">
     <value>m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Left</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Left.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Left.Parent" xml:space="preserve">
     <value>$this</value>
@@ -210,16 +213,16 @@
     <value>1</value>
   </data>
   <data name="m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Right.Location" type="System.Drawing.Point, System.Drawing">
-    <value>711, 151</value>
+    <value>711, 176</value>
   </data>
   <data name="m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Right.Size" type="System.Drawing.Size, System.Drawing">
-    <value>8, 311</value>
+    <value>8, 286</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Right.Name" xml:space="preserve">
     <value>m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Right</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Right.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Right.Parent" xml:space="preserve">
     <value>$this</value>
@@ -237,7 +240,7 @@
     <value>m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Bottom</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Bottom.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Bottom.Parent" xml:space="preserve">
     <value>$this</value>
@@ -249,13 +252,13 @@
     <value>0, 0</value>
   </data>
   <data name="m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Top.Size" type="System.Drawing.Size, System.Drawing">
-    <value>719, 151</value>
+    <value>719, 176</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Top.Name" xml:space="preserve">
     <value>m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Top</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Top.Type" xml:space="preserve">
-    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2092, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+    <value>Infragistics.Win.UltraWinToolbars.UltraToolbarsDockArea, Infragistics4.Win.UltraWinToolbars.v15.1, Version=15.1.20151.2132, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
   </data>
   <data name="&gt;&gt;m_SmartMenuSecurityMaintenanceForm_Toolbars_Dock_Area_Top.Parent" xml:space="preserve">
     <value>$this</value>
@@ -325,13 +328,13 @@
     <value>smartToolbarController1</value>
   </data>
   <data name="&gt;&gt;smartToolbarController1.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Implementation.SmartToolbarController, OEProxyAssembly, Version=11.5.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Implementation.SmartToolbarController, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>SmartMenuSecurityMaintenanceForm</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.5.0.3, Culture=neutral, PublicKeyToken=null</value>
+    <value>Consultingwerk.SmartComponents.Base.SmartWindowForm, OEProxyAssembly, Version=11.6.0.1, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="ribbonTab1.Caption" xml:space="preserve">
     <value>Menu Security</value>
@@ -532,5 +535,79 @@
   </data>
   <data name="resource.Caption2" xml:space="preserve">
     <value>Cancel</value>
+  </data>
+  <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance7.Image" type="System.Drawing.Bitmap, System.Drawing">
+    <value>
+        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
+        SUVORK5CYII=
+</value>
+  </data>
+  <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance8.Image" type="System.Drawing.Bitmap, System.Drawing">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
+        eXJpZ2h0AENvcHlyaWdodCCpIDIwMDgtMjAxMSBJTkNPUlMgR21iSBCOIU8AAAOASURBVDhPfZJrTJtl
+        GIbfRAXKYTA2XY+OboyWrcVQYEBlnORUbMdpLcdBW7aADNoVOzqoo9A50paxdaKgrZmYWQ9YkMQEN3Ge
+        EhBwGmGTxIAaExO3OKJERPzU3n7UGhNjvH69P+7rfpL3eci/eajFnbHvqO1a+knXT9LWp6jEY+eXxMcv
+        GuJkruBA5L9J7/CkJp0Ynirqm0T/9Bq8XwHWOUD1JoU0+wyEmv7F2Hr7vr3V5xqZpaerAhohoqpzQclt
+        rpFsy4SvxnsX9tlN2Ob/gHqSguqNdRR7VpF1+TbSLyxiT1XP7+J2D7hl5pmAToik+dIF9eVPoZn4ASLT
+        BATGcew3T0H2zGeo9q6i7Mq3KHQvI2XgJiT2G0i0fwK23Hg7oBOS2jr8/fl5CqIWF7h1A3iwwQlWYQvF
+        rLIjpXMcyhe/hGz4JvKdN3Cg+zri6XKmwuhjFpjC/QVpbU9D510Bp/4i4oxj4CgtG7seNcRGZ2tXBA0O
+        5Ax8hAzHNIqdM8jpewd7DGO4X2FCZHZjkr9AWGddP+5ZArfGBqas7Wf24cdjmcW65wWtIzjywhf05Fmk
+        WK4h03oVMvvb4D92BTvldMHDR2v9BQ8UtXp5pR3zvCPdvkyjGzGlpxBT0emLlNaAo+oFTzOEA+2jEBtH
+        kd41itzuMUTLu8CQVJz1F/wNt9JKlTsmEZZWh5CMYwiRahGUXI2QFBUiDio3t2VqqfDcFmzL0yMyT4fQ
+        pLKFcKm6MKATwq9+cqNu6APskp1EBB1gPNIOhswMhrTBFyxW9BBJVtC9Ilk+I0E+tzOvGXF6D9glp38M
+        6ITEVPauNY18jO0FBjDLuxEhP4MolQPb80/4dmRpB1lFumBWqZHHKen8JdV5C0LL+9iR23QnoBOyW/nE
+        Xf3LCwgtMCK6zEpvhV6n9jns1o+Cpx4EV9lD0YdE5by0BuGZKUTR/xCaVD4Y0AnhVZi/M3lvIUphxqGz
+        V8FtdEPQ/jriu95CQt8skgeX0Tv9G/SvfY4wekiwuHiGiGr/uoUt2CWmr1Ob+zeic5vH+ZpLKBhahMT6
+        LiS2ORwaXobilVWMfwMcbBrAPYK8D0lC/j/yFpzavnh2Ze/+rTdPaTXs1Tp/LXSvQDO5Cd11Cs8uAade
+        XcB9iSXvEZYy1C/9H3yVRcg53OHhq3rvCNUOCOtt65xys4slM4cFIjSE/AlrmKrtzjjPowAAAABJRU5E
+        rkJggg==
+</value>
+  </data>
+  <data name="buttonTool8.SharedPropsInternal.Caption" xml:space="preserve">
+    <value>Reload</value>
   </data>
 </root>
