@@ -85,7 +85,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-movecol 
-     IMAGE-UP FILE "images/movecol.ico":U 
+     IMAGE-UP FILE "images/movecol.ico":U
      IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Browser Col. Mode - Move / Sort Columns".
@@ -135,6 +135,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
