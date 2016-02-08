@@ -23,7 +23,7 @@ else
   ar-inv.due       = ar-inv.gross - ar-inv.paid.
 
 find first cust
-    {sys/ref/cust.w}
+    {sys/ref/custW.i}
       and cust.cust-no eq {1}.cust-no
     exclusive-lock.
 

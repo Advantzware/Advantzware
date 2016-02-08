@@ -47,7 +47,7 @@ FIND pc-prdd WHERE ROWID(pc-prdd) EQ v-rowid EXCLUSIVE.
 IF NOT AVAIL pc-prdd THEN RETURN.
 
 FIND FIRST mach
-    {sys/ref/mach.w}
+    {sys/ref/machW.i}
       AND mach.m-code EQ pc-prdd.m-code
     NO-LOCK NO-ERROR.
 

@@ -889,7 +889,7 @@ PROCEDURE create-tt-report :
 ------------------------------------------------------------------------------*/
 
 FOR EACH reftable
-   {ap/ap-reftb.w po-ordl.po-no}
+   {ap/ap-reftbW.i po-ordl.po-no}
    NO-LOCK,
     
    EACH ap-inv

@@ -1183,7 +1183,7 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
   FIND FIRST est
       WHERE est.company EQ job.company
         AND est.est-no  EQ job.est-no
@@ -1306,7 +1306,7 @@ PROCEDURE new-i-no PRIVATE :
 
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST itemfg
-        {sys/look/itemfg.w}
+        {sys/look/itemfgW.i}
           AND itemfg.i-no EQ job-farm.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
         
@@ -1911,7 +1911,7 @@ PROCEDURE valid-i-no :
         CAPS(job-farm.i-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
     IF NOT CAN-FIND(FIRST itemfg
-                    {sys/look/itemfg.w}
+                    {sys/look/itemfgW.i}
                       AND itemfg.i-no EQ job-farm.i-no:SCREEN-VALUE IN BROWSE {&browse-name})
     THEN DO:
       MESSAGE "Must enter a valid RM..." VIEW-AS ALERT-BOX ERROR.
@@ -1971,7 +1971,7 @@ PROCEDURE valid-uom :
   
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST itemfg
-        {sys/look/itemfg.w}
+        {sys/look/itemfgW.i}
           AND itemfg.i-no EQ job-farm.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
     IF AVAIL itemfg THEN RUN sys/ref/uom-fg.p (YES, OUTPUT lv-uom-list).

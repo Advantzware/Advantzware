@@ -65,7 +65,7 @@ IF AVAIL est-op THEN
    qty = est-op.num-sh * v-num-up.
 
 find first item 
-    {sys/look/item.w} 
+    {sys/look/itemW.i} 
       and item.i-no eq xef.board 
     no-lock no-error.
 
@@ -94,7 +94,7 @@ do with frame aaxx no-labels no-box:
 
   /* If bom (medium/liner) exist, then only print item
      code with the bom items calculated as costs */
-  find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+  find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
   RUN est/ef-#out.p (ROWID(xef), OUTPUT v-out).
 

@@ -21,7 +21,7 @@ DEF BUFFER b-setup FOR reftable.
 
 {ce/msfcalc.i}
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 v-t-win = 0.
 
@@ -46,7 +46,7 @@ ELSE
 
    /* case */
    if xeb.cas-no ne "" then do with frame ac2 no-box no-labels:
-      find first item {sys/look/item.w} and item.i-no = xeb.cas-no
+      find first item {sys/look/itemW.i} and item.i-no = xeb.cas-no
       no-lock no-error.
       if available item then find first e-item of item no-lock no-error.
 
@@ -117,7 +117,7 @@ ELSE
 
       /* layer pad */
       find first item
-          {sys/look/item.w}
+          {sys/look/itemW.i}
             and item.i-no eq xeb.layer-pad
           no-lock no-error.
       if available item then find first e-item of item no-lock no-error.
@@ -172,7 +172,7 @@ ELSE
 
       /* layer pad */
       find first item
-          {sys/look/item.w}
+          {sys/look/itemW.i}
             and item.i-no eq xeb.divider
           no-lock no-error.
       if available item then find first e-item of item no-lock no-error.
@@ -237,7 +237,7 @@ ELSE
         release eb.
       end.
       find first item
-          {sys/look/item.w}
+          {sys/look/itemW.i}
             and item.i-no eq xeb.tr-no
           no-lock no-error.
       if available item then  find first e-item of item no-lock no-error.

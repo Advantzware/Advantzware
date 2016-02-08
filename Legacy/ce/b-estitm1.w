@@ -3219,7 +3219,7 @@ DEF BUFFER bf-est FOR est.
 
 FIND bf-est WHERE RECID(bf-est) = ip-recid.
 
-FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
 IF bf-est.est-type NE 2 THEN bf-est.est-type = 4.
 
@@ -3634,7 +3634,7 @@ PROCEDURE local-assign-record :
      do i = 1 to 4:
         if ef.leaf[i] ne "" and ef.leaf-bnum[i] ne 0 and
            ((ef.leaf-w[i] ne 0) and (ef.leaf-l[i] ne 0)) THEN do:
-          find first item {sys/look/item.w} and item.i-no eq ef.leaf[i]
+          find first item {sys/look/itemW.i} and item.i-no eq ef.leaf[i]
               no-lock no-error.
           if item.mat-type ne "W" then next.
           eb.die-in = eb.die-in +
@@ -5564,7 +5564,7 @@ PROCEDURE valid-flute :
   DO WITH FRAME {&FRAME-NAME}:
     IF ef.flute:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" AND
        NOT CAN-FIND(FIRST ITEM
-                   {sys/look/itempap.w}
+                   {sys/look/itempapW.i}
                      AND item.industry EQ "1"
                      AND item.i-no EQ ef.flute:SCREEN-VALUE) THEN DO:
       MESSAGE "Invalid " + TRIM(ef.flute:LABEL) + ", try help..."
@@ -5589,7 +5589,7 @@ PROCEDURE valid-medium :
   DO WITH FRAME {&FRAME-NAME}:
     IF ef.medium:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" AND
        NOT CAN-FIND(FIRST ITEM
-                   {sys/look/itempap.w}
+                   {sys/look/itempapW.i}
                      AND item.industry EQ "1"
                      AND item.i-no EQ ef.medium:SCREEN-VALUE) THEN DO:
       MESSAGE "Invalid " + TRIM(ef.medium:LABEL) + ", try help..."

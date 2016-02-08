@@ -26,7 +26,7 @@ DEF VAR v-tmp-int AS INT NO-UNDO.
 {sys/inc/ceprepprice.i}
 {sys/inc/cerun.i C}
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 assign
  mis-tot = 0

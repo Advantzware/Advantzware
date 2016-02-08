@@ -7,7 +7,7 @@
 
 /*
   find first itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
         and itemfg.i-no eq {1}.i-no
       no-lock no-error.
 */      

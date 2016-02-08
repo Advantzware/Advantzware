@@ -39,7 +39,7 @@ DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 assign
     call_id = recid(xeb)
@@ -80,7 +80,7 @@ for each est-op
       and est-op.s-num = xef.form-no
       and est-op.line  > 500 by est-op.line
     descending:
-   find first mach {sys/look/mach.w} and mach.m-code = est-op.m-code
+   find first mach {sys/look/machW.i} and mach.m-code = est-op.m-code
    no-lock no-error.
    find first eb
        where eb.company  eq est-op.company
@@ -112,7 +112,7 @@ end.
 
 if xef.medium ne "" then
 DO WITH STREAM-IO no-box no-labels frame med1:
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
                      item.i-no = xef.medium no-lock no-error.
    if available item THEN DO:
        find first e-item of item no-lock no-error.
@@ -245,7 +245,7 @@ find xeb where recid(xeb) = call_id no-lock no-error.
 
 if xef.flute ne "" then
 DO WITH STREAM-IO no-box no-labels frame flute:
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
                      item.i-no = xef.flute no-lock no-error.
    if available item then
    find first e-item of item no-lock no-error.

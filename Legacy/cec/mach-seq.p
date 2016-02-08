@@ -95,14 +95,14 @@ FOR EACH xef
       NO-LOCK,
 
       FIRST style
-      {sys/ref/style.w}
+      {sys/ref/styleW.i}
         AND style.style EQ xeb.style
       NO-LOCK
     
       BREAK BY xeb.blank-no:
 
     find first item
-        {sys/look/itemiv.w}
+        {sys/look/itemivW.i}
           and item.i-no eq xeb.i-code[1]
         no-lock no-error.
     if avail item then find first e-item of item no-lock no-error.
@@ -119,7 +119,7 @@ FOR EACH xef
     {sys/inc/roundup.i v-msf}
 
     find first routing-mtx
-        {sys/ref/rout-mtx.w}
+        {sys/ref/rout-mtxW.i}
           and routing-mtx.msf ge int(v-msf)
         no-lock no-error.
 
@@ -142,7 +142,7 @@ FOR EACH xef
   
     if v ge 1 and v le 100 then
     find first routing
-        {sys/ref/routing.w}
+        {sys/ref/routingW.i}
           and routing.r-code eq routing-mtx.r-code[v]
         no-lock no-error.
 
@@ -383,7 +383,7 @@ FOR EACH xef
       NO-LOCK NO-ERROR.
 
   FIND FIRST style
-      {sys/ref/style.w}
+      {sys/ref/styleW.i}
         AND style.style EQ xeb.style
       NO-LOCK NO-ERROR.
 
@@ -424,7 +424,7 @@ FOR EACH xef
 
   ELSE DO:                     /* Manufactured FG */
     FIND FIRST style
-        {sys/ref/style.w}
+        {sys/ref/styleW.i}
           AND style.style EQ xeb.style
         NO-LOCK NO-ERROR.
 
@@ -547,7 +547,7 @@ FOR EACH xef
       /* find ink & coater */
       if xeb.i-pass > 0 then do:
         find first item
-            {sys/look/itemiv.w}
+            {sys/look/itemivW.i}
               and item.i-no eq xeb.i-code[1]
             no-lock no-error.
         if avail item then find first e-item of item no-lock no-error.
@@ -772,7 +772,7 @@ DO:
                NO-LOCK NO-ERROR.
 
           FIND FIRST style
-               {sys/ref/style.w} AND
+               {sys/ref/styleW.i} AND
                style.style EQ xeb.style
                NO-LOCK NO-ERROR.
 

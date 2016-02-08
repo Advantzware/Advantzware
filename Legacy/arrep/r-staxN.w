@@ -1176,7 +1176,7 @@ ASSIGN
 
 
 for each stax
-    {sys/ref/stax.w}
+    {sys/ref/staxW.i}
       and stax.tax-group ge ftax
       and stax.tax-group le ttax
      NO-LOCK

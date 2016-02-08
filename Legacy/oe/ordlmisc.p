@@ -29,7 +29,7 @@ DO TRANSACTION:
   {sys/inc/OEPrepTaxCode.i}
 END.
 
-find first ar-ctrl {ar/ar-ctrl.w} no-lock no-error.
+find first ar-ctrl {ar/ar-ctrlW.i} no-lock no-error.
 
 find oe-ordl where ROWID(oe-ordl) eq ip-rowid no-lock no-error.
 IF AVAIL oe-ordl THEN
@@ -210,7 +210,7 @@ PROCEDURE update-prep.
    oe-ordm.s-comm[1] = xeb.comm.
 
   FIND FIRST prep
-      {ce/prep.w}
+      {ce/prepW.i}
         AND prep.code EQ oe-ordm.charge
       EXCLUSIVE-LOCK NO-ERROR.
   IF AVAIL prep THEN DO:

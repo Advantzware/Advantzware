@@ -22,7 +22,7 @@ find inv-head where inv-head.r-no   eq inv-line.r-no NO-LOCK NO-ERROR.
 v-shp-qty = inv-line.ship-qty * v-factor.
 
 find first itemfg
-    {sys/look/itemfgrl.w}
+    {sys/look/itemfgrlW.i}
       and itemfg.i-no eq inv-line.i-no
     no-error.
 

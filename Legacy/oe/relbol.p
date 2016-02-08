@@ -26,7 +26,7 @@ find oe-rel where recid(oe-rel) eq out-recid no-lock no-error.
 
 relh-recid = ?.
 
-if not avail oe-rel then find first oe-rel {oe/oe-rel.w} no-lock.
+if not avail oe-rel then find first oe-rel {oe/oe-relW.i} no-lock.
 if oe-rel.link-no eq 0 then do:
   /* {oe/actrel.i} - wfk 03011305 */
   RUN oe/actrelmerg.p (INPUT ROWID(oe-rel), INPUT "CREATE", 

@@ -678,7 +678,7 @@ PROCEDURE run-report :
        ar-cash.check-no WITH FRAME a1:
     IF FIRST-OF(ar-cash.cust-no) THEN
     DO:
-      FIND FIRST cust {ar/ar-cust.w} AND cust.cust-no = ar-cash.cust-no
+      FIND FIRST cust {ar/ar-custW.i} AND cust.cust-no = ar-cash.cust-no
         NO-LOCK NO-ERROR.
       PUT cust.cust-no SPACE(1) cust.name.
     END.
@@ -731,7 +731,7 @@ PROCEDURE run-report :
       AND ar-cash.memo NO-LOCK NO-ERROR.
     IF AVAILABLE ar-cash THEN
     DO:
-      FIND cust {ar/ar-cust.w} AND cust.cust-no = ar-cash.cust-no
+      FIND cust {ar/ar-custW.i} AND cust.cust-no = ar-cash.cust-no
         NO-LOCK NO-ERROR.
   
       IF FIRST-OF(ar-cashl.actnum) THEN

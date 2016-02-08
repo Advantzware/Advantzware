@@ -39,11 +39,11 @@ def var lv-industry as cha no-undo.
   else do:  /* no need to calc num-len,num-wid */
   end.
 
-  find style {sys/ref/style.w} and
+  find style {sys/ref/styleW.i} and
            style.style = XEB.style no-lock no-error.
 
       if XEF.board ne "" THEN
-      find first item {sys/look/item.w} and item.i-no = XEF.board no-lock no-error.
+      find first item {sys/look/itemW.i} and item.i-no = XEF.board no-lock no-error.
       if avail item then
       find first e-item
           where e-item.company eq item.company
@@ -52,8 +52,8 @@ def var lv-industry as cha no-undo.
           no-lock no-error.
       IF AVAIL e-item THEN
       FIND FIRST e-item-vend OF e-item NO-LOCK NO-ERROR.
-      find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
-      find first mach {sys/look/mach.w} and mach.m-code = XEF.m-code
+      find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
+      find first mach {sys/look/machW.i} and mach.m-code = XEF.m-code
       no-lock no-error.
       if available mach then assign TR-L = mach.min-triml * 2
                                     TR-W = mach.min-trimw * 2.

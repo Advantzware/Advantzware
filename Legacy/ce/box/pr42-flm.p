@@ -25,7 +25,7 @@ DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 /* films */
 for each xef where xef.company eq xest.company

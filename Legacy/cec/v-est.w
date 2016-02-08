@@ -3853,7 +3853,7 @@ PROCEDURE new-board :
   DO WITH FRAME {&FRAME-NAME}:
     
     IF ef.board NE ef.board:SCREEN-VALUE THEN DO:
-      FIND FIRST item NO-LOCK {sys/look/itemb1.w}
+      FIND FIRST item NO-LOCK {sys/look/itemb1W.i}
              AND item.i-no EQ ef.board:SCREEN-VALUE NO-ERROR.
       IF AVAIL item THEN
          ASSIGN
@@ -4431,7 +4431,7 @@ PROCEDURE valid-board :
     ef.board:SCREEN-VALUE = CAPS(ef.board:SCREEN-VALUE).
 
     IF NOT CAN-FIND(FIRST item
-                    {sys/look/itemb1.w}
+                    {sys/look/itemb1W.i}
                       AND item.i-no EQ ef.board:SCREEN-VALUE) OR
        ef.board:SCREEN-VALUE EQ ""                            THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.

@@ -23,7 +23,7 @@ DEF VAR v-on-f AS INT NO-UNDO.
 
 IF AVAIL io-mach AND AVAIL xeb THEN
 FIND FIRST style NO-LOCK
-   {sys/ref/style.w}
+   {sys/ref/styleW.i}
       AND style.style EQ xeb.style
    NO-ERROR.
 

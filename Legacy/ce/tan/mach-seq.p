@@ -48,7 +48,7 @@ SESSION:SET-WAIT-STATE("general").
 run ce/mach-ink.p.
 
 find first style
-    {sys/ref/style.w}
+    {sys/ref/styleW.i}
       and style.style eq xeb.style
     no-lock no-error.
 
@@ -253,7 +253,7 @@ if avail w-ink then run ce/mach-pr.p.
 /* find ink & coater */
 else
 if xeb.i-pass gt 0 then do:
-  find first item {sys/look/itemiv.w} and
+  find first item {sys/look/itemivW.i} and
     item.i-no    eq xeb.i-code2[1] no-lock no-error.
   if avail item and item.i-code eq "E" then
   find first e-item where e-item.company eq item.company and
@@ -784,7 +784,7 @@ do on error undo:
     release mach.
     
     find first item
-        {sys/look/itemlw.w}
+        {sys/look/itemlwW.i}
           and item.i-no eq xef.leaf[i]
         no-lock no-error.
                                                            

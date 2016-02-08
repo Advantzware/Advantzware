@@ -77,7 +77,7 @@ if available mstd then do:
       end.
    end.
    tmpstore = "no".
-   find first item {sys/look/item.w} and item.i-code = xef.board
+   find first item {sys/look/itemW.i} and item.i-code = xef.board
    no-lock no-error.
    if available item then
    do k = 1 to 10:

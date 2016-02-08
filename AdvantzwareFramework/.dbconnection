@@ -2,4 +2,5 @@
 <connection>
 <connectionentry identifier="nosweat"/>
 <connectionentry identifier="temp-db"/>
+<connectionentry identifier="smartDB"/>
 </connection>

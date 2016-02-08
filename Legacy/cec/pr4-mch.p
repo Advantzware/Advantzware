@@ -43,7 +43,7 @@ DEF SHARED WORKFILE w-form
 
 opsplit$ = 0.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
    assign
     v-fac-hdr = if vmclean then
@@ -72,7 +72,7 @@ find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
       end.
 
       find first mach
-          {sys/ref/mach.w}
+          {sys/ref/machW.i}
             and mach.m-code eq est-op.m-code
           no-lock no-error.
       if not avail mach then next.
@@ -290,21 +290,21 @@ find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
     zzz   = xef.weight.
    
    if xef.medium ne "" then do:
-      find first item {sys/look/item.w} and
+      find first item {sys/look/itemW.i} and
                  item.i-no = xef.medium no-lock no-error.
       if avail item
       then zzz = zzz + (item.basis-w * (1 - (item.shrink / 100))).
    end.
    
    if xef.flute ne "" then do:
-      find first item {sys/look/item.w} and
+      find first item {sys/look/itemW.i} and
                  item.i-no = xef.flute no-lock no-error.
       if avail item
       then zzz = zzz + item.basis-w.
    end.
    
    /*if xef.lam-code ne "" then do:
-      find first item {sys/look/item.w} and
+      find first item {sys/look/itemW.i} and
                  item.i-no = xef.lam-code no-lock no-error.
       if avail item
       then zzz = zzz + item.basis-w.
@@ -353,7 +353,7 @@ find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
      
      else do:
        find first item
-           {sys/look/item.w}
+           {sys/look/itemW.i}
              and item.i-no     eq xef.board
              and item.mat-type eq "B"
              and item.avg-w    gt 0

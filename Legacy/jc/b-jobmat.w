@@ -570,7 +570,7 @@ ON VALUE-CHANGED OF job-mat.rm-i-no IN BROWSE br_table /* RM Item# */
 DO:
     RUN new-rm-i-no.
     FIND FIRST ITEM   /* task 05141503 */
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           AND item.i-no EQ job-mat.rm-i-no:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
         
@@ -1170,7 +1170,7 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
   FIND FIRST est
       WHERE est.company EQ job.company
         AND est.est-no  EQ job.est-no
@@ -1302,7 +1302,7 @@ PROCEDURE new-rm-i-no PRIVATE :
   
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST ITEM
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           AND item.i-no EQ job-mat.rm-i-no:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
         
@@ -1708,7 +1708,7 @@ PROCEDURE SheetCalcSimple :
 /*                                        */
       RUN dispatch ("display-fields").
       FIND FIRST ITEM
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           AND item.i-no EQ cRMINO
         NO-LOCK NO-ERROR.
       IF AVAIL ITEM THEN
@@ -1931,7 +1931,7 @@ PROCEDURE valid-rm-i-no :
         CAPS(job-mat.rm-i-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
     IF NOT CAN-FIND(FIRST ITEM
-                    {sys/look/item.w}
+                    {sys/look/itemW.i}
                       AND item.i-no EQ job-mat.rm-i-no:SCREEN-VALUE IN BROWSE {&browse-name})
     THEN DO:
       MESSAGE "Must enter a valid RM..." VIEW-AS ALERT-BOX ERROR.
@@ -1960,7 +1960,7 @@ PROCEDURE valid-uom :
   
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST item
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           AND item.i-no EQ job-mat.rm-i-no:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
     IF AVAIL item THEN RUN sys/ref/uom-rm.p (item.mat-type, OUTPUT lv-uom-list).
@@ -1990,7 +1990,7 @@ FUNCTION getItemName RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
     FIND FIRST ITEM
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           AND item.i-no EQ job-mat.rm-i-no
         NO-LOCK NO-ERROR.
       IF AVAIL ITEM THEN

@@ -49,7 +49,7 @@ IF lv-cust EQ "" THEN
 IF lv-cust NE "" AND lv-stat NE "H" AND
     (oecredit-log OR lv-stat NE "A") THEN
     FIND FIRST cust NO-LOCK
-    {sys/ref/cust.w}
+    {sys/ref/custW.i}
       AND cust.cust-no EQ lv-cust
         USE-INDEX cust NO-ERROR.
 
@@ -121,7 +121,7 @@ DO:
             REPEAT:
   
                 FIND FIRST cust 
-              {sys/ref/cust.w}
+              {sys/ref/custW.i}
               AND cust.cust-no EQ v-final-cust-no
                     EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 

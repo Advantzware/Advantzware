@@ -595,7 +595,7 @@ END.
 ON VALUE-CHANGED OF job-mch.m-code IN BROWSE br_table /* Machine */
 DO:
   FIND FIRST mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ job-mch.m-code:SCREEN-VALUE IN BROWSE {&browse-name}
       NO-LOCK NO-ERROR.
       
@@ -963,7 +963,7 @@ PROCEDURE local-assign-record :
       USE-INDEX line-idx:
 
     FIND FIRST mach
-        {sys/look/mach.w}
+        {sys/look/machW.i}
           AND mach.m-code EQ b-job-mch.m-code
         NO-LOCK NO-ERROR.
     CREATE w-jm.
@@ -1438,7 +1438,7 @@ PROCEDURE valid-m-code :
 
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST mach
-          {sys/look/mach.w}
+          {sys/look/machW.i}
             AND mach.m-code EQ job-mch.m-code:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
 

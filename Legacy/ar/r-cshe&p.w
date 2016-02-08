@@ -980,7 +980,7 @@ PROCEDURE post-gl :
     IF NOT AVAIL bank THEN NEXT.
 
     FIND FIRST cust
-        {sys/ref/cust.w}
+        {sys/ref/custW.i}
           AND cust.cust-no EQ ar-cash.cust-no
         EXCLUSIVE NO-WAIT NO-ERROR.
     IF NOT AVAIL cust THEN NEXT.

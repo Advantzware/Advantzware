@@ -51,7 +51,7 @@
                      (est-op.dept  eq "CT" and item.mat-type eq "V"))
               no-lock,
               first mach
-              {sys/ref/mach.w}
+              {sys/ref/machW.i}
                 and mach.m-code eq est-op.m-code
               no-lock
               by est-op.line:

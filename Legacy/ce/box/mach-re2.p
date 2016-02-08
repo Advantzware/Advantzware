@@ -24,7 +24,7 @@ find est-op where recid(est-op) = fil_id no-error.
 
 blok:
 do on error undo:
-   find first mach {sys/look/mach.w}  and
+   find first mach {sys/look/machW.i}  and
 		    mach.m-code  = est-op.m-code
 		    no-lock no-error.
    if not available mach then do:
@@ -46,7 +46,7 @@ do on error undo:
    if est-op.dept = "PR" then do:
       do i = 1 to 20:
 	 if xeb.i-ps2[i] ne est-op.op-pass then next.
-	 find first item {sys/look/item.w} and item.i-no = xeb.i-code2[i]
+	 find first item {sys/look/itemW.i} and item.i-no = xeb.i-code2[i]
 	 no-lock no-error.
 	 if (mach.coater = no and item.mat-type ne "I") or
 	    index("IV",item.mat-type) = 0 then next.

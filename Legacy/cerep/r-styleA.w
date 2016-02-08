@@ -765,7 +765,7 @@ display str-tit with frame r-top.
 display skip(1).
 
 for each style
-    {sys/ref/style.w}
+    {sys/ref/styleW.i}
       and ((style.industry eq "1" and tb_fold) or
            (style.industry eq "2" and tb_corr))
     with frame style:

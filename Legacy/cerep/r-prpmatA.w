@@ -1251,7 +1251,7 @@ SESSION:SET-WAIT-STATE("general").
           no-lock.
 
       find first prep
-          {sys/ref/prep.w}
+          {sys/ref/prepW.i}
             and prep.code eq tt-report.key-09
           no-lock no-error.
 

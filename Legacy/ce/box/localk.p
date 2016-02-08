@@ -77,7 +77,7 @@ ASSIGN
       end.
       if xop.num-sh = 0 then xop.num-sh = t-shtfrm[xef.form-no].
       if not available eb then find eb where recid(eb) = eb_id no-lock no-error.
-      find first mach {sys/ref/mach.w} and mach.m-code = xop.m-code
+      find first mach {sys/ref/machW.i} and mach.m-code = xop.m-code
       no-lock no-error.
       qty = eb.yld-qty.
 
@@ -116,7 +116,7 @@ ASSIGN
 		 and xop.s-num   eq xef.form-no
          and xop.b-num   eq 0
        break by xop.s-num by xop.line descending:
-      find first mach {sys/ref/mach.w} and mach.m-code = xop.m-code
+      find first mach {sys/ref/machW.i} and mach.m-code = xop.m-code
       no-lock no-error.
       maxco = xef.f-col.
       if mach.coater = true then maxco = maxco + xef.f-coat.
@@ -175,7 +175,7 @@ for each xop
       and xop.est-no  eq xest.est-no
       and xop.s-num   eq xef.form-no
     break by xop.b-num by xop.line descending:
-   find first mach {sys/look/mach.w}  and mach.m-code = xop.m-code
+   find first mach {sys/look/machW.i}  and mach.m-code = xop.m-code
    no-lock no-error.
    if not available mach then leave.
    z = 0.
@@ -224,7 +224,7 @@ for each xop
       /*
       do i = 1 to 10:
 	 if eb.i-ps2[i] ne xop.op-pass then next.
-	 find first item {sys/look/item.w} and item.i-no = eb.i-code2[i]
+	 find first item {sys/look/itemW.i} and item.i-no = eb.i-code2[i]
 	 no-lock no-error.
 	 if not available item or (mach.coater = no and item.mat-type ne "I") or
 	    index("IV",item.mat-type) = 0 then next.

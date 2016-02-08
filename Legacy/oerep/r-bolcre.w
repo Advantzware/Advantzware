@@ -507,7 +507,7 @@ FOR EACH xoe-ord
       NO-LOCK,
 
       EACH oe-rel
-      {oe/oe-rel.w}
+      {oe/oe-relW.i}
         AND oe-rel.link-no  EQ 0
         AND oe-rel.rel-date GE fdate
         and oe-rel.rel-date LE tdate

@@ -948,7 +948,7 @@ IF AVAIL tt-ei THEN DO:
     
 
     FOR EACH report
-        {sys/look/report.w}
+        {sys/look/reportW.i}
            AND CAN-FIND(FIRST tt-eiv WHERE tt-eiv.rec-id EQ report.rec-id):
       DELETE report.
     END.

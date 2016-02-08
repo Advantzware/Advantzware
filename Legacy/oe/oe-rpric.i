@@ -29,7 +29,7 @@ DEF VAR lv-date AS CHAR NO-UNDO.
 
 
 find first cust
-    {sys/ref/cust.w}
+    {sys/ref/custW.i}
       and cust.cust-no eq x{2}.cust-no
     use-index cust no-lock.
 

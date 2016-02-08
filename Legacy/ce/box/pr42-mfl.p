@@ -45,7 +45,7 @@ ELSE
    ld-rm = ctrl[3]
    ld-hp = ctrl[2].
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 ASSIGN
 call_id = recid(xeb)
@@ -57,7 +57,7 @@ for each est-op
       and est-op.est-no  eq xest.est-no
       and est-op.line    gt 500
     by est-op.line descending:
-   find first mach {sys/look/mach.w} and mach.m-code = est-op.m-code
+   find first mach {sys/look/machW.i} and mach.m-code = est-op.m-code
    no-lock no-error.
    if prev-mach = "LM" and mach.dept[1] ne "LM" then leave.
    if est-op.op-sb = no THEN
@@ -96,7 +96,7 @@ end.
 
 if xef.medium ne "" then
 do with no-box no-labels STREAM-IO frame med1:
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
 		     item.i-no = xef.medium no-lock no-error.
    /*override item shrink % with shrink entered in BOM button on Layout screen*/
   IF xef.spare-dec-1 NE 0 
@@ -214,7 +214,7 @@ find xeb where recid(xeb) = call_id no-lock no-error.
 
 if xef.flute ne "" then
 do with no-box no-labels STREAM-IO frame flute:
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
 		     item.i-no = xef.flute no-lock no-error.
 
    med-qty = ((brd-l[3] * brd-w[3]) * (mqty / xeb.num-up)) / 144000. /*now msf*/
@@ -322,7 +322,7 @@ find xeb where recid(xeb) = call_id no-lock no-error.
 /*
 if xef.lam-code ne "" then
 do with no-box no-labels STREAM-IO frame lamin:
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
 		     item.i-no = xef.lam-code no-lock no-error.
 
    med-qty = ((brd-l[3] * brd-w[3]) * (mqty / xeb.num-up)) / 144000. /*now msf*/

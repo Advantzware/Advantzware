@@ -2289,7 +2289,7 @@
 .\oe\b-crdinq.w .\oe\b-crdinq.w 1153 STRING "Browser-Table" 13 NONE UNTRANSLATABLE 
 .\oe\b-crdinq.w .\oe\b-crdinq.w 1153 PROCEDURE reopen-query1,,INPUT ip-rowid ROWID
 .\oe\b-crdinq.w .\oe\b-crdinq.w 1153 STRING "REOPEN-QUERY1" 13 NONE UNTRANSLATABLE 
-.\oe\b-crdinq.w .\oe\b-crdinq.w 1166 INCLUDE sys/ref/cust.w
+.\oe\b-crdinq.w .\oe\b-crdinq.w 1166 INCLUDE sys/ref/custW.i
 .\oe\b-crdinq.w .\oe\b-crdinq.w 1166 STRING "cust" 4 NONE UNTRANSLATABLE 
 .\oe\b-crdinq.w .\oe\b-crdinq.w 1166 STRING "Customers" 9 NONE TRANSLATABLE 
 .\oe\b-crdinq.w .\oe\b-crdinq.w 1166 ACCESS asi.cust company 

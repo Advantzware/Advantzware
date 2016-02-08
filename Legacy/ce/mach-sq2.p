@@ -38,7 +38,7 @@ run ce/mach-chk.p (no).
 j = 1.
 for each m-lst,
     first mach
-    {sys/look/mach.w}
+    {sys/look/machW.i}
       and mach.m-code eq m-lst.m-code
     no-lock
     by m-lst.seq:

@@ -77,7 +77,7 @@ DEF VAR v-li AS INT NO-UNDO.
                 and (est-op.dept    eq 'PR' OR est-op.dept EQ 'CT')
               no-lock,
               first mach
-              {sys/ref/mach.w}
+              {sys/ref/machW.i}
                 and mach.m-code eq est-op.m-code
               no-lock
               by est-op.line:

@@ -451,7 +451,7 @@ FOR EACH job-hdr NO-LOCK WHERE job-hdr.company               EQ cocode
                             AND job-mch.job-no  EQ job.job-no
                             AND job-mch.job-no2 EQ job.job-no2
                             AND job-mch.frm = job-hdr.frm NO-LOCK,
-            FIRST mach {sys/ref/mach.w}
+            FIRST mach {sys/ref/machW.i}
               AND mach.m-code EQ job-mch.m-code NO-LOCK
                BY mach.d-seq
                BY job-mch.frm
@@ -607,7 +607,7 @@ FOR EACH job-hdr NO-LOCK WHERE job-hdr.company               EQ cocode
 /*             FOR EACH job-mat WHERE job-mat.company EQ cocode                                   */
 /*                                AND job-mat.job     EQ job-hdr.job                              */
 /*                                AND job-mat.frm     EQ eb.form-no NO-LOCK,                      */
-/*                FIRST ITEM {sys/look/itemiv.w}                                                  */
+/*                FIRST ITEM {sys/look/itemivW.i}                                                  */
 /*                  AND item.i-no EQ job-mat.i-no NO-LOCK:                                        */
 /*                                                                                                */
 /*                DO i = 1 TO 12:                                                                 */

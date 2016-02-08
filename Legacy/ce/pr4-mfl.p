@@ -49,7 +49,7 @@ ELSE
    ld-rm = ctrl[3]
    ld-hp = ctrl[2].
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 assign prev-nsh = qty / (xeb.num-up * xef.n-out)
        v-nsh-sqft = (xef.nsh-len * xef.nsh-wid) / 12.
@@ -86,7 +86,7 @@ mqty = qty / (xeb.num-up * xef.n-out). /* number of sheets */
 
 if xef.medium ne "" then
 do  WITH STREAM-IO no-box no-labels frame med1:
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
                      item.i-no = xef.medium no-lock no-error.
    if available item then DO:
         find first e-item of item no-lock no-error.
@@ -210,7 +210,7 @@ end.
 
 if xef.flute ne "" then
 do WITH STREAM-IO no-box no-labels frame flute:
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
                      item.i-no = xef.flute no-lock no-error.
    if available item then
    find first e-item of item no-lock no-error.
@@ -320,7 +320,7 @@ end.
 /*
 if xef.lam-code ne "" then
 do WITH STREAM-IO no-box no-labels frame lamin:
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
                      item.i-no = xef.lam-code no-lock no-error.
    if available item then
    find first e-item of item no-lock no-error.

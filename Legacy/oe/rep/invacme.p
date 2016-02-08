@@ -463,7 +463,7 @@ with frame total-frame no-labels no-box no-underline down stream-io width 80.
               inv-head.t-inv-rev
               with frame total-frame.
 
-      {edi/ed/asi/o810hook.i &reprint=v-reprint &force_asn=false}
+      {sys/inc/o810hookPL.i &reprint=v-reprint &force_asn=false}
 
       v-last-page = PAGE-NUMBER.
      END. /* DO TRANSACTION */

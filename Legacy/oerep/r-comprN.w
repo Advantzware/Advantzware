@@ -1294,7 +1294,7 @@ END.
 
 /* IF AVAIL cust THEN DO:                                        */
 /*    FOR EACH oe-prmtx NO-LOCK                                  */
-/*         {oe/oe-prmtx.w}                                       */
+/*         {oe/oe-prmtxW.i}                                       */
 /*         AND oe-prmtx.custype            EQ cust.type          */
 /*         AND oe-prmtx.cust-no            EQ quotehd.cust-no    */
 /*         AND oe-prmtx.procat             EQ itemfg.procat      */
@@ -1306,7 +1306,7 @@ END.
 /*                                                               */
 /*    IF NOT AVAIL oe-prmtx THEN                                 */
 /*       FOR EACH oe-prmtx NO-LOCK                               */
-/*            {oe/oe-prmtx.w}                                    */
+/*            {oe/oe-prmtxW.i}                                    */
 /*            AND oe-prmtx.custype            EQ cust.type       */
 /*            AND oe-prmtx.cust-no            EQ ""              */
 /*            AND oe-prmtx.procat             EQ itemfg.procat   */
@@ -1318,7 +1318,7 @@ END.
 /*                                                               */
 /*    IF NOT AVAIL oe-prmtx THEN                                 */
 /*       FOR EACH oe-prmtx NO-LOCK                               */
-/*            {oe/oe-prmtx.w}                                    */
+/*            {oe/oe-prmtxW.i}                                    */
 /*            AND oe-prmtx.custype            EQ cust.type       */
 /*            AND oe-prmtx.cust-no            EQ ""              */
 /*            AND oe-prmtx.procat             EQ itemfg.procat   */
@@ -1329,7 +1329,7 @@ END.
 /*                                                               */
 /*    IF NOT AVAIL oe-prmtx THEN                                 */
 /*       FOR EACH oe-prmtx NO-LOCK                               */
-/*            {oe/oe-prmtx.w}                                    */
+/*            {oe/oe-prmtxW.i}                                    */
 /*            AND oe-prmtx.custype            EQ ""              */
 /*            AND oe-prmtx.cust-no            EQ ""              */
 /*            AND oe-prmtx.procat             EQ itemfg.procat   */
@@ -1341,7 +1341,7 @@ END.
 /*                                                               */
 /*    IF NOT AVAIL oe-prmtx THEN                                 */
 /*       FOR EACH oe-prmtx NO-LOCK                               */
-/*            {oe/oe-prmtx.w}                                    */
+/*            {oe/oe-prmtxW.i}                                    */
 /*            AND oe-prmtx.custype            EQ ""              */
 /*            AND oe-prmtx.cust-no            EQ ""              */
 /*            AND oe-prmtx.procat             EQ ""              */

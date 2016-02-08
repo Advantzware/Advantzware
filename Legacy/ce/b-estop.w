@@ -578,7 +578,7 @@ DO:
 
 
   FIND mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code BEGINS est-op.m-code:SCREEN-VALUE IN BROWSE {&browse-name}
       NO-LOCK NO-ERROR.
   IF AVAIL MACH THEN DO:
@@ -1112,7 +1112,7 @@ PROCEDURE local-assign-record :
   find xest where recid(xest) eq recid(est).
   
   find first mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         and mach.m-code eq est-op.m-code
       no-lock no-error.
 
@@ -1170,7 +1170,7 @@ PROCEDURE local-assign-record :
         and xop.line    lt 500
       by xop.qty by xop.s-num by xop.b-num by xop.d-seq by xop.op-pass:
 
-    {sys/inc/machpos.w xop share}
+    {sys/inc/outstrPL.i xop share}
     assign
      j        = j + 1
      xop.line = j.
@@ -1598,7 +1598,7 @@ PROCEDURE set-import-stds :
         AND xop.line    LT 500
         AND (NOT AVAIL est-op OR ROWID(xop) NE ROWID(est-op)),
       FIRST mach NO-LOCK
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ xop.m-code,
       FIRST reftable NO-LOCK
       WHERE reftable.reftable EQ "mach.obsolete"
@@ -1698,7 +1698,7 @@ PROCEDURE valid-b-num :
     APPLY "value-changed" TO est-op.m-code IN BROWSE {&browse-name}.
 
     FIND FIRST mach
-        {sys/look/mach.w}
+        {sys/look/machW.i}
           AND mach.m-code EQ est-op.m-code:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
 
@@ -1742,7 +1742,7 @@ PROCEDURE valid-mach :
 
   do with frame {&frame-name}:
     FIND FIRST mach
-        {sys/look/mach.w}
+        {sys/look/machW.i}
           AND mach.m-code EQ est-op.m-code:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
     IF NOT AVAIL mach THEN v-msg = "Must enter a valid Machine Code, try help".

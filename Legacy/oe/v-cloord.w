@@ -2033,7 +2033,7 @@ PROCEDURE local-create-record :
   
   lv-ordl-recid = recid(oe-ordl).  /* progress bug for first record creation */
   if avail oe-ord then do:
-   find first cust {sys/ref/cust.w} and cust.cust-no = oe-ord.cust-no
+   find first cust {sys/ref/custW.i} and cust.cust-no = oe-ord.cust-no
                    use-index cust no-lock.
    assign
     oe-ordl.company   = cocode
@@ -2211,7 +2211,7 @@ PROCEDURE select-his :
   find xoe-ord where xoe-ord.company = oe-ordl.company and
                      xoe-ord.ord-no = oe-ordl.ord-no no-lock no-error.
 
-  find first cust {sys/ref/cust.w} and
+  find first cust {sys/ref/custW.i} and
                   cust.cust-no eq xoe-ord.cust-no
                   use-index cust no-lock no-error.
                   
@@ -2267,7 +2267,7 @@ PROCEDURE select-stat :
   find xoe-ord where xoe-ord.company = oe-ordl.company and
                      xoe-ord.ord-no = oe-ordl.ord-no no-lock no-error.
 
-  find first cust {sys/ref/cust.w} and
+  find first cust {sys/ref/custW.i} and
                   cust.cust-no eq xoe-ord.cust-no
                   use-index cust no-lock no-error.
                   

@@ -323,7 +323,7 @@ repeat on error undo outers, leave outers with frame head:
                 and job-mat.frm     eq eb.form-no
               no-lock,
               first item
-              {sys/look/itemiv.w}
+              {sys/look/itemivW.i}
                 and item.i-no eq job-mat.i-no
               no-lock:
 

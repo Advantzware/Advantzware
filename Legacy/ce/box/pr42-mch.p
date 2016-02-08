@@ -39,7 +39,7 @@ DEF VAR v-printed-lit AS LOG NO-UNDO.
          and est-op.line    gt 500,
 
        first mach
-       {sys/look/mach.w}
+       {sys/look/machW.i}
          and mach.m-code eq est-op.m-code
        no-lock,
 

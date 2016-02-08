@@ -233,7 +233,7 @@ assign
         FIND FIRST stax WHERE stax.company = cocode AND
                               stax.tax-group = inv-head.tax-gr NO-LOCK NO-ERROR.
         /*find first stax
-            {sys/ref/stax1.w}
+            {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq inv-head.tax-gr
             no-lock no-error. */
         if not avail stax then
@@ -499,7 +499,7 @@ assign
             assign
              v-price-head = inv-line.pr-uom
              /*v-price      = ROUND(inv-line.t-price / (1 - (inv-line.disc / 100)),2) round problem*/.
-             find first itemfg {sys/look/itemfgrl.w}
+             find first itemfg {sys/look/itemfgrlW.i}
                         and itemfg.i-no eq xinv-line.i-no no-lock no-error.
             if inv-line.pr-uom begins "L" AND inv-line.pr-uom NE "LB" then
                v-price = inv-line.price * if inv-line.inv-qty lt 0 then -1 else 1.

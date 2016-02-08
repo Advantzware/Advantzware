@@ -1103,7 +1103,7 @@ SESSION:SET-WAIT-STATE("general").
     if first-of(ar-cash.cust-no) then do:
       v-printlines = 1.
       find first cust
-          {ar/ar-cust.w}
+          {ar/ar-custW.i}
             and cust.cust-no eq ar-cash.cust-no
           no-lock no-error.
 

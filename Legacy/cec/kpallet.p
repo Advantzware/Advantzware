@@ -103,7 +103,7 @@ END.
 
 ELSE DO:
   find first item
-      {sys/look/itemgs.w}
+      {sys/look/itemgsW.i}
         and item.i-no eq xeb.adhesive
       no-lock no-error.
   find first style
@@ -218,7 +218,7 @@ if v-code eq "" then do:
 end.
 
 find reftable
-    {cec/stack.w}
+    {cec/stackW.i}
       and reftable.code eq v-code
     no-lock no-error.
 if not avail reftable then do:

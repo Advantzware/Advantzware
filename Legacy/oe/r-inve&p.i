@@ -53,7 +53,7 @@
             use-index r-no break by inv-line.ord-no:
 
           find first itemfg
-              {sys/look/itemfgrl.w}
+              {sys/look/itemfgrlW.i}
                 and itemfg.i-no eq inv-line.i-no
               no-error.
 

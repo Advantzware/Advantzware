@@ -2676,7 +2676,7 @@ def var lv-industry as cha no-undo.
   find first ce-ctrl where ce-ctrl.company = cocode and
                            ce-ctrl.loc     = locode no-lock no-error.
   if xef.m-code ne "" then
-      find first mach {sys/ref/mach.w} and mach.m-code = xef.m-code  no-lock no-error.
+      find first mach {sys/ref/machW.i} and mach.m-code = xef.m-code  no-lock no-error.
   if avail mach then do:
      assign tr-l = mach.min-triml
             tr-w = mach.min-trimw
@@ -2712,7 +2712,7 @@ def var lv-industry as cha no-undo.
   assign tr-l = tr-l * 2
          tr-w = tr-w * 2.
           
-  find first style {sys/ref/style.w} and style.style = xeb.style no-lock no-error.
+  find first style {sys/ref/styleW.i} and style.style = xeb.style no-lock no-error.
 
   find first item where item.company eq cocode
                    and item.i-no    eq xef.board
@@ -3760,7 +3760,7 @@ IF NOT ll-auto-calc-selected THEN
      l-fit-wid = xef.gsh-wid.
   ef.spare-int-1:SENSITIVE = FALSE.
 
-  find first mach {sys/ref/mach.w} and mach.m-code = xef.m-code  no-lock no-error.
+  find first mach {sys/ref/machW.i} and mach.m-code = xef.m-code  no-lock no-error.
   IF AVAIL(mach) AND xef.i-code = "R" AND
         ((xef.xgrain NE "B" AND (l-fit-len GT mach.max-wid 
      OR l-fit-wid GT mach.max-len))

@@ -1403,7 +1403,7 @@ PROCEDURE delete-item :
   find xoe-ord where xoe-ord.company eq cocode
                  and xoe-ord.ord-no  eq oe-ord.ord-no no-error.
   FIND FIRST cust
-      {sys/ref/cust.w}
+      {sys/ref/custW.i}
         AND cust.cust-no EQ xoe-ord.cust-no
       USE-INDEX cust NO-LOCK NO-ERROR.
 
@@ -1852,7 +1852,7 @@ PROCEDURE select-his :
     find xoe-ord where xoe-ord.company = oe-ordl.company and
                        xoe-ord.ord-no = oe-ordl.ord-no no-lock no-error.
 
-    find first cust {sys/ref/cust.w} and
+    find first cust {sys/ref/custW.i} and
                     cust.cust-no eq xoe-ord.cust-no
                     use-index cust no-lock no-error.
                   
@@ -1922,7 +1922,7 @@ PROCEDURE select-stat :
   find xoe-ord where xoe-ord.company = oe-ordl.company and
                      xoe-ord.ord-no = oe-ordl.ord-no no-lock no-error.
 
-  find first cust {sys/ref/cust.w} and
+  find first cust {sys/ref/custW.i} and
                   cust.cust-no eq xoe-ord.cust-no
                   use-index cust no-lock no-error.
                   

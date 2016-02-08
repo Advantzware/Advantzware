@@ -1933,7 +1933,7 @@ PROCEDURE local-assign-record :
   do i = 1 to 4:
     if ef.leaf[i] ne "" and ef.leaf-bnum[i] ne 0 and
        ((ef.leaf-w[i] ne 0) and (ef.leaf-l[i] ne 0)) THEN do:
-      find first item {sys/look/item.w} and item.i-no eq ef.leaf[i]
+      find first item {sys/look/itemW.i} and item.i-no eq ef.leaf[i]
           no-lock no-error.
       if item.mat-type ne "W" then next.
       eb.die-in = eb.die-in +
@@ -2187,7 +2187,7 @@ PROCEDURE local-display-fields :
     style_dscr:SCREEN-VALUE = IF AVAIL style THEN style.dscr ELSE "".
 
     FIND FIRST item
-        {sys/look/itemb1.w}
+        {sys/look/itemb1W.i}
           AND item.i-no EQ ef.board:SCREEN-VALUE
         NO-LOCK NO-ERROR.
     
@@ -2475,7 +2475,7 @@ PROCEDURE new-board :
 
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST item
-        {sys/look/itemb1.w}
+        {sys/look/itemb1W.i}
           AND item.i-no EQ ef.board:SCREEN-VALUE
         NO-LOCK NO-ERROR.
     IF AVAIL item THEN ef.brd-dscr:SCREEN-VALUE = item.i-name.
@@ -2944,7 +2944,7 @@ PROCEDURE valid-board :
     ef.board:SCREEN-VALUE = CAPS(ef.board:SCREEN-VALUE).
 
     IF NOT CAN-FIND(FIRST item
-                    {sys/look/itemb1.w}
+                    {sys/look/itemb1W.i}
                       AND item.i-no EQ ef.board:SCREEN-VALUE) OR
        ef.board:SCREEN-VALUE EQ ""                            THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.

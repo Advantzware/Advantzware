@@ -12,7 +12,7 @@ IF AVAIL po-ordl THEN DO:
     cocode = po-ordl.company. 
     {po/po-ordls.i}
   
-    {po/poordls2.w}
+    {po/poordls2W.i}
 
     IF AVAIL b-ref1 THEN DELETE b-ref1.
     IF AVAIL b-ref2 THEN DELETE b-ref2.
@@ -24,6 +24,6 @@ IF AVAIL po-ordl THEN DO:
       RUN po/po-ordls.p (RECID(po-ordl)).
 
     {po/po-ordls.i}  
-    {po/poordls2.w}
+    {po/poordls2W.i}
 END.
 

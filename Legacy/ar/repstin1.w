@@ -831,7 +831,7 @@ PROCEDURE local-assign-record :
   FIND CURRENT b-ar-invl.
 
   find first itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
         and itemfg.i-no eq b-ar-invl.i-no
       no-lock no-error.
 
@@ -967,7 +967,7 @@ PROCEDURE local-assign-record :
     
      IF b-ar-invl.i-no NE "" THEN
      FIND FIRST itemfg NO-LOCK
-         {sys/look/itemfgrl.w}
+         {sys/look/itemfgrlW.i}
            AND itemfg.i-no EQ b-ar-invl.i-no
          NO-ERROR.
     

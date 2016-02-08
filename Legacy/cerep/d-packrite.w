@@ -296,7 +296,7 @@ DO:
     pattern:SCREEN-VALUE = CAPS(pattern:SCREEN-VALUE).
     IF  pattern:SCREEN-VALUE NE "" THEN DO:
       IF NOT CAN-FIND(FIRST reftable 
-                      {cec/stack.w}
+                      {cec/stackW.i}
                         AND reftable.CODE EQ pattern:SCREEN-VALUE )
       THEN DO:
         MESSAGE "Invalid Stacking Code..."  VIEW-AS ALERT-BOX ERROR.
@@ -381,7 +381,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         USE-INDEX line-idx:
 
       FIND FIRST mach
-          {sys/look/mach.w}
+          {sys/look/machW.i}
             AND mach.m-code EQ job-mch.m-code
           NO-LOCK NO-ERROR.
       CREATE w-jm.

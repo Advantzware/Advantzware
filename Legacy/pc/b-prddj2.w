@@ -1177,7 +1177,7 @@ PROCEDURE local-assign-record :
         AND job-mch.frm     EQ pc-prdd.frm
       USE-INDEX line-idx NO-LOCK,
       FIRST mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ job-mch.m-code
         AND INDEX("AP",mach.p-type) LE 0
       NO-LOCK

@@ -3,7 +3,7 @@
 /* -------------------------------------------------------------------------- */
 
         find first cust
-            {sys/ref/cust.w}
+            {sys/ref/custW.i}
               and cust.cust-no eq eb.cust-no
             no-lock no-error.
             

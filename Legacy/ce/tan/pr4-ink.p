@@ -30,7 +30,7 @@ DEF TEMP-TABLE tt-ei NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
     FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 v-num-up = xeb.num-up.
 
@@ -55,7 +55,7 @@ FOR EACH xeb2 NO-LOCK
           AND (est-op.dept    EQ "PR" OR est-op.dept EQ "CT")
         NO-LOCK,
         FIRST mach
-        {sys/ref/mach.w}
+        {sys/ref/machW.i}
           AND mach.m-code EQ est-op.m-code
         NO-LOCK
         BY est-op.line:

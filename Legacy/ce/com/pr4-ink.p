@@ -48,7 +48,7 @@ DEF TEMP-TABLE tt-ink NO-UNDO FIELD i-code LIKE ink.i-code
 
 DEF SHARED VAR gEstSummaryOnly AS LOG NO-UNDO.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 /* i n k s */
 
@@ -82,7 +82,7 @@ for each xef where xef.company = xest.company
          AND (est-op.dept   EQ "PR" OR est-op.dept EQ "CT")
        NO-LOCK,
        FIRST mach
-       {sys/ref/mach.w}
+       {sys/ref/machW.i}
          AND mach.m-code EQ est-op.m-code
        NO-LOCK
        BY est-op.line:

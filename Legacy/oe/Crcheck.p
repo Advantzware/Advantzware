@@ -61,7 +61,7 @@ IF lv-cust NE "" AND lv-stat NE "H" AND
   (oecredit-log OR lv-stat NE "A") 
  THEN
     FIND FIRST cust NO-LOCK
-        {sys/ref/cust.w}
+        {sys/ref/custW.i}
         AND cust.cust-no EQ lv-cust USE-INDEX cust NO-ERROR.
     IF AVAIL cust THEN DO:
         FIND FIRST  terms NO-LOCK

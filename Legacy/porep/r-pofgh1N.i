@@ -6,7 +6,7 @@ DEF VAR v-vend-name AS CHAR NO-UNDO.
    do:
       output stream s-temp TO VALUE(fi_file).
     /*  str_buffa = "".
-      {edi/rc/outstr.i v-hdr 1 218}. */
+      {sys/inc/outstrPL.i v-hdr 1 218}. */
       PUT STREAM s-temp UNFORMATTED excelheader SKIP.
    end.
 

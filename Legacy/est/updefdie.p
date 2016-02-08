@@ -27,7 +27,7 @@ IF AVAIL ef THEN DO:
 
     IF est-flm.bnum NE 0 AND est-flm.wid NE 0 AND est-flm.len NE 0 AND
        CAN-FIND(FIRST ITEM
-                {sys/look/item.w}
+                {sys/look/itemW.i}
                   AND item.i-no     EQ est-flm.i-no
                   AND item.mat-type EQ "W") THEN
     FOR EACH eb

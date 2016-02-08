@@ -40,9 +40,9 @@ lv-save-vend = v-vend-no.
 if xef.board ne "" then do with frame aaxx no-labels no-box:
   FIND CURRENT xef.
 
-  find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+  find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
   find first item
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         and item.i-no eq xef.board
       no-lock.
       

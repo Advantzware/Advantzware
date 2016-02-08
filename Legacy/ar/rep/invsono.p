@@ -751,8 +751,10 @@ v-num-copies = sys-ctrl.int-fld.
                 ar-inv.due when avail terms or ar-inv.terms eq "CASH"
               with frame totals.
         end.
+        /* WFK - Feb 6, 2016 
+           Remove reference to edi as it is not implemented  */  
 
-        {edi/ed/asi/o810hook.i &reprint=ar-inv.printed &force_asn=false}
+       /* {sys/inc/o810hookPL.i &reprint=ar-inv.printed &force_asn=false} */
 
         assign /* ar-inv.inv-date = today */
                ar-inv.printed = yes

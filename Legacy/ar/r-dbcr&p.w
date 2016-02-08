@@ -1091,13 +1091,13 @@ FORMAT HEADER
         report.term-id = v-term-id
         report.key-01  = STRING(ar-cash.check-no,"9999999999")
         report.rec-id  = RECID(ar-cash).
-        FIND FIRST cust {ar/ar-cust.w} AND cust.cust-no = ar-cash.cust-no NO-LOCK NO-ERROR.
+        FIND FIRST cust {ar/ar-custW.i} AND cust.cust-no = ar-cash.cust-no NO-LOCK NO-ERROR.
         IF cust.factored THEN
             report.key-02 = "Factored".  /* for ar/rep/expcmemo.p task#  09200521*/
     END.
     v-postable = yes.
     IF FIRST-OF(ar-cash.cust-no) THEN DO:
-      FIND FIRST cust {ar/ar-cust.w} AND cust.cust-no = ar-cash.cust-no
+      FIND FIRST cust {ar/ar-custW.i} AND cust.cust-no = ar-cash.cust-no
         NO-LOCK NO-ERROR.
       PUT cust.cust-no SPACE(1) cust.name.
     END.
@@ -1191,7 +1191,7 @@ FORMAT HEADER
 
        RELEASE reftable no-error.
 
-       FIND cust {ar/ar-cust.w} AND cust.cust-no = ar-cash.cust-no
+       FIND cust {ar/ar-custW.i} AND cust.cust-no = ar-cash.cust-no
            NO-LOCK NO-ERROR.
        IF FIRST-OF(ar-cashl.actnum) THEN
        DO:

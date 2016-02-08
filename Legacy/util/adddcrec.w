@@ -228,7 +228,7 @@ for each mch-act where mch-act.company eq g_company and
                        mch-act.op-date ge begin_date and
                        mch-act.op-date le END_date
                        no-lock,
-    first mach {sys/ref/mach.w}
+    first mach {sys/ref/machW.i}
           and mach.m-code eq mch-act.m-code no-lock,
     first job where job.company eq cocode
          and job.job     eq mch-act.job
@@ -538,7 +538,7 @@ END.
 
 IF fgrecpt-char EQ "AUTOPOST" THEN DO:
   FIND FIRST mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ mch-act.m-code
       NO-LOCK.
 

@@ -250,7 +250,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       FIND FIRST stax WHERE stax.company = cocode 
                         AND stax.tax-group = inv-head.tax-gr NO-LOCK NO-ERROR.
       /*FIND FIRST stax
-            {sys/ref/stax1.w}
+            {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq inv-head.tax-gr
             NO-LOCK NO-ERROR. */
       IF NOT AVAIL stax THEN

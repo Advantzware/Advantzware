@@ -30,7 +30,7 @@ IF ip-fld EQ 2 THEN DO:
 
       IF li NE ip-ext AND lv-field-hdl:SCREEN-VALUE NE "" THEN DO:
         FIND FIRST item
-            {sys/look/itemiv.w}
+            {sys/look/itemivW.i}
               AND item.i-no EQ lv-field-hdl:SCREEN-VALUE
             NO-LOCK NO-ERROR.
         IF AVAIL item THEN DO:
@@ -70,7 +70,7 @@ IF ip-fld EQ 2 THEN DO:
           lv-msg = "".
 
           FIND FIRST item
-              {sys/look/itemiv.w}
+              {sys/look/itemivW.i}
                 AND item.i-no EQ lv-field-hdl:SCREEN-VALUE
               NO-LOCK NO-ERROR.
 
@@ -107,7 +107,7 @@ DO WHILE VALID-HANDLE(lv-field-hdl):
     IF li EQ ip-ext OR ip-ext EQ ? THEN DO:
       IF lv-field-hdl:SCREEN-VALUE NE ""                             AND
          NOT CAN-FIND(FIRST item
-                      {sys/look/itemiv.w}
+                      {sys/look/itemivW.i}
                          AND item.i-no EQ lv-field-hdl:SCREEN-VALUE) THEN DO:
 
         MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.

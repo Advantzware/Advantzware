@@ -66,7 +66,7 @@ for each b-pro
   probe.est-qty = probe.est-qty + b-pro.est-qty.
 end.
  
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 {ce/com/probe.u}
 

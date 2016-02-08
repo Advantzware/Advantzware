@@ -440,7 +440,7 @@ for each job-hdr NO-LOCK
             no-lock,
 
             first mach
-            {sys/ref/mach.w}
+            {sys/ref/machW.i}
               and mach.m-code eq job-mch.m-code
             no-lock
 
@@ -620,7 +620,7 @@ for each job-hdr NO-LOCK
                 and job-mat.frm     eq eb.form-no
               no-lock,
               first item
-              {sys/look/itemiv.w}
+              {sys/look/itemivW.i}
                 and item.i-no eq job-mat.i-no
               no-lock:
 
@@ -1210,7 +1210,7 @@ for each job-hdr NO-LOCK
                    BY wrk-ink.i-code
                       /*BY wrk-ink.blank-no*/: 
              IF LAST-OF(wrk-ink.i-code) THEN DO:                
-                FIND first ITEM {sys/look/itemiv.w} and item.i-no eq wrk-ink.i-code NO-LOCK NO-ERROR.
+                FIND first ITEM {sys/look/itemivW.i} and item.i-no eq wrk-ink.i-code NO-LOCK NO-ERROR.
                 IF AVAIL ITEM AND ITEM.mat-type = "V" THEN ASSIGN v-ink1[7] = wrk-ink.i-dscr.
                 ELSE IF i < 7 THEN ASSIGN v-ink1[i] = wrk-ink.i-dscr
                                           i = i + 1.
@@ -1227,7 +1227,7 @@ for each job-hdr NO-LOCK
                break BY wrk-ink.blank-no BY wrk-ink.seq
                       /*BY wrk-ink.blank-no*/: 
                IF wrk-ink.seq <= 7 THEN DO:
-                  FIND first ITEM {sys/look/itemiv.w} and item.i-no eq wrk-ink.i-code NO-LOCK NO-ERROR.
+                  FIND first ITEM {sys/look/itemivW.i} and item.i-no eq wrk-ink.i-code NO-LOCK NO-ERROR.
                   IF AVAIL ITEM AND ITEM.mat-type = "V" THEN ASSIGN v-ink1[7] = wrk-ink.i-dscr.
                   ELSE ASSIGN v-ink1[wrk-ink.seq] = wrk-ink.i-code + "/" + wrk-ink.i-dscr.
                END.    

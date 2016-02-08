@@ -590,7 +590,7 @@ DO:
    END.
    
   find first cust
-      {sys/ref/cust.w}
+      {sys/ref/custW.i}
         and cust.cust-no eq oe-prmtx.cust-no:screen-value in frame {&frame-name}
       no-lock no-error.
   if avail cust then do:

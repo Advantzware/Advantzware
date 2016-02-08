@@ -1937,7 +1937,7 @@ DEF INPUT PARAMETER vWinTitle           AS   CHAR               NO-UNDO.
          td-show-parm       = vtd-show-parm 
          fi_depts-hidden    = vfi_depts-hidden
          cWinTitle          = vWinTitle.     
-{util\tmsg.i """" VALID-HANDLE(hCallingProcedure)}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2081,8 +2081,8 @@ PROCEDURE post-bol :
       FOR EACH bf-oe-ordl WHERE bf-oe-ordl.company = bf-oe-ord.company
                          AND bf-oe-ordl.ord-no  = bf-oe-ord.ord-no
                        NO-LOCK.
-         {util/tmsg.i ""CleanOrdOn"" bf-oe-ordl.ord-no
-             bf-oe-ordl.i-no }
+        /* {util/tmsg.i ""CleanOrdOn"" bf-oe-ordl.ord-no
+             bf-oe-ordl.i-no } */
          RUN oe/cleanrel.p (INPUT ROWID(bf-oe-ordl)).
       END.
       */

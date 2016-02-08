@@ -57,7 +57,7 @@ for each xef
       with frame ae down no-labels no-box  stream-io:
  
     find first mach
-        {sys/look/mach.w}
+        {sys/look/machW.i}
           and mach.m-code eq est-op.m-code
         no-lock no-error.
     if not avail mach then next.

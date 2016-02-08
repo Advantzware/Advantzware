@@ -253,7 +253,7 @@ do transaction:
            if xeb.stock-no eq "" then next.
          END.
          find first itemfg
-              {sys/look/itemfgrl.w}
+              {sys/look/itemfgrlW.i}
                 and itemfg.i-no   eq xeb.stock-no
               no-lock no-error.
           if not avail itemfg then do on endkey undo, next:
@@ -634,7 +634,7 @@ do transaction:
                            and job-hdr.frm      eq op.form-no
                            and job-hdr.blank-no eq op.blank-no no-lock no-error.
 
-      find first mach {sys/ref/mach.w}
+      find first mach {sys/ref/machW.i}
                       and mach.m-code eq op.m-code no-lock.
 
       v-on-f = 1.
@@ -745,7 +745,7 @@ PROCEDURE update-itemfg:
 
   IF AVAIL b-job-hdr THEN DO:
     FIND FIRST itemfg
-        {sys/look/itemfgrl.w}
+        {sys/look/itemfgrlW.i}
           AND itemfg.i-no EQ b-job-hdr.i-no
         NO-ERROR.
 

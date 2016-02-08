@@ -42,7 +42,7 @@ DEF TEMP-TABLE tt-ef-nsh LIKE ef-nsh.
 
  
 find first style
-    {sys/ref/style.w}
+    {sys/ref/styleW.i}
       and style.style eq xeb.style
     no-lock no-error.
     
@@ -55,7 +55,7 @@ do i = 1 to 10:
   if routing.m-code[i] eq "" then next.
       
   find first mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         and mach.m-code eq routing.m-code[i]
       no-lock no-error.
   if avail mach and (mach.num-wid gt 0 or mach.num-wid gt 0) and
@@ -74,7 +74,7 @@ do i = 1 to 7:
   if style.m-code[i] eq "" then next.
       
   find first mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         and mach.m-code eq style.m-code[i]
       no-lock no-error.
   if avail mach and (mach.num-wid gt 0 or mach.num-wid gt 0) and
@@ -216,7 +216,7 @@ FOR EACH tt-ef-nsh BY tt-ef-nsh.pass-no:
           v-defr = YES.
       
           FIND FIRST mach NO-LOCK
-              {sys/look/mach.w}
+              {sys/look/machW.i}
                 AND mach.m-code  EQ v-rout[i]
                 AND mach.dept[1] EQ (IF tt-ef-nsh.dept NE "" THEN tt-ef-nsh.dept ELSE "RC")
               NO-ERROR.
@@ -246,7 +246,7 @@ FOR EACH tt-ef-nsh BY tt-ef-nsh.pass-no:
       /* find layout machine in mach file */
       IF NOT AVAIL mach THEN DO:
         FIND FIRST mach NO-LOCK
-            {sys/look/mach.w}
+            {sys/look/machW.i}
               AND mach.m-code  eq xef.m-code
               AND mach.dept[1] eq (IF tt-ef-nsh.dept NE "" THEN tt-ef-nsh.dept ELSE "RC")
             NO-ERROR.
@@ -267,7 +267,7 @@ FOR EACH tt-ef-nsh BY tt-ef-nsh.pass-no:
 
       IF NOT AVAIL mach THEN
       FOR EACH mach
-         {sys/look/mach.w}
+         {sys/look/machW.i}
            AND mach.dept[1] EQ (IF tt-ef-nsh.dept NE "" THEN tt-ef-nsh.dept ELSE "RC")
            AND mach.num-len GE w-out
          NO-LOCK BY mach.num-len
@@ -290,7 +290,7 @@ FOR EACH tt-ef-nsh BY tt-ef-nsh.pass-no:
     
       IF NOT AVAIL mach THEN
       FOR EACH mach NO-LOCK
-         {sys/look/mach.w}
+         {sys/look/machW.i}
            AND mach.dept[1] EQ (IF tt-ef-nsh.dept NE "" THEN tt-ef-nsh.dept ELSE "RC")
            AND mach.num-len LT w-out
          BY mach.num-len DESC

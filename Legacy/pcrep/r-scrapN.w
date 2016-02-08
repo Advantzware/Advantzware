@@ -1401,7 +1401,7 @@ display "" with frame r-top.
   do:
     output stream s-temp TO VALUE(fi_file).
     assign str_buffa = "".
-    {edi/rc/outstr.i v-hdr 1 218}.
+    {sys/inc/outstrPL.i v-hdr 1 218}.
     PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
   end. */
   

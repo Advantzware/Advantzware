@@ -54,7 +54,7 @@ IF AVAIL updfgdim-{1} THEN DO:
       NO-ERROR.
 
   FIND FIRST style NO-LOCK
-      {sys/ref/style.w}
+      {sys/ref/styleW.i}
         AND style.style EQ updfgdim-{1}.style
       NO-ERROR.
 

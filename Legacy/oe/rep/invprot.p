@@ -290,7 +290,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
 
         FIND FIRST stax
-          {sys/ref/stax1.w}
+          {sys/ref/stax1W.i}
           AND {sys/ref/taxgroup.i stax} EQ inv-head.tax-gr NO-LOCK NO-ERROR.
         IF NOT AVAIL stax 
           THEN

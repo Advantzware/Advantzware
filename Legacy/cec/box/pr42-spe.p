@@ -19,7 +19,7 @@ DEF BUFFER b-setup FOR reftable.
 {cec/print4.i shared shared}
 {cec/print42.i shared}
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 for each xef where xef.company = xest.company
                and xef.est-no    eq xest.est-no

@@ -483,7 +483,7 @@ with frame total-frame no-labels NO-BOX DOWN no-underline stream-io width 80.
               v-if-paid v-discount
           with frame total-frame.
 
-      {edi/ed/asi/o810hook.i &reprint=v-reprint &force_asn=false}
+      {sys/inc/o810hookPL.i &reprint=v-reprint &force_asn=false}
 
       v-last-page = page-number.
     end. /* for each report */

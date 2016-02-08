@@ -29,7 +29,7 @@ def shared var v-chk-qty as dec no-undo.
 
 
 find first style
-    {sys/ref/style.w}
+    {sys/ref/styleW.i}
       and style.style eq xeb.style
     no-lock no-error.
 

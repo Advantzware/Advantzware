@@ -52,7 +52,7 @@
       end.
     END.
 
-    find first box-design-hdr {cec/est-6.w box-design-hdr}
+    find first box-design-hdr {cec/est-6W.i box-design-hdr}
           and box-design-hdr.form-no   eq bf-eb.form-no
           and box-design-hdr.blank-no  eq bf-eb.blank-no
         no-lock no-error.

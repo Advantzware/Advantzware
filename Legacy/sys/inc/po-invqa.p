@@ -20,7 +20,7 @@ find first po-ord
 
 if avail po-ord then
 for each reftable
-    {ap/ap-reftb.w po-ordl.po-no}
+    {ap/ap-reftbW.i po-ordl.po-no}
     no-lock,
     
     each ap-inv

@@ -770,7 +770,7 @@ PROCEDURE get-def-values :
   END.
 
   find first itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
         and itemfg.i-no EQ tt-tag.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
       no-lock no-error.
   /*loadtag.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.*/
@@ -1776,7 +1776,7 @@ PROCEDURE valid-record :
         END.
         ELSE DO:
             RUN fg/d-crtitm.w (fg-rctd.i-no:SCREEN-VALUE).
-            FIND first itemfg {sys/look/itemfgrl.w}
+            FIND first itemfg {sys/look/itemfgrlW.i}
                        and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                        no-lock no-error.
             IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name.
@@ -1957,7 +1957,7 @@ PROCEDURE validate-record :
         END.
         ELSE DO:
             RUN fg/d-crtitm.w (fg-rctd.i-no:SCREEN-VALUE).
-            FIND first itemfg {sys/look/itemfgrl.w}
+            FIND first itemfg {sys/look/itemfgrlW.i}
                        and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                        no-lock no-error.
             IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name.

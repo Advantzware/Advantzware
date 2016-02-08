@@ -26,7 +26,7 @@ DEF VAR v-probe-line-fmt AS CHAR NO-UNDO.
 DEF NEW SHARED FRAME probe.
 DEF NEW SHARED FRAME probe-peach.
 
-FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
     
 {cec/probe.f}
 {cec/box/probeit.f}

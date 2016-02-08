@@ -48,7 +48,7 @@ DEF TEMP-TABLE tt-ink NO-UNDO FIELD i-code LIKE ink.i-code
                               FIELD pass AS INT.
 
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 /* i n k s */
 
@@ -100,7 +100,7 @@ for each xef where xef.company = xest.company
           no-lock,
        
           first mach
-          {sys/look/mach.w}
+          {sys/look/machW.i}
             AND mach.m-code   eq est-op.m-code
             and (mach.dept[1] eq "GL" or mach.dept[2] eq "GL" or
                  mach.dept[3] eq "GL" or mach.dept[4] eq "GL")
@@ -126,7 +126,7 @@ for each xef where xef.company = xest.company
          AND est-op.line    GE 500
          AND est-op.dept    EQ "PR",
        FIRST mach NO-LOCK
-       {sys/ref/mach.w}
+       {sys/ref/machW.i}
          AND mach.m-code EQ est-op.m-code
        BY est-op.line.
      j = j + 1.

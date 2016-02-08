@@ -42,7 +42,7 @@ if save_id ne ? then
   find {1} where recid({1}) = save_id no-error.
 
 find first cust
-    {sys/ref/cust.w}
+    {sys/ref/custW.i}
       and cust.cust-no eq x{2}.cust-no
    use-index cust no-lock.
 

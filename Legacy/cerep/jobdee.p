@@ -630,7 +630,7 @@ for each job-hdr NO-LOCK
                 and job-mat.frm     eq int(tt-reftable.val[12])
                 no-lock,
               first item
-              {sys/look/itemiv.w}
+              {sys/look/itemivW.i}
                 and item.i-no eq job-mat.i-no no-lock:
 
             for each eb WHERE eb.company     EQ job-hdr.company
@@ -708,7 +708,7 @@ for each job-hdr NO-LOCK
             no-lock,
 
             first mach
-            {sys/ref/mach.w}
+            {sys/ref/machW.i}
               and mach.m-code eq job-mch.m-code
             no-lock
 

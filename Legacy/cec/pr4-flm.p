@@ -66,7 +66,7 @@ DEF TEMP-TABLE tt-ei NO-UNDO
 
 
 save-qty = qty.
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 RUN est/ef-#out.p (ROWID(xef), OUTPUT v-n-out).
 

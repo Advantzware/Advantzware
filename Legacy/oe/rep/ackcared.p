@@ -181,7 +181,7 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
           v-printline = v-printline + 1.
         end.*/
 
-        find first itemfg {sys/look/itemfgrl.w}
+        find first itemfg {sys/look/itemfgrlW.i}
             and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
 
         IF AVAIL itemfg THEN
@@ -335,7 +335,7 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
                              
         else
         if oe-ordl.pr-uom eq "CS" THEN do:
-          /*find first itemfg {sys/look/itemfgrl.w}
+          /*find first itemfg {sys/look/itemfgrlW.i}
             and itemfg.i-no eq oe-ordl.i-no no-lock no-error.*/
 
           v-totlin = oe-ordl.qty /
@@ -364,7 +364,7 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
       
         /* print spec notes */
         IF v-prntinst THEN DO:
-           find first itemfg {sys/look/itemfgrl.w}
+           find first itemfg {sys/look/itemfgrlW.i}
                 and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
     
            IF AVAIL itemfg THEN DO:

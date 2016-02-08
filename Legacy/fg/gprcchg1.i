@@ -3,7 +3,7 @@
 /* -------------------------------------------------------------------------- */
 
 for each itemfg
-    {sys/look/itemfg.w}
+    {sys/look/itemfgW.i}
       and itemfg.i-no     ge v-i-no[1]
       and itemfg.i-no     le v-i-no[2]
       AND NOT CAN-FIND(FIRST tt-rowid

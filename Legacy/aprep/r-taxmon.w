@@ -868,7 +868,7 @@ PROCEDURE run-report :
    SESSION:SET-WAIT-STATE ("general").
 
    for each stax
-            {sys/ref/stax.w}
+            {sys/ref/staxW.i}
             and stax.tax-group  eq stax.tax-code1[1]
             and stax.tax-acc1[1] GT v-tax-gl no-lock
              by stax.tax-acc1[1]:
@@ -910,7 +910,7 @@ PROCEDURE run-report :
                            and ar-inv.tax-code ne "" no-lock:
    
             find first stax
-                       {sys/ref/stax.w}
+                       {sys/ref/staxW.i}
                        and stax.tax-group  eq stax.tax-code1[1]
                        and stax.tax-acc1[1] eq ar-cashl.actnum no-lock no-error.
                            
@@ -928,7 +928,7 @@ PROCEDURE run-report :
                            and ar-inv.inv-no   eq ar-cashl.inv-no
                            and ar-inv.tax-code ne "" no-lock,
             first stax
-                  {sys/ref/stax.w}
+                  {sys/ref/staxW.i}
                   and stax.tax-group eq ar-inv.tax-code no-lock:
    
             create tt-report.
@@ -995,7 +995,7 @@ PROCEDURE run-report :
                v-frtr   = 0.
    
          find first stax
-                    {sys/ref/stax.w}
+                    {sys/ref/staxW.i}
                     and stax.tax-group eq tt-report.key-01 no-lock no-error.
                  
          DO i = 1 TO 5:

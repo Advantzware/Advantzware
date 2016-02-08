@@ -53,7 +53,7 @@ find first mach of mstd no-lock no-error.
 if avail est-op then do:
   if est-op.n-out ne 0 then v-out = est-op.n-out.
   
-  {sys/inc/machpos.w est-op no}
+  {sys/inc/outstrPL.i est-op no}
   if avail reftable then do:
     if reftable.val[4] ne 0 then v-len = reftable.val[4].
     if reftable.val[5] ne 0 then v-wid = reftable.val[5].
