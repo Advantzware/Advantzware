@@ -986,7 +986,8 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
             THIS-OBJECT:ToolbarsManager:Ribbon:SelectedTab = 
                 THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups["page_" + STRING (piPage)]:Tabs[0] .
         
-            IF VALID-OBJECT (THIS-OBJECT:ToolbarsManager:MdiParentManager) THEN 
+            IF VALID-OBJECT (THIS-OBJECT:ToolbarsManager:MdiParentManager) AND 
+                 THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups:Exists ("page_" + STRING (piPage)) THEN  
                 THIS-OBJECT:ToolbarsManager:MdiParentManager:Ribbon:SelectedTab = 
                     THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups["page_" + STRING (piPage)]:Tabs[0]:AttachedParentTab .
         

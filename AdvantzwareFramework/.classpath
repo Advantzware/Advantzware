@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<ClassPath xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ClassPathRow DirectoryEntry="." PrefixWith=""/>
+  <ClassPathRow DirectoryEntry="../Legacy" PrefixWith=""/>
+  <ClassPathRow DirectoryEntry="../SmartComponentLibrary" PrefixWith=""/>
+</ClassPath>
