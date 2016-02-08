@@ -30,7 +30,7 @@ FOR EACH po-ordl
   po-ordl.t-inv-qty = 0.
 
   for each reftable
-      {ap/ap-reftb.w po-ordl.po-no}
+      {ap/ap-reftbW.i po-ordl.po-no}
       no-lock,
     
       each ap-inv

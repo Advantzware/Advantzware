@@ -12,7 +12,7 @@ DEF VAR ls-part-no AS cha NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 
 
-FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
 FIND ef WHERE ROWID(ef) EQ ip-rowid NO-LOCK NO-ERROR.
 

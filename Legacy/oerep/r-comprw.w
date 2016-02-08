@@ -709,7 +709,7 @@ PROCEDURE calculate-commission-costs :
              tt-comm-calc.base-cost-uom = tt-comm-calc.cost-uom.
 
          FIND FIRST itemfg
-                   {sys/look/itemfgrl.w}
+                   {sys/look/itemfgrlW.i}
                AND itemfg.i-no EQ tt-comm-calc.i-no NO-LOCK NO-ERROR.
 
 /*          IF tt-comm-calc.qty > 0 THEN DO:                                                                */

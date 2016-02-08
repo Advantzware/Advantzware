@@ -604,7 +604,7 @@ END.
 
 IF {&TABLENAME}.stack-code NE "" AND {&TABLENAME}.stacks EQ 0 THEN DO:
   FIND FIRST reftable NO-LOCK
-      {cec/stack.w}
+      {cec/stackW.i}
         AND reftable.code EQ {&TABLENAME}.stack-code
       NO-ERROR.
   IF AVAIL reftable THEN {&TABLENAME}.stacks = reftable.val[1].

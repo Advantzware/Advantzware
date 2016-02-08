@@ -22,13 +22,13 @@ IF NOT AVAIL tt-ef OR NOT AVAIL tt-eb THEN LEAVE.
 
 if tt-ef.board ne "" then do:
   find first mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         and mach.m-code eq tt-ef.m-code
       use-index m-code no-lock no-error.
   if avail mach then v-trm = max(mach.min-trimw,mach.min-triml).
       
   find first item
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         and item.i-no eq tt-ef.board
       no-lock no-error.
 

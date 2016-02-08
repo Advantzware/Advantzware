@@ -30,7 +30,7 @@ DEFINE VARIABLE lMatrixExists AS LOG NO-UNDO.
 /*           STRING(MONTH(TODAY),"99")  + */
 /*           STRING(DAY(TODAY),"99").     */
 
-find first cust {sys/ref/cust.w} and cust.cust-no = xoe-ord.cust-no
+find first cust {sys/ref/custW.i} and cust.cust-no = xoe-ord.cust-no
 	   use-index cust no-lock no-error.
 /* if avail cust then              */
 /*   assign v-custype = cust.type. */
@@ -205,7 +205,7 @@ end.
 assign change-tot-ord = change-tot-ord + v-tot-ord.
 
 do:
-  find first cust {sys/ref/cust.w} and cust.cust-no = xoe-ord.cust-no
+  find first cust {sys/ref/custW.i} and cust.cust-no = xoe-ord.cust-no
        use-index cust no-error.
   if avail cust then
     assign cust.ord-bal = cust.ord-bal + change-tot-ord.

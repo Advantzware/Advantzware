@@ -1,6 +1,6 @@
 
 for each itemfg
-    {sys/look/itemfg.w}
+    {sys/look/itemfgW.i}
       and (v-pur-man             eq "B"                                  or
 	   (v-pur-man             eq "P"      and itemfg.pur-man)         or
 	   (v-pur-man             eq "M"      and (not itemfg.pur-man)))

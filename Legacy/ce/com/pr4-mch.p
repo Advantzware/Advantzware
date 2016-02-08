@@ -52,7 +52,7 @@ for each est-op where est-op.company = xest.company
       and est-op.line gt 500,
       
     first mach
-    {sys/look/mach.w}
+    {sys/look/machW.i}
       and mach.m-code eq est-op.m-code
     no-lock,
 
@@ -281,7 +281,7 @@ for each op,
     no-lock,
 
     first mach
-    {sys/look/mach.w}
+    {sys/look/machW.i}
       and mach.m-code eq est-op.m-code
     no-lock,
     

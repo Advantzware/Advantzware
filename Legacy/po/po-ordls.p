@@ -38,11 +38,11 @@ def var v-char    as CHAR NO-UNDO.
 find po-ordl where recid(po-ordl) eq v-recid no-lock no-error.
 if avail po-ordl then do:
   {po/po-ordls.i} 
-  {po/poordls2.w}
+  {po/poordls2W.i}
 end.
 else do:
   find job-mat where recid(job-mat) eq v-recid no-lock no-error.  
-  {po/poordls1.w}
+  {po/poordls1W.i}
   if avail b-ref1 then delete b-ref1.
   if avail b-ref2 then delete b-ref2.
 end.
@@ -78,7 +78,7 @@ if (not avail b-ref1 or not avail b-ref2) AND NOT (AVAIL(ITEM) AND LOOKUP(ITEM.m
      b-ref2.code     = string(recid(job-mat),"9999999999")
      b-ref2.code2    = "".
      
-  {po/poordls3.w}
+  {po/poordls3W.i}
   IF v-farm-out-scores THEN DO:
     FIND itemfg WHERE itemfg.company = cocode 
                   AND itemfg.i-no = po-ordl.i-no NO-LOCK NO-ERROR.

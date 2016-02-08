@@ -415,7 +415,7 @@ PUT "<FCourier New>"          .
         else
         if oe-ordl.pr-uom eq "CS" then
         do:
-          find first itemfg {sys/look/itemfgrl.w}
+          find first itemfg {sys/look/itemfgrlW.i}
             and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
 
           v-totlin = oe-ordl.qty /
@@ -453,7 +453,7 @@ PUT "<FCourier New>"          .
         end.
            /* print spec notes */
         IF v-prntinst THEN DO:
-           find first itemfg {sys/look/itemfgrl.w}
+           find first itemfg {sys/look/itemfgrlW.i}
                 and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
            IF AVAIL itemfg THEN DO:
               lv-first-note = yes.

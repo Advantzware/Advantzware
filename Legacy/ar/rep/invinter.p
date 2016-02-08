@@ -307,7 +307,7 @@ with frame blankl no-labels no-box no-underline stream-io width 80.
           v-printline = 0.
           
         find first stax
-            {sys/ref/stax1.w}
+            {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq xar-inv.tax-code
             no-lock no-error.
 

@@ -44,7 +44,7 @@ save_id = recid(xef).
 j = 1.
 for each m-lst by m-lst.seq by m-lst.b-no by m-lst.pass-no:
   find first mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         and mach.m-code eq m-lst.m-code
       no-lock no-error.
   create est-op.
@@ -90,7 +90,7 @@ cumul = xest.est-qty[1] / xeb.num-up.
 for each est-op where est-op.company = xest.company 
                   AND est-op.est-no eq xest.est-no,
     first mach
-    {sys/look/mach.w}
+    {sys/look/machW.i}
       and mach.m-code eq est-op.m-code
     no-lock
     by est-op.line desc:

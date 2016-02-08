@@ -28,7 +28,7 @@ DEF VAR ld-rm AS DEC NO-UNDO.
 DEF VAR ld-hp AS DEC NO-UNDO.
 DEFINE VARIABLE dShrink AS DECIMAL     NO-UNDO.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 def var cumul as de.
 def var prev-nsh as de.
@@ -73,7 +73,7 @@ ELSE
 
 if xef.medium ne "" then
 do with no-box no-labels frame med1:
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
 		     item.i-no = xef.medium no-lock no-error.
    if available item then do:
        find first e-item of item no-lock no-error.
@@ -224,7 +224,7 @@ end.
 
 if xef.flute ne "" then
 do with no-box no-labels frame flute:
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
 		     item.i-no = xef.flute no-lock no-error.
    if available item then find first e-item of item  no-lock no-error.
    med-qty = ((brd-l[2] * brd-w[2]) * mqty) / 144000. /*now msf*/

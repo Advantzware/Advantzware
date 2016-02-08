@@ -78,7 +78,7 @@ for each ef
 
   if avail eb then*/
   find first item
-      {sys/look/itemgs.w}
+      {sys/look/itemgsW.i}
         and item.i-no eq eb.adhesive
       no-lock no-error.
 

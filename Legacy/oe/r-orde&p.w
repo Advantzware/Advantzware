@@ -807,7 +807,7 @@ with down no-box STREAM-IO width 132 frame ordm.
     
       first xoe-ord where recid(xoe-ord) eq tt-report.rec-id NO-LOCK,
         
-      first cust {sys/ref/cust.w} and cust.cust-no eq xoe-ord.cust-no NO-LOCK
+      first cust {sys/ref/custW.i} and cust.cust-no eq xoe-ord.cust-no NO-LOCK
         
       by tt-report.key-01:
 
@@ -839,7 +839,7 @@ with down no-box STREAM-IO width 132 frame ordm.
         else
         if oe-ordl.pr-uom EQ "CS" THEN DO:
           FIND FIRST itemfg
-              {sys/look/itemfgrl.w}
+              {sys/look/itemfgrlW.i}
                 and itemfg.i-no EQ oe-ordl.i-no
               no-lock no-error.
           if avail itemfg and itemfg.case-count ne 0 then
@@ -1066,7 +1066,7 @@ with down no-box STREAM-IO width 132 frame ordm.
     
      first xoe-ord where recid(xoe-ord) eq tt-report.rec-id,
        
-     first cust {sys/ref/cust.w} and cust.cust-no eq xoe-ord.cust-no
+     first cust {sys/ref/custW.i} and cust.cust-no eq xoe-ord.cust-no
        
      by tt-report.key-01:
 
@@ -1384,7 +1384,7 @@ PROCEDURE run-report :
       use-index posted no-lock,
 
       first cust
-      {sys/ref/cust.w}
+      {sys/ref/custW.i}
         and cust.cust-no eq oe-ord.cust-no
       NO-LOCK
       
@@ -1412,7 +1412,7 @@ PROCEDURE run-report :
       use-index posted,
 
       first cust no-lock
-      {sys/ref/cust.w}
+      {sys/ref/custW.i}
         and cust.cust-no eq oe-ord.cust-no:
       
     find xoe-ord where recid(xoe-ord) eq recid(oe-ord)

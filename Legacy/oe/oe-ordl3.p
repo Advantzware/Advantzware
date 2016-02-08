@@ -64,7 +64,7 @@ do:
   find oe-ord where recid(oe-ord) = recid(xoe-ord) no-error.
     assign oe-ord.t-weight  = oe-ord.t-weight  + oe-ordl.t-weight
            oe-ord.t-freight = oe-ord.t-freight + oe-ordl.t-freight.
-  find first itemfg {sys/look/itemfgrl.w}
+  find first itemfg {sys/look/itemfgrlW.i}
              and itemfg.i-no = oe-ordl.i-no no-lock no-error.
   if available itemfg and oe-ordl.qty ne 0 then
     assign xxx = oe-ordl.cost * (oe-ordl.qty / 1000)

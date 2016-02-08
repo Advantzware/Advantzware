@@ -14,7 +14,7 @@ FIND b-job-hdr NO-LOCK WHERE ROWID(b-job-hdr) EQ ip-rowid NO-ERROR.
 IF AVAILABLE b-job-hdr THEN DO:
 
    FIND FIRST itemfg 
-        {sys/look/itemfgrl.w}
+        {sys/look/itemfgrlW.i}
       AND itemfg.i-no EQ b-job-hdr.i-no NO-ERROR.
 
   /* gdm - 10060901 */    

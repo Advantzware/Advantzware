@@ -680,7 +680,7 @@ PROCEDURE build-box1 :
 
    IF v-rebuild NE "N" THEN
    DO:
-      {cec/est-6.del}
+      {cec/est-6del.i}
    END.
 
    find first style where

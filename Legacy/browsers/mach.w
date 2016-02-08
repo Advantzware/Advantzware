@@ -46,7 +46,7 @@ ASSIGN
  cocode = g_company
  locode = g_loc.
 
-for each dept {sys/ref/dept.w} no-lock,
+for each dept {sys/ref/deptW.i} no-lock,
     each mach where mach.dept[1] eq dept.code:
     
   mach.d-seq = dept.fc.

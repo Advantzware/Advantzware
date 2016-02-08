@@ -238,7 +238,7 @@ find first company where company.company eq cocode no-lock no-error.
                 IF shipto.ship-addr[2] <> "" THEN ln-cnt = ln-cnt + 1.
               END.
           END.
-          find first itemfg {sys/look/itemfgrl.w}
+          find first itemfg {sys/look/itemfgrlW.i}
                and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
           {custom/notesprt.i itemfg v-inst 4}
           lv-is-fgnote = NO.
@@ -325,7 +325,7 @@ find first company where company.company eq cocode no-lock no-error.
         else
         if oe-ordl.pr-uom eq "CS" then
         do:
-          find first itemfg {sys/look/itemfgrl.w}
+          find first itemfg {sys/look/itemfgrlW.i}
             and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
 
           v-totlin = oe-ordl.qty /
@@ -365,7 +365,7 @@ find first company where company.company eq cocode no-lock no-error.
   */
      IF v-prntinst THEN DO:
                    /* print spec notes */
-        find first itemfg {sys/look/itemfgrl.w}
+        find first itemfg {sys/look/itemfgrlW.i}
              and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
 
         IF AVAIL itemfg THEN DO:

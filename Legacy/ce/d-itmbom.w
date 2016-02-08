@@ -473,7 +473,7 @@ PROCEDURE valid-adh-code :
   DO WITH FRAME {&FRAME-NAME}:
     IF ef.adh-code:SCREEN-VALUE NE "" THEN DO:
       IF NOT CAN-FIND(FIRST ITEM
-                      {sys/look/itemadh.w}
+                      {sys/look/itemadhW.i}
                         AND item.industry EQ "1"
                         AND item.i-no EQ ef.adh-code:SCREEN-VALUE) THEN DO:
         MESSAGE "Invalid " + TRIM(ef.adh-code:LABEL) + ", try help..."
@@ -501,7 +501,7 @@ PROCEDURE valid-flute :
   DO WITH FRAME {&FRAME-NAME}:
     IF ef.flute:SCREEN-VALUE NE ""                           AND
        NOT CAN-FIND(FIRST ITEM
-                   {sys/look/itempap.w}
+                   {sys/look/itempapW.i}
                      AND item.industry EQ "1"
                      AND item.i-no EQ ef.flute:SCREEN-VALUE) THEN DO:
       MESSAGE "Invalid " + TRIM(ef.flute:LABEL) + ", try help..."
@@ -527,7 +527,7 @@ PROCEDURE valid-lam-code :
   DO WITH FRAME {&FRAME-NAME}:
     IF ef.lam-code:SCREEN-VALUE NE ""                           AND
        NOT CAN-FIND(FIRST ITEM
-                   {sys/look/itemlam.w}
+                   {sys/look/itemlamW.i}
                      AND item.industry EQ "1"
                      AND item.i-no EQ ef.lam-code:SCREEN-VALUE) THEN DO:
       MESSAGE "Invalid " + TRIM(ef.lam-code:LABEL) + ", try help..."
@@ -553,7 +553,7 @@ PROCEDURE valid-medium :
   DO WITH FRAME {&FRAME-NAME}:
     IF ef.medium:SCREEN-VALUE NE ""                           AND
        NOT CAN-FIND(FIRST ITEM
-                   {sys/look/itempap.w}
+                   {sys/look/itempapW.i}
                      AND item.industry EQ "1"
                      AND item.i-no EQ ef.medium:SCREEN-VALUE) THEN DO:
       MESSAGE "Invalid " + TRIM(ef.medium:LABEL) + ", try help..."

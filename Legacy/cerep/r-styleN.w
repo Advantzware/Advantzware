@@ -1227,7 +1227,7 @@ ASSIGN formula1 = ""
 formula2 = "" .
 
 for each style
-    {sys/ref/style.w}
+    {sys/ref/styleW.i}
       and ((style.industry eq "1" and tb_fold) or
            (style.industry eq "2" and tb_corr))
     with frame style:

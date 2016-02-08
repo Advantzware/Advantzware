@@ -416,7 +416,7 @@ DO:
              if char-val <> "" THEN DO:
                 IF fg-rctd.i-no:SCREEN-VALUE = "" THEN DO:
                    fg-rctd.i-no:SCREEN-VALUE = ENTRY(7,char-val).
-                   find first itemfg {sys/look/itemfgrl.w}
+                   find first itemfg {sys/look/itemfgrlW.i}
                         and itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                         no-lock no-error.
                    IF AVAIL itemfg THEN RUN get-def-values.
@@ -573,7 +573,7 @@ DO:
 
     IF {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} NE lv-prv-i-no THEN DO:
       FIND itemfg
-          {sys/look/itemfgrl.w}
+          {sys/look/itemfgrlW.i}
             AND itemfg.i-no EQ {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
       IF AVAIL itemfg THEN RUN get-def-values.
@@ -592,7 +592,7 @@ DO:
 
 
   FIND itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
         AND itemfg.i-no EQ {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}
       NO-LOCK NO-ERROR.
   IF AVAIL itemfg THEN DO:
@@ -1067,7 +1067,7 @@ PROCEDURE display-job-hdr :
 
   IF fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN do:
      fg-rctd.i-no:SCREEN-VALUE = job-hdr.i-no.
-     find first itemfg {sys/look/itemfgrl.w}
+     find first itemfg {sys/look/itemfgrlW.i}
         and itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
         no-lock no-error.
      fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
@@ -1150,7 +1150,7 @@ PROCEDURE get-def-values :
 ------------------------------------------------------------------------------*/
 
   find first itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
         and itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
       no-lock no-error.
   fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
@@ -1905,7 +1905,7 @@ PROCEDURE valid-i-no :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST itemfg
-                    {sys/look/itemfgrl.w}
+                    {sys/look/itemfgrlW.i}
                       AND itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name})
     THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
@@ -2179,7 +2179,7 @@ PROCEDURE validate-record :
         END.
         ELSE DO:
             RUN fg/d-crtitm.w (fg-rctd.i-no:SCREEN-VALUE).
-            FIND first itemfg {sys/look/itemfgrl.w}
+            FIND first itemfg {sys/look/itemfgrlW.i}
                        and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                        no-lock no-error.
             IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name.

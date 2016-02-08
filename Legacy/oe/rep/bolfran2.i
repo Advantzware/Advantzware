@@ -157,7 +157,7 @@ lv-cases = lv-cases-tot.
 
 /* print spec Dscr */      /*task# 11151307*/
 v-spec-dscr = "" .
-find first b-itemfg {sys/look/itemfgrl.w}
+find first b-itemfg {sys/look/itemfgrlW.i}
     and b-itemfg.i-no eq oe-ordl.i-no no-lock no-error.
 
 IF AVAIL b-itemfg THEN do:

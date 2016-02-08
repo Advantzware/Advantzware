@@ -51,7 +51,7 @@ FIND FIRST xeb
 
    qm =  qty / 1000 * v-sqft-fac.
 
-   find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+   find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
    
    find first style where style.company = cocode and style.style = xeb.style
    no-lock no-error.

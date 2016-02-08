@@ -8,13 +8,13 @@ lv-date = STRING(YEAR(TODAY),"9999") +
           STRING(DAY(TODAY),"99").
 
   FIND FIRST cust
-      {sys/ref/cust.w}
+      {sys/ref/custW.i}
         AND cust.cust-no eq quotehd.cust-no
       USE-INDEX cust NO-LOCK NO-ERROR.
 
   IF AVAIL cust THEN DO:
     FOR EACH oe-prmtx NO-LOCK
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype            EQ cust.type
           AND oe-prmtx.cust-no            EQ quotehd.cust-no
           AND oe-prmtx.procat             EQ itemfg.procat
@@ -27,7 +27,7 @@ lv-date = STRING(YEAR(TODAY),"9999") +
 
     IF NOT AVAIL oe-prmtx THEN
     FOR EACH oe-prmtx NO-LOCK
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype            EQ cust.type
           AND oe-prmtx.cust-no            EQ ""
           AND oe-prmtx.procat             EQ itemfg.procat
@@ -40,7 +40,7 @@ lv-date = STRING(YEAR(TODAY),"9999") +
 
     IF NOT AVAIL oe-prmtx THEN
     FOR EACH oe-prmtx NO-LOCK
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype            EQ cust.type
           AND oe-prmtx.cust-no            EQ ""
           AND oe-prmtx.procat             EQ itemfg.procat
@@ -52,7 +52,7 @@ lv-date = STRING(YEAR(TODAY),"9999") +
 
     IF NOT AVAIL oe-prmtx THEN
     FOR EACH oe-prmtx NO-LOCK
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype            EQ ""
           AND oe-prmtx.cust-no            EQ ""
           AND oe-prmtx.procat             EQ itemfg.procat
@@ -65,7 +65,7 @@ lv-date = STRING(YEAR(TODAY),"9999") +
 
     IF NOT AVAIL oe-prmtx THEN
     FOR EACH oe-prmtx NO-LOCK
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype            EQ ""
           AND oe-prmtx.cust-no            EQ ""
           AND oe-prmtx.procat             EQ ""

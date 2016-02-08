@@ -554,7 +554,7 @@ END.
                                                  AND xop.line    LT 500
                                                BY xop.qty BY xop.s-num BY xop.b-num BY xop.d-seq BY xop.op-pass:
 
-                                             {sys/inc/machpos.w xop SHARE}
+                                             {sys/inc/outstrPL.i xop SHARE}
                                              ASSIGN
                                               li       = li + 1
                                               xop.line = li.

@@ -10,7 +10,7 @@ def var li-new-estnum as int no-undo.
 
 REPEAT:
 
-FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
 IF AVAIL ce-ctrl THEN
 DO:

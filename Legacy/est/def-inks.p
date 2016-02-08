@@ -42,7 +42,7 @@ IF AVAIL ef THEN DO:
   END.
 
   FIND FIRST style
-      {sys/ref/style.w}
+      {sys/ref/styleW.i}
         AND style.style EQ eb.style
       NO-LOCK NO-ERROR.
   IF AVAIL style THEN DO:
@@ -50,7 +50,7 @@ IF AVAIL ef THEN DO:
 
     IF style.material[2] NE "" THEN
     FIND FIRST item
-        {sys/look/itemi.w}
+        {sys/look/itemiW.i}
           AND item.i-no EQ style.material[2]
         NO-LOCK NO-ERROR.
     IF AVAIL ITEM THEN li1 = INT(style.material[3]).
@@ -65,13 +65,13 @@ IF AVAIL ef THEN DO:
   END.
 
   IF NOT AVAIL item OR NOT AVAIL alt-item OR (li1 EQ 0) THEN DO:
-    FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+    FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
     IF li1 EQ 0 THEN li1 = ce-ctrl.def-inkcov.
 
     IF NOT AVAIL item THEN
     FIND FIRST ITEM
-        {sys/look/itemi.w}
+        {sys/look/itemiW.i}
           AND item.i-no EQ ce-ctrl.def-ink
         NO-LOCK NO-ERROR.
 
@@ -91,13 +91,13 @@ IF AVAIL ef THEN DO:
         NO-LOCK NO-ERROR.
     IF AVAIL mach THEN
     FIND FIRST item
-        {sys/look/itemiv.w}
+        {sys/look/itemivW.i}
           AND item.press-type EQ mach.pr-type
         NO-LOCK NO-ERROR.
   END.
 
   IF NOT AVAIL item THEN
-  FIND FIRST item {sys/look/itemi.w} NO-LOCK NO-ERROR.
+  FIND FIRST item {sys/look/itemiW.i} NO-LOCK NO-ERROR.
 
   IF NOT AVAIL alt-item THEN
   FIND FIRST alt-item

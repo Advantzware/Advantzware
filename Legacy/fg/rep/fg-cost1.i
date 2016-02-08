@@ -294,7 +294,7 @@
           v-arq = v-arq + oe-rell.qty.
         END.
 
-        find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+        find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
         display itemfg.cust-no when v-first[2]
                 itemfg.i-no    when v-first[1]

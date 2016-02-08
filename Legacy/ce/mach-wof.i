@@ -11,7 +11,7 @@ do on error undo:
     release mach.
     
     find first item
-        {sys/look/itemlw.w}
+        {sys/look/itemlwW.i}
           and item.i-no eq xef.leaf[i]
         no-lock no-error.
                                                            

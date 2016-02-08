@@ -556,7 +556,7 @@ FOR  FIRST job-hdr NO-LOCK
             no-lock,
 
             first mach
-            {sys/ref/mach.w}
+            {sys/ref/machW.i}
               and mach.m-code eq job-mch.m-code
             no-lock
 
@@ -742,7 +742,7 @@ FOR  FIRST job-hdr NO-LOCK
                 and job-mat.frm     eq eb.form-no
               no-lock,
               first item
-              {sys/look/itemiv.w}
+              {sys/look/itemivW.i}
                 and item.i-no eq job-mat.i-no
               no-lock:
 
@@ -1138,7 +1138,7 @@ FOR  FIRST job-hdr NO-LOCK
                 est-op.line < 500
                 NO-LOCK,
                 first mach FIELDS(dept)
-                {sys/ref/mach.w}
+                {sys/ref/machW.i}
                 and mach.m-code eq est-op.m-code
                 no-lock
                 BY est-op.d-seq BY est-op.b-num:
@@ -1158,7 +1158,7 @@ FOR  FIRST job-hdr NO-LOCK
                 est-op.line < 500
                 NO-LOCK,
                 first mach
-                {sys/ref/mach.w}
+                {sys/ref/machW.i}
                 and mach.m-code eq est-op.m-code
                 no-lock
                 BY est-op.d-seq BY est-op.b-num:

@@ -606,7 +606,7 @@ PROCEDURE calc-ext-cost:
    if (tt-rell.qty ne 0 and oe-ordl.pr-uom ne "") then
    do:
       find first itemfg
-           {sys/look/itemfgrl.w} AND
+           {sys/look/itemfgrlW.i} AND
            itemfg.i-no eq oe-ordl.i-no
            no-lock no-error.
            

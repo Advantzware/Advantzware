@@ -41,7 +41,7 @@ for each ef
           and mm-lst.defr-valid eq yes,
           
         first mach
-        {sys/look/mach.w}
+        {sys/look/machW.i}
           and mach.m-code eq mm-lst.m-code
         no-lock:
         
@@ -78,7 +78,7 @@ for each ef
             and mm-lst.defr-valid eq no,
             
           first mach
-          {sys/look/mach.w}
+          {sys/look/machW.i}
             and mach.m-code   eq mm-lst.m-code
             and (mach.dept[1] eq m-lst.dept or
                  mach.dept[2] eq m-lst.dept or
@@ -110,7 +110,7 @@ for each ef
         and mm-lst.dept ne "RS",
        
       first mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         and mach.m-code   eq mm-lst.m-code
         and (mach.dept[2] eq "RS" or
              mach.dept[3] eq "RS" or
@@ -130,7 +130,7 @@ for each ef
   for each mm-lst where mm-lst.f-no eq ef.form-no,
 
       first mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         and mach.m-code   eq mm-lst.m-code
         and (mach.dept[1] eq "PR" or mm-lst.dept eq "PR")
       no-lock:
@@ -206,7 +206,7 @@ for each ef
   for each mm-lst where mm-lst.f-no eq ef.form-no,
 
       first mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         and mach.m-code eq mm-lst.m-code
       no-lock:
 
@@ -266,7 +266,7 @@ for each ef
         and mm-lst.dept eq "DC",
      
       first mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         and mach.m-code eq mm-lst.m-code
       no-lock:
 

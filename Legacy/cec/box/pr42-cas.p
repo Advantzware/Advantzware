@@ -35,7 +35,7 @@ DEF VAR b-wt-tot LIKE b-wt NO-UNDO.
 DEF VAR ll-unitize AS LOG NO-UNDO.
 DEF VAR ld-rm-rate AS DEC NO-UNDO.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 ASSIGN
 save-qty = qty
@@ -56,7 +56,7 @@ FOR EACH xef
     NO-LOCK:
 
   FIND FIRST item
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         AND item.i-no EQ xef.board
       NO-LOCK NO-ERROR.
   b-wt = IF AVAIL item THEN item.basis-w ELSE 0.
@@ -100,7 +100,7 @@ for each cas where cas.typ = 1 by cas.snum by cas.bnum with no-labels no-box:
                         xeb.est-no    = xest.est-no and
                         xeb.form-no  = cas.snum   and
                         xeb.blank-no = cas.bnum   no-lock no-error.
-   find first item {sys/look/item.w} and item.i-no = cas.ino
+   find first item {sys/look/itemW.i} and item.i-no = cas.ino
    no-lock no-error.
 
    cas.t-qty = 0.
@@ -171,7 +171,7 @@ for each xeb where xeb.company = xest.company
    if xeb.tr-no ne "" then do with frame ac3 no-box no-labels stream-io:
       find first cas where cas.typ = 2 and cas.id = xeb.part-no no-error.
       if not available cas then do:
-         find first item {sys/look/item.w} and item.i-no = xeb.tr-no
+         find first item {sys/look/itemW.i} and item.i-no = xeb.tr-no
          no-lock no-error.
 
          if item.mat-type eq "Z" then v-pallets = no.
@@ -201,7 +201,7 @@ for each cas where cas.typ = 2 by cas.snum by cas.bnum with no-labels no-box:
                         xeb.est-no    = xest.est-no and
                         xeb.form-no  = cas.snum   and
                         xeb.blank-no = cas.bnum   no-lock no-error.
-   find first item {sys/look/item.w}
+   find first item {sys/look/itemW.i}
                      and item.i-no = cas.ino no-lock no-error.
 
    cas.t-qty = 0.
@@ -271,7 +271,7 @@ FOR EACH xef
     NO-LOCK:
 
   FIND FIRST item
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         AND item.i-no EQ xef.board
       NO-LOCK NO-ERROR.
   b-wt = IF AVAIL item THEN item.basis-w ELSE 0.
@@ -317,7 +317,7 @@ for each cas where cas.typ = 3 by cas.snum by cas.bnum with no-labels no-box:
                         xeb.est-no    = xest.est-no and
                         xeb.form-no  = cas.snum   and
                         xeb.blank-no = cas.bnum   no-lock no-error.
-   find first item {sys/look/item.w}
+   find first item {sys/look/itemW.i}
                      and item.i-no = cas.ino no-lock no-error.
 
    cas.t-qty = 0.
@@ -556,7 +556,7 @@ PROCEDURE do-cas-no:
 
   /* case */
   if xeb.cas-no ne "" then do with frame ac2 no-box no-labels stream-io:
-    find first item {sys/look/item.w} and item.i-no = xeb.cas-no
+    find first item {sys/look/itemW.i} and item.i-no = xeb.cas-no
     no-lock no-error.
     find first e-item of item no-lock no-error.
     find first cas
@@ -604,7 +604,7 @@ PROCEDURE do-tr-no:
       RETURN.
  
   /* Pallets */
-  find first item {sys/look/item.w} and item.i-no = xeb.tr-no
+  find first item {sys/look/itemW.i} and item.i-no = xeb.tr-no
   no-lock no-error.
   find first e-item of item no-lock no-error.
 

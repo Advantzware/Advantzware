@@ -131,7 +131,7 @@ if avail itemfg and itemfg.isaset then do transaction:
 
   else
   do on error undo, leave:
-    find first ce-ctrl {sys/look/ce-ctrl.w} exclusive-lock.
+    find first ce-ctrl {sys/look/ce-ctrlW.i} exclusive-lock.
     assign
      choice        = yes
      ce-ctrl.e-num = ce-ctrl.e-num + 1

@@ -2379,7 +2379,7 @@ END.
 
 /* neet to complete  =======
 if oereordr-log then do:  
-   find first itemfg {sys/look/itemfgrl.w}
+   find first itemfg {sys/look/itemfgrlW.i}
                  and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
    if avail itemfg then run oe/d-fgqty.w  /*oe/fg-qtys.p*/  (recid(itemfg)).
 end.  

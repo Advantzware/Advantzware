@@ -58,7 +58,7 @@ DEF VAR ld-rm-rate AS DEC NO-UNDO.
 
 /*save-qty = qty.*/
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 ll-unitize = CAN-FIND(FIRST b-eb                /* Set is Unitized */
                       WHERE b-eb.company  EQ xest.company
@@ -76,7 +76,7 @@ FOR EACH xef
     NO-LOCK:
 
   FIND FIRST item
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         AND item.i-no EQ xef.board
       NO-LOCK NO-ERROR.
   b-wt = IF AVAIL item THEN item.basis-w ELSE 0.
@@ -121,7 +121,7 @@ for each cas-2 where cas-2.typ = 1 by cas-2.snum by cas-2.bnum with no-labels no
                         xeb.est-no    = xest.est-no and
                         xeb.form-no  = cas-2.snum   and
                         xeb.blank-no = cas-2.bnum   no-lock no-error.
-   find first item {sys/look/item.w} and item.i-no = cas-2.ino
+   find first item {sys/look/itemW.i} and item.i-no = cas-2.ino
    no-lock no-error.
 
    cas-2.t-qty = 0.
@@ -160,7 +160,7 @@ for each xeb where xeb.company = xest.company
    
       find first cas-2 where cas-2.typ = 2 and cas-2.id = xeb.part-no no-error.
       if not available cas-2 then do:
-         find first item {sys/look/item.w} and item.i-no = xeb.tr-no
+         find first item {sys/look/itemW.i} and item.i-no = xeb.tr-no
          no-lock no-error.
 
          if item.mat-type eq "Z" then v-pallets = no.
@@ -190,7 +190,7 @@ for each cas-2 where cas-2.typ = 2 by cas-2.snum by cas-2.bnum:
                         xeb.est-no    = xest.est-no and
                         xeb.form-no  = cas-2.snum   and
                         xeb.blank-no = cas-2.bnum   no-lock no-error.
-   find first item {sys/look/item.w}
+   find first item {sys/look/itemW.i}
                      and item.i-no = cas-2.ino no-lock no-error.
 
    cas-2.t-qty = 0.
@@ -233,7 +233,7 @@ FOR EACH xef
     NO-LOCK:
 
   FIND FIRST item
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         AND item.i-no EQ xef.board
       NO-LOCK NO-ERROR.
   b-wt = IF AVAIL item THEN item.basis-w ELSE 0.
@@ -279,7 +279,7 @@ for each cas-2 where cas-2.typ = 3 by cas-2.snum by cas-2.bnum with no-labels no
                         xeb.est-no    = xest.est-no and
                         xeb.form-no  = cas-2.snum   and
                         xeb.blank-no = cas-2.bnum   no-lock no-error.
-   find first item {sys/look/item.w}
+   find first item {sys/look/itemW.i}
                      and item.i-no = cas-2.ino no-lock no-error.
 
    cas-2.t-qty = 0.
@@ -377,7 +377,7 @@ PROCEDURE do-cas-no:
 
   /* case */
   if xeb.cas-no ne "" then DO:
-    find first item {sys/look/item.w} and item.i-no = xeb.cas-no
+    find first item {sys/look/itemW.i} and item.i-no = xeb.cas-no
     no-lock no-error.
     find first e-item of item no-lock no-error.
     find first cas-2
@@ -415,7 +415,7 @@ END PROCEDURE.
 PROCEDURE do-tr-no:
 
   /* Pallets */
-  find first item {sys/look/item.w} and item.i-no = xeb.tr-no
+  find first item {sys/look/itemW.i} and item.i-no = xeb.tr-no
   no-lock no-error.
   find first e-item of item no-lock no-error.
 

@@ -3,7 +3,7 @@
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
-
+/* deleting this */
   File: rmrep/r-loadtg2.w
 
   Description: RM Loadtag Creation

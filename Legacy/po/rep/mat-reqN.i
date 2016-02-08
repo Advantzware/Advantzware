@@ -70,12 +70,12 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
           if item.mat-type eq "B" then do:
             /*##PN - This was commented out with no explanation.  */
             /*##PN - Reinstated for task 10081304  */
-             {po/poordls1.w}                     
+             {po/poordls1W.i}                     
              IF NOT (AVAIL(b-ref1) OR AVAIL(b-ref2)) THEN DO:
                  /* ##PN - If reftable recs exist, don't recalc since report */
                  /* ##PN - was too slow                                      */
                  run po/po-ordls.p (recid(job-mat)). 
-                 {po/poordls1.w}                            
+                 {po/poordls1W.i}                            
              END.
           END.
           if avail b-ref1 or avail b-ref2 then do:

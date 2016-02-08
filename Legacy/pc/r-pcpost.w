@@ -727,7 +727,7 @@ do transaction on error undo postit, leave postit:
           break by pc-prdh.m-code:
           
          find first mach
-             {sys/ref/mach.w}
+             {sys/ref/machW.i}
                and mach.m-code eq pc-prdh.m-code
              no-lock no-error.
              

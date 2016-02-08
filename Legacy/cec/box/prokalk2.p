@@ -213,7 +213,7 @@ FOR EACH est-op
       AND est-op.line    GE ip-line
       AND est-op.line    LT ip-line + 500
       AND CAN-FIND(FIRST mach
-                   {sys/look/mach.w}
+                   {sys/look/machW.i}
                      AND mach.m-code EQ est-op.m-code
                      AND INDEX("AP",mach.p-type) GT 0)
     BREAK BY est-op.b-num DESC
@@ -242,7 +242,7 @@ FOR EACH est-op
       AND est-op.line    GE ip-line
       AND est-op.line    LT ip-line + 500
       AND CAN-FIND(FIRST mach
-                   {sys/look/mach.w}
+                   {sys/look/machW.i}
                      AND mach.m-code EQ est-op.m-code
                      AND INDEX("AP",mach.p-type) LE 0)
     BREAK BY est-op.b-num DESC

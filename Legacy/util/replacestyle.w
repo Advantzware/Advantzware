@@ -277,7 +277,7 @@ PROCEDURE build-box1 :
        END.
    end.
 
-   {cec/est-6.del}
+   {cec/est-6del.i}
 
    find first xbox-design-hdr where
         xbox-design-hdr.design-no eq style.design-no AND

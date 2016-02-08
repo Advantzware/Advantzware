@@ -529,7 +529,7 @@ PROCEDURE local-assign-statement :
   lv-freight = oe-ord.t-freight.
   
   FIND FIRST cust
-      {sys/ref/cust.w}
+      {sys/ref/custW.i}
         AND cust.cust-no = oe-ord.cust-no
       NO-ERROR.
   IF AVAIL cust THEN

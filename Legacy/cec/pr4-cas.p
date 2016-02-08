@@ -26,11 +26,11 @@ assign
  save-qty = qty
  qty = qty / xeb.yld-qty.
  
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
    /* case */
    if xeb.cas-no ne "" then do with frame ac2 no-box no-labels:
-      find first item {sys/look/item.w} and item.i-no = xeb.cas-no
+      find first item {sys/look/itemW.i} and item.i-no = xeb.cas-no
       no-lock no-error.
       if avail item then find first e-item of item no-lock no-error.
       if xeb.cas-cnt ne 0 then c-qty = qty / xeb.cas-cnt.
@@ -89,7 +89,7 @@ find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
 
    /* pallet */
    if xeb.tr-no ne "" then do with frame ac3 no-box no-labels:
-      find first item {sys/look/item.w} and item.i-no = xeb.tr-no
+      find first item {sys/look/itemW.i} and item.i-no = xeb.tr-no
       no-lock no-error.
       if avail item then  find first e-item of item no-lock no-error.
       if xeb.cas-pal ne 0 then p-qty = c-qty / xeb.cas-pal.

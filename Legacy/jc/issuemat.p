@@ -37,7 +37,7 @@ FIND job-mat WHERE ROWID(job-mat) EQ ip-rowid NO-LOCK NO-ERROR.
 
 IF AVAIL job-mat THEN DO:
   FIND FIRST item NO-LOCK
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         AND item.i-no EQ job-mat.rm-i-no
       NO-ERROR.
   IF AVAIL item THEN DO:

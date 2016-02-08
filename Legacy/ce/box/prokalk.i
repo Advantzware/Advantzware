@@ -9,7 +9,7 @@
       op-lock.val[1] = 1
       op-lock.val[2] = 1.
 
-   find first mach {sys/look/mach.w} and
+   find first mach {sys/look/machW.i} and
               mach.m-code  eq est-op.m-code no-lock no-error.
        
    if est-op.op-pass eq 0 then est-op.op-pass = 1.

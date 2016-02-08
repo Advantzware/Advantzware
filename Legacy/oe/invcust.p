@@ -17,7 +17,7 @@ def shared var v-reduce-ord-bal like cust.ord-bal no-undo.
 find inv-head where recid(inv-head) eq v-recid no-lock.
 
 find first cust
-    {sys/ref/cust.w}
+    {sys/ref/custW.i}
       and cust.cust-no eq inv-head.cust-no
     exclusive-lock.
     

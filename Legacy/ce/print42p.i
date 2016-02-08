@@ -36,7 +36,7 @@ IF xest.metric THEN
 
 {cec/get-vend.i}  /* get vendor number */
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 assign
  qtty     = 0
  ctrl[1]  = ce-ctrl.whse-mrkup / 100
@@ -510,7 +510,7 @@ with frame brd no-labels no-box width 82 stream-io down:
       brd-sf[2] = if v-corr then (brd-sq[2] * .007) else (brd-sq[2] / 144)
       brd-sf[3] = if v-corr then (brd-sq[3] * .007) else (brd-sq[3] / 144).
 
-   find first item {sys/look/item.w} and item.i-no = xef.board no-lock no-error.
+   find first item {sys/look/itemW.i} and item.i-no = xef.board no-lock no-error.
    if avail item then
       find first e-item of item no-lock no-error.
 
@@ -752,7 +752,7 @@ put skip(1)
      find first xeb of xef no-lock no-error.
      if avail xeb then 
          find first item
-             {sys/look/item.w}
+             {sys/look/itemW.i}
                and item.i-no eq xeb.tr-no
              no-lock no-error.
      if avail item then
@@ -845,7 +845,7 @@ put skip(1)
       end.
       
       find first item
-          {sys/look/item.w}
+          {sys/look/itemW.i}
             and item.i-no     eq xef.board
             and item.mat-type eq "B"
             and item.avg-w    gt 0
@@ -860,7 +860,7 @@ put skip(1)
        car.msf = car.msf + v-msf.
        
       if xef.medium ne "" then do:
-         find first item {sys/look/item.w} and
+         find first item {sys/look/itemW.i} and
                     item.i-no = xef.medium no-lock no-error.
          if avail item
          then do:
@@ -873,14 +873,14 @@ put skip(1)
          END.
       end.
       if xef.flute ne "" then do:
-         find first item {sys/look/item.w} and
+         find first item {sys/look/itemW.i} and
                     item.i-no = xef.flute no-lock no-error.
          if avail item
          then car.qty = car.qty +
                         (item.basis-w * v-msf).
       end.
       if xef.lam-code ne "" then do:
-         find first item {sys/look/item.w} and
+         find first item {sys/look/itemW.i} and
                     item.i-no = xef.lam-code no-lock no-error.
          if avail item
          then car.qty = car.qty +
@@ -888,7 +888,7 @@ put skip(1)
                          li-blk * xeb.t-sqin / item.sqin-lb).
       end.
       if xef.adh-code ne "" then do:
-         find first item {sys/look/item.w} and
+         find first item {sys/look/itemW.i} and
                     item.i-no = xef.adh-code no-lock no-error.
          if avail item
          then car.qty = car.qty +

@@ -8,7 +8,7 @@ assign
  locode = g_loc.
 
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 for each item
     where item.company eq cocode

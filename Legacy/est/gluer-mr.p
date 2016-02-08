@@ -15,7 +15,7 @@ DEF VAR ll-error AS LOG INIT YES NO-UNDO.
 
 IF AVAIL io-est-op THEN
 FIND FIRST mach NO-LOCK
-    {sys/look/mach.w}
+    {sys/look/machW.i}
       AND mach.m-code EQ io-est-op.m-code
     NO-ERROR.
 

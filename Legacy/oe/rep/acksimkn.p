@@ -317,7 +317,7 @@ FOR EACH report
         ELSE
          IF oe-ordl.pr-uom EQ "CS" THEN DO:
            FIND FIRST itemfg 
-             {sys/look/itemfgrl.w}
+             {sys/look/itemfgrlW.i}
              AND itemfg.i-no EQ oe-ordl.i-no NO-LOCK NO-ERROR.
 
            ASSIGN 
@@ -360,7 +360,7 @@ FOR EACH report
       /* print spec notes */
       IF v-prntinst THEN DO:
         FIND FIRST itemfg 
-          {sys/look/itemfgrl.w}
+          {sys/look/itemfgrlW.i}
             AND itemfg.i-no EQ oe-ordl.i-no NO-LOCK NO-ERROR.
         IF AVAIL itemfg THEN DO:
           ASSIGN lv-first-note = yes.

@@ -121,7 +121,7 @@ do transaction:
   if vmclean2 then v-match-up = sys-ctrl.dec-fld.
 end.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 assign
 ctrl[1]  = ce-ctrl.whse-mrkup / 100
 ctrl[2]  = ce-ctrl.hand-pct / 100
@@ -609,7 +609,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                        brd-sf[2] = brd-sq[2] / 144
                        brd-sf[3] = brd-sq[3] / 144.
 
-           find first item {sys/look/item.w} and item.i-no = xef.board no-lock no-error.
+           find first item {sys/look/itemW.i} and item.i-no = xef.board no-lock no-error.
            if avail item then find first e-item of item no-lock no-error.
            ASSIGN
               brd-wu[1] = brd-sf[1]  * item.basis-w

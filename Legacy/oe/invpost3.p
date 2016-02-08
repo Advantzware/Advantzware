@@ -52,11 +52,11 @@ find inv-line where recid(inv-line) eq v-invline no-lock.
 find inv-head where recid(inv-head) eq v-invhead no-lock.
 
 find first itemfg
-    {sys/look/itemfgrl.w}
+    {sys/look/itemfgrlW.i}
       and itemfg.i-no eq inv-line.i-no.
 
 find first cust
-    {sys/ref/cust.w}
+    {sys/ref/custW.i}
       and cust.cust-no eq inv-head.cust-no.
     
 /** Update Inventory if oe-ctrl is set to update at Invoicing **/

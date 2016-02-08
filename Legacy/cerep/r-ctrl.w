@@ -581,7 +581,7 @@ display str-tit with frame r-top.
  
 display skip(1).
 
-for each ce-ctrl {sys/ref/ce-ctrl.w} NO-LOCK with frame ce-ctrl:
+for each ce-ctrl {sys/ref/ce-ctrlW.i} NO-LOCK with frame ce-ctrl:
   display skip(2).
   {sys/ref/ce-ctrl.v &format=56}
   down.

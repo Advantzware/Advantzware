@@ -1514,7 +1514,7 @@ DEF BUFFER bf-itemfg FOR itemfg.
 FOR EACH tt-report NO-LOCK,
     FIRST pc-prdd WHERE RECID(pc-prdd) EQ tt-report.rec-id,          
     first mach
-    {sys/ref/mach.w}
+    {sys/ref/machW.i}
       and mach.m-code eq pc-prdd.m-code
     no-lock,
 

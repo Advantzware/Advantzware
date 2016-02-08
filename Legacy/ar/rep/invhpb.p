@@ -194,7 +194,7 @@ find first company where company.company eq cocode NO-LOCK.
              v-printline = 0.
 
       find first stax
-            {sys/ref/stax1.w}
+            {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq ar-inv.tax-code
             no-lock no-error.
         if not avail stax then

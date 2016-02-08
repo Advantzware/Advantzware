@@ -1,11 +1,11 @@
 
 find first cust
-    {sys/look/cust.w}
+    {sys/look/custW.i}
       and cust.cust-no eq eb.cust-no
     no-lock no-error.
     
 find first shipto
-    {sys/look/shipto.w}
+    {sys/look/shiptoW.i}
       and shipto.ship-id eq eb.ship-id
     no-lock no-error.
 
@@ -39,7 +39,7 @@ FOR EACH xeb
          
   if shipto.carrier ne "" then
   find first carrier
-      {sys/look/carrier.w}
+      {sys\look/carrierW.i}
         and carrier.carrier eq shipto.carrier
       no-lock no-error.
   if avail carrier then
@@ -49,7 +49,7 @@ FOR EACH xeb
             
   else  
   find first carrier
-      {sys/look/carrier.w}
+      {sys\look/carrierW.i}
         and carrier.carrier eq cust.carrier
       no-lock no-error.
                 

@@ -1451,7 +1451,7 @@ PROCEDURE ProcessJobs :
            and job-mch.frm       = job-hdr.frm
            use-index line-idx,
          first mach no-lock
-               {sys/ref/mach.w}
+               {sys/ref/machW.i}
            and mach.m-code eq job-mch.m-code
          break
             by job-mch.job-no

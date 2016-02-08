@@ -367,7 +367,7 @@ assign
  v-in   = fi_dir
  in-dir = tmp-dir.
 
-  find first ce-ctrl {sys/look/ce-ctrl.w} exclusive.
+  find first ce-ctrl {sys/look/ce-ctrlW.i} exclusive.
 
   if substr(v-in,length(trim(v-in)),1) ne "~\" then v-in = v-in + "~\".
   in-dir = trim(v-in).

@@ -619,7 +619,7 @@ DO:
 
 
   FIND mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}
       NO-LOCK NO-ERROR.
   IF AVAIL MACH THEN DO:
@@ -1212,7 +1212,7 @@ PROCEDURE local-assign-record :
   FIND xest WHERE RECID(xest) EQ RECID(est).
 
   FIND FIRST mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ est-op.m-code
       NO-LOCK NO-ERROR.
 
@@ -1317,7 +1317,7 @@ PROCEDURE local-assign-record :
       by xop.op-pass
       by xop.rec_key:
       
-    {sys/inc/machpos.w xop share}  
+    {sys/inc/outstrPL.i xop share}  
     assign
      j        = j + 1
      xop.line = j.
@@ -1863,7 +1863,7 @@ PROCEDURE set-import-stds :
         AND xop.line    LT 500
         AND (NOT AVAIL est-op OR ROWID(xop) NE ROWID(est-op)),
       FIRST mach NO-LOCK
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ xop.m-code,
       FIRST reftable NO-LOCK
       WHERE reftable.reftable EQ "mach.obsolete"
@@ -2001,7 +2001,7 @@ PROCEDURE valid-b-num :
     APPLY "value-changed" TO est-op.m-code IN BROWSE {&browse-name}.
 
     FIND FIRST mach
-        {sys/look/mach.w}
+        {sys/look/machW.i}
           AND mach.m-code EQ est-op.m-code:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
 
@@ -2050,7 +2050,7 @@ PROCEDURE valid-mach :
 
   do with frame {&frame-name}:
     find first mach
-        {sys/look/mach.w}
+        {sys/look/machW.i}
           and mach.m-code eq est-op.m-code:screen-value in browse {&browse-name}
         no-lock no-error.
 
@@ -2094,7 +2094,7 @@ PROCEDURE valid-mach :
         no-lock no-error.
 
     find first style
-        {sys/ref/style.w}
+        {sys/ref/styleW.i}
           and style.style eq xeb.style
         no-lock no-error.
 
@@ -2127,7 +2127,7 @@ PROCEDURE valid-mach :
           sh-dep = xeb.t-dep.
 
           IF mach.p-type NE "B" THEN DO:
-            {sys/inc/machpos.w est-op NO}
+            {sys/inc/outstrPL.i est-op NO}
          
             IF AVAIL reftable THEN
             DO i = 1 TO 3:
@@ -2183,7 +2183,7 @@ PROCEDURE valid-mach :
           /* press, check ink */
           if mach.dept[1] eq "PR" or mach.dept[2] eq "PR" or
              mach.dept[3] eq "PR" or mach.dept[4] eq "PR" then do:
-                find first item {sys/look/itemiv.w}
+                find first item {sys/look/itemivW.i}
                                 and item.i-no eq xeb.i-code[1]
                      no-lock no-error.
                 if not avail item and mach.dept[2] eq "" and
@@ -2229,7 +2229,7 @@ PROCEDURE valid-mach :
                 DO i = 1 TO 10:
                    IF xeb.i-ps[i] NE v-passes THEN NEXT.
                    FIND FIRST item NO-LOCK
-                       {sys/look/item.w}
+                       {sys/look/itemW.i}
                          AND item.i-no     EQ xeb.i-code[i]
                          AND INDEX("IV",item.mat-type) GT 0
                          AND item.ink-type NE "A"

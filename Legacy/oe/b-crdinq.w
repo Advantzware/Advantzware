@@ -1181,7 +1181,7 @@ PROCEDURE select-his :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  find first cust {sys/ref/cust.w} and
+  find first cust {sys/ref/custW.i} and
                   cust.cust-no eq oe-ord.cust-no
                   use-index cust no-lock no-error.
                   

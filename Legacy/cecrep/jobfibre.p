@@ -331,7 +331,7 @@ assign
                          (job-mch.dept  EQ "CT" AND item.mat-type EQ "V"))
                   NO-LOCK,
                   FIRST mach
-                  {sys/ref/mach.w}
+                  {sys/ref/machW.i}
                     AND mach.m-code EQ job-mch.m-code
                   NO-LOCK
                   BY job-mch.line:
@@ -361,7 +361,7 @@ assign
                 FIND FIRST w-i2 WHERE w-i2.i-code EQ xeb.i-code[i] NO-ERROR.
                 IF AVAIL w-i2 THEN DO:
                   FIND FIRST mach
-                      {sys/ref/mach.w}
+                      {sys/ref/machW.i}
                         AND mach.m-code EQ job-mch.m-code
                       NO-LOCK NO-ERROR.
                   IF AVAIL mach THEN w-i2.i-qty = w-i2.i-qty + mach.ink-waste.

@@ -6,7 +6,7 @@ SESSION:SET-WAIT-STATE("general").
 
 
 
-FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
 FOR EACH w-ord:
   DELETE w-ord.

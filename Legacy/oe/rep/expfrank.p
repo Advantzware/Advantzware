@@ -123,7 +123,7 @@ for each tt-report NO-LOCK where tt-report.term-id eq "" /*v-term-id*/
              v-price-code = "UM".  /* PE,PD,HP or UM*/
              v-po-no = inv-line.po-no.
              v-pr-uom = "EA".
-             find first itemfg {sys/look/itemfgrl.w}
+             find first itemfg {sys/look/itemfgrlW.i}
                         and itemfg.i-no eq inv-line.i-no no-lock no-error.
              v-tmp-price = if inv-line.pr-uom begins "L" AND
                               inv-line.pr-uom NE "LB" 

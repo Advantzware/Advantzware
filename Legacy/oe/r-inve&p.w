@@ -1139,7 +1139,7 @@ IF NOT AVAIL bf-inv-head THEN
     assign v-ttl-tax  = 0
            v-ttl-rate = 0.
     find first stax
-        {sys/ref/stax1.w}
+        {sys/ref/stax1W.i}
           and {sys/ref/taxgroup.i stax} eq bf-inv-head.tax-gr
         no-lock no-error.
     if not avail stax then

@@ -51,7 +51,7 @@ find first dept where dept.code eq "RC" no-lock no-error.
 if avail dept then v-rc-seq = dept.fc.
 
 find first style
-    {sys/ref/style.w}
+    {sys/ref/styleW.i}
       and style.style eq xeb.style
     no-lock no-error.
 
@@ -334,7 +334,7 @@ do on error undo:
    end.
    do i = 1 to 4:
       if xef.leaf[i] ne "" then do:
-         find first item {sys/look/itemlw.w} and
+         find first item {sys/look/itemlwW.i} and
                     item.i-no = xef.leaf[i] no-lock no-error.
          if avail item then find first e-item of item no-lock no-error.
          if item.mat-type = "W" and not avail mach then

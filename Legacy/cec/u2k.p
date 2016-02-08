@@ -54,7 +54,7 @@ do on error undo with frame est-2:
    find first ce-ctrl where ce-ctrl.company = cocode and
                             ce-ctrl.loc     = locode no-lock no-error.
    if xef.m-code ne "" then
-   find first mach {sys/ref/mach.w} and mach.m-code = xef.m-code
+   find first mach {sys/ref/machW.i} and mach.m-code = xef.m-code
    no-lock no-error.
    if avail mach then assign tr-l = mach.min-triml
                              tr-w = mach.min-trimw.
@@ -63,7 +63,7 @@ do on error undo with frame est-2:
    assign tr-l = tr-l * 2
           tr-w = tr-w * 2.
           
-   find first style {sys/ref/style.w} and style.style = xeb.style
+   find first style {sys/ref/styleW.i} and style.style = xeb.style
    no-lock no-error.
 /*
    pause 0.

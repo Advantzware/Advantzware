@@ -299,7 +299,7 @@ find first company where company.company eq cocode no-lock no-error.
               ln-cnt = ln-cnt + 1.
               
           END.
-          find first itemfg {sys/look/itemfgrl.w}
+          find first itemfg {sys/look/itemfgrlW.i}
                and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
           {custom/notesprt.i itemfg v-inst 4}
           lv-is-fgnote = NO.
@@ -648,7 +648,7 @@ PUT "[@startPage" + trim(STRING(oe-ord.ord-no,">>>>>9")) + "]" FORMAT "x(20)".
         else
         if oe-ordl.pr-uom eq "CS" then
         do:
-          find first itemfg {sys/look/itemfgrl.w}
+          find first itemfg {sys/look/itemfgrlW.i}
             and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
 
           v-totlin = oe-ordl.qty /
@@ -688,7 +688,7 @@ PUT "[@startPage" + trim(STRING(oe-ord.ord-no,">>>>>9")) + "]" FORMAT "x(20)".
   */
      IF v-prntinst THEN DO:
                    /* print spec notes */
-        find first itemfg {sys/look/itemfgrl.w}
+        find first itemfg {sys/look/itemfgrlW.i}
              and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
 
         IF AVAIL itemfg THEN DO:

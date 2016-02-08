@@ -220,7 +220,7 @@ assign
              v-printline = 0.
 
       find first stax
-            {sys/ref/stax1.w}
+            {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq ar-inv.tax-code
             no-lock no-error.
         if not avail stax then
@@ -492,7 +492,7 @@ assign
 
             /* print spec Dscr */      /*task# 11151307*/
             v-spec-dscr = "" .
-            find first itemfg {sys/look/itemfgrl.w}
+            find first itemfg {sys/look/itemfgrlW.i}
                 and itemfg.i-no eq ar-invl.i-no no-lock no-error.
 
             IF AVAIL itemfg THEN do:

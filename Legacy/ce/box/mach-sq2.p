@@ -36,7 +36,7 @@ run ce/mach-chk.p (no).
 
 j = 1.
 for each m-lst by m-lst.f-no by m-lst.seq by m-lst.b-no by m-lst.pass-no:
-   find first mach {sys/look/mach.w} and
+   find first mach {sys/look/machW.i} and
               mach.m-code  = m-lst.m-code no-lock no-error.
    create est-op.
    assign

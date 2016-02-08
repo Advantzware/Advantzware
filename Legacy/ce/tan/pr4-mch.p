@@ -30,7 +30,7 @@ DEF BUFFER bf-eb FOR eb.
                     AND est-op.est-no = xest.est-no and est-op.line gt 500
       by est-op.d-seq by est-op.b-num by est-op.op-pass
       with frame ae down no-labels no-box:
-    find first mach {sys/look/mach.w} and mach.m-code = est-op.m-code
+    find first mach {sys/look/machW.i} and mach.m-code = est-op.m-code
       no-lock no-error.
     if not avail mach then next.
 

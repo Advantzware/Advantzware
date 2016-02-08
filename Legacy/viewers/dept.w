@@ -308,7 +308,7 @@ PROCEDURE local-assign-record :
      i         = lv-new-fc.
   
     for each dept
-        {sys/ref/dept.w}
+        {sys/ref/deptW.i}
           and dept.fc     ge lv-new-fc
           and dept.fc     lt 99
           and rowid(dept) ne dept-rowid
@@ -319,11 +319,11 @@ PROCEDURE local-assign-record :
        dept.fc = i * -1.
     end.
   
-    for each dept {sys/ref/dept.w} and dept.fc lt 0:
+    for each dept {sys/ref/deptW.i} and dept.fc lt 0:
       dept.fc = dept.fc * -1.
     end.
 
-    for each dept {sys/ref/dept.w} no-lock,
+    for each dept {sys/ref/deptW.i} no-lock,
         each mach where mach.dept[1] eq dept.code:
     
       mach.d-seq = dept.fc.

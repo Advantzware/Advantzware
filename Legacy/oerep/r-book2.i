@@ -1,5 +1,5 @@
 
-  find first ce-ctrl {sys/look/ce-ctrl.w} no-lock.
+  find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock.
 
   find first period
       where period.company eq cocode

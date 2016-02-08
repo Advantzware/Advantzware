@@ -11,7 +11,7 @@ def var lv-t-price as dec no-undo.
 if (input {1}.{2} ne 0 and input {1}.pr-uom ne "") /*or
    (input {1}.{2} ne 0 and go-pending) */            then do:
   find first itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
         and itemfg.i-no eq input {1}.i-no
       no-lock no-error.
       

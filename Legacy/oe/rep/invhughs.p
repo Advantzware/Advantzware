@@ -183,7 +183,7 @@ DEF VAR v-show-parts AS LOG NO-UNDO.
           v-printline = 0.
     
         find first stax
-            {sys/ref/stax1.w}
+            {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq inv-head.tax-gr
             no-lock no-error.
         if not avail stax then

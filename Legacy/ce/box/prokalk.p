@@ -46,7 +46,7 @@ for each xop
     where xop.company eq xest.company
       and xop.est-no  eq xest.company
       and xop.line    gt 500:
-   find first mach {sys/look/mach.w}  and mach.m-code = xop.m-code
+   find first mach {sys/look/machW.i}  and mach.m-code = xop.m-code
    no-lock no-error.
    if not available mach then leave.
 
@@ -61,7 +61,7 @@ for each xop
    do:
       do i = 1 to 20:
 	 if xeb.i-ps2[i] ne xop.op-pass then next.
-	 find first item {sys/look/item.w} and item.i-no = xeb.i-code2[i]
+	 find first item {sys/look/itemW.i} and item.i-no = xeb.i-code2[i]
 	 no-lock no-error.
 	 if not available item or (mach.coater = no and item.mat-type ne "I") or
 	    index("IV",item.mat-type) = 0 then next.

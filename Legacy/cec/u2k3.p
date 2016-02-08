@@ -53,20 +53,20 @@ do on error undo with frame est-2:
       color value("blink-" + col-look).
   */
   find first style
-      {sys/ref/style.w}
+      {sys/ref/styleW.i}
         and style.style eq xeb.style
       no-lock no-error.
       
   if xef.board ne "" then
   find first item
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         and item.i-no eq xef.board
       no-lock no-error.
       
-  find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+  find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
   
   find first mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         and mach.m-code eq xef.m-code
       no-lock no-error.
   if avail mach then

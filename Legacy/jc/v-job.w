@@ -1215,7 +1215,7 @@ PROCEDURE local-update-record :
           IF cNewitem <> "" THEN DO:
               xeb.stock-no = cNewItem .
               FIND FIRST itemfg
-              {sys/look/itemfgrl.w}
+              {sys/look/itemfgrlW.i}
                 AND itemfg.i-no   EQ xeb.stock-no
               NO-LOCK NO-ERROR.
              IF NOT AVAIL itemfg THEN
@@ -2082,7 +2082,7 @@ PROCEDURE validate-est :
             AND est-op.est-no  EQ est.est-no
             AND est-op.line    LT 500,
           FIRST mach NO-LOCK
-          {sys/look/mach.w}
+          {sys/look/machW.i}
             AND mach.m-code EQ est-op.m-code,
           FIRST reftable NO-LOCK
           WHERE reftable.reftable EQ "mach.obsolete"

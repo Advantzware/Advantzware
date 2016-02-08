@@ -40,7 +40,7 @@ IF xest.metric THEN
 
 {cec/get-vend.i}  /* get vendor number */
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 assign
  qtty     = 0
  ctrl[1]  = ce-ctrl.whse-mrkup / 100
@@ -365,7 +365,7 @@ do transaction:
   find xeb where recid(xeb) eq call_id no-lock no-error.
 end.
 
-find first item {sys/look/item.w} and item.i-no eq xef.board no-lock no-error.
+find first item {sys/look/itemW.i} and item.i-no eq xef.board no-lock no-error.
 assign
  brd-wu[1] = brd-sf[1] * item.basis-w
  brd-wu[2] = brd-sf[2] * item.basis-w
@@ -458,7 +458,7 @@ do k = 1 to 28:
                    AND xop.est-no eq xest.est-no
                    and xop.line  ge 500
                    no-lock no-error.
-  find first ITEM {sys/look/item.w}
+  find first ITEM {sys/look/itemW.i}
         and item.i-no eq xef.board
       no-lock no-error.
   if avail item then find first e-item of item no-lock no-error.
@@ -623,7 +623,7 @@ do k = 1 to 28:
       no-lock no-error.
 
   find first item
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         and item.i-no     eq xef.board
         and item.mat-type eq "B"
         and item.avg-w    gt 0
@@ -636,7 +636,7 @@ do k = 1 to 28:
 
   if xef.medium ne "" then do:
     find first item
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           and item.i-no eq xef.medium
         no-lock no-error.
     if avail item then do:
@@ -650,7 +650,7 @@ do k = 1 to 28:
 
   if xef.flute ne "" then do:
     find first item
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           and item.i-no eq xef.flute
         no-lock no-error.
     if avail item then xxx = xxx +
@@ -659,7 +659,7 @@ do k = 1 to 28:
 
   if xef.lam-code ne "" then do:
     find first item
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           and item.i-no eq xef.lam-code
         no-lock no-error.
     if avail item then xxx = xxx +
@@ -669,7 +669,7 @@ do k = 1 to 28:
 
   if xef.adh-code ne "" then do:
     find first item
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           and item.i-no eq xef.adh-code
         no-lock no-error.
     if avail item then xxx = xxx +
@@ -679,7 +679,7 @@ do k = 1 to 28:
 
   FOR EACH brd,
       FIRST item NO-LOCK
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           AND item.i-no EQ brd.i-no
           AND CAN-DO("5,6",item.mat-type):
 
@@ -716,7 +716,7 @@ do k = 1 to 28:
     
     else do:
       find first item
-          {sys/look/item.w}
+          {sys/look/itemW.i}
             and item.i-no  eq xef.board
             and item.avg-w gt 0
           no-lock no-error.

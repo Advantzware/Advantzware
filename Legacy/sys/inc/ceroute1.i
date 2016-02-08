@@ -2,7 +2,7 @@
 IF xef.m-code EQ "" THEN xef.m-code = ceroute-chr.
 
 find first mach
-    {sys/look/mach.w}
+    {sys/look/machW.i}
       and mach.m-code eq xef.m-code
     use-index m-code no-lock no-error.
 if avail mach then do:
@@ -14,7 +14,7 @@ if avail mach then do:
    xef.lsh-len  = mach.max-wid.
 
   find first item
-      {sys/look/itemad.w}
+      {sys/look/itemadW.i}
         and item.i-no eq xef.board
       use-index i-no no-lock no-error.
   if not avail item or item.i-code eq "E" then

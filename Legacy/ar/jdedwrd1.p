@@ -61,7 +61,7 @@ for first ar-invl where recid(ar-invl) eq v-recid no-lock,
     first ar-inv where ar-inv.x-no eq ar-invl.x-no no-lock:
     
   find first itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
         and itemfg.i-no eq ar-invl.i-no
       no-lock no-error.
   

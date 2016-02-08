@@ -7,7 +7,7 @@ DEF OUTPUT PARAM op-rowid AS ROWID NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 
 
-FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
 FIND est WHERE ROWID(est) EQ ip-rowid NO-LOCK NO-ERROR.
 

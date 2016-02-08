@@ -174,7 +174,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
              v-printline  = 0.
 
       FIND FIRST stax NO-LOCK 
-        {sys/ref/stax1.w}
+        {sys/ref/stax1W.i}
           and {sys/ref/taxgroup.i stax} eq inv-head.tax-gr NO-ERROR.
       IF NOT AVAIL stax THEN 
         FIND FIRST stax WHERE stax.tax-group EQ inv-head.tax-gr NO-LOCK NO-ERROR.

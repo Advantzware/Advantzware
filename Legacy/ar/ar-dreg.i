@@ -6,7 +6,7 @@
 
       ASSIGN ar-cash.posted = YES.
       /* if ar-cashl.amt-disc = 0 then ar-cashl.dscr = "debit". */
-      FIND FIRST cust {ar/ar-cust.w} AND
+      FIND FIRST cust {ar/ar-custW.i} AND
         cust.cust-no = ar-cash.cust-no EXCLUSIVE-LOCK NO-ERROR.
 
       IF NOT AVAILABLE cust THEN

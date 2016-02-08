@@ -207,7 +207,7 @@ DO:
         BY est-op.op-pass
         BY est-op.rec_key:
       
-      {sys/inc/machpos.w est-op SHARE}
+      {sys/inc/outstrPL.i est-op SHARE}
       ASSIGN
        li          = li + 1
        est-op.line = li.

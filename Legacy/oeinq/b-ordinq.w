@@ -2440,7 +2440,7 @@ PROCEDURE select-his :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  FIND FIRST cust {sys/ref/cust.w} AND
+  FIND FIRST cust {sys/ref/custW.i} AND
                   cust.cust-no EQ oe-ord.cust-no
                   USE-INDEX cust NO-LOCK NO-ERROR.
                   
@@ -3408,7 +3408,7 @@ FUNCTION get-extended-price RETURNS DECIMAL
       BY ar-invl.inv-no DESC:
 
       FIND FIRST itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
         AND itemfg.i-no EQ ar-invl.i-no
         NO-LOCK NO-ERROR.
       

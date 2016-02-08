@@ -681,7 +681,7 @@ reftable.dscr = TRIM(reftable.dscr) + " " + "Mat Types:" + v-mtype.
         
 DO li = 1 TO LENGTH(v-mtype):
   FOR EACH item
-      {sys/look/item.w}   
+      {sys/look/itemW.i}   
         AND item.mat-type EQ SUBSTR(v-mtype,li,1)
         AND item.i-no     GE v-i-no[1]
         AND item.i-no     LE v-i-no[2]

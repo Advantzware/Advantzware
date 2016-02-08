@@ -69,7 +69,7 @@ for each xef where xef.company = xest.company
 
   v-lin-ft = xef.gsh-qty * (sh-len / 12).
 
-  find first style {sys/ref/style.w} and
+  find first style {sys/ref/styleW.i} and
     style.style   = xeb.style no-lock no-error.
 
   IF xeb.pur-man THEN DO:      /* Purchased FG */
@@ -252,7 +252,7 @@ for each xef where xef.company = xest.company
   /* find ink & coater */
   else
   if xef.f-pass + xef.f-coat-p gt 0 then do:
-    find first item {sys/look/itemiv.w} and
+    find first item {sys/look/itemivW.i} and
       item.i-no    = xeb.i-code2[1] no-lock no-error.
     if avail item and item.i-code = "E" then
     find first e-item of item no-lock no-error.
@@ -687,7 +687,7 @@ for each xef where xef.company = xest.company
       no-lock,
       
       first item
-      {sys/look/itemlw.w}
+      {sys/look/itemlwW.i}
         and item.i-no eq est-flm.i-no
       no-lock:
       
@@ -713,7 +713,7 @@ for each xef where xef.company = xest.company
     
     if avail bf-eb then
     find first style
-        {sys/ref/style.w}
+        {sys/ref/styleW.i}
           and style.style eq bf-eb.style
         no-lock no-error.
 
@@ -794,7 +794,7 @@ for each xef where xef.company = xest.company
       xeb.est-no = xest.est-no and
       xeb.form-no = xef.form-no:
 
-    find first style {sys/ref/style.w} and
+    find first style {sys/ref/styleW.i} and
       style.style   = xeb.style no-lock no-error.
 
     if avail mach then release mach.

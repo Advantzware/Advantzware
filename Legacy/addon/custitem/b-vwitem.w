@@ -1127,7 +1127,7 @@ PROCEDURE val-cust-part-no :
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
    IF NOT CAN-FIND(FIRST itemfg
-                         {sys/look/itemfgrl.w}
+                         {sys/look/itemfgrlW.i}
                      AND itemfg.part-no EQ vend-whse-item.cust-part-no:SCREEN-VALUE IN BROWSE {&browse-name})
       THEN DO:
       MESSAGE "Invalid Customers Part Number    " 

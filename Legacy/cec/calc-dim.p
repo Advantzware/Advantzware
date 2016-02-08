@@ -45,7 +45,7 @@ DEF TEMP-TABLE tt-adder NO-UNDO FIELD tt-adder AS CHAR.
   find first ce-ctrl where ce-ctrl.company = cocode and
                            ce-ctrl.loc     = locode no-lock no-error.
   if xef.m-code ne "" then
-      find first mach {sys/ref/mach.w} and mach.m-code = xef.m-code  no-lock no-error.
+      find first mach {sys/ref/machW.i} and mach.m-code = xef.m-code  no-lock no-error.
      find first item where item.company = cocode 
                        /* and item.mat-type = "A"   */
                        and item.i-no eq xef.board
@@ -87,7 +87,7 @@ DEF TEMP-TABLE tt-adder NO-UNDO FIELD tt-adder AS CHAR.
   
   assign tr-l = tr-l * 2
          tr-w = tr-w * 2.
-  find first style {sys/ref/style.w} and style.style = xeb.style no-lock no-error.
+  find first style {sys/ref/styleW.i} and style.style = xeb.style no-lock no-error.
 
   find first item where item.company eq cocode
                    and item.i-no    eq xef.board

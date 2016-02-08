@@ -17,7 +17,7 @@ FOR EACH est-op NO-LOCK
       AND est-op.est-no  EQ job.est-no
       AND est-op.line    LT 500,
     FIRST mach NO-LOCK
-    {sys/look/mach.w}
+    {sys/look/machW.i}
       AND mach.m-code EQ est-op.m-code,
     FIRST reftable NO-LOCK
     WHERE reftable.reftable EQ "mach.obsolete"

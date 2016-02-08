@@ -139,7 +139,7 @@ for each mach
       no-lock no-error.
 
   for each item
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         and ((item.mat-type eq "B"             and style.type ne "F") or
              (index("1234",item.mat-type) gt 0 and style.type eq "F"))
         and item.i-code     eq "R"        

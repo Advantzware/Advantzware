@@ -28,7 +28,7 @@ FOR EACH company,
 
   {po/po-ordls.i}
   
-  {po/poordls2.w}
+  {po/poordls2W.i}
 
   ld = 0.
   IF AVAIL b-ref1 THEN

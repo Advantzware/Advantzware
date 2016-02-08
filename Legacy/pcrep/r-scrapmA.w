@@ -989,11 +989,11 @@ VIEW FRAME r-top.
     str_buffa = "".
     
     if v-q-m then do:
-      {edi/rc/outstr.i v-hdr 1 115}.
+      {sys/inc/outstrPL.i v-hdr 1 115}.
     end.
     
     else do:
-      {edi/rc/outstr.i v-hdr1 1 103}.
+      {sys/inc/outstrPL.i v-hdr1 1 103}.
     end.
     
     put stream s-temp unformatted str_buffa skip.

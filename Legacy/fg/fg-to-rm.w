@@ -478,7 +478,7 @@ PROCEDURE new-i-no :
   DO WITH FRAME {&FRAME-NAME}:
 
     FIND itemfg
-        {sys/look/itemfgrl.w}
+        {sys/look/itemfgrlW.i}
           AND itemfg.i-no EQ begin_i-no:SCREEN-VALUE 
         NO-LOCK NO-ERROR.
     IF AVAIL itemfg THEN DO:
@@ -855,7 +855,7 @@ DO WITH FRAME {&FRAME-NAME}:
    begin_i-no:SCREEN-VALUE = CAPS(begin_i-no:SCREEN-VALUE).
 
    FIND FIRST itemfg
-              {sys/look/itemfgrl.w}
+              {sys/look/itemfgrlW.i}
           AND itemfg.i-no EQ begin_i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
    
    IF NOT AVAIL itemfg OR begin_i-no:SCREEN-VALUE EQ "" THEN DO:

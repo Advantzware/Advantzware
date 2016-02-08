@@ -3507,7 +3507,7 @@ PROCEDURE new-carrier :
 
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST carrier
-        {sys/look/carrier.w}
+        {sys\look/carrierW.i}
           AND carrier.carrier EQ eb.carrier:SCREEN-VALUE
         NO-LOCK NO-ERROR.
     IF AVAIL carrier THEN eb.carr-dscr:SCREEN-VALUE = carrier.dscr.
@@ -4215,7 +4215,7 @@ PROCEDURE show-pr-type :
     RELEASE item.
 
     FIND FIRST item
-      {sys/look/itemiv.w}
+      {sys/look/itemivW.i}
         AND item.i-no EQ eb.i-code2[1]:SCREEN-VALUE
       NO-LOCK NO-ERROR.
     fi_pr-type:SCREEN-VALUE = 
@@ -4427,7 +4427,7 @@ PROCEDURE valid-carrier :
     eb.carrier:SCREEN-VALUE = CAPS(eb.carrier:SCREEN-VALUE).
 
     IF NOT CAN-FIND(FIRST carrier
-                    {sys/look/carrier.w}
+                    {sys\look/carrierW.i}
                       AND carrier.carrier EQ eb.carrier:SCREEN-VALUE)
     THEN DO:
       MESSAGE "Invalid " + TRIM(eb.carrier:LABEL) + ", try help..."

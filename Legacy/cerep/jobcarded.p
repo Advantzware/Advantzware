@@ -596,7 +596,7 @@ END. /* for each bf-jobhdr*/
                 and job-mat.frm     eq int(tt-reftable.val[12])
                 no-lock,
               first item
-              {sys/look/itemiv.w}
+              {sys/look/itemivW.i}
                 and item.i-no eq job-mat.i-no 
                 AND lookup(item.mat-type,"I,V") > 0 no-lock:
 
@@ -646,7 +646,7 @@ END. /* for each bf-jobhdr*/
             no-lock,
 
             first mach
-            {sys/ref/mach.w}
+            {sys/ref/machW.i}
               and mach.m-code eq job-mch.m-code
             no-lock
 

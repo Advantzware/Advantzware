@@ -3,6 +3,7 @@
 	<name>Legacy</name>
 	<comment></comment>
 	<projects>
+		<project>Assemblies</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

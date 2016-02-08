@@ -3801,7 +3801,7 @@ IF AVAIL oe-ord THEN DO:
    CREATE bf-oe-ordl.
    ASSIGN lv-item-recid = RECID(bf-oe-ordl)
           ll-new-record = YES.
-   FIND FIRST cust {sys/ref/cust.w} AND cust.cust-no = oe-ord.cust-no
+   FIND FIRST cust {sys/ref/custW.i} AND cust.cust-no = oe-ord.cust-no
                    USE-INDEX cust NO-LOCK.
    ASSIGN
     bf-oe-ordl.company   = cocode
@@ -4714,7 +4714,7 @@ PROCEDURE display-est-detail :
 
           /*ysk*/
           FIND FIRST cust
-              {sys/ref/cust.w}
+              {sys/ref/custW.i}
                 AND cust.cust-no EQ oe-ord.cust-no
               USE-INDEX cust
               NO-LOCK NO-ERROR.
@@ -5210,7 +5210,7 @@ DO WITH FRAME {&FRAME-NAME}:
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
   FIND FIRST cust
-      {sys/ref/cust.w}
+      {sys/ref/custW.i}
         AND cust.cust-no EQ oe-ord.cust-no
       USE-INDEX cust
       NO-LOCK NO-ERROR.

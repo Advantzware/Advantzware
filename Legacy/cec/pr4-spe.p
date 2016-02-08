@@ -22,7 +22,7 @@ DEF BUFFER b-setup FOR reftable.
 
 {cec/rollfac.i}
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
    {cec/pr4-spe.i qty}
 

@@ -10,7 +10,7 @@
       op-lock.val[2] = 1.
 
    find first mach
-       {sys/look/mach.w}
+       {sys/look/machW.i}
          and mach.m-code eq est-op.m-code
        no-lock no-error.
 
@@ -23,7 +23,7 @@
    DO i = 1 TO 10:
      IF xeb.i-ps[i] NE est-op.op-pass THEN NEXT.
      FIND FIRST item NO-LOCK
-         {sys/look/item.w} 
+         {sys/look/itemW.i} 
            AND item.i-no EQ xeb.i-code[i]
            AND INDEX("IV",item.mat-type) GT 0
            AND item.ink-type NE "A"
