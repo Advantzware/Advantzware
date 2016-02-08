@@ -21,7 +21,7 @@ DEF SHARED VAR CALL_id AS RECID NO-UNDO.
 
 j = 1.
 for each m-lst by m-lst.f-no by m-lst.seq by m-lst.b-no by m-lst.pass-no:
-   find first mach {sys/look/mach.w} and
+   find first mach {sys/look/machW.i} and
 	      mach.m-code  = m-lst.m-code no-lock no-error.
    create est-op.
    assign
@@ -70,7 +70,7 @@ for each m-lst by m-lst.f-no by m-lst.seq by m-lst.b-no by m-lst.pass-no:
       for each eb of xef:
 	 do i = 1 to 20:
 	    if eb.i-ps2[i] ne est-op.op-pass then next.
-	    find first item {sys/look/item.w} and item.i-no = eb.i-code2[i]
+	    find first item {sys/look/itemW.i} and item.i-no = eb.i-code2[i]
 	    no-lock no-error.
 	    if not available item or
 	       (mach.coater = no and item.mat-type ne "I") or

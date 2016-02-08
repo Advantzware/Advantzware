@@ -43,7 +43,7 @@ ELSE
    ld-rm = ctrl[3]
    ld-hp = ctrl[2].
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 lv-save-vend = v-vend-no.
 
@@ -52,9 +52,9 @@ if xef.board ne "" then
 do with frame aa no-labels no-box:
   FIND CURRENT xef EXCLUSIVE.
 
-  find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+  find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
   find first item
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         and item.i-no eq xef.board
       no-lock.
 

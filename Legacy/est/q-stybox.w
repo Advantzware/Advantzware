@@ -329,7 +329,7 @@ cocode = xeb.company.
 for each box-design-hdr where box-design-hdr.design-no = 0 and
                               box-design-hdr.company = xeb.company 
                           and box-design-hdr.est-no = xeb.est-no
-    /*{cec/est-6.w box-design-hdr}*/
+    /*{cec/est-6W.i box-design-hdr}*/
       and box-design-hdr.form-no   eq xeb.form-no
       and box-design-hdr.blank-no  eq xeb.blank-no
     no-lock:
@@ -338,7 +338,7 @@ for each box-design-hdr where box-design-hdr.design-no = 0 and
     buffer-copy box-design-hdr to w-box-h.
 end.
 
-{cec/est-6.del}
+{cec/est-6del.i}
 
 find first style where style.company eq xeb.company
                    and style.style   eq xeb.style

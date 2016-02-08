@@ -326,7 +326,7 @@ ASSIGN
 
 output to value(outfile1).
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 assign
 ctrl[1]  = ce-ctrl.whse-mrkup / 100
 ctrl[2]  = ce-ctrl.hand-pct / 100
@@ -584,7 +584,7 @@ with STREAM-IO frame brd no-labels no-box width 80 down:
                     AND xop.est-no eq xest.est-no
                     and xop.s-num = xef.form-no and
                     xop.line ge 500 no-lock no-error.
-   find first item {sys/look/item.w} and item.i-no = xef.board no-lock no-error.
+   find first item {sys/look/itemW.i} and item.i-no = xef.board no-lock no-error.
    if avail item then find first e-item of item no-lock no-error.
    ASSIGN
    brd-wu[1] = brd-sf[1]  * item.basis-w
@@ -1006,7 +1006,7 @@ for each xef where xef.company = xest.company
   end.
    
   find first item
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         and item.i-no     eq xef.board
         and item.mat-type eq "B"
         and item.avg-w    gt 0
@@ -1019,7 +1019,7 @@ for each xef where xef.company = xest.company
    car.msf  = car.msf + v-msf.
 
   if xef.medium ne "" then do:
-    find first item {sys/look/item.w} and
+    find first item {sys/look/itemW.i} and
                item.i-no = xef.medium no-lock no-error.
     if avail item
     then do:
@@ -1032,14 +1032,14 @@ for each xef where xef.company = xest.company
     END.
   end.
   if xef.flute ne "" then do:
-    find first item {sys/look/item.w} and
+    find first item {sys/look/itemW.i} and
                item.i-no = xef.flute no-lock no-error.
     if avail item
     then v-blk-wt = v-blk-wt +
                     (item.basis-w * v-msf).
   end.
   if xef.lam-code ne "" then do:
-    find first item {sys/look/item.w} and
+    find first item {sys/look/itemW.i} and
                item.i-no = xef.lam-code no-lock no-error.
     if avail item
     then v-blk-wt = v-blk-wt +
@@ -1047,7 +1047,7 @@ for each xef where xef.company = xest.company
                      xeb.bl-qty * xeb.t-sqin / item.sqin-lb).
   end.
   if xef.adh-code ne "" then do:
-    find first item {sys/look/item.w} and
+    find first item {sys/look/itemW.i} and
                item.i-no = xef.adh-code no-lock no-error.
     if avail item
     then v-blk-wt = v-blk-wt +
@@ -1071,7 +1071,7 @@ for each xef where xef.company = xest.company
       no-error.
   if avail cas then do:
     find first item
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           and item.i-no eq cas.ino
         no-lock no-error.
     if avail item then do:
@@ -1086,7 +1086,7 @@ for each xef where xef.company = xest.company
         no-error.
     if avail cas then
     find first item
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           and item.i-no eq cas.ino
         no-lock no-error.
     if avail item then do:

@@ -145,7 +145,7 @@ IF AVAIL oe-ord THEN DO:
         REPEAT:
        
            FIND FIRST cust
-                {sys/ref/cust.w}
+                {sys/ref/custW.i}
                 AND cust.cust-no EQ oe-ord.cust-no
                 EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
        

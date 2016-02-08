@@ -2688,7 +2688,7 @@ PROCEDURE create-multi-line :
 
       RUN po/po-ordls.p (RECID(job-mat)).
 
-      {po/poordls1.w}
+      {po/poordls1W.i}
 
       FOR EACH b-job-mat
           WHERE b-job-mat.company EQ job-mat.company
@@ -2702,7 +2702,7 @@ PROCEDURE create-multi-line :
 
         RUN po/po-ordls.p (RECID(b-job-mat)).
 
-        {po/poordls1.w b-}
+        {po/poordls1W.i b-}
 
         IF b-job-mat.wid EQ job-mat.wid AND
            b-job-mat.len EQ job-mat.len THEN DO:

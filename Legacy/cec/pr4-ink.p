@@ -31,7 +31,7 @@ DEF BUFFER b-setup FOR reftable.
 
 {cec/rollfac.i}
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 RUN est/ef-#out.p (ROWID(xef), OUTPUT v-n-out).
 
@@ -46,7 +46,7 @@ FOR EACH est-op NO-LOCK
       AND est-op.line    GE 500
       AND est-op.dept    EQ "PR",
     FIRST mach NO-LOCK
-    {sys/ref/mach.w}
+    {sys/ref/machW.i}
       AND mach.m-code EQ est-op.m-code
     BY est-op.line.
   j = j + 1.
@@ -125,7 +125,7 @@ do with frame ab2 down no-labels no-box:
        no-lock,
        
        first mach
-       {sys/look/mach.w}
+       {sys/look/machW.i}
          and mach.m-code   eq est-op.m-code
          and (mach.dept[1] eq "GL" or mach.dept[2] eq "GL" or
               mach.dept[3] eq "GL" or mach.dept[4] eq "GL")

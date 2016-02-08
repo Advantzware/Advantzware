@@ -1222,8 +1222,10 @@ view frame mast-bol-hdr.
 
       if last-of(oe-bolh.ship-id) and NOT first-of(oe-bolh.ship-id) then
         display unit-pkg unit-weight with frame unit-tot.
+/* WFK - Feb 7, 2016 
+   remove edi references as edi was not converted from character */  
 
-    {edi/ed/asi/o856hook.i &reprint=true &force_asn=false}  /* 970529 CAH */
+/*    {edi/ed/asi/o856hook.i &reprint=true &force_asn=false}*/
     
   end. /* oe-bolh */
 

@@ -1671,7 +1671,7 @@ SESSION:SET-WAIT-STATE("general").
           no-lock.
 
       find first prep
-          {sys/ref/prep.w}
+          {sys/ref/prepW.i}
             and prep.code eq tt-report.key-09
           no-lock no-error.
 
@@ -1693,7 +1693,7 @@ SESSION:SET-WAIT-STATE("general").
       /*{sys/ref/preplist.i}*/
 
       find first cust
-            {sys/ref/cust.w}
+            {sys/ref/custW.i}
               and cust.cust-no eq eb.cust-no
             no-lock no-error.
             

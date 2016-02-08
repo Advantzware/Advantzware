@@ -14,7 +14,7 @@ FOR EACH ttCustList
         AND ar-cash.check-date GE v-from-date 
         AND ar-cash.check-date LE v-to-date 
         AND CAN-FIND(FIRST cust
-                     {sys/ref/cust.w}
+                     {sys/ref/custW.i}
                        AND cust.cust-no EQ ar-cash.cust-no)
         AND CAN-FIND(FIRST bank
                      WHERE bank.company   EQ cocode
@@ -24,7 +24,7 @@ FOR EACH ttCustList
       BREAK BY ar-cash.{1} BY ar-cash.check-no WITH FRAME a1{2}:
 
       IF FIRST-OF(ar-cash.{1}) THEN DO:
-         FIND FIRST cust {sys/ref/cust.w} AND cust.cust-no = ar-cash.cust-no
+         FIND FIRST cust {sys/ref/custW.i} AND cust.cust-no = ar-cash.cust-no
          NO-LOCK NO-ERROR.
          IF AVAIL cust THEN
             PUT cust.cust-no SPACE(1) cust.name FORMAT "x(25)".

@@ -591,7 +591,7 @@ DO:
   IF ll THEN DO:
     {po/po-ordls.i}
   
-    {po/poordls2.w}
+    {po/poordls2W.i}
 
     IF AVAIL b-ref1 THEN DELETE b-ref1.
     IF AVAIL b-ref2 THEN DELETE b-ref2.
@@ -601,7 +601,7 @@ DO:
       RUN po/po-ordls.p (RECID(po-ordl)).
 
     {po/po-ordls.i}  
-    {po/poordls2.w}
+    {po/poordls2W.i}
 
     ASSIGN
       lv-rowid1 = ROWID(b-ref1)
@@ -690,11 +690,11 @@ DO:
   IF NOT AVAIL b-ref1 OR NOT AVAIL b-ref2 THEN DO:
 
     {po/po-ordls.i}  
-    {po/poordls2.w}
+    {po/poordls2W.i}
     IF NOT AVAIL b-ref1 OR NOT AVAIL b-ref2 THEN DO:    
        RUN po/poaddscores.p (INPUT ROWID(po-ordl)).
        {po/po-ordls.i}  
-       {po/poordls2.w}
+       {po/poordls2W.i}
     END.
   END.
     
@@ -751,8 +751,8 @@ DO:
        b-ref2.dscr = b-ref2.dscr + STRING(type-19,"X")
        b-ref2.dscr = b-ref2.dscr + STRING(type-20,"X").
 
-    {po/poordls2.w}
-    {po/poordls3.w}
+    {po/poordls2W.i}
+    {po/poordls3W.i}
     
     v-tot-score = 0.
 
@@ -1618,7 +1618,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     {po/po-ordls.i}
   
-    {po/poordls2.w}
+    {po/poordls2W.i}
 
     ld = 0.
     IF AVAIL b-ref1 THEN

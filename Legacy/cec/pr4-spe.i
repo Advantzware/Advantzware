@@ -3,7 +3,7 @@
    /* special */
    do i = 1 to 8 with frame ac4  down no-labels no-box:
       if xef.spec-no[i] ne "" then do:
-         find first item {sys/look/item.w} and item.i-no = xef.spec-no[i]
+         find first item {sys/look/itemW.i} and item.i-no = xef.spec-no[i]
          no-lock no-error.
          if not available item then next.
          find first e-item of item no-lock no-error.

@@ -24,7 +24,7 @@ DEF VAR v-len LIKE xef.gsh-len NO-UNDO.
 DEF VAR v-gu-out AS INT INIT 1 NO-UNDO.
 DEF VAR v-printed-lit AS LOG NO-UNDO.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 {sys/inc/ceprice.i}
 
@@ -46,7 +46,7 @@ find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
       with frame ae down no-labels no-box:
 
     find first mach
-        {sys/ref/mach.w}
+        {sys/ref/machW.i}
           and mach.m-code eq est-op.m-code
         no-lock no-error.
     if not avail mach then next.

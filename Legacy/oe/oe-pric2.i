@@ -108,7 +108,7 @@ if avail itemfg and itemfg.i-code eq "S" then do:
   RELEASE oe-prmtx.
 
   FOR EACH oe-prmtx
-      {oe/oe-prmtx.w}
+      {oe/oe-prmtxW.i}
         AND oe-prmtx.custype             EQ cust.type
         AND oe-prmtx.cust-no             EQ x{2}.cust-no
         AND oe-prmtx.procat              EQ itemfg.procat
@@ -124,7 +124,7 @@ if avail itemfg and itemfg.i-code eq "S" then do:
   IF sellpric-cha NE "LastPric" THEN DO:
     IF NOT AVAIL oe-prmtx THEN
     FOR EACH oe-prmtx
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype             EQ cust.type
           AND oe-prmtx.cust-no             EQ ""
           AND oe-prmtx.procat              EQ itemfg.procat
@@ -139,7 +139,7 @@ if avail itemfg and itemfg.i-code eq "S" then do:
 
     IF NOT AVAIL oe-prmtx THEN
     FOR EACH oe-prmtx
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype             EQ cust.type
           AND oe-prmtx.cust-no             EQ ""
           AND oe-prmtx.procat              EQ itemfg.procat
@@ -153,7 +153,7 @@ if avail itemfg and itemfg.i-code eq "S" then do:
 
     IF NOT AVAIL oe-prmtx THEN
     FOR EACH oe-prmtx
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype             EQ ""
           AND oe-prmtx.cust-no             EQ ""
           AND oe-prmtx.procat              EQ itemfg.procat
@@ -168,7 +168,7 @@ if avail itemfg and itemfg.i-code eq "S" then do:
 
     IF NOT AVAIL oe-prmtx THEN
     FOR EACH oe-prmtx
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype             EQ ""
           AND oe-prmtx.cust-no             EQ ""
           AND oe-prmtx.procat              EQ ""

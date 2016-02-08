@@ -646,7 +646,7 @@ DO :
 
 
     FIND itemfg
-        {sys/look/itemfgrl.w}
+        {sys/look/itemfgrlW.i}
           AND itemfg.i-no EQ inv-line.i-no:SCREEN-VALUE IN FRAME Dialog-Frame
         NO-LOCK NO-ERROR.
     IF AVAIL itemfg THEN DO:
@@ -676,7 +676,7 @@ DO :
         inv-line.cost:SCREEN-VALUE = STRING(itemfg.total-std-cost).
   
       FIND FIRST cust
-          {sys/ref/cust.w}
+          {sys/ref/custW.i}
             AND cust.cust-no EQ inv-head.cust-no
           USE-INDEX cust
           NO-LOCK NO-ERROR.
@@ -713,7 +713,7 @@ DO:
 
 
 /*   FIND itemfg                                                                              */
-/*       {sys/look/itemfgrl.w}                                                                */
+/*       {sys/look/itemfgrlW.i}                                                                */
 /*         AND itemfg.i-no EQ {&self-name}:SCREEN-VALUE                                       */
 /*       NO-LOCK NO-ERROR.                                                                    */
 /*   IF AVAIL itemfg THEN DO:                                                                 */
@@ -743,7 +743,7 @@ DO:
 /*       inv-line.cost:SCREEN-VALUE = STRING(itemfg.total-std-cost).                          */
 /*                                                                                            */
 /*     FIND FIRST cust                                                                        */
-/*         {sys/ref/cust.w}                                                                   */
+/*         {sys/ref/custW.i}                                                                   */
 /*           AND cust.cust-no EQ inv-head.cust-no                                             */
 /*         USE-INDEX cust                                                                     */
 /*         NO-LOCK NO-ERROR.                                                                  */
@@ -859,7 +859,7 @@ DO :
         inv-line.cost:SCREEN-VALUE = STRING(itemfg.total-std-cost).
   
       FIND FIRST cust
-          {sys/ref/cust.w}
+          {sys/ref/custW.i}
             AND cust.cust-no EQ inv-head.cust-no
           USE-INDEX cust
           NO-LOCK NO-ERROR.
@@ -1130,7 +1130,7 @@ else do:
   if avail custype then
     inv-line.s-comm[1] = custype.commrate.
   else do:
-    find ce-ctrl {sys/look/ce-ctrl.w} no-lock.
+    find ce-ctrl {sys/look/ce-ctrlW.i} no-lock.
     inv-line.s-comm[1] = ce-ctrl.comm-mrkup.
   end.
 end.
@@ -1204,7 +1204,7 @@ PROCEDURE enable-cost PRIVATE :
 
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST itemfg
-        {sys/look/itemfgrl.w}
+        {sys/look/itemfgrlW.i}
           AND itemfg.i-no EQ inv-line.i-no:SCREEN-VALUE
         NO-LOCK NO-ERROR.
 
@@ -1379,7 +1379,7 @@ PROCEDURE update-total :
 
   for each xinv-line of xinv-head:
     find first itemfg
-        {sys/look/itemfgrl.w}
+        {sys/look/itemfgrlW.i}
           and itemfg.i-no eq xinv-line.i-no
         no-lock no-error.
 
@@ -1580,7 +1580,7 @@ PROCEDURE valid-i-no :
 
     IF v-msg EQ "" THEN DO:
       FIND FIRST itemfg
-          {sys/look/itemfgrl.w}
+          {sys/look/itemfgrlW.i}
             AND itemfg.i-no EQ inv-line.i-no:SCREEN-VALUE
           NO-LOCK NO-ERROR.
       IF NOT AVAIL itemfg THEN DO:

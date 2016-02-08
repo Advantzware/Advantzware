@@ -40,7 +40,7 @@ DEF VAR ll-style AS LOG NO-UNDO.
 run ce/mach-ink.p.
 
 find first style
-    {sys/ref/style.w}
+    {sys/ref/styleW.i}
       and style.style eq xeb.style
     no-lock no-error.
 
@@ -256,7 +256,7 @@ if avail w-ink then run ce/mach-pr.p.
 /* find ink & coater */
 else
 if xeb.i-pass gt 0 then do:
-  find first item {sys/look/itemiv.w} and
+  find first item {sys/look/itemivW.i} and
     item.i-no    = xeb.i-code2[1] no-lock no-error.
   if avail item and item.i-code = "E" then
   find first e-item OF item no-lock no-error.

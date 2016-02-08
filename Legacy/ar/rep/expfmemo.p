@@ -107,7 +107,7 @@ for each report where report.term-id eq v-term-id no-lock,
       end. /* avail oe-bolh */
 */      
 /*      find first stax
-            {sys/ref/stax1.w}
+            {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq ar-inv.tax-code
             no-lock no-error.
       if not avail stax then
@@ -175,7 +175,7 @@ for each report where report.term-id eq v-term-id no-lock,
              v-inv-num = IF v-inv-num = 0 THEN ar-cashl.inv-no ELSE v-inv-num.
 
       /*
-             find first itemfg {sys/look/itemfgrl.w}
+             find first itemfg {sys/look/itemfgrlW.i}
                         and itemfg.i-no eq ar-invl.i-no no-lock no-error.
              v-tmp-price = if ar-invl.pr-uom begins "L" AND
                               ar-invl.pr-uom NE "LB" 

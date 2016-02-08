@@ -1057,7 +1057,7 @@ DO:
       END.
     END.
 
-    FIND FIRST itemfg {sys/look/itemfgrl.w}
+    FIND FIRST itemfg {sys/look/itemfgrlW.i}
                AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                    NO-LOCK NO-ERROR.
     IF NOT AVAIL itemfg THEN DO:
@@ -1075,7 +1075,7 @@ DO:
          END.
          ELSE DO:
              RUN fg/d-crtitm.w (SELF:SCREEN-VALUE) .
-             FIND FIRST itemfg {sys/look/itemfgrl.w}
+             FIND FIRST itemfg {sys/look/itemfgrlW.i}
                        AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                        NO-LOCK NO-ERROR.
              IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name
@@ -1844,7 +1844,7 @@ PROCEDURE get-values :
       RUN display-item.
     END.
     FIND FIRST itemfg
-        {sys/look/itemfgrl.w}
+        {sys/look/itemfgrlW.i}
           AND itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
     fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
@@ -3395,7 +3395,7 @@ PROCEDURE valid-record :
         END.
         ELSE DO:
             RUN fg/d-crtitm.w (fg-rctd.i-no:SCREEN-VALUE).
-            FIND FIRST itemfg {sys/look/itemfgrl.w}
+            FIND FIRST itemfg {sys/look/itemfgrlW.i}
                        AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                        NO-LOCK NO-ERROR.
             IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name.
@@ -3659,7 +3659,7 @@ PROCEDURE validate-record :
         END.
         ELSE DO:
             RUN fg/d-crtitm.w (fg-rctd.i-no:SCREEN-VALUE).
-            FIND FIRST itemfg {sys/look/itemfgrl.w}
+            FIND FIRST itemfg {sys/look/itemfgrlW.i}
                        AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                        NO-LOCK NO-ERROR.
             IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name.

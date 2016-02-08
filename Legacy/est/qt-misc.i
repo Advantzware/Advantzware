@@ -2,7 +2,7 @@
    {MAT 1}     {LAB 1}
 */
       ld-cost = 0.
-      find first reftable   /* {cec/refest5a.w {1} {2}} {3}. */
+      find first reftable   /* {cec/refest5aW.i {1} {2}} {3}. */
             where reftable.reftable eq "EST-MISC"
 	       and reftable.company  eq bf-ef.company
 	       and reftable.loc      eq bf-ef.loc

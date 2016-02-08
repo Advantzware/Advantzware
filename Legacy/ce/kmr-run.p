@@ -63,7 +63,7 @@ if available mstd then do:
    end.
    {sys/inc/roundup.i est-op.op-speed }
    tmpstore = "no".
-   find first item {sys/look/item.w} and item.i-code = xef.board
+   find first item {sys/look/itemW.i} and item.i-code = xef.board
    no-lock no-error.
    if available item then do k = 1 to 10:
       if item.dept-name[k] = est-op.dept and item.speed%[k] ne 0 then do:

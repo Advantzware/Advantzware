@@ -60,7 +60,7 @@ DEF TEMP-TABLE tt-ei NO-UNDO
 
 {cec/rollfac.i}
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 find first est-op
     where est-op.company eq xest.company
@@ -96,7 +96,7 @@ if not(avail(item-bom)) then leave item-bom-loop.
 if (item-bom.line# mod 2) eq 0 then
 do with no-box no-labels frame med1 STREAM-IO:
    
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
                      item.i-no = item-bom.i-no no-lock no-error.
    if avail item then
    find first e-item of item no-lock no-error.
@@ -206,7 +206,7 @@ do with no-box no-labels frame flute STREAM-IO:
     b-msh = 0
     v-liner-qty = 0.
 
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
                      item.i-no = item-bom.i-no no-lock no-error.
    if avail item then
    find first e-item of item no-lock no-error.

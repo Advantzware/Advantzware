@@ -46,7 +46,7 @@ for each oe-retl
       use-index i-no no-lock no-error.
 
   find first itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
 	and itemfg.i-no eq oe-retl.i-no
       no-lock no-error.
 

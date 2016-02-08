@@ -359,7 +359,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     v-date-ship = TODAY.
 
   find first stax
-      {sys/ref/stax1.w}
+      {sys/ref/stax1W.i}
         and {sys/ref/taxgroup.i stax} eq ar-inv.tax-code
       no-lock no-error.
 

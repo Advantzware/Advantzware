@@ -309,7 +309,7 @@ PURPOSE:
           v-arq = v-arq + oe-rell.qty.
         END.
 
-        find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+        find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
         assign
          v-gsl-sum = 0

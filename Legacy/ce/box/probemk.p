@@ -41,7 +41,7 @@ DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
 
 {sys/inc/cerun.i F}
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 {cec/msfcalc.i}
 {sys/inc/ceround.i}

@@ -27,7 +27,7 @@ end.
 
 /*** item.q-ono from purchase orders ***/
 FOR EACH po-ordl NO-LOCK
-    {sys/look/item-pos.w}
+    {sys/look/item-posW.i}
     USE-INDEX item:
 
   RUN po/rm-q-ono.p (BUFFER po-ordl, OUTPUT v-hld-qty).

@@ -910,7 +910,7 @@ PROCEDURE calc-fields :
 
   {cec/combasis.i}
 
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
 
   IF lv-changed NE "" THEN
   DO WITH FRAME {&FRAME-NAME}:
@@ -1650,7 +1650,7 @@ IF CAN-FIND(FIRST xprobe
       {custom/getrfq.i}      
 
       FIND FIRST cust
-          {sys/look/cust.w}
+          {sys/look/custW.i}
             AND cust.cust-no EQ quotehd.cust-no
           NO-LOCK NO-ERROR.
       FIND FIRST shipto
@@ -2285,7 +2285,7 @@ PROCEDURE local-assign-record :
   probe.sell-price-wo = probe.sell-price -
                         (probe.sell-price * probe.market-price / 100).
 
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
 
   FIND FIRST est NO-LOCK
       WHERE est.company EQ probe.company
@@ -2397,7 +2397,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
@@ -3201,7 +3201,7 @@ PROCEDURE run-whatif :
         AND est-op.est-no  EQ est.est-no
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ est-op.m-code,
       FIRST reftable NO-LOCK
       WHERE reftable.reftable EQ "mach.obsolete"
@@ -3643,7 +3643,7 @@ FUNCTION display-gp RETURNS DECIMAL
   DEF VAR lv-gp AS DEC NO-UNDO.
 
 
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
 
   DO WITH FRAME {&FRAME-NAME}:
     lv-gp = IF ce-ctrl.sell-by EQ "S" THEN

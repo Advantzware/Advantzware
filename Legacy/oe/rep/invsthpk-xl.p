@@ -267,7 +267,7 @@ for each report where report.term-id eq v-term-id no-lock,
           v-printline = 0.
       
         find first stax
-            {sys/ref/stax1.w}
+            {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq inv-head.tax-gr
             no-lock no-error.
         if not avail stax then

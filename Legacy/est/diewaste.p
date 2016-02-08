@@ -10,7 +10,7 @@ DEF BUFFER mach-plain-jobs FOR reftable.
 
 IF AVAIL io-est-op THEN
 FIND FIRST mach NO-LOCK
-    {sys/look/mach.w}
+    {sys/look/machW.i}
       AND mach.m-code EQ io-est-op.m-code
     NO-ERROR.
 

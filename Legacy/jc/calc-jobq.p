@@ -51,7 +51,7 @@ FOR EACH est-op WHERE est-op.company EQ xest.company
                   AND est-op.est-no  EQ xest.est-no
                   AND est-op.LINE LT 501
                 NO-LOCK,
-                FIRST mach {sys/look/mach.w}
+                FIRST mach {sys/look/machW.i}
                   AND mach.m-code EQ est-op.m-code
                 NO-LOCK,
                 FIRST xef WHERE xef.company EQ est-op.company

@@ -10,7 +10,7 @@ IF "{1}" = "FGItem" THEN DO:
       RETURN NO-APPLY.
    END.
    find first itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
         and itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
       no-lock no-error.
 

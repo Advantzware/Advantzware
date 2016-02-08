@@ -1207,7 +1207,7 @@ PROCEDURE create-item :
     CREATE bf-oe-ordl.
     ASSIGN lv-item-recid = RECID(bf-oe-ordl)
     ll-new-record = YES.
-    FIND FIRST cust {sys/ref/cust.w} AND cust.cust-no = oe-ord.cust-no
+    FIND FIRST cust {sys/ref/custW.i} AND cust.cust-no = oe-ord.cust-no
     USE-INDEX cust NO-LOCK NO-ERROR.
     IF NOT AVAIL cust THEN DO:
         MESSAGE "Customer not found " oe-ord.cust-no " Order: " oe-ord.ord-no
@@ -2036,7 +2036,7 @@ PROCEDURE display-fgitem :
       RUN validate-fgitem NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN ERROR.
       FIND FIRST cust
-      {sys/ref/cust.w}
+      {sys/ref/custW.i}
       AND cust.cust-no EQ oe-ord.cust-no
       USE-INDEX cust
       NO-LOCK NO-ERROR.
@@ -3693,7 +3693,7 @@ PROCEDURE lib-ordltot :
 
 
   FIND FIRST itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
         AND itemfg.i-no EQ /* wfk input */ oe-ordl.i-no
       NO-LOCK NO-ERROR.
       

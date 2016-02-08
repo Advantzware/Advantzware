@@ -1108,7 +1108,7 @@ do transaction on error undo with width 255:
      end.
 
     find first cust
-        {sys/ref/cust.w}
+        {sys/ref/custW.i}
           and cust.cust-no eq ar-inv.cust-no
         use-index cust exclusive-lock .
     assign
@@ -1284,7 +1284,7 @@ DO: /* REPEAT: 9508 cah */
   {sa/sa-sls01.i}
   v-term-id = v-term.
 
-  FOR EACH cust {sys/ref/cust.w} no-lock,
+  FOR EACH cust {sys/ref/custW.i} no-lock,
       EACH ar-inv
       WHERE ar-inv.company  EQ cocode
         AND ar-inv.posted   EQ NO

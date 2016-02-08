@@ -62,7 +62,7 @@ for each xef
         and xeb.form-no eq xef.form-no
       no-lock no-error.
 
-  find first style {sys/ref/style.w} and
+  find first style {sys/ref/styleW.i} and
     style.style   = xeb.style no-lock no-error.
 
   IF xeb.pur-man THEN DO:      /* Purchased FG */
@@ -279,7 +279,7 @@ for each xef
         and eb.est-no  eq xef.est-no
         and eb.form-no eq xef.form-no:
 
-    find first item {sys/look/itemiv.w} and
+    find first item {sys/look/itemivW.i} and
          item.i-no    = eb.i-code2[1] no-lock no-error.
     if avail item then
        find first e-item of item no-lock no-error.
@@ -855,7 +855,7 @@ for each xef
         and xeb.form-no eq xef.form-no
       NO-LOCK:
 
-    find first style {sys/ref/style.w} and
+    find first style {sys/ref/styleW.i} and
       style.style   = xeb.style no-lock no-error.
 
     if xeb.adhesive ne "" OR
@@ -927,7 +927,7 @@ for each xef
         and xeb.form-no eq xef.form-no
       NO-LOCK:
 
-    find first style {sys/ref/style.w} and
+    find first style {sys/ref/styleW.i} and
       style.style   = xeb.style no-lock no-error.
 
     if xeb.adhesive ne "" then

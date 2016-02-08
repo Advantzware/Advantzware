@@ -18,7 +18,7 @@ DEF INPUT PARAM v-mat     LIKE itemfg.std-mat-cost.
 FIND FIRST jc-ctrl WHERE jc-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
 FIND FIRST itemfg
-    {sys/look/itemfgrl.w}
+    {sys/look/itemfgrlW.i}
       AND itemfg.i-no EQ v-i-no
     NO-LOCK NO-ERROR.
 

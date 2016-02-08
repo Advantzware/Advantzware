@@ -211,7 +211,7 @@ DEF VAR loop-limit AS INT NO-UNDO.
         v-ext-price = oe-ordl.price - round( (oe-ordl.price * oe-ordl.disc) / 100, 2).
       else
       if oe-ordl.pr-uom = "CS" then do:
-        find first itemfg {sys/look/itemfgrl.w}
+        find first itemfg {sys/look/itemfgrlW.i}
              and itemfg.i-no = oe-ordl.i-no no-lock no-error.
         if avail itemfg and itemfg.case-count ne 0 then
           v-ext-price = ((v-qty-lft / itemfg.case-count) * oe-ordl.price) -

@@ -46,7 +46,7 @@ DEF VAR ld-tons AS DEC INIT -1 NO-UNDO.
   find first ce-ctrl where ce-ctrl.company = cocode and
                            ce-ctrl.loc     = locode no-lock no-error.
   if xef.m-code ne "" then
-      find first mach {sys/ref/mach.w} and mach.m-code = xef.m-code  no-lock no-error.
+      find first mach {sys/ref/machW.i} and mach.m-code = xef.m-code  no-lock no-error.
   if avail mach then do:
      assign tr-l = mach.min-triml
             tr-w = mach.min-trimw
@@ -92,7 +92,7 @@ DEF VAR ld-tons AS DEC INIT -1 NO-UNDO.
      lwid = xef.lsh-len
      llen = xef.lsh-wid.
 
-  find first style {sys/ref/style.w} and style.style = xeb.style no-lock no-error.
+  find first style {sys/ref/styleW.i} and style.style = xeb.style no-lock no-error.
 
   find first item where item.company eq cocode
                     and item.i-no    eq xef.board
@@ -268,7 +268,7 @@ IF not xef.lsh-lock then do:
             if xef.leaf[i] ne "" and xef.leaf-bnum[i] ne 0 and
                ((xef.leaf-w[i] ne 0) and (xef.leaf-l[i] ne 0)) then
             do:
-               find first item {sys/look/item.w} and item.i-no eq xef.leaf[i]
+               find first item {sys/look/itemW.i} and item.i-no eq xef.leaf[i]
                no-lock no-error.
                if item.mat-type ne "W" then next.
                xef.die-in = xef.die-in +

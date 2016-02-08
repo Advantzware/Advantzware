@@ -472,7 +472,7 @@ DO:
   END.
 
 /*
-    find first itemfg {sys/look/itemfgrl.w}
+    find first itemfg {sys/look/itemfgrlW.i}
                and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                    no-lock no-error.
     IF NOT AVAIL itemfg THEN DO:
@@ -490,7 +490,7 @@ DO:
          END.
          ELSE DO:
              RUN fg/d-crtitm.w (SELF:SCREEN-VALUE) .
-             find first itemfg {sys/look/itemfgrl.w}
+             find first itemfg {sys/look/itemfgrlW.i}
                        and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                        no-lock no-error.
              IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name
@@ -515,7 +515,7 @@ DO:
 
 
   FIND itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
         AND itemfg.i-no EQ {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}
       NO-LOCK NO-ERROR.
   IF AVAIL itemfg THEN DO:
@@ -846,7 +846,7 @@ PROCEDURE get-def-values :
 
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST itemfg
-        {sys/look/itemfgrl.w}
+        {sys/look/itemfgrlW.i}
           AND itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
     fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
@@ -1219,7 +1219,7 @@ PROCEDURE valid-i-no :
   
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST itemfg
-                    {sys/look/itemfgrl.w}
+                    {sys/look/itemfgrlW.i}
                       AND itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name})
     THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
@@ -1333,7 +1333,7 @@ PROCEDURE validate-record :
         END.
         ELSE DO:
             RUN fg/d-crtitm.w (fg-rctd.i-no:SCREEN-VALUE).
-            FIND first itemfg {sys/look/itemfgrl.w}
+            FIND first itemfg {sys/look/itemfgrlW.i}
                        and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                        no-lock no-error.
             IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name.

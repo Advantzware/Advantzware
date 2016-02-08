@@ -1564,7 +1564,7 @@ find first sys-ctrl
 if not avail sys-ctrl                                     or
    not sys-ctrl.log-fld                                   or
    {&self-name}:screen-value in frame {&frame-name} ne "" then do:
-  {custom/validate/account.i &where = sys/look/faccnum.w}
+  {custom/validate/account.i &where = sys/look/faccnumW.i}
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
@@ -1587,7 +1587,7 @@ DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
     
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
-  {custom/validate/buyer.i &where = sys/look/buyer.w}
+  {custom/validate/buyer.i &where = sys\look/buyerW.i}
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
@@ -1610,7 +1610,7 @@ DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
     
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
-  {custom/validate/carrier.i &where = sys/look/carrier.w}
+  {custom/validate/carrier.i &where = sys\look/carrierW.i}
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
@@ -1681,7 +1681,7 @@ DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
     
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
-  {custom/validate/loc.i &where = sys/look/loc.w}
+  {custom/validate/loc.i &where = sys/look/locW.i}
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
@@ -1745,7 +1745,7 @@ DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
     
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
-  {custom/validate/state.i &where = sys/look/true.w}
+  {custom/validate/state.i &where = sys/look/trueW.i}
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
@@ -1768,7 +1768,7 @@ DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
     
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
-  {custom/validate/state.i &where = sys/look/true.w}
+  {custom/validate/state.i &where = sys/look/trueW.i}
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
@@ -1792,7 +1792,7 @@ DEF VAR v-avail AS LOG INIT YES NO-UNDO.
     
 IF aptax-log                                              OR
    {&self-name}:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
-  {custom/validate/stax.i &where = sys/look/stax.w}
+  {custom/validate/stax.i &where = sys/look/staxW.i}
   IF NOT v-avail THEN RETURN ERROR.
 END.
 
@@ -1815,7 +1815,7 @@ DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
     
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
-  {custom/validate/terms.i &where = sys/look/terms.w}
+  {custom/validate/terms.i &where = sys/look/termsW.i}
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
@@ -1866,7 +1866,7 @@ DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
     
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
-  {custom/validate/ventype.i &where = sys/look/true.w}
+  {custom/validate/ventype.i &where = sys/look/trueW.i}
   IF NOT v-avail THEN RETURN ERROR.
 end.
 

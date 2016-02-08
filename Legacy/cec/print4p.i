@@ -22,7 +22,7 @@
      {cec/msfcalc.i}
      {cec/rollfac.i}
   end.
-  find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+  find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
   assign
      ctrl[1]  = ce-ctrl.whse-mrkup / 100
      ctrl[2]  = ce-ctrl.hand-pct / 100
@@ -373,7 +373,7 @@
      find xeb where recid(xeb) = call_id no-lock no-error.
   end.
   brd-wu[1] = xeb.t-sqin - xeb.t-win.
-  find first item {sys/look/item.w} and
+  find first item {sys/look/itemW.i} and
                       item.i-no = xef.board no-lock no-error.
 
   if v-corr then brd-wu[1] = brd-wu[1] * .007.
@@ -462,7 +462,7 @@
        qty = qtty[k] * xeb.yld-qty.
 
     /*find first xop where xop.company = xest.company and xop.est-no = xest.est-no and xop.line >= 500 no-lock no-error.*/
-    find first item {sys/look/item.w} and item.i-no = xef.board no-lock no-error.
+    find first item {sys/look/itemW.i} and item.i-no = xef.board no-lock no-error.
     if available item then do:
        find first e-item of item no-lock no-error.
 

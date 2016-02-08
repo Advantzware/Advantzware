@@ -212,7 +212,7 @@ FOR EACH job-hdr NO-LOCK
                  AND job-mch.job-no2 EQ job.job-no2
                  AND job-mch.frm     EQ job-hdr.frm ,
                FIRST mach NO-LOCK
-               {sys/ref/mach.w}
+               {sys/ref/machW.i}
                  AND mach.m-code EQ job-mch.m-code
                 BY mach.d-seq
                 BY job-mch.frm

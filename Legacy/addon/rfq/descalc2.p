@@ -76,7 +76,7 @@ ELSE
 find rfqitem where recid(rfqitem) eq v-recid2 NO-LOCK NO-ERROR.
 
 find first item
-    {sys/look/itemgs.w}
+    {sys/look/itemgsW.i}
       and item.i-no eq rfqitem.adhesive
     no-lock no-error.
 

@@ -332,7 +332,7 @@ form " " to 80
           v-printline = 0.
           
         find first stax
-            {sys/ref/stax1.w}
+            {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq inv-head.tax-gr
             no-lock no-error.
 
@@ -717,7 +717,7 @@ form " " to 80
 
         end.
 
-        {edi/ed/asi/o810hook.i &reprint=v-reprint &force_asn=false}
+        {sys/inc/o810hookPL.i &reprint=v-reprint &force_asn=false}
 
         inv-head.t-inv-freight = old-frt.
       end. /* do transaction */

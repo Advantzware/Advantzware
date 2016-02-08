@@ -479,7 +479,7 @@ IF LAST-OF({1}.{2}) AND AVAIL inv-head THEN DO:
     IF inv-head.cust-no EQ inv-head.sold-no                          AND
        inv-head.cust-no NE xoe-ord.cust-no                           AND
        CAN-FIND(FIRST oe-prmtx
-                {oe/oe-prmtx.w}
+                {oe/oe-prmtxW.i}
                   AND oe-prmtx.cust-no            EQ inv-head.cust-no
                   AND oe-prmtx.i-no               BEGINS b-invl.i-no
                   AND SUBSTR(oe-prmtx.i-no,1,100) EQ b-invl.i-no)    THEN DO:

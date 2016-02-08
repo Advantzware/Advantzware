@@ -324,7 +324,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         USE-INDEX line-idx:
 
       FIND FIRST mach
-          {sys/look/mach.w}
+          {sys/look/machW.i}
             AND mach.m-code EQ job-mch.m-code
           NO-LOCK NO-ERROR.
       CREATE w-jm.

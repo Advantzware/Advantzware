@@ -216,7 +216,7 @@ format wkrecap.procat
     with frame f-recap-t down no-box stream-io width 180.
 
 
-  find first ce-ctrl {sys/look/ce-ctrl.w} no-lock.
+  find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock.
 
   find first period
       where period.company eq cocode

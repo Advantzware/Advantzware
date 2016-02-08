@@ -4,7 +4,7 @@
 do i = 1 to 8 with frame ac4  down no-labels no-box:
   if xef.spec-no[i] ne "" then do:
     find first item
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           and item.i-no eq xef.spec-no[i]
         no-lock no-error.
     if not avail item then next.

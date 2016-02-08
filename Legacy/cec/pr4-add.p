@@ -47,7 +47,7 @@ DEF TEMP-TABLE tt-ei NO-UNDO
 
 qm = qty / 1000.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 v-vend-no = ENTRY(1,v-vend-list).
 

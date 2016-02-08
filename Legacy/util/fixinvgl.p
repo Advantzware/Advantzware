@@ -60,7 +60,7 @@ FOR EACH ar-ledger
             NO-LOCK,
 
             FIRST itemfg
-            {sys/look/itemfgrl.w}
+            {sys/look/itemfgrlW.i}
               AND itemfg.i-no eq ar-invl.i-no
             NO-LOCK,
 
@@ -164,7 +164,7 @@ FOR EACH ar-ledger
         if ar-inv.tax-amt ne 0 then do:
           if ar-inv.tax-code ne "" then do:
             find first stax
-                {sys/ref/stax1.w}
+                {sys/ref/stax1W.i}
                   and {sys/ref/taxgroup.i stax} eq ar-inv.tax-code
                 no-lock no-error.
             if not avail stax then

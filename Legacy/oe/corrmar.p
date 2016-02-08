@@ -24,7 +24,7 @@ def NEW shared var qty as INT NO-UNDO .
 
 DEF VAR v-pct AS DEC NO-UNDO.
 
-FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
 
 ASSIGN
    lv-sell-by = ce-ctrl.sell-by

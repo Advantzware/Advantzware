@@ -7,7 +7,7 @@ DEF VAR v-pct   LIKE eb.comm         INIT 0     NO-UNDO.
 
 {sys/inc/cecomm.i}
 
-FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
 v-pct = ce-ctrl.prof-mrkup.
 

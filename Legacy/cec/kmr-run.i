@@ -90,7 +90,7 @@ if avail mstd then do:
     /* Speed Reduction for item, by Dept. */
     tmpstore = "NO".
     find first item
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           and item.i-no eq xef.board
         no-lock no-error.
     if avail item then do k = 1 to 10:

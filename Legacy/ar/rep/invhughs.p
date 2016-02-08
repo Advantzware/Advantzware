@@ -154,7 +154,7 @@ DEF VAR v-show-parts AS LOG NO-UNDO.
               v-printline = 0
               v-del-no = 0.
 
-       find first stax {sys/ref/stax1.w}
+       find first stax {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq ar-inv.tax-code
             no-lock no-error.
         if not avail stax then

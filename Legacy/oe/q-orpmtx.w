@@ -299,7 +299,7 @@ find itemfg where itemfg.company = oe-ord.company and
 message "find 2" oe-ord.cust-no "," cust.type "," 
          v-i-item "," itemfg.procat view-as alert-box.
                                   
-find first oe-prmtx  {oe/oe-prmtx.w}
+find first oe-prmtx  {oe/oe-prmtxW.i}
         and oe-prmtx.custype eq cust.type
         and oe-prmtx.cust-no eq oe-ord.cust-no
         and oe-prmtx.procat  eq itemfg.procat
@@ -308,7 +308,7 @@ find first oe-prmtx  {oe/oe-prmtx.w}
 
   if not avail oe-prmtx then
   find first oe-prmtx
-      {oe/oe-prmtx.w}
+      {oe/oe-prmtxW.i}
         and oe-prmtx.custype eq cust.type
         and oe-prmtx.cust-no eq ""
         and oe-prmtx.procat  eq itemfg.procat
@@ -317,7 +317,7 @@ find first oe-prmtx  {oe/oe-prmtx.w}
 
   if not avail oe-prmtx then
   find first oe-prmtx
-      {oe/oe-prmtx.w}
+      {oe/oe-prmtxW.i}
         and oe-prmtx.custype eq cust.type
         and oe-prmtx.cust-no eq ""
         and oe-prmtx.procat  eq itemfg.procat
@@ -326,7 +326,7 @@ find first oe-prmtx  {oe/oe-prmtx.w}
 
   if not avail oe-prmtx then
   find first oe-prmtx
-      {oe/oe-prmtx.w}
+      {oe/oe-prmtxW.i}
         and oe-prmtx.custype eq ""
         and oe-prmtx.cust-no eq ""
         and oe-prmtx.procat  eq itemfg.procat
@@ -334,7 +334,7 @@ find first oe-prmtx  {oe/oe-prmtx.w}
       no-lock no-error.
 
   if not avail oe-prmtx then
-     find first oe-prmtx {oe/oe-prmtx.w}
+     find first oe-prmtx {oe/oe-prmtxW.i}
         and oe-prmtx.custype eq ""
         and oe-prmtx.cust-no eq ""
         and oe-prmtx.procat  eq ""

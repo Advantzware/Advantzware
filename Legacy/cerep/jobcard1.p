@@ -496,7 +496,7 @@ ASSIGN
             no-lock,
 
             first mach
-            {sys/ref/mach.w}
+            {sys/ref/machW.i}
               and mach.m-code eq job-mch.m-code
             no-lock
 
@@ -673,7 +673,7 @@ ASSIGN
                 and job-mat.frm     eq eb.form-no
               no-lock,
               first item
-              {sys/look/itemiv.w}
+              {sys/look/itemivW.i}
                 and item.i-no eq job-mat.i-no
                 AND lookup(item.mat-type,"I,V") > 0 
               no-lock:

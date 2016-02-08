@@ -24,7 +24,7 @@ ASSIGN
   RELEASE oe-prmtx.
 
   FOR EACH oe-prmtx
-      {oe/oe-prmtx.w}
+      {oe/oe-prmtxW.i}
         AND oe-prmtx.custype             EQ cust.type
         AND oe-prmtx.cust-no             EQ cust.cust-no
         AND oe-prmtx.procat              EQ itemfg.procat
@@ -38,7 +38,7 @@ ASSIGN
   
     IF NOT AVAIL oe-prmtx THEN
     FOR EACH oe-prmtx
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype             EQ cust.type
           AND oe-prmtx.cust-no             EQ ""
           AND oe-prmtx.procat              EQ itemfg.procat
@@ -51,7 +51,7 @@ ASSIGN
 
     IF NOT AVAIL oe-prmtx THEN
     FOR EACH oe-prmtx
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype             EQ cust.type
           AND oe-prmtx.cust-no             EQ ""
           AND oe-prmtx.procat              EQ itemfg.procat
@@ -63,7 +63,7 @@ ASSIGN
 
     IF NOT AVAIL oe-prmtx THEN
     FOR EACH oe-prmtx
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype             EQ ""
           AND oe-prmtx.cust-no             EQ ""
           AND oe-prmtx.procat              EQ itemfg.procat
@@ -76,7 +76,7 @@ ASSIGN
 
     IF NOT AVAIL oe-prmtx THEN
     FOR EACH oe-prmtx
-        {oe/oe-prmtx.w}
+        {oe/oe-prmtxW.i}
           AND oe-prmtx.custype             EQ ""
           AND oe-prmtx.cust-no             EQ ""
           AND oe-prmtx.procat              EQ ""

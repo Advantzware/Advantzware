@@ -35,7 +35,7 @@ RUN ce/mach-chk.p (v-def-rout).
 j = 1.
 for each m-lst by m-lst.f-no by m-lst.seq by m-lst.b-no by m-lst.pass-no:
   find first mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         and mach.m-code eq m-lst.m-code
       no-lock no-error.
       
@@ -222,7 +222,7 @@ for each m-lst by m-lst.f-no by m-lst.seq by m-lst.b-no by m-lst.pass-no:
    est-op.op-rate[2] = (mach.lab-rate[mach.lab-drate] * est-op.op-crew[2]) + 
                        mach.run-varoh + mach.run-fixoh.
    
-  {sys/inc/machpos.w est-op share}
+  {sys/inc/machposW.i est-op share}
          
   if not avail reftable then do:
     create reftable.
@@ -283,7 +283,7 @@ for each est-op
     by est-op.op-pass
     by est-op.rec_key:
       
-  {sys/inc/machpos.w est-op share}  
+  {sys/inc/machposW.i est-op share}  
   assign
    j           = j + 1
    est-op.line = j.

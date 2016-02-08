@@ -94,7 +94,7 @@ for each xef
       with frame ae down no-labels no-box  stream-io:
 
     find first mach
-        {sys/look/mach.w}
+        {sys/look/machW.i}
           and mach.m-code eq est-op.m-code
         no-lock no-error.
     if not avail mach then next.
@@ -380,7 +380,7 @@ for each xef
   if xef.form-no eq 1 then do:
     find first xeb of xef no-lock.
     find first item
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           and item.i-no eq xeb.tr-no
         no-lock no-error.
     if avail item then
@@ -487,7 +487,7 @@ for each xef
     zzz = xef.weight.
     if xef.medium ne "" then do:
       find first item
-          {sys/look/item.w}
+          {sys/look/itemW.i}
             and item.i-no eq xef.medium
           no-lock no-error.
       if avail item then
@@ -495,7 +495,7 @@ for each xef
     end.
     if xef.flute ne "" then do:
       find first item
-          {sys/look/item.w}
+          {sys/look/itemW.i}
             and item.i-no eq xef.flute
           no-lock no-error.
       if avail item then
@@ -503,7 +503,7 @@ for each xef
     end.
     /*if xef.lam-code ne "" then do:
       find first item
-          {sys/look/item.w}
+          {sys/look/itemW.i}
             and item.i-no eq xef.lam-code
           no-lock no-error.
       if avail item then

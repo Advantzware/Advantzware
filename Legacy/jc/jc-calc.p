@@ -170,7 +170,7 @@ DO TRANSACTION:
 {sys/inc/cecomm.i}  
 END.
 
-FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
 RUN oe/oe-sysct.p.
 
@@ -363,7 +363,7 @@ DO:
         END.
 
         FIND FIRST itemfg
-              {sys/look/itemfgrl.w}
+              {sys/look/itemfgrlW.i}
                 and itemfg.i-no   EQ xeb.stock-no
               NO-LOCK NO-ERROR.
           if not avail itemfg THEN do on endkey undo, NEXT :
@@ -389,7 +389,7 @@ DO:
           
         IF xeb.stock-no NE "" THEN
         FIND FIRST itemfg
-              {sys/look/itemfgrl.w}
+              {sys/look/itemfgrlW.i}
                 and itemfg.i-no   EQ xeb.stock-no
               NO-LOCK NO-ERROR.
           if not avail itemfg THEN do on endkey undo, NEXT :
@@ -1375,7 +1375,7 @@ DO:
           NO-ERROR.
 
       FIND FIRST mach NO-LOCK 
-          {sys/ref/mach.w}
+          {sys/ref/machW.i}
             AND mach.m-code EQ op.m-code.
 
       v-on-f = 1.

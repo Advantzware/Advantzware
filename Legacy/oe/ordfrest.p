@@ -234,7 +234,7 @@ PROCEDURE new-order:
       IF FIRST-OF(eb.cust-no) THEN DO:
         /** finding the customer is done this way because the index is not
         setup efficently to find the customer regardles of active stat **/
-        FIND FIRST cust {sys/ref/cust.w}
+        FIND FIRST cust {sys/ref/custW.i}
                         AND cust.cust-no EQ eb.cust-no
              USE-INDEX cust NO-LOCK NO-ERROR.
         IF NOT avail cust OR cust.active EQ "I" THEN DO:
@@ -1301,7 +1301,7 @@ PROCEDURE recalc-estimate:
         NO-LOCK,
         FIRST ef OF eb NO-LOCK,
         FIRST cust NO-LOCK
-        {sys/ref/cust.w}
+        {sys/ref/custW.i}
           AND cust.cust-no EQ eb.cust-no
         USE-INDEX cust    
         BREAK BY eb.est-no BY eb.cust-no BY eb.form-no BY eb.blank-no

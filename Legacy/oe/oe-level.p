@@ -26,7 +26,7 @@ for each tmp-oe-ordl where tmp-oe-ordl.ord-no = xoe-ord.ord-no and
 			   tmp-oe-ordl.company = xoe-ord.company no-lock:
        assign v-i-qty = v-i-qty + tmp-oe-ordl.qty.
 end. 
-find first cust {sys/ref/cust.w} and cust.cust-no = xoe-ord.cust-no
+find first cust {sys/ref/custW.i} and cust.cust-no = xoe-ord.cust-no
 	   use-index cust no-lock no-error.
 if avail cust then v-custype = cust.type. else next.
 

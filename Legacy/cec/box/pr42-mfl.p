@@ -56,7 +56,7 @@ DEF VAR ld-rm-rate AS DEC NO-UNDO.
 
 {cec/rollfac.i}
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 assign
  mqty    = t-shtfrm[xef.form-no]
@@ -85,7 +85,7 @@ do with no-box no-labels frame med1  stream-io :
     mfl$    = 0
     b-msh   = 0.
 
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
                    item.i-no = item-bom.i-no no-lock no-error.
 
    if not avail item then leave.
@@ -201,7 +201,7 @@ do with no-box no-labels frame flute  stream-io :
     mfl$    = 0
     b-msh   = 0.
 
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
                      item.i-no = item-bom.i-no no-lock no-error.
 
    if not avail item then leave.

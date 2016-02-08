@@ -36,7 +36,7 @@ def stream s-jded.
 {sys/inc/jdedwdir.i}
 if not sys-ctrl.log-fld then leave.
          
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 v-xls-header = "Corp Code,Company Name,System,Invoice No,Invoice Date,Discount,Billing Terms,Line Amt Gross,Line Amt Net,Freight,Tax,Set up,Sold to Cust No," +
                "Start Date,Sold to Cust Name 1,Sold to Cust Name 2,Sold to Address Line 1,Sold to Address Line 2,Sold to Address Line 3,Sold to City,Sold to State," + 

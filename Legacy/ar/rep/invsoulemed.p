@@ -182,7 +182,7 @@ FOR each report
             v-addr2 = ar-inv.addr[2].
 
      FIND FIRST stax
-       {sys/ref/stax1.w}
+       {sys/ref/stax1W.i}
        AND {sys/ref/taxgroup.i stax} eq ar-inv.tax-code no-lock no-error.
      IF NOT AVAIL stax 
        THEN

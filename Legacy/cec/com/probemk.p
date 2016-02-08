@@ -38,7 +38,7 @@ DEF VAR ll-tandem AS LOG NO-UNDO.
 DEF VAR ll-use-margin AS LOG NO-UNDO.
 DEF VAR cerunc-dec AS DEC NO-UNDO.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 {cec/msfcalc.i}
 {cec/combasis.i}

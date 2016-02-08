@@ -102,7 +102,7 @@ FOR EACH inv-head OF {&TABLENAME}
       AND cust.cust-no EQ inv-head.cust-no
     NO-LOCK,
     FIRST itemfg
-    {sys/look/itemfgrl.w}
+    {sys/look/itemfgrlW.i}
       AND itemfg.i-no eq {&TABLENAME}.i-no
     NO-LOCK:
 

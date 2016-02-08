@@ -44,7 +44,7 @@ do transaction:
   {ce/msfcalc.i}
 end.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 lv-save-vend = v-vend-no.
 
@@ -55,7 +55,7 @@ for each xef where xef.company = xest.company
 
    tmp-waste = 0. /* zero array */
    {sys/inc/roundup.i r-spo[xef.form-no]}
-   find first item {sys/look/item.w} and
+   find first item {sys/look/itemW.i} and
                      item.i-no = xef.board no-lock no-error.
    if avail item then
    find first e-item of item no-lock no-error.

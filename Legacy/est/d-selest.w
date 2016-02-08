@@ -359,7 +359,7 @@ DO:
 
     FIND b-eb1 WHERE ROWID(b-eb1) EQ ROWID(eb) NO-LOCK.
 
-    FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+    FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
     lv-msg = IF ip-add-eb THEN
                "This will copy to a new item on this estimate/order, "

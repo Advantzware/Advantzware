@@ -2133,7 +2133,7 @@ PROCEDURE new-carrier :
 
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST carrier
-        {sys/look/carrier.w}
+        {sys\look/carrierW.i}
           AND carrier.carrier EQ eb.carrier:SCREEN-VALUE
         NO-LOCK NO-ERROR.
     IF AVAIL carrier THEN eb.carr-dscr:SCREEN-VALUE = carrier.dscr.
@@ -2176,7 +2176,7 @@ PROCEDURE new-stack-code :
   DO WITH FRAME {&FRAME-NAME}:
     eb.stack-code:SCREEN-VALUE = CAPS(eb.stack-code:SCREEN-VALUE).
     FIND FIRST reftable 
-        {cec/stack.w}
+        {cec/stackW.i}
          AND reftable.CODE EQ eb.stack-code:SCREEN-VALUE
         NO-LOCK NO-ERROR.
     IF AVAIL reftable AND INT(eb.stacks:SCREEN-VALUE) NE reftable.val[1] THEN DO:
@@ -2874,7 +2874,7 @@ PROCEDURE valid-carrier :
     eb.carrier:SCREEN-VALUE = CAPS(eb.carrier:SCREEN-VALUE).
 
     IF NOT CAN-FIND(FIRST carrier
-                    {sys/look/carrier.w}
+                    {sys\look/carrierW.i}
                       AND carrier.carrier EQ eb.carrier:SCREEN-VALUE)
     THEN DO:
       MESSAGE "Invalid " + TRIM(eb.carrier:LABEL) + ", try help..."
@@ -3011,7 +3011,7 @@ PROCEDURE valid-stack-code :
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT ll-foam OR eb.stack-code:SCREEN-VALUE NE "" THEN DO:
       IF NOT CAN-FIND(FIRST reftable 
-                      {cec/stack.w}
+                      {cec/stackW.i}
                         AND reftable.CODE EQ eb.stack-code:SCREEN-VALUE)
       THEN DO:
         MESSAGE "Invalid Stacking Code..."  VIEW-AS ALERT-BOX ERROR.

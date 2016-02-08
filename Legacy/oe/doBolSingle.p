@@ -70,16 +70,9 @@ IF AVAIL sys-ctrl THEN
   ASSIGN
    v-royal = CAN-DO(v-hold-list,sys-ctrl.char-fld)
    choice  = sys-ctrl.char-fld EQ "P&P".
-{util\tmsg.i ""do_single"" STRING(out-recid) }
-FIND oe-rell WHERE RECID(oe-rell) EQ out-recid NO-ERROR.
-IF AVAIL oe-rell THEN DO:
-  {util\tmsg.i ""dobolsingle_avail_oe-rell"" oe-rell.loc oe-rell.loc-bin }
-    FOR EACH oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no,
-      EACH oe-rell WHERE oe-rell.r-no = oe-relh.r-no NO-LOCK:
-      {util\tmsg.i """" STRING(oe-relh.r-no) oe-rell.loc oe-rell.loc-bin }
-    END.
 
-END.
+FIND oe-rell WHERE RECID(oe-rell) EQ out-recid NO-ERROR.
+
 IF AVAIL oe-rell THEN headblok:
 FOR EACH oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no,
     FIRST cust NO-LOCK
@@ -93,7 +86,7 @@ FOR EACH oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no,
 /*   END.                                                                 */
   choice = TRUE.
   ll-invoice = oe-rell.s-code EQ "I".
-{util\tmsg.i ""in_each_oe-relh"" oe-rell.r-no}
+
   DO TRANSACTION:
     oe-relh.printed = YES.
     oe-relh.spare-char-3 = USERID("NOSWEAT").

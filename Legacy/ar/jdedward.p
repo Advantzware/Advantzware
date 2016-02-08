@@ -28,7 +28,7 @@ def stream s-jded.
 {sys/inc/jdedwdir.i}
 if not sys-ctrl.log-fld then leave.
          
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 for first ar-invl where recid(ar-invl) eq v-recid no-lock,
     first ar-inv where ar-inv.x-no eq ar-invl.x-no no-lock:

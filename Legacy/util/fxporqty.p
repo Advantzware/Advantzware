@@ -36,7 +36,7 @@ FOR EACH po-ordl
           TRIM(STRING(po-ordl.po-no,">>>>>>>>>>")) FORMAT "x(50)" WITH 1 DOWN.
 
   for each reftable
-      {ap/ap-reftb.w po-ordl.po-no}
+      {ap/ap-reftbW.i po-ordl.po-no}
       no-lock,
     
       each ap-inv

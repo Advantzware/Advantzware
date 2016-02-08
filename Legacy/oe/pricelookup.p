@@ -81,7 +81,7 @@ if save_id ne ? then
   find tt-oe-ordl where recid(tt-oe-ordl) = save_id no-error.
 
 find first cust
-    {sys/ref/cust.w}
+    {sys/ref/custW.i}
       and cust.cust-no eq xtt-oe-ord.cust-no
    use-index cust no-lock.
 

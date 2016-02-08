@@ -576,7 +576,7 @@ ASSIGN
 RUN get-params (OUTPUT reftable.dscr).
 
 FOR EACH itemfg
-    {sys/look/itemfg.w}
+    {sys/look/itemfgW.i}
       AND itemfg.i-no GE v-i-no[1]
       AND itemfg.i-no LE v-i-no[2]   
 

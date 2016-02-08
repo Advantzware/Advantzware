@@ -26,7 +26,7 @@ DEFINE VARIABLE lMatrixExists AS LOGICAL     NO-UNDO.
 
     lv-qty = DEC({1}.qty:SCREEN-VALUE IN BROWSE {&browse-name}).
     FIND FIRST cust
-    {sys/ref/cust.w}
+    {sys/ref/custW.i}
       AND cust.cust-no eq quotehd.cust-no
     USE-INDEX cust NO-LOCK NO-ERROR.
 

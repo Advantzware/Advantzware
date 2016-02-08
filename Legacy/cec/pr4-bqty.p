@@ -23,7 +23,7 @@ DEF TEMP-TABLE w-qty FIELD w-qty AS DEC.
 op-fg = ip-fg.
 
 FIND FIRST item NO-LOCK 
-    {sys/look/item.w} 
+    {sys/look/itemW.i} 
       AND item.i-no EQ xef.board 
     NO-ERROR.
     

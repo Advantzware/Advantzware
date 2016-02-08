@@ -1476,7 +1476,7 @@ display "" with frame r-top.
                    :
                   ll-neg-inv-found = NO.
                   for each reftable
-                      {ap/ap-reftb.w po-ordl.po-no}
+                      {ap/ap-reftbW.i po-ordl.po-no}
                       no-lock,
                      each ap-inv WHERE
                           ap-inv.company eq cocode AND
@@ -1531,7 +1531,7 @@ display "" with frame r-top.
                 :
                ll-neg-inv-found = NO.
                for each reftable
-                   {ap/ap-reftb.w po-ordl.po-no}
+                   {ap/ap-reftbW.i po-ordl.po-no}
                    no-lock,
                   each ap-inv WHERE
                        ap-inv.company eq cocode AND
@@ -1585,7 +1585,7 @@ display "" with frame r-top.
          DO:
             ll-neg-inv-found = NO.
             for each reftable
-                {ap/ap-reftb.w po-ordl.po-no}
+                {ap/ap-reftbW.i po-ordl.po-no}
                 no-lock,
                each ap-inv WHERE
                     ap-inv.company eq cocode AND

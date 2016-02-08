@@ -246,7 +246,7 @@ assign
           v-printline = 0.
     
       find first stax
-            {sys/ref/stax1.w}
+            {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq ar-inv.tax-code
             no-lock no-error.
       if not avail stax then
@@ -510,7 +510,7 @@ assign
             assign
              v-price-head = ar-invl.pr-uom
              /*v-price      = ROUND(ar-invl.t-price / (1 - (ar-invl.disc / 100)),2) round problem*/.
-             find first itemfg {sys/look/itemfgrl.w}
+             find first itemfg {sys/look/itemfgrlW.i}
                         and itemfg.i-no eq ar-invl.i-no no-lock no-error.
             if ar-invl.pr-uom begins "L" then
                v-price = ar-invl.unit-pr * if ar-invl.inv-qty lt 0 then -1 else 1.

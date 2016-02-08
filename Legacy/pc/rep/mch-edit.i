@@ -7,7 +7,7 @@ FOR EACH tt-report NO-LOCK,
     FIRST pc-prdd WHERE RECID(pc-prdd) EQ tt-report.rec-id NO-LOCK,
 
     first mach
-    {sys/ref/mach.w}
+    {sys/ref/machW.i}
       and mach.m-code eq pc-prdd.m-code
     no-lock,
 

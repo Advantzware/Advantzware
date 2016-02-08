@@ -50,7 +50,7 @@ find first dept where dept.code eq "RC" no-lock no-error.
 if avail dept then v-rc-seq = dept.fc.
 
 find first style
-    {sys/ref/style.w}
+    {sys/ref/styleW.i}
       and style.style eq xeb.style
     no-lock no-error.
 
@@ -63,7 +63,7 @@ find first style
       no-lock,
       
       first item
-      {sys/look/itemlw.w}
+      {sys/look/itemlwW.i}
         and item.i-no eq est-flm.i-no
       no-lock:
       
@@ -90,7 +90,7 @@ find first style
     
     if avail bf-eb then
     find first style
-        {sys/ref/style.w}
+        {sys/ref/styleW.i}
           and style.style eq bf-eb.style
         no-lock no-error.
 
@@ -158,7 +158,7 @@ do on error undo:
    do i = 1 to 4:
       if xef.leaf[i] ne "" then
       do:
-         find first item {sys/look/itemlw.w} and
+         find first item {sys/look/itemlwW.i} and
                     item.i-no = xef.leaf[i] no-lock no-error.
          v-dept = "".
          if avail item THEN DO:
@@ -215,7 +215,7 @@ do on error undo:
    if (xeb.adhesive ne "" and xeb.adhesive ne "NO JOINT") or
       xeb.gluelap  ne 0  then
    do:
-      find first style {sys/ref/style.w} and
+      find first style {sys/ref/styleW.i} and
         style.style   = xeb.style no-lock no-error.
       if avail mach then release mach.
       do i = 1 to 7:

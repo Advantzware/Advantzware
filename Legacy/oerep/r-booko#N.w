@@ -1749,7 +1749,7 @@ for each oe-ord
     no-lock,
 
     first cust
-    {sys/ref/cust.w}
+    {sys/ref/custW.i}
       and cust.cust-no eq oe-ord.cust-no
     no-lock
 
@@ -1772,7 +1772,7 @@ for each oe-ord
           v-ext-price = 0.
         if v-qty-lft lt 0 then v-qty-lft = 0.
 
-        find first itemfg {sys/look/itemfgrl.w} 
+        find first itemfg {sys/look/itemfgrlW.i} 
                    and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
 
         RUN  oe/GetPriceTotal.p(
@@ -1788,7 +1788,7 @@ for each oe-ord
             oe-ordl.price - round((oe-ordl.price * oe-ordl.disc) / 100, 2).
         else if oe-ordl.pr-uom eq "CS" then 
         do:
-            find first itemfg {sys/look/itemfgrl.w} 
+            find first itemfg {sys/look/itemfgrlW.i} 
                    and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
 
             if avail itemfg and itemfg.case-count ne 0 then
@@ -2244,7 +2244,7 @@ for each oe-ord
     no-lock,
 
     first cust
-    {sys/ref/cust.w}
+    {sys/ref/custW.i}
       and cust.cust-no eq oe-ord.cust-no
     no-lock
 
@@ -2284,7 +2284,7 @@ for each oe-ord
             oe-ordl.price - round((oe-ordl.price * oe-ordl.disc) / 100, 2).
         else if oe-ordl.pr-uom eq "CS" then 
         do:
-            find first itemfg {sys/look/itemfgrl.w} 
+            find first itemfg {sys/look/itemfgrlW.i} 
                    and itemfg.i-no eq oe-ordl.i-no
                 no-lock no-error.
 

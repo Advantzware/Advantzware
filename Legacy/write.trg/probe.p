@@ -84,7 +84,7 @@ IF AVAIL est THEN DO:
   /*IF est.est-type LE 4                      AND
      {&TABLENAME}.gross-profit LT {&TABLENAME}.net-profit THEN DO:
 
-    FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+    FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
     FIND FIRST xeb
         WHERE xeb.company EQ {&TABLENAME}.company

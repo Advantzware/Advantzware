@@ -432,7 +432,7 @@ for each job-hdr NO-LOCK
                 and job-mat.frm     eq int(tt-reftable.val[12])
                 no-lock,
               first item
-              {sys/look/itemiv.w}
+              {sys/look/itemivW.i}
                 and item.i-no eq job-mat.i-no no-lock:
             for each eb WHERE eb.company     EQ job-hdr.company
                 AND eb.est-no      eq bf-jobhdr.est-no
@@ -518,7 +518,7 @@ for each job-hdr NO-LOCK
               and job-mch.job-no  eq job.job-no
               and job-mch.job-no2 eq job.job-no2
               AND job-mch.frm = int(tt-reftable.val[12]) no-lock,
-            first mach {sys/ref/mach.w}
+            first mach {sys/ref/machW.i}
                   and mach.m-code eq job-mch.m-code NO-LOCK
             by mach.d-seq
             by job-mch.frm
@@ -697,7 +697,7 @@ for each job-hdr NO-LOCK
                 and job-mat.frm     eq eb.form-no
               no-lock,
               first item
-              {sys/look/itemiv.w}
+              {sys/look/itemivW.i}
                 and item.i-no eq job-mat.i-no
               no-lock:
 

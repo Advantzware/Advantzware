@@ -31,7 +31,7 @@ def TEMP-TABLE w-cas NO-UNDO
 DEF SHARED VAR gEstSummaryOnly AS LOG NO-UNDO.
 {ce/msfcalc.i}
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 /******************************** C A S E S ****************************/
 for each xef where xef.company = xest.company
@@ -42,7 +42,7 @@ for each xef where xef.company = xest.company
                 AND xeb.est-no = xest.est-no and xeb.form-no = xef.form-no:
    /* case */
    if xeb.cas-no ne "" then do with frame ac2 no-box no-labels:
-      find first item {sys/look/item.w} and item.i-no = xeb.cas-no
+      find first item {sys/look/itemW.i} and item.i-no = xeb.cas-no
       no-lock no-error.
       find first e-item of item no-lock no-error.
       find first cas
@@ -101,7 +101,7 @@ for each xef where xef.company = xest.company
    end.
 
    if xeb.cas-no ne "" and xeb.layer-pad ne "" and xeb.lp-up ne 0 then do:
-      find first item {sys/look/item.w} and item.i-no = xeb.layer-pad
+      find first item {sys/look/itemW.i} and item.i-no = xeb.layer-pad
       no-lock no-error.
       find first e-item of item no-lock no-error.
       find first cas
@@ -149,7 +149,7 @@ for each xef where xef.company = xest.company
    end.
 
    if xeb.cas-no ne "" and xeb.divider ne "" and xeb.lp-up ne 0 then do:
-      find first item {sys/look/item.w} and item.i-no = xeb.divider
+      find first item {sys/look/itemW.i} and item.i-no = xeb.divider
       no-lock no-error.
       find first e-item of item no-lock no-error.
       find first cas
@@ -209,7 +209,7 @@ for each cas where cas.typ eq 1
          and xeb.blank-no eq cas.bnum
        no-lock no-error.
    find first item
-       {sys/look/item.w}
+       {sys/look/itemW.i}
          and item.i-no eq xeb.cas-no
        no-lock no-error.
 
@@ -274,7 +274,7 @@ for each cas where cas.typ eq 1,
     first w-cas where w-cas.rec-id eq recid(cas),
 
     first item
-    {sys/look/item.w}
+    {sys/look/itemW.i}
       and item.i-no eq cas.ino
     no-lock,
 
@@ -323,7 +323,7 @@ for each cas where cas.typ eq 5
          and xeb.blank-no eq cas.bnum
        no-lock no-error.
    find first item
-       {sys/look/item.w}
+       {sys/look/itemW.i}
          and item.i-no eq xeb.layer-pad
        no-lock no-error.
 
@@ -383,7 +383,7 @@ for each cas where cas.typ eq 5,
     first w-cas where w-cas.rec-id eq recid(cas),
 
     first item
-    {sys/look/item.w}
+    {sys/look/itemW.i}
       and item.i-no eq cas.ino
     no-lock,
 
@@ -429,7 +429,7 @@ for each cas where cas.typ eq 6
          and xeb.blank-no eq cas.bnum
        no-lock no-error.
    find first item
-       {sys/look/item.w}
+       {sys/look/itemW.i}
          and item.i-no eq xeb.divider
        no-lock no-error.
 
@@ -488,7 +488,7 @@ for each cas where cas.typ eq 6,
     first w-cas where w-cas.rec-id eq recid(cas),
 
     first item
-    {sys/look/item.w}
+    {sys/look/itemW.i}
       and item.i-no eq cas.ino
     no-lock,
 
@@ -535,7 +535,7 @@ for each xeb where xeb.company = xest.company
      if xeb.tr-no eq "" then xeb.tr-no = ce-ctrl.def-pal.
    end.
    find first item
-       {sys/look/item.w}
+       {sys/look/itemW.i}
          and item.i-no eq xeb.tr-no
        no-lock no-error.
    find first e-item of item no-lock no-error.
@@ -598,7 +598,7 @@ for each cas where cas.typ eq 3
          and xeb.blank-no eq cas.bnum
        no-lock no-error.
    find first item
-       {sys/look/item.w}
+       {sys/look/itemW.i}
          and item.i-no eq xeb.tr-no
        no-lock no-error.
 
@@ -655,7 +655,7 @@ for each cas where cas.typ eq 3,
     first w-cas where w-cas.rec-id eq recid(cas),
 
     first item
-    {sys/look/item.w}
+    {sys/look/itemW.i}
       and item.i-no eq cas.ino
     no-lock
 
@@ -682,7 +682,7 @@ for each cas where cas.typ = 1:
    find first blk where blk.id = cas.id and
                       blk.snum = cas.snum and
                       blk.bnum = cas.bnum no-error.
-   find first item {sys/look/item.w} and item.i-no = cas.ino
+   find first item {sys/look/itemW.i} and item.i-no = cas.ino
    no-lock no-error.
    if avail blk then do:
       /* assign proper cost to blk record */
@@ -702,7 +702,7 @@ for each cas where cas.typ = 5 or cas.typ = 6:
    find first blk where blk.id = cas.id and
                       blk.snum = cas.snum and
                       blk.bnum = cas.bnum no-error.
-   find first item {sys/look/item.w} and item.i-no = cas.ino
+   find first item {sys/look/itemW.i} and item.i-no = cas.ino
    no-lock no-error.
    if avail blk then do:
       /* assign proper cost to blk record */
@@ -723,7 +723,7 @@ for each cas where cas.typ = 3:
    find first blk where blk.id = cas.id and
                       blk.snum = cas.snum and
                       blk.bnum = cas.bnum no-error.
-   find first item {sys/look/item.w} and item.i-no = cas.ino
+   find first item {sys/look/itemW.i} and item.i-no = cas.ino
    no-lock no-error.
    if avail blk then do:
       /* assign proper cost to blk record */

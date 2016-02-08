@@ -86,7 +86,7 @@ IF AVAIL inv-line OR AVAIL ar-invl THEN DO:
       use-index job-no no-lock no-error.
 
   find first itemfg
-      {sys/look/itemfgrl.w}
+      {sys/look/itemfgrlW.i}
         and itemfg.i-no eq lv-i-no
       NO-LOCK no-error.
 

@@ -528,7 +528,7 @@ form v-case-line AT 5 format "x(80)" SKIP
          v-printline = 0.
          
         find first stax
-            {sys/ref/stax1.w}
+            {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq inv-head.tax-gr
             no-lock no-error.
 

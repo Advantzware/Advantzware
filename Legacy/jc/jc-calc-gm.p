@@ -118,7 +118,7 @@ IF AVAIL sys-ctrl THEN ll-sep-prep = sys-ctrl.dec-fld EQ 1.
 {sys/ref/fgoecost.i}
 {sys/inc/cerun.i C}
 {sys/inc/cecomm.i}
-FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK NO-ERROR.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
 RUN oe/oe-sysct.p.
 
@@ -339,7 +339,7 @@ DO TRANSACTION:
          END.
          */
         FIND FIRST itemfg
-              {sys/look/itemfgrl.w}
+              {sys/look/itemfgrlW.i}
                 and itemfg.i-no   EQ xeb.stock-no
               NO-LOCK NO-ERROR.
           if not avail itemfg THEN do on endkey undo, next:
@@ -1209,7 +1209,7 @@ DO TRANSACTION:
           NO-ERROR.
 
       FIND FIRST mach NO-LOCK 
-          {sys/ref/mach.w}
+          {sys/ref/machW.i}
             AND mach.m-code EQ op.m-code.
 
       v-on-f = 1.

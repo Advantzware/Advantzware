@@ -163,7 +163,7 @@ FOR each report
       v-line = 1 v-printline = 0.
 
     FIND FIRST stax
-      {sys/ref/stax1.w}
+      {sys/ref/stax1W.i}
       AND {sys/ref/taxgroup.i stax} eq ar-inv.tax-code no-lock no-error.
     IF NOT AVAIL stax THEN
        FIND FIRST stax WHERE stax.tax-group EQ ar-inv.tax-code NO-LOCK NO-ERROR.

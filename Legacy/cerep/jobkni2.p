@@ -610,7 +610,7 @@ END FUNCTION.
             no-lock,
 
             first mach
-            {sys/ref/mach.w}
+            {sys/ref/machW.i}
               and mach.m-code eq job-mch.m-code
             no-lock
 
@@ -785,7 +785,7 @@ END FUNCTION.
 /*                                    and job-mat.frm     eq eb.form-no                */
 /*                                  NO-LOCK,                                           */
 /*                     first item                                                      */
-/*                     {sys/look/itemiv.w}                                             */
+/*                     {sys/look/itemivW.i}                                             */
 /*                        and item.i-no eq job-mat.i-no:                               */
 /*                                                                                     */
 /*                     FIND FIRST reftable                                             */

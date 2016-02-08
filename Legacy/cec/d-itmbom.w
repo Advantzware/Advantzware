@@ -596,7 +596,7 @@ DO:
      IF ef.adh-code:SCREEN-VALUE NE "" THEN
      DO:
         FIND FIRST b-item
-             {sys/look/itemadh.w b-}
+             {sys/look/itemadhW.i b-}
              AND b-item.industry EQ "2"
              AND b-item.i-no EQ ef.adh-code:SCREEN-VALUE
              NO-LOCK NO-ERROR.
@@ -773,7 +773,7 @@ DO:
      IF ef.lam-code:SCREEN-VALUE NE "" THEN
      DO:
         FIND FIRST b-item
-             {sys/look/itemlam.w b-}
+             {sys/look/itemlamW.i b-}
              AND b-item.industry EQ "2"
              AND b-item.i-no EQ ef.lam-code:SCREEN-VALUE
             NO-LOCK NO-ERROR.
@@ -1476,7 +1476,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       v-cur-lam-code = ef.lam-code.
 
       FIND FIRST b-item
-           {sys/look/itemlam.w b-}
+           {sys/look/itemlamW.i b-}
            AND b-item.industry EQ "2"
            AND b-item.i-no EQ ef.lam-code:SCREEN-VALUE
            NO-LOCK NO-ERROR.
@@ -1490,7 +1490,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       v-cur-adh-code = ef.adh-code.
 
       FIND FIRST b-item
-           {sys/look/itemadh.w b-}
+           {sys/look/itemadhW.i b-}
            AND b-item.industry EQ "2"
            AND b-item.i-no EQ ef.adh-code:SCREEN-VALUE
            NO-LOCK NO-ERROR.
@@ -1587,7 +1587,7 @@ PROCEDURE valid-adh-code :
    DO WITH FRAME {&FRAME-NAME}:
       IF ef.adh-code:SCREEN-VALUE NE "" THEN DO:
          IF NOT CAN-FIND(FIRST ITEM
-                         {sys/look/itemadh.w}
+                         {sys/look/itemadhW.i}
                            AND item.industry EQ "2"
                            AND item.i-no EQ ef.adh-code:SCREEN-VALUE) THEN DO:
            MESSAGE "Invalid " + TRIM(ef.adh-code:LABEL) + ", try help..."
@@ -1612,7 +1612,7 @@ PROCEDURE valid-lam-code :
    DO WITH FRAME {&FRAME-NAME}:
       IF ef.lam-code:SCREEN-VALUE NE "" AND
           NOT CAN-FIND(FIRST ITEM
-                      {sys/look/itemlam.w}
+                      {sys/look/itemlamW.i}
                         AND item.industry EQ "2"
                         AND item.i-no EQ ef.lam-code:SCREEN-VALUE) THEN DO:
          MESSAGE "Invalid " + TRIM(ef.lam-code:LABEL) + ", try help..."

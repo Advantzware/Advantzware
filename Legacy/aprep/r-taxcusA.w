@@ -851,7 +851,7 @@ if td-show-parm then run show-param.
               no-lock:
          
               find first stax
-                  {sys/ref/stax.w}
+                  {sys/ref/staxW.i}
                     and stax.tax-group  eq stax.tax-code[1]
                     and stax.tax-acc[1] eq ar-cashl.actnum
                   no-lock no-error.
@@ -875,7 +875,7 @@ if td-show-parm then run show-param.
               no-lock,
          
               first stax
-              {sys/ref/stax.w}
+              {sys/ref/staxW.i}
                 and stax.tax-group eq ar-inv.tax-code
                 and stax.tax-group eq stax.tax-code[1]
               no-lock:
@@ -897,7 +897,7 @@ if td-show-parm then run show-param.
     VIEW FRAME r-top.
     
     for each stax
-        {sys/ref/stax.w}
+        {sys/ref/staxW.i}
           and stax.tax-group eq stax.tax-code[1]
         no-lock
         by stax.tax-acc[1]:

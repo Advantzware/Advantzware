@@ -83,7 +83,7 @@ IF LOOKUP(SUBSTRING(tmp-dir,LENGTH(tmp-dir)),"\,/") EQ 0 THEN
 
 tmp-dir = REPLACE(tmp-dir,"/","\").
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 assign
   ctrl[1]  = ce-ctrl.whse-mrkup / 100
   ctrl[2]  = ce-ctrl.hand-pct / 100
@@ -331,7 +331,7 @@ do transaction:
 
   do i = 1 to 4:
     find first item
-        {sys/look/item.w}
+        {sys/look/itemW.i}
           and item.i-no eq xef.leaf[i]
         no-lock no-error.
     if avail item and item.mat-type eq "W" and
@@ -342,7 +342,7 @@ do transaction:
 end.
 
 brd-wu[1] = xeb.t-sqin - xeb.t-win.
-find first item {sys/look/item.w} and
+find first item {sys/look/itemW.i} and
   item.i-no = xef.board no-lock no-error.
 brd-wu[1] = (if v-corr then (brd-wu[1] * .007) else (brd-wu[1] / 144))
                               * item.basis-w.
@@ -378,7 +378,7 @@ for each xef where xef.company = xest.company
   run ce/tan/prokalk.p.  /* CTS back from ce/prokalk.p */
   
   qty = xest.est-qty[1].
-  find first item {sys/look/item.w} and item.i-no = xef.board no-lock no-error.
+  find first item {sys/look/itemW.i} and item.i-no = xef.board no-lock no-error.
   if avail item then find first e-item of item no-lock no-error.
   brd-sf[4] = (if v-corr then (xef.gsh-len * xef.gsh-wid * .007)
                          else (xef.gsh-len * xef.gsh-wid / 144)) *
@@ -565,7 +565,7 @@ for each xef where xef.company = xest.company
       no-lock no-error.
 
   find first item
-      {sys/look/item.w}
+      {sys/look/itemW.i}
         and item.i-no     eq xef.board
         and item.mat-type eq "B"
         and item.avg-w    gt 0
@@ -577,7 +577,7 @@ for each xef where xef.company = xest.company
    xxx   = xef.weight * v-msf.
 
   if xef.medium ne "" then do:
-    find first item {sys/look/item.w} and
+    find first item {sys/look/itemW.i} and
                item.i-no = xef.medium no-lock no-error.
     if avail ITEM THEN DO:
     /*override item shrink % with shrink entered in BOM button on Layout screen*/
@@ -590,14 +590,14 @@ for each xef where xef.company = xest.company
     
   end.
   if xef.flute ne "" then do:
-    find first item {sys/look/item.w} and
+    find first item {sys/look/itemW.i} and
                item.i-no = xef.flute no-lock no-error.
     if avail item
     then xxx = xxx +
                (item.basis-w * v-msf).
   end.
   if xef.lam-code ne "" then do:
-    find first item {sys/look/item.w} and
+    find first item {sys/look/itemW.i} and
                item.i-no = xef.lam-code no-lock no-error.
     if avail item
     then xxx = xxx +
@@ -605,7 +605,7 @@ for each xef where xef.company = xest.company
                 qty * xeb.t-sqin / item.sqin-lb).
   end.
   if xef.adh-code ne "" then do:
-    find first item {sys/look/item.w} and
+    find first item {sys/look/itemW.i} and
                item.i-no = xef.adh-code no-lock no-error.
     if avail item
     then xxx = xxx +
@@ -642,7 +642,7 @@ for each xef where xef.company = xest.company
       
     else do:
       find first item
-          {sys/look/item.w}
+          {sys/look/itemW.i}
             and item.i-no     eq xef.board
             and item.mat-type eq "B"
             and item.avg-w    gt 0

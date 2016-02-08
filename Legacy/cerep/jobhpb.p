@@ -203,7 +203,7 @@ PROCEDURE PR-getink:
               AND job-mat.job     = job-hdr.job
               AND job-mat.frm     = eb.form-no,
       FIRST item NO-LOCK
-            {sys/look/itemiv.w}
+            {sys/look/itemivW.i}
             AND item.i-no = job-mat.i-no:
 
       DO i = 1 TO 12:

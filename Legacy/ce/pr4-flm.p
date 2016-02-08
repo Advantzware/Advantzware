@@ -18,7 +18,7 @@ def var fuom like item.cons-uom NO-UNDO.
 def var fup like eb.num-up NO-UNDO.
 def var vup like fup NO-UNDO.
 
-find first ce-ctrl {sys/look/ce-ctrl.w} no-lock no-error.
+find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-qty FOR reftable.

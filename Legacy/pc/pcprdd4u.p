@@ -26,7 +26,7 @@ IF NOT AVAIL pc-prdd THEN RETURN.
 
 IF fgrecpt-char EQ "AUTOPOST" THEN DO:
   FIND FIRST mach
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ pc-prdd.m-code
       NO-LOCK.
 
