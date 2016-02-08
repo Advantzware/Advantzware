@@ -28,19 +28,20 @@ ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
 
-USING com.joanju.proparse.NodeTypes                     FROM ASSEMBLY .
-USING Consultingwerk.*                                  FROM PROPATH .
-USING Consultingwerk.BusinessEntityDesigner.*           FROM PROPATH .
-USING Consultingwerk.BusinessEntityDesigner.Generator.* FROM PROPATH .
-USING Consultingwerk.BusinessEntityDesigner.Services.*  FROM PROPATH . 
-USING Consultingwerk.Exceptions.*                       FROM PROPATH . 
-USING Consultingwerk.Framework.Enum.*                   FROM PROPATH .
-USING Consultingwerk.Studio.Proparse.*                  FROM PROPATH . 
-USING Consultingwerk.Util.*                             FROM PROPATH . 
-USING Consultingwerk.Windows.Util.Forms.*               FROM PROPATH .
-USING org.prorefactor.core.JPNode                       FROM ASSEMBLY .
-USING org.prorefactor.treeparser.*                      FROM ASSEMBLY .
-USING Progress.Lang.*                                   FROM PROPATH .
+USING com.joanju.proparse.NodeTypes                                       FROM ASSEMBLY .
+USING Consultingwerk.*                                                    FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.*                             FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.Generator.*                   FROM PROPATH .
+USING Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGenerator.* FROM PROPATH.
+USING Consultingwerk.BusinessEntityDesigner.Services.*                    FROM PROPATH . 
+USING Consultingwerk.Exceptions.*                                         FROM PROPATH . 
+USING Consultingwerk.Framework.Enum.*                                     FROM PROPATH .
+USING Consultingwerk.Studio.Proparse.*                                    FROM PROPATH . 
+USING Consultingwerk.Util.*                                               FROM PROPATH . 
+USING Consultingwerk.Windows.Util.Forms.*                                 FROM PROPATH .
+USING org.prorefactor.core.JPNode                                         FROM ASSEMBLY .
+USING org.prorefactor.treeparser.*                                        FROM ASSEMBLY .
+USING Progress.Lang.*                                                     FROM PROPATH .
 
 CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin 
     IMPLEMENTS IBusinessEntityDesignerPlugin: 
@@ -66,9 +67,9 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
         Purpose: Ignore status messages and questions
         Notes:                                                                           
     ------------------------------------------------------------------------------*/
-	DEFINE PUBLIC PROPERTY SilentMode AS LOGICAL INITIAL FALSE NO-UNDO 
-	GET.
-	SET. 
+    DEFINE PUBLIC PROPERTY SilentMode AS LOGICAL INITIAL FALSE NO-UNDO 
+    GET.
+    SET. 
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the AfterGenerateSource event of the 
@@ -127,13 +128,13 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
 
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Validates that the target folders exists of prompts for create
-	    Notes:
-	    @return Logical value indicating if the folders exists (true) or the generation should be cancelled
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED LOGICAL CheckDirectoriesExist ():
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Validates that the target folders exists of prompts for create
+        Notes:
+        @return Logical value indicating if the folders exists (true) or the generation should be cancelled
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED LOGICAL CheckDirectoriesExist ():
+        
         DEFINE VARIABLE oReturn AS DialogResultEnum NO-UNDO . 
         
         DEFINE BUFFER b_eTable FOR eTable .
@@ -163,7 +164,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
 
         RETURN TRUE . 
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Verifies the path to a template file                                                                       
@@ -188,8 +189,8 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
         Notes:   
         @return The output folder 
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED CHARACTER FindOutputFolder ():
-		
+    METHOD PROTECTED CHARACTER FindOutputFolder ():
+        
         DEFINE VARIABLE cSourceFolder AS CHARACTER NO-UNDO.
 
         IF BusinessEntityDesignerSettings:IncludeFilesBaseFolder > "":U THEN DO:
@@ -207,31 +208,31 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
 
         RETURN cSourceFolder . 
 
-	END METHOD .
+    END METHOD .
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Returns the code for the search constructors 
-	    Notes:
-	    @return The source code for the search constructors
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED LONGCHAR GenerateConstructors ():
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the code for the search constructors 
+        Notes:
+        @return The source code for the search constructors
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED LONGCHAR GenerateConstructors ():
+        
         DEFINE VARIABLE cConstructor      AS LONGCHAR  NO-UNDO . 
-				
+                
         DEFINE VARIABLE cParameter        AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cParameterComment AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cFilter           AS CHARACTER NO-UNDO.
 
         DEFINE VARIABLE cIndexField       AS CHARACTER NO-UNDO.
         DEFINE VARIABLE iIndexField       AS INTEGER   NO-UNDO.
-		
+        
         DEFINE BUFFER b_eTable                    FOR eTable .
         DEFINE BUFFER b_eField                    FOR eField .
         DEFINE BUFFER b_eIndex                    FOR eIndex . 
         DEFINE BUFFER b_eBusinessEntity           FOR eBusinessEntity .
-		
-		FIND FIRST b_eBusinessEntity . 
-		
+        
+        FIND FIRST b_eBusinessEntity . 
+        
         FOR EACH b_eIndex WHERE b_eIndex.DefaultSearchCodeGeneration = TRUE,
            FIRST b_eTable WHERE b_eTable.TempTableName               = b_eIndex.TempTableName:
 
@@ -290,10 +291,10 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
                                                              System.Environment:NewLine) .  
             
         END. 
-		
-		RETURN cConstructor . 
+        
+        RETURN cConstructor . 
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Generates the Model Classes                                                                       
@@ -301,28 +302,32 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID GenerateModelClasses ():
 
-        DEFINE VARIABLE lcSource            AS LONGCHAR           NO-UNDO.
-        DEFINE VARIABLE cFileName           AS CHARACTER          NO-UNDO.
+        DEFINE VARIABLE lcSource            AS LONGCHAR           NO-UNDO .
+        DEFINE VARIABLE cFileName           AS CHARACTER          NO-UNDO .
         DEFINE VARIABLE cTemplate           AS CHARACTER          NO-UNDO EXTENT 5.
-        DEFINE VARIABLE cProperties         AS LONGCHAR           NO-UNDO.
-        DEFINE VARIABLE cDataType           AS CHARACTER          NO-UNDO.
-        DEFINE VARIABLE cPropertyType       AS CHARACTER          NO-UNDO.
-        DEFINE VARIABLE cFieldOptions       AS LONGCHAR           NO-UNDO.
-        DEFINE VARIABLE cConstructor        AS LONGCHAR           NO-UNDO.
-        DEFINE VARIABLE cMethods            AS LONGCHAR           NO-UNDO. 
+        DEFINE VARIABLE cProperties         AS LONGCHAR           NO-UNDO .
+        DEFINE VARIABLE cDataType           AS CHARACTER          NO-UNDO .
+        DEFINE VARIABLE cPropertyType       AS CHARACTER          NO-UNDO .
+        DEFINE VARIABLE cFieldOptions       AS LONGCHAR           NO-UNDO .
+        DEFINE VARIABLE cConstructor        AS LONGCHAR           NO-UNDO .
+        DEFINE VARIABLE cMethods            AS LONGCHAR           NO-UNDO . 
         
-        DEFINE VARIABLE cTableModelName     AS CHARACTER          NO-UNDO.
-        DEFINE VARIABLE cTableFilterName    AS CHARACTER          NO-UNDO.
+        DEFINE VARIABLE cTableModelName     AS CHARACTER          NO-UNDO .
+        DEFINE VARIABLE cTableFilterName    AS CHARACTER          NO-UNDO .
         
-        DEFINE VARIABLE iExtent             AS INTEGER            NO-UNDO.
-        DEFINE VARIABLE cFormat             AS CHARACTER          NO-UNDO.
+        DEFINE VARIABLE iExtent             AS INTEGER            NO-UNDO .
+        DEFINE VARIABLE cFormat             AS CHARACTER          NO-UNDO .
         DEFINE VARIABLE oWriteFileEventArgs AS WriteFileEventArgs NO-UNDO . 
+        
+        DEFINE VARIABLE cCustomType         AS CHARACTER          NO-UNDO .
         
         DEFINE BUFFER b_eBusinessEntity           FOR eBusinessEntity .
         DEFINE BUFFER b_eBusinessEntityProperties FOR eBusinessEntityProperties .
         DEFINE BUFFER b_eTable                    FOR eTable .
         DEFINE BUFFER b_eField                    FOR eField .
         DEFINE BUFFER b_eDataRelation             FOR eDataRelation .
+        
+        DEFINE BUFFER b_eFieldProperties          FOR eFieldProperties . 
         
         FIND FIRST b_eBusinessEntity . 
 
@@ -461,37 +466,81 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
                     ASSIGN cDataType     = StringHelper:CamelCaseWord (REPLACE (b_eField.FieldDataType, "-":U, "":U)) 
                            cPropertyType = BusinessEntityGenerator:CaseKeywords (b_eField.FieldDataType) . 
 
-                ASSIGN cProperties = cProperties + SUBSTITUTE ("    /*------------------------------------------------------------------------------&3":U +
-                                                               "        Purpose: Gets and sets the current &1 value&3":U + 
-                                                               "        Notes:   &3":U +
-                                                               "    ------------------------------------------------------------------------------*/&3":U +
-                                                               BusinessEntityGenerator:CaseKeywords("    DEFINE &4 PROPERTY &1 AS &6 NO-UNDO&3":U) + 
-                                                               BusinessEntityGenerator:CaseKeywords("    GET:&3":U) +
-                                                               BusinessEntityGenerator:CaseKeywords("        RETURN THIS-OBJECT:":U) + "Get&2FieldValue (~"&1~":U) .&3":U +
-                                                               BusinessEntityGenerator:CaseKeywords("    END GET . &3":U) +
-                                                               BusinessEntityGenerator:CaseKeywords("    &5 SET (":U) + "arg":U + BusinessEntityGenerator:CaseKeywords(" AS &6):&3":U) +
-                                                               BusinessEntityGenerator:CaseKeywords("        THIS-OBJECT:":U) + "Set&2FieldValue (~"&1~":U, arg) .&3":U +
-                                                               BusinessEntityGenerator:CaseKeywords("    END SET .&3":U) +                                                                
-                                                               "&3":U +
-                                                               "    /*------------------------------------------------------------------------------&3":U +
-                                                               "        Purpose: Returns the value of the &1 field when a record is available&3":U +                               
-                                                               "        Notes:   Returns the default value, when no record&3":U + 
-                                                               "        @param pDefaultValue The default value to return when no record is available&3":U +
-                                                               "        @return The field value or the default value when no record is available&3":U +
-                                                               "    ------------------------------------------------------------------------------*/&3":U +
-                                                               BusinessEntityGenerator:CaseKeywords("    METHOD &4 &6 &1WhenAvailable (pDefaultValue AS &6):&3":U, "&1WhenAvailable ":U + CHR(1) + "(pDefaultValue ":U) +
-                                                               BusinessEntityGenerator:CaseKeywords("        IF THIS-OBJECT:BufferHandle:Available THEN &3":U, ":BufferHandle:":U) +
-                                                               BusinessEntityGenerator:CaseKeywords("            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD (~"&1~":U):BUFFER-VALUE .&3":U, ":BufferHandle:":U) +
-                                                               BusinessEntityGenerator:CaseKeywords("        ELSE &3":U) +
-                                                               BusinessEntityGenerator:CaseKeywords("            RETURN pDefaultValue .&3":U, " pDefaultValue .":U) + 
-                                                               BusinessEntityGenerator:CaseKeywords("    END METHOD .&3":U) + 
-                                                               "&3":U,
-                                                               b_eField.FieldName,
-                                                               cDataType,
-                                                               System.Environment:NewLine,
-                                                               BusinessEntityGenerator:CaseKeywords(b_eField.FieldGetAccess),
-                                                               BusinessEntityGenerator:CaseKeywords(b_eField.FieldSetAccess),
-                                                               cPropertyType) .
+                ASSIGN cCustomType = "":U . 
+                
+                FIND b_eFieldProperties WHERE b_eFieldProperties.TempTableName = b_eField.TempTableName
+                                          AND b_eFieldProperties.FieldName     = b_eField.FieldName 
+                                          AND b_eFieldProperties.PropertyName  = "ModelClassGenerator.CustomPropertyType":U NO-ERROR .
+                
+                IF AVAILABLE b_eFieldProperties THEN 
+                    ASSIGN cCustomType = b_eFieldProperties.PropertyValue .
+                ELSE 
+                    ErrorHelper:ResetErrorStatus() .
+
+                IF (cDataType = "INTEGER":U OR cDataType = "CHARACTER":U) AND cCustomType > "":U THEN
+                    ASSIGN cProperties = cProperties + SUBSTITUTE ("    /*------------------------------------------------------------------------------&3":U +
+                                                                   "        Purpose: Gets and sets the current &1 value&3":U +
+                                                                   "        Notes:   &3":U +
+                                                                   "    ------------------------------------------------------------------------------*/&3":U +
+                                                                   BusinessEntityGenerator:CaseKeywords("    DEFINE &4 PROPERTY &1 AS &6 NO-UNDO&3":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("    GET:&3":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("        RETURN CAST (THIS-OBJECT:":U) + "Get&2EnumFieldValue (~"&1~":U, ~"&6~":U), &6) .&3":U +
+                                                                   BusinessEntityGenerator:CaseKeywords("    END GET . &3":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("    &5 SET (":U) + "arg":U + BusinessEntityGenerator:CaseKeywords(" AS &6):&3":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("        THIS-OBJECT:":U) + "Set&2EnumFieldValue (~"&1~":U, arg) .&3":U +
+                                                                   BusinessEntityGenerator:CaseKeywords("    END SET .&3":U) +
+                                                                   "&3":U +
+                                                                   "    /*------------------------------------------------------------------------------&3":U +
+                                                                   "        Purpose: Returns the value of the &1 field when a record is available&3":U +
+                                                                   "        Notes:   Returns the default value, when no record&3":U +
+                                                                   "        @param pDefaultValue The default value to return when no record is available&3":U +
+                                                                   "        @return The field value or the default value when no record is available&3":U +
+                                                                   "    ------------------------------------------------------------------------------*/&3":U +
+                                                                   BusinessEntityGenerator:CaseKeywords("    METHOD &4 &6 &1WhenAvailable (pDefaultValue AS &6):&3":U, "&1WhenAvailable ":U + CHR(1) + "(pDefaultValue ":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("        IF THIS-OBJECT:BufferHandle:Available THEN &3":U, ":BufferHandle:":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("            RETURN CAST(THIS-OBJECT:":U) + "Get&2EnumFieldValue (~"&1~":U, ~"&6~":U), &6) .&3":U +
+                                                                   BusinessEntityGenerator:CaseKeywords("        ELSE &3":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("            RETURN pDefaultValue .&3":U, " pDefaultValue .":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("    END METHOD .&3":U) +
+                                                                   "&3":U,
+                                                                   b_eField.FieldName,
+                                                                   cDataType,
+                                                                   System.Environment:NewLine,
+                                                                   BusinessEntityGenerator:CaseKeywords(b_eField.FieldGetAccess),
+                                                                   BusinessEntityGenerator:CaseKeywords(b_eField.FieldSetAccess),
+                                                                   cCustomType) .
+                ELSE
+                    ASSIGN cProperties = cProperties + SUBSTITUTE ("    /*------------------------------------------------------------------------------&3":U +
+                                                                   "        Purpose: Gets and sets the current &1 value&3":U + 
+                                                                   "        Notes:   &3":U +
+                                                                   "    ------------------------------------------------------------------------------*/&3":U +
+                                                                   BusinessEntityGenerator:CaseKeywords("    DEFINE &4 PROPERTY &1 AS &6 NO-UNDO&3":U) + 
+                                                                   BusinessEntityGenerator:CaseKeywords("    GET:&3":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("        RETURN THIS-OBJECT:":U) + "Get&2FieldValue (~"&1~":U) .&3":U +
+                                                                   BusinessEntityGenerator:CaseKeywords("    END GET . &3":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("    &5 SET (":U) + "arg":U + BusinessEntityGenerator:CaseKeywords(" AS &6):&3":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("        THIS-OBJECT:":U) + "Set&2FieldValue (~"&1~":U, arg) .&3":U +
+                                                                   BusinessEntityGenerator:CaseKeywords("    END SET .&3":U) +                                                                
+                                                                   "&3":U +
+                                                                   "    /*------------------------------------------------------------------------------&3":U +
+                                                                   "        Purpose: Returns the value of the &1 field when a record is available&3":U +                               
+                                                                   "        Notes:   Returns the default value, when no record&3":U + 
+                                                                   "        @param pDefaultValue The default value to return when no record is available&3":U +
+                                                                   "        @return The field value or the default value when no record is available&3":U +
+                                                                   "    ------------------------------------------------------------------------------*/&3":U +
+                                                                   BusinessEntityGenerator:CaseKeywords("    METHOD &4 &6 &1WhenAvailable (pDefaultValue AS &6):&3":U, "&1WhenAvailable ":U + CHR(1) + "(pDefaultValue ":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("        IF THIS-OBJECT:BufferHandle:Available THEN &3":U, ":BufferHandle:":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("            RETURN THIS-OBJECT:BufferHandle:BUFFER-FIELD (~"&1~":U):BUFFER-VALUE .&3":U, ":BufferHandle:":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("        ELSE &3":U) +
+                                                                   BusinessEntityGenerator:CaseKeywords("            RETURN pDefaultValue .&3":U, " pDefaultValue .":U) + 
+                                                                   BusinessEntityGenerator:CaseKeywords("    END METHOD .&3":U) + 
+                                                                   "&3":U,
+                                                                   b_eField.FieldName,
+                                                                   cDataType,
+                                                                   System.Environment:NewLine,
+                                                                   BusinessEntityGenerator:CaseKeywords(b_eField.FieldGetAccess),
+                                                                   BusinessEntityGenerator:CaseKeywords(b_eField.FieldSetAccess),
+                                                                   cPropertyType) .
             END.            
 
             ASSIGN lcSource = SUBSTITUTE (lcSource, 
@@ -668,23 +717,23 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
                  designer (automatic source code generation, unit testing)     
         @param dsBusinessEntity Business Entity with the Design dataset, called with the BY-REFERENCE keyword
     ------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID GenerateModelClasses (DATASET FOR dsBusinessEntity):
-		
-		ASSIGN cClassNames = THIS-OBJECT:BuildClassNames () .
-		
-		THIS-OBJECT:GenerateModelClasses () .
+    METHOD PUBLIC VOID GenerateModelClasses (DATASET FOR dsBusinessEntity):
+        
+        ASSIGN cClassNames = THIS-OBJECT:BuildClassNames () .
+        
+        THIS-OBJECT:GenerateModelClasses () .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Generates methods for the datasetmodel_generated class  
         Notes:   
         @return The source code of the generated methods 
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED LONGCHAR GenerateModelMethods ():
-		
-		DEFINE BUFFER b_eBusinessEntity FOR eBusinessEntity .
-		
+    METHOD PROTECTED LONGCHAR GenerateModelMethods ():
+        
+        DEFINE BUFFER b_eBusinessEntity FOR eBusinessEntity .
+        
         DEFINE VARIABLE lcReturn      AS LONGCHAR                                    NO-UNDO .
         DEFINE VARIABLE lcMethod      AS LONGCHAR                                    NO-UNDO .
         DEFINE VARIABLE cClassName    AS CHARACTER                                   NO-UNDO .
@@ -756,15 +805,15 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
         RETURN lcReturn . 
 
         CATCH err AS Progress.Lang.Error :
-        	ErrorHelper:ShowErrorMessage (err, "Error generating proxy methods in the DatasetModel":U) .	
+            ErrorHelper:ShowErrorMessage (err, "Error generating proxy methods in the DatasetModel":U) .    
         END CATCH.
         
         FINALLY:
             GarbageCollectorHelper:DeleteObject (oList) .
-            GarbageCollectorHelper:DeleteObject (oParser) .		
+            GarbageCollectorHelper:DeleteObject (oParser) .     
         END FINALLY.
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the GetCustomPropertyNamesHandler event of the 
@@ -773,13 +822,15 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
         @param sender The reference to the object that raised the event
         @param e The GetCustomPropertyNamesEventArgs with the data for this event
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID GetCustomPropertyNamesHandler (sender AS Progress.Lang.Object, 
-	                                                     e AS GetCustomPropertyNamesEventArgs):
-		
-		IF e:Scope = CustomPropertiesScopeEnum:BusinessEntity THEN 
-		    e:PropertyNames:Add ("ModelClassGenerator.Disabled":U) .
+    METHOD PROTECTED VOID GetCustomPropertyNamesHandler (sender AS Progress.Lang.Object, 
+                                                         e AS GetCustomPropertyNamesEventArgs):
+        
+        IF e:Scope = CustomPropertiesScopeEnum:BusinessEntity THEN 
+            e:PropertyNames:Add ("ModelClassGenerator.Disabled":U) .
+        ELSE IF e:Scope = CustomPropertiesScopeEnum:Field THEN
+            e:PropertyNames:Add ("ModelClassGenerator.CustomPropertyType":U) .
 
-	END METHOD .
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Event handler for the GetCustomPropertyNamesHandler event of the 
@@ -791,11 +842,21 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
     METHOD PROTECTED VOID GetCustomPropertyValuesHandler (sender AS Progress.Lang.Object, 
                                                           e AS GetCustomPropertyValuesEventArgs):
         
+        DEFINE VARIABLE oCustomTypes AS CustomPropertyTypeProvider NO-UNDO .
+        
         IF e:Scope = CustomPropertiesScopeEnum:BusinessEntity AND 
            e:PropertyName = "ModelClassGenerator.Disabled":U THEN DO: 
             e:PropertyValues:Add ("yes":U) .
             e:PropertyValues:Add ("no":U) .
         END. 
+        ELSE IF e:Scope = CustomPropertiesScopeEnum:Field AND 
+            e:PropertyName = "ModelClassGenerator.CustomPropertyType":U THEN DO: 
+        
+            ASSIGN oCustomTypes = {Consultingwerk/get-service.i Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGenerator.CustomPropertyTypeProvider
+                                                                "NEW Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGenerator.CustomPropertyTypeProvider ()"} .
+        
+            oCustomTypes:AddPropertyValues (e:PropertyValues) .
+        END.
 
     END METHOD .
 
@@ -831,13 +892,13 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
         
     END METHOD.
 
-	/*------------------------------------------------------------------------------
-	    Purpose: Updates the search constructors in an existing dataset model class
-	    Notes:
-	    @param pcFileName The file name of the dataset model class
-	------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID UpdateSearchConstructors (pcFileName AS CHARACTER):
-		
+    /*------------------------------------------------------------------------------
+        Purpose: Updates the search constructors in an existing dataset model class
+        Notes:
+        @param pcFileName The file name of the dataset model class
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED VOID UpdateSearchConstructors (pcFileName AS CHARACTER):
+        
         DEFINE VARIABLE oParseUnit    AS ParseUnit      NO-UNDO . 
         DEFINE VARIABLE oJPNode       AS JPNode         NO-UNDO .
         DEFINE VARIABLE oConstructors AS JPNodesWrapper NO-UNDO . 
@@ -914,32 +975,32 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
                                            "Dataset Model Generator"{&TRAN},
                                            MessageFormImages:ImageWarning) .
 
-	END METHOD.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
         Purpose: Validates that the indexes flagged with "Default Search Code Generation"
                  do not cause constructors with duplicate signatures 
         Notes:   
     ------------------------------------------------------------------------------*/
-	METHOD PROTECTED VOID ValidateSearchCodeIndexes ():
-		
-		DEFINE BUFFER b_eTable FOR eTable .
-		DEFINE BUFFER b_eIndex FOR eIndex .
-		DEFINE BUFFER b_eField FOR eField . 
-		
-		DEFINE VARIABLE iIndexField AS INTEGER NO-UNDO.
-		DEFINE VARIABLE cIndexField AS CHARACTER NO-UNDO.
+    METHOD PROTECTED VOID ValidateSearchCodeIndexes ():
+        
+        DEFINE BUFFER b_eTable FOR eTable .
+        DEFINE BUFFER b_eIndex FOR eIndex .
+        DEFINE BUFFER b_eField FOR eField . 
+        
+        DEFINE VARIABLE iIndexField AS INTEGER NO-UNDO.
+        DEFINE VARIABLE cIndexField AS CHARACTER NO-UNDO.
 
         DEFINE VARIABLE cParameters AS CHARACTER NO-UNDO.
-		
-		EMPTY TEMP-TABLE ttSearchCodeConstructor .
-		
-		indexloop:
-		FOR EACH b_eTable,
-		    EACH b_eIndex OF b_eTable WHERE b_eIndex.DefaultSearchCodeGeneration = TRUE ON ERROR UNDO, THROW:
-		        
-		    ASSIGN cParameters = "":U . 
-		        
+        
+        EMPTY TEMP-TABLE ttSearchCodeConstructor .
+        
+        indexloop:
+        FOR EACH b_eTable,
+            EACH b_eIndex OF b_eTable WHERE b_eIndex.DefaultSearchCodeGeneration = TRUE ON ERROR UNDO, THROW:
+                
+            ASSIGN cParameters = "":U . 
+                
             DO iIndexField = 1 TO NUM-ENTRIES (b_eIndex.FieldNames):
                 ASSIGN cIndexField = ENTRY (iIndexField, b_eIndex.FieldNames) .
                 
@@ -949,7 +1010,7 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
                 IF NOT AVAILABLE b_eField THEN NEXT .
                 
                 ASSIGN cParameters = cParameters + ",":U + b_eField.FieldDataType . 
-            END.		        
+            END.                
             
             ASSIGN cParameters = TRIM (cParameters, ",":U) . 
             
@@ -976,12 +1037,12 @@ CLASS Consultingwerk.BusinessEntityDesigner.Plugins.ModelClassGeneratorPlugin
                    ttSearchCodeConstructor.Parameters    = cParameters . 
                     
             RELEASE ttSearchCodeConstructor . 
-        END.		         
-		
+        END.                 
+        
         FINALLY:
-            EMPTY TEMP-TABLE ttSearchCodeConstructor .		
+            EMPTY TEMP-TABLE ttSearchCodeConstructor .      
         END FINALLY.
     
-	END METHOD .
+    END METHOD .
 
 END CLASS.

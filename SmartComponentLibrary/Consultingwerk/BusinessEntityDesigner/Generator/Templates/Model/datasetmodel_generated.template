@@ -19,7 +19,7 @@ USING Progress.Lang.* FROM PROPATH .
 CLASS &2.&1DatasetModel_Generated 
     INHERITS DatasetModel ABSTRACT: 
 
-    { &8/&3.i &ACCESS=PROTECTED }
+    { &8/&3.i &&ACCESS=PROTECTED }
 
 &5    /*------------------------------------------------------------------------------
         Purpose: Returns the name of the Business Entity this model belongs to 
