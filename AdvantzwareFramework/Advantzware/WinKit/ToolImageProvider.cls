@@ -32,9 +32,7 @@ CLASS Advantzware.WinKit.ToolImageProvider IMPLEMENTS IToolImageProvider:
     DEFINE VARIABLE oImages16 AS "System.Collections.Generic.Dictionary<System.String, System.Drawing.Image>":U NO-UNDO .
     DEFINE VARIABLE oImages32 AS "System.Collections.Generic.Dictionary<System.String, System.Drawing.Image>":U NO-UNDO .
 
-    DEFINE VARIABLE oCaptions AS "System.Collections.Generic.Dictionary<System.String, System.String>":U NO-UNDO .
-
-
+    DEFINE VARIABLE oCaptions AS "System.Collections.Generic.Dictionary<System.String, System.String>":U        NO-UNDO .
 
     /*------------------------------------------------------------------------------
         Purpose: Constructor for the ToolImageProvider class
@@ -58,6 +56,18 @@ CLASS Advantzware.WinKit.ToolImageProvider IMPLEMENTS IToolImageProvider:
        oImages32:Add ("images/add", ImageHelper:Load ("SampleImages/112_Plus_Blue_32x32_72.png")) .
        oCaptions:Add ("images/add", "Refresh") .                                                           
 		
+       oImages16:Add ("Btn-First", ImageHelper:Load ("Graphics/16x16/navigate_beginning.png")) .
+       oImages32:Add ("Btn-First", ImageHelper:Load ("Graphics/32x32/navigate_beginning.png")) .
+
+       oImages16:Add ("Btn-Last", ImageHelper:Load ("Graphics/16x16/navigate_end.png")) .
+       oImages32:Add ("Btn-Last", ImageHelper:Load ("Graphics/32x32/navigate_end.png")) .
+                               
+       oImages16:Add ("Btn-Next", ImageHelper:Load ("Graphics/16x16/navigate_right.png")) .
+       oImages32:Add ("Btn-Next", ImageHelper:Load ("Graphics/32x32/navigate_right.png")) .
+		                       
+       oImages16:Add ("Btn-Prev", ImageHelper:Load ("Graphics/16x16/navigate_left.png")) .
+       oImages32:Add ("Btn-Prev", ImageHelper:Load ("Graphics/32x32/navigate_left.png")) .
+
 	END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
@@ -101,6 +111,14 @@ CLASS Advantzware.WinKit.ToolImageProvider IMPLEMENTS IToolImageProvider:
 
         DEFINE VARIABLE cImage AS CHARACTER NO-UNDO.
 
+        /* Widget name rules over image, so 
+           lookup widget name's first */
+        IF oImages16:ContainsKey (phWidget:NAME) THEN DO:
+            ASSIGN poButtonTool:SharedProps:AppearancesLarge:Appearance:Image = oImages32[phWidget:NAME]
+                   poButtonTool:SharedProps:AppearancesSmall:Appearance:Image = oImages16[phWidget:NAME] .
+                   
+            RETURN TRUE . 
+        END.
 
         IF CAN-QUERY (phWidget, "IMAGE":U) THEN DO:
             ASSIGN lReturn = UltraToolbarsHelper:LoadImage (phWidget, poButtonTool, FALSE) .
@@ -135,8 +153,8 @@ CLASS Advantzware.WinKit.ToolImageProvider IMPLEMENTS IToolImageProvider:
 
                     RETURN TRUE .
                 END.
-
             END.
+
 
         END.
         
