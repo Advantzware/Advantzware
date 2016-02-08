@@ -631,6 +631,15 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
                 ASSIGN hFrame = hFrame:NEXT-SIBLING .
             END.
 
+            {Consultingwerk/foreach.i System.Windows.Forms.Control oControl in oTab:TabPage:Controls}
+                IF oControl <> oWindowContainer THEN DO:
+                    ASSIGN oControl:Left = oControl:Left - iMinX
+                           oControl:Top  = oControl:Top  - iMinY .
+                    oControl:BringToFront () . 
+                END.
+            END.
+        
+
             ASSIGN
                 ttFolderPages.FrameHandle:WIDTH-PIXELS = iMaxX + 1 - iMinX
                 ttFolderPages.FrameHandle:HEIGHT-PIXELS = iMaxY + 1 - iMinY

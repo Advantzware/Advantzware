@@ -143,10 +143,8 @@ PROCEDURE winkit-initialize:
     DEFINE VARIABLE oForm AS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm NO-UNDO . 
     DEFINE VARIABLE iPage AS INTEGER             NO-UNDO .
 
-
     
     RUN dispatch IN THIS-PROCEDURE ("initialize") .
-
 
     RUN get-link-handle IN adm-broker-hdl
            (INPUT THIS-PROCEDURE, INPUT 'CONTAINER-SOURCE':U, OUTPUT char-hdl).
