@@ -117,7 +117,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         Consultingwerk.Framework.FrameworkSettings:MdiContainer = THIS-OBJECT .
         
         oSplash = NEW Consultingwerk.SmartComponents.Support.Splash.Splash () . 
-        oSplash:ApplicationTitle = "SmartFramework~nMaintenance Application":U . 
+        oSplash:ApplicationTitle = "Advanced Software~nAdvantzware":U . 
         oSplash:TopMost = TRUE . 
         oSplash:Show () .
         PROCESS EVENTS . 
