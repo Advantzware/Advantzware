@@ -6,6 +6,7 @@
 <propathentry env="all" kind="dir" path="@{ROOT}\src\wrappers" platform="All"/>
 <propathentry env="all" kind="folder" path="\SmartComponentLibrary" platform="All"/>
 <propathentry env="all" kind="folder" path="\SmartComponentLibrary\src" platform="All"/>
+<propathentry env="all" kind="folder" path="\Legacy" platform="All"/>
 <propathentry env="gui" kind="con" path="com.openedge.pdt.text.GUI_LIBRARIES" platform="All"/>
 <propathentry env="tty" kind="con" path="com.openedge.pdt.text.TTY_LIBRARIES" platform="All"/>
 <propathentry env="all" kind="con" path="com.openedge.pdt.text.DLC_PATHS" platform="All"/>
