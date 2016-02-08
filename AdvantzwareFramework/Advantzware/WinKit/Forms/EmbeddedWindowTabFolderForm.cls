@@ -981,16 +981,22 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
             oTabGroup:Visible = (oTabGroup:Key = "page_" + STRING (piPage)) . 
         END.
         
-        IF THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups:Exists ("page_" + STRING (piPage)) THEN 
-            
+        IF THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups:Exists ("page_" + STRING (piPage)) THEN DO: 
             THIS-OBJECT:ToolbarsManager:Ribbon:SelectedTab = 
                 THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups["page_" + STRING (piPage)]:Tabs[0] .
-        
+            
             IF VALID-OBJECT (THIS-OBJECT:ToolbarsManager:MdiParentManager) AND 
                  THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups:Exists ("page_" + STRING (piPage)) THEN  
                 THIS-OBJECT:ToolbarsManager:MdiParentManager:Ribbon:SelectedTab = 
                     THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups["page_" + STRING (piPage)]:Tabs[0]:AttachedParentTab .
+        END.
+        ELSE 
+            IF VALID-OBJECT (THIS-OBJECT:ToolbarsManager:MdiParentManager) AND 
+                 THIS-OBJECT:ToolbarsManager:Ribbon:Tabs:Count > 0 THEN  
+                THIS-OBJECT:ToolbarsManager:MdiParentManager:Ribbon:SelectedTab = 
+                    THIS-OBJECT:ToolbarsManager:Ribbon:Tabs[0]:AttachedParentTab .
         
+    
         FINALLY:
             ASSIGN lSelectingTab = FALSE .      
         END FINALLY.
