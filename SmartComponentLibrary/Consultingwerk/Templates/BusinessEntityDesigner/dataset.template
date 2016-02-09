@@ -1,0 +1,39 @@
+/**********************************************************************
+ * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * www.consultingwerk.de and other contributors as listed             *
+ * below.  All Rights Reserved.                                       *
+ *                                                                    *
+ *  Software is distributed on an "AS IS", WITHOUT WARRANTY OF ANY    *
+ *   KIND, either express or implied.                                 *
+ *                                                                    *
+ *  Contributors:                                                     *
+ *                                                                    *
+ **********************************************************************/ 
+/*------------------------------------------------------------------------
+    File        : &1.i
+    Purpose     : &6
+
+    Syntax      :
+
+    Description : &7
+
+    Author(s)   : @USER@ / Consultingwerk Ltd.
+    Created     : &5
+    Notes       :
+  ----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+
+&&SCOPED-DEFINE ACCESS {&&ACCESS}
+&&SCOPED-DEFINE REFERENCE-ONLY {&&REFERENCE-ONLY}
+&&SCOPED-DEFINE SUFFIX {&&SUFFIX}
+
+&&GLOBAL-DEFINE DATASET-NAME &1
+
+&3
+
+@FILEANNOTATION@
+
+DEFINE {&&ACCESS} DATASET &1{&&SUFFIX} {&&REFERENCE-ONLY} FOR &2 
+&4
+    .    

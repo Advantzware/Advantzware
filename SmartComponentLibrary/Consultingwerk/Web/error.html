@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+
+<SCRIPT LANGUAGE="SpeedScript">
+  /*------------------------------------------------------------------
+    File:
+    Description:
+    Created:
+  -------------------------------------------------------------------*/
+
+
+    DEFINE VARIABLE cTitle      AS CHARACTER NO-UNDO INIT "Error":U .
+    DEFINE VARIABLE cError      AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE cStacktrace AS CHARACTER NO-UNDO .
+
+    CREATE WIDGET-POOL.
+    
+    IF Consultingwerk.Web.WebErrorHelper:Title > "":U THEN 
+        ASSIGN cTitle = Consultingwerk.Web.WebErrorHelper:Title . 
+
+    IF VALID-OBJECT (Consultingwerk.Web.WebErrorHelper:Error) THEN DO:
+        ASSIGN cError      = REPLACE (Consultingwerk.Util.ErrorHelper:FormattedErrorMessages (Consultingwerk.Web.WebErrorHelper:Error),
+                                      "~n":U, "<br />~n":U) 
+               cStacktrace = REPLACE (Consultingwerk.Util.ErrorHelper:StackTrace (Consultingwerk.Web.WebErrorHelper:Error),
+                                      "~n":U, "<br />~n":U). 
+                                 
+    END.                                 
+
+</SCRIPT>
+
+<HTML>
+<HEAD>
+<META NAME="AUTHOR" CONTENT="Consultingwerk Ltd.">
+<title>{= cTitle =} </title>
+<style type="text/css">
+body { background-color:#FFFFFF; color:#000000; font-family:"Segoe UI light",Tahoma,Verdana,sans-serif }
+</style>
+</HEAD>
+
+<BODY>
+
+<h1 stlye="font-family:Segoe,Tahoma,Verdana,sans-serif"><img src="/SmartComponentsWeb/Images/MessageDialog/error.png" width="32" height="32" align="center"/>&nbsp;{= cTitle =}</h1>
+
+<p stlye="font-family:Segoe,Tahoma,Verdana,sans-serif">{= cError =}</p>
+
+<p stlye="font-family:Segoe,Tahoma,Verdana,sans-serif">{= cStacktrace =}</p>
+    
+</BODY>
+</HTML>

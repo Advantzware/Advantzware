@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<ttSmartBusinessEntityLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ttSmartBusinessEntityLookupRow>
+    <AdapterType>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter</AdapterType>
+    <AppServerPartition/>
+    <LookupBrowserFields>UserName,UserFullName,UserEmail</LookupBrowserFields>
+    <LookupControls>ManagerUserNameTextEditor</LookupControls>
+    <LookupDialogClassName/>
+    <LookupDialogFilterFields>UserName</LookupDialogFilterFields>
+    <LookupDialogFilterOperators>BEGINS</LookupDialogFilterOperators>
+    <LookupDialogQuerySort/>
+    <LookupDialogQueryString>FOR EACH eSmartUser</LookupDialogQueryString>
+    <LookupDialogTitle>Manager Lookup</LookupDialogTitle>
+    <LookupEntityName>Consultingwerk.SmartFramework.Authentication.UserBusinessEntity</LookupEntityName>
+    <LookupEntityTable>eSmartUser</LookupEntityTable>
+    <LookupEntityView/>
+    <LookupFields>UserFullName</LookupFields>
+    <LookupKeyField>UserName</LookupKeyField>
+    <LookupKeyValueColumn>UserGuid</LookupKeyValueColumn>
+    <LookupQuerySort/>
+    <LookupQueryString>FOR EACH eSmartUser WHERE eSmartUser.UserName = &quot;&amp;1&quot;</LookupQueryString>
+    <LookupTimerDelay>750</LookupTimerDelay>
+  </ttSmartBusinessEntityLookupRow>
+</ttSmartBusinessEntityLookup>

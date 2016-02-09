@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsRelation" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartRelation" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartRelationBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="RelationGuid" type="xsd:string" nillable="true" prodata:fieldName="RelationGuid" prodata:format="x(36)"/>
+              <xsd:element name="ParentTableGUID" type="xsd:string" nillable="true" prodata:fieldName="ParentTableGUID" prodata:format="x(36)"/>
+              <xsd:element name="ParentTableName" type="xsd:string" nillable="true" prodata:format="X(80)"/>
+              <xsd:element name="ChildTableGUID" type="xsd:string" nillable="true" prodata:fieldName="ChildTableGUID" prodata:format="x(36)"/>
+              <xsd:element name="ChildTableName" type="xsd:string" nillable="true" prodata:format="X(80)"/>
+              <xsd:element name="RelationName" type="xsd:string" nillable="true" prodata:fieldName="RelationName" prodata:format="x(80)" prodata:label="Name"/>
+              <xsd:element name="RelationDescription" type="xsd:string" nillable="true" prodata:fieldName="RelationDescription" prodata:format="x(400)" prodata:label="Description"/>
+              <xsd:element name="RelationFieldPair" type="xsd:string" nillable="true" prodata:fieldName="RelationFieldPair" prodata:format="x(80)" prodata:label="RelationFieldPair(s)"/>
+              <xsd:element name="ParentRoleDescription" type="xsd:string" nillable="true" prodata:fieldName="ParentRoleDescription" prodata:format="x(80)" prodata:label="Parent Role Description"/>
+              <xsd:element name="ChildRoleDescription" type="xsd:string" nillable="true" prodata:fieldName="ChildRoleDescription" prodata:format="x(80)" prodata:label="Child Role Description"/>
+              <xsd:element name="ParentCardinality" type="xsd:string" nillable="true" prodata:fieldName="ParentCardinality" prodata:format="x(3)" prodata:label="Parent Cardinality"/>
+              <xsd:element name="ChildCardinality" type="xsd:string" nillable="true" prodata:fieldName="ChildCardinality" prodata:format="x(3)" prodata:label="Child Cardinality"/>
+              <xsd:element name="OnParentDelete" type="xsd:string" nillable="true" prodata:fieldName="OnParentDelete" prodata:label="On Parent Delete"/>
+              <xsd:element name="DefaultParentRelation" type="xsd:boolean" nillable="true" prodata:fieldName="DefaultParentRelation" prodata:label="Default Parent Relation"/>
+              <xsd:element name="SmartAttachments" type="xsd:boolean" nillable="true" prodata:label="Attachments"/>
+              <xsd:element name="SmartComments" type="xsd:boolean" nillable="true" prodata:label="Comments"/>
+              <xsd:element name="SmartRecordKey" type="xsd:string" nillable="true" prodata:format="X(80)"/>
+              <xsd:element name="Inactive" type="xsd:boolean" nillable="true" prodata:fieldName="Inactive"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="RelationGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartRelation"/>
+      <xsd:field xpath="RelationGuid"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="ChildTableGuid">
+        <prodata:table name="eSmartRelation"/>
+        <prodata:field name="ChildTableGUID"/>
+      </prodata:index>
+      <prodata:index name="ParentTableGuid">
+        <prodata:table name="eSmartRelation"/>
+        <prodata:field name="ParentTableGUID"/>
+      </prodata:index>
+      <prodata:index name="RelationName">
+        <prodata:table name="eSmartRelation"/>
+        <prodata:field name="RelationName"/>
+      </prodata:index>
+      <prodata:index name="ParentTableName">
+        <prodata:table name="eSmartRelation"/>
+        <prodata:field name="ParentTableName"/>
+        <prodata:field name="Inactive"/>
+      </prodata:index>
+      <prodata:index name="ChildTableName">
+        <prodata:table name="eSmartRelation"/>
+        <prodata:field name="ChildTableName"/>
+      </prodata:index>
+      <prodata:index name="DefaultParentRelation">
+        <prodata:table name="eSmartRelation"/>
+        <prodata:field name="ChildTableName"/>
+        <prodata:field name="DefaultParentRelation"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

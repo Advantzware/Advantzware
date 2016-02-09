@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsSecurityRealm" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartSecurityRealm" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartSecurityRealmBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="SecurityRealmGuid" type="xsd:string" nillable="true" prodata:fieldName="SecurityRealmGuid" prodata:format="x(36)"/>
+              <xsd:element name="SecurityRealmCode" type="xsd:string" nillable="true" prodata:fieldName="SecurityRealmCode" prodata:format="x(3)" prodata:label="Realm Code"/>
+              <xsd:element name="SecurityRealmDescription" type="xsd:string" nillable="true" prodata:fieldName="SecurityRealmDescription" prodata:format="x(80)" prodata:label="Realm Description"/>
+              <xsd:element name="SecurityRealmService" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Security Realm Service"/>
+              <xsd:element name="DefaultRestricted" type="xsd:boolean" nillable="true" prodata:fieldName="DefaultRestricted" prodata:label="Default Restricted"/>
+              <xsd:element name="CompanyDependent" type="xsd:boolean" nillable="true" prodata:fieldName="CompanyDependent" prodata:label="Assignment Company Dependent"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="SecurityRealmCode">
+      <xsd:selector xpath=".//eSmartSecurityRealm"/>
+      <xsd:field xpath="SecurityRealmCode"/>
+    </xsd:unique>
+    <xsd:unique name="SecurityRealmGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartSecurityRealm"/>
+      <xsd:field xpath="SecurityRealmGuid"/>
+    </xsd:unique>
+  </xsd:element>
+</xsd:schema>

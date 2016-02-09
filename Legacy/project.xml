@@ -151,7 +151,7 @@
     </void>
     <void method="put">
      <string>pvm_assemblies_directory</string>
-     <string></string>
+     <string>platform:/resource/Assemblies</string>
     </void>
     <void method="put">
      <string>export_path</string>
@@ -163,7 +163,7 @@
     </void>
     <void method="put">
      <string>pvm_use_default_assemblies_directory</string>
-     <string>true</string>
+     <string>false</string>
     </void>
    </object>
   </void>

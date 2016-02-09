@@ -1,0 +1,11 @@
+&1      data access name
+&2      package name
+&3      dataset name
+&4      dataset path
+&5      define data-source block
+&6      attach data-source block
+&7      detach data-source block
+&8      Source Column block 
+&9      Source Default Query block
+@DATE@  time stamp
+@USER@  the current user name
