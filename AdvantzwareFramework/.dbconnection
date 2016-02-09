@@ -3,9 +3,13 @@
 <connectionentry identifier="nosweat"/>
 <connectionentry identifier="temp-db"/>
 <<<<<<< HEAD
+<<<<<<< HEAD
 <connectionentry identifier="smartDB"/>
 =======
 <connectionentry identifier="SmartDB"/>
 <connectionentry identifier="asi"/>
 >>>>>>> 14c8be9a873b049c9f7462230e8be596de93b335
+=======
+<connectionentry identifier="SmartDB"/>
+>>>>>>> c1279d6... Cleanup
 </connection>
