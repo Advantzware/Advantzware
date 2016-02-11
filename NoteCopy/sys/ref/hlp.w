@@ -61,7 +61,8 @@ DEF VAR tmp-dir AS CHAR NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS ed-text Btn_OK btn-print btn-update btDataDigger 
+&Scoped-Define ENABLED-OBJECTS ed-text Btn_OK btn-print btn-update ~
+btDataDigger 
 &Scoped-Define DISPLAYED-OBJECTS lv-help-title lv-program lv-frame-name ~
 ed-text 
 
@@ -81,7 +82,8 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 /* Menu Definitions                                                     */
 DEFINE MENU POPUP-MENU-btDataDigger 
        MENU-ITEM m_DataDigger2  LABEL "DataDigger"    
-       MENU-ITEM m_ProTools2    LABEL "ProTools"      .
+       MENU-ITEM m_ProTools2    LABEL "ProTools"      
+       MENU-ITEM m_Program_Stack LABEL "Program Stack" .
 
 DEFINE MENU POPUP-MENU-lv-program 
        MENU-ITEM m_datadigger   LABEL "datadigger"    
@@ -93,13 +95,13 @@ DEFINE BUTTON btDataDigger
      LABEL "DD" 
      SIZE 11 BY 1.14.
 
+DEFINE BUTTON btn-print 
+     LABEL "Print" 
+     SIZE 15 BY 1.14.
+
 DEFINE BUTTON btn-update 
      LABEL "Update Help" 
      SIZE 18 BY 1.14.
-
-DEFINE BUTTON btn-print 
-    LABEL "Print" 
-    SIZE 15 BY 1.14.  
 
 DEFINE BUTTON Btn_OK AUTO-END-KEY 
      LABEL "OK" 
@@ -277,6 +279,31 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn-print
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-print W-Win
+ON CHOOSE OF btn-print IN FRAME F-Main /* Print */
+DO:
+    {sys/inc/print1.i}
+    {sys/inc/outprint.i value(99)}
+
+    PUT SKIP SPACE(28)
+             lv-help-title 
+        SKIP
+        SPACE(28) lv-program  /*br*/
+        SKIP
+        SPACE(28) lv-frame-name  /*br*/ .
+
+     PUT SKIP(1)
+          ed-text:SCREEN-VALUE FORMAT "x(10000)"  .
+
+    RUN custom/prntproc.p (list-name,INT(11),"P").
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn-update
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update W-Win
 ON CHOOSE OF btn-update IN FRAME F-Main /* Update Help */
@@ -323,30 +350,17 @@ END.
 &ANALYZE-RESUME
 
 
-
-&Scoped-define SELF-NAME btn-print
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-print W-Win
-ON CHOOSE OF btn-print IN FRAME F-Main /* Update Help */
+&Scoped-define SELF-NAME m_Program_Stack
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Program_Stack W-Win
+ON CHOOSE OF MENU-ITEM m_Program_Stack 
 DO:
-    {sys/inc/print1.i}
-    {sys/inc/outprint.i value(99)}
-
-    PUT SKIP SPACE(28)
-             lv-help-title 
-        SKIP
-        SPACE(28) lv-program  /*br*/
-        SKIP
-        SPACE(28) lv-frame-name  /*br*/ .
-
-     PUT SKIP(1)
-          ed-text:SCREEN-VALUE FORMAT "x(10000)"  .
-
-    RUN custom/prntproc.p (list-name,INT(11),"P").
-    
+  /* Message including program stack */
+  {util/tmsg.i """ Program Stack """ }
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME m_DataDigger2
