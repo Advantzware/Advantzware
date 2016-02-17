@@ -370,14 +370,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
      Initialize the WinKit framework settings */
-  RUN Advantzware/WinKit/start.p .
+/*  RUN Advantzware/WinKit/start.p . */
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
    /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
       For WinKit purposes, we need to use a GUI for .NET 
       enabled WAIT-FOR in the main application */
-   /* WAIT-FOR CLOSE OF THIS-PROCEDURE.*/   
-   WAIT-FOR System.Windows.Forms.Application:Run() .
+WAIT-FOR CLOSE OF THIS-PROCEDURE.
+/*   WAIT-FOR System.Windows.Forms.Application:Run() */
 END.
 
 /* _UIB-CODE-BLOCK-END */
