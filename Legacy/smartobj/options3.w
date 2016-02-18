@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_att Select_spec Select_dept ~
-Select_frac Select_Add Select_appl Select_help Select_Home 
+&Scoped-Define ENABLED-OBJECTS Select_appl Select_spec Select_att ~
+Select_dept Select_frac Select_Add Select_help Select_Home 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -70,7 +70,7 @@ DEFINE BUTTON Select_Add
 DEFINE BUTTON Select_appl 
      IMAGE-UP FILE "images\util":U
      IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
-     LABEL "Util_appl" 
+     LABEL "Util App" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_att 
@@ -106,19 +106,19 @@ DEFINE BUTTON Select_Home
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "images\dict":U
      IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
-     LABEL "spec_note" 
+     LABEL "Spec Note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Select_att AT ROW 1 COL 8.8
+     Select_appl AT ROW 1 COL 33
      Select_spec AT ROW 1 COL 25
+     Select_att AT ROW 1 COL 8.8
      Select_dept AT ROW 1 COL 16.8
      Select_frac AT ROW 1 COL 57
      Select_Add AT ROW 1 COL 1
-     Select_appl AT ROW 1 COL 33
      Select_help AT ROW 1 COL 41
      Select_Home AT ROW 1 COL 49
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -218,7 +218,7 @@ END.
 
 &Scoped-define SELF-NAME Select_appl
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_appl s-object
-ON CHOOSE OF Select_appl IN FRAME F-Main /* Util_appl */
+ON CHOOSE OF Select_appl IN FRAME F-Main /* Util App */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
@@ -322,7 +322,7 @@ END.
 
 &Scoped-define SELF-NAME Select_spec
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_spec s-object
-ON CHOOSE OF Select_spec IN FRAME F-Main /* spec_note */
+ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
 DO:
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 

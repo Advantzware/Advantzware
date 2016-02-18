@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_appl Select_help Select_List ~
-Select_spec Select_Search Select_Notes Select_Misc_Fields Select_Browser ~
+&Scoped-Define ENABLED-OBJECTS Select_appl Select_spec Select_help ~
+Select_List Select_Search Select_Notes Select_Misc_Fields Select_Browser ~
 Select_Viewer 
 
 /* Custom List Definitions                                              */
@@ -64,7 +64,7 @@ Select_Viewer
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_appl 
      IMAGE-UP FILE "images/appl.bmp":U NO-FOCUS
-     LABEL "Util_appl" 
+     LABEL "Util App" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_Browser 
@@ -103,7 +103,7 @@ DEFINE BUTTON Select_Search
 
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "images\dict":U NO-FOCUS
-     LABEL "spec_note" 
+     LABEL "Spec Note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
 
 DEFINE BUTTON Select_Viewer 
@@ -116,9 +116,9 @@ DEFINE BUTTON Select_Viewer
 
 DEFINE FRAME F-Main
      Select_appl AT ROW 1 COL 57
+     Select_spec AT ROW 1 COL 49
      Select_help AT ROW 1 COL 65
      Select_List AT ROW 1 COL 9
-     Select_spec AT ROW 1 COL 49
      Select_Search AT ROW 1 COL 1
      Select_Notes AT ROW 1 COL 17
      Select_Misc_Fields AT ROW 1 COL 25
@@ -205,7 +205,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Select_appl
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_appl s-object
-ON CHOOSE OF Select_appl IN FRAME F-Main /* Util_appl */
+ON CHOOSE OF Select_appl IN FRAME F-Main /* Util App */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
@@ -317,7 +317,7 @@ END.
 
 &Scoped-define SELF-NAME Select_spec
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_spec s-object
-ON CHOOSE OF Select_spec IN FRAME F-Main /* spec_note */
+ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
 DO:
     {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 

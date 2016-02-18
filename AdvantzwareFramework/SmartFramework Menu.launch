@@ -41,6 +41,7 @@
 <stringAttribute key="abl.profiling.PROFILER_DESCRIPTION" value=""/>
 <stringAttribute key="abl.profiling.PROFILER_DIRECTORY" value=""/>
 <booleanAttribute key="abl.startup.ERROR_STACK_TRACE" value="true"/>
+<stringAttribute key="abl.startup.STARTUP_PARAMETERS" value="-IOEverywhere 1"/>
 <stringAttribute key="abl.startup.WORKING_DIRECTORY" value="${workspace_loc:/Legacy}"/>
 <listAttribute key="logging.LOGGING_ENABLED_TYPES">
 <listEntry value="4GLMessages:4:true"/>
