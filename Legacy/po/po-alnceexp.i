@@ -31,7 +31,7 @@ DEF VAR v-outfile AS CHAR EXTENT 4 NO-UNDO.
 DEF VAR v-mach AS CHAR EXTENT 4 NO-UNDO.
 DEF VAR v-line AS CHAR NO-UNDO.
 DEF VAR li-style AS INT NO-UNDO.
-
+def var cQuoter as char NO-UNDO.
 DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
@@ -673,9 +673,14 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     IF OPSYS EQ "unix" THEN
       UNIX SILENT QUOTER -c 1-3000 VALUE(v-outfile[2]) >
                                    VALUE(v-outfile[2] + ".quo").
-    ELSE
-      DOS  SILENT QUOTER -c 1-3000 VALUE(v-outfile[2]) >
+    ELSE DO:
+    
+      /* WFK 02-26-2016 Made sure quoter was found 15196 */
+      cQuoter =  search("quoter.exe") .
+      
+      DOS  SILENT value(cQuoter) -c 1-3000 VALUE(v-outfile[2]) >
                                    VALUE(v-outfile[2] + ".quo").
+    END.
                                    
     INPUT from value(v-outfile[2] + ".quo").
     
