@@ -180,9 +180,9 @@ DEF VAR v-req-date AS DATE NO-UNDO.
 DEF VAR v-shipto AS cha FORMAT "x(30)" EXTENT 4 NO-UNDO.
 DEF VAR v-case-size AS cha NO-UNDO.
 DEF VAR v-vend LIKE po-ord.vend-no NO-UNDO.
-DEF VAR v-item AS cha EXTENT 40 NO-UNDO.
-DEF VAR v-i-qty AS DEC EXTENT 40 NO-UNDO.
-DEF VAR v-ink1 AS cha EXTENT 40 NO-UNDO.
+DEF VAR v-item AS cha EXTENT 30 NO-UNDO.
+DEF VAR v-i-qty AS DEC EXTENT 30 NO-UNDO.
+DEF VAR v-ink1 AS cha EXTENT 30 NO-UNDO.
 DEF VAR v-ink2 AS cha EXTENT 40 NO-UNDO.
 DEF VAR lv-mat-dept-list AS cha INIT "FB,FS,WN,WS,GL" NO-UNDO.
 DEF VAR v-mat-for-mach AS cha NO-UNDO.
@@ -1119,7 +1119,7 @@ FOR  EACH job-hdr NO-LOCK
                 v-skip = NO
                 v-plate-printed = NO.
              
-             DO j = 1 TO 30:
+             DO j = 1 TO EXTENT(v-ink1):
                 IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
                 IF v-ink1[j] <> "" THEN do:
                 /* ASSIGN v-ink1[j] = SUBSTRING(v-ink1[j],1,5) + FILL(" ",7) + TRIM(SUBSTRING(v-ink1[j],6)). */
@@ -1138,7 +1138,7 @@ FOR  EACH job-hdr NO-LOCK
 
              IF NOT v-plate-printed THEN PUT eb.plate-no AT 107 SKIP.
 
-             DO j = 1 TO 30:
+             DO j = 1 TO EXTENT(v-ink2):
                 IF TRIM(v-ink2[j]) = "-" THEN v-ink2[j] = "".                 
                 IF v-ink2[j] <> "" THEN do:
                    IF v-skip THEN PUT space(1) v-ink2[j] FORM "x(52)" SKIP.
@@ -1432,7 +1432,7 @@ FOR  EACH job-hdr NO-LOCK
         FOR EACH notes WHERE notes.rec_key = job.rec_key
                     AND (notes.note_form_no = job-hdr.frm OR notes.note_form_no = 0)
                     AND LOOKUP(notes.note_code,v-exc-depts) EQ 0 
-                    AND notes.note_type NE 'O' NO-LOCK
+                    /*AND notes.note_type NE 'O'*/  NO-LOCK  /* ticket 14661 */
                     BREAK BY notes.note_code:
             IF FIRST-OF(notes.note_code) THEN DO:
                lv-text = "".
