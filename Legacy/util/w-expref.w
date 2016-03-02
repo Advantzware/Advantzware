@@ -376,18 +376,13 @@ PROCEDURE exportJobHdr :
 def output parameter opCnt as int.
 i = 0.
 output stream s1 to c:\temp\jobdata.d.
-for each reftable where reftable.reftable eq "ts/jobdata.p":
-
+for each reftable where reftable.reftable eq 
+"ts/jobdata.p":
   find job-hdr where recid(job-hdr) eq int(reftable.code) no-lock no-error.
-  find fg-bin where recid(fg-bin) eq int(reftable.code2) no-lock no-error.
-  
-  if avail job-hdr and avail fg-bin then do:
-    export  reftable.reftable reftable.company reftable.code reftable.rec_key
-            job-hdr.rec_key job-hdr.job-no job-hdr.job-no2
-            fg-bin.rec_key.
+  if avail job-hdr then do:
+    export reftable.reftable reftable.company reftable.code job-hdr.rec_key job-hdr.job-no job-hdr.job-no2.
     i = i + 1.
   end.
-  
 end.
 
 output stream s1 close.
@@ -399,39 +394,23 @@ opCnt = i.
 def var cref as char.
 def var ccomp as char.
 def var ccode as char.
-def var cJobrec_key as char.
-def var cRefRec_key as char.
+def var crec_key as char.
 def var cjob as char.
 def var cJob2 as int.
-def var cBinRec_key as char.
-
-
 input from c:\temp\jobdata.d.
 repeat:
-
   import 
-    cRef cComp cCode cRefRec_key
-     cJobRec_key cJob cJob2
-     cBinRec_key
-     .
+    cRef cComp cCode cRec_key cJob cJob2.
   find first reftable where reftable.reftable = cRef
-    and reftable.company = cComp
-    and reftable.code = cCode
-    exclusive-lock no-error.
-  
-  find first job-hdr where job-hdr.rec_key eq cJobRec_key
-    and job-hdr.job-no eq cJob
-    and job-hdr.job-no2 eq cJob2
-    no-lock no-error.
-    
+  and reftable.company = cComp
+  and reftable.code = cCode
+  exclusive-lock no-error.
+  find first job-hdr where job-hdr.rec_key eq cRec_key
+  and job-hdr.job-no eq cJob
+  and job-hdr.job-no2 eq cJob2
+  no-lock no-error.
   if avail reftable and avail job-hdr then 
    reftable.code     = STRING(RECID(job-hdr)).
-   
-  find first fg-bin where fg-bin.rec_key eq cBinRec_key
-    no-lock no-error.
-    
-  if avail fg-bin then
-    reftable.code2 = string(recid(fg-bin)).
 end.
 input close.
 */
@@ -656,3 +635,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
