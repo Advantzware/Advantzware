@@ -53,6 +53,21 @@ def var lv-type-dscr as cha no-undo.
 &scoped-define IAMWHAT LOOKUP
 &SCOPED-DEFINE useMatches
 
+{sys/inc/VAR.i NEW SHARED}
+
+DEF VAR lActive AS LOG NO-UNDO.
+DEF VAR v-check-page AS LOG INIT NO NO-UNDO .
+DEF VAR v-file-name AS CHAR NO-UNDO .
+
+ASSIGN cocode = ip-company .
+
+IF  PROGRAM-NAME(2) MATCHES "*/r-unfgdtA.w*" OR PROGRAM-NAME(2) MATCHES "*/r-unfgdtN.w*" THEN
+    v-check-page = YES .
+
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+END.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -81,11 +96,13 @@ shipto.carrier shipto.loc
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH shipto WHERE ~{&KEY-PHRASE} ~
       AND shipto.company = ip-company and ~
-(shipto.cust-no = ip-cust-no OR ip-cust-no EQ "") NO-LOCK ~
+(shipto.cust-no = ip-cust-no OR ip-cust-no EQ "") AND ~
+((v-check-page AND ( (lookup(shipto.cust-no,custcount) <> 0 AND shipto.cust-no <> "") OR custcount = "")) OR NOT v-check-page)  NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH shipto WHERE ~{&KEY-PHRASE} ~
       AND shipto.company = ip-company and ~
-(shipto.cust-no = ip-cust-no OR ip-cust-no EQ "") NO-LOCK ~
+(shipto.cust-no = ip-cust-no OR ip-cust-no EQ "") AND ~
+((v-check-page AND ( (lookup(shipto.cust-no,custcount) <> 0 AND shipto.cust-no <> "") OR custcount = "")) OR NOT v-check-page)     NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 shipto
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 shipto
@@ -352,6 +369,20 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+
+    IF  PROGRAM-NAME(2) MATCHES "*/r-unfgdtA.w*" OR  PROGRAM-NAME(2) MATCHES "*/r-unfgdtN.w*" THEN do:
+        v-file-name  = "IL3" .
+        RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'IL3',
+                            INPUT YES,
+                            OUTPUT lActive).
+    END.
+    
+    
+{sys/inc/custlistform.i "v-file-name" }
+{sys/inc/chblankcust.i}
+     IF ou-cust-int = 0 THEN
+        custcount = "" .
   
   RUN enable_UI.
 
