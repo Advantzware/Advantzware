@@ -179,10 +179,10 @@ DEF VAR v-req-date AS DATE NO-UNDO.
 DEF VAR v-shipto AS cha FORMAT "x(30)" EXTENT 4 NO-UNDO.
 DEF VAR v-case-size AS cha NO-UNDO.
 DEF VAR v-vend LIKE po-ord.vend-no NO-UNDO.
-DEF VAR v-item AS cha EXTENT 20 NO-UNDO.
-DEF VAR v-i-qty AS DEC EXTENT 20 NO-UNDO.
-DEF VAR v-ink1 AS cha EXTENT 20 NO-UNDO.
-DEF VAR v-ink2 AS cha EXTENT 20 NO-UNDO.
+DEF VAR v-item AS cha EXTENT 40 NO-UNDO.
+DEF VAR v-i-qty AS DEC EXTENT 40 NO-UNDO.
+DEF VAR v-ink1 AS cha EXTENT 40 NO-UNDO.
+DEF VAR v-ink2 AS cha EXTENT 40 NO-UNDO.
 DEF VAR v-po-no LIKE oe-ordl.po-no NO-UNDO.
 DEF VAR lv-mat-dept-list AS cha INIT "FB,FS,WN,WS,GL" NO-UNDO.
 DEF VAR v-mat-for-mach AS cha NO-UNDO.
@@ -1132,7 +1132,7 @@ for each job-hdr NO-LOCK
                 v-skip = NO
                 v-plate-printed = NO.
             
-             DO j = 1 TO 20:
+             DO j = 1 TO 30:
                 IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
                 IF v-ink1[j] <> "" THEN do:
                    IF v-skip THEN do:
@@ -1149,7 +1149,7 @@ for each job-hdr NO-LOCK
              END.
              IF NOT v-plate-printed THEN PUT eb.plate-no AT 106 SKIP.
 
-             DO j = 1 TO 20:
+             DO j = 1 TO 30:
                 IF TRIM(v-ink2[j]) = "-" THEN v-ink2[j] = "".                 
                 IF v-ink2[j] <> "" THEN do:
                    IF v-skip THEN PUT v-ink2[j] FORM "x(52)" SKIP.
@@ -1168,7 +1168,7 @@ for each job-hdr NO-LOCK
            ASSIGN 
               v-lp-dep = if avail item then ITEM.case-d ELSE 0 
               v-lp-qty = if avail item THEN ITEM.box-case ELSE 0.
-
+            
           IF FIRST-OF(eb.form-no) THEN
              PUT 
                 "<P9><B> UNIT SIZE                      Packaging       Size                   Units Per        QTY Trays Per case     Speed(UPH)   Case wt     Style</B>" SKIP.
@@ -1225,6 +1225,12 @@ for each job-hdr NO-LOCK
 
           IF v-dc-out EQ 0 THEN
              v-dc-out = 1.
+          
+          ASSIGN
+              v-shrink-wrap = CAN-FIND(FIRST est-op WHERE
+                               est-op.company EQ job-hdr.company AND
+                               est-op.est-no EQ est.est-no AND
+                               est-op.dept = "SW").
 
           PUT " Flat" "Finished"  AT 22 "Tray#" AT 33 eb.layer-pad FORMAT "x(10)"
                string(eb.lp-len) + "x" + string(eb.lp-wid) + "x" + string(v-lp-dep)  FORMAT "x(27)" AT 49
