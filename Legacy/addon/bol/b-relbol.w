@@ -1737,6 +1737,9 @@ PROCEDURE display-qtys :
     END.
 
     DISPLAY v-job-qty v-qoh v-rel-qty v-scan-qty.
+    IF v-scan-qty <> v-rel-qty  THEN  
+        v-scan-qty:BGCOLOR =  12 .
+    ELSE v-scan-qty:BGCOLOR =  10 .
   END.
 
 END PROCEDURE.

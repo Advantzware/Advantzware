@@ -1756,6 +1756,9 @@ PROCEDURE display-qtys :
     END.
 
     DISPLAY /* v-job-qty v-qoh */ v-rel-qty v-scan-qty.
+    IF v-scan-qty <> v-rel-qty  THEN  
+        v-scan-qty:BGCOLOR =  12 .
+    ELSE v-scan-qty:BGCOLOR =  10 .
   END.
       
 END PROCEDURE.
@@ -1801,6 +1804,9 @@ PROCEDURE display-qtys-query :
     END.
 
     DISPLAY v-rel-qty v-scan-qty.
+    IF v-scan-qty <> v-rel-qty  THEN  
+        v-scan-qty:BGCOLOR =  12 .
+    ELSE v-scan-qty:BGCOLOR =  10 .
   END.
 
 END PROCEDURE.
@@ -2757,6 +2763,9 @@ PROCEDURE print-bol :
      v-scan-qty = 0.
 
   DISPLAY scr-rel# v-rel-qty v-scan-qty WITH FRAME {&FRAME-NAME}.
+  IF v-scan-qty <> v-rel-qty  THEN  
+        v-scan-qty:BGCOLOR IN FRAME {&FRAME-NAME}  =  12 .
+    ELSE v-scan-qty:BGCOLOR IN FRAME {&FRAME-NAME} =  10 .
   APPLY "ENTRY" TO scr-rel# IN FRAME {&FRAME-NAME}.
 
   RUN dispatch ('open-query').
