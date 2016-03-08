@@ -2597,6 +2597,7 @@ PROCEDURE print-bol :
   DEF VAR fil_id AS RECID NO-UNDO.
   DEF VAR nufile AS LOG NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
+  DEF VAR li AS LOG INIT YES NO-UNDO.
   DEF VAR v-msgreturn AS INT NO-UNDO.
   DEF VAR v-create-backorder AS LOG NO-UNDO.
 
@@ -2604,7 +2605,7 @@ PROCEDURE print-bol :
 
   IF ERROR-STATUS:ERROR THEN RETURN .
 
-  IF v-scan-qty LT v-rel-qty THEN
+  /*IF v-scan-qty LT v-rel-qty THEN
   DO:
      IF NOT g-sharpshooter THEN
         MESSAGE "The scanned qty is less than the release qty, Do you want to proceed?"
@@ -2615,7 +2616,20 @@ PROCEDURE print-bol :
       END.
 
       IF NOT ll THEN RETURN.
-  END.
+  END.*/
+   /* Ticket 13130 */
+  IF v-rel-qty LT v-scan-qty AND (ssbolprint-char = "OverShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
+     MESSAGE "Release Qty for item: " + string(v-rel-qty) + "   " +
+             "Scanned Qty for item: " + STRING(v-scan-qty) + "   " +
+             "Continue with BOL Creation?" 
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE li.
+  ELSE IF v-rel-qty GT v-scan-qty AND (ssbolprint-char = "UnderShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
+     MESSAGE "Release Qty for item: " + string(v-rel-qty) + "   " +
+             "Scanned Qty for item: " + STRING(v-scan-qty) + "   " +
+             "Continue with BOL Creation?" 
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE li.
+  
+  IF NOT li THEN RETURN.
 
   SESSION:SET-WAIT-STATE("general").
 
