@@ -1611,7 +1611,7 @@ PROCEDURE SetGlobalVariables :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-po-ord-no AS INT NO-UNDO.
 
-  IF LOOKUP(v-print-fmt,"Pacific,Xprint,StClair,Boss,PeachTree,Xprint2,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,Protagon,Protagon2,CSC,Elite,ottpkg,APC,consbox,FibreX,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
+  IF LOOKUP(v-print-fmt,"Pacific,Xprint,StClair,Boss,PeachTree,Xprint2,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
     THEN is-xprint-form = YES.
     ELSE is-xprint-form = NO.
 
@@ -1675,6 +1675,7 @@ PROCEDURE SetPOPrintForm :
     WHEN "PremierCX"    THEN ASSIGN v-program = "po/po-cxprem.p"     li-lineperpage = 80.
     WHEN "Protagon"     THEN ASSIGN v-program = "po/po-protg.p"     li-lineperpage = 85.  
     WHEN "Protagon2"    THEN ASSIGN v-program = "po/po-protg2.p"    li-lineperpage = 85.
+    WHEN "Coburn"       THEN ASSIGN v-program = "po/po-coburn.p"    li-lineperpage = 85.
     WHEN "Centbox"      THEN ASSIGN v-program = "po/po-centx.p"     li-lineperpage = 80.  
     WHEN "Valley"       THEN ASSIGN v-program = "po/po-valy.p"      li-lineperpage = 80.  
     WHEN "Oracle"       THEN ASSIGN v-program = "po/po-oracl.p"     li-lineperpage = 80.
