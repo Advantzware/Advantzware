@@ -1756,6 +1756,9 @@ PROCEDURE display-qtys :
     END.
 
     DISPLAY /* v-job-qty v-qoh */ v-rel-qty v-scan-qty.
+    IF v-scan-qty <> v-rel-qty  THEN  
+        v-scan-qty:BGCOLOR =  12 .
+    ELSE v-scan-qty:BGCOLOR =  10 .
   END.
       
 END PROCEDURE.
@@ -1801,6 +1804,9 @@ PROCEDURE display-qtys-query :
     END.
 
     DISPLAY v-rel-qty v-scan-qty.
+    IF v-scan-qty <> v-rel-qty  THEN  
+        v-scan-qty:BGCOLOR =  12 .
+    ELSE v-scan-qty:BGCOLOR =  10 .
   END.
 
 END PROCEDURE.
@@ -2672,11 +2678,12 @@ PROCEDURE print-bol :
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR v-msgreturn AS INT NO-UNDO.
   DEF VAR v-create-backorder AS LOG NO-UNDO.
+  DEF VAR li AS LOG INIT YES NO-UNDO.
 
   RUN validate-scan (OUTPUT v-create-backorder) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
 
-  IF v-scan-qty LT v-rel-qty THEN
+ /* IF v-scan-qty LT v-rel-qty THEN
   DO:
      IF NOT g-sharpshooter THEN
         MESSAGE "The scanned qty is less than the release qty, Do you want to proceed?"
@@ -2687,7 +2694,19 @@ PROCEDURE print-bol :
      END.
 
      IF NOT ll THEN RETURN.
-  END.
+  END.*/
+  IF v-rel-qty LT v-scan-qty AND (ssbolprint-char = "OverShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
+     MESSAGE "Release Qty for item: " + string(v-rel-qty) + "   " +
+             "Scanned Qty for item: " + STRING(v-scan-qty) + "   " +
+             "Continue with BOL Creation?" 
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE li.
+  ELSE IF v-rel-qty GT v-scan-qty AND (ssbolprint-char = "UnderShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
+     MESSAGE "Release Qty for item: " + string(v-rel-qty) + "   " +
+             "Scanned Qty for item: " + STRING(v-scan-qty) + "   " +
+             "Continue with BOL Creation?" 
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE li.
+  
+  IF NOT li THEN RETURN.
 
   SESSION:SET-WAIT-STATE("general").
 
@@ -2744,6 +2763,9 @@ PROCEDURE print-bol :
      v-scan-qty = 0.
 
   DISPLAY scr-rel# v-rel-qty v-scan-qty WITH FRAME {&FRAME-NAME}.
+  IF v-scan-qty <> v-rel-qty  THEN  
+        v-scan-qty:BGCOLOR IN FRAME {&FRAME-NAME}  =  12 .
+    ELSE v-scan-qty:BGCOLOR IN FRAME {&FRAME-NAME} =  10 .
   APPLY "ENTRY" TO scr-rel# IN FRAME {&FRAME-NAME}.
 
   RUN dispatch ('open-query').
