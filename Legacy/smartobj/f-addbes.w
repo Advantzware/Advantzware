@@ -111,7 +111,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -155,11 +154,6 @@ ASSIGN
 ON CHOOSE OF Select_AddBest IN FRAME F-Main /* Add */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:57 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */

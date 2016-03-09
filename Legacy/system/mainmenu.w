@@ -31,7 +31,14 @@ CREATE WIDGET-POOL.
 ON F1 HELP.
 ON CTRL-F HELP.
 ON CTRL-P HELP.
- 
+
+   LOG-MANAGER:LOGFILE-NAME = "c:\temp\wadelog.txt".
+ LOG-MANAGER:CLEAR-LOG( ).
+ LOG-MANAGER:LOGGING-LEVEL
+= 2.
+ LOG-MANAGER:WRITE-MESSAGE(
+"Got here: x=" + string(1),
+"DEBUG1").
 /* ***************************  Definitions  ************************** */
  
 /* Parameters Definitions ---                                           */
@@ -316,9 +323,6 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
-    /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
-       Application:Exit will terminate the .NET WAIT-FOR in the 
-       Main Block */
     System.Windows.Forms.Application:Exit ().
     RUN disable_UI.
 END.    
@@ -326,7 +330,7 @@ END.
 /* These events will close the window and terminate the procedure.      */
 /* (NOTE: this will override any user-defined triggers previously       */
 /*  defined on the window.)                                             */
-ON WINDOW-CLOSE OF {&WINDOW-NAME} DO:
+ON WINDOW-CLOSE OF {&WINDOW-NAME} DO:  
   closeMenu = YES.
   IF USERID('nosweat') NE "Nosweat" THEN
   MESSAGE 'Exit AdvantzWare?' VIEW-AS ALERT-BOX
@@ -368,15 +372,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/mainmenu.i}
   RUN Read_Menus.
   
-  /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
-     Initialize the WinKit framework settings */
-  RUN Advantzware/WinKit/start.p .
-
+  
+  
+  run Consultingwerk/WindowIntegrationKit/Samples/start.p .
+  
+  
+  
+     
+  
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
-   /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
-      For WinKit purposes, we need to use a GUI for .NET 
-      enabled WAIT-FOR in the main application */
-   /* WAIT-FOR CLOSE OF THIS-PROCEDURE.*/   
+   /* WAIT-FOR CLOSE OF THIS-PROCEDURE.*/
    WAIT-FOR System.Windows.Forms.Application:Run() .
 END.
 

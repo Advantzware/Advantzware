@@ -186,7 +186,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -238,11 +237,6 @@ DO:
 
   RUN notify ('add-record':U).
   
-
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:35 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -257,11 +251,6 @@ DO:
       add-active = no.
       RUN notify ('cancel-record':U).
    END.
-
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:35 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -275,11 +264,6 @@ DO:
    IF NOT v-can-create THEN RETURN no-apply.
 
    RUN notify ('copy-record':U).
-
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:35 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -293,11 +277,6 @@ DO:
    IF NOT v-can-delete THEN RETURN no-apply.
 
    RUN notify ('delete-record':U).  
-
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:35 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -312,11 +291,6 @@ DO:
 
    RUN notify ('import-data, TABLEIO-TARGET':U).  
    
-
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:35 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -328,11 +302,6 @@ END.
 ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
 DO:
   RUN notify ('reset-record':U).
-
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:35 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -373,11 +342,6 @@ DO:
         RUN notify ('update-record':U).
      END.
   END.
-
-
-  /* Added by WinKit Migration tool 07.02.2016 23:08:35 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */

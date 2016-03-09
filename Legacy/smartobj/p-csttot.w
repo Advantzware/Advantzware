@@ -169,7 +169,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -218,11 +217,6 @@ DO:
       add-active = no.
       RUN notify ('cancel-record':U).
    END.
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:13:09 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -238,11 +232,6 @@ DO:
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "tableio-target", OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN RUN recalc-tot IN WIDGET-HANDLE(char-hdl).
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:13:09 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -254,11 +243,6 @@ END.
 ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
 DO:
   RUN notify ('reset-record':U).
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:13:09 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -299,11 +283,6 @@ DO:
         RUN notify ('update-record':U).
      END.
   END.
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:13:09 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -319,11 +298,6 @@ DO:
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "tableio-target", OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN RUN lyytd-tot IN WIDGET-HANDLE(char-hdl).
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:13:09 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -72,7 +72,7 @@ DEF VAR lv-auto-calc AS LOG NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -123,7 +123,7 @@ DEFINE BUTTON btn-stds
      SIZE 15 BY 1.29.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 101 BY 1.76.
 
 
@@ -179,7 +179,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -194,7 +193,7 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -238,11 +237,6 @@ DO:
      run auto-calc in widget-handle(source-str). 
   END.
 
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:01 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -261,11 +255,6 @@ DO:
      run update-bom in widget-handle(source-str). 
   END.
   
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:01 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -285,11 +274,6 @@ DO:
 
       RUN notify ('cancel-record':U).
    END.
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:01 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -308,11 +292,6 @@ DO:
       IF VALID-HANDLE(widget-handle(source-str)) THEN 
           run run-form-copy in widget-handle(source-str). 
    END.
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:01 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -365,11 +344,6 @@ DO:
                btn-stds:sensitive = yes.
      END.
   END.
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:01 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -391,11 +365,6 @@ DO:
      run sheet-calc in widget-handle(source-str). 
   END.
 
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:01 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -414,11 +383,6 @@ DO:
       IF VALID-HANDLE(widget-handle(source-str)) THEN 
           run run-job-stds in widget-handle(source-str). 
    END.
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:01 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */

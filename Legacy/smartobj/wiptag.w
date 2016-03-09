@@ -112,7 +112,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -158,11 +157,6 @@ DO:
   {methods/run_link.i "WIPTAG-SOURCE" "{&SELF-NAME}"}
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,'wiptag-target',OUTPUT char-wp).
   RUN wiptag IN char-wp.
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:13:45 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */

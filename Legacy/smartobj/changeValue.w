@@ -45,7 +45,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -110,7 +110,7 @@ DEFINE BUTTON Btn-Prev
      SIZE 8 BY 1.19 TOOLTIP "Previous".
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 34 BY 1.67.
 
 
@@ -162,7 +162,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -177,7 +176,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -208,11 +207,6 @@ ASSIGN
 ON CHOOSE OF Btn-First IN FRAME F-Main /* First */
 DO:
   run do-button ("F").
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:36 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -224,11 +218,6 @@ END.
 ON CHOOSE OF Btn-Last IN FRAME F-Main /* Last */
 DO:
   run do-button ("L").
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:36 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -240,11 +229,6 @@ END.
 ON CHOOSE OF Btn-Next IN FRAME F-Main /* Next */
 DO:
   run do-button ("N").
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:36 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -256,11 +240,6 @@ END.
 ON CHOOSE OF Btn-Prev IN FRAME F-Main /* Prev */
 DO:
   run do-button ("P").
-
-
-  /* Added by WinKit Migration tool 07.02.2016 21:11:36 */
-  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
