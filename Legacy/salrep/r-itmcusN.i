@@ -1,9 +1,12 @@
   
-  for each ar-inv
+  FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+    each ar-inv
       where ar-inv.company  eq cocode
         and ar-inv.posted   eq yes
-        and ar-inv.cust-no  ge fcust
-        and ar-inv.cust-no  le tcust
+        and ar-inv.cust-no  EQ ttCustList.cust-no /*fcust*/
+      /*  and ar-inv.cust-no  le tcust*/
         and ar-inv.inv-date ge fdate
         and ar-inv.inv-date le tdate
         and (ar-inv.type    ne "FC" or v-inc-fc)
@@ -16,10 +19,13 @@
      tt-report.rec-id  = recid(ar-inv).
   end.
 
-  for each cust
+  FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+     each cust
       where cust.company eq cocode
-        and cust.cust-no ge fcust
-        and cust.cust-no le tcust
+        and cust.cust-no EQ ttCustList.cust-no /*fcust*/
+       /* and cust.cust-no le tcust*/
      no-lock,
 
       each ar-cash
