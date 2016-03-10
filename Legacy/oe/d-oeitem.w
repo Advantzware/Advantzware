@@ -4575,7 +4575,9 @@ ASSIGN
          ll-one-part = FIRST(x-eb.form-no) AND LAST(x-eb.form-no).
          LEAVE.
        END.
-       IF ll-one-part THEN itemfg.alloc = YES.
+      /* Wade Kaldawi   3/9/16
+         Ticket 13466, ll-on-part should not change itemfg.alloc */       
+      /*  IF ll-one-part THEN itemfg.alloc = YES. */
     END.
  END.
  ELSE IF fgmaster-cha EQ "FGITEM" THEN DO:
