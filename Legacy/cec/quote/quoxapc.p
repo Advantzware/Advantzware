@@ -30,6 +30,12 @@ def var v-rels as int.
 def var v-part              like quoteitm.part-no                        no-undo.
 def var v-board             as   char                                   no-undo.
 def var v-last as log initial no no-undo.
+
+DEF VAR ld-wid AS DEC NO-UNDO.
+DEF VAR ld-len AS DEC NO-UNDO.
+DEF VAR ld-dep AS DEC NO-UNDO.
+DEF VAR ld-metric AS DEC INIT 1 NO-UNDO.
+DEF VAR lv-format AS CHAR INIT ">>>>>9.9<<<<" NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
