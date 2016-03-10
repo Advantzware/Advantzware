@@ -1,8 +1,11 @@
-    
-    for each cust
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+      each cust
         where cust.company eq cocode
-          and cust.cust-no ge fcust
-          and cust.cust-no le tcust
+          /*and cust.cust-no ge fcust
+          and cust.cust-no le tcust*/
+          and cust.cust-no EQ ttCustList.cust-no
         no-lock:
         {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
       {sa/sa-sls03.i "fdate" "tdate"}
