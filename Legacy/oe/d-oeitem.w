@@ -3801,7 +3801,7 @@ IF AVAIL oe-ord THEN DO:
    CREATE bf-oe-ordl.
    ASSIGN lv-item-recid = RECID(bf-oe-ordl)
           ll-new-record = YES.
-   FIND FIRST cust {sys/ref/custW.i} AND cust.cust-no = oe-ord.cust-no
+   FIND FIRST cust {sys/ref/cust.w} AND cust.cust-no = oe-ord.cust-no
                    USE-INDEX cust NO-LOCK.
    ASSIGN
     bf-oe-ordl.company   = cocode
@@ -4707,14 +4707,18 @@ PROCEDURE display-est-detail :
                 AND est.est-no = eb.est-no NO-LOCK NO-ERROR.
      IF AVAIL itemfg THEN DO:
        ASSIGN
-        oe-ordl.price:SCREEN-VALUE      = STRING(itemfg.sell-price)
-        oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
+        
         oe-ordl.part-dscr2:SCREEN-VALUE = itemfg.part-dscr2
         oe-ordl.part-dscr3:SCREEN-VALUE = itemfg.part-dscr3.
+        IF oe-ordl.price:SCREEN-VALUE = "0" THEN
+            ASSIGN
+            oe-ordl.price:SCREEN-VALUE      = STRING(itemfg.sell-price) 
+            oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
+            .
 
           /*ysk*/
           FIND FIRST cust
-              {sys/ref/custW.i}
+              {sys/ref/cust.w}
                 AND cust.cust-no EQ oe-ord.cust-no
               USE-INDEX cust
               NO-LOCK NO-ERROR.
@@ -4855,7 +4859,7 @@ PROCEDURE display-est-detail :
           tt-item-qty-price.tt-selected = YES AND
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
            (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN
-     DO:
+     DO: 
         FIND FIRST tt-item-qty-price WHERE
              tt-item-qty-price.tt-selected = YES AND 
              (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
@@ -5210,7 +5214,7 @@ DO WITH FRAME {&FRAME-NAME}:
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
   FIND FIRST cust
-      {sys/ref/custW.i}
+      {sys/ref/cust.w}
         AND cust.cust-no EQ oe-ord.cust-no
       USE-INDEX cust
       NO-LOCK NO-ERROR.
