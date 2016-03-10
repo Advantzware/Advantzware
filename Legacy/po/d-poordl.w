@@ -1201,10 +1201,11 @@ DO:
   END.
 
   RUN po/updordpo.p (BUFFER po-ordl).
-
+ 
   RUN po/po-total.p (RECID(po-ord)).
 
   RUN po/poordlup.p (RECID(po-ordl), 1, YES).
+
 
   IF v-po-msf NE 0 THEN DO:
     assign 
@@ -2688,7 +2689,7 @@ PROCEDURE create-multi-line :
 
       RUN po/po-ordls.p (RECID(job-mat)).
 
-      {po/poordls1W.i}
+      {po/poordls1.w}
 
       FOR EACH b-job-mat
           WHERE b-job-mat.company EQ job-mat.company
@@ -2702,7 +2703,7 @@ PROCEDURE create-multi-line :
 
         RUN po/po-ordls.p (RECID(b-job-mat)).
 
-        {po/poordls1W.i b-}
+        {po/poordls1.w b-}
 
         IF b-job-mat.wid EQ job-mat.wid AND
            b-job-mat.len EQ job-mat.len THEN DO:
