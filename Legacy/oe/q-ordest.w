@@ -262,6 +262,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-open-query-cases q-tables  adm/support/_adm-opn.p
+PROCEDURE New_record :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ def input parameter ip-rowid as rowid no-undo.
+  
+  /*lv-first-run = YES.
+  
+  run local-open-query.
+  
+  /*
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"itemrec-target",OUTPUT char-hdl).
+  RUN dispatch IN WIDGET-HANDLE(char-hdl) ('open-query').
+  */
+
+  do with frame {&frame-name}:
+    reposition {&browse-name} to rowid ip-rowid no-error.  
+    run dispatch ('row-changed').
+    apply "value-changed" to {&browse-name}.
+    return no-apply.  
+  end.*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available q-tables  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
