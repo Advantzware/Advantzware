@@ -101,16 +101,7 @@ DO WITH FRAME {&FRAME-NAME}:
           AND ROWID(b-eb)   NE ROWID(eb)
       USE-INDEX est-no NO-LOCK NO-ERROR.
   END.
-  /* Removed for task #10310608
-    
-  IF AVAIL b-eb THEN ll = YES.
-    /*no prompt MESSAGE "Copy from Estimate on FG Item Record?"
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE ll. */
-
-  IF NOT ll THEN RELEASE b-eb.
-  Removed for task #10310608 */
-  
+ 
   li1 = 0.
   IF NOT AVAIL b-eb THEN DO:
     IF (NOT ip-help) AND lv-value NE "" THEN
