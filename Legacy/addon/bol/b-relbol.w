@@ -1884,20 +1884,20 @@ IF loadtag.ord-no = 0 THEN DO: /* stock box */
 
   IF AVAIL oe-rell THEN v-ord-no = oe-rell.ord-no.
   ELSE DO:
-      IF v-i-rel-qty >= v-i-qty THEN DO:
+/*       IF v-i-rel-qty >= v-i-qty THEN DO: */
          FIND FIRST oe-rell NO-LOCK WHERE oe-rell.company   EQ cocode
                     AND oe-rell.r-no      EQ oe-relh.r-no
                     AND oe-rell.i-no      EQ loadtag.i-no
                     USE-INDEX r-no NO-ERROR.
-         IF AVAIL oe-rell THEN v-ord-no = oe-rell.ord-no.             
-      END.
-      ELSE DO:
-         MESSAGE "Loadtag has no order number and FG Item not on any order." SKIP
-              "FG Item must be added to order entry line with Sell Price"         
-              VIEW-AS ALERT-BOX ERROR.
-         oplReturnNoApply = YES.
-         RETURN NO-APPLY.
-      END.
+         IF AVAIL oe-rell THEN v-ord-no = oe-rell.ord-no.     
+/*       END.                                                                        */
+/*       ELSE DO:                                                                    */
+/*          MESSAGE "Loadtag has no order number and FG Item not on any order." SKIP */
+/*               "FG Item must be added to order entry line with Sell Price"         */
+/*               VIEW-AS ALERT-BOX ERROR.                                            */
+/*          oplReturnNoApply = YES.                                                  */
+/*          RETURN NO-APPLY.                                                         */
+/*       END.                                                                        */
   END.
 END. /* Loadtag order number is zero */
 ELSE DO:
