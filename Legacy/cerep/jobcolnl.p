@@ -179,10 +179,10 @@ DEF VAR v-req-date AS DATE NO-UNDO.
 DEF VAR v-shipto AS cha FORMAT "x(30)" EXTENT 4 NO-UNDO.
 DEF VAR v-case-size AS cha NO-UNDO.
 DEF VAR v-vend LIKE po-ord.vend-no NO-UNDO.
-DEF VAR v-item AS cha EXTENT 20 NO-UNDO.
-DEF VAR v-i-qty AS DEC EXTENT 20 NO-UNDO.
-DEF VAR v-ink1 AS cha EXTENT 20 NO-UNDO.
-DEF VAR v-ink2 AS cha EXTENT 20 NO-UNDO.
+DEF VAR v-item AS cha EXTENT 30 NO-UNDO.
+DEF VAR v-i-qty AS DEC EXTENT 30 NO-UNDO.
+DEF VAR v-ink1 AS cha EXTENT 30 NO-UNDO.
+DEF VAR v-ink2 AS cha EXTENT 30 NO-UNDO.
 DEF VAR v-po-no LIKE oe-ordl.po-no NO-UNDO.
 DEF VAR lv-mat-dept-list AS cha INIT "FB,FS,WN,WS,GL" NO-UNDO.
 DEF VAR v-mat-for-mach AS cha NO-UNDO.
@@ -239,6 +239,7 @@ DEF VAR v-pass-count AS INT NO-UNDO.
 DEF SHARED VAR s-prt-label AS LOG NO-UNDO.
 DEFINE VARIABLE v-lp-dep AS DECIMAL    NO-UNDO.
 DEFINE VARIABLE v-lp-qty AS INTEGER    NO-UNDO.
+DEF VAR ord-qty AS INT NO-UNDO .
 
 DEF VAR cDraftImage AS cha NO-UNDO.
 DEF VAR cDraftImageFull AS cha FORM "x(50)" NO-UNDO.
@@ -473,7 +474,8 @@ for each job-hdr NO-LOCK
                          IF AVAIL oe-ord  THEN trim(string(oe-ord.over-pct,">>9.99%"))  ELSE ""
            lv-under-run = IF AVAIL oe-ordl THEN trim(string(oe-ordl.under-pct,">>9.99%")) ELSE
                           IF AVAIL oe-ord  THEN trim(string(oe-ord.under-pct,">>9.99%"))  ELSE ""
-           v-due-date = if avail oe-ordl then oe-ordl.prom-date else ? .
+           v-due-date = if avail oe-ordl then oe-ordl.prom-date else ?
+           ord-qty     = IF AVAIL oe-ordl THEN oe-ordl.qty ELSE 0 .
            IF AVAIL oe-ord THEN
             v-per-ord   = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2 ELSE STRING(oe-ord.pord-no) .
            IF AVAIL oe-ord AND oe-ord.TYPE EQ "T" AND oe-ord.pord-no GT 0 THEN
@@ -491,6 +493,17 @@ for each job-hdr NO-LOCK
         v-spc-no = IF AVAIL eb THEN eb.spc-no ELSE "".
         v-upc-no = IF AVAIL eb THEN eb.upc-no ELSE "".
 
+        v-job-qty = 0.
+          IF AVAIL eb THEN
+           for each xjob-hdr fields(qty) where
+               xjob-hdr.company eq cocode
+               and xjob-hdr.job     eq job-hdr.job
+               and xjob-hdr.job-no  eq job-hdr.job-no
+               and xjob-hdr.job-no2 eq job-hdr.job-no2
+               and xjob-hdr.i-no    eq eb.stock no-lock:
+               v-job-qty = v-job-qty + xjob-hdr.qty.
+           end.
+
         cBarCode = trim(v-job-no) + "-" + STRING(v-job-no2,"99").
         PUT "<AT=-.5,6.3><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cBarCode FORMAT "X(11)" ">"
             "<C1><R4><B>Customer Name:</B>" v-cust-name  " Code: " job-hdr.cust-no 
@@ -498,10 +511,10 @@ for each job-hdr NO-LOCK
             "Shipto:</B>" v-shipto[1] SPACE(3) "Prev.Ord#:" v-per-ord v-req-date AT 67 v-due-date AT 79 TRIM(job-hdr.est-no) FORMAT "x(8)" AT 92
             TODAY FORM "99/99/9999" AT 112
             SKIP
-            v-shipto[2] AT 7  string(TIME,"HH:MM am/pm") AT 107 " by " USERID("nosweat")
-            v-shipto[4] AT 7  "QC/SPC#:" AT 40 v-spc-no
-            "Overrun: " AT 63 lv-over-run "Underrun: " AT 87 lv-under-run SKIP
-            "Pharma Code:" AT 40 v-upc-no SKIP
+            v-shipto[2] AT 7 "Order Qty:" AT 62   "Job Qty:" AT 87  string(TIME,"HH:MM am/pm") AT 107 " by " USERID("nosweat")
+            v-shipto[4] AT 7  "QC/SPC#:" AT 38 v-spc-no
+            ord-qty format "->,>>>,>>9" AT 62 v-job-qty format "->,>>>,>>9" AT 85  SKIP
+            "Pharma Code:" AT 38 v-upc-no "Overrun: " AT 65 lv-over-run "Underrun: " AT 86 lv-under-run SKIP
             v-fill SKIP.     
 
         v-line = if avail est                            and
@@ -800,7 +813,7 @@ for each job-hdr NO-LOCK
             v-upc-lbl = "   CAD#".
             IF FIRST-OF(eb.form-no) THEN DO:
               PUT
-                "<P9><B>F/B         FG Item #         Order Qty   Job Qty  PO#            Customer Lot#     Description                      Style  Carton Size" "</B>" SKIP.
+                 "<P9><B>F/B         FG Item #       Cust Part #     Art #       PO#            Customer Lot#     Description                    Cad             # Up   " "</B>" SKIP.  /* Style  Carton Size*/
 
               ASSIGN v-case-size-ext = ""
                      v-case-qty-ext = 0
@@ -877,16 +890,16 @@ for each job-hdr NO-LOCK
                ASSIGN v-cust-lot# = "".
 
             
-            display v-job-no + "-" + trim(string(eb.form-no,">>9")) + 
+           display v-job-no + "-" + trim(string(eb.form-no,">>9")) + 
                     trim(string(eb.blank-no,">>9")) FORM "x(11)" 
                     eb.stock-no @ job-hdr.i-no 
-                    oe-ordl.qty WHEN AVAIL oe-ordl format "->,>>>,>>9"  /* Task #01240503*/
-                    v-job-qty /** v-fac*/ format "->,>>>,>>9"
+                    (IF AVAIL oe-ordl  THEN oe-ordl.part-no ELSE "") FORM "x(15)"   
+                    eb.plate-no FORM "x(10)" /** v-fac*/ /*format "->,>>>,>>9"*/
                     (IF AVAIL oe-ordl  THEN oe-ordl.po-no ELSE "") FORM "x(15)"
                     v-cust-lot#  FORM "x(17)"
-                    v-dsc[1] FORM "x(32)"
-                    eb.style /*v-stypart */
-                    v-size[1] FORM "x(30)"
+                    v-dsc[1] FORM "x(30)"
+                    eb.cad-no  FORM "x(15)" /*v-stypart */
+                    v-up-ext[1]        @ v-up  /*v-size[1] FORM "x(30)"*/
                     skip
                 with stream-io width 175 no-labels no-box frame line-det1.
 
@@ -920,7 +933,7 @@ for each job-hdr NO-LOCK
              v-po-duedate = IF AVAIL po-ordl THEN po-ordl.due-date ELSE ?.
 
              PUT "<P10>" v-fill SKIP
-                 "<B>BOARD CODE                   GRAIN     SHEETS       LF   SHEET SIZE    NET SHEET     DIE SIZE         DIE#              Cases #UP</B>" 
+                 "<B>BOARD CODE                   GRAIN     SHEETS       LF   SHEET SIZE    NET SHEET     DIE SIZE         DIE#              </B>" 
                  SKIP.
             /** PRINT SHEET **/
              x = 2.
@@ -946,8 +959,8 @@ for each job-hdr NO-LOCK
                     string(ef.trim-w) + "x" + string(ef.trim-l) FORM "x(17)"
                     eb.die-no 
                     /*v-case-size-ext[1] @ v-case-size FORM "x(15)"*/
-                    v-case-qty-ext[1]  @ v-case-qty  FORM ">>>>9"    /* #01240503*/
-                    v-up-ext[1]        @ v-up
+                  /*  v-case-qty-ext[1]  @ v-case-qty  FORM ">>>>9"    /* #01240503*/
+                    v-up-ext[1]        @ v-up*/
                     with stream-io width 170 no-labels no-box frame sheet.
                x = 1.
              end. /* each wrk-sheet */
@@ -963,7 +976,7 @@ for each job-hdr NO-LOCK
              if x ne 2 then put v-fill at 1 skip.
                      
              /** PRINT INK **/
-             PUT "<B>PASS  SIDE         LBS INK NAME            ITEMS    PASS  SIDE         LBS INK NAME            ITEMS       PLATE #</B>"
+             PUT "<B>PASS  SIDE         LBS INK NAME            ITEMS    PASS  SIDE         LBS INK NAME            ITEMS     STYLE#  CARTON SIZE</B>"
                  SKIP.
              ASSIGN
                 x = 2
@@ -1132,13 +1145,13 @@ for each job-hdr NO-LOCK
                 v-skip = NO
                 v-plate-printed = NO.
             
-             DO j = 1 TO 20:
+             DO j = 1 TO EXTENT(v-ink1) :
                 IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
                 IF v-ink1[j] <> "" THEN do:
                    IF v-skip THEN do:
                        PUT  v-ink1[j] FORM "x(52)" .
                        IF j = 2 THEN do:
-                           PUT eb.plate-no AT 106.
+                           PUT eb.style AT 106  SPACE(2)  v-size[1] FORM "x(30)" .
                            v-plate-printed = YES.
                        END.
                        PUT SKIP.
@@ -1147,9 +1160,9 @@ for each job-hdr NO-LOCK
                    v-skip = NOT v-skip.             
                 END.
              END.
-             IF NOT v-plate-printed THEN PUT eb.plate-no AT 106 SKIP.
+             IF NOT v-plate-printed THEN PUT eb.plate-no AT 106 SPACE(2)  v-size[1] FORM "x(30)" SKIP.
 
-             DO j = 1 TO 20:
+             DO j = 1 TO EXTENT(v-ink2):
                 IF TRIM(v-ink2[j]) = "-" THEN v-ink2[j] = "".                 
                 IF v-ink2[j] <> "" THEN do:
                    IF v-skip THEN PUT v-ink2[j] FORM "x(52)" SKIP.
@@ -1168,7 +1181,7 @@ for each job-hdr NO-LOCK
            ASSIGN 
               v-lp-dep = if avail item then ITEM.case-d ELSE 0 
               v-lp-qty = if avail item THEN ITEM.box-case ELSE 0.
-
+            
           IF FIRST-OF(eb.form-no) THEN
              PUT 
                 "<P9><B> UNIT SIZE                      Packaging       Size                   Units Per        QTY Trays Per case     Speed(UPH)   Case wt     Style</B>" SKIP.
@@ -1225,6 +1238,12 @@ for each job-hdr NO-LOCK
 
           IF v-dc-out EQ 0 THEN
              v-dc-out = 1.
+          
+          ASSIGN
+              v-shrink-wrap = CAN-FIND(FIRST est-op WHERE
+                               est-op.company EQ job-hdr.company AND
+                               est-op.est-no EQ est.est-no AND
+                               est-op.dept = "SW").
 
           PUT " Flat" "Finished"  AT 22 "Tray#" AT 33 eb.layer-pad FORMAT "x(10)"
                string(eb.lp-len) + "x" + string(eb.lp-wid) + "x" + string(v-lp-dep)  FORMAT "x(27)" AT 49
@@ -1352,7 +1371,7 @@ for each job-hdr NO-LOCK
         FOR EACH notes WHERE notes.rec_key = job.rec_key
                     /*AND notes.note_form_no = job-hdr.frm OR notes.note_form_no = 0)*/
                     AND LOOKUP(notes.note_code,v-exc-depts) EQ 0 
-                    AND notes.note_type NE 'O'
+                    /*AND notes.note_type NE 'O'*/ /* ticket 14661  */
                     NO-LOCK
                     BREAK BY notes.note_code
                     BY notes.note_form_no:
