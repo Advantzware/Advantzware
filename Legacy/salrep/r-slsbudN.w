@@ -51,7 +51,6 @@ DEF VAR v-year AS INT NO-UNDO.
 DEF VAR v-period AS INT NO-UNDO.
 DEF VAR fdate AS DATE EXTENT 2 NO-UNDO.
 DEF VAR edate AS DATE EXTENT 2 NO-UNDO.
-DEF VAR v-runflg AS LOG INIT NO NO-UNDO.
 DEF VAR v-enable-fg AS LOG NO-UNDO.
 DEF VAR v-prod-line-mode AS LOG NO-UNDO.
 
@@ -738,8 +737,6 @@ DO:
      ASSIGN {&DISPLAYED-OBJECTS}
             v-prod-line-mode = NOT rs-category EQ "FG".
   END.
-
- IF v-runflg THEN DO:
   
     RUN GetSelectionList.
     run run-report. 
@@ -780,14 +777,7 @@ DO:
          END.
         WHEN 6 THEN RUN OUTPUT-TO-PORT.
     end case. 
- END.
- ELSE /*v-runflg*/
- DO:
-    MESSAGE "Budget Report is available for purchase, please call ASI."
-       VIEW-AS ALERT-BOX INFO BUTTONS OK.
-
-    APPLY "close" TO THIS-PROCEDURE.
- END.
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1198,22 +1188,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   APPLY "entry" TO rs_detail IN FRAME {&FRAME-NAME}.
-
-  /* gdm - 03090904 */
-    FIND FIRST sys-ctrl NO-LOCK
-        WHERE sys-ctrl.company EQ cocode
-          AND sys-ctrl.name EQ "SalesBudget" NO-ERROR.
-    IF NOT AVAIL sys-ctrl THEN DO:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company = cocode
-            sys-ctrl.name    = "SalesBudget"
-            sys-ctrl.log-fld = NO
-            sys-ctrl.descrip = "Budget Report".
-    END.
-    ASSIGN v-runflg = sys-ctrl.log-fld.
-    RELEASE sys-ctrl.
-/* gdm - 0309094 end */
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
