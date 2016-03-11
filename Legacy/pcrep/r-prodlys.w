@@ -641,7 +641,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'DE2',
                           INPUT YES,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""DE2""}
 
   IF ou-log THEN DO:
       ASSIGN 

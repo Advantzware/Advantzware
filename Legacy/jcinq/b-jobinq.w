@@ -1026,7 +1026,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
      IF v-whereamI = "JU1" THEN
      RUN sys/ref/CustList.p (INPUT cocode,INPUT 'JU1',
                             INPUT YES,OUTPUT lActive).
-{sys/inc/chblankcust.i}
+{sys/inc/chblankcust.i "v-whereamI" }
 
 FI_moveCol = "Sort".
 DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.

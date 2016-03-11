@@ -756,7 +756,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT NO,
                           OUTPUT glCustListActive).
 
- {sys/inc/chblankcust.i}
+ {sys/inc/chblankcust.i ""AR8""}
 
   IF ou-log THEN DO:
       ASSIGN 

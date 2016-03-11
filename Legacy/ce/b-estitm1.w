@@ -5715,7 +5715,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'EF',
                             INPUT YES,
                             OUTPUT lActive).
- {sys/inc/chblankcust.i}
+ {sys/inc/chblankcust.i ""EF""}
   
   IF ou-log THEN
     DO WITH FRAME {&FRAME-NAME}:

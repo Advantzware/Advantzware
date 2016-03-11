@@ -557,7 +557,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    {sys/inc/custlistform.i "v-file-name" }
    IF ou-cust-int = 0 THEN
         custcount = "".
-   {sys/inc/chblankcust.i}
+   {sys/inc/chblankcust.i "v-file-name"}
 
 
    DO WITH FRAME {&FRAME-NAME}:

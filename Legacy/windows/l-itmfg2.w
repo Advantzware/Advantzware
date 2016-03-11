@@ -419,7 +419,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                             INPUT 'IF1',
                             INPUT YES,
                             OUTPUT lActive).
-{sys/inc/chblankcust.i}
+{sys/inc/chblankcust.i ""IF1""}
     IF ou-cust-int = 0 THEN
         custcount = "" .
   

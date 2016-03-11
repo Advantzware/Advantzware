@@ -6078,7 +6078,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'OU1',
                             INPUT YES,
                             OUTPUT lActive).
-{sys/inc/chblankcust.i}
+{sys/inc/chblankcust.i ""OU1""}
     DO WITH FRAME {&FRAME-NAME}:
         
         IF ip-est = "est" THEN DO:

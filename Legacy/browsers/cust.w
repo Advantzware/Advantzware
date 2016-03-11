@@ -895,7 +895,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'AF1',
                             INPUT YES,
                             OUTPUT lActive).
-{sys/inc/chblankcust.i}
+{sys/inc/chblankcust.i ""AF1""}
 
    /* gdm - 03090901 */
 FIND FIRST sys-ctrl NO-LOCK
@@ -1725,7 +1725,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'AF1',
                             INPUT YES,
                             OUTPUT lActive).
-{sys/inc/chblankcust.i}
+{sys/inc/chblankcust.i ""AF1""}
 
 RUN set-defaults.
 
