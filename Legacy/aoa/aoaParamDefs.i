@@ -5,6 +5,7 @@ DEFINE VARIABLE aoaName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaTitle   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaType    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaHost    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE aoaPort    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE aoaParam   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaURL     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaCompany AS CHARACTER NO-UNDO.
@@ -20,6 +21,7 @@ IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
         sys-ctrl.company  = ipcCompany
         sys-ctrl.name     = "aoaHost"
         sys-ctrl.char-fld = "localhost"
+        sys-ctrl.int-fld  = 5162
         sys-ctrl.descrip  = "Advantzware Open Analytics Host IP Address"
         .
 END.
@@ -31,6 +33,7 @@ ASSIGN
     aoaTitle   = ENTRY(3,ipcParamStr)
     aoaType    = ENTRY(4,ipcParamStr)
     aoaHost    = sys-ctrl.char-fld
+    aoaPort    = sys-ctrl.int-fld
     aoaParam   = REPLACE(PROGRAM-NAME(2),aoaName,"Param/" + aoaName)
     aoaParam   = REPLACE(aoaParam,".p",".w")
     aoaCompany = ipcCompany

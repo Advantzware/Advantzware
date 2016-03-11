@@ -48,7 +48,7 @@ PROCEDURE pRawSalesProc :
     DEFINE VARIABLE dtToDate   AS DATE      NO-UNDO .
     DEFINE VARIABLE dCost      AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE dtDateIdx  AS DATE      NO-UNDO .
-    DEFINE VARIABLE dtAsOfDate AS DATE      NO-UNDO INIT 3.2.2014 .
+    DEFINE VARIABLE dtAsOfDate AS DATE      NO-UNDO INIT TODAY .
     
     ASSIGN
         dtFromDate = DATE(1,1,YEAR(dtAsOfDate) - 1)

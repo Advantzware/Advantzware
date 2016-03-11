@@ -1,6 +1,11 @@
 /* aoaURL.i */
 
-SESSION:SERVER-CONNECTION-CONTEXT = "Company|" + aoaCompany
-                                  + "|UserID|" + aoaUserID
-                                  + "|Name|"   + aoaName .
-OS-COMMAND NO-WAIT START VALUE(aoaURL).
+RUN aoa/aoaURL.p ("-AppService asAOA -H "
+                + aoaHost
+                + " -S " + STRING(aoaPort)
+                , "Company|" + aoaCompany
+                + "|UserID|" + aoaUserID
+                + "|Name|"   + aoaName + "."
+                , aoaURL
+                  ).
+

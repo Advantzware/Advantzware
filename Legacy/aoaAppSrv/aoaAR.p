@@ -16,10 +16,8 @@ FUNCTION fCustomers RETURNS HANDLE ():
     
     EMPTY TEMP-TABLE ttCust .
     
-    RUN pGetCompany (OUTPUT cCompany) .
-    
     FOR EACH cust NO-LOCK 
-        WHERE cust.company EQ cCompany :
+        WHERE cust.company EQ DYNAMIC-FUNCTION('fGetCompanySCC') :
         CREATE ttCust .
         ASSIGN 
             ttCust.company  = cust.company

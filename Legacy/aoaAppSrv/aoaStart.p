@@ -48,12 +48,9 @@ SESSION:ADD-SUPER-PROCEDURE (hProc) .
 
 OUTPUT TO 'aoaStart.log' APPEND .
 PUT UNFORMATTED
-    'AdvantzwareOA '
-    TODAY FORMAT '99.99.9999'
-    ' @ '
-    STRING(TIME,'hh:mm:ss am')
+    '[' STRING(TODAY,'99.99.9999') ','
+    STRING(TIME,'hh:mm:ss') '] '
+    'AdvantzwareOA aoaStart.p'
     SKIP
     .
 OUTPUT CLOSE .
-
-RUN pSetCompany ('001') .
