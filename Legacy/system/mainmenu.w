@@ -135,7 +135,7 @@ DEFINE VARIABLE users_user_id AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
 
 DEFINE IMAGE boxes
-     FILENAME "images/splashscreen.bmp":U
+     FILENAME "images/advantzware_logo.jpg":U
      SIZE 79 BY 17.38.
 
 DEFINE IMAGE menu-image
