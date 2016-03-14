@@ -10,19 +10,20 @@ DEFINE VARIABLE aoaParam   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaURL     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaUserID  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProgramID AS CHARACTER NO-UNDO.
 
 FIND FIRST sys-ctrl NO-LOCK
      WHERE sys-ctrl.company EQ ipcCompany
-       AND sys-ctrl.name    EQ "aoaHost"
+       AND sys-ctrl.name    EQ "asAOA"
      NO-ERROR.
 IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
     CREATE sys-ctrl.
     ASSIGN
         sys-ctrl.company  = ipcCompany
-        sys-ctrl.name     = "aoaHost"
+        sys-ctrl.name     = "asAOA"
         sys-ctrl.char-fld = "localhost"
         sys-ctrl.int-fld  = 5162
-        sys-ctrl.descrip  = "Advantzware Open Analytics Host IP Address"
+        sys-ctrl.descrip  = "Advantzware Open Analytics AppServer"
         .
 END.
 FIND CURRENT sys-ctrl NO-LOCK.
@@ -38,11 +39,13 @@ ASSIGN
     aoaParam   = REPLACE(aoaParam,".p",".w")
     aoaCompany = ipcCompany
     aoaUserID  = USERID("NoSweat")
-    aoaURL     = "http://" + aoaHost + ":80/AdvantzwareOA/"
-               + aoaType + ".aspx?ID=" + aoaID
     .
 
-IF aoaType EQ "Document" THEN
-ASSIGN aoaURL = aoaURL + "^&refresh=true^&connection=AdvantzwareOA".
+/* used for testing in AppBuilder */
+IF NUM-ENTRIES(ipcParamStr) GT 4 THEN
+aoaParam = ENTRY(5,ipcParamStr).
+
+cProgramID = ENTRY(1,aoaParam,"/") + "/" + aoaName + "rpa".
 
 SESSION:SET-WAIT-STATE('').
+

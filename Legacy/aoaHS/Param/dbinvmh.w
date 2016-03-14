@@ -4,12 +4,12 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
 /*------------------------------------------------------------------------
 
-  File: custaoa.w
+  File: dbinvmh.w
 
   Description: from SMART.W - Template for basic ADM2 SmartObject
 
   Author: Ron Stark
-  Created: 3.7.2016
+  Created: 3.11.2016
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -29,8 +29,6 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -46,9 +44,8 @@ DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svStartCustNo svEndCustNo 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svStartCustNo startCustName ~
-svEndCustNo endCustName 
+&Scoped-Define ENABLED-OBJECTS svYear 
+&Scoped-Define DISPLAYED-OBJECTS svYear 
 
 /* Custom List Definitions                                              */
 /* ttblJobFields,timeFields,List-3,List-4,List-5,List-6                 */
@@ -62,30 +59,10 @@ svEndCustNo endCustName
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)" 
-     LABEL "Name" 
+DEFINE VARIABLE svYear AS INTEGER FORMAT "9999" INITIAL 0 
+     LABEL "Current Year" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1.
-
-DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)" 
-     LABEL "Name" 
-     VIEW-AS FILL-IN 
-     SIZE 44 BY 1.
-
-DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)" 
-     LABEL "Company" 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1.
-
-DEFINE VARIABLE svEndCustNo AS CHARACTER FORMAT "X(8)" 
-     LABEL "Ending Customer" 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
-
-DEFINE VARIABLE svStartCustNo AS CHARACTER FORMAT "X(8)" 
-     LABEL "Beginning  Customer" 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
+     SIZE 7 BY 1.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -95,15 +72,8 @@ DEFINE RECTANGLE RECT-7
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 2.67 COL 34 COLON-ALIGNED WIDGET-ID 14
-     svStartCustNo AT ROW 3.86 COL 34 COLON-ALIGNED HELP
+     svYear AT ROW 4.81 COL 47 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     startCustName AT ROW 5.05 COL 34.2 COLON-ALIGNED HELP
-          "Enter Beginning Customer Name" WIDGET-ID 4
-     svEndCustNo AT ROW 6.19 COL 34 COLON-ALIGNED HELP
-          "Enter Ending Customer" WIDGET-ID 6
-     endCustName AT ROW 7.38 COL 34 COLON-ALIGNED HELP
-          "Enter Ending Customer Name" WIDGET-ID 8
      " Selection Parameters" VIEW-AS TEXT
           SIZE 22 BY .71 AT ROW 1.24 COL 3 WIDGET-ID 12
      RECT-7 AT ROW 1.48 COL 2 WIDGET-ID 10
@@ -166,15 +136,8 @@ END.
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-7 IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
-   NO-ENABLE                                                            */
-ASSIGN 
-       svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
-
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -190,57 +153,6 @@ ASSIGN
 
  
 
-
-
-/* ************************  Control Triggers  ************************ */
-
-&Scoped-define SELF-NAME svCompany
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCompany sObject
-ON ENTRY OF svCompany IN FRAME F-Main /* Company */
-DO:
-  APPLY "ENTRY":U TO svStartCustNo.
-  RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME svEndCustNo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndCustNo sObject
-ON LEAVE OF svEndCustNo IN FRAME F-Main /* Ending Customer */
-DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST cust NO-LOCK
-         WHERE cust.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND cust.cust-no EQ {&SELF-NAME}
-         NO-ERROR.
-    endCustName:SCREEN-VALUE = IF AVAILABLE cust THEN cust.name
-                               ELSE "<Ending Range Value>".
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME svStartCustNo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartCustNo sObject
-ON LEAVE OF svStartCustNo IN FRAME F-Main /* Beginning  Customer */
-DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST cust NO-LOCK
-         WHERE cust.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND cust.cust-no EQ {&SELF-NAME}
-         NO-ERROR.
-    startCustName:SCREEN-VALUE = IF AVAILABLE cust THEN cust.name
-                                 ELSE "<Beginning Range Value>".
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK sObject 
 
@@ -276,21 +188,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pParamDescriptions sObject 
-PROCEDURE pParamDescriptions :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pParamValuesOverride sObject 
+PROCEDURE pParamValuesOverride :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphContainer AS HANDLE NO-UNDO.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-        hContainer = iphContainer.
-        svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer).
-        APPLY "LEAVE":U TO svStartCustNo.
-        APPLY "LEAVE":U TO svEndCustNo.
-    END.
+    ASSIGN svYear:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(YEAR(TODAY)).
 
 END PROCEDURE.
 

@@ -1,11 +1,4 @@
 /* aoaURL.i */
 
-RUN aoa/aoaURL.p ("-AppService asAOA -H "
-                + aoaHost
-                + " -S " + STRING(aoaPort)
-                , "Company|" + aoaCompany
-                + "|UserID|" + aoaUserID
-                + "|Name|"   + aoaName + "."
-                , aoaURL
-                  ).
-
+RUN pURL (BUFFER user-print).
+OS-COMMAND NO-WAIT START VALUE(aoaURL).

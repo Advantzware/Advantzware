@@ -47,10 +47,5 @@ RUN aoaSB.p PERSISTENT SET hProc .
 SESSION:ADD-SUPER-PROCEDURE (hProc) .
 
 OUTPUT TO 'aoaStart.log' APPEND .
-PUT UNFORMATTED
-    '[' STRING(TODAY,'99.99.9999') ','
-    STRING(TIME,'hh:mm:ss') '] '
-    'AdvantzwareOA aoaStart.p'
-    SKIP
-    .
+PUT UNFORMATTED '[' REPLACE(STRING(NOW),' ','@') '] AdvantzwareOA' SKIP.
 OUTPUT CLOSE .

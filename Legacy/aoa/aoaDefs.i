@@ -14,4 +14,8 @@ DEFINE VARIABLE g_company AS CHARACTER NO-UNDO INITIAL "001".
 
 DEFINE VARIABLE paramStr AS CHARACTER NO-UNDO
     INITIAL "{&aoaID},{&aoaName},{&aoaTitle},{&aoaType}".
-                                                 .
+                                                 
+/* used if testing in AppBuilder */.
+&IF DEFINED(test) NE 0 &THEN
+paramStr = paramStr + ",{&test}".
+&ENDIF

@@ -1,8 +1,10 @@
 /* aoaHS.p */
 
 /* ** temp-table definitions **************************************** */
+
 DEFINE TEMP-TABLE ttRawSales NO-UNDO RCODE-INFORMATION
     FIELD company      AS CHARACTER LABEL "Company"
+    FIELD salesYear    AS INTEGER   LABEL "Year"
     FIELD dateIdx      AS DATE      LABEL "Date"
     FIELD lyrSales     AS DECIMAL   LABEL "LYR Sales"
     FIELD lyrCost      AS DECIMAL   LABEL "LYR Cost"
@@ -26,34 +28,31 @@ DEFINE TEMP-TABLE ttReport NO-UNDO
         INDEX idx custNo tableName .
 
 /* ** function declarations ***************************************** */
-FUNCTION fInvoiceHighlights RETURNS HANDLE ():
+
+FUNCTION fInvoiceHighlights RETURNS HANDLE (ipiYear AS INTEGER):
     EMPTY TEMP-TABLE ttRawSales .
     EMPTY TEMP-TABLE ttReport .
-    
-    RUN pRawSalesProc .
+
+    RUN pRawSalesProc (ipiYear).
     
     RETURN TEMP-TABLE ttRawSales:HANDLE .
 END FUNCTION .
 
-PROPATH = PROPATH + ",c:\asi_gui10\pco1010" .
-MESSAGE STRING (TIME ,"hh:mm:ss am") VIEW-AS ALERT-BOX.
-RUN pRawSalesProc .
-MESSAGE STRING (TIME ,"hh:mm:ss am") VIEW-AS ALERT-BOX.
-
 /* ** procedure declarations **************************************** */
+
 PROCEDURE pRawSalesProc :
+    DEFINE INPUT PARAMETER ipiYear AS INTEGER NO-UNDO .
+
     DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO .
-    DEFINE VARIABLE iYear      AS INTEGER   NO-UNDO .
     DEFINE VARIABLE dtFromDate AS DATE      NO-UNDO .
     DEFINE VARIABLE dtToDate   AS DATE      NO-UNDO .
     DEFINE VARIABLE dCost      AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE dtDateIdx  AS DATE      NO-UNDO .
-    DEFINE VARIABLE dtAsOfDate AS DATE      NO-UNDO INIT TODAY .
+    DEFINE VARIABLE dtAsOfDate AS DATE      NO-UNDO .
     
     ASSIGN
-        dtFromDate = DATE(1,1,YEAR(dtAsOfDate) - 1)
-        dtToDate   = DATE(12,31,YEAR(dtAsOfDate))
-        iYear      = YEAR (dtAsOfDate)
+        dtFromDate = DATE(1,1,ipiYear - 1)
+        dtToDate   = DATE(12,31,ipiYear)
         .
  
     FOR EACH company NO-LOCK
@@ -139,7 +138,7 @@ PROCEDURE pRawSalesProc :
                                        ar-invl.job-no2 ,
                                        ar-invl.ship-qty ,
                                        OUTPUT dCost ).
-                IF YEAR (ttRawSales.dateIdx) EQ iYear THEN
+                IF YEAR (ttRawSales.dateIdx) EQ ipiYear THEN
                 ASSIGN 
                     ttRawSales.company   = ar-inv.company
                     ttRawSales.cyrQty    = ttRawSales.cyrQty + ar-invl.ship-qty
@@ -206,7 +205,7 @@ PROCEDURE pRawSalesProc :
                                            oe-retl.tot-qty-return ,
                                            OUTPUT dCost) .
                 
-                    IF YEAR (ttRawSales.dateIdx) EQ iYear THEN
+                    IF YEAR (ttRawSales.dateIdx) EQ ipiYear THEN
                     ASSIGN 
                         ttRawSales.company   = ar-cashl.company
                         ttRawSales.cyrQty    = ttRawSales.cyrQty - oe-retl.tot-qty-return
@@ -236,7 +235,7 @@ PROCEDURE pRawSalesProc :
                         .
                 END . /* avail ar-invl */
             END . /* avail oe-retl */
-            IF YEAR (ttRawSales.dateIdx) EQ iYear THEN
+            IF YEAR (ttRawSales.dateIdx) EQ ipiYear THEN
             ASSIGN ttRawSales.cyrSales = ttRawSales.cyrSales + ar-cashl.amt-paid - ar-cashl.amt-disc .
             ELSE 
             ASSIGN ttRawSales.lyrSales = ttRawSales.lyrSales + ar-cashl.amt-paid - ar-cashl.amt-disc .
