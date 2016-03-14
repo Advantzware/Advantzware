@@ -3,6 +3,28 @@
 /* ** temp-table definitions **************************************** */
 
 /* ** function declarations ***************************************** */
+
+/* ** procedure declarations **************************************** */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* saving these for future reference
+
 FUNCTION fGetServerConnectionContext RETURNS CHARACTER (ipcType AS CHARACTER):
     DEFINE VARIABLE cContext AS CHARACTER   NO-UNDO.
     DEFINE VARIABLE idx AS INTEGER     NO-UNDO.
@@ -12,22 +34,6 @@ FUNCTION fGetServerConnectionContext RETURNS CHARACTER (ipcType AS CHARACTER):
         idx = LOOKUP(ipcType,cContext,"|")
         .
 
-    OUTPUT TO 'testparam.txt' APPEND.
-    PUT UNFORMATTED
-        '[' STRING(TODAY,'99.99.9999') ','
-        STRING(TIME,'hh:mm:ss') '] fGetServerConnectionContext'
-        SKIP
-        '[' STRING(TODAY,'99.99.9999') ','
-        STRING(TIME,'hh:mm:ss') '] '
-        'SERVER-CONNECTION-ID: ' SESSION:SERVER-CONNECTION-ID
-        SKIP
-        '[' STRING(TODAY,'99.99.9999') ','
-        STRING(TIME,'hh:mm:ss') '] '
-        'SERVER-CONNECTION-CONTEXT: ' SESSION:SERVER-CONNECTION-CONTEXT
-        SKIP(1)
-        .
-    OUTPUT CLOSE.
-
     IF NUM-ENTRIES(cContext,"|") GT 1 AND idx NE 0 THEN
     cContext = ENTRY(idx + 1,cContext,"|").
 
@@ -35,22 +41,50 @@ FUNCTION fGetServerConnectionContext RETURNS CHARACTER (ipcType AS CHARACTER):
 END FUNCTION.
 
 FUNCTION fGetCompanySCC RETURNS CHARACTER:
-    OUTPUT TO 'testparam.txt' APPEND.
-    PUT UNFORMATTED
-        '[' STRING(TODAY,'99.99.9999') ','
-        STRING(TIME,'hh:mm:ss') '] fGetCompanySCC'
-        SKIP
-        .
-    OUTPUT CLOSE.
     RETURN fGetServerConnectionContext ("Company").
-END FUNCTION.
-
-FUNCTION fGetUserIDSCC RETURNS CHARACTER:
-    RETURN fGetServerConnectionContext ("UserID").
 END FUNCTION.
 
 FUNCTION fGetNameSCC RETURNS CHARACTER:
     RETURN fGetServerConnectionContext ("Name").
 END FUNCTION.
 
-/* ** procedure declarations **************************************** */
+FUNCTION fGetParamValue RETURNS CHARACTER (ipcField AS CHARACTER):
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
+
+    IF AVAILABLE user-print THEN
+    DO idx = 1 TO EXTENT(user-print.field-name):
+        IF TRIM(user-print.field-name[idx]) EQ ipcField THEN DO:
+            cReturnValue = user-print.field-value[idx].
+            LEAVE.
+        END. /* found screen object */
+    END. /* do idx */
+
+    RETURN cReturnValue.
+END FUNCTION.
+
+FUNCTION fGetUserIDSCC RETURNS CHARACTER:
+    RETURN fGetServerConnectionContext ("UserID").
+END FUNCTION.
+*/
+/*
+PROCEDURE getParamValues:
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserID  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cName    AS CHARACTER NO-UNDO.
+
+    ASSIGN
+        cCompany = fGetCompanySCC()
+        cUserID  = fGetUserIDSCC()
+        cName    = fGetNameSCC()
+        .
+    FIND FIRST user-print NO-LOCK
+         WHERE user-print.company    EQ cCompany
+           AND user-print.program-id EQ cName
+           AND user-print.user-id    EQ cUserID
+           AND user-print.batch      EQ ""
+         NO-ERROR.
+    IF NOT AVAILABLE user-print THEN RETURN.
+
+END PROCEDURE.
+*/
