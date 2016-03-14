@@ -32,13 +32,7 @@ ON F1 HELP.
 ON CTRL-F HELP.
 ON CTRL-P HELP.
 
-   LOG-MANAGER:LOGFILE-NAME = "c:\temp\wadelog.txt".
- LOG-MANAGER:CLEAR-LOG( ).
- LOG-MANAGER:LOGGING-LEVEL
-= 2.
- LOG-MANAGER:WRITE-MESSAGE(
-"Got here: x=" + string(1),
-"DEBUG1").
+   
 /* ***************************  Definitions  ************************** */
  
 /* Parameters Definitions ---                                           */
@@ -342,7 +336,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   
   
-  run Consultingwerk/WindowIntegrationKit/Samples/start.p .
+  /*run Consultingwerk/WindowIntegrationKit/Samples/start.p */
   
   
   
