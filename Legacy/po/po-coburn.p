@@ -829,7 +829,7 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
      FIND FIRST buyer WHERE buyer.company = po-ord.company
                         AND buyer.buyer = po-ord.buyer NO-LOCK NO-ERROR.
      ASSIGN
-      v-username = /*IF AVAIL users THEN users.USER_name ELSE*/
+      v-username = IF AVAIL users THEN users.USER_name ELSE
           IF AVAIL buyer THEN buyer.buyer-n
                ELSE po-ord.buyer
       v-tot-sqft = 0
@@ -857,7 +857,7 @@ END.
 
 ASSIGN v-curr-dscr = "" .
 
-PUT "<FArial><R57><C1><P13><B>Signed: </B> <P11> " /*SKIP "<R-0.5>"*/ SPACE(1) v-username SKIP
+PUT "<FArial><R57><C1><P13><B>Signed: </B> <P11> " /*SKIP "<R-0.5>"*/ SPACE(1) v-username FORM "x(40)" SKIP
     "" SKIP
     "" SKIP  .
 
