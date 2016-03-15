@@ -31,6 +31,7 @@ def var v-tot-pallets as int.
 def var v-tot-qty as int.
 def var v-inv-date as date initial today.
 def shared var v-fr-tax as logical initial no.
+DEF SHARED VAR  v-reprint AS LOGICAL INIT NO . 
 def var v-tax-rate as dec format "->>>.99".
 def var v-tax-code like stax.tax-code.
 def var v-tx-rate like stax.tax-rate.
@@ -188,7 +189,7 @@ form inv-misc.charge at 20
 
         find first stax
             {sys/ref/stax1.w}
-              and {sys/ref/taxgroup.i stax} eq ar-inv.tax-gr
+              and {sys/ref/taxgroup.i stax} eq /*ar-inv.tax-gr*/ ar-inv.tax-code
             no-lock no-error.
             
         if avail stax then
@@ -206,7 +207,7 @@ form inv-misc.charge at 20
         v-tot-pallets = 0.
 
         for each xar-invl
-            where xar-invl.r-no eq ar-inv.r-no
+            where xar-invl.inv-no EQ ar-inv.inv-no  /*xar-invl.r-no eq ar-inv.r-no*/ 
             no-lock break by xar-invl.i-no:
 
          do i = 1 to 3:
@@ -309,12 +310,12 @@ form inv-misc.charge at 20
 
         find first oe-bolh
             where oe-bolh.company eq ar-inv.company
-              and oe-bolh.bol-no  eq ar-inv.bol-no
+              AND oe-boll.inv-no EQ ar-inv.inv-no /*and oe-bolh.bol-no  eq ar-inv.bol-no*/
             use-index bol-no no-lock no-error.
         if avail oe-bolh then v-rel-po-no = oe-bolh.po-no.
 
         find first ar-invl
-            where ar-invl.r-no eq ar-inv.r-no
+            WHERE ar-invl.inv-no eq ar-inv.inv-no /*ar-invl.r-no eq ar-inv.r-no*/
             no-lock no-error.
         if avail ar-invl then do:
           v-rel-po-no = ar-invl.po-no.
@@ -333,7 +334,7 @@ form inv-misc.charge at 20
 
         page.
 
-        for each ar-invl no-lock where ar-invl.r-no eq ar-inv.r-no:
+        for each ar-invl no-lock WHERE ar-invl.inv-no eq ar-inv.inv-no /*ar-invl.r-no eq ar-inv.r-no*/ :
           assign
            v-case-line = ""
            v-part-line = ""
@@ -341,7 +342,7 @@ form inv-misc.charge at 20
 
           for each oe-boll
               where oe-boll.company eq ar-invl.company
-                and oe-boll.bol-no  eq ar-inv.bol-no
+                AND oe-boll.inv-no EQ ar-inv.inv-no /*oe-boll.bol-no  eq ar-inv.bol-no*/
                 and oe-boll.i-no    eq ar-invl.i-no
               use-index bol-no no-lock:
 
@@ -408,14 +409,14 @@ form inv-misc.charge at 20
                          then 0 else ar-invl.qty - ar-invl.ship-qty.
 
           assign
-           v-tax-total = v-tax-total +
-                         if ar-invl.tax then ar-invl.t-price else 0
+          /* v-tax-total = v-tax-total +
+                         if ar-invl.tax then ar-invl.t-price else 0*/
            v-inv-qty   = ar-invl.qty
            v-ship-qty  = ar-invl.ship-qty
            v-i-no      = ar-invl.part-no /* ar-invl.i-no */
            v-i-dscr    = ar-invl.i-name
-           v-price     = ar-invl.price
-           v-t-price   = ar-invl.t-price.
+           /*v-price     = ar-invl.price*/
+           /*v-t-price   = ar-invl.t-price*/ .
 
           display v-inv-qty  to 6  format "->>>>9"
                   v-ship-qty to 12 format "->>>>9"
@@ -443,7 +444,7 @@ form inv-misc.charge at 20
 
         for each inv-misc
             where inv-misc.company eq ar-inv.company
-              and inv-misc.r-no    eq ar-inv.r-no
+              and inv-misc.ord-no EQ ar-inv.ord-no  /*inv-misc.r-no    eq ar-inv.r-no*/
               and inv-misc.bill    eq "Y"
             no-lock break by ord-no with frame detailm:
 
@@ -497,7 +498,7 @@ form inv-misc.charge at 20
         end.
 
         /* T O T A L S */
-        put skip(28 - v-printline)
+        /*put skip(28 - v-printline)
             "NonTaxable SubTotal"               at 48
             ar-inv.t-inv-rev - v-tax-total - ar-inv.t-inv-tax -
                         (if ar-inv.f-bill then ar-inv.t-inv-freight else 0)
@@ -509,7 +510,7 @@ form inv-misc.charge at 20
             "Page"                              at 2
             page-number - v-last-page           format ">9"
             "Total              "               at 48
-            ar-inv.t-inv-rev                  format "->>>>>>>>>9.99" skip.
+            ar-inv.t-inv-rev                  format "->>>>>>>>>9.99" skip.*/
 
         assign
          v-tax-total      = 0

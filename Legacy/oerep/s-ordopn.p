@@ -121,6 +121,21 @@ DEF STREAM st-excel.
 
 /*=====================================*/
 
+/* ************************  Function Implementations ***************** */
+
+
+FUNCTION ReplaceCommas RETURNS CHARACTER
+  ( ipcString AS CHAR ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+   
+
+  RETURN REPLACE(ipcString,","," ").
+  
+END FUNCTION.
+
 /* =========== main ========*/
 
 RUN get-values.

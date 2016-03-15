@@ -63,8 +63,10 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/getcmpny.i}
 {custom/getloc.i}
 */
+
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
+{sys/ref/CustList.i NEW}
 
 assign
  cocode = g_company

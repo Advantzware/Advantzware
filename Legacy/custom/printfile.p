@@ -36,7 +36,7 @@ DEF VAR p-fontsize    AS INTEGER NO-UNDO INITIAL 9.    /* pointsize for bodyfont
 /* ------ WIN32 API definitions   ----------------------------------- */
 
 /* moved to includefile for better readability */
-{printfile.i}
+{custom/printfile.i}
 
 /* ------ misc variables -------------------------------------------- */
 
