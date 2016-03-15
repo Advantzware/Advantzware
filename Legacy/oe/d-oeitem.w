@@ -865,10 +865,10 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
-   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
+   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ordl.tax IN FRAME d-oeitem
@@ -4575,9 +4575,7 @@ ASSIGN
          ll-one-part = FIRST(x-eb.form-no) AND LAST(x-eb.form-no).
          LEAVE.
        END.
-      /* Wade Kaldawi   3/9/16
-         Ticket 13466, ll-on-part should not change itemfg.alloc */       
-      /*  IF ll-one-part THEN itemfg.alloc = YES. */
+       IF ll-one-part THEN itemfg.alloc = YES.
     END.
  END.
  ELSE IF fgmaster-cha EQ "FGITEM" THEN DO:
@@ -4831,6 +4829,15 @@ PROCEDURE display-est-detail :
        IF v-est-fg1 EQ "Hughes" THEN RUN fg/hughesfg.p (ROWID(eb), OUTPUT lv-i-no).
        ELSE
        IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(eb), OUTPUT lv-i-no).
+       ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
+       ELSE do:              
+              RUN fg/autofg.p ( ROWID(eb),
+                                  v-est-fg1, 
+                                  eb.procat,
+                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
+                                  eb.cust-no,
+                                  OUTPUT lv-i-no).              
+      END.
 
        IF lv-i-no NE "" THEN oe-ordl.i-no:SCREEN-VALUE = lv-i-no.
      END. /* oe-ordl.i-no:SCREEN-VALUE EQ "" */

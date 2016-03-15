@@ -110,14 +110,14 @@ OR stock-no EQ '') NO-LOCK INDEXED-REPOSITION.
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-3 itemfg
 
 
-/* Definitions for Dialog-Box Dialog-Frame                              */
+/* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
     ~{&OPEN-QUERY-BROWSE-3}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn_itemfg stock-no btnOK btn_cancel ~
+&Scoped-Define ENABLED-OBJECTS btn_itemfg stock-no btnOK btn_cancel part-no ~
 BROWSE-3 
-&Scoped-Define DISPLAYED-OBJECTS stock-no part-no
+&Scoped-Define DISPLAYED-OBJECTS stock-no part-no 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -147,13 +147,13 @@ DEFINE BUTTON btn_itemfg
      LABEL "&Cancel" 
      SIZE 11 BY 1.67.
 
-DEFINE VARIABLE stock-no LIKE eb.stock-no
-     LABEL "Enter New &FG Item" 
+DEFINE VARIABLE part-no AS CHARACTER FORMAT "x(15)" 
+     LABEL "Cust Part#" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE part-no LIKE eb.part-no
-     LABEL "Cust Part#" 
+DEFINE VARIABLE stock-no LIKE eb.stock-no
+     LABEL "Enter New &FG Item" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1 NO-UNDO.
 
@@ -169,7 +169,7 @@ DEFINE BROWSE BROWSE-3
   QUERY BROWSE-3 NO-LOCK DISPLAY
       itemfg.i-no COLUMN-LABEL "Existing!FG Items" FORMAT "x(15)":U
       itemfg.i-name FORMAT "x(30)":U
-      itemfg.part-no FORMAT "x(15)":U
+      itemfg.part-no FORMAT "x(12)":U
       itemfg.est-no FORMAT "x(8)":U WIDTH 11
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -186,13 +186,13 @@ DEFINE FRAME Dialog-Frame
           LABEL "Enter New &FG Item"
      btnOK AT ROW 1.24 COL 65.6
      btn_cancel AT ROW 1.24 COL 79.4 WIDGET-ID 2
-     part-no AT ROW 2.10 COL 27 
-     BROWSE-3 AT ROW 3.10 COL 1.6
+     part-no AT ROW 2.1 COL 36.2 COLON-ALIGNED
+     BROWSE-3 AT ROW 3.1 COL 1.6
      SPACE(2.59) SKIP(0.13)
-    WITH VIEW-AS Dialog-Box KEEP-TAB-ORDER 
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "FG Item Not Defined"
-         DEFAULT-BUTTON btnOK CANCEL-BUTTON Btn_Cancel.
+         DEFAULT-BUTTON btnOK CANCEL-BUTTON btn_cancel.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -210,9 +210,9 @@ DEFINE FRAME Dialog-Frame
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR Dialog-Box Dialog-Frame
+/* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-3 btn_cancel Dialog-Frame */
+/* BROWSE-TAB BROWSE-3 part-no Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -243,11 +243,11 @@ OR stock-no EQ '')"
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _QUERY-BLOCK Dialog-Box Dialog-Frame
-/* Query rebuild information for Dialog-Box Dialog-Frame
+&ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
+/* Query rebuild information for DIALOG-BOX Dialog-Frame
      _Options          = "SHARE-LOCK KEEP-EMPTY"
      _Query            is NOT OPENED
-*/  /* Dialog-Box Dialog-Frame */
+*/  /* DIALOG-BOX Dialog-Frame */
 &ANALYZE-RESUME
 
  
@@ -457,6 +457,86 @@ RUN disable_UI.
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-create-item Dialog-Frame 
+PROCEDURE auto-create-item :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DEF INPUT PARAMETER ipc-i-no AS CHAR NO-UNDO.
+  DEF VAR lv-i-no              AS CHAR NO-UNDO.
+  DEF VAR i                    AS INT  NO-UNDO.
+  DEF BUFFER bf-eb FOR eb.
+
+  IF NOT AVAIL xest AND AVAIL(eb) THEN DO:
+      FIND FIRST xest WHERE xest.company = eb.company 
+                        AND xest.est-no  = eb.est-no
+                      NO-LOCK NO-ERROR.
+  END.
+  FIND xeb WHERE ROWID(xeb) = ROWID(eb) EXCLUSIVE-LOCK.
+  
+  IF NOT AVAIL xest THEN
+      RETURN.
+  IF NOT AVAIL xeb THEN
+      RETURN.
+
+  
+  /* Make sure set header is created with a '00' */
+  IF xest.est-type eq 2 or xest.est-type eq 6 then do:
+      FIND FIRST bf-eb WHERE bf-eb.company = xest.company
+                         AND bf-eb.est-no  = xest.est-no
+                         AND bf-eb.form-no = 0
+                       EXCLUSIVE-LOCK NO-ERROR.
+      
+      IF AVAIL bf-eb AND xeb.stock-no = "" THEN DO:
+         IF v-est-fg1 EQ "Hughes" THEN DO:
+             RUN fg/hughesfg.p (ROWID(bf-eb), OUTPUT lv-i-no).
+             
+             FIND CURRENT bf-eb EXCLUSIVE-LOCK.         
+             i = LENGTH(lv-i-no).
+             IF i GT 2 THEN
+             SUBSTRING(lv-i-no, i - 1, 2) = "00".
+    
+         END.
+         ELSE DO:
+           IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
+           ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
+           ELSE do:
+              RUN fg/autofg.p ( ROWID(xeb),
+                                  v-est-fg1, 
+                                  xeb.procat,
+                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
+                                  xeb.cust-no,
+                                  OUTPUT lv-i-no).             
+           END.
+
+             FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
+             i = LENGTH(lv-i-no).
+             IF i GT 2 THEN
+             SUBSTRING(lv-i-no, i - 1, 2) = "00".
+         END.
+         
+         xeb.stock-no = lv-i-no.
+         
+        FIND xeb WHERE ROWID(xeb) = ROWID(bf-eb) NO-LOCK.
+        /*RUN fg/ce-addfg.p (bf-eb.stock-no).*/
+        FIND itemfg WHERE itemfg.company = xest.company
+                      AND itemfg.i-no = bf-eb.stock-no
+                    NO-ERROR.
+        IF AVAIL itemfg THEN
+            itemfg.isaset = TRUE.
+        RELEASE itemfg.
+      END.
+  END.
+  /* From oe/d-oeitem.w */
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -485,9 +565,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY stock-no 
+  DISPLAY stock-no part-no 
       WITH FRAME Dialog-Frame.
-  ENABLE btn_itemfg stock-no btnOK btn_cancel BROWSE-3 
+  ENABLE btn_itemfg stock-no btnOK btn_cancel part-no BROWSE-3 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -495,8 +575,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-auto-add-item Dialog-Frame 
 PROCEDURE set-auto-add-item :
@@ -549,6 +627,16 @@ PROCEDURE set-auto-add-item :
           END.
           ELSE
               IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
+
+          ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
+          ELSE do:
+              RUN fg/autofg.p ( ROWID(xeb),
+                                  v-est-fg1, 
+                                  xeb.procat,
+                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
+                                  xeb.cust-no,
+                                  OUTPUT lv-i-no).             
+          END.
               ASSIGN xeb.stock-no = lv-i-no .
                 /*RUN fg/ce-addfg.p (xeb.stock-no).*/
       END.
@@ -557,78 +645,6 @@ PROCEDURE set-auto-add-item :
   
           
  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-create-item Dialog-Frame 
-PROCEDURE auto-create-item :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DEF INPUT PARAMETER ipc-i-no AS CHAR NO-UNDO.
-  DEF VAR lv-i-no              AS CHAR NO-UNDO.
-  DEF VAR i                    AS INT  NO-UNDO.
-  DEF BUFFER bf-eb FOR eb.
-
-  IF NOT AVAIL xest AND AVAIL(eb) THEN DO:
-      FIND FIRST xest WHERE xest.company = eb.company 
-                        AND xest.est-no  = eb.est-no
-                      NO-LOCK NO-ERROR.
-  END.
-  FIND xeb WHERE ROWID(xeb) = ROWID(eb) EXCLUSIVE-LOCK.
-  
-  IF NOT AVAIL xest THEN
-      RETURN.
-  IF NOT AVAIL xeb THEN
-      RETURN.
-
-  
-  /* Make sure set header is created with a '00' */
-  IF xest.est-type eq 2 or xest.est-type eq 6 then do:
-      FIND FIRST bf-eb WHERE bf-eb.company = xest.company
-                         AND bf-eb.est-no  = xest.est-no
-                         AND bf-eb.form-no = 0
-                       EXCLUSIVE-LOCK NO-ERROR.
-      
-      IF AVAIL bf-eb AND xeb.stock-no = "" THEN DO:
-         IF v-est-fg1 EQ "Hughes" THEN DO:
-             RUN fg/hughesfg.p (ROWID(bf-eb), OUTPUT lv-i-no).
-             
-             FIND CURRENT bf-eb EXCLUSIVE-LOCK.         
-             i = LENGTH(lv-i-no).
-             IF i GT 2 THEN
-             SUBSTRING(lv-i-no, i - 1, 2) = "00".
-    
-         END.
-         ELSE DO:
-           IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
-             FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
-             i = LENGTH(lv-i-no).
-             IF i GT 2 THEN
-             SUBSTRING(lv-i-no, i - 1, 2) = "00".
-         END.
-         
-         xeb.stock-no = lv-i-no.
-         
-        FIND xeb WHERE ROWID(xeb) = ROWID(bf-eb) NO-LOCK.
-        /*RUN fg/ce-addfg.p (bf-eb.stock-no).*/
-        FIND itemfg WHERE itemfg.company = xest.company
-                      AND itemfg.i-no = bf-eb.stock-no
-                    NO-ERROR.
-        IF AVAIL itemfg THEN
-            itemfg.isaset = TRUE.
-        RELEASE itemfg.
-      END.
-  END.
-  /* From oe/d-oeitem.w */
-  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
