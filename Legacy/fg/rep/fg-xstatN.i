@@ -159,30 +159,15 @@ FOR EACH ttCustList
                  vtot-job-cost = 0.
             
              IF oe-ordl.job-no <> ""  THEN DO:
-                 FOR EACH job-hdr WHERE job-hdr.company = cocode
+                 FIND FIRST job-hdr WHERE job-hdr.company = cocode
                      AND job-hdr.job-no = oe-ordl.job-no
-                     AND job-hdr.i-no   = oe-ordl.i-no NO-LOCK :
-                     
-                     FOR each job-mat fields(cost-m) WHERE job-mat.company = cocode
-                         AND job-mat.job = job-hdr.job
-                         AND job-mat.job-no = job-hdr.job-no
-                         AND job-mat.job-no2 = job-hdr.job-no2
-                         AND job-mat.frm = job-hdr.frm NO-LOCK:
-                         vmat-cost = vmat-Cost + job-mat.cost-m .
-                     END.
+                     AND job-hdr.i-no   = oe-ordl.i-no NO-LOCK NO-ERROR.
 
-                     FOR each  job-mch  FIELD(mr-rate mr-varoh mr-fixoh) WHERE job-mch.company = cocode
-                         AND job-mch.job = job-hdr.job
-                         AND job-mch.job-no = job-hdr.job-no
-                         AND job-mch.job-no2 = job-hdr.job-no2
-                         AND job-mch.frm = job-hdr.frm NO-LOCK:
-
-                         vmach-cost = vmach-cost + job-mch.mr-rate + job-mch.mr-varoh + job-mch.mr-fixoh .
-                     END.
-
-                     vtot-costm = vmat-cost + vmach-cost .
+                 IF AVAIL job-hdr THEN
+                     ASSIGN
+                     vtot-costm = job-hdr.std-mat-cost + job-hdr.std-lab-cost + job-hdr.std-fix-cost 
+                                    + job-hdr.std-var-cost 
                      vtot-job-cost = vtot-costm * job-hdr.qty / 1000 .
-                 END.
              END.
 
            FOR EACH oe-rel
@@ -501,8 +486,8 @@ FOR EACH ttCustList
                                                  WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
                                                  WHEN "shipto" THEN cVarValue = v-shipto .
                                                  WHEN "shipname" THEN cVarValue = v-shipto-name  .
-                                                 WHEN "fac-costm" THEN cVarValue = STRING(vtot-costm)  .
-                                                 WHEN "tot-fac-cost" THEN cVarValue = STRING(vtot-job-cost)  .
+                                                 WHEN "fac-costm" THEN cVarValue = STRING(vtot-costm,"->>,>>>,>>9.99")  .
+                                                 WHEN "tot-fac-cost" THEN cVarValue = STRING(vtot-job-cost,"->>>>,>>>,>>9.99")  .
                                                  
                                            END CASE.
 
@@ -775,7 +760,7 @@ FOR EACH ttCustList
                 WHEN "shipto" THEN cVarValue = v-shipto .
                 WHEN "shipname" THEN cVarValue = v-shipto-name .
                 WHEN "fac-costm" THEN cVarValue = IF vtot-costm <> 0 THEN STRING(vtot-costm,"->>,>>>,>>9.99") ELSE "" .
-                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>,>>>,>>9.99") ELSE ""  .
+                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>>>,>>>,>>9.99") ELSE ""  .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -1070,7 +1055,7 @@ FOR EACH ttCustList
                 WHEN "shipto" THEN cVarValue = v-shipto.
                 WHEN "shipname" THEN cVarValue = v-shipto-name .
                 WHEN "fac-costm" THEN cVarValue = IF vtot-costm <> 0 THEN STRING(vtot-costm,"->>,>>>,>>9.99") ELSE "" .
-                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>,>>>,>>9.99") ELSE ""  .
+                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>>>,>>>,>>9.99") ELSE ""  .
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -1277,7 +1262,7 @@ FOR EACH ttCustList
                 WHEN "shipto" THEN cVarValue = v-shipto .
                 WHEN "shipname" THEN cVarValue = v-shipto-name .
                 WHEN "fac-costm" THEN cVarValue = IF vtot-costm <> 0 THEN STRING(vtot-costm,"->>,>>>,>>9.99") ELSE "" .
-                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>,>>>,>>9.99") ELSE ""  .
+                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>>>,>>>,>>9.99") ELSE ""  .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
