@@ -5,7 +5,8 @@
 &SCOPED-DEFINE aoaTitle Customers
 &SCOPED-DEFINE aoaType Report
 &SCOPED-DEFINE aoaParam YES
+/*
 &SCOPED-DEFINE test aoaAR/Param/custaoa.w
+*/
 
 {aoa/aoaParam.i}
-

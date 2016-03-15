@@ -5,6 +5,8 @@
 &SCOPED-DEFINE aoaTitle Invoice Highlights
 &SCOPED-DEFINE aoaType Dashboard
 &SCOPED-DEFINE aoaParam YES
+/*
 &SCOPED-DEFINE test aoaHS/Param/dbinvmh.w
+*/
 
 {aoa/aoaParam.i}
