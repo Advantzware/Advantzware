@@ -14,8 +14,8 @@ name-fld-list =
 /* 46     47        48      49      50       51       52        53       54        55      56      57       58      59      60     61       62       63       64      65     66      67     68      69      70      71      72       73        74       75      76       77       78       79      80      81       82      83     84      85     86      87      88  */
 /*  89       90       91     92      93      94       95    96   97     98      99       100       101      102     103    104      105       106    107   108       109       110       111      112       113       114      115       116       117    118      119      120       121     122        123        124         125     126     127     128        129  */
 "stmtprint,TSFinish,appaper,cecunit,fgpost,corsuply,fgitemsf,GP,oeprep,celayout,1099misc,RFQPrint,oecredit,maxbreak,aptax,rmemails,sspostfg,bolfmtx,schdcard,TSTIME,FGReOrder,ARMEMO,APCheckFile,OEPrompt,SSBOLSCAN,INVCOPYS,CORRCHOICE,BORELDATE,OEINQ,ECBROWSE,VENDXFER,CUSTXFER,ORDERXFER,MISCJOBCL,RMUnderOver,CEPREPPRICE,RELTYPE,SSMoveFG,CEMISC,BolPostTime,CEDeliveryZone," +
-/* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147     */
-"BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes".
+/* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147        148        */
+"BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT".
                                   /* 126*/
 
 DEF VAR str-init  AS CHAR EXTENT 150 NO-UNDO.
@@ -51,7 +51,8 @@ ASSIGN
               + "P&P,Pacific,Xprint,SouthPak,SouthPak-xl,CentBox,Xprint2,Oracle,"
               + "PremierX,CSC,Elite,OTTPkg,APC,ConsBox,FibreX,ASIXprnt,Valley,PPI,CSC-GA,"
               + "HPB,Indiana,MWFibre,Packrite,Allwest,ACPI,Badger,CCC,Soule,SouleMed,"
-              + "Protagon,Protagon2,PremierCX,PeachTree,PremierXFGItems,Hughes,Boss,Bell,StClair,Sultana"
+              + "Protagon,Protagon2,PremierCX,PeachTree,PremierXFGItems,Hughes,Boss,Bell,StClair,Sultana,"
+              + "Coburn"
  str-init[9]  = "ASI,Argrov,Century,HOP,MultiWll,Sonoco,TriState,Fibre," +
                 "Premier,Pacific,Xprint,CentBox,HOPX,Xprint2,Frankstn,APC,FibreX,Indiana,PPI," +
                 "HPB,Keystone,Hughes,Allwest,Rosmar,Loylang,Carded,PremierX,CSC-GA,CardedX," +
@@ -113,7 +114,7 @@ ASSIGN
  str-init[38] = "JobQty,Net Shts"
  str-init[39] = "ASI,Fibre"
  str-init[40] = /*Planner,Kiwi,*/ "None,PlanDate,NoDate"
- str-init[41] = "Manual,%$$$$$$####A&&,@$$$$$$$$####A>,$$$$$$$$#####A,None,Hold" /* %$$$$$$####A&&:Hughes,@$$$$$$$$####A>:Fibre*/
+ str-init[41] = "Manual,%$$$$$$####A&&,@$$$$$$$$####A>,$$$$$$$$#####A,Fibre,None,Hold" /* %$$$$$$####A&&:Hughes,@$$$$$$$$####A>:Fibre*/
  str-init[42] = "Item,Set" 
  str-init[43] = ",Bin>Qty"
  str-init[44] = "Fibre,ASI,Stock/Custom" 
@@ -222,6 +223,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[145] = "Order Item Counts,Pallet Counts"
        str-init[146] = ",TEAL"
        str-init[147] = ",PremierPkg,McElroy,Bell,Capitol,Rudd,Trepaper"
+       str-init[148] = ",NoWarning,OverShipWarning,UnderShipWarning,OverUnderShipWarning"
     .
 
 FOR EACH ASI.item-spec FIELDS(CODE) WHERE

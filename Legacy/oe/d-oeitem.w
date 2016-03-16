@@ -865,10 +865,10 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
-   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
    NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
+/* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ordl.tax IN FRAME d-oeitem
@@ -4575,7 +4575,9 @@ ASSIGN
          ll-one-part = FIRST(x-eb.form-no) AND LAST(x-eb.form-no).
          LEAVE.
        END.
-       IF ll-one-part THEN itemfg.alloc = YES.
+      /* Wade Kaldawi   3/9/16
+         Ticket 13466, ll-on-part should not change itemfg.alloc */       
+      /*  IF ll-one-part THEN itemfg.alloc = YES. */
     END.
  END.
  ELSE IF fgmaster-cha EQ "FGITEM" THEN DO:

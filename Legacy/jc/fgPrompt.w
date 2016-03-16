@@ -110,14 +110,14 @@ OR stock-no EQ '') NO-LOCK INDEXED-REPOSITION.
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-3 itemfg
 
 
-/* Definitions for DIALOG-BOX Dialog-Frame                              */
+/* Definitions for Dialog-Box Dialog-Frame                              */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
     ~{&OPEN-QUERY-BROWSE-3}
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btn_itemfg stock-no btnOK btn_cancel part-no ~
 BROWSE-3 
-&Scoped-Define DISPLAYED-OBJECTS stock-no part-no 
+&Scoped-Define DISPLAYED-OBJECTS stock-no part-no
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -186,13 +186,13 @@ DEFINE FRAME Dialog-Frame
           LABEL "Enter New &FG Item"
      btnOK AT ROW 1.24 COL 65.6
      btn_cancel AT ROW 1.24 COL 79.4 WIDGET-ID 2
-     part-no AT ROW 2.1 COL 36.2 COLON-ALIGNED
-     BROWSE-3 AT ROW 3.1 COL 1.6
+     part-no AT ROW 2.10 COL 27 
+     BROWSE-3 AT ROW 3.10 COL 1.6
      SPACE(2.59) SKIP(0.13)
-    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+    WITH VIEW-AS Dialog-Box KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "FG Item Not Defined"
-         DEFAULT-BUTTON btnOK CANCEL-BUTTON btn_cancel.
+         DEFAULT-BUTTON btnOK CANCEL-BUTTON Btn_Cancel.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -210,7 +210,7 @@ DEFINE FRAME Dialog-Frame
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR DIALOG-BOX Dialog-Frame
+/* SETTINGS FOR Dialog-Box Dialog-Frame
    FRAME-NAME                                                           */
 /* BROWSE-TAB BROWSE-3 part-no Dialog-Frame */
 ASSIGN 
@@ -243,11 +243,11 @@ OR stock-no EQ '')"
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
-/* Query rebuild information for DIALOG-BOX Dialog-Frame
+&ANALYZE-SUSPEND _QUERY-BLOCK Dialog-Box Dialog-Frame
+/* Query rebuild information for Dialog-Box Dialog-Frame
      _Options          = "SHARE-LOCK KEEP-EMPTY"
      _Query            is NOT OPENED
-*/  /* DIALOG-BOX Dialog-Frame */
+*/  /* Dialog-Box Dialog-Frame */
 &ANALYZE-RESUME
 
  
@@ -575,6 +575,8 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-auto-add-item Dialog-Frame 
 PROCEDURE set-auto-add-item :

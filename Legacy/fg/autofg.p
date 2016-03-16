@@ -84,7 +84,7 @@ FOR FIRST b-eb FIELDS(company est-no form-no) WHERE
   ASSIGN
     /* op-i-no = SUBSTR(eb.procat,1,1) + SUBSTR(eb.cust-no,1,6)  */
        v-len   = LENGTH(op-i-no) + 1.
-
+  /* YSK 14935 */
   FOR EACH itemfg
       WHERE itemfg.company          EQ eb.company
         AND itemfg.i-no             BEGINS op-i-no

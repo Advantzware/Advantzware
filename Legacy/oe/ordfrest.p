@@ -47,6 +47,7 @@ FIND oe-ord WHERE ROWID(oe-ord) EQ ip-ord-rec NO-LOCK NO-ERROR.
 IF NOT AVAIL oe-ord THEN
     RETURN.
 
+
 DEF BUFFER xoe-ord FOR oe-ord. /* Record is found based on fil_id */
 DEF NEW SHARED BUFFER xeb FOR eb .        /* First record found */
 DEF NEW SHARED BUFFER xest FOR est.       /* Record found from parameter */
@@ -221,6 +222,7 @@ END PROCEDURE.
 
 PROCEDURE new-order:
 
+
     /** CHECK for INACTIVE CUSTOMERS **/
     FOR EACH eb WHERE eb.company = cocode AND
                       eb.est-no   EQ xest.est-no
@@ -232,7 +234,7 @@ PROCEDURE new-order:
       IF FIRST-OF(eb.cust-no) THEN DO:
         /** finding the customer is done this way because the index is not
         setup efficently to find the customer regardles of active stat **/
-        FIND FIRST cust {sys/ref/cust.w}
+        FIND FIRST cust {sys/ref/custW.i}
                         AND cust.cust-no EQ eb.cust-no
              USE-INDEX cust NO-LOCK NO-ERROR.
         IF NOT avail cust OR cust.active EQ "I" THEN DO:
@@ -422,7 +424,7 @@ PROCEDURE create-order-lines.
     .
     .
     .
-  */    
+  */
     /************* create LINE ITEMS ***************/   
     FIND FIRST oe-ordl WHERE oe-ordl.company  EQ cocode
           AND oe-ordl.ord-no   EQ xoe-ord.ord-no
@@ -441,7 +443,7 @@ PROCEDURE create-order-lines.
            (tt-item-qty-price.part-no EQ oe-ordl.i-no AND oe-ordl.i-no NE ""))) THEN
            oe-ordl.qty = oe-ordl.qty + eb.bl-qty.
     
-      IF NOT avail oe-ordl                                                    OR
+    IF NOT avail oe-ordl                                                    OR
        CAN-FIND(FIRST tt-oe-ordl WHERE tt-oe-ordl.row-id EQ ROWID(oe-ordl)) THEN DO:
        IF NOT avail oe-ordl THEN DO:
           li-line-no = 1.
@@ -452,7 +454,7 @@ PROCEDURE create-order-lines.
             li-line-no = oe-ordl.LINE + 1.
             LEAVE.
           END.
-    
+          
           CREATE oe-ordl.
           ASSIGN
            oe-ordl.company    = cocode
@@ -508,7 +510,7 @@ PROCEDURE create-order-lines.
                UPDATE ll-new-fg.
       
        IF ll-new-fg THEN oe-ordl.i-no = eb.stock-no.
-     
+
        IF oe-ordl.i-no EQ "" THEN DO:
           IF v-est-fg THEN
               oe-ordl.i-no = IF v-est-type EQ 2 AND avail xeb THEN
@@ -1309,7 +1311,7 @@ PROCEDURE recalc-estimate:
         NO-LOCK,
         FIRST ef OF eb NO-LOCK,
         FIRST cust NO-LOCK
-        {sys/ref/cust.w}
+        {sys/ref/custW.i}
           AND cust.cust-no EQ eb.cust-no
         USE-INDEX cust    
         BREAK BY eb.est-no BY eb.cust-no BY eb.form-no BY eb.blank-no
