@@ -179,10 +179,10 @@ DEF VAR v-req-date AS DATE NO-UNDO.
 DEF VAR v-shipto AS cha FORMAT "x(30)" EXTENT 4 NO-UNDO.
 DEF VAR v-case-size AS cha NO-UNDO.
 DEF VAR v-vend LIKE po-ord.vend-no NO-UNDO.
-DEF VAR v-item AS cha EXTENT 30 NO-UNDO.
-DEF VAR v-i-qty AS DEC EXTENT 30 NO-UNDO.
-DEF VAR v-ink1 AS cha EXTENT 30 NO-UNDO.
-DEF VAR v-ink2 AS cha EXTENT 30 NO-UNDO.
+DEF VAR v-item AS cha EXTENT 100 NO-UNDO.
+DEF VAR v-i-qty AS DEC EXTENT 100 NO-UNDO.
+DEF VAR v-ink1 AS cha EXTENT 100 NO-UNDO.
+DEF VAR v-ink2 AS cha EXTENT 100 NO-UNDO.
 DEF VAR v-po-no LIKE oe-ordl.po-no NO-UNDO.
 DEF VAR lv-mat-dept-list AS cha INIT "FB,FS,WN,WS,GL" NO-UNDO.
 DEF VAR v-mat-for-mach AS cha NO-UNDO.
@@ -889,11 +889,14 @@ for each job-hdr NO-LOCK
             ELSE
                ASSIGN v-cust-lot# = "".
 
+            FIND FIRST itemfg WHERE itemfg.company = job-hdr.company
+                            AND itemfg.i-no = job-hdr.i-no NO-LOCK NO-ERROR.
+
             
            display v-job-no + "-" + trim(string(eb.form-no,">>9")) + 
                     trim(string(eb.blank-no,">>9")) FORM "x(11)" 
                     eb.stock-no @ job-hdr.i-no 
-                    (IF AVAIL oe-ordl  THEN oe-ordl.part-no ELSE "") FORM "x(15)"   
+                    (IF AVAIL oe-ordl  THEN oe-ordl.part-no ELSE IF AVAIL itemfg THEN itemfg.part-no ELSE "") FORM "x(15)"   
                     eb.plate-no FORM "x(10)" /** v-fac*/ /*format "->,>>>,>>9"*/
                     (IF AVAIL oe-ordl  THEN oe-ordl.po-no ELSE "") FORM "x(15)"
                     v-cust-lot#  FORM "x(17)"
@@ -976,7 +979,7 @@ for each job-hdr NO-LOCK
              if x ne 2 then put v-fill at 1 skip.
                      
              /** PRINT INK **/
-             PUT "<B>PASS  SIDE         LBS INK NAME            ITEMS    PASS  SIDE         LBS INK NAME            ITEMS     STYLE#  CARTON SIZE</B>"
+             PUT "<B>PASS  SIDE         LBS INK NAME            ITEMS    PASS  SIDE         LBS INK NAME            ITEMS     STYLE#   CARTON SIZE</B>"
                  SKIP.
              ASSIGN
                 x = 2
@@ -1151,7 +1154,7 @@ for each job-hdr NO-LOCK
                    IF v-skip THEN do:
                        PUT  v-ink1[j] FORM "x(52)" .
                        IF j = 2 THEN do:
-                           PUT eb.style AT 106  SPACE(2)  v-size[1] FORM "x(30)" .
+                           PUT eb.style FORMAT "x(8)" AT 106 SPACE(1) v-size[1] FORM "x(30)" .
                            v-plate-printed = YES.
                        END.
                        PUT SKIP.
@@ -1160,7 +1163,7 @@ for each job-hdr NO-LOCK
                    v-skip = NOT v-skip.             
                 END.
              END.
-             IF NOT v-plate-printed THEN PUT eb.plate-no AT 106 SPACE(2)  v-size[1] FORM "x(30)" SKIP.
+             IF NOT v-plate-printed THEN PUT eb.style FORMAT "x(8)" AT 106 SPACE(1) v-size[1] FORM "x(30)" SKIP.
 
              DO j = 1 TO EXTENT(v-ink2):
                 IF TRIM(v-ink2[j]) = "-" THEN v-ink2[j] = "".                 

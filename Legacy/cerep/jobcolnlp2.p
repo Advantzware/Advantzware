@@ -180,10 +180,10 @@ DEF VAR v-req-date AS DATE NO-UNDO.
 DEF VAR v-shipto AS cha FORMAT "x(30)" EXTENT 4 NO-UNDO.
 DEF VAR v-case-size AS cha NO-UNDO.
 DEF VAR v-vend LIKE po-ord.vend-no NO-UNDO.
-DEF VAR v-item AS cha EXTENT 30 NO-UNDO.
-DEF VAR v-i-qty AS DEC EXTENT 30 NO-UNDO.
-DEF VAR v-ink1 AS cha EXTENT 30 NO-UNDO.
-DEF VAR v-ink2 AS cha EXTENT 40 NO-UNDO.
+DEF VAR v-item AS cha EXTENT 100 NO-UNDO.
+DEF VAR v-i-qty AS DEC EXTENT 100 NO-UNDO.
+DEF VAR v-ink1 AS cha EXTENT 100 NO-UNDO.
+DEF VAR v-ink2 AS cha EXTENT 100 NO-UNDO.
 DEF VAR lv-mat-dept-list AS cha INIT "FB,FS,WN,WS,GL" NO-UNDO.
 DEF VAR v-mat-for-mach AS cha NO-UNDO.
 DEF BUFFER xjob-mat FOR job-mat.
