@@ -775,7 +775,12 @@ FOR EACH ttCustList
                 WHEN "shipto" THEN cVarValue = v-shipto .
                 WHEN "shipname" THEN cVarValue = v-shipto-name .
                 WHEN "fac-costm" THEN cVarValue = IF vtot-costm <> 0 THEN STRING(vtot-costm,"->>,>>>,>>9.99") ELSE "" .
-                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>,>>>,>>9.99") ELSE ""  .
+<<<<<<< HEAD
+                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>>>,>>>,>>9.99") ELSE ""  .
+=======
+                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>>>,>>>,>>9.99") ELSE ""  .
+
+>>>>>>> 4c94467... Ticket 15109 N-K Report = IL8 Logical value = Yes - Add additional columns for selection
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
