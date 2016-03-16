@@ -2379,7 +2379,7 @@ PROCEDURE build-work :
       NEXT build-work.
     END.
   
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt = "PremierCX" OR 
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX" OR v-print-fmt = "PremierCX" OR 
        v-print-fmt = "PremierPX" OR v-print-fmt =  "PremierBroker"  THEN DO:
        IF AVAIL oe-bolh THEN do:
            IF oe-bolh.frt-pay EQ "B" AND oe-bolh.freight EQ 0 THEN
@@ -3657,7 +3657,7 @@ PROCEDURE run-packing-list :
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                    PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
-              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(160)".
               ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(60)".
           END.
@@ -3788,7 +3788,7 @@ PROCEDURE run-report :
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                    PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
-              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(160)".
               ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(60)".
           END.
@@ -3981,7 +3981,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
         WHEN 5 THEN do:
             IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                  PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
-                 ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+                 ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(160)".
             ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(60)".
         END.
@@ -4111,7 +4111,7 @@ PROCEDURE run-report-mail :
     IF IS-xprint-form THEN DO:
       IF v-print-fmt = "Century"                     /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
         THEN PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(100)".
-        ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+        ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(160)".
         ELSE IF v-print-fmt EQ "Prystup-Excel" THEN PUT "<PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(60)".
         ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(60)".

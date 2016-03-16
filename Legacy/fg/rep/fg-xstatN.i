@@ -38,7 +38,7 @@ ASSIGN
 FOR EACH ttCustList 
     WHERE ttCustList.log-fld
     NO-LOCK,
-    each cust
+ each cust
    where cust.company eq cocode
      and cust.cust-no EQ ttCustList.cust-no /*fcst*/
     /* and cust.cust-no le tcst*/
@@ -151,6 +151,24 @@ FOR EACH ttCustList
                       
            v-int-rel = "".
            v-prodqty = 0 .
+
+             ASSIGN
+                 vmat-cost  = 0 
+                 vmach-cost = 0
+                 vtot-costm = 0 
+                 vtot-job-cost = 0.
+            
+             IF oe-ordl.job-no <> ""  THEN DO:
+                 FIND FIRST job-hdr WHERE job-hdr.company = cocode
+                     AND job-hdr.job-no = oe-ordl.job-no
+                     AND job-hdr.i-no   = oe-ordl.i-no NO-LOCK NO-ERROR.
+
+                 IF AVAIL job-hdr THEN
+                     ASSIGN
+                     vtot-costm = job-hdr.std-mat-cost + job-hdr.std-lab-cost + job-hdr.std-fix-cost 
+                                    + job-hdr.std-var-cost 
+                     vtot-job-cost = vtot-costm * job-hdr.qty / 1000 .
+             END.
 
            FOR EACH oe-rel
                where oe-rel.company EQ oe-ordl.company
@@ -391,6 +409,7 @@ FOR EACH ttCustList
                                      FIRST oe-bolh WHERE oe-bolh.b-no EQ oe-boll.b-no NO-LOCK:
                                      ASSIGN ship-date = oe-bolh.bol-date .
                                 END.
+                                
 
                                 /* v-job-no = "".
                                 if oe-ordl.job-no ne "" then
@@ -467,6 +486,8 @@ FOR EACH ttCustList
                                                  WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
                                                  WHEN "shipto" THEN cVarValue = v-shipto .
                                                  WHEN "shipname" THEN cVarValue = v-shipto-name  .
+                                                 WHEN "fac-costm" THEN cVarValue = STRING(vtot-costm,"->>,>>>,>>9.99")  .
+                                                 WHEN "tot-fac-cost" THEN cVarValue = STRING(vtot-job-cost,"->>>>,>>>,>>9.99")  .
                                                  
                                            END CASE.
 
@@ -552,6 +573,8 @@ FOR EACH ttCustList
                 WHEN "fg-lot" THEN cVarValue = "" .
                 WHEN "shipto" THEN cVarValue = "".
                 WHEN "shipname" THEN cVarValue = "" . 
+                WHEN "fac-costm" THEN cVarValue = ""  .
+                WHEN "tot-fac-cost" THEN cVarValue = ""  . 
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -665,7 +688,7 @@ FOR EACH ttCustList
                 FIRST oe-bolh WHERE oe-bolh.b-no EQ oe-boll.b-no NO-LOCK:
                 ASSIGN ship-date = oe-bolh.bol-date .
             END.
-            
+           
             v-job-no = "".
             if oe-ordl.job-no ne "" then
                   v-job-no = STRING(oe-ordl.job-no,"x(6)") + "-" + string(oe-ordl.job-no2,"99").
@@ -734,8 +757,11 @@ FOR EACH ttCustList
                 WHEN "prodqty" THEN cVarValue = string(v-prodqty,"->>>,>>>,>>>,>>9") .
                 WHEN "sman" THEN cVarValue = STRING(v-sales-rep).
                 WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
-                 WHEN "shipto" THEN cVarValue = v-shipto .
-                 WHEN "shipname" THEN cVarValue = v-shipto-name .
+                WHEN "shipto" THEN cVarValue = v-shipto .
+                WHEN "shipname" THEN cVarValue = v-shipto-name .
+                WHEN "fac-costm" THEN cVarValue = IF vtot-costm <> 0 THEN STRING(vtot-costm,"->>,>>>,>>9.99") ELSE "" .
+                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>>>,>>>,>>9.99") ELSE ""  .
+
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -792,6 +818,8 @@ FOR EACH ttCustList
                 WHEN "fg-lot" THEN cVarValue = "".
                 WHEN "shipto" THEN cVarValue =  "".
                 WHEN "shipname" THEN cVarValue = "" .
+                WHEN "fac-costm" THEN cVarValue = ""  .
+                WHEN "tot-fac-cost" THEN cVarValue = ""  .
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -951,7 +979,7 @@ FOR EACH ttCustList
                 FIRST oe-bolh WHERE oe-bolh.b-no EQ oe-boll.b-no NO-LOCK:
                 ASSIGN ship-date = oe-bolh.bol-date .
             END.
-            
+          
            /* v-job-no = "".
             if oe-ordl.job-no ne "" then
                   v-job-no = trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99").
@@ -1027,6 +1055,8 @@ FOR EACH ttCustList
                 WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
                 WHEN "shipto" THEN cVarValue = v-shipto.
                 WHEN "shipname" THEN cVarValue = v-shipto-name .
+                WHEN "fac-costm" THEN cVarValue = IF vtot-costm <> 0 THEN STRING(vtot-costm,"->>,>>>,>>9.99") ELSE "" .
+                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>>>,>>>,>>9.99") ELSE ""  .
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -1162,7 +1192,6 @@ FOR EACH ttCustList
                 ASSIGN ship-date = oe-bolh.bol-date .
             END.
             
-
             v-job-no = "".
             if oe-ordl.job-no ne "" then
                   v-job-no = STRING(oe-ordl.job-no,"x(6)") + "-" + string(oe-ordl.job-no2,"99").
@@ -1233,6 +1262,8 @@ FOR EACH ttCustList
                 WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
                 WHEN "shipto" THEN cVarValue = v-shipto .
                 WHEN "shipname" THEN cVarValue = v-shipto-name .
+                WHEN "fac-costm" THEN cVarValue = IF vtot-costm <> 0 THEN STRING(vtot-costm,"->>,>>>,>>9.99") ELSE "" .
+                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>>>,>>>,>>9.99") ELSE ""  .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -1306,7 +1337,9 @@ FOR EACH ttCustList
                 WHEN "prodqty" THEN cVarValue = ""  .
                 WHEN "fg-lot" THEN cVarValue = "" .
                 WHEN "shipto" THEN cVarValue = "".
-                WHEN "shipname" THEN cVarValue = "" .    
+                WHEN "shipname" THEN cVarValue = "" .  
+                WHEN "fac-costm" THEN cVarValue = "" .
+                WHEN "tot-fac-cost" THEN cVarValue = ""  .
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -1370,6 +1403,8 @@ ASSIGN cDisplay = ""                                                    /*Task# 
                 WHEN "fg-lot" THEN cVarValue = "".
                 WHEN "shipto" THEN cVarValue = "".
                 WHEN "shipname" THEN cVarValue = "" .
+                WHEN "fac-costm" THEN cVarValue = ""  .
+                WHEN "tot-fac-cost" THEN cVarValue = ""  . 
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
