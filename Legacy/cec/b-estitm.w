@@ -5682,7 +5682,8 @@ PROCEDURE local-create-record :
 
   DEF BUFFER b-eb FOR eb.
   DEF BUFFER b-ef FOR ef.
-
+      IF AVAIL eb THEN
+          v-rowid-eb  = ROWID(eb).
   /* Code placed here will execute PRIOR to standard behavior. */
   if avail est then li-form# = est.form-qty. /* for set creation on crt-new-set */
     
