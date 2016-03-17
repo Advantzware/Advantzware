@@ -1001,11 +1001,13 @@ PROCEDURE local-open-query :
   END.
  IF AVAIL ar-cash AND ar-cash.memo AND AVAIL ar-cashl and ar-cashl.amt-disc gt 0 THEN do: 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"disableadd-target",OUTPUT char-hdl).
-       RUN add-return-proc IN WIDGET-HANDLE(char-hdl)(YES).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+         RUN add-return-proc IN WIDGET-HANDLE(char-hdl)(YES).
  END.
  ELSE DO:
  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"disableadd-target",OUTPUT char-hdl).
-       RUN add-return-proc IN WIDGET-HANDLE(char-hdl)(NO).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+          RUN add-return-proc IN WIDGET-HANDLE(char-hdl)(NO).
  END.
 
 
