@@ -35,6 +35,11 @@
              v-program      = "oe/rep/bolpremx.p"
              is-xprint-form = YES
              lines-per-page = 66.
+       WHEN "RFCX" THEN
+          ASSIGN
+             v-program      = "oe/rep/bolrfcx.p"
+             is-xprint-form = YES
+             lines-per-page = 66.
        WHEN "PremierBroker" THEN
           ASSIGN                                        /*Task# 01141406*/
              v-program      = "oe/rep/bolprmbr.p"
