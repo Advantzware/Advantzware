@@ -56,7 +56,7 @@ DEF VAR v-year AS INT NO-UNDO.
 DEF VAR v-period AS INT NO-UNDO.
 DEF VAR fdate AS DATE EXTENT 2 NO-UNDO.
 DEF VAR edate AS DATE EXTENT 2 NO-UNDO.
-DEF VAR v-runflg AS LOG INIT NO NO-UNDO.
+
 DEF VAR v-enable-fg AS LOG NO-UNDO.
 DEF VAR v-prod-line-mode AS LOG NO-UNDO.
 
@@ -688,7 +688,7 @@ DO:
             v-prod-line-mode = NOT rs-category EQ "FG".
   END.
 
- IF v-runflg THEN DO:
+
   
    FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
@@ -737,15 +737,10 @@ DO:
          END.
         WHEN 6 THEN RUN OUTPUT-TO-PORT.
     end case. 
- END.
- ELSE /*v-runflg*/
- DO:
-    MESSAGE "Budget Report is available for purchase, please call ASI."
-       VIEW-AS ALERT-BOX INFO BUTTONS OK.
-
+ 
     APPLY "close" TO THIS-PROCEDURE.
  END.
-END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1045,7 +1040,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HS',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""HS""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1085,7 +1080,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             sys-ctrl.log-fld = NO
             sys-ctrl.descrip = "Budget Report".
     END.
-    ASSIGN v-runflg = sys-ctrl.log-fld.
+   
     RELEASE sys-ctrl.
 /* gdm - 0309094 end */
 
