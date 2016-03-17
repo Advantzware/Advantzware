@@ -37,7 +37,10 @@ DEF VAR lv-comp-curr AS cha NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
+{sys/inc/custlistform.i ""AL1"" }
+
+{sys/ref/CustList.i NEW}    
 assign
  cocode = gcompany
  locode = gloc.
