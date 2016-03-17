@@ -7833,7 +7833,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'EC',
                             INPUT YES,
                             OUTPUT lActive).
- {sys/inc/chblankcust.i}
+ {sys/inc/chblankcust.i ""EC""}
   
   IF ou-log THEN
     DO WITH FRAME {&FRAME-NAME}:
