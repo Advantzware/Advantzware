@@ -114,7 +114,7 @@ ASSIGN
  str-init[38] = "JobQty,Net Shts"
  str-init[39] = "ASI,Fibre"
  str-init[40] = /*Planner,Kiwi,*/ "None,PlanDate,NoDate"
- str-init[41] = "Manual,%$$$$$$####A&&,@$$$$$$$$####A>,$$$$$$$$#####A,None,Hold" /* %$$$$$$####A&&:Hughes,@$$$$$$$$####A>:Fibre*/
+ str-init[41] = "Manual,Hughes,Fibre,None,Hold" 
  str-init[42] = "Item,Set" 
  str-init[43] = ",Bin>Qty"
  str-init[44] = "Fibre,ASI,Stock/Custom" 

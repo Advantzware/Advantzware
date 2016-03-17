@@ -2354,16 +2354,7 @@ PROCEDURE auto-create-item :
     
          END.
          ELSE DO:
-           IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
-           ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
-           ELSE do:
-              RUN fg/autofg.p ( ROWID(bf-eb),
-                                  v-est-fg1, 
-                                  bf-eb.procat,
-                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
-                                  bf-eb.cust-no,
-                                  OUTPUT lv-i-no).             
-           END.
+           IF  v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
              FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
              i = LENGTH(lv-i-no).
              IF i GT 2 THEN
@@ -2395,17 +2386,6 @@ PROCEDURE auto-create-item :
   ELSE DO:      
       IF v-est-fg1 EQ "Hughes" THEN DO:
           RUN fg/hughesfg.p (ROWID(xeb), OUTPUT lv-i-no).
-      END.
-      ELSE
-        IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
-      ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
-      ELSE do:
-              RUN fg/autofg.p ( ROWID(bf-eb),
-                                  v-est-fg1, 
-                                  bf-eb.procat,
-                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
-                                  bf-eb.cust-no,
-                                  OUTPUT lv-i-no).             
       END.
   END.
 

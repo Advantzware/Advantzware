@@ -92,17 +92,6 @@ do on error undo:
         SUBSTR(v-item-no,1,LENGTH(TRIM(oe-ordl.i-no)) - 1) =
             SUBSTR(oe-ordl.i-no,1,LENGTH(TRIM(oe-ordl.i-no)) - 1).
       END.
-      ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
-      ELSE do:
-              
-              RUN fg/autofg.p ( ROWID(bf-eb),
-                                  v-est-fg1, 
-                                  bf-eb.procat,
-                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
-                                  bf-eb.cust-no,
-                                  OUTPUT v-item-no).
-              SUBSTR(v-item-no,1,12) = SUBSTR(oe-ordl.i-no,1,12).
-      END.
     END.
     else do:
       find first itemfg
