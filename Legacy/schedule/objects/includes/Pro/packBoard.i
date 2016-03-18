@@ -117,7 +117,7 @@
   END. /* if endlessloop */
   
   opContinue = YES.
-  OUTPUT TO VALUE(installDir + '{&data}/' + ID + '/packBoard.log').
+  OUTPUT TO VALUE(clientDat + '{&data}/' + ID + '/packBoard.log').
   PUT UNFORMATTED ipValue ' ' firstDateTime ' ' lastDateTime SKIP.
   FOR EACH ttblJob NO-LOCK USE-INDEX packIdx
       WHERE ttblJob.endDateTime GE firstDateTime
