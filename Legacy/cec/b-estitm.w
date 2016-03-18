@@ -4836,12 +4836,12 @@ DEF VAR li AS INT NO-UNDO.
                   eb.num-len = 1
                   eb.num-up = 1.
 
-               IF ll-add-set-part-2 THEN
-               DO:
+               /*IF ll-add-set-part-2 THEN
+               DO:*/ /* ticket 15488 */
                   find xest where recid(xest) = recid(est).
                   find xef where recid(xef) = recid(ef).
                   find xeb where recid(xeb) = recid(eb).
-               END.
+              /* END.*/
                run cec/calc-dim.p .
             END.
          END.
