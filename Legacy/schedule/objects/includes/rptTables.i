@@ -283,14 +283,14 @@ PROCEDURE saveRptFields :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  OUTPUT TO VALUE(installDir + '{&data}/rptFields.dat').
+  OUTPUT TO VALUE(staticDat + '{&data}/rptFields.dat').
   FOR EACH browseRptFields NO-LOCK
       BY browseRptFields.rptID BY browseRptFields.fieldName:
     EXPORT browseRptFields.
   END.
   OUTPUT CLOSE.
-  OS-COPY VALUE(installDir + '{&data}/rptFields.dat')
-          VALUE(installDir + '{&data}/rptFields.sav').
+  OS-COPY VALUE(staticDat + '{&data}/rptFields.dat')
+          VALUE(staticDat + '{&data}/rptFields.sav').
 
 END PROCEDURE.
 
@@ -304,7 +304,7 @@ PROCEDURE saveRptFormat :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  OUTPUT TO VALUE(installDir + '{&data}/' + ID + '/rptFormat.dat').
+  OUTPUT TO VALUE(clientDat + '{&data}/' + ID + '/rptFormat.dat').
   FOR EACH rptFormat NO-LOCK WHERE rptFormat.rptID EQ ID:
     EXPORT rptFormat.
   END. /* each rptFormat */
@@ -325,7 +325,7 @@ PROCEDURE saveRptLayout :
   FOR EACH rptFormat EXCLUSIVE-LOCK WHERE rptFormat.rptID EQ ID:
     DELETE rptFormat.
   END. /* each rptformat */
-  OUTPUT TO VALUE(installDir + '{&data}/' + ID + '/rptLayout.dat').
+  OUTPUT TO VALUE(clientDat + '{&data}/' + ID + '/rptLayout.dat').
   FOR EACH rptLayout EXCLUSIVE-LOCK WHERE rptLayout.rptID EQ ID
                                       AND (rptLayout.rptLine NE 0
                                        OR rptLayout.rptColumn NE 0
@@ -367,8 +367,8 @@ PROCEDURE setFilterField :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF SEARCH(installDir + '{&data}/rptFields.sav') EQ ? THEN RETURN.
-  INPUT FROM VALUE(installDir + '{&data}/rptFields.sav') NO-ECHO.
+  IF SEARCH(staticDat + '{&data}/rptFields.sav') EQ ? THEN RETURN.
+  INPUT FROM VALUE(staticDat + '{&data}/rptFields.sav') NO-ECHO.
   REPEAT:
     IMPORT ttblRptFields.
     FIND FIRST browseRptFields EXCLUSIVE-LOCK

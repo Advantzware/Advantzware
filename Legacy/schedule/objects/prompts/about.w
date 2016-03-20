@@ -264,7 +264,7 @@ PROCEDURE restoreDatFiles :
   IF NOT restore THEN RETURN.
   ASSIGN
     backupDir = '{&backup}\data'
-    sbDir = installDir + '{&data}'.
+    sbDir = clientDat + '{&data}'.
   OS-COPY VALUE(backupDir + '\gridColor.dat') VALUE(sbDir).
   INPUT FROM OS-DIR(backupDir) NO-ECHO.
   REPEAT:
@@ -313,7 +313,7 @@ PROCEDURE saveDatFiles :
   OS-CREATE-DIR {&backup}.
   ASSIGN
     backupDir = '{&backup}\data'
-    sbDir = installDir + '{&data}'.
+    sbDir = clientDat + '{&data}'.
   OS-CREATE-DIR VALUE(backupDir).
   OS-COPY VALUE(sbDir + '\gridColor.dat') VALUE(backupDir).
   INPUT FROM OS-DIR(sbDir) NO-ECHO.

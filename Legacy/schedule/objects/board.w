@@ -2162,7 +2162,7 @@ PROCEDURE buildScenario :
   DEFINE VARIABLE listItems AS CHARACTER NO-UNDO.
 
   RUN msgFrame ('Building Scenarios').
-  searchDir = installDir + '{&scenarios}/' + ID.
+  searchDir = clientDat + '{&scenarios}/' + ID.
   IF INDEX(PROPATH,'schedule') NE 0 AND
      INDEX(PROPATH,':') EQ 0 THEN searchDir = '../' + searchDir.
   INPUT FROM OS-DIR(searchDir) NO-ECHO.
