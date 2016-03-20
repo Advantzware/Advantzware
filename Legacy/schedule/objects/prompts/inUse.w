@@ -355,7 +355,7 @@ PROCEDURE showInUseFiles :
   DEFINE VARIABLE startDir AS CHARACTER NO-UNDO.
   
   ASSIGN
-    startDir = installDir + '{&data}/' + ipID
+    startDir = clientDat + '{&data}/' + ipID
     IDList:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = ?.
   RUN getInUseFiles (startDir,OUTPUT opInUseList).
   IF opInUseList NE '' THEN

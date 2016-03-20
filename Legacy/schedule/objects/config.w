@@ -3909,7 +3909,7 @@ DO:
         timeInit = timeValue
         timeLineColor = timeLineColorValue:BGCOLOR
         viewRefresh = viewRefreshValue.
-      OUTPUT TO VALUE(installDir + '{&data}/validID.dat').
+      OUTPUT TO VALUE(clientDat + '{&data}/validID.dat').
       DO idx = 1 TO IDList:NUM-ITEMS:
         IF IDList:IS-SELECTED(idx) THEN
         EXPORT IDList:ENTRY(idx).
@@ -4892,13 +4892,13 @@ PROCEDURE getValidID :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   IF SEARCH('{&data}/validID.dat') EQ ? THEN DO:
-    OUTPUT TO VALUE(installDir + '{&data}/validID.dat').
+    OUTPUT TO VALUE(clientDat + '{&data}/validID.dat').
     DO i = 1 TO IDList:NUM-ITEMS IN FRAME defaultsFrame:
       EXPORT IDList:ENTRY(i).
     END.
     OUTPUT CLOSE.
   END.
-  INPUT FROM VALUE(SEARCH('{&data}/validID.dat')) NO-ECHO.
+  INPUT FROM VALUE(SEARCH(clientDat + '{&data}/validID.dat')) NO-ECHO.
   REPEAT:
     IMPORT validID.
     IF CAN-DO(IDList:LIST-ITEMS,validID) THEN
@@ -4943,7 +4943,7 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN ID.
-  startDir = installDir + '{&loads}'.
+  startDir = clientDat + '{&data}'.
   RUN getID (startDir,OUTPUT dirList).
   DO i = 1 TO NUM-ENTRIES(dirList) WITH FRAME defaultsFrame:
     RUN getID (startDir + '/' + ENTRY(i,dirList),OUTPUT idValue).
