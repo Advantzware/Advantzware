@@ -53,12 +53,26 @@ DEFINE VARIABLE sbUser AS CHARACTER NO-UNDO.
 ASSIGN
   clientDat = SEARCH('{&data}\validID.dat')
   clientDat = REPLACE(clientDat,REPLACE('{&data}\validID.dat','/','\') ,'')
+<<<<<<< HEAD
   codeDir = SEARCH('{&startDir}\sbPro.p')
   codeDir = REPLACE(codeDir,'{&startDir}\sbPro.p','')
+=======
+  codeDir = SEARCH('{&startDir}\sbPro.r')
+  codeDir = REPLACE(codeDir,'{&startDir}\sbPro.r','')
+>>>>>>> b8fbbdd
   staticDat = SEARCH('{&startDir}\about.txt')
   staticDat = REPLACE(staticDat,'{&startDir}\about.txt','')
   sbUser = USERID('{&sbDB}')
   .
+<<<<<<< HEAD
+=======
+
+IF codeDir EQ ? THEN
+ASSIGN
+  codeDir = SEARCH('{&startDir}\sbPro.p')
+  codeDir = REPLACE(codeDir,'{&startDir}\sbPro.p','')
+  .
+>>>>>>> b8fbbdd
 
 &GLOBAL-DEFINE installDir
 &ENDIF
