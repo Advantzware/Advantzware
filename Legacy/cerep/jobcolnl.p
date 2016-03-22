@@ -977,6 +977,32 @@ for each job-hdr NO-LOCK
                 END.                                                      
              END.
              if x ne 2 then put v-fill at 1 skip.
+
+             /** Print Leaf/Film **/
+
+             FOR EACH wrk-film WHERE wrk-film.form-no = ef.form-no
+                 /*break by wrk-sheet.form-no*/ NO-LOCK BREAK BY wrk-film.leaf :
+               find first ITEM where item.company eq cocode
+                                 and item.i-no    eq wrk-film.leaf no-lock no-error.
+
+               IF FIRST(wrk-film.leaf) THEN
+                    PUT "<P10>" 
+                 "<B>LEAF/FILM CODE  DESCRIPTION                 FORM  BLANK  APERTURE SIZE (W x L)  TOTAL SQ IN/POUNDS     </B>" 
+                 SKIP.
+                display 
+                    wrk-film.leaf FORM "x(15)"
+                    (IF AVAIL ITEM THEN ITEM.i-name ELSE "") FORM "x(28)" SPACE(2)
+                    wrk-film.snum SPACE(4)
+                    wrk-film.bnum SPACE(3)
+                    string(wrk-film.leaf-l) + "x" + string(wrk-film.leaf-w)
+                    format "x(23)" SPACE(10)
+                    (IF AVAIL ITEM THEN ITEM.sqin-lb ELSE 0)
+                    with stream-io width 170 no-labels no-box frame film.
+
+                IF LAST(wrk-film.leaf) THEN
+                     PUT "<P10>" v-fill SKIP .
+
+             END.
                      
              /** PRINT INK **/
              PUT "<B>PASS  SIDE         LBS INK NAME            ITEMS    PASS  SIDE         LBS INK NAME            ITEMS     STYLE#   CARTON SIZE</B>"
