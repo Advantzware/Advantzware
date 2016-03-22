@@ -84,20 +84,22 @@ DEFINE STREAM st-excel.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_po-no end_po-no ~
 begin_po-date end_po-date begin_vend-no end_vend-no begin_po-i-no ~
-end_po-i-no begin_job-no end_job-no rd_vend-cost tb_repeat tb_mpv tb_overs ~
-tb_adder rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
-tb_runExcel fi_file btn-ok btn-cancel 
+end_po-i-no begin_job-no end_job-no begin_rec-date end_rec-date ~
+rd_vend-cost tb_repeat tb_mpv tb_overs tb_adder rd-dest lv-ornt ~
+lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_po-no end_po-no begin_po-date ~
 end_po-date begin_vend-no end_vend-no begin_po-i-no end_po-i-no ~
-begin_job-no end_job-no lbl_vend-cost rd_vend-cost tb_repeat tb_mpv ~
-tb_overs tb_adder rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file 
+begin_job-no end_job-no begin_rec-date end_rec-date lbl_vend-cost ~
+rd_vend-cost tb_repeat tb_mpv tb_overs tb_adder rd-dest lv-ornt ~
+lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
+fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -141,6 +143,11 @@ DEFINE VARIABLE begin_po-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
+DEFINE VARIABLE begin_rec-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Beginning Rec Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_vend-no AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Vendor#" 
      VIEW-AS FILL-IN 
@@ -163,6 +170,11 @@ DEFINE VARIABLE end_po-i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzz
 
 DEFINE VARIABLE end_po-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 999999 
      LABEL "Ending PO#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_rec-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
+     LABEL "Ending Rec Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -221,12 +233,12 @@ DEFINE VARIABLE rd_vend-cost AS CHARACTER
      SIZE 36 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 93 BY 9.52.
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 93 BY 9.52.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 93 BY 10.67.
 
 DEFINE VARIABLE tb_adder AS LOGICAL INITIAL no 
      LABEL "Adder Codes" 
@@ -289,35 +301,39 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Job Number"
      end_job-no AT ROW 6 COL 69 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     lbl_vend-cost AT ROW 7.43 COL 26 COLON-ALIGNED NO-LABEL
-     rd_vend-cost AT ROW 7.43 COL 51 NO-LABEL
-     tb_repeat AT ROW 8.86 COL 28
-     tb_mpv AT ROW 8.86 COL 56
-     tb_overs AT ROW 9.81 COL 28
-     tb_adder AT ROW 9.81 COL 56
-     rd-dest AT ROW 12.24 COL 6 NO-LABEL
-     lv-ornt AT ROW 12.71 COL 31 NO-LABEL
-     lines-per-page AT ROW 12.71 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 14.38 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 15.33 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 16.43 COL 31
-     tb_excel AT ROW 17.95 COL 51 RIGHT-ALIGNED
-     tb_runExcel AT ROW 17.95 COL 72.4 RIGHT-ALIGNED
-     fi_file AT ROW 18.86 COL 29 COLON-ALIGNED HELP
+     begin_rec-date AT ROW 6.91 COL 26 COLON-ALIGNED HELP
+          "Enter Beginning Rec Date" WIDGET-ID 2
+     end_rec-date AT ROW 6.95 COL 69 COLON-ALIGNED HELP
+          "Enter ending Rec Date" WIDGET-ID 4
+     lbl_vend-cost AT ROW 8.1 COL 26 COLON-ALIGNED NO-LABEL
+     rd_vend-cost AT ROW 8.1 COL 51 NO-LABEL
+     tb_repeat AT ROW 9.52 COL 28
+     tb_mpv AT ROW 9.52 COL 56
+     tb_overs AT ROW 10.48 COL 28
+     tb_adder AT ROW 10.48 COL 56
+     rd-dest AT ROW 13.24 COL 6 NO-LABEL
+     lv-ornt AT ROW 13.71 COL 31 NO-LABEL
+     lines-per-page AT ROW 13.71 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 15.38 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 16.33 COL 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 17.43 COL 31
+     tb_excel AT ROW 18.95 COL 51 RIGHT-ALIGNED
+     tb_runExcel AT ROW 18.95 COL 72.4 RIGHT-ALIGNED
+     fi_file AT ROW 19.86 COL 29 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 21.48 COL 19
-     btn-cancel AT ROW 21.48 COL 57
+     btn-ok AT ROW 22.48 COL 19
+     btn-cancel AT ROW 22.48 COL 57
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.48 COL 3
           BGCOLOR 2 
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 11.29 COL 4
-     RECT-6 AT ROW 11 COL 2
-     RECT-7 AT ROW 1.24 COL 2
+          SIZE 18 BY .62 AT ROW 12.29 COL 4
+     RECT-6 AT ROW 12 COL 2
+     RECT-7 AT ROW 1.29 COL 3
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 95.8 BY 21.81.
+         SIZE 95.8 BY 23.71.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -337,11 +353,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "PO Purchased Variance"
-         HEIGHT             = 21.81
+         HEIGHT             = 23.81
          WIDTH              = 95.6
-         MAX-HEIGHT         = 21.81
+         MAX-HEIGHT         = 23.81
          MAX-WIDTH          = 95.8
-         VIRTUAL-HEIGHT     = 21.81
+         VIRTUAL-HEIGHT     = 23.81
          VIRTUAL-WIDTH      = 95.8
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -370,7 +386,7 @@ IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        begin_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -385,6 +401,10 @@ ASSIGN
 
 ASSIGN 
        begin_po-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       begin_rec-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -405,6 +425,10 @@ ASSIGN
 
 ASSIGN 
        end_po-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_rec-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -513,6 +537,17 @@ END.
 &Scoped-define SELF-NAME begin_po-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_po-no C-Win
 ON LEAVE OF begin_po-no IN FRAME FRAME-A /* Beginning PO# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_rec-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_rec-date C-Win
+ON LEAVE OF begin_rec-date IN FRAME FRAME-A /* Beginning Rec Date */
 DO:
   assign {&self-name}.
 END.
@@ -633,6 +668,17 @@ END.
 &Scoped-define SELF-NAME end_po-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_po-no C-Win
 ON LEAVE OF end_po-no IN FRAME FRAME-A /* Ending PO# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_rec-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_rec-date C-Win
+ON LEAVE OF end_rec-date IN FRAME FRAME-A /* Ending Rec Date */
 DO:
   assign {&self-name}.
 END.
@@ -992,15 +1038,15 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_po-no end_po-no begin_po-date end_po-date begin_vend-no 
           end_vend-no begin_po-i-no end_po-i-no begin_job-no end_job-no 
-          lbl_vend-cost rd_vend-cost tb_repeat tb_mpv tb_overs tb_adder rd-dest 
-          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file 
+          begin_rec-date end_rec-date lbl_vend-cost rd_vend-cost tb_repeat 
+          tb_mpv tb_overs tb_adder rd-dest lv-ornt lines-per-page lv-font-no 
+          lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_po-no end_po-no begin_po-date end_po-date 
          begin_vend-no end_vend-no begin_po-i-no end_po-i-no begin_job-no 
-         end_job-no rd_vend-cost tb_repeat tb_mpv tb_overs tb_adder rd-dest 
-         lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel 
-         fi_file btn-ok btn-cancel 
+         end_job-no begin_rec-date end_rec-date rd_vend-cost tb_repeat tb_mpv 
+         tb_overs tb_adder rd-dest lv-ornt lines-per-page lv-font-no 
+         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1118,6 +1164,8 @@ def var v-e-job like v-s-job init "zzzzzz".
 def var v-stat   as   char format "!" init "A".
 def var v-type   as   char format "!" init "B".
 def var v-sort   as   char format "!" init "V".
+def var vb-rec-date like po-ord.po-date format "99/99/9999" init "01/01/0001".
+def var ve-rec-date like v-s-date init today.
 
 def var v-mattype-list          as   char format "x(36)".
 def var v-mat-dscr              as   char format "x(20)" extent 21.
@@ -1203,7 +1251,9 @@ assign
  v-s-item   = begin_po-i-no
  v-tt-ei   = end_po-i-no
  v-s-job    = begin_job-no
- v-e-job    = END_job-no.
+ v-e-job    = END_job-no
+ vb-rec-date = begin_rec-date
+ ve-rec-date = end_rec-date .
 
 IF tb_mpv OR tb_overs OR tb_adder THEN
    v-moa-cols = YES.
@@ -1299,8 +1349,11 @@ def var pr-ct as int no-undo.
            WHERE rm-rcpth.company EQ cocode
              AND rm-rcpth.i-no EQ po-ordl.i-no
              and (((rm-rcpth.rita-code eq "R" or rm-rcpth.rita-code eq "A")))
-             and rm-rcpth.po-no      eq trim(string(po-ordl.po-no,">>>>>9")) NO-ERROR.
+             and rm-rcpth.po-no      eq trim(string(po-ordl.po-no,">>>>>9")) 
+             AND  rm-rcpth.trans-date GE vb-rec-date  
+             AND rm-rcpth.trans-date  LE ve-rec-date     NO-ERROR.
       IF AVAILABLE rm-rcpth THEN receiptDate = rm-rcpth.trans-date.
+       IF NOT AVAIL rm-rcpth THEN NEXT .
    END.
    ELSE DO:
       FIND FIRST fg-rcpth NO-LOCK
@@ -1308,8 +1361,11 @@ def var pr-ct as int no-undo.
              AND fg-rcpth.i-no EQ po-ordl.i-no
              and fg-rcpth.po-no      eq trim(string(po-ordl.po-no,">>>>>9"))
              and (fg-rcpth.rita-code eq "R" or
-                 fg-rcpth.rita-code eq "A") NO-ERROR.
+                 fg-rcpth.rita-code eq "A") 
+              AND fg-rcpth.trans-date GE vb-rec-date  
+             AND fg-rcpth.trans-date LE ve-rec-date  NO-ERROR.
       IF AVAILABLE fg-rcpth THEN receiptDate = fg-rcpth.trans-date .
+      IF NOT AVAIL fg-rcpth THEN NEXT .
   END.
   /*END.*/
     
@@ -1343,7 +1399,7 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
          FIND FIRST b-qty WHERE
               b-qty.reftable = "vend-qty" AND
               b-qty.company = e-item-vend.company AND
-	          b-qty.CODE    = e-item-vend.i-no AND
+                  b-qty.CODE    = e-item-vend.i-no AND
               b-qty.code2   = e-item-vend.vend-no
               NO-LOCK NO-ERROR.
          
@@ -1352,7 +1408,7 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
             FIND FIRST b-cost WHERE
                  b-cost.reftable = "vend-cost" AND
                  b-cost.company = e-item-vend.company AND
-		         b-cost.CODE    = e-item-vend.i-no AND
+                         b-cost.CODE    = e-item-vend.i-no AND
                  b-cost.code2   = e-item-vend.vend-no
                  NO-LOCK NO-ERROR.
          
