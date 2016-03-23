@@ -55,6 +55,15 @@ for each x-eb
         SUBSTR(v-item-no,1,LENGTH(TRIM(tmpstore)) - 1) =
             SUBSTR(tmpstore,1,LENGTH(TRIM(tmpstore)) - 1).
       END.
+      ELSE IF NOT can-do("Manual,None,Hold",v-est-fg1)  THEN
+      do:
+              RUN fg/autofg.p ( ROWID(x-eb),
+                                  v-est-fg1, 
+                                  x-eb.procat,
+                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
+                                  x-eb.cust-no,
+                                  OUTPUT v-item-no).             
+      END.
       ELSE
         v-item-no = x-eb.part-no.
 
