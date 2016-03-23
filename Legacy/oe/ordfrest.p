@@ -538,6 +538,16 @@ PROCEDURE create-order-lines.
           IF v-est-fg1 EQ "Fibre" THEN 
               RUN fg/fibre-fg.p ((IF v-est-type EQ 2 AND AVAIL xeb THEN ROWID(xeb) ELSE ROWID(eb)),
                                   OUTPUT oe-ordl.i-no).
+          ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
+          ELSE do:
+              
+              RUN fg/autofg.p ((IF v-est-type EQ 2 AND AVAIL xeb THEN ROWID(xeb) ELSE ROWID(eb)),
+                                  v-est-fg1, 
+                                  (IF v-est-type EQ 2 AND AVAIL xeb THEN xeb.procat ELSE eb.procat),
+                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
+                                  (IF v-est-type EQ 2 AND AVAIL xeb THEN xeb.cust-no ELSE eb.cust-no),
+                                  OUTPUT oe-ordl.i-no).
+          END.
        END. /* if i-no eq "" */
        
        /*BV - override customer discount if FG item is exempt from discount*/
