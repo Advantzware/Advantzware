@@ -15,7 +15,6 @@
   Author:            Ron Stark
  
   Created:           01/25/98 -  12:36 am
- Modified:           03/23/16 - WFK - Merge ticket 15388
  
 --------------------------------------------------------------------*/
  
@@ -606,4 +605,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
