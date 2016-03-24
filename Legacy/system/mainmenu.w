@@ -51,6 +51,9 @@ ON CTRL-P HELP.
 
 {methods/defines/mainmenu.i}
 
+/* System Constant Values */
+{system/sysconst.i}
+
 DEFINE TEMP-TABLE ttbl NO-UNDO
   FIELD menu-order AS INTEGER
   FIELD menu1 AS CHARACTER
@@ -188,7 +191,7 @@ DEFINE FRAME FRAME-USER
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW MAINMENU ASSIGN
          HIDDEN             = YES
-         TITLE              = "Main Menu - Advantzware version 16.0.0"
+         TITLE              = "Main Menu - Advantzware version {&awversion}"
          HEIGHT             = 24.52
          WIDTH              = 122.6
          MAX-HEIGHT         = 40

@@ -48,6 +48,9 @@ ON CTRL-P HELP.
 &Scoped-define max-window {&start-button-row} - .5 + ~
 ({&button-height} + {&button-gap}) * ttbl-menu.menu-count
 
+/* System Constant Values */
+{system/sysconst.i}
+
 {methods/defines/mainmenu.i}
 
 DEFINE TEMP-TABLE ttbl NO-UNDO
@@ -187,7 +190,7 @@ DEFINE FRAME FRAME-USER
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW MAINMENU ASSIGN
          HIDDEN             = YES
-         TITLE              = "Main Menu - Advantzware Addon version 16.0.0"
+         TITLE              = "Main Menu - Advantzware Addon version {&awversion}"
          HEIGHT             = 19
          WIDTH              = 122
          MAX-HEIGHT         = 40
