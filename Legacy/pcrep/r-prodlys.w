@@ -639,7 +639,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN sys/ref/CustList.p (INPUT cocode,
                           INPUT 'DE2',
-                          INPUT YES,
+                          INPUT NO,
                           OUTPUT glCustListActive).
   {sys/inc/chblankcust.i ""DE2""}
 
