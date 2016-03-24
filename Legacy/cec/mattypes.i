@@ -35,7 +35,9 @@ item.avg-w item.box-case item.case-pall fi_cas-pal-w fi_flute fi_reg-no
 
 &Scoped-define group# 5
 &Scoped-define group{&group#}-misc RECT-{&group#} group{&group#}-text
-&Scoped-define group{&group#}-fields item.s-dep item.s-wid item.s-len item.r-wid item.density item.color-1 ~
+&Scoped-define group{&group#}-fields item.flute item.reg-no item.cal ~
+item.basis-w fi_ect item.shrink ~
+item.s-dep item.s-wid item.s-len item.r-wid item.density item.color-1 ~
 item.dept-name[1] item.dept-name[2] item.dept-name[3] item.dept-name[4] item.dept-name[5] ~
 item.dept-name[6] item.dept-name[7] item.dept-name[8] item.dept-name[9] ~
 item.dept-name[10] item.speed%[1] item.speed%[2] item.speed%[3] item.speed%[4] ~
