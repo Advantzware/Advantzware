@@ -551,8 +551,11 @@ find first company where company.company eq cocode NO-LOCK.
           assign lv-flute = ""
                  lv-reg-no = "".
 
-         put SPACE(86)
-               po-ordl.cust-no FORM "X(30)"
+          FIND FIRST cust  WHERE cust.company = cocode AND 
+              cust.cust-no = po-ordl.cust-no NO-LOCK NO-ERROR.
+
+         put SPACE(68)
+              (IF AVAIL cust THEN cust.NAME ELSE po-ordl.cust-no) FORM "X(30)"
               /*STRING(v-cost,"->>>,>>9.99<<") + po-ordl.pr-uom + " $" +
               STRING(v-setup) + "SETUP" FORM "x(25)"   */
               SKIP.
