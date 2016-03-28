@@ -1,5 +1,6 @@
 /* --------------------------------------------- po/po-coburn.p */
 /* Purchase Order Print Program for S-8-POPRINT = PremierX                        */
+/* Last Change 3/28/16                                                        */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -69,7 +70,8 @@ DEF TEMP-TABLE tt-eiv NO-UNDO
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(100)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
+
 
 ASSIGN ls-image1 = "images\coburn.png"
        FILE-INFO:FILE-NAME = ls-image1
@@ -551,8 +553,13 @@ find first company where company.company eq cocode NO-LOCK.
           assign lv-flute = ""
                  lv-reg-no = "".
 
-         put SPACE(86)
-               po-ordl.cust-no FORM "X(30)"
+
+          FIND FIRST cust  WHERE cust.company = cocode AND 
+              cust.cust-no = po-ordl.cust-no NO-LOCK NO-ERROR.
+
+         put SPACE(68)
+              (IF AVAIL cust THEN cust.NAME ELSE po-ordl.cust-no) FORM "X(30)"
+
               /*STRING(v-cost,"->>>,>>9.99<<") + po-ordl.pr-uom + " $" +
               STRING(v-setup) + "SETUP" FORM "x(25)"   */
               SKIP.

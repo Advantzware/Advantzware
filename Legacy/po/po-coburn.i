@@ -1,8 +1,8 @@
-/* po/po-protg2.i */
+/* po/po-protg2.i - Last Change 3/28/16 */
 
 PUT "<C1><#1><FArial>"   SKIP
     "<P14><C+45> <B>Purchase Order</B> <P10>" "     Page " string(PAGE-NUM,">>9") + " of <#PAGES>" FORM "x(20)" SKIP       
-    "<C3><R2><#2><R+7><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(100)"  SKIP 
+    "<C3><R2><#2><R+7><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(60)"  SKIP 
     "<P12><=1><R+7>" 
     "<P10><=1><C3><R7> " SKIP  "<C3> P.O.Box 447" SKIP
 
