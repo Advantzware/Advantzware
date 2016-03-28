@@ -1,7 +1,24 @@
-/* aoaHS.p */
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12
+&ANALYZE-RESUME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
+/*------------------------------------------------------------------------
+    File        : aoaAppSrv/aoaHS.p
+    Purpose     : AppServer Functions and Procedures
 
-/* ** temp-table definitions **************************************** */
+    Syntax      : 
 
+    Description : AppServer Functions and Procedures
+
+    Author(s)   : Ron Stark
+    Created     : 3.23.2016
+    Notes       :
+  ----------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.      */
+/*----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+
+/* Invoice Hightlights.edp */
 DEFINE TEMP-TABLE ttRawSales NO-UNDO RCODE-INFORMATION
     FIELD company      AS CHARACTER LABEL "Company"
     FIELD salesYear    AS INTEGER   LABEL "Year"
@@ -26,21 +43,85 @@ DEFINE TEMP-TABLE ttReport NO-UNDO
     FIELD tableName  AS CHARACTER 
     FIELD tableRecID AS RECID 
         INDEX idx custNo tableName .
+/* Invoice Hightlights.edp */
 
-/* ** function declarations ***************************************** */
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-FUNCTION fInvoiceHighlights RETURNS HANDLE (ipiYear AS INTEGER):
-    EMPTY TEMP-TABLE ttRawSales .
-    EMPTY TEMP-TABLE ttReport .
 
-    RUN pRawSalesProc (ipiYear).
-    
-    RETURN TEMP-TABLE ttRawSales:HANDLE .
-END FUNCTION .
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
-/* ** procedure declarations **************************************** */
+/* ********************  Preprocessor Definitions  ******************** */
 
+&Scoped-define PROCEDURE-TYPE Procedure
+&Scoped-define DB-AWARE no
+
+
+
+/* _UIB-PREPROCESSOR-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* ************************  Function Prototypes ********************** */
+
+&IF DEFINED(EXCLUDE-fInvoiceHighlights) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fInvoiceHighlights Procedure 
+FUNCTION fInvoiceHighlights RETURNS HANDLE
+  ( ipiYear AS INTEGER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+
+/* *********************** Procedure Settings ************************ */
+
+&ANALYZE-SUSPEND _PROCEDURE-SETTINGS
+/* Settings for THIS-PROCEDURE
+   Type: Procedure
+   Allow: 
+   Frames: 0
+   Add Fields to: Neither
+   Other Settings: CODE-ONLY COMPILE
+ */
+&ANALYZE-RESUME _END-PROCEDURE-SETTINGS
+
+/* *************************  Create Window  ************************** */
+
+&ANALYZE-SUSPEND _CREATE-WINDOW
+/* DESIGN Window definition (used by the UIB) 
+  CREATE WINDOW Procedure ASSIGN
+         HEIGHT             = 15
+         WIDTH              = 60.
+/* END WINDOW DEFINITION */
+                                                                        */
+&ANALYZE-RESUME
+
+ 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
+
+
+/* ***************************  Main Block  *************************** */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-pRawSalesProc) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRawSalesProc Procedure 
 PROCEDURE pRawSalesProc :
+/*------------------------------------------------------------------------------
+  Purpose:     Invoice Hightlights.edp
+  Parameters:  base current year
+  Notes:       
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiYear AS INTEGER NO-UNDO .
 
     DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO .
@@ -252,4 +333,36 @@ PROCEDURE pRawSalesProc :
                                        ELSE 0
             .
     END. /* each ttrawsales */
+
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+/* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fInvoiceHighlights) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fInvoiceHighlights Procedure 
+FUNCTION fInvoiceHighlights RETURNS HANDLE
+  ( ipiYear AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Invoice Hightlights.edp
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttRawSales .
+    EMPTY TEMP-TABLE ttReport .
+
+    RUN pRawSalesProc (ipiYear).
+    
+    RETURN TEMP-TABLE ttRawSales:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
