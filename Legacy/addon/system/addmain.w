@@ -4,7 +4,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS MAINMENU 
 /*------------------------------------------------------------------------
  
-  File:              mainmenu.w
+  File:              addmain.w
  
   Description:       Main Menu
  
@@ -15,6 +15,7 @@
   Author:            Ron Stark
  
   Created:           01/25/98 -  12:36 am
+                     03/25/16 - WFK - Merged changes to color, version
  
 --------------------------------------------------------------------*/
  
@@ -49,6 +50,8 @@ ON CTRL-P HELP.
 ({&button-height} + {&button-gap}) * ttbl-menu.menu-count
 
 {addon/methods/defines/mainmenu.i}
+/* System Constant Values */
+{system/sysconst.i}
 
 DEFINE TEMP-TABLE ttbl NO-UNDO
   FIELD menu-order AS INTEGER
@@ -101,8 +104,8 @@ END.
 &Scoped-define FRAME-NAME FRAME-USER
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS boxes menu-image RECT-2 Use-Buttons 
-&Scoped-Define DISPLAYED-OBJECTS Use-Buttons users_user_id company_name ~
+&Scoped-Define ENABLED-OBJECTS boxes menu-image RECT-2 
+&Scoped-Define DISPLAYED-OBJECTS users_user_id company_name ~
 loc_loc 
 
 /* Custom List Definitions                                              */
@@ -135,41 +138,33 @@ DEFINE VARIABLE users_user_id AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
 
 DEFINE IMAGE boxes
-     FILENAME "images\bigboxes":U
+     FILENAME "images/advantzware_logo.jpg":U
      SIZE 79 BY 17.38.
 
 DEFINE IMAGE menu-image
-     FILENAME "images\logo1":U CONVERT-3D-COLORS
+     FILENAME "images/logo1.bmp":U CONVERT-3D-COLORS
      SIZE 79 BY 4.52.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 8    
      SIZE 120 BY 1.91
-     BGCOLOR 4 .
-
-DEFINE VARIABLE Use-Buttons AS LOGICAL INITIAL yes 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .62
-     BGCOLOR 4 FGCOLOR 15  NO-UNDO.
-
+     BGCOLOR 0 .
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-USER
-     Use-Buttons AT ROW 1.95 COL 116
      users_user_id AT ROW 1.95 COL 14 COLON-ALIGNED NO-LABEL
      company_name AT ROW 1.95 COL 41 COLON-ALIGNED NO-LABEL
      loc_loc AT ROW 1.95 COL 97 COLON-ALIGNED NO-LABEL
      "Company:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.95 COL 31
-          BGCOLOR 4 FGCOLOR 15 FONT 6
+          BGCOLOR 0 FGCOLOR 15 FONT 6
      " User ID:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.95 COL 5
-          BGCOLOR 4 FGCOLOR 15 FONT 6
+          BGCOLOR 0 FGCOLOR 15 FONT 6
      "Location:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.95 COL 87
-          BGCOLOR 4 FGCOLOR 15 FONT 6
+          BGCOLOR 0 FGCOLOR 15 FONT 6
      boxes AT ROW 8.14 COL 43
      menu-image AT ROW 3.38 COL 43
      RECT-2 AT ROW 1.24 COL 2
@@ -195,13 +190,13 @@ DEFINE FRAME FRAME-USER
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW MAINMENU ASSIGN
          HIDDEN             = YES
-         TITLE              = "ADDON Main Menu"
-         HEIGHT             = 19
-         WIDTH              = 122
+         TITLE              = "ADDON Main Menu - Advantzware version {&awversion}"
+         HEIGHT             = 24.52
+         WIDTH              = 122.6
          MAX-HEIGHT         = 40
-         MAX-WIDTH          = 200
+         MAX-WIDTH          = 235.6
          VIRTUAL-HEIGHT     = 40
-         VIRTUAL-WIDTH      = 200
+         VIRTUAL-WIDTH      = 235.6
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -277,29 +272,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME Use-Buttons
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Use-Buttons MAINMENU
-ON VALUE-CHANGED OF Use-Buttons IN FRAME FRAME-USER
-DO:
-  ASSIGN {&SELF-NAME}.
-  IF {&SELF-NAME} THEN
-  RUN Read_Menus.
-  ELSE
-  DO:
-    ASSIGN
-      {&WINDOW-NAME}:HEIGHT-CHARS = {&min-window-height}
-      {&WINDOW-NAME}:VIRTUAL-HEIGHT-CHARS = {&min-window-height}
-      {&WINDOW-NAME}:MAX-HEIGHT-CHARS = {&min-window-height}
-      {&WINDOW-NAME}:WIDTH-CHARS = {&min-window-width}
-      {&WINDOW-NAME}:VIRTUAL-WIDTH-CHARS = {&min-window-width}
-      {&WINDOW-NAME}:MAX-WIDTH-CHARS = {&min-window-width}.
-    DELETE WIDGET-POOL "dyn-buttons" NO-ERROR.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &UNDEFINE SELF-NAME
@@ -432,9 +404,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY Use-Buttons users_user_id company_name loc_loc 
+  DISPLAY users_user_id company_name loc_loc 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-  ENABLE boxes menu-image RECT-2 Use-Buttons 
+  ENABLE boxes menu-image RECT-2  
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   VIEW MAINMENU.
