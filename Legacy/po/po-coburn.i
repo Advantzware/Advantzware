@@ -1,4 +1,4 @@
-/* po/po-protg2.i */
+/* po/po-protg2.i - Last Change 3/28/16 */
 
 PUT "<C1><#1><FArial>"   SKIP
     "<P14><C+45> <B>Purchase Order</B> <P10>" "     Page " string(PAGE-NUM,">>9") + " of <#PAGES>" FORM "x(20)" SKIP       
