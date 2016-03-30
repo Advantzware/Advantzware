@@ -512,10 +512,10 @@ PROCEDURE auto-create-item :
                                   OUTPUT lv-i-no).             
            END.
 
-             FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
-             i = LENGTH(lv-i-no).
-             IF i GT 2 THEN
-             SUBSTRING(lv-i-no, i - 1, 2) = "00".
+           FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
+           i = LENGTH(lv-i-no).
+           IF i GT 2 THEN
+           SUBSTRING(lv-i-no, i - 1, 2) = "00".
          END.
          
          xeb.stock-no = lv-i-no.

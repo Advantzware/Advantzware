@@ -96,7 +96,7 @@ FOR FIRST b-eb FIELDS(company est-no form-no) WHERE
     IF ERROR-STATUS:ERROR THEN li = 0.
     ELSE LEAVE.
   END.
-  li = li + 1.
+  li = li + 1. /* increment */
   v-licha = IF v-numRuleLen = 1 THEN STRING(li,"9")
             ELSE IF v-numRuleLen = 2 THEN STRING(li,"99")
             ELSE IF v-numRuleLen = 3 THEN STRING(li,"999")
