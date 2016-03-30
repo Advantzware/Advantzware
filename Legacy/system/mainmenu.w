@@ -288,7 +288,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
-    System.Windows.Forms.Application:Exit ().
+   
     RUN disable_UI.
 END.    
 
@@ -346,8 +346,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      
   
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
-   /* WAIT-FOR CLOSE OF THIS-PROCEDURE.*/
-   WAIT-FOR System.Windows.Forms.Application:Run() .
+   WAIT-FOR CLOSE OF THIS-PROCEDURE.
+  /*WAIT-FOR System.Windows.Forms.Application:Run() . */
 END.
 
 /* _UIB-CODE-BLOCK-END */
