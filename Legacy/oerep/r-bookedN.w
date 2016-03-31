@@ -3,9 +3,7 @@
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
-
   File: oerep\r-booked.w
-
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -111,13 +109,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER NAME,COMM %,PROD CODE," +
                             "FG ITEM NAME,QTY ORDERED/EA,SQ FT,TOTAL Sq Ft/M," +
                             "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON," +
-                            "FG ITEM#,ID,CUSTOMER PART#"  
+                            "FG ITEM#,ID,CUSTOMER PART#,PO#"  
        cFieldListToSelect = "oe-ord.due-date,w-data.ord-no,cust.name,w-data.comm,w-data.procat," +
                             "w-data.item-n,w-data.qty,w-data.sqft,t-sqft," +
                             "v-price-per-m,w-data.price,v-revenue,v-profit,t-tons,v-price-per-t," +
-                            "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no" 
+                            "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po" 
                             
-       cFieldLength = "8,14,13,6,9," + "16,14,10,13," + "10,10,13,9,10,10," + "15,8,15"
+       cFieldLength = "8,14,13,6,9," + "16,14,10,13," + "10,10,13,9,10,10," + "15,8,15,15"
        .
 
 {sys/inc/ttRptSel.i}
@@ -177,7 +175,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -1796,12 +1794,10 @@ IF tb_excel THEN DO:
     excelheader = excelheader + "Due Date,Order#,Customer Name,Comm %,"
                 + "Item Description,Quantity Ordered/EA,"
                 + "Total Sq Ft/M,$/MSF,Order Amount,".
-
     IF tb_margin THEN
        excelheader = excelheader +  "Avail Margin,".
     ELSE
        excelheader = excelheader + "% Profit,".
-
     if tb_ton THEN
       excelheader = excelheader + "Total Tons,$/TON".
   END.
@@ -1811,12 +1807,10 @@ IF tb_excel THEN DO:
     excelheader = excelheader + "Due Date,Order#,Customer Name,Comm %,"
                 + "Prod Code,Item Description,Quantity Ordered/EA,Sq Ft,"
                 + "Total Sq Ft/M,$/MSF,Price,Order Amount,".
-
     IF tb_margin THEN
        excelheader = excelheader +  "Avail Margin,".
     ELSE
        excelheader = excelheader + "% Profit,".
-
     if tb_ton THEN
       excelheader = excelheader + "Total Tons,$/TON".
   END.
@@ -1824,48 +1818,33 @@ IF tb_excel THEN DO:
     excelheader = excelheader + "Due Date,Order#,Customer Name,Comm %,"
                 + "Prod Code,Item Description,Quantity Ordered/EA,Customer Part Number,"
                 + "$/MSF,Price,Order Amount,".
-
     IF tb_margin THEN
        excelheader = excelheader +  "Avail Margin,".
     ELSE
        excelheader = excelheader + "% Profit,".
-
     if tb_ton THEN
       excelheader = excelheader + "Total Tons,$/TON".
   END.
 ====*/  
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
-
 if td-show-parm then run show-param.
-
 SESSION:SET-WAIT-STATE ("general").
-
 EMPTY TEMP-TABLE tt-report.
-
 EMPTY TEMP-TABLE w-data.
-
 EMPTY TEMP-TABLE wkrecap.
-
 {oerep/r-bookedN.i} 
-
 SESSION:SET-WAIT-STATE ("").
-
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
 END.
-
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
-
 end procedure.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
 /*------------------------------------------------------------------------------
@@ -1910,7 +1889,6 @@ PROCEDURE show-param :
         end.            
      lv-field-hdl = lv-field-hdl:next-sibling.   
   end.
-
   put space(28)
       "< Selection Parameters >"
       skip(1).
@@ -1932,12 +1910,9 @@ PROCEDURE show-param :
   put fill("-",80) format "x(80)" skip.
   
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 /* ************************  Function Implementations ***************** */
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GEtFieldValue C-Win 
 FUNCTION GEtFieldValue RETURNS CHARACTER
   ( hipField AS HANDLE ) :
@@ -1947,9 +1922,6 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
   RETURN string(hipField:BUFFER-VALUE).
-
 END FUNCTION.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
