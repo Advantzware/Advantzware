@@ -1,6 +1,24 @@
-/* aoaJC.p */
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12
+&ANALYZE-RESUME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
+/*------------------------------------------------------------------------
+    File        : aoaAppSrv/aoaJC.p
+    Purpose     : AppServer Functions and Procedures
 
-/* ** temp-table definitions **************************************** */
+    Syntax      : 
+
+    Description : AppServer Functions and Procedures
+
+    Author(s)   : Ron Stark
+    Created     : 3.23.2016
+    Notes       :
+  ----------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.      */
+/*----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+
+/* ProdAnalysis.rpa */
 DEFINE TEMP-TABLE tt-srt NO-UNDO LIKE mch-srt RCODE-INFORMATION 
     FIELD act-m-code    LIKE mach.m-code
     FIELD tot-run-hours   AS DECIMAL LABEL "Total Run Hrs"
@@ -14,11 +32,91 @@ DEFINE TEMP-TABLE tt-srt NO-UNDO LIKE mch-srt RCODE-INFORMATION
         INDEX job-idx   job-no job-no2
         .
 
-/* ** function declarations ***************************************** */
-FUNCTION fProdAnalysis RETURNS HANDLE ():
-  EMPTY TEMP-TABLE tt-srt.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-  RETURN TEMP-TABLE tt-srt:HANDLE.
+
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+
+/* ********************  Preprocessor Definitions  ******************** */
+
+&Scoped-define PROCEDURE-TYPE Procedure
+&Scoped-define DB-AWARE no
+
+
+
+/* _UIB-PREPROCESSOR-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* ************************  Function Prototypes ********************** */
+
+&IF DEFINED(EXCLUDE-fProdAnalysis) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fProdAnalysis Procedure 
+FUNCTION fProdAnalysis RETURNS HANDLE
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+
+/* *********************** Procedure Settings ************************ */
+
+&ANALYZE-SUSPEND _PROCEDURE-SETTINGS
+/* Settings for THIS-PROCEDURE
+   Type: Procedure
+   Allow: 
+   Frames: 0
+   Add Fields to: Neither
+   Other Settings: CODE-ONLY COMPILE
+ */
+&ANALYZE-RESUME _END-PROCEDURE-SETTINGS
+
+/* *************************  Create Window  ************************** */
+
+&ANALYZE-SUSPEND _CREATE-WINDOW
+/* DESIGN Window definition (used by the UIB) 
+  CREATE WINDOW Procedure ASSIGN
+         HEIGHT             = 15
+         WIDTH              = 60.
+/* END WINDOW DEFINITION */
+                                                                        */
+&ANALYZE-RESUME
+
+ 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
+
+
+/* ***************************  Main Block  *************************** */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fProdAnalysis) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fProdAnalysis Procedure 
+FUNCTION fProdAnalysis RETURNS HANDLE
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  ProdAnalysis.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE tt-srt.
+
+    RETURN TEMP-TABLE tt-srt:HANDLE.
+
 END FUNCTION.
 
-/* ** procedure declarations **************************************** */
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+

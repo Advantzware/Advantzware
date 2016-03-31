@@ -62,25 +62,19 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE svYear AS INTEGER FORMAT "9999" INITIAL 0 
      LABEL "Current Year" 
      VIEW-AS FILL-IN 
-     SIZE 7 BY 1.
-
-DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 8.1.
+     SIZE 8 BY 1.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svYear AT ROW 4.81 COL 47 COLON-ALIGNED HELP
+     svYear AT ROW 4.1 COL 46 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     " Selection Parameters" VIEW-AS TEXT
-          SIZE 22 BY .71 AT ROW 1.24 COL 3 WIDGET-ID 12
-     RECT-7 AT ROW 1.48 COL 2 WIDGET-ID 10
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 94.6 BY 8.71.
+         SIZE 94.6 BY 8.71
+         TITLE "Dashboard Parameters".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -136,8 +130,6 @@ END.
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR RECTANGLE RECT-7 IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
