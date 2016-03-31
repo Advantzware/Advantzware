@@ -19,7 +19,7 @@ IF m_id = ? THEN
 m_id = "".
 
 IF NOT SETUSERID(m_id,"","NOSWEAT") THEN
-RUN ./nosweat/loginss.w.
+RUN addon/nosweat/loginss.w.
 
 IF USERID("NOSWEAT") = "" OR quit_login THEN
 DO:
