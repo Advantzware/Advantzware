@@ -23,7 +23,7 @@ END.
 
 IF {&TABLENAME}.line LT 500 THEN DO:
   IF {&TABLENAME}.line NE old-{&TABLENAME}.line THEN
-  FOR EACH {sys/inc/machposww.i reftable {&TABLENAME}}:
+  FOR EACH {sys/inc/machposwW.i reftable {&TABLENAME}}:
     reftable.loc = STRING({&TABLENAME}.line,"9999999999").
   END.
 

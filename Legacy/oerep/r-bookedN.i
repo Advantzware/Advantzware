@@ -642,6 +642,7 @@ format wkrecap.procat
                  WHEN "t-tons" THEN cVarValue = string(w-data.t-tons,"->,>>>.9").
                  WHEN "v-profit" THEN cVarValue = IF prt-profit THEN string(v-profit,"->>,>>9.9") ELSE "".
                  WHEN "v-price-per-t" THEN cVarValue = string(v-price-per-t,"->>,>>9.99").
+                 WHEN "cust-po" THEN cVarValue = IF AVAIL oe-ordl AND oe-ordl.cust-no <> "" THEN string(oe-ordl.po-no,"x(15)") ELSE string(oe-ord.po-no,"x(15)") .
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
             cExcelVarValue = cVarValue.
@@ -704,6 +705,7 @@ format wkrecap.procat
                    WHEN "w-data.sqft" THEN cVarValue = "" .
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
+                   WHEN "cust-po" THEN cVarValue = "" .
                    WHEN "t-sqft" THEN cVarValue = string(tot-sqft,"->,>>>.999").
                    WHEN "v-price-per-m" THEN cVarValue = string(v-price-per-m,"->>,>>9.99").
                    WHEN "v-revenue" THEN cVarValue = string(tot-renv,"->,>>>,>>9.99").
@@ -766,6 +768,7 @@ format wkrecap.procat
                    WHEN "w-data.sqft" THEN cVarValue = "" .
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
+                   WHEN "cust-po" THEN cVarValue = "" .
                    WHEN "t-sqft" THEN cVarValue = string((accum total w-data.t-sqft),"->,>>>.999"). 
                    WHEN "v-price-per-m" THEN cVarValue = string(v-price-per-m,"->>,>>9.99"). 
                    WHEN "v-revenue" THEN cVarValue = string((accum total v-revenue),"->,>>>,>>9.99").
@@ -837,6 +840,7 @@ format wkrecap.procat
                 WHEN "t-tons" THEN cVarValue = string(w-data.t-tons,"->,>>>.9").
                 WHEN "v-profit" THEN cVarValue = IF prt-profit THEN string(v-profit,"->>,>>9.9") ELSE "".
                 WHEN "v-price-per-t" THEN cVarValue = string(v-price-per-t,"->>,>>9.99").
+                WHEN "cust-po" THEN cVarValue = IF AVAIL oe-ordl AND oe-ordl.cust-no <> "" THEN string(oe-ordl.po-no,"x(15)") ELSE string(oe-ord.po-no,"x(15)") .
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.  
             cExcelVarValue = cVarValue.
@@ -929,6 +933,7 @@ format wkrecap.procat
                    WHEN "w-data.sqft" THEN cVarValue = "" .
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
+                   WHEN "cust-po" THEN cVarValue = "".
                    WHEN "t-sqft" THEN cVarValue = string(tot-sqft,"->,>>>.999").
                    WHEN "v-price-per-m" THEN cVarValue = string(v-price-per-m,"->>,>>9.99").
                    WHEN "v-revenue" THEN cVarValue = string(tot-renv,"->,>>>,>>9.99").
@@ -1024,6 +1029,7 @@ format wkrecap.procat
                    WHEN "w-data.sqft" THEN cVarValue = "" .
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
+                   WHEN "cust-po" THEN cVarValue = "".
                    WHEN "t-sqft" THEN cVarValue = string(tot-sqft,"->,>>>.999"). 
                    WHEN "v-price-per-m" THEN cVarValue = string(v-price-per-m,"->>,>>9.99"). 
                    WHEN "v-revenue" THEN cVarValue = string((accum total v-revenue),"->,>>>,>>9.99").

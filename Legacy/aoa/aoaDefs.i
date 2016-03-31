@@ -8,12 +8,24 @@
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
+
+{sys/inc/var.i NEW SHARED}
+
+ASSIGN
+    cocode = gcompany
+    locode = gloc
+    .
+
+&IF "{&aoaCustListForm}" NE "" &THEN
+{sys/inc/CustListForm.i ""{&aoaCustListForm}"" }
+&ENDIF
+
 &ELSE
 DEFINE VARIABLE g_company AS CHARACTER NO-UNDO INITIAL "001".
 &ENDIF
 
 DEFINE VARIABLE paramStr AS CHARACTER NO-UNDO
-    INITIAL "{&aoaID},{&aoaName},{&aoaTitle},{&aoaType}".
+    INITIAL "{&aoaID},{&aoaProgramID},{&aoaTitle},{&aoaType},{&aoaColumns}".
                                                  
 /* used if testing in AppBuilder */.
 &IF DEFINED(test) NE 0 &THEN
