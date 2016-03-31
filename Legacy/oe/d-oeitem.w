@@ -4833,10 +4833,10 @@ PROCEDURE display-est-detail :
        IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(eb), OUTPUT lv-i-no).
        ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
        ELSE do:              
-              RUN fg/autofg.p ( ROWID(eb),
+            RUN fg/autofg.p ( ROWID(eb),
                                   v-est-fg1, 
                                   eb.procat,
-                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
+                                  IF est.est-type LE 4 THEN "F" ELSE "C",
                                   eb.cust-no,
                                   OUTPUT lv-i-no).              
       END.
