@@ -2,4 +2,4 @@
 /* Addon development propath - GUI first and addon */
 
 PROPATH = "..\,.\," + PROPATH.
-RUN ./nosweat.p.
+RUN addon/nosweat.p.

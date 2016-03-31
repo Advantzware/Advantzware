@@ -65,7 +65,7 @@ IF CONNECTED("NOSWEAT") THEN
 DO:
   RUN createSingleUserPFs.
   {methods/setdevid.i}
-  RUN ./nosweat/persist.p PERSISTENT SET Persistent-Handle.
+  RUN addon/nosweat/persist.p PERSISTENT SET Persistent-Handle.
   RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
   RUN Get_Procedure IN Persistent-Handle ("user_dir.",OUTPUT run-proc,yes).
   g_groups = "".

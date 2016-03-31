@@ -23,7 +23,7 @@ END.
 
 IF CONNECTED("NOSWEAT") THEN DO:
     /*SESSION:TIME-SOURCE = "nosweat". */
-    RUN ./nosweat/persist.p PERSISTENT SET Persistent-Handle.
+    RUN addon/nosweat/persist.p PERSISTENT SET Persistent-Handle.
     RUN touch/clockio.w.
 END.
 ELSE
