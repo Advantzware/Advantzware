@@ -68,7 +68,9 @@ DEFINE TEMP-TABLE ttReport NO-UNDO
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fInvoiceHighlights Procedure 
 FUNCTION fInvoiceHighlights RETURNS HANDLE
-  ( ipiYear AS INTEGER )  FORWARD.
+  (ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -122,7 +124,9 @@ PROCEDURE pRawSalesProc :
   Parameters:  base current year
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiYear AS INTEGER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO .
     DEFINE VARIABLE dtFromDate AS DATE      NO-UNDO .
@@ -130,10 +134,16 @@ PROCEDURE pRawSalesProc :
     DEFINE VARIABLE dCost      AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE dtDateIdx  AS DATE      NO-UNDO .
     DEFINE VARIABLE dtAsOfDate AS DATE      NO-UNDO .
+    DEFINE VARIABLE iYear      AS INTEGER   NO-UNDO .
     
+    /* locate parameter values record */
+    RUN pGetParamValues (ipcCompany, "dbinvmh.", ipcUserID, ipiBatch).
+    
+    /* load parameter values from above record into variables */
     ASSIGN
-        dtFromDate = DATE(1,1,ipiYear - 1)
-        dtToDate   = DATE(12,31,ipiYear)
+        iYear      = INTEGER(DYNAMIC-FUNCTION("fGetParamValue","svYear"))
+        dtFromDate = DATE(1,1,iYear - 1)
+        dtToDate   = DATE(12,31,iYear)
         .
  
     FOR EACH company NO-LOCK
@@ -219,7 +229,7 @@ PROCEDURE pRawSalesProc :
                                        ar-invl.job-no2 ,
                                        ar-invl.ship-qty ,
                                        OUTPUT dCost ).
-                IF YEAR (ttRawSales.dateIdx) EQ ipiYear THEN
+                IF YEAR (ttRawSales.dateIdx) EQ iYear THEN
                 ASSIGN 
                     ttRawSales.company   = ar-inv.company
                     ttRawSales.cyrQty    = ttRawSales.cyrQty + ar-invl.ship-qty
@@ -286,7 +296,7 @@ PROCEDURE pRawSalesProc :
                                            oe-retl.tot-qty-return ,
                                            OUTPUT dCost) .
                 
-                    IF YEAR (ttRawSales.dateIdx) EQ ipiYear THEN
+                    IF YEAR (ttRawSales.dateIdx) EQ iYear THEN
                     ASSIGN 
                         ttRawSales.company   = ar-cashl.company
                         ttRawSales.cyrQty    = ttRawSales.cyrQty - oe-retl.tot-qty-return
@@ -316,7 +326,7 @@ PROCEDURE pRawSalesProc :
                         .
                 END . /* avail ar-invl */
             END . /* avail oe-retl */
-            IF YEAR (ttRawSales.dateIdx) EQ ipiYear THEN
+            IF YEAR (ttRawSales.dateIdx) EQ iYear THEN
             ASSIGN ttRawSales.cyrSales = ttRawSales.cyrSales + ar-cashl.amt-paid - ar-cashl.amt-disc .
             ELSE 
             ASSIGN ttRawSales.lyrSales = ttRawSales.lyrSales + ar-cashl.amt-paid - ar-cashl.amt-disc .
@@ -347,7 +357,9 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fInvoiceHighlights Procedure 
 FUNCTION fInvoiceHighlights RETURNS HANDLE
-  ( ipiYear AS INTEGER ) :
+  (ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER ) :
 /*------------------------------------------------------------------------------
   Purpose:  Invoice Hightlights.edp
     Notes:  
@@ -355,7 +367,7 @@ FUNCTION fInvoiceHighlights RETURNS HANDLE
     EMPTY TEMP-TABLE ttRawSales .
     EMPTY TEMP-TABLE ttReport .
 
-    RUN pRawSalesProc (ipiYear).
+    RUN pRawSalesProc (ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttRawSales:HANDLE .
 

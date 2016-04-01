@@ -72,7 +72,7 @@ RUN VALUE("aoaAppSrv/" + ENTRY(1,aoaParam,"/") + ".p") PERSISTENT SET hAppSrv.
 &Scoped-define FRAME-NAME paramFrame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCancel btnView btnScheduler 
+&Scoped-Define ENABLED-OBJECTS btnCancel btnView 
 
 /* Custom List Definitions                                              */
 /* ScheduleFields,List-2,List-3,List-4,List-5,List-6                    */
@@ -259,40 +259,6 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 126 BY 22.1.
 
-DEFINE FRAME frameSchedule
-     cb-printer AT ROW 1.71 COL 9 COLON-ALIGNED WIDGET-ID 92
-     lv-port AT ROW 2.91 COL 9 COLON-ALIGNED WIDGET-ID 94
-     v-copies AT ROW 4.81 COL 74 COLON-ALIGNED WIDGET-ID 104
-     start_date AT ROW 5.05 COL 15 COLON-ALIGNED WIDGET-ID 82
-     start_time AT ROW 5.05 COL 40 COLON-ALIGNED WIDGET-ID 6
-     end_date AT ROW 6.48 COL 15 COLON-ALIGNED WIDGET-ID 74
-     end_time AT ROW 6.48 COL 40 COLON-ALIGNED WIDGET-ID 8
-     dayOfWeek-1 AT ROW 7.91 COL 17 WIDGET-ID 60
-     dayOfWeek-2 AT ROW 7.91 COL 23 WIDGET-ID 62
-     dayOfWeek-3 AT ROW 7.91 COL 29 WIDGET-ID 64
-     dayOfWeek-4 AT ROW 7.91 COL 34 WIDGET-ID 66
-     dayOfWeek-5 AT ROW 7.91 COL 40 WIDGET-ID 68
-     dayOfWeek-6 AT ROW 7.91 COL 45 WIDGET-ID 70
-     dayOfWeek-7 AT ROW 7.91 COL 50 WIDGET-ID 72
-     btnSchedule AT ROW 8.86 COL 64 WIDGET-ID 10
-     repeatWeekly AT ROW 9.1 COL 17 WIDGET-ID 80
-     "Day of Week:" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 7.91 COL 3 WIDGET-ID 86
-     " Freguency" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 4.1 COL 3 WIDGET-ID 42
-     " Copies" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 4.1 COL 58 WIDGET-ID 102
-     " Printer" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1 COL 3 WIDGET-ID 100
-     RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 96
-     RECT-2 AT ROW 4.33 COL 57 WIDGET-ID 98
-     RECT-4 AT ROW 4.33 COL 2 WIDGET-ID 78
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 12.67
-         SIZE 85 BY 10.24
-         TITLE "Schedule" WIDGET-ID 100.
-
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.76 COL 1 NO-LABEL WIDGET-ID 68
      svSelectedColumns AT ROW 1.76 COL 45 NO-LABEL WIDGET-ID 70
@@ -313,6 +279,40 @@ DEFINE FRAME frameColumns
          AT COL 41 ROW 1
          SIZE 85 BY 11.43
          TITLE "Report Columns" WIDGET-ID 200.
+
+DEFINE FRAME frameSchedule
+     cb-printer AT ROW 1.71 COL 9 COLON-ALIGNED WIDGET-ID 92
+     lv-port AT ROW 2.91 COL 9 COLON-ALIGNED WIDGET-ID 94
+     v-copies AT ROW 4.81 COL 74 COLON-ALIGNED WIDGET-ID 104
+     start_date AT ROW 5.05 COL 15 COLON-ALIGNED WIDGET-ID 82
+     start_time AT ROW 5.05 COL 40 COLON-ALIGNED WIDGET-ID 6
+     end_date AT ROW 6.48 COL 15 COLON-ALIGNED WIDGET-ID 74
+     end_time AT ROW 6.48 COL 40 COLON-ALIGNED WIDGET-ID 8
+     dayOfWeek-1 AT ROW 7.91 COL 17 WIDGET-ID 60
+     dayOfWeek-2 AT ROW 7.91 COL 23 WIDGET-ID 62
+     dayOfWeek-3 AT ROW 7.91 COL 29 WIDGET-ID 64
+     dayOfWeek-4 AT ROW 7.91 COL 34 WIDGET-ID 66
+     dayOfWeek-5 AT ROW 7.91 COL 40 WIDGET-ID 68
+     dayOfWeek-6 AT ROW 7.91 COL 45 WIDGET-ID 70
+     dayOfWeek-7 AT ROW 7.91 COL 50 WIDGET-ID 72
+     btnSchedule AT ROW 8.86 COL 64 WIDGET-ID 10
+     repeatWeekly AT ROW 9.1 COL 17 WIDGET-ID 80
+     "Day of Week:" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 7.91 COL 3 WIDGET-ID 86
+     " Printer" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1 COL 3 WIDGET-ID 100
+     " Copies" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 4.1 COL 58 WIDGET-ID 102
+     " Freguency" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 4.1 COL 3 WIDGET-ID 42
+     RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 96
+     RECT-2 AT ROW 4.33 COL 57 WIDGET-ID 98
+     RECT-4 AT ROW 4.33 COL 2 WIDGET-ID 78
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 12.67
+         SIZE 85 BY 10.24
+         TITLE "Schedule" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -424,7 +424,10 @@ ASSIGN
        btnCancel:PRIVATE-DATA IN FRAME paramFrame     = 
                 "WinKitRibbon".
 
+/* SETTINGS FOR BUTTON btnScheduler IN FRAME paramFrame
+   NO-ENABLE                                                            */
 ASSIGN 
+       btnScheduler:HIDDEN IN FRAME paramFrame           = TRUE
        btnScheduler:PRIVATE-DATA IN FRAME paramFrame     = 
                 "WinKitRibbon".
 
@@ -765,7 +768,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnCancel btnView btnScheduler 
+  ENABLE btnCancel btnView 
       WITH FRAME paramFrame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   DISPLAY svAvailableColumns svSelectedColumns 
@@ -832,6 +835,9 @@ PROCEDURE local-enable :
   RUN pParamValuesOverride IN h_aoaParam NO-ERROR.
 
   RUN pInitialize IN h_aoaParam (THIS-PROCEDURE) NO-ERROR.
+
+  IF aoaType EQ "report" THEN
+  ENABLE btnScheduler WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -1019,21 +1025,31 @@ PROCEDURE pSaveParamValues :
 
     IF NOT VALID-HANDLE(hFrame) THEN RETURN.
 
-    FIND FIRST user-print EXCLUSIVE-LOCK
-         WHERE user-print.company    EQ aoaCompany
-           AND user-print.program-id EQ (IF iplBatch THEN cProgramID ELSE aoaProgramID)
-           AND user-print.user-id    EQ aoaUserID
-           AND user-print.batch      EQ (IF iplBatch THEN "Batch" ELSE "")
-         NO-ERROR.
-    IF NOT AVAILABLE user-print THEN DO:
+    IF iplBatch THEN DO:
         CREATE user-print.
         ASSIGN
             user-print.company    = aoaCompany
-            user-print.program-id = (IF iplBatch THEN cProgramID ELSE aoaProgramID)
+            user-print.program-id = aoaProgramID
             user-print.user-id    = aoaUserID
-            user-print.batch      = (IF iplBatch THEN "Batch" ELSE "")
+            user-print.batch      = "Batch"
             .
     END. /* not avail user-print */
+    ELSE DO:
+        FIND FIRST user-print EXCLUSIVE-LOCK
+             WHERE user-print.company    EQ aoaCompany
+               AND user-print.program-id EQ aoaProgramID
+               AND user-print.user-id    EQ aoaUserID
+               AND user-print.batch      EQ ""
+             NO-ERROR.
+        IF NOT AVAILABLE user-print THEN DO:
+            CREATE user-print.
+            ASSIGN
+                user-print.company    = aoaCompany
+                user-print.program-id = aoaProgramID
+                user-print.user-id    = aoaUserID
+                .
+        END. /* not avail */
+    END. /* not batch, view now request */
 
     ASSIGN
         user-print.field-name  = ""

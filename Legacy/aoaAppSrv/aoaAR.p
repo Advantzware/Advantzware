@@ -243,7 +243,7 @@ PROCEDURE pCommissionCashReceipt :
     DEFINE BUFFER bARInvl FOR ar-invl.
     
     /* locate parameter values record */
-    RUN getParamValues (ipcCompany, "r-commcr.", ipcUserID, ipiBatch).
+    RUN pGetParamValues (ipcCompany, "r-commcr.", ipcUserID, ipiBatch).
     
     /* load parameter values from above record into variables */
     ASSIGN
