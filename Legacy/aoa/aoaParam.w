@@ -259,6 +259,27 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 126 BY 22.1.
 
+DEFINE FRAME frameColumns
+     svAvailableColumns AT ROW 1.76 COL 1 NO-LABEL WIDGET-ID 68
+     svSelectedColumns AT ROW 1.76 COL 45 NO-LABEL WIDGET-ID 70
+     btnDefault AT ROW 2.91 COL 36 HELP
+          "Add Selected Table to Display" WIDGET-ID 76
+     btnMoveUp AT ROW 2.91 COL 80 WIDGET-ID 66
+     btnMoveDown AT ROW 4 COL 80 WIDGET-ID 62
+     btnRemove AT ROW 5.14 COL 80 HELP
+          "Remove Selected Table from Tables to Audit" WIDGET-ID 64
+     btnAdd AT ROW 5.29 COL 36 HELP
+          "Add Selected Table to Display" WIDGET-ID 58
+     "Selected Columns (In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 1 COL 45 WIDGET-ID 72
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 1 COL 2 WIDGET-ID 74
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 85 BY 11.43
+         TITLE "Report Columns" WIDGET-ID 200.
+
 DEFINE FRAME frameSchedule
      cb-printer AT ROW 1.71 COL 9 COLON-ALIGNED WIDGET-ID 92
      lv-port AT ROW 2.91 COL 9 COLON-ALIGNED WIDGET-ID 94
@@ -422,6 +443,13 @@ ASSIGN
    FRAME-NAME                                                           */
 ASSIGN 
        btnCancel:PRIVATE-DATA IN FRAME paramFrame     = 
+                "WinKitRibbon".
+
+/* SETTINGS FOR BUTTON btnScheduler IN FRAME paramFrame
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnScheduler:HIDDEN IN FRAME paramFrame           = TRUE
+       btnScheduler:PRIVATE-DATA IN FRAME paramFrame     = 
                 "WinKitRibbon".
 
 ASSIGN 
@@ -833,6 +861,9 @@ PROCEDURE local-enable :
 
   RUN pInitialize IN h_aoaParam (THIS-PROCEDURE) NO-ERROR.
 
+  IF aoaType EQ "report" THEN
+  ENABLE btnScheduler WITH FRAME {&FRAME-NAME}.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1019,21 +1050,31 @@ PROCEDURE pSaveParamValues :
 
     IF NOT VALID-HANDLE(hFrame) THEN RETURN.
 
-    FIND FIRST user-print EXCLUSIVE-LOCK
-         WHERE user-print.company    EQ aoaCompany
-           AND user-print.program-id EQ (IF iplBatch THEN cProgramID ELSE aoaProgramID)
-           AND user-print.user-id    EQ aoaUserID
-           AND user-print.batch      EQ (IF iplBatch THEN "Batch" ELSE "")
-         NO-ERROR.
-    IF NOT AVAILABLE user-print THEN DO:
+    IF iplBatch THEN DO:
         CREATE user-print.
         ASSIGN
             user-print.company    = aoaCompany
-            user-print.program-id = (IF iplBatch THEN cProgramID ELSE aoaProgramID)
+            user-print.program-id = aoaProgramID
             user-print.user-id    = aoaUserID
-            user-print.batch      = (IF iplBatch THEN "Batch" ELSE "")
+            user-print.batch      = "Batch"
             .
     END. /* not avail user-print */
+    ELSE DO:
+        FIND FIRST user-print EXCLUSIVE-LOCK
+             WHERE user-print.company    EQ aoaCompany
+               AND user-print.program-id EQ aoaProgramID
+               AND user-print.user-id    EQ aoaUserID
+               AND user-print.batch      EQ ""
+             NO-ERROR.
+        IF NOT AVAILABLE user-print THEN DO:
+            CREATE user-print.
+            ASSIGN
+                user-print.company    = aoaCompany
+                user-print.program-id = aoaProgramID
+                user-print.user-id    = aoaUserID
+                .
+        END. /* not avail */
+    END. /* not batch, view now request */
 
     ASSIGN
         user-print.field-name  = ""
