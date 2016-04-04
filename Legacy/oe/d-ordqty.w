@@ -413,6 +413,10 @@ PROCEDURE build-table :
              tt-item-qty-price.uom = quoteqty.uom
              tt-item-qty-price.rels = quoteqty.rels
              tt-item-qty-price.quote-user = quoteqty.quote-user.
+     /* Ticket 15599 */
+      FIND FIRST quotehd OF quoteitm WHERE quotehd.company EQ quoteitm.company NO-LOCK NO-ERROR .
+      IF AVAIL quotehd THEN
+          ASSIGN  tt-item-qty-price.quote-date = quotehd.quo-date .
 
       IF NOT CAN-FIND(FIRST tt-item-qty-price WHERE
          tt-item-qty-price.part-no EQ quoteitm.part-no AND
