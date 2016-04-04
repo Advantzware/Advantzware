@@ -530,6 +530,7 @@
                 WHEN "fg-lot-val" THEN cvarValue = STRING(fg-lot-val,"x(20)") .
                 WHEN "v-job-no" THEN cVarValue = string(v-job-no) .
                 WHEN "recdate" THEN cVarValue = IF lv-rct-date NE ? THEN STRING(lv-rct-date) ELSE "" .
+                WHEN "days-old" THEN cVarValue = STRING(INT(vdat - lv-rct-date)) .
                 WHEN "loc" THEN cVarValue = STRING(tt-fg-bin.loc).
                 WHEN "bin" THEN cVarValue =     STRING(tt-fg-bin.loc-bin).
                 WHEN "msf-on-hand" THEN cVarValue = STRING(v-bin-msf,"->>9.999").
