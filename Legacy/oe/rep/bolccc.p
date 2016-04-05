@@ -384,7 +384,20 @@ PUT
     "<R53.4><C1>in effect of the date hereof, if this is rail or water shipment or (2) in the applicable motor carrier classification or tariff if this is a motor shipment. Shipper/Receiver hereby certifies the he/she is familiar" SKIP
     "<R54.0><C1>with all the terms and conditions of the said bill of lading, set forth in the classification or tariff which governs the transportation of this shipment, and the said terms and conditions are herby agreed to" SKIP
     "<R54.6><C1>by the shipper/receiver and accepted for himself/herself and his assigns." 
+    "<R56><C60><P9> 3C Packaging Truck Inspection "     SKIP
+    "<R57><C63> No odors present_____        "    SKIP
+    "<R58><C63> No debris present_____       "    SKIP
+    "<R59><C63> No visible leaks_______      "    SKIP
+    "<R60><C63> No infestation_________      "    SKIP
+                                                  
+    "<R61.5><C62>Initial ___________________   "    SKIP
     .
+
+    PUT "<FGCOLOR=RED><BGCOLOR=RED>"
+      /*"<=9><C+10><FROM><R+4><C+20><RECT> " */
+      "<R57><C5><#15><FROM><R+4><C+25><RECT>" 
+      "<=15><R+1>       DO NOT DOUBLE STACK      " SKIP 
+      "<=15><R+2>       DO NOT BREAK DOWN        "  SKIP.
 
   v-printline = v-printline + 14.
   IF last-of(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUM .

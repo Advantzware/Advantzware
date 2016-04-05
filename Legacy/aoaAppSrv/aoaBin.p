@@ -98,10 +98,10 @@ FUNCTION fGetParamValue RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
-&IF DEFINED(EXCLUDE-getParamValues) = 0 &THEN
+&IF DEFINED(EXCLUDE-pGetParamValues) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getParamValues Procedure 
-PROCEDURE getParamValues :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetParamValues Procedure 
+PROCEDURE pGetParamValues :
 /*------------------------------------------------------------------------------
   Purpose:     get user-print record requested
   Parameters:  Company, Program ID, User ID, Batch Seq
@@ -128,6 +128,17 @@ PROCEDURE getParamValues :
            AND user-print.program-id EQ ipcName
            AND user-print.batch      EQ "Batch"
          NO-ERROR.
+
+    OUTPUT TO "aoaBin.log" APPEND.
+    PUT UNFORMATTED "[" NOW "] pGetParamValues" SKIP
+        "ipcCompany: " ipcCompany SKIP
+        "ipcName: " ipcName SKIP
+        "ipcUserID: " ipcUserID SKIP
+        "ipiBatch: " ipiBatch SKIP
+        "AVAIL(user-print): " AVAIL(user-print)
+        SKIP(1)
+        .
+    OUTPUT CLOSE.
 
 END PROCEDURE.
 

@@ -979,6 +979,39 @@ FOR  EACH job-hdr NO-LOCK
 
                x = 1.
              end. /* each wrk-sheet */   
+
+              /** Print Leaf/Film **/
+
+             FOR EACH wrk-film WHERE wrk-film.form-no = ef.form-no
+                 /*break by wrk-sheet.form-no*/ NO-LOCK BREAK BY wrk-film.leaf :
+               find first ITEM where item.company eq cocode
+                                 and item.i-no    eq wrk-film.leaf no-lock no-error.
+                FIND FIRST job-mch WHERE job-mch.company = cocode 
+                                      AND job-mch.job = job.job
+                   AND job-mch.job-no = job.job-no 
+                   AND job-mch.job-no2 = job.job-no2 
+                   AND job-mch.m-code  = ef.m-code NO-LOCK NO-ERROR .
+
+               IF FIRST(wrk-film.leaf) THEN
+                    PUT "<P10>" SKIP
+                 "<B> LEAF/FILM CODE  DESCRIPTION                 FORM  BLANK  APERTURE SIZE (W x L)   TOTAL LINEAL FEET   POUNDS     </B>" 
+                 SKIP.
+                display 
+                    space(1) wrk-film.leaf FORM "x(15)"
+                    (IF AVAIL ITEM THEN ITEM.i-name ELSE "") FORM "x(28)" SPACE(2)
+                    wrk-film.snum SPACE(4)
+                    wrk-film.bnum SPACE(3)
+                    string(wrk-film.leaf-l) + "x" + string(wrk-film.leaf-w)
+                    format "x(23)" SPACE(10)
+                    STRING( ( wrk-film.leaf-l + 1) * (IF AVAIL job-mch THEN job-mch.run-qty ELSE 0) / 12)
+                    STRING((IF AVAIL job-mch THEN job-mch.run-qty ELSE 0) * (wrk-film.leaf-l + 1) * ( wrk-film.leaf-w + 1) /
+                    (IF AVAIL ITEM THEN ITEM.sqin-lb ELSE 0) )
+                    with stream-io width 170 no-labels no-box frame film.
+
+                /*IF LAST(wrk-film.leaf) THEN
+                     PUT "<P10>" SKIP(1) .*/
+
+             END.
              
              PUT "<B> PASS  SIDE   LBS  INK NAME                 UNIT#   PASS   SIDE   LBS INK NAME                 UNIT#       PLATE #</B>"
                  SKIP.
