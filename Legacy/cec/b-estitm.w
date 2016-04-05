@@ -7752,8 +7752,13 @@ PROCEDURE update-set :
              bf-eb-header.blank-no EQ 0
              NO-LOCK NO-ERROR.
 
-     IF NOT v-assem-partition OR (NOT AVAIL bf-eb-header) THEN
-        RUN cec/d-updset.w (RECID(eb),6).
+     IF NOT v-assem-partition OR (NOT AVAIL bf-eb-header) THEN do:
+         find xest where recid(xest) = recid(est) no-lock.
+         find xef where recid(xef) = recid(ef) no-lock.
+         find xeb where recid(xeb) = recid(eb) no-lock.
+
+         RUN cec/d-updset.w (RECID(eb),6).
+     END.
      ELSE
         RUN cec/d-updsetpart.w(INPUT ROWID(est),
                                INPUT ROWID(bf-eb-header)).

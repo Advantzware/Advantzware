@@ -5436,6 +5436,11 @@ PROCEDURE update-set :
   END.
 
   IF est.est-type EQ 2 THEN DO:
+
+   find xest where recid(xest) = recid(est) no-lock.
+   find xef where recid(xef) = recid(ef) no-lock.
+   find xeb where recid(xeb) = recid(eb) no-lock.
+
     RUN cec/d-updset.w (RECID(eb),2).
 
     IF ERROR-STATUS:ERROR                     AND
