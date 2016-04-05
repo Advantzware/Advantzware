@@ -165,6 +165,7 @@ DO TRANSACTION:
   {sys/inc/poqty.i}
   {sys/inc/pouom.i}
   {sys/inc/aptax.i}
+  {sys/inc/poscreen.i}
 END.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
@@ -1347,6 +1348,12 @@ DO:
      /* gdm - 06040918 */     
 
      APPLY "leave" TO po-ordl.ord-qty IN FRAME {&FRAME-NAME}.
+
+     IF ip-type EQ "add" AND (v-poscreen-char = "Job-Item" OR v-poscreen-char <> "Item-Job") THEN do:
+         APPLY "entry" TO po-ordl.due-date.
+         RETURN NO-APPLY.
+     END.
+
   END.
 END.
 
@@ -1571,7 +1578,12 @@ DO:
               RUN getJobFarmInfo.
       END. /* If a finished good */
     END.
-    APPLY "LEAVE" TO po-ordl.s-num.  
+   /* APPLY "LEAVE" TO po-ordl.s-num.*/ /* ticket 13022 */
+    
+    IF ip-type EQ "add" AND ( v-poscreen-char = "Job-Item" OR v-poscreen-char <> "Item-Job") THEN do:
+       APPLY "entry" TO po-ordl.i-no.
+       RETURN NO-APPLY.
+    END.
   END.
 END.
 
@@ -2109,6 +2121,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-type EQ "update" THEN DISABLE po-ordl.item-type po-ordl.i-no.
+
+    IF ip-type EQ "add" AND (v-poscreen-char = "Job-Item" OR v-poscreen-char <> "Item-Job") THEN
+         APPLY "entry" TO po-ordl.job-no .
 
     find first account
         where account.company eq cocode
@@ -3934,7 +3949,7 @@ PROCEDURE lookup-job :
         
         IF AVAIL job-hdr THEN
             FIND FIRST job-farm WHERE job-farm.job EQ job-hdr.job 
-              AND job-farm.i-no EQ po-ordl.i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
+              AND job-farm.i-no EQ po-ordl.i-no:SCREEN-VALUE  NO-LOCK NO-ERROR.
       
         /* char-val = "" to keep new-job-line from overriding s-num, b-num */
         IF AVAIL job-farm THEN
