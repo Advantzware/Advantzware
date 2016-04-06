@@ -47,7 +47,7 @@ ASSIGN
 IF NUM-ENTRIES(ipcParamStr) EQ 6 THEN
 aoaParam = ENTRY(6,ipcParamStr).
 
-cProgramID = ENTRY(1,aoaParam,"/") + "/" + aoaProgramID + "rpa".
+cProgramID = aoaTitle + ".rpa".
 
 SESSION:SET-WAIT-STATE('').
 

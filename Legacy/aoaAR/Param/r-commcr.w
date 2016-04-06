@@ -48,15 +48,19 @@ DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svStartDate svStartDateOption ~
-svEndDate svEndDateOption svAllSalesReps svStartSalesRep svEndSalesRep ~
+&Scoped-Define ENABLED-OBJECTS svCompany svStartReceiptDate ~
+svStartReceiptDateOption svEndReceiptDate svEndReceiptDateOption ~
+svStartInvoiceDate svStartInvoiceDateOption svEndInvoiceDate ~
+svEndInvoiceDateOption svAllSalesReps svStartSalesRep svEndSalesRep ~
 svCustList btnCustList svAllCustomers svStartCustNo svEndCustNo ~
-svShowInvoice svDelta svDetailed svPrep svCalc 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svStartDate svStartDateOption ~
-svEndDate svEndDateOption svAllSalesReps svStartSalesRep startSalesRepName ~
+svShowInvoice svDetailed svPrep svCalc 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svStartReceiptDate ~
+svStartReceiptDateOption svEndReceiptDate svEndReceiptDateOption ~
+svStartInvoiceDate svStartInvoiceDateOption svEndInvoiceDate ~
+svEndInvoiceDateOption svAllSalesReps svStartSalesRep startSalesRepName ~
 svEndSalesRep endSalesRepName svCustList svAllCustomers svStartCustNo ~
-startCustName svEndCustNo endCustName svShowInvoice svDelta svDetailed ~
-svPrep svCalc 
+startCustName svEndCustNo endCustName svShowInvoice svDetailed svPrep ~
+svCalc 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -74,13 +78,25 @@ DEFINE BUTTON btnCustList
      LABEL "Preview" 
      SIZE 9.8 BY .95.
 
-DEFINE VARIABLE svEndDateOption AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE svEndInvoiceDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svStartDateOption AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE svEndReceiptDateOption AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Item 1" 
+     DROP-DOWN-LIST
+     SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svStartInvoiceDateOption AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Item 1" 
+     DROP-DOWN-LIST
+     SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svStartReceiptDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
@@ -112,8 +128,13 @@ DEFINE VARIABLE svEndCustNo AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
-DEFINE VARIABLE svEndDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
-     LABEL "End Date" 
+DEFINE VARIABLE svEndInvoiceDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
+     LABEL "End Invoice Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1.
+
+DEFINE VARIABLE svEndReceiptDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
+     LABEL "End Receipt Date" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
@@ -127,8 +148,13 @@ DEFINE VARIABLE svStartCustNo AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
-DEFINE VARIABLE svStartDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
-     LABEL "Start Date" 
+DEFINE VARIABLE svStartInvoiceDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
+     LABEL "Start Invoice Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1.
+
+DEFINE VARIABLE svStartReceiptDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
+     LABEL "Start Receipt Date" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
@@ -136,13 +162,6 @@ DEFINE VARIABLE svStartSalesRep AS CHARACTER FORMAT "X(3)"
      LABEL "Start Sales Rep#" 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1.
-
-DEFINE VARIABLE svDelta AS CHARACTER INITIAL "Delta" 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Delta", "Delta",
-"Gross Profit Margin", "GPM"
-     SIZE 33 BY .95 NO-UNDO.
 
 DEFINE VARIABLE svShowInvoice AS CHARACTER INITIAL "Paid" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -186,50 +205,55 @@ DEFINE VARIABLE svPrep AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 60
-     svStartDate AT ROW 3.62 COL 17 COLON-ALIGNED HELP
-          "Enter Beginning Date" WIDGET-ID 26
-     svStartDateOption AT ROW 3.62 COL 35 COLON-ALIGNED HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 64
-     svEndDate AT ROW 4.81 COL 17 COLON-ALIGNED HELP
-          "Enter Ending Date" WIDGET-ID 24
-     svEndDateOption AT ROW 4.81 COL 35 COLON-ALIGNED HELP
-          "Select End Date Option" NO-LABEL WIDGET-ID 66
-     svAllSalesReps AT ROW 7.19 COL 19 HELP
+     svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
+     svStartReceiptDate AT ROW 3.62 COL 18.8 COLON-ALIGNED HELP
+          "Enter Start Receipt Date" WIDGET-ID 72
+     svStartReceiptDateOption AT ROW 3.62 COL 37 COLON-ALIGNED HELP
+          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
+     svEndReceiptDate AT ROW 4.81 COL 19 COLON-ALIGNED HELP
+          "Enter End Receipt Date" WIDGET-ID 68
+     svEndReceiptDateOption AT ROW 4.81 COL 37 COLON-ALIGNED HELP
+          "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
+     svStartInvoiceDate AT ROW 7.19 COL 19 COLON-ALIGNED HELP
+          "Enter Start Invoice Date" WIDGET-ID 26
+     svStartInvoiceDateOption AT ROW 7.19 COL 37 COLON-ALIGNED HELP
+          "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
+     svEndInvoiceDate AT ROW 8.38 COL 19 COLON-ALIGNED HELP
+          "Enter End Invoice Date" WIDGET-ID 24
+     svEndInvoiceDateOption AT ROW 8.38 COL 37 COLON-ALIGNED HELP
+          "Select End Invoice Date Option" NO-LABEL WIDGET-ID 66
+     svAllSalesReps AT ROW 10.76 COL 21 HELP
           "All Sales Reps?" WIDGET-ID 58
-     svStartSalesRep AT ROW 8.38 COL 17 COLON-ALIGNED HELP
+     svStartSalesRep AT ROW 11.95 COL 19 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep#" WIDGET-ID 22
-     startSalesRepName AT ROW 8.38 COL 34 COLON-ALIGNED HELP
+     startSalesRepName AT ROW 11.95 COL 36 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndSalesRep AT ROW 9.57 COL 17 COLON-ALIGNED HELP
+     svEndSalesRep AT ROW 13.14 COL 19 COLON-ALIGNED HELP
           "Enter Ending Sales Rep" WIDGET-ID 20
-     endSalesRepName AT ROW 9.57 COL 34 COLON-ALIGNED HELP
+     endSalesRepName AT ROW 13.14 COL 36 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svCustList AT ROW 11.95 COL 19 WIDGET-ID 48
-     btnCustList AT ROW 11.95 COL 53 WIDGET-ID 46
-     svAllCustomers AT ROW 13.14 COL 19 HELP
+     svCustList AT ROW 15.52 COL 21 WIDGET-ID 48
+     btnCustList AT ROW 15.52 COL 55 WIDGET-ID 46
+     svAllCustomers AT ROW 16.71 COL 21 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 14.33 COL 17 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 17.91 COL 19 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     startCustName AT ROW 14.33 COL 34 COLON-ALIGNED HELP
+     startCustName AT ROW 17.91 COL 36 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 15.52 COL 17 COLON-ALIGNED HELP
+     svEndCustNo AT ROW 19.1 COL 19 COLON-ALIGNED HELP
           "Enter Ending Customer" WIDGET-ID 6
-     endCustName AT ROW 15.52 COL 34 COLON-ALIGNED HELP
+     endCustName AT ROW 19.1 COL 36 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svShowInvoice AT ROW 17.91 COL 20 NO-LABEL WIDGET-ID 28
-     svDelta AT ROW 19.1 COL 20 NO-LABEL WIDGET-ID 36
-     svDetailed AT ROW 20.29 COL 20 WIDGET-ID 42
-     svPrep AT ROW 20.29 COL 37 WIDGET-ID 44
-     svCalc AT ROW 21.48 COL 20 WIDGET-ID 40
-     "Show?:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 19.1 COL 11 WIDGET-ID 54
+     svShowInvoice AT ROW 21.48 COL 22 NO-LABEL WIDGET-ID 28
+     svDetailed AT ROW 23.86 COL 22 WIDGET-ID 42
+     svPrep AT ROW 23.86 COL 39 WIDGET-ID 44
+     svCalc AT ROW 25.05 COL 22 WIDGET-ID 40
      "Show Invoices?:" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 17.91 COL 3 WIDGET-ID 52
+          SIZE 16 BY 1 AT ROW 21.48 COL 5 WIDGET-ID 52
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 79.8 BY 22.48
+         SIZE 81.4 BY 26.05
          TITLE "Report Parameters".
 
 
@@ -259,8 +283,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 22.48
-         WIDTH              = 79.8.
+         HEIGHT             = 26.05
+         WIDTH              = 81.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -355,7 +379,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCompany sObject
 ON ENTRY OF svCompany IN FRAME F-Main /* Company */
 DO:
-  APPLY "ENTRY":U TO svStartDate.
+  APPLY "ENTRY":U TO svStartReceiptDate.
   RETURN NO-APPLY.
 END.
 
@@ -392,13 +416,27 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndDateOption
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndDateOption sObject
-ON VALUE-CHANGED OF svEndDateOption IN FRAME F-Main
+&Scoped-define SELF-NAME svEndInvoiceDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndInvoiceDateOption sObject
+ON VALUE-CHANGED OF svEndInvoiceDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      svEndInvoiceDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svEndReceiptDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndReceiptDateOption sObject
+ON VALUE-CHANGED OF svEndReceiptDateOption IN FRAME F-Main
+DO:
+  ASSIGN
+      {&SELF-NAME}
+      svEndReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
       .
 END.
 
@@ -440,13 +478,27 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartDateOption
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartDateOption sObject
-ON VALUE-CHANGED OF svStartDateOption IN FRAME F-Main
+&Scoped-define SELF-NAME svStartInvoiceDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartInvoiceDateOption sObject
+ON VALUE-CHANGED OF svStartInvoiceDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      svStartInvoiceDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStartReceiptDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartReceiptDateOption sObject
+ON VALUE-CHANGED OF svStartReceiptDateOption IN FRAME F-Main
+DO:
+  ASSIGN
+      {&SELF-NAME}
+      svStartReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
       .
 END.
 
@@ -522,8 +574,10 @@ PROCEDURE pInitialize :
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
             .
-        APPLY "VALUE-CHANGED":U TO svStartDateOption.
-        APPLY "VALUE-CHANGED":U TO svEndDateOption.
+        APPLY "VALUE-CHANGED":U TO svStartReceiptDateOption.
+        APPLY "VALUE-CHANGED":U TO svEndReceiptDateOption.
+        APPLY "VALUE-CHANGED":U TO svStartInvoiceDateOption.
+        APPLY "VALUE-CHANGED":U TO svEndInvoiceDateOption.
         APPLY "VALUE-CHANGED":U TO svCustList.
         APPLY "VALUE-CHANGED":U TO svAllCustomers.
         APPLY "VALUE-CHANGED":U TO svAllSalesReps.
@@ -551,8 +605,10 @@ PROCEDURE pPopulateOptions :
         ASSIGN
             hContainer = iphContainer
             .
-        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartDateOption:HANDLE).
-        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndDateOption:HANDLE).
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartReceiptDateOption:HANDLE).
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndReceiptDateOption:HANDLE).
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartInvoiceDateOption:HANDLE).
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndInvoiceDateOption:HANDLE).
     END.
 
 END PROCEDURE.
