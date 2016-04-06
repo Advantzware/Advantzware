@@ -32,8 +32,8 @@ DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\cccack.jpg".
 
@@ -468,7 +468,7 @@ find first company where company.company eq cocode no-lock no-error.
                assign v-printline = 20.          
             end.
             IF AVAIL shipto THEN DO:
-                put oe-rel.po-no AT 2 shipto.ship-name AT 21 FORM "x(28)" lcnt AT 55 FORM ">>9" SPACE(1) /*ld-date*/ SPACE(9) (IF oe-rel.link-no EQ 0 THEN oe-rel.tot-qty ELSE oe-rel.qty) FORMAT "->>,>>>,>>9" SPACE(5) oe-ord.due-date /*oe-rel.rel-date*/ SKIP .
+                put oe-rel.po-no AT 2 shipto.ship-name AT 21 FORM "x(28)" lcnt AT 55 FORM ">>9" SPACE(1) /*ld-date*/ SPACE(9) (IF oe-rel.link-no EQ 0 THEN oe-rel.tot-qty ELSE oe-rel.qty) FORMAT "->>,>>>,>>9" SPACE(5) ld-date  SKIP .
                 v-printline = v-printline + 1.
                 if v-printline ge lv-line-print then
                 do:
