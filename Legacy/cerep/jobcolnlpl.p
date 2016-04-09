@@ -787,7 +787,7 @@ for each job-hdr NO-LOCK
                 ASSIGN v-fgdsc[eb.blank-no] = eb.part-dscr1.
                                                              
             v-upc-lbl = "   CAD#".
-            IF FIRST-OF(eb.form-no) THEN
+            IF FIRST-OF(eb.form-no) THEN  /* ticket 15507  */
               PUT "<P9><B> PRESS" SKIP
                   " F/B   FG Item #       Cust Part #     Artwork #       Description       Order Qty    MAX QTY    MIN QTY </B>" SKIP.
               
