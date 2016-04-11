@@ -176,7 +176,7 @@ DEFINE VARIABLE fi_hold AS CHARACTER FORMAT "X(10)":U
 DEFINE VARIABLE line_i-no AS CHARACTER FORMAT "x(15)" 
      LABEL "FG Item #" 
      VIEW-AS FILL-IN 
-     SIZE 24 BY 1.
+     SIZE 28 BY 1.
 
 DEFINE VARIABLE qty-oh AS INTEGER FORMAT "->>,>>>,>>9":U INITIAL 0 
      LABEL "Qty On Hand" 
@@ -232,7 +232,7 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-38
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 43 BY 1.43.
+     SIZE 45 BY 1.43.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -249,11 +249,11 @@ DEFINE FRAME F-Main
      oe-relh.cust-no AT ROW 1.24 COL 13 COLON-ALIGNED
           LABEL "Customer" FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
+          SIZE 20 BY 1
      oe-relh.ship-id AT ROW 1.24 COL 56 COLON-ALIGNED
           LABEL "Ship To" FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
+          SIZE 20 BY 1
      fi_hold AT ROW 1.24 COL 94.2 COLON-ALIGNED
      cust_name AT ROW 2.19 COL 13 COLON-ALIGNED NO-LABEL
      ship_name AT ROW 2.19 COL 56 COLON-ALIGNED NO-LABEL
