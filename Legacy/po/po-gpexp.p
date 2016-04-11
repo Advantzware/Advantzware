@@ -60,6 +60,7 @@ DEFINE TEMP-TABLE detailline
         FIELD shiptoaddress AS CHAR
         FIELD customerponbr AS CHAR
         FIELD customerpolineseqnbr AS CHAR
+        FIELD internalprodno AS CHAR
         FIELD custitemname AS CHAR
         FIELD custitemdscr1 AS CHAR
         FIELD custitemdscr2 AS CHAR
@@ -291,9 +292,10 @@ FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
         detailline.shipto = v-sname
         detailline.shiptoaddress = v-saddr[1] + " " + v-saddr[2] + " " + v-scity + " " +
                                     v-sstate + " " + v-szip
-        detailline.customerponbr = STRING(po-ord.po-no) + "a" + string(po-ordl.line)
-        detailline.customerpolineseqnbr = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") + "-" + STRING(po-ordl.s-num,"99")
-        detailline.custitemname = po-ordl.i-name
+        detailline.customerponbr = STRING(po-ord.po-no) /* + "a" + string(po-ordl.line) */
+        detailline.customerpolineseqnbr = STRING(po-ordl.line) /* STRING(po-ordl.s-num,"99") */
+        detalline.internalprodno = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99")  
+        detailline.custitemname  = po-ordl.i-name
         detailline.custitemdscr1 = po-ordl.dscr[1]
         detailline.custitemdscr2 = po-ordl.dscr[2] .
 
@@ -411,7 +413,7 @@ FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
       
       ASSIGN
           cTargetType = "FILE"
-          cFile = session:TEMP-DIR + "\" + USERID("Nosweat") + STRING(TIME)
+          cFile = SESSION:TEMP-DIR + "\" + USERID("Nosweat") + STRING(TIME)
           lFormatted = YES
           cEncoding = ?
           cSchemaLocation = ?
