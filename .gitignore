@@ -239,3 +239,6 @@ Resources/DBI*
 Resources/lbia*
 Resources/rcda*
 Resources/srta*
+*.project
+*.propath
+.settings/org.eclipse.wst.common.project.facet.core.xml
