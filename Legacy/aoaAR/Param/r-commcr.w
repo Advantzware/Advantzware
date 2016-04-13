@@ -278,24 +278,24 @@ END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
-/* *************************  Create Window  ************************** */
+&ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
+/* SETTINGS FOR WINDOW sObject
+  VISIBLE,,RUN-PERSISTENT                                               */
+/* SETTINGS FOR FRAME F-Main
+   NOT-VISIBLE FRAME-NAME                                               */
+ASSIGN 
+       FRAME F-Main:HIDDEN           = TRUE.
 
-&ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 26.05
-         WIDTH              = 81.4.
-/* END WINDOW DEFINITION */
-                                                                        */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB sObject 
-/* ************************* Included-Libraries *********************** */
-
-{src/adm/method/smart.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+/* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startSalesRepName IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
 
 
 

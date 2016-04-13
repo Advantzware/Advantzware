@@ -102,7 +102,7 @@ format header
              /* was 196*/
        /*fill(chr(95),130)               at 2    format "x(130)"         */      
       /*"<#1><C+60><LINE#1><|3>" */
-    "<UNITS=INCHES><AT=+.01,5.93><FROM><AT=+.4,+2><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=5,VALUE=" space(0) v-bar-no SPACE(0)
+    "<UNITS=INCHES><AT=+.01,5.93><FROM><AT=+.4,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,BarHeightPixels=5,VALUE=" space(0) v-bar-no SPACE(0)
     ">"  "<AT=,7>" v-bar-no "<=#1><R+4>"
       SKIP  "<R8C1>" "<R+.6>"
        "User Id: "                      AT 3
