@@ -72,7 +72,7 @@ RUN VALUE("aoaAppSrv/" + ENTRY(1,aoaParam,"/") + ".p") PERSISTENT SET hAppSrv.
 &Scoped-define FRAME-NAME paramFrame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCancel btnView 
+&Scoped-Define ENABLED-OBJECTS btnCancel btnView btnScheduler 
 
 /* Custom List Definitions                                              */
 /* ScheduleFields,List-2,List-3,List-4,List-5,List-6                    */
@@ -299,12 +299,12 @@ DEFINE FRAME frameSchedule
      repeatWeekly AT ROW 9.1 COL 17 WIDGET-ID 80
      "Day of Week:" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 7.91 COL 3 WIDGET-ID 86
-     " Printer" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1 COL 3 WIDGET-ID 100
-     " Copies" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 4.1 COL 58 WIDGET-ID 102
      " Freguency" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 4.1 COL 3 WIDGET-ID 42
+     " Copies" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 4.1 COL 58 WIDGET-ID 102
+     " Printer" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1 COL 3 WIDGET-ID 100
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 96
      RECT-2 AT ROW 4.33 COL 57 WIDGET-ID 98
      RECT-4 AT ROW 4.33 COL 2 WIDGET-ID 78
@@ -313,6 +313,27 @@ DEFINE FRAME frameSchedule
          AT COL 41 ROW 12.67
          SIZE 85 BY 10.24
          TITLE "Schedule" WIDGET-ID 100.
+
+DEFINE FRAME frameColumns
+     svAvailableColumns AT ROW 1.76 COL 1 NO-LABEL WIDGET-ID 68
+     svSelectedColumns AT ROW 1.76 COL 45 NO-LABEL WIDGET-ID 70
+     btnDefault AT ROW 2.91 COL 36 HELP
+          "Add Selected Table to Display" WIDGET-ID 76
+     btnMoveUp AT ROW 2.91 COL 80 WIDGET-ID 66
+     btnMoveDown AT ROW 4 COL 80 WIDGET-ID 62
+     btnRemove AT ROW 5.14 COL 80 HELP
+          "Remove Selected Table from Tables to Audit" WIDGET-ID 64
+     btnAdd AT ROW 5.29 COL 36 HELP
+          "Add Selected Table to Display" WIDGET-ID 58
+     "Selected Columns (In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 1 COL 45 WIDGET-ID 72
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 1 COL 2 WIDGET-ID 74
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 85 BY 11.43
+         TITLE "Report Columns" WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -428,6 +449,10 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        btnScheduler:HIDDEN IN FRAME paramFrame           = TRUE
+       btnScheduler:PRIVATE-DATA IN FRAME paramFrame     = 
+                "WinKitRibbon".
+
+ASSIGN 
        btnScheduler:PRIVATE-DATA IN FRAME paramFrame     = 
                 "WinKitRibbon".
 
@@ -768,7 +793,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnCancel btnView 
+  ENABLE btnCancel btnView btnScheduler 
       WITH FRAME paramFrame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   DISPLAY svAvailableColumns svSelectedColumns 
