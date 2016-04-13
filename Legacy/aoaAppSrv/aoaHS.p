@@ -1,8 +1,25 @@
-/* aoaHS.p */
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12
+&ANALYZE-RESUME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
+/*------------------------------------------------------------------------
+    File        : aoaAppSrv/aoaHS.p
+    Purpose     : AppServer Functions and Procedures
 
-/* ** temp-table definitions **************************************** */
+    Syntax      : 
 
-DEFINE TEMP-TABLE ttRawSales NO-UNDO RCODE-INFORMATION
+    Description : AppServer Functions and Procedures
+
+    Author(s)   : Ron Stark
+    Created     : 3.23.2016
+    Notes       :
+  ----------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.      */
+/*----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+
+/* Invoice Hightlights.edp */
+DEFINE TEMP-TABLE ttRawSales NO-UNDO
     FIELD company      AS CHARACTER LABEL "Company"
     FIELD salesYear    AS INTEGER   LABEL "Year"
     FIELD dateIdx      AS DATE      LABEL "Date"
@@ -26,22 +43,90 @@ DEFINE TEMP-TABLE ttReport NO-UNDO
     FIELD tableName  AS CHARACTER 
     FIELD tableRecID AS RECID 
         INDEX idx custNo tableName .
+/* Invoice Hightlights.edp */
 
-/* ** function declarations ***************************************** */
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-FUNCTION fInvoiceHighlights RETURNS HANDLE (ipiYear AS INTEGER):
-    EMPTY TEMP-TABLE ttRawSales .
-    EMPTY TEMP-TABLE ttReport .
 
-    RUN pRawSalesProc (ipiYear).
-    
-    RETURN TEMP-TABLE ttRawSales:HANDLE .
-END FUNCTION .
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
-/* ** procedure declarations **************************************** */
+/* ********************  Preprocessor Definitions  ******************** */
 
+&Scoped-define PROCEDURE-TYPE Procedure
+&Scoped-define DB-AWARE no
+
+
+
+/* _UIB-PREPROCESSOR-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* ************************  Function Prototypes ********************** */
+
+&IF DEFINED(EXCLUDE-fInvoiceHighlights) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fInvoiceHighlights Procedure 
+FUNCTION fInvoiceHighlights RETURNS HANDLE
+  (ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+
+/* *********************** Procedure Settings ************************ */
+
+&ANALYZE-SUSPEND _PROCEDURE-SETTINGS
+/* Settings for THIS-PROCEDURE
+   Type: Procedure
+   Allow: 
+   Frames: 0
+   Add Fields to: Neither
+   Other Settings: CODE-ONLY COMPILE
+ */
+&ANALYZE-RESUME _END-PROCEDURE-SETTINGS
+
+/* *************************  Create Window  ************************** */
+
+&ANALYZE-SUSPEND _CREATE-WINDOW
+/* DESIGN Window definition (used by the UIB) 
+  CREATE WINDOW Procedure ASSIGN
+         HEIGHT             = 15
+         WIDTH              = 60.
+/* END WINDOW DEFINITION */
+                                                                        */
+&ANALYZE-RESUME
+
+ 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
+
+
+/* ***************************  Main Block  *************************** */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-pRawSalesProc) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRawSalesProc Procedure 
 PROCEDURE pRawSalesProc :
-    DEFINE INPUT PARAMETER ipiYear AS INTEGER NO-UNDO .
+/*------------------------------------------------------------------------------
+  Purpose:     Invoice Hightlights.edp
+  Parameters:  base current year
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO .
     DEFINE VARIABLE dtFromDate AS DATE      NO-UNDO .
@@ -49,10 +134,16 @@ PROCEDURE pRawSalesProc :
     DEFINE VARIABLE dCost      AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE dtDateIdx  AS DATE      NO-UNDO .
     DEFINE VARIABLE dtAsOfDate AS DATE      NO-UNDO .
+    DEFINE VARIABLE iYear      AS INTEGER   NO-UNDO .
     
+    /* locate parameter values record */
+    RUN pGetParamValues (ipcCompany, "dbinvmh.", ipcUserID, ipiBatch).
+    
+    /* load parameter values from above record into variables */
     ASSIGN
-        dtFromDate = DATE(1,1,ipiYear - 1)
-        dtToDate   = DATE(12,31,ipiYear)
+        iYear      = INTEGER(DYNAMIC-FUNCTION("fGetParamValue","svYear"))
+        dtFromDate = DATE(1,1,iYear - 1)
+        dtToDate   = DATE(12,31,iYear)
         .
  
     FOR EACH company NO-LOCK
@@ -138,7 +229,7 @@ PROCEDURE pRawSalesProc :
                                        ar-invl.job-no2 ,
                                        ar-invl.ship-qty ,
                                        OUTPUT dCost ).
-                IF YEAR (ttRawSales.dateIdx) EQ ipiYear THEN
+                IF YEAR (ttRawSales.dateIdx) EQ iYear THEN
                 ASSIGN 
                     ttRawSales.company   = ar-inv.company
                     ttRawSales.cyrQty    = ttRawSales.cyrQty + ar-invl.ship-qty
@@ -205,7 +296,7 @@ PROCEDURE pRawSalesProc :
                                            oe-retl.tot-qty-return ,
                                            OUTPUT dCost) .
                 
-                    IF YEAR (ttRawSales.dateIdx) EQ ipiYear THEN
+                    IF YEAR (ttRawSales.dateIdx) EQ iYear THEN
                     ASSIGN 
                         ttRawSales.company   = ar-cashl.company
                         ttRawSales.cyrQty    = ttRawSales.cyrQty - oe-retl.tot-qty-return
@@ -235,7 +326,7 @@ PROCEDURE pRawSalesProc :
                         .
                 END . /* avail ar-invl */
             END . /* avail oe-retl */
-            IF YEAR (ttRawSales.dateIdx) EQ ipiYear THEN
+            IF YEAR (ttRawSales.dateIdx) EQ iYear THEN
             ASSIGN ttRawSales.cyrSales = ttRawSales.cyrSales + ar-cashl.amt-paid - ar-cashl.amt-disc .
             ELSE 
             ASSIGN ttRawSales.lyrSales = ttRawSales.lyrSales + ar-cashl.amt-paid - ar-cashl.amt-disc .
@@ -252,4 +343,38 @@ PROCEDURE pRawSalesProc :
                                        ELSE 0
             .
     END. /* each ttrawsales */
+
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+/* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fInvoiceHighlights) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fInvoiceHighlights Procedure 
+FUNCTION fInvoiceHighlights RETURNS HANDLE
+  (ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Invoice Hightlights.edp
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttRawSales .
+    EMPTY TEMP-TABLE ttReport .
+
+    RUN pRawSalesProc (ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttRawSales:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+

@@ -512,10 +512,10 @@ PROCEDURE auto-create-item :
                                   OUTPUT lv-i-no).             
            END.
 
-             FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
-             i = LENGTH(lv-i-no).
-             IF i GT 2 THEN
-             SUBSTRING(lv-i-no, i - 1, 2) = "00".
+           FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
+           i = LENGTH(lv-i-no).
+           IF i GT 2 THEN
+           SUBSTRING(lv-i-no, i - 1, 2) = "00".
          END.
          
          xeb.stock-no = lv-i-no.
@@ -647,78 +647,6 @@ PROCEDURE set-auto-add-item :
   
           
  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-create-item Dialog-Frame 
-PROCEDURE auto-create-item :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DEF INPUT PARAMETER ipc-i-no AS CHAR NO-UNDO.
-  DEF VAR lv-i-no              AS CHAR NO-UNDO.
-  DEF VAR i                    AS INT  NO-UNDO.
-  DEF BUFFER bf-eb FOR eb.
-
-  IF NOT AVAIL xest AND AVAIL(eb) THEN DO:
-      FIND FIRST xest WHERE xest.company = eb.company 
-                        AND xest.est-no  = eb.est-no
-                      NO-LOCK NO-ERROR.
-  END.
-  FIND xeb WHERE ROWID(xeb) = ROWID(eb) EXCLUSIVE-LOCK.
-  
-  IF NOT AVAIL xest THEN
-      RETURN.
-  IF NOT AVAIL xeb THEN
-      RETURN.
-
-  
-  /* Make sure set header is created with a '00' */
-  IF xest.est-type eq 2 or xest.est-type eq 6 then do:
-      FIND FIRST bf-eb WHERE bf-eb.company = xest.company
-                         AND bf-eb.est-no  = xest.est-no
-                         AND bf-eb.form-no = 0
-                       EXCLUSIVE-LOCK NO-ERROR.
-      
-      IF AVAIL bf-eb AND xeb.stock-no = "" THEN DO:
-         IF v-est-fg1 EQ "Hughes" THEN DO:
-             RUN fg/hughesfg.p (ROWID(bf-eb), OUTPUT lv-i-no).
-             
-             FIND CURRENT bf-eb EXCLUSIVE-LOCK.         
-             i = LENGTH(lv-i-no).
-             IF i GT 2 THEN
-             SUBSTRING(lv-i-no, i - 1, 2) = "00".
-    
-         END.
-         ELSE DO:
-           IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
-             FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
-             i = LENGTH(lv-i-no).
-             IF i GT 2 THEN
-             SUBSTRING(lv-i-no, i - 1, 2) = "00".
-         END.
-         
-         xeb.stock-no = lv-i-no.
-         
-        FIND xeb WHERE ROWID(xeb) = ROWID(bf-eb) NO-LOCK.
-        /*RUN fg/ce-addfg.p (bf-eb.stock-no).*/
-        FIND itemfg WHERE itemfg.company = xest.company
-                      AND itemfg.i-no = bf-eb.stock-no
-                    NO-ERROR.
-        IF AVAIL itemfg THEN
-            itemfg.isaset = TRUE.
-        RELEASE itemfg.
-      END.
-  END.
-  /* From oe/d-oeitem.w */
-  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -1,54 +1,235 @@
-/* aoaBin.p */
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12
+&ANALYZE-RESUME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
+/*------------------------------------------------------------------------
+    File        : aoaAppSrv/aoaBin.p
+    Purpose     : AppServer Functions and Procedures
 
-/* ** temp-table definitions **************************************** */
+    Syntax      : 
 
-/* ** function declarations ***************************************** */
+    Description : AppServer Functions and Procedures
 
-/* ** procedure declarations **************************************** */
+    Author(s)   : Ron Stark
+    Created     : 3.23.2016
+    Notes       :
+  ----------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.      */
+/*----------------------------------------------------------------------*/
 
+/* ***************************  Definitions  ************************** */
 
-
-
-
-
-
-
-
-
-
-
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+
+/* ********************  Preprocessor Definitions  ******************** */
+
+&Scoped-define PROCEDURE-TYPE Procedure
+&Scoped-define DB-AWARE no
 
 
 
+/* _UIB-PREPROCESSOR-BLOCK-END */
+&ANALYZE-RESUME
 
-/* saving these for future reference
 
-FUNCTION fGetServerConnectionContext RETURNS CHARACTER (ipcType AS CHARACTER):
-    DEFINE VARIABLE cContext AS CHARACTER   NO-UNDO.
-    DEFINE VARIABLE idx AS INTEGER     NO-UNDO.
+/* ************************  Function Prototypes ********************** */
 
-    ASSIGN
-        cContext = SESSION:SERVER-CONNECTION-CONTEXT
-        idx = LOOKUP(ipcType,cContext,"|")
+&IF DEFINED(EXCLUDE-fDateOptionDate) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDateOptionDate Procedure 
+FUNCTION fDateOptionDate RETURNS DATE
+  ( ipcDateOption AS CHARACTER,
+    ipdtDate AS DATE )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fGetParamValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetParamValue Procedure 
+FUNCTION fGetParamValue RETURNS CHARACTER
+  ( ipcField AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+
+/* *********************** Procedure Settings ************************ */
+
+&ANALYZE-SUSPEND _PROCEDURE-SETTINGS
+/* Settings for THIS-PROCEDURE
+   Type: Procedure
+   Allow: 
+   Frames: 0
+   Add Fields to: Neither
+   Other Settings: CODE-ONLY COMPILE
+ */
+&ANALYZE-RESUME _END-PROCEDURE-SETTINGS
+
+/* *************************  Create Window  ************************** */
+
+&ANALYZE-SUSPEND _CREATE-WINDOW
+/* DESIGN Window definition (used by the UIB) 
+  CREATE WINDOW Procedure ASSIGN
+         HEIGHT             = 15
+         WIDTH              = 60.
+/* END WINDOW DEFINITION */
+                                                                        */
+&ANALYZE-RESUME
+
+ 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
+
+
+/* ***************************  Main Block  *************************** */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-pGetParamValues) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetParamValues Procedure 
+PROCEDURE pGetParamValues :
+/*------------------------------------------------------------------------------
+  Purpose:     get user-print record requested
+  Parameters:  Company, Program ID, User ID, Batch Seq
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcName    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
+
+    DEFINE VARIABLE cBatch AS CHARACTER NO-UNDO.
+
+    IF ipiBatch EQ 0 THEN
+    FIND FIRST user-print NO-LOCK
+         WHERE user-print.company    EQ ipcCompany
+           AND user-print.program-id EQ ipcName
+           AND user-print.user-id    EQ ipcUserID
+           AND user-print.batch      EQ ""
+         NO-ERROR.
+    ELSE
+    FIND FIRST user-print NO-LOCK
+         WHERE user-print.company    EQ ipcCompany
+           AND user-print.batch-seq  EQ ipiBatch
+           AND user-print.program-id EQ ipcName
+           AND user-print.batch      EQ "Batch"
+         NO-ERROR.
+
+    OUTPUT TO "aoaBin.log" APPEND.
+    PUT UNFORMATTED "[" NOW "] pGetParamValues" SKIP
+        "ipcCompany: " ipcCompany SKIP
+        "ipcName: " ipcName SKIP
+        "ipcUserID: " ipcUserID SKIP
+        "ipiBatch: " ipiBatch SKIP
+        "AVAIL(user-print): " AVAIL(user-print)
+        SKIP(1)
         .
+    OUTPUT CLOSE.
 
-    IF NUM-ENTRIES(cContext,"|") GT 1 AND idx NE 0 THEN
-    cContext = ENTRY(idx + 1,cContext,"|").
+END PROCEDURE.
 
-    RETURN cContext.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+/* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fDateOptionDate) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDateOptionDate Procedure 
+FUNCTION fDateOptionDate RETURNS DATE
+  ( ipcDateOption AS CHARACTER,
+    ipdtDate AS DATE ) :
+/*------------------------------------------------------------------------------
+  Purpose:  convert date option into date based on input date
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dtDate AS DATE NO-UNDO.
+
+    CASE ipcDateOption:
+        WHEN "Fixed date" THEN
+            dtDate = ipdtDate.
+        WHEN "Current date" THEN
+            dtDate = TODAY.
+        WHEN "Start of this month" THEN
+            dtDate = DATE(MONTH(TODAY),1,YEAR(TODAY)).
+        WHEN "End of this month" THEN
+            dtDate = DATE(MONTH(TODAY) + 1,1,YEAR(TODAY)) - 1.
+        WHEN "First day of last month" THEN
+            dtDate = DATE(MONTH(TODAY) - 1,1,YEAR(TODAY)).
+        WHEN "Last day of last month" THEN
+            dtDate = DATE(MONTH(TODAY),1,YEAR(TODAY)) - 1.
+        WHEN "Start of this year" THEN
+            dtDate = DATE(1,1,YEAR(TODAY)).
+        WHEN "End of this year" THEN
+            dtDate = DATE(12,31,YEAR(TODAY)).
+        WHEN "First day of last year" THEN
+            dtDate = DATE(1,1,YEAR(TODAY) - 1).
+        WHEN "Last day of last year" THEN
+            dtDate = DATE(12,31,YEAR(TODAY) - 1).
+        WHEN "Last Sunday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 1 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 1.
+        WHEN "Last Monday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 2 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 2.
+        WHEN "Last Tuesday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 3 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 3.
+        WHEN "Last Wednesday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 4 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 4.
+        WHEN "Last Thursday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 5 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 5.
+        WHEN "Last Friday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 6 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 6.
+        WHEN "Last Saturday" THEN
+            dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 7 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 7.
+        WHEN "Next Sunday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 1 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 1.
+        WHEN "Next Monday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 2 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 2.
+        WHEN "Next Tuesday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 3 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 3.
+        WHEN "Next Wednesday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 4 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 4.
+        WHEN "Next Thursday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 5 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 5.
+        WHEN "Next Friday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 6 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 6.
+        WHEN "Next Saturday" THEN
+            dtDate = TODAY + 7 * (IF WEEKDAY(TODAY) - 7 GE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 7.
+    END CASE.
+        
+    RETURN dtDate.
+
 END FUNCTION.
 
-FUNCTION fGetCompanySCC RETURNS CHARACTER:
-    RETURN fGetServerConnectionContext ("Company").
-END FUNCTION.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-FUNCTION fGetNameSCC RETURNS CHARACTER:
-    RETURN fGetServerConnectionContext ("Name").
-END FUNCTION.
+&ENDIF
 
-FUNCTION fGetParamValue RETURNS CHARACTER (ipcField AS CHARACTER):
+&IF DEFINED(EXCLUDE-fGetParamValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetParamValue Procedure 
+FUNCTION fGetParamValue RETURNS CHARACTER
+  ( ipcField AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  get individual parameter field values
+    Notes:  
+------------------------------------------------------------------------------*/
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
 
@@ -61,30 +242,11 @@ FUNCTION fGetParamValue RETURNS CHARACTER (ipcField AS CHARACTER):
     END. /* do idx */
 
     RETURN cReturnValue.
+
 END FUNCTION.
 
-FUNCTION fGetUserIDSCC RETURNS CHARACTER:
-    RETURN fGetServerConnectionContext ("UserID").
-END FUNCTION.
-*/
-/*
-PROCEDURE getParamValues:
-    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUserID  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cName    AS CHARACTER NO-UNDO.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-    ASSIGN
-        cCompany = fGetCompanySCC()
-        cUserID  = fGetUserIDSCC()
-        cName    = fGetNameSCC()
-        .
-    FIND FIRST user-print NO-LOCK
-         WHERE user-print.company    EQ cCompany
-           AND user-print.program-id EQ cName
-           AND user-print.user-id    EQ cUserID
-           AND user-print.batch      EQ ""
-         NO-ERROR.
-    IF NOT AVAILABLE user-print THEN RETURN.
+&ENDIF
 
-END PROCEDURE.
-*/
