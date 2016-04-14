@@ -810,6 +810,7 @@ if v-det then do:
                  WHEN "v-amt[1]" THEN cVarValue = string(v-amt[1],"->,>>>,>>>,>>9.99").
                  WHEN "rep" THEN cVarValue = string(tt-report.key-05,"X(3)").
                  WHEN "rep-name" THEN cVarValue = IF AVAIL sman THEN string(sman.sname,"X(25)") ELSE "".
+                 WHEN "v-po" THEN cVarValue = IF AVAIL ar-invl THEN string(ar-invl.po-no,"X(15)") ELSE "".
             END CASE.
               
             cExcelVarValue = cVarValue.
@@ -850,6 +851,7 @@ ELSE if (LAST-OF(tt-report.key-01) and v-sort1)     or
                  WHEN "v-amt[1]" THEN cVarValue = string(n-amt,"->,>>>,>>>,>>9.99").
                  WHEN "rep" THEN cVarValue = "".
                  WHEN "rep-name" THEN cVarValue = "".
+                 WHEN "v-po" THEN cVarValue =  "".
             END CASE.  /* Task 11221304  */
               
             cExcelVarValue = cVarValue.
@@ -879,37 +881,11 @@ END.
     if last-of(tt-report.key-03) then do:
       if v-det then do: 
      
-    /* Task 11041302  */
- /*    PUT UNFORMATTED space(10) FILL('-',104) SKIP.
-        PUT "          SHIP-TO TOTALS " SPACE(30)    "Qty Shipped: " v-qty[2] FORMAT "->>>,>>>,>>9"      
-                "    Invoice Amt: " v-amt[2]  FORMAT "->,>>>,>>>,>>9.99" 
-            SKIP(1). 
-
-      IF tb_excel THEN
-           PUT STREAM excel UNFORMATTED
-               SKIP(1)
-               '"' ""                                   '",'
-               '"' "SHIP-TO TOTALS"                           '",'
-               '"' ""                                   '",'
-               '"' "Qty Shipped: "                             '",'
-               '"' STRING(v-qty[2],"->>>,>>>,>>9")            '",'
-               '"' ""                                   '",'
-               '"' "Invoice Amt:"                             '",'
-               '"' STRING(v-amt[2],"->,>>>,>>>,>>9.99")       '",'
-               '"' ""                                   '",'
-               '"' ""                                   '",'
-               '"' ""                                   '",'
-               '"' ""                                   '",'
-               '"' ""                                   '",'
-               SKIP(1).  /* Task 11041302  */ */
-
           ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
            cExcelDisplay = ""
            cExcelVarValue = "".
-
-    
               
               DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                     cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
@@ -932,6 +908,7 @@ END.
                                WHEN "v-amt[1]" THEN cVarValue = string(v-amt[2],"->,>>>,>>>,>>9.99").
                                WHEN "rep" THEN cVarValue = "".
                                WHEN "rep-name" THEN cVarValue = "".
+                               WHEN "v-po" THEN cVarValue =  "".
                          END CASE.
                            
                          cExcelVarValue = cVarValue.
@@ -959,30 +936,7 @@ END.
 
     if last-of(tt-report.key-02) then do:
       if v-det then do:
-      /* Task 11041302  */
-      /*  PUT UNFORMATTED space(10) FILL('-',104) SKIP.*/
-     /*   IF NOT v-sort1 THEN PUT  "          PART NO TOTALS" .
-                   ELSE PUT "          CUSTOMER TOTALS" .
-                   PUT  SPACE(30)    "Qty Shipped: " v-qty[3] FORMAT "->>>,>>>,>>9"      
-                "    Invoice Amt: " v-amt[3]  FORMAT "->,>>>,>>>,>>9.99" 
-            SKIP(1).
-
-
-        IF tb_excel THEN
-           PUT STREAM excel UNFORMATTED
-               '"' ""                                   '",'
-               '"' IF not v-sort1 THEN "PART NO TOTALS"
-                   ELSE "CUSTOMER TOTALS"               '",'
-               '"' ""                                   '",'
-               '"' "Qty Shipped:     "                   '",'
-               '"' STRING(v-qty[3],"->>>,>>>,>>9")      '",'
-               '"' ""                                   '",'
-               '"' "Invoice Amt:"                       '",'
-               '"' STRING(v-amt[3],"->,>>>,>>>,>>9.99") '",'
-               '"' ""                                   '",'
-               '"' ""                                   '",'
-               '"' ""                                   '",'
-               SKIP(1). */
+      
           ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -1010,6 +964,7 @@ END.
                                WHEN "v-amt[1]" THEN cVarValue = string(v-amt[3],"->,>>>,>>>,>>9.99").
                                WHEN "rep" THEN cVarValue = "".
                                WHEN "rep-name" THEN cVarValue = "".
+                               WHEN "v-po" THEN cVarValue =  "".
                          END CASE.
                            
                          cExcelVarValue = cVarValue.
@@ -1051,31 +1006,6 @@ END.
     if last-of(tt-report.key-01) then do:
      if v-det then do:
      
-           /* Task 11041302  */ 
-     /*   PUT UNFORMATTED space(10) FILL('-',104) SKIP.
-        IF v-sort1 THEN PUT  "          ITEM TOTALS    " .
-                   ELSE PUT  "          CUSTOMER TOTALS" .
- 
-                   PUT  SPACE(30)    "Qty Shipped: " v-qty[4] FORMAT "->>>,>>>,>>9"      
-                "    Invoice Amt: " v-amt[4] FORMAT "->,>>>,>>>,>>9.99" 
-            SKIP(1).
-
-        IF tb_excel THEN
-           PUT STREAM excel UNFORMATTED
-               '"' ""                                   '",'
-               '"' IF not v-sort1 THEN "CUSTOMER TOTALS"
-                   ELSE "ITEM TOTALS"                   '",'
-               '"' ""                                   '",'
-               '"' "Qty Shipped: "                      '",'
-               '"' STRING(v-qty[4],"->>>,>>>,>>9")      '",'
-               '"' ""                                   '",'
-               '"' "Invoice Amt:"                        '",'
-               '"' STRING(v-amt[4],"->,>>>,>>>,>>9.99")   '",'
-               '"' ""                                   '",'
-               '"' ""                                   '",'
-               '"' ""                                   '",'
-               SKIP(1).  */
-
          ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -1103,6 +1033,7 @@ END.
                                WHEN "v-amt[1]" THEN cVarValue = string(v-amt[4],"->,>>>,>>>,>>9.99").
                                WHEN "rep" THEN cVarValue = "".
                                WHEN "rep-name" THEN cVarValue = "".
+                               WHEN "v-po" THEN cVarValue =  "".
                          END CASE.
                            
                          cExcelVarValue = cVarValue.
@@ -1143,38 +1074,12 @@ END.
 
     if last(tt-report.key-01) then do:
       put skip(1).
-     /* Task 11041302  */
-    /* PUT UNFORMATTED space(10) FILL('-',104) SKIP.
-        PUT "          Grand Total ".
-                   PUT  SPACE(30)    "Qty Shipped: " v-qty[5] FORMAT "->>>,>>>,>>9" 
-                "    Invoice Amt: " v-amt[5] FORMAT "->,>>>,>>>,>>9.99" 
-            SKIP(1).
-
-      
-      IF tb_excel THEN
-           PUT STREAM excel UNFORMATTED
-               SKIP(1)
-               '"' ""                                   '",'
-               '"' "GRAND TOTALS"                       '",'
-               '"' ""                                   '",'
-               '"' "Qty Shipped:"                        '",'
-               '"' STRING(v-qty[5],"->>>,>>>,>>9")     '",'
-               '"' ""                                   '",'
-               '"' "Invoice Amt:"                      '",'
-               '"' STRING(v-amt[5],"->,>>>,>>>,>>9.99") '",'
-               '"'  ""       '",'
-               '"' ""                                   '",'
-               '"' ""                                   '",'
-               '"' ""      '",'.
-      
-*/
+    
       ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
            cExcelDisplay = ""
            cExcelVarValue = "".
-
-    
               
               DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                     cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
@@ -1197,6 +1102,7 @@ END.
                                WHEN "v-amt[1]" THEN cVarValue = string(v-amt[5],"->,>>>,>>>,>>9.99").
                                WHEN "rep" THEN cVarValue = "".
                                WHEN "rep-name" THEN cVarValue = "".
+                               WHEN "v-po" THEN cVarValue =  "".
                          END CASE.
                            
                          cExcelVarValue = cVarValue.
