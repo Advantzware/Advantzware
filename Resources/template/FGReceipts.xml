@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<FGReceipts xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <FGReceiptRow>
+    <company>001</company>
+    <rita-code>R</rita-code>
+    <rct-date>2015-03-13</rct-date>
+    <tag>6X6X6          00294</tag>
+    <po-no/>
+    <job-no/>
+    <job-no2>0</job-no2>
+    <i-no>6X6X6</i-no>
+    <i-name>RSC 6x6x6 Stock Box</i-name>
+    <loc>MAIN</loc>
+    <loc-bin>a-100</loc-bin>    
+    <tag2/>
+    <loc2/>
+    <loc-bin2/>
+    <cases>1</cases>
+    <qty-case>500</qty-case>
+    <cases-unit>1</cases-unit>
+    <partial>0</partial>
+    <std-cost>127.2331</std-cost>
+    <cost-uom>M</cost-uom>
+    <t-qty>0</t-qty>
+    <frt-cost>0</frt-cost>
+    <ext-cost>0</ext-cost>
+    <stack-code/>
+    <tot-wt>0</tot-wt>
+  </FGReceiptRow>
+</FGReceipts>
