@@ -978,8 +978,8 @@ for each job-hdr NO-LOCK
              END.
              if x ne 2 then put v-fill at 1 skip.
 
-             /** Print Leaf/Film **/
-
+             /** Print Leaf/Film Ticket 15459  **/
+  
              FOR EACH wrk-film WHERE wrk-film.form-no = ef.form-no
                  /*break by wrk-sheet.form-no*/ NO-LOCK BREAK BY wrk-film.leaf :
                find first ITEM where item.company eq cocode
@@ -1008,8 +1008,8 @@ for each job-hdr NO-LOCK
 
                 IF LAST(wrk-film.leaf) THEN
                      PUT "<P10>" v-fill SKIP .
-
              END.
+              /** Print Leaf/Film ticket 15459 **/
                      
              /** PRINT INK **/
              PUT "<B>PASS  SIDE         LBS INK NAME            ITEMS    PASS  SIDE         LBS INK NAME            ITEMS     STYLE#   CARTON SIZE</B>"
