@@ -77,11 +77,11 @@ DEF VAR cSlsList AS CHAR NO-UNDO.
 /*DEF VAR cSelectedList AS cha NO-UNDO.*/
 
 ASSIGN cTextListToSelect = "Fg Item,Item Name,Customer#,Customer Name,Customer Part,Ship To,Inv Number,Inv Date,Order#,Est#," +  /*10*/
-                               "Bol #,Qty Shipped,Unit Price,Uom,Invoice Amt.,Rep,Rep Name" /*5*/
+                               "Bol #,Qty Shipped,Unit Price,Uom,Invoice Amt.,Rep,Rep Name,PO#" /*5*/
            cFieldListToSelect = "w-data.i-no,v-name,cust.cust-no,cust.name,v-part-no,tt-report.key-03,w-data.inv-no,v-date,v-ord,v-est," +
-                                "v-bol,v-qty[1],v-pric,v-uom,v-amt[1],rep,rep-name"
-           cFieldLength = "15,20,9,20,20,8,10,10,8,8," + "8,12,15,3,17,3,25"
-           cFieldType = "c,c,c,c,c,c,i,c,i,c," + "i,i,i,c,i,c,c"
+                                "v-bol,v-qty[1],v-pric,v-uom,v-amt[1],rep,rep-name,v-po"
+           cFieldLength = "15,20,9,20,20,8,10,10,8,8," + "8,12,15,3,17,3,25,15"
+           cFieldType = "c,c,c,c,c,c,i,c,i,c," + "i,i,i,c,i,c,c,c"
            .
         ASSIGN cTextListToDefault  = "Fg Item,Customer#,Item Name,Customer Part,Customer Name,Ship To,Inv Number,Inv Date,Order#,Bol #,Est#," +  /*10*/
                                      "Qty Shipped,Unit Price,Uom,Invoice Amt." .
