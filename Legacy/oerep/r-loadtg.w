@@ -7320,10 +7320,10 @@ PROCEDURE write-loadtag-line :
     "~"" ipi-pallet-id "~","
      "~"" ipi-counter "~","
      "~"" w-ord.total-tags "~","
-     "~"" w-ord.ship-notes[1] "~","
-     "~"" w-ord.ship-notes[2] "~","
-     "~"" w-ord.ship-notes[3] "~","
-     "~"" w-ord.ship-notes[4] "~""
+     "~"" replace(w-ord.ship-notes[1],'"', '') "~","
+     "~"" replace(w-ord.ship-notes[2],'"', '') "~","
+     "~"" replace(w-ord.ship-notes[3],'"', '') "~","
+     "~"" replace(w-ord.ship-notes[4],'"', '') "~""
       .
  /* rstark - zoho13731 */
  IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
