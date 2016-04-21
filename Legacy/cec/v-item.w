@@ -225,12 +225,12 @@ DEFINE VARIABLE group4-text AS CHARACTER FORMAT "X(256)":U INITIAL "Bundle/Palle
      SIZE 17 BY .62
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE group5-text AS CHARACTER FORMAT "X(256)":U INITIAL "-" 
+DEFINE VARIABLE group5-text AS CHARACTER FORMAT "X(256)":U INITIAL "" 
       VIEW-AS TEXT 
      SIZE 2.4 BY .62
      FONT 4 NO-UNDO.
 
-DEFINE VARIABLE group6-text AS CHARACTER FORMAT "X(256)":U INITIAL "-" 
+DEFINE VARIABLE group6-text AS CHARACTER FORMAT "X(256)":U INITIAL "" 
       VIEW-AS TEXT 
      SIZE 2.4 BY .62
      FONT 4 NO-UNDO.
@@ -2377,6 +2377,10 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
+  IF is-new-record THEN do:
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(item)). 
+  END.
+
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("row-changed").
 
 END PROCEDURE.
