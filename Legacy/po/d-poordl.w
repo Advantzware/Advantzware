@@ -7,7 +7,6 @@
 &Scoped-define FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
-
   File: po\d-poordl.w
   
 ------------------------------------------------------------------------*/
@@ -165,6 +164,7 @@ DO TRANSACTION:
   {sys/inc/poqty.i}
   {sys/inc/pouom.i}
   {sys/inc/aptax.i}
+  {sys/inc/poscreen.i}
 END.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
@@ -1347,6 +1347,12 @@ DO:
      /* gdm - 06040918 */     
 
      APPLY "leave" TO po-ordl.ord-qty IN FRAME {&FRAME-NAME}.
+
+     IF ip-type EQ "add" AND (v-poscreen-char = "Job-Item" OR v-poscreen-char <> "Item-Job") THEN do:
+         APPLY "entry" TO po-ordl.due-date.
+         RETURN NO-APPLY.
+     END.
+
   END.
 END.
 
@@ -1571,7 +1577,12 @@ DO:
               RUN getJobFarmInfo.
       END. /* If a finished good */
     END.
-    APPLY "LEAVE" TO po-ordl.s-num.  
+   /* APPLY "LEAVE" TO po-ordl.s-num.*/ /* ticket 13022 */
+    
+    IF ip-type EQ "add" AND ( v-poscreen-char = "Job-Item" OR v-poscreen-char <> "Item-Job") THEN do:
+       APPLY "entry" TO po-ordl.i-no.
+       RETURN NO-APPLY.
+    END.
   END.
 END.
 
@@ -2109,6 +2120,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-type EQ "update" THEN DISABLE po-ordl.item-type po-ordl.i-no.
+
+    IF ip-type EQ "add" AND (v-poscreen-char = "Job-Item" OR v-poscreen-char <> "Item-Job") THEN
+         APPLY "entry" TO po-ordl.job-no .
 
     find first account
         where account.company eq cocode
@@ -3934,7 +3948,7 @@ PROCEDURE lookup-job :
         
         IF AVAIL job-hdr THEN
             FIND FIRST job-farm WHERE job-farm.job EQ job-hdr.job 
-              AND job-farm.i-no EQ po-ordl.i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
+              AND job-farm.i-no EQ po-ordl.i-no:SCREEN-VALUE  NO-LOCK NO-ERROR.
       
         /* char-val = "" to keep new-job-line from overriding s-num, b-num */
         IF AVAIL job-farm THEN
@@ -4294,7 +4308,6 @@ PROCEDURE new-setup :
        po-ordl.t-cost:SCREEN-VALUE    = STRING(ld).
        /*po-ordl.cons-cost:SCREEN-VALUE = STRING(ld / DEC(po-ordl.cons-qty:SCREEN-VALUE))
        ld                             = DEC(po-ordl.cons-cost:SCREEN-VALUE).
-
       IF po-ordl.cons-uom:SCREEN-VALUE NE po-ordl.pr-uom:SCREEN-VALUE AND
          (po-ordl.item-type:SCREEN-VALUE EQ "yes"                OR
           LOOKUP(po-ordl.cons-uom:SCREEN-VALUE,fg-uom-list) EQ 0 OR
@@ -4303,7 +4316,6 @@ PROCEDURE new-setup :
                                po-ordl.pr-uom:SCREEN-VALUE,
                                v-basis-w, v-len, v-wid, v-dep,
                                ld, OUTPUT ld).
-
       po-ordl.cost:SCREEN-VALUE = STRING(ld).*/
     END.
 
@@ -5094,10 +5106,8 @@ PROCEDURE valid-actnum :
   END.
   
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-b-num Dialog-Frame 
 PROCEDURE valid-b-num :
 /*------------------------------------------------------------------------------
@@ -5107,16 +5117,13 @@ PROCEDURE valid-b-num :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-msg AS CHAR INIT "" NO-UNDO.
   
-
   RELEASE xpo-ordl.
-
   DO WITH FRAME {&FRAME-NAME}:
     IF po-ordl.job-no:SCREEN-VALUE NE ""  AND
        po-ordl.s-num:SCREEN-VALUE  NE "?" THEN DO:
       po-ordl.job-no:SCREEN-VALUE =
           FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
           TRIM(po-ordl.job-no:SCREEN-VALUE).
-
       IF NOT ll-pojob-warned THEN
       FIND FIRST xpo-ordl
           WHERE xpo-ordl.company EQ g_company
@@ -5132,10 +5139,8 @@ PROCEDURE valid-b-num :
                          WHERE xpo-ord.company EQ xpo-ordl.company
                            AND xpo-ord.po-no   EQ xpo-ordl.po-no)
           USE-INDEX ITEM NO-LOCK NO-ERROR.
-
       IF AVAIL xpo-ordl THEN DO:
         ll-ans = NO.
-
         MESSAGE "Purchase order " +
                 TRIM(STRING(xpo-ordl.po-no,">>>>>>>>")) +
                 " already exists for Job/Item/Sheet/Blank, continue?"
@@ -5144,7 +5149,6 @@ PROCEDURE valid-b-num :
         IF ll-ans THEN ll-pojob-warned = ll-ans.
                   ELSE lv-msg          = "job-mat".
       END.
-
       IF lv-msg EQ "" AND
          CAN-FIND(FIRST xpo-ordl
                   WHERE xpo-ordl.company EQ g_company
@@ -5156,22 +5160,18 @@ PROCEDURE valid-b-num :
                     AND xpo-ordl.b-num   EQ INT(po-ordl.b-num:SCREEN-VALUE)
                     AND RECID(xpo-ordl)  NE RECID(po-ordl))
       THEN lv-msg = "PO line item alreadys exists for this PO/Item/Job/Sheet/Blank".
-
       IF lv-msg EQ "" THEN DO:
         IF TRIM(po-ordl.job-no:SCREEN-VALUE)  NE TRIM(lv-save-job)   OR
            TRIM(po-ordl.job-no2:SCREEN-VALUE) NE TRIM(lv-save-job2)  OR
            TRIM(po-ordl.s-num:SCREEN-VALUE)   NE TRIM(lv-save-s-num) OR
            TRIM(po-ordl.b-num:SCREEN-VALUE)   NE TRIM(lv-save-b-num) THEN DO:
-
           IF TRIM(po-ordl.job-no:SCREEN-VALUE)  NE TRIM(lv-save-job)   OR
              TRIM(po-ordl.job-no2:SCREEN-VALUE) NE TRIM(lv-save-job2)  THEN DO:
             lv-save-s-num = po-ordl.s-num:SCREEN-VALUE.
             RUN new-job.
           END.
-
           RUN display-job-mat.
         END.
-
         IF NOT CAN-FIND(FIRST job-mat
                         WHERE job-mat.company  EQ g_company
                           AND job-mat.job-no   EQ po-ordl.job-no:SCREEN-VALUE
@@ -5196,7 +5196,6 @@ PROCEDURE valid-b-num :
             lv-msg = "Invalid sheet/blank/item for job".
         END.
       END.
-
       IF lv-msg EQ "" THEN DO:
         RUN valid-job-mat NO-ERROR.
         IF ERROR-STATUS:ERROR THEN do: 
@@ -5204,10 +5203,8 @@ PROCEDURE valid-b-num :
         END.
       END.
     END.
-
     IF lv-msg NE "" THEN DO:
       IF lv-msg NE "job-mat" THEN MESSAGE lv-msg + "..." VIEW-AS ALERT-BOX ERROR.
-
       IF po-ordl.b-num:SENSITIVE THEN APPLY "entry" TO po-ordl.b-num.
       ELSE
       IF po-ordl.s-num:SENSITIVE THEN APPLY "entry" TO po-ordl.s-num.
@@ -5216,15 +5213,11 @@ PROCEDURE valid-b-num :
       ELSE                              APPLY "entry" TO po-ordl.job-no2.
       RETURN ERROR.
     END.
-
     lv-save-b-num = po-ordl.b-num:SCREEN-VALUE.
   END.
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-mat Dialog-Frame 
 PROCEDURE valid-job-mat :
 /*------------------------------------------------------------------------------
@@ -5234,14 +5227,12 @@ PROCEDURE valid-job-mat :
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-po-ordl FOR po-ordl.
   DEF BUFFER b-item FOR item.
-
   DEF VAR lv-msg AS CHAR NO-UNDO.
   DEF VAR ld-est-qty AS DEC NO-UNDO.
   DEF VAR ld-ord-qty AS DEC NO-UNDO.
   DEF VAR ld AS DEC NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR lv-dep AS DEC NO-UNDO.
-
   IF NOT ll-poord-warned THEN DO WITH FRAME {&FRAME-NAME}:
     IF po-ordl.job-no:SCREEN-VALUE NE "" THEN DO:
       FIND FIRST job
@@ -5249,12 +5240,10 @@ PROCEDURE valid-job-mat :
             AND job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
             AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
           NO-LOCK NO-ERROR.
-
       FIND FIRST item
           WHERE item.company EQ g_company
             AND item.i-no    EQ po-ordl.i-no:SCREEN-VALUE
           NO-LOCK NO-ERROR.
-
       IF AVAIL ITEM THEN DO:
         FOR EACH job-mat
             WHERE job-mat.company  EQ g_company
@@ -5264,7 +5253,6 @@ PROCEDURE valid-job-mat :
               AND (job-mat.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) OR
                    po-ordl.s-num:SCREEN-VALUE EQ "?")
             NO-LOCK,
-
             FIRST b-item
             WHERE b-item.company  EQ job-mat.company
               AND b-item.i-no     EQ job-mat.rm-i-no
@@ -5272,7 +5260,6 @@ PROCEDURE valid-job-mat :
             NO-LOCK:
    
           ld = job-mat.qty.
-
           IF job-mat.qty-uom NE "EA" THEN
             RUN sys/ref/convquom.p(job-mat.qty-uom, "EA",
                                    b-item.basis-w,
@@ -5280,10 +5267,8 @@ PROCEDURE valid-job-mat :
                                    job-mat.wid,
                                    b-item.s-dep,
                                    ld, output ld).
-
           ld-est-qty = ld-est-qty + ld.
         END.
-
         FOR EACH b-po-ordl
             WHERE b-po-ordl.company EQ g_company
               AND b-po-ordl.job-no  EQ po-ordl.job-no:SCREEN-VALUE
@@ -5291,15 +5276,12 @@ PROCEDURE valid-job-mat :
               AND b-po-ordl.s-num   EQ INT(po-ordl.s-num:SCREEN-VALUE)
               AND ROWID(b-po-ordl)  NE ROWID(po-ordl)
             NO-LOCK,
-
             FIRST b-item
             WHERE b-item.company  EQ b-po-ordl.company
               AND b-item.i-no     EQ b-po-ordl.i-no
               AND b-item.mat-type EQ item.mat-type
             NO-LOCK:
-
           ld = b-po-ordl.ord-qty.
-
           IF b-po-ordl.pr-qty-uom NE "EA" THEN
             RUN sys/ref/convquom.p(b-po-ordl.pr-qty-uom, "EA",
                                    b-item.basis-w,
@@ -5307,17 +5289,14 @@ PROCEDURE valid-job-mat :
                                    b-po-ordl.s-wid,
                                    item.s-dep,
                                    ld, output ld).
-
           ld-ord-qty = ld-ord-qty + ld.
         END.
-
         IF job.opened EQ NO                               OR
            (ld-ord-qty GT 0 AND ld-ord-qty GE ld-est-qty) THEN DO:
           ASSIGN
            lv-msg = IF job.opened EQ NO THEN "Job is closed"
                     ELSE "Material has already been ordered for this job"
            ll     = NO.
-
           MESSAGE TRIM(lv-msg) + ", continue with this new purchase order line?"
               VIEW-AS ALERT-BOX WARNING BUTTON YES-NO
               UPDATE ll.
@@ -5327,12 +5306,9 @@ PROCEDURE valid-job-mat :
       END.
     END.
   END.
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-no Dialog-Frame 
 PROCEDURE valid-job-no :
 /*------------------------------------------------------------------------------
@@ -5341,8 +5317,6 @@ PROCEDURE valid-job-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR sv-poord-warned LIKE ll-poord-warned NO-UNDO.
-
-
   DO WITH FRAME {&frame-name}:
     IF TRIM(po-ordl.job-no:SCREEN-VALUE) NE ""                      OR
        (po-ordl.item-type:SCREEN-VALUE EQ "RM" AND
@@ -5350,11 +5324,9 @@ PROCEDURE valid-job-no :
                  WHERE item.company EQ g_company
                    AND item.i-no    EQ po-ordl.i-no:SCREEN-VALUE
                    AND item.i-code  EQ "E"))                        THEN DO:
-
       po-ordl.job-no:SCREEN-VALUE =
           FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
           TRIM(po-ordl.job-no:SCREEN-VALUE).
-
       IF TRIM(po-ordl.job-no:SCREEN-VALUE) EQ ""                            OR
          NOT CAN-FIND(FIRST job-hdr
                       WHERE job-hdr.company EQ g_company
@@ -5364,36 +5336,27 @@ PROCEDURE valid-job-no :
         APPLY "entry" TO po-ordl.job-no.
         RETURN ERROR.
       END.
-
       IF TRIM(po-ordl.job-no:SCREEN-VALUE) NE TRIM(lv-save-job) THEN DO:
         ASSIGN
          sv-poord-warned = ll-poord-warned
          ll-poord-warned = YES
          lv-save-job     = po-ordl.job-no:SCREEN-VALUE.
-
         RUN new-job.
-
         ll-poord-warned = sv-poord-warned.
-
         RUN enable-disable-frm.
         RUN enable-disable-blk.
-
         ASSIGN
          lv-save-job2  = ""
          lv-save-s-num = ""
          lv-save-b-num = "".
       END.
-
       lv-save-job = po-ordl.job-no:SCREEN-VALUE.
     END.
     RUN enable-dISABLE-size.
   END.
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-no2 Dialog-Frame 
 PROCEDURE valid-job-no2 :
 /*------------------------------------------------------------------------------
@@ -5402,14 +5365,11 @@ PROCEDURE valid-job-no2 :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER xpo-ordl FOR po-ordl.
-
-
   DO WITH FRAME {&frame-name}:
     IF po-ordl.job-no:SCREEN-VALUE NE "" THEN DO:
       po-ordl.job-no:SCREEN-VALUE =
           FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
           TRIM(po-ordl.job-no:SCREEN-VALUE).
-
       IF NOT CAN-FIND(FIRST job-hdr
                       WHERE job-hdr.company EQ g_company
                         AND job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE
@@ -5420,28 +5380,20 @@ PROCEDURE valid-job-no2 :
         APPLY "entry" TO po-ordl.job-no.
         RETURN ERROR.
       END.
-
       IF TRIM(po-ordl.job-no:SCREEN-VALUE)  NE TRIM(lv-save-job)   OR
          TRIM(po-ordl.job-no2:SCREEN-VALUE) NE TRIM(lv-save-job2)  THEN DO:
-
         lv-save-job2 = po-ordl.job-no2:SCREEN-VALUE.
-
         RUN new-job.
-
         RUN enable-disable-frm.
         RUN enable-disable-blk.
-
         IF NOT po-ordl.s-num:SENSITIVE AND
            NOT po-ordl.b-num:SENSITIVE THEN RUN display-job-mat.
-
         ELSE
           ASSIGN
            lv-save-s-num = ""
            lv-save-b-num = "".
       END.
-
       lv-save-job2 = po-ordl.job-no2:SCREEN-VALUE.
-
       IF NOT po-ordl.s-num:SENSITIVE THEN DO:
         RUN valid-s-num NO-ERROR.
         IF ERROR-STATUS:ERROR THEN DO:
@@ -5452,12 +5404,9 @@ PROCEDURE valid-job-no2 :
     END.
     RUN enable-dISABLE-size.
   END.
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-max-po-cost Dialog-Frame 
 PROCEDURE valid-max-po-cost :
 /*------------------------------------------------------------------------------
@@ -5466,25 +5415,20 @@ PROCEDURE valid-max-po-cost :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
-
    DEF VAR v-tot-cost AS DEC DECIMALS 4 NO-UNDO.
-
    FIND FIRST xpo-ord WHERE
         xpo-ord.company EQ g_company AND
         xpo-ord.po-no   EQ ip-ord-no
         NO-LOCK NO-ERROR.
-
    IF AVAIL xpo-ord AND xpo-ord.stat NE "H" THEN
    DO:
       FIND FIRST b-vend WHERE
            b-vend.company EQ g_company AND
            b-vend.vend-no EQ xpo-ord.vend-no
            NO-LOCK NO-ERROR.
-
       IF AVAIL b-vend AND b-vend.rebate-% NE 0 THEN
       DO:
          v-tot-cost = DECIMAL(po-ordl.t-cost:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-
          FOR EACH xpo-ordl FIELDS(t-cost) WHERE
              xpo-ordl.company EQ g_company AND
              xpo-ordl.po-no EQ xpo-ord.po-no AND
@@ -5492,7 +5436,6 @@ PROCEDURE valid-max-po-cost :
              NO-LOCK:
              v-tot-cost = v-tot-cost + xpo-ordl.t-cost.
          END.
-
          IF v-tot-cost GT b-vend.rebate-% THEN
          DO:
              MESSAGE "Purchase Order Cost Has Exceeded Vendor's Max P.O. Cost." SKIP
@@ -5503,14 +5446,11 @@ PROCEDURE valid-max-po-cost :
              FIND CURRENT xpo-ord NO-LOCK.
          END.
       END.
-
       RELEASE xpo-ord.
    END.
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-min-len Dialog-Frame 
 PROCEDURE valid-min-len :
 /*------------------------------------------------------------------------------
@@ -5519,44 +5459,34 @@ PROCEDURE valid-min-len :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipValidate AS LOGICAL NO-UNDO.
-
   DEF VAR lv-cost AS DEC EXTENT 3 NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lj AS INT NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR ld AS DEC NO-UNDO.
   DEF VAR lv-hld-add LIKE addersText NO-UNDO.
-
-
   DO WITH FRAME {&FRAME-NAME}:
-
     FIND FIRST e-item-vend NO-LOCK
                WHERE e-item-vend.company EQ cocode
                  AND e-item-vend.i-no    EQ po-ordl.i-no:SCREEN-VALUE
                  AND e-item-vend.vend-no EQ po-ord.vend-no 
                NO-ERROR.
   
-
     IF AVAIL e-item-vend THEN DO:
         
          IF int(string(po-ordl.s-len:SCREEN-VALUE)) < e-item-vend.roll-w[29]  THEN do:
              MESSAGE "Sheet Length " + "(" + string(po-ordl.s-len:SCREEN-VALUE)  + ")" "Less than Vend Cost Size " + "(" + string(e-item-vend.roll-w[29])  + "), continue?" 
              VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll.
-
              IF NOT ll THEN DO:
                  APPLY "entry" TO po-ordl.s-len.
                  RETURN ERROR.
              END.
          END.
-
      END.
   END.
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-min-wid Dialog-Frame 
 PROCEDURE valid-min-wid :
 /*------------------------------------------------------------------------------
@@ -5565,30 +5495,23 @@ PROCEDURE valid-min-wid :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipValidate AS LOGICAL NO-UNDO.
-
   DEF VAR lv-cost AS DEC EXTENT 3 NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lj AS INT NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR ld AS DEC NO-UNDO.
   DEF VAR lv-hld-add LIKE addersText NO-UNDO.
-
-
   DO WITH FRAME {&FRAME-NAME}:
-
     FIND FIRST e-item-vend NO-LOCK
                WHERE e-item-vend.company EQ cocode
                  AND e-item-vend.i-no    EQ po-ordl.i-no:SCREEN-VALUE
                  AND e-item-vend.vend-no EQ po-ord.vend-no 
                NO-ERROR.
   
-
     IF AVAIL e-item-vend THEN DO:
-
         IF int(string(po-ordl.s-wid:SCREEN-VALUE)) < e-item-vend.roll-w[27]  THEN do:
              MESSAGE "Sheet Width " + "(" + string(po-ordl.s-wid:SCREEN-VALUE)  + ")" "Less than Vend Cost Size " + "(" + string(e-item-vend.roll-w[27])  + "), continue?" 
              VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll.
-
              IF NOT ll THEN DO:
                  APPLY "entry" TO po-ordl.s-wid.
                  RETURN ERROR.
@@ -5596,12 +5519,9 @@ PROCEDURE valid-min-wid :
          END.
      END.
   END.
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ord-no Dialog-Frame 
 PROCEDURE valid-ord-no :
 /*------------------------------------------------------------------------------
@@ -5610,20 +5530,15 @@ PROCEDURE valid-ord-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-po-ord FOR po-ord.
-
-
   DO WITH FRAME {&FRAME-NAME}:
-
     /* FINISHED GOODS */
     IF INT(po-ordl.ord-no:SCREEN-VALUE) NE 0 AND
        po-ordl.item-type:SCREEN-VALUE EQ "FG" THEN DO:
-
       FIND FIRST oe-ordl
           WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no  EQ INT(po-ordl.ord-no:SCREEN-VALUE)
             AND oe-ordl.i-no    EQ po-ordl.i-no:SCREEN-VALUE
           NO-LOCK NO-ERROR.
-
       IF NOT AVAIL oe-ordl THEN
       FOR EACH oe-ordl NO-LOCK
           WHERE oe-ordl.company EQ cocode
@@ -5640,14 +5555,12 @@ PROCEDURE valid-ord-no :
       FOR EACH tt-fg-set:
         DELETE tt-fg-set.
       END.
-
       IF NOT AVAIL oe-ordl THEN DO:
         APPLY "entry" TO po-ordl.ord-no.
         MESSAGE "FG Item# not on order, please try again..."
             VIEW-AS ALERT-BOX ERROR.
         RETURN ERROR.
       END.
-
       IF NOT ll-order-warned THEN DO:
         FIND FIRST xpo-ordl
             WHERE xpo-ordl.company EQ cocode
@@ -5671,7 +5584,6 @@ PROCEDURE valid-ord-no :
           APPLY "entry" TO po-ordl.ord-no.
           RETURN ERROR.
         END.
-
         ELSE
           ASSIGN
            ll-order-warned              = YES
@@ -5690,16 +5602,11 @@ PROCEDURE valid-ord-no :
               ll-order-warned              = YES
               po-ordl.cust-no:SCREEN-VALUE = oe-ord.cust-no
               po-ordl.ord-no:SCREEN-VALUE  = string(oe-ord.ord-no).
-
     END.
-
   END.
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-num Dialog-Frame 
 PROCEDURE valid-s-num :
 /*------------------------------------------------------------------------------
@@ -5707,16 +5614,13 @@ PROCEDURE valid-s-num :
   PARAMs:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
   DO WITH FRAME {&frame-name}:
     IF po-ordl.job-no:SCREEN-VALUE NE "" THEN DO:
       po-ordl.job-no:SCREEN-VALUE =
           FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
           TRIM(po-ordl.job-no:SCREEN-VALUE).
-
       IF po-ordl.s-num:SCREEN-VALUE EQ "?" AND
          NOT CAN-FIND(FIRST tt-job-mat)    THEN RUN create-multi-line.
-
       IF po-ordl.s-num:SCREEN-VALUE NE "?" AND
          NOT CAN-FIND(FIRST job-mat
                       WHERE job-mat.company EQ po-ordl.company
@@ -5741,7 +5645,6 @@ PROCEDURE valid-s-num :
         APPLY "entry" TO po-ordl.s-num.
         RETURN ERROR.
       END.
-
       IF TRIM(po-ordl.job-no:SCREEN-VALUE)  NE TRIM(lv-save-job)   OR
          TRIM(po-ordl.job-no2:SCREEN-VALUE) NE TRIM(lv-save-job2)  OR
          TRIM(po-ordl.s-num:SCREEN-VALUE)   NE TRIM(lv-save-s-num) THEN DO:
@@ -5751,16 +5654,11 @@ PROCEDURE valid-s-num :
           lv-save-s-num = po-ordl.s-num:SCREEN-VALUE.
           RUN new-job.
         END.
-
         RUN enable-disable-blk.
-
         IF NOT po-ordl.b-num:SENSITIVE THEN RUN display-job-mat.
-
         ELSE lv-save-b-num = "".
       END.
-
       lv-save-s-num = po-ordl.s-num:SCREEN-VALUE.
-
       IF NOT po-ordl.b-num:SENSITIVE THEN DO:
         RUN valid-b-num NO-ERROR.
         IF ERROR-STATUS:ERROR THEN DO:
@@ -5770,12 +5668,9 @@ PROCEDURE valid-s-num :
       END.
     END.
   END.
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-sheet-board-proc Dialog-Frame 
 PROCEDURE valid-sheet-board-proc :
 /*------------------------------------------------------------------------------
@@ -5785,9 +5680,7 @@ PROCEDURE valid-sheet-board-proc :
 ------------------------------------------------------------------------------*/
    DEF BUFFER b-po-ordl FOR po-ordl.
    DEF BUFFER b-item FOR ITEM.
-
    DEF VAR v-board-count AS INT NO-UNDO.
-
    DO WITH FRAME {&FRAME-NAME}:
    
       IF po-ord.TYPE EQ "S" AND po-ordl.item-type:SCREEN-VALUE = "RM" THEN
@@ -5825,10 +5718,8 @@ PROCEDURE valid-sheet-board-proc :
       END.
    END.
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-uom Dialog-Frame 
 PROCEDURE valid-uom :
 /*------------------------------------------------------------------------------
@@ -5837,30 +5728,22 @@ PROCEDURE valid-uom :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-field AS CHAR NO-UNDO.
-
   DEF VAR lv-uom LIKE uom.uom NO-UNDO.
   DEF VAR uom-list AS CHAR INIT "" NO-UNDO.
-
-
   DO WITH FRAME {&FRAME-NAME}:
     RELEASE item.
-
     lv-uom = IF ip-field EQ "pr-uom" THEN po-ordl.pr-uom:SCREEN-VALUE
                                      ELSE po-ordl.pr-qty-uom:SCREEN-VALUE. 
-
     IF po-ordl.item-type:SCREEN-VALUE EQ "RM" THEN
     FIND FIRST item
         WHERE item.company EQ g_company
           AND item.i-no    EQ po-ordl.i-no:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-
     IF AVAIL item THEN RUN sys/ref/uom-rm.p (item.mat-type, OUTPUT uom-list).
     ELSE RUN sys/ref/uom-fg.p (NO, OUTPUT uom-list). /* for fgitem */
-
     IF uom-list EQ "" THEN
       uom-list = IF ip-field EQ "pr-uom" THEN pr-uom-list
                                          ELSE lv-uom-list.
-
     IF AVAIL item AND INDEX("MOXY789@",ITEM.mat-type) GT 0 AND ip-field EQ "pr-uom" THEN
       uom-list = uom-list + ",L".
     IF po-ordl.item-type:SCREEN-VALUE NE "RM" THEN
@@ -5872,12 +5755,9 @@ PROCEDURE valid-uom :
       RETURN ERROR.
     END.
   END.
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-vend-cost Dialog-Frame 
 PROCEDURE valid-vend-cost :
 /*------------------------------------------------------------------------------
@@ -5886,15 +5766,12 @@ PROCEDURE valid-vend-cost :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipValidate AS LOGICAL NO-UNDO.
-
   DEF VAR lv-cost AS DEC EXTENT 3 NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lj AS INT NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR ld AS DEC NO-UNDO.
   DEF VAR lv-hld-add LIKE addersText NO-UNDO.
-
-
   DO WITH FRAME {&FRAME-NAME}:
     IF po-ordl.job-no:SCREEN-VALUE NE "" THEN DO:
       RELEASE job-mat.
@@ -5915,7 +5792,6 @@ PROCEDURE valid-vend-cost :
           NO-LOCK NO-ERROR.
       IF AVAIL job-mat THEN DO:
         RUN set-dims.
-
         IF job-mat.sc-uom EQ po-ordl.pr-uom:SCREEN-VALUE THEN
           lv-cost[1] = job-mat.std-cost.
         ELSE
@@ -5927,9 +5803,7 @@ PROCEDURE valid-vend-cost :
                                  v-dep,
                                  job-mat.std-cost,
                                  OUTPUT lv-cost[1]).
-
         lv-hld-add = addersText.
-
         RUN po-adder2 (RECID(po-ordl),
                        RECID(job-mat),
                        "",
@@ -5939,13 +5813,11 @@ PROCEDURE valid-vend-cost :
                        OUTPUT lv-cost[1],
                        OUTPUT lv-cost[2],
                        OUTPUT lv-cost[3]).
-
         addersText = lv-hld-add.
       
         IF ipValidate THEN DO:
           ll = DEC(po-ordl.cost:SCREEN-VALUE) LE
                DEC(STRING(lv-cost[1],po-ordl.cost:FORMAT)).
-
           IF NOT ll THEN
           MESSAGE "Vendor Cost ("                              +
                   TRIM(po-ordl.cost:SCREEN-VALUE)              +
@@ -5953,7 +5825,6 @@ PROCEDURE valid-vend-cost :
                   TRIM(STRING(lv-cost[1],po-ordl.cost:FORMAT)) +
                   "), continue?"
               VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll.
-
           IF NOT ll THEN DO:
             APPLY "entry" TO po-ordl.cost.
             RETURN ERROR.
@@ -5962,12 +5833,9 @@ PROCEDURE valid-vend-cost :
       END.
     END.
   END.
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-all Dialog-Frame 
 PROCEDURE validate-all :
 /*------------------------------------------------------------------------------
@@ -5986,10 +5854,8 @@ PROCEDURE validate-all :
   END.
    
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-i-no Dialog-Frame 
 PROCEDURE validate-i-no :
 /*------------------------------------------------------------------------------
@@ -6000,11 +5866,9 @@ PROCEDURE validate-i-no :
 DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
 DO WITH FRAME {&FRAME-NAME}:
   IF CAN-FIND(FIRST w-po-ordl) THEN ll-item-validated = YES.
-
   DO WITH FRAME {&FRAME-NAME}:
     RELEASE item.
     RELEASE itemfg.
-
     IF NOT ll-rm-fg-set AND ip-recid EQ ?                          AND
        CAN-FIND(FIRST item
                 WHERE item.company EQ g_company
@@ -6016,7 +5880,6 @@ DO WITH FRAME {&FRAME-NAME}:
       po-ordl.item-type:SCREEN-VALUE = lv-itemtype.
       ll-rm-fg-set = YES.
     END.
-
     IF po-ordl.item-type:SCREEN-VALUE EQ "RM" OR
        NOT CAN-FIND(FIRST itemfg
                     WHERE itemfg.company EQ g_company
@@ -6025,7 +5888,6 @@ DO WITH FRAME {&FRAME-NAME}:
         WHERE item.company EQ g_company
           AND item.i-no    EQ po-ordl.i-no:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-
     IF po-ordl.item-type:SCREEN-VALUE EQ "FG" OR
        NOT CAN-FIND(FIRST item
                     WHERE item.company EQ g_company
@@ -6034,18 +5896,15 @@ DO WITH FRAME {&FRAME-NAME}:
         WHERE itemfg.company EQ g_company
           AND itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-
     IF po-ordl.i-no:SCREEN-VALUE EQ ""       OR
        (NOT AVAIL item AND NOT AVAIL itemfg) THEN DO:
       MESSAGE "Invalid item#, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO po-ordl.i-no.
       RETURN ERROR.
     END.
-
     IF NOT ll-item-validated THEN DO:
       IF AVAIL item THEN RUN display-rmitem(RECID(item)).
                     ELSE RUN display-fgitem(RECID(itemfg)).
-
     IF po-ordl.item-type:SCREEN-VALUE EQ "FG" AND  po-ordl.i-no:SCREEN-VALUE NE "" THEN DO:
         RUN fg/GetItemfgActInact.p (INPUT cocode,
                                     INPUT po-ordl.i-no:SCREEN-VALUE,
@@ -6064,21 +5923,15 @@ DO WITH FRAME {&FRAME-NAME}:
             RETURN ERROR.
         END.     
     END.
-
       ll-item-validated = YES.
-
       APPLY 'VALUE-CHANGED' TO po-ordl.ord-qty.
     END.
     RUN enable-dISABLE-size.
   END.
 END.
-
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE vend-cost Dialog-Frame 
 PROCEDURE vend-cost :
 /*------------------------------------------------------------------------------
@@ -6088,13 +5941,10 @@ PROCEDURE vend-cost :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-calc-cost AS LOG NO-UNDO.  
   RUN zero-vend-cost-related.
-
   EMPTY TEMP-TABLE tt-ei.
   EMPTY TEMP-TABLE tt-eiv.
-
   DO WITH FRAME {&FRAME-NAME}:
     RUN set-dims.
-
     /* for adders */
     RELEASE job-mat.
     FIND FIRST job NO-LOCK
@@ -6113,9 +5963,7 @@ PROCEDURE vend-cost :
         USE-INDEX seq-idx NO-ERROR.
         
     IF AVAIL job-mat THEN lv-recid = RECID(job-mat).
-
     v-ord-qty = DEC(po-ordl.ord-qty:SCREEN-VALUE).
-
     IF po-ordl.item-type:SCREEN-VALUE EQ "RM" THEN DO:
        FIND FIRST e-item NO-LOCK
            WHERE e-item.company EQ cocode
@@ -6133,7 +5981,6 @@ PROCEDURE vend-cost :
               NO-ERROR.
       
           IF AVAIL e-item-vend THEN DO:
-
              CREATE tt-eiv.
              tt-eiv.rec_key = e-item-vend.rec_key.
              DO v-index = 1 TO 10:
@@ -6142,7 +5989,6 @@ PROCEDURE vend-cost :
                    tt-eiv.run-cost[v-index] = e-item-vend.run-cost[v-index]
                    tt-eiv.setups[v-index] = e-item-vend.setups[v-index].
              END.
-
              FIND FIRST b-qty WHERE
                   b-qty.reftable = "vend-qty" AND
                   b-qty.company = e-item-vend.company AND
@@ -6158,7 +6004,6 @@ PROCEDURE vend-cost :
                              b-cost.CODE    = e-item-vend.i-no AND
                      b-cost.code2   = e-item-vend.vend-no
                      NO-LOCK NO-ERROR.
-
                 FIND FIRST b-setup WHERE
                      b-setup.reftable = "vend-setup" AND
                      b-setup.company = e-item-vend.company AND
@@ -6176,17 +6021,14 @@ PROCEDURE vend-cost :
           END.
        END.
     END.
-
     ELSE DO:
       FIND FIRST e-itemfg NO-LOCK
           WHERE e-itemfg.company EQ cocode
             AND e-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE
           NO-ERROR.
-
       IF AVAIL e-itemfg THEN DO:
         CREATE tt-ei.
         ASSIGN tt-ei.std-uom = e-itemfg.std-uom.
-
         IF po-ordl.cust-no:SCREEN-VALUE NE "" THEN
            FIND FIRST e-itemfg-vend NO-LOCK
                WHERE e-itemfg-vend.company EQ e-itemfg.company
@@ -6194,7 +6036,6 @@ PROCEDURE vend-cost :
                  AND e-itemfg-vend.vend-no EQ po-ord.vend-no
                  AND e-itemfg-vend.cust-no EQ po-ordl.cust-no:SCREEN-VALUE
                NO-ERROR.
-
         /* gdm - 06040918 - check for vendor */
         IF NOT AVAIL e-itemfg-vend THEN
            FIND FIRST e-itemfg-vend NO-LOCK
@@ -6202,14 +6043,12 @@ PROCEDURE vend-cost :
                  AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
                  AND e-itemfg-vend.vend-no EQ po-ord.vend-no
                NO-ERROR.
-
         /* gdm - check for blank vendor */
         IF NOT AVAIL e-itemfg-vend THEN
            FIND FIRST e-itemfg-vend NO-LOCK
                WHERE e-itemfg-vend.company EQ e-itemfg.company
                  AND e-itemfg-vend.i-no    EQ e-itemfg.i-no 
                  AND e-itemfg-vend.vend-no EQ "" NO-ERROR.
-
         IF AVAIL e-itemfg-vend THEN DO:            
           CREATE tt-eiv.
           tt-eiv.rec_key = e-itemfg-vend.rec_key.
@@ -6223,21 +6062,17 @@ PROCEDURE vend-cost :
         END.
       END.
     END. /* if item-type ne RM */
-
     IF AVAIL tt-eiv THEN DO:                
       ASSIGN
        v-cost = 0 /*DEC(po-ordl.cost:SCREEN-VALUE)*/
        v-qty  = DEC(po-ordl.ord-qty:SCREEN-VALUE).
-
       IF tt-ei.std-uom NE po-ordl.pr-qty-uom:SCREEN-VALUE          AND
         (po-ordl.item-type                                        OR
          LOOKUP(tt-ei.std-uom,fg-uom-list)                  EQ 0 OR
          LOOKUP(po-ordl.pr-qty-uom:SCREEN-VALUE,fg-uom-list) EQ 0)  THEN DO:
-
         IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN DO:
           /* First convert to EA */
           v-qty = v-qty * INT(fiCount:SCREEN-VALUE).
-
           /* Now convert to std-uom */
           RUN sys/ref/convquom.p("EA",
                                  tt-ei.std-uom, v-basis-w,
@@ -6250,8 +6085,6 @@ PROCEDURE vend-cost :
                                  v-len, v-wid, v-dep,
                                  v-qty, OUTPUT v-qty).
       END.
-
-
       v-save-qty = v-qty.
       IF po-ordl.job-no:SCREEN-VALUE NE "" THEN
         RUN po/groupcst.p (po-ordl.job-no:SCREEN-VALUE,
@@ -6260,7 +6093,6 @@ PROCEDURE vend-cost :
                            INT(po-ordl.s-num:SCREEN-VALUE),
                            INT(po-ordl.b-num:SCREEN-VALUE),
                            INPUT-OUTPUT v-qty).
-
       ASSIGN
        v-save-qty = v-qty - v-save-qty
        v-setup    = 0
@@ -6283,25 +6115,19 @@ PROCEDURE vend-cost :
            v-pb-stp = tt-eiv.setups[li + 1].
         LEAVE.
       END.
-
       IF poqty-log THEN DO:
         IF v-pb-qty GE 9999999 THEN v-pb-qty = 0.
-
         IF v-pb-qty EQ 0 THEN v-pb-cst = 0.
         ELSE DO:
           v-pb-qty = v-pb-qty + .001.
-
           v-pb-cst = v-pb-cst * v-pb-qty.
-
           IF v-pb-qty NE 0 THEN v-pb-cst = (v-pb-cst /*+ v-pb-stp*/) / v-pb-qty.  
           ELSE v-pb-cst = (v-pb-cst /*+ v-pb-stp*/).
         END.
-
         IF tt-ei.std-uom NE po-ordl.pr-qty-uom:SCREEN-VALUE           AND
            (po-ordl.item-type                                        OR
             LOOKUP(tt-ei.std-uom,fg-uom-list)                  EQ 0 OR
             LOOKUP(po-ordl.pr-qty-uom:SCREEN-VALUE,fg-uom-list) EQ 0)  THEN DO:
-
           IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN DO:
               /* convert to EA */
               RUN sys/ref/convquom.p(tt-ei.std-uom,
@@ -6330,7 +6156,6 @@ PROCEDURE vend-cost :
                        v-pb-cst, OUTPUT v-pb-cst).
             /* Convert to CS */
             v-pb-cst = v-pb-cst * INT(fiCount:SCREEN-VALUE).
-
           END.
           ELSE
             RUN sys/ref/convcuom.p(tt-ei.std-uom,
@@ -6338,22 +6163,18 @@ PROCEDURE vend-cost :
                                  v-len, v-wid, v-dep,
                                  v-pb-cst, OUTPUT v-pb-cst).
         END.
-
         IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.cons-uom:SCREEN-VALUE AND
            (po-ordl.item-type                                      OR
             LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list)   EQ 0 OR
             LOOKUP(po-ordl.cons-uom:SCREEN-VALUE,fg-uom-list) EQ 0)     THEN DO:
-
           IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN DO:
             /* Convert Cases to EA */
             v-pb-cst = v-pb-cst * INT(fiCount:SCREEN-VALUE).
-
             /* Convert EA to cons-uom */
             RUN sys/ref/convcuom.p("EA",
                                    po-ordl.cons-uom:SCREEN-VALUE, v-basis-w,
                                    v-len, v-wid, v-dep,
                                    v-pb-cst, OUTPUT v-pb-cns).
-
           END.
           ELSE
             RUN sys/ref/convcuom.p(po-ordl.pr-uom:SCREEN-VALUE,
@@ -6366,14 +6187,12 @@ PROCEDURE vend-cost :
         /*assumes v-qty in same uom as v-cost*/
       IF v-qty <> 0 THEN v-cost = (v-cost /*+ v-setup*/) / v-qty.  
       ELSE v-cost = (v-cost /*+ v-setup*/).
-
       IF ip-calc-cost NE ? THEN DO:
         IF ip-calc-cost THEN DO:            
           IF tt-ei.std-uom NE po-ordl.pr-uom:SCREEN-VALUE           AND
              (po-ordl.item-type                                    OR
               LOOKUP(tt-ei.std-uom,fg-uom-list)              EQ 0 OR
               LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list) EQ 0)  THEN DO:
-
             /* IF 'CS' then convert to EA first */
             RUN sys/ref/convcuom.p(tt-ei.std-uom,
                                    IF po-ordl.pr-uom:SCREEN-VALUE NE "CS" THEN
@@ -6385,18 +6204,15 @@ PROCEDURE vend-cost :
             /* If cases, convert from EA to CS */
             IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN
               v-cost = v-cost * INT(fiCount:SCREEN-VALUE).
-
          END.
           ASSIGN
             ip-calc-cost = YES
             po-ordl.cost:SCREEN-VALUE = STRING(v-cost,po-ordl.cost:FORMAT)
             po-ordl.setup:SCREEN-VALUE = STRING(v-setup,po-ordl.setup:FORMAT).
-
           IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.cons-uom:SCREEN-VALUE AND
              (po-ordl.item-type                                      OR
               LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list)   EQ 0 OR
               LOOKUP(po-ordl.cons-uom:SCREEN-VALUE,fg-uom-list) EQ 0)     THEN DO:
-
             /* Convert cost from CS to EA first */
             IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN
                 v-cost = v-cost / INT(fiCount:SCREEN-VALUE).
@@ -6407,19 +6223,16 @@ PROCEDURE vend-cost :
                                      (IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "ROLL" THEN 12 ELSE v-len),
                                      v-wid, v-dep,
                                      v-cost, OUTPUT v-cost).           
-
           END.
           po-ordl.cons-cost:SCREEN-VALUE = STRING(v-cost,po-ordl.cons-cost:FORMAT).     
           
         END. /* if calc cost */
-
         ELSE
         IF v-hold-op1 AND po-ord.stat NE "H" THEN DO:
           IF tt-ei.std-uom NE po-ordl.pr-uom:SCREEN-VALUE           AND
              (po-ordl.item-type                                    OR
               LOOKUP(tt-ei.std-uom,fg-uom-list)              EQ 0 OR
               LOOKUP(po-ordl.pr-uom:SCREEN-VALUE,fg-uom-list) EQ 0)  THEN DO:
-
             /* If CS, convert to EA first */
             RUN sys/ref/convcuom.p(tt-ei.std-uom,
                                    IF po-ordl.pr-uom:SCREEN-VALUE NE "CS" THEN
@@ -6439,7 +6252,6 @@ PROCEDURE vend-cost :
                            OUTPUT v-cost,
                            OUTPUT lv-added-cons-cost,
                            OUTPUT lv-adder-setup).
-
           IF DEC(po-ordl.cost:SCREEN-VALUE) GT v-cost THEN DO:
             FIND CURRENT po-ord.
             po-ord.stat = "H".
@@ -6448,9 +6260,7 @@ PROCEDURE vend-cost :
         END. /* If not calc cost and stat ne "H" */
       END. /* ip calc cost ne ? */
     END. /* avail tt-eiv */
-
     IF AVAIL job-mat THEN DO:
-
       IF poqty-log THEN
         RUN po-adder2 (RECID(po-ordl), lv-recid, po-ord.vend-no,
                        DEC(fi_pb-qty:SCREEN-VALUE),
@@ -6459,7 +6269,6 @@ PROCEDURE vend-cost :
                        OUTPUT v-pb-cst,
                        OUTPUT v-pb-cns,
                        OUTPUT lv-adder-setup).
-
       RUN po-adder2 (RECID(po-ordl), lv-recid, po-ord.vend-no,
                      DEC(po-ordl.ord-qty:SCREEN-VALUE),
                      DEC(po-ordl.cost:SCREEN-VALUE),
@@ -6467,21 +6276,17 @@ PROCEDURE vend-cost :
                      OUTPUT lv-added-cost,
                      OUTPUT lv-added-cons-cost,
                      OUTPUT lv-adder-setup).
-
       IF ip-calc-cost THEN
         ASSIGN
          po-ordl.cost:SCREEN-VALUE = STRING(lv-added-cost)
          po-ordl.cons-cost:SCREEN-VALUE = STRING(lv-added-cons-cost).
     END.
-
     IF poqty-log THEN DO:
       IF CAN-DO("L,LOT",po-ordl.pr-uom:SCREEN-VALUE) THEN
         lv-t-cost = (v-pb-cst + v-pb-stp) *
                     IF po-ordl.ord-qty LT 0 THEN -1 ELSE 1.
-
       ELSE DO:
         v-ord-qty = DEC(fi_pb-qty:SCREEN-VALUE).
-
         IF po-ordl.pr-qty-uom:SCREEN-VALUE NE po-ordl.pr-uom:SCREEN-VALUE AND
            (po-ordl.item-type                                        OR
             LOOKUP(po-ordl.pr-qty-uom:SCREEN-VALUE,fg-uom-list) EQ 0 OR
@@ -6494,24 +6299,18 @@ PROCEDURE vend-cost :
      
         lv-t-cost = (v-ord-qty * v-pb-cst) + v-pb-stp.
       END.
-
       IF DEC(po-ordl.disc:SCREEN-VALUE) NE 0 THEN
         lv-t-cost = lv-t-cost * (1 - (DEC(po-ordl.disc:SCREEN-VALUE) / 100)).
-
       fi_pb-cst:SCREEN-VALUE = STRING(lv-t-cost).
-
       IF DEC(fi_pb-cst:SCREEN-VALUE) LE 0 THEN fi_pb-cst:SCREEN-VALUE = "".
     END.
-
     IF ip-calc-cost NE ? THEN DO:
       IF CAN-DO("L,LOT",po-ordl.pr-uom:SCREEN-VALUE) THEN
         lv-t-cost = (DEC(po-ordl.cost:SCREEN-VALUE) +
                      DEC(po-ordl.setup:SCREEN-VALUE)) *
                     IF po-ordl.ord-qty LT 0 THEN -1 ELSE 1.
-
       ELSE DO:
         v-ord-qty = DEC(po-ordl.ord-qty:SCREEN-VALUE).
-
         IF po-ordl.pr-qty-uom:SCREEN-VALUE NE po-ordl.pr-uom:SCREEN-VALUE AND
            (po-ordl.item-type                                        OR
             LOOKUP(po-ordl.pr-qty-uom:SCREEN-VALUE,fg-uom-list) EQ 0 OR
@@ -6525,24 +6324,18 @@ PROCEDURE vend-cost :
                                    po-ordl.pr-uom:SCREEN-VALUE,
                                    v-basis-w, v-len, v-wid, v-dep,
                                    v-ord-qty, OUTPUT v-ord-qty).
-
         END.
         lv-t-cost = (v-ord-qty * DEC(po-ordl.cost:SCREEN-VALUE)) +
                     DEC(po-ordl.setup:SCREEN-VALUE).
       END.
-
       IF DEC(po-ordl.disc:SCREEN-VALUE) NE 0 THEN
          lv-t-cost = lv-t-cost * (1 - (DEC(po-ordl.disc:SCREEN-VALUE) / 100)).
-
       po-ordl.t-cost:SCREEN-VALUE = STRING(lv-t-cost).
     END.
   END.  
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE writeJobFarmInfo Dialog-Frame 
 PROCEDURE writeJobFarmInfo :
 /*------------------------------------------------------------------------------
@@ -6564,8 +6357,6 @@ ASSIGN lHeadFound = NO
        cJob       = ""
        iJobNo2    = 0
        lFromOrd   = FALSE.
-
-
 DO WITH FRAME {&FRAME-NAME}:
     
   IF po-ordl.job-no:SCREEN-VALUE GT "" THEN
@@ -6589,7 +6380,6 @@ DO WITH FRAME {&FRAME-NAME}:
                  iJobNo2 = oe-ordl.job-no2.
       
   END.
-
   IF cJob EQ "" THEN
       RETURN.
   FIND FIRST bfJob-farm 
@@ -6602,7 +6392,6 @@ DO WITH FRAME {&FRAME-NAME}:
     EXCLUSIVE-LOCK NO-ERROR.
   
   IF AVAIL bfJob-Farm THEN DO:
-
     dQtyEa = po-ordl.ord-qty.
     IF po-ordl.pr-qty-uom NE "EA" THEN
         run sys/ref/convquom.p(input po-ordl.pr-qty-uom,
@@ -6639,12 +6428,9 @@ DO WITH FRAME {&FRAME-NAME}:
        
   END. /* avail bfJob-farm */
 END. /* do */
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE zero-vend-cost-related Dialog-Frame 
 PROCEDURE zero-vend-cost-related :
 /*------------------------------------------------------------------------------
@@ -6669,9 +6455,6 @@ ASSIGN
    lv-t-cost = 0
    ld-dim-charge = 0
    v-index = 0.
-
 END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
