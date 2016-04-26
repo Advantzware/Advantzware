@@ -897,7 +897,7 @@ for each job-hdr NO-LOCK
                     trim(string(eb.blank-no,">>9")) FORM "x(11)" 
                     eb.stock-no @ job-hdr.i-no 
                     (IF AVAIL oe-ordl  THEN oe-ordl.part-no ELSE IF AVAIL itemfg THEN itemfg.part-no ELSE "") FORM "x(15)"   
-                    eb.plate-no FORM "x(10)" /** v-fac*/ /*format "->,>>>,>>9"*/
+                    (IF eb.plate-no <> "" THEN eb.plate-no  ELSE IF AVAIL itemfg THEN itemfg.plate-no ELSE "" ) FORM "x(10)"
                     (IF AVAIL oe-ordl  THEN oe-ordl.po-no ELSE "") FORM "x(15)"
                     v-cust-lot#  FORM "x(17)"
                     v-dsc[1] FORM "x(30)"
