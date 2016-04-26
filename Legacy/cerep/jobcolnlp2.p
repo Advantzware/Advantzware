@@ -851,7 +851,7 @@ FOR  EACH job-hdr NO-LOCK
             v-upc-lbl = "   CAD#".
             IF FIRST-OF(eb.form-no) THEN
                PUT "<P12><B> P R E S S <P9>" SKIP 
-                   " F/B         FG Item #       Description                       Order Qty    MAX QTY    MIN QTY </B>" SKIP.
+                   " F/B         FG Item #       Cust Part #     Artwork #       Description                       Order Qty    MAX QTY    MIN QTY </B>" SKIP.
               
            v-job-qty = 0.
            for each xjob-hdr fields(qty) where xjob-hdr.company eq cocode
@@ -894,9 +894,14 @@ FOR  EACH job-hdr NO-LOCK
             v-case-qty = round(v-job-qty / v-case-count,0)
             v-itm-printed = v-itm-printed + 1.
 
+             FIND FIRST itemfg WHERE itemfg.company = job-hdr.company
+                            AND itemfg.i-no = job-hdr.i-no NO-LOCK NO-ERROR.
+
             display SPACE(1) v-job-no + "-" + trim(string(eb.form-no,">>9")) +
                     trim(string(eb.blank-no,">>9")) FORM "x(11)" 
                     SPACE(1) eb.stock-no @ job-hdr.i-no 
+                    (IF AVAIL oe-ordl  THEN oe-ordl.part-no ELSE IF AVAIL itemfg THEN itemfg.part-no ELSE "") FORM "x(15)"   SPACE(1)
+                    (IF eb.plate-no <> "" THEN eb.plate-no  ELSE IF AVAIL itemfg THEN itemfg.plate-no ELSE "" ) FORM "x(15)"
                     SPACE(1) v-dsc[1] FORM "x(32)"
                     oe-ordl.qty WHEN AVAIL oe-ordl format "->,>>>,>>9"  /* Task #01240503*/   SPACE(4)
                     v-max-qty     SPACE(3)
@@ -1013,7 +1018,7 @@ FOR  EACH job-hdr NO-LOCK
 
              END.
              
-             PUT "<B> PASS  SIDE   LBS  INK NAME                 UNIT#   PASS   SIDE   LBS INK NAME                 UNIT#       PLATE #</B>"
+             PUT "<B> PASS  SIDE   LBS  INK NAME                 UNIT#   PASS   SIDE   LBS INK NAME                 UNIT#       </B>"
                  SKIP.
 
              ASSIGN
@@ -1159,7 +1164,7 @@ FOR  EACH job-hdr NO-LOCK
                    IF v-skip THEN do:
                        PUT v-ink1[j] FORM "x(52)" .
                        IF j = 2 THEN do:
-                           PUT eb.plate-no AT 107.
+                           /*PUT eb.plate-no AT 107.*/
                            v-plate-printed = YES.
                        END.
                        PUT SKIP.
@@ -1169,7 +1174,7 @@ FOR  EACH job-hdr NO-LOCK
                 END.
              END.
 
-             IF NOT v-plate-printed THEN PUT eb.plate-no AT 107 SKIP.
+             IF NOT v-plate-printed THEN PUT /*eb.plate-no AT 107*/ SKIP(1).
 
              DO j = 1 TO EXTENT(v-ink2):
                 IF TRIM(v-ink2[j]) = "-" THEN v-ink2[j] = "".                 
