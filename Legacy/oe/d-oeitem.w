@@ -2593,11 +2593,13 @@ DO:
     END.
     ELSE IF SELF:screen-value EQ "0" THEN
         ASSIGN oe-ordl.vend-no:SCREEN-VALUE = "".          /*Task# 03201407*/
-
-    IF ll-new-record THEN DO:
-    APPLY "entry" TO oe-ordl.s-man[1].
-    RETURN NO-APPLY.
-    END.
+   
+     IF oescreen-log AND ll-new-record 
+         AND asi.oe-ordl.est-no:SCREEN-VALUE EQ ""
+         AND oescreen-cha EQ "item-qty" THEN DO:
+         APPLY "entry" TO oe-ordl.s-man[1] .
+         RETURN NO-APPLY.
+     END.   /* ticket 15474 */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3018,11 +3020,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.whsed d-oeitem
 ON LEAVE OF oe-ordl.whsed IN FRAME d-oeitem /* Run  Ship */
 DO:
-   
-    IF ll-new-record THEN DO:
-    APPLY "entry" TO oe-ordl.i-name.
-    RETURN NO-APPLY.
-    END.
+   IF oescreen-log AND ll-new-record 
+        AND asi.oe-ordl.est-no:SCREEN-VALUE EQ ""
+        AND oescreen-cha EQ "item-qty" THEN DO:
+      APPLY "entry" TO oe-ordl.i-name.
+      RETURN NO-APPLY.
+   END.
      
 END.
 

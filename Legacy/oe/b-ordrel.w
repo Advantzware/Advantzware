@@ -4594,6 +4594,8 @@ PROCEDURE local-update-record :
      END. /* If 'S' record not found */
   END. /* If updating an invoice only "I" record */
    IF adm-new-record THEN
+       ASSIGN
+       adm-new-record    = NO
        adm-adding-record = NO.
   
 END PROCEDURE.

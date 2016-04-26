@@ -1629,6 +1629,10 @@ FOR EACH ttCustList
     end.
   end.
 
+  FOR EACH xtt-report:
+      
+  END.
+
   for each tt-report,
 
       first cust

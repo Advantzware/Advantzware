@@ -2377,6 +2377,9 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
+   IF is-new-record THEN do:
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(item)). 
+   END.
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("row-changed").
 
 END PROCEDURE.
