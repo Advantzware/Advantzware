@@ -39,13 +39,15 @@ DEFINE INPUT PARAMETER ipcParamStr AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hAppSrv       AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE cPrinterFile  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPrinterList  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPrinterName  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iPrinterCount AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cPrtCmd       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPrtPort      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrinterFile     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrinterList     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrinterName     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iPrinterCount    AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cPrtCmd          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrtPort         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRowType         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE idx              AS INTEGER   NO-UNDO.
 
 DEFINE TEMP-TABLE ttPrinter NO-UNDO
   FIELD prtNum  AS INTEGER
@@ -72,7 +74,7 @@ RUN VALUE("aoaAppSrv/" + ENTRY(1,aoaParam,"/") + ".p") PERSISTENT SET hAppSrv.
 &Scoped-define FRAME-NAME paramFrame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCancel btnView btnScheduler 
+&Scoped-Define ENABLED-OBJECTS btnCancel btnView 
 
 /* Custom List Definitions                                              */
 /* ScheduleFields,List-2,List-3,List-4,List-5,List-6                    */
@@ -133,11 +135,13 @@ DEFINE BUTTON btnRemove
 
 DEFINE VARIABLE svAvailableColumns AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 34 BY 9.48 NO-UNDO.
+     LIST-ITEM-PAIRS "empty","empty" 
+     SIZE 34 BY 9.52 NO-UNDO.
 
 DEFINE VARIABLE svSelectedColumns AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 34 BY 9.48 NO-UNDO.
+     LIST-ITEM-PAIRS "empty","empty" 
+     SIZE 34 BY 9.52 NO-UNDO.
 
 DEFINE BUTTON btnSchedule 
      LABEL "&Schedule" 
@@ -258,27 +262,6 @@ DEFINE FRAME paramFrame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 126 BY 22.1.
-
-DEFINE FRAME frameColumns
-     svAvailableColumns AT ROW 1.76 COL 1 NO-LABEL WIDGET-ID 68
-     svSelectedColumns AT ROW 1.76 COL 45 NO-LABEL WIDGET-ID 70
-     btnDefault AT ROW 2.91 COL 36 HELP
-          "Add Selected Table to Display" WIDGET-ID 76
-     btnMoveUp AT ROW 2.91 COL 80 WIDGET-ID 66
-     btnMoveDown AT ROW 4 COL 80 WIDGET-ID 62
-     btnRemove AT ROW 5.14 COL 80 HELP
-          "Remove Selected Table from Tables to Audit" WIDGET-ID 64
-     btnAdd AT ROW 5.29 COL 36 HELP
-          "Add Selected Table to Display" WIDGET-ID 58
-     "Selected Columns (In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 1 COL 45 WIDGET-ID 72
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 1 COL 2 WIDGET-ID 74
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 85 BY 11.43
-         TITLE "Report Columns" WIDGET-ID 200.
 
 DEFINE FRAME frameSchedule
      cb-printer AT ROW 1.71 COL 9 COLON-ALIGNED WIDGET-ID 92
@@ -449,10 +432,6 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        btnScheduler:HIDDEN IN FRAME paramFrame           = TRUE
-       btnScheduler:PRIVATE-DATA IN FRAME paramFrame     = 
-                "WinKitRibbon".
-
-ASSIGN 
        btnScheduler:PRIVATE-DATA IN FRAME paramFrame     = 
                 "WinKitRibbon".
 
@@ -793,7 +772,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnCancel btnView btnScheduler 
+  ENABLE btnCancel btnView 
       WITH FRAME paramFrame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   DISPLAY svAvailableColumns svSelectedColumns 
@@ -851,12 +830,12 @@ PROCEDURE local-enable :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  IF aoaColumns THEN RUN pGetColumns.
-
   RUN pPopulateOptions IN h_aoaParam (THIS-PROCEDURE) NO-ERROR.
 
   RUN pGetParamValues.
   
+  IF aoaColumns THEN RUN pGetColumns.
+
   RUN pParamValuesOverride IN h_aoaParam NO-ERROR.
 
   RUN pInitialize IN h_aoaParam (THIS-PROCEDURE) NO-ERROR.
@@ -918,22 +897,25 @@ PROCEDURE pGetColumns :
     DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
     
     IF VALID-HANDLE(hAppSrv) THEN DO WITH FRAME frameColumns:
+        hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
+        IF NOT VALID-HANDLE(hTable) THEN RETURN.
         ASSIGN
-            hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID)
             hTable = hTable:DEFAULT-BUFFER-HANDLE
             svAvailableColumns:LIST-ITEM-PAIRS = ?
+            svSelectedColumns:LIST-ITEM-PAIRS = ?
             .
         DO idx = 1 TO hTable:NUM-FIELDS:
             IF CAN-DO("RECID,ROWID",hTable:BUFFER-FIELD(idx):DATA-TYPE) THEN NEXT.
+            IF hTable:BUFFER-FIELD(idx):NAME BEGINS "xx" THEN NEXT.
+            IF hTable:BUFFER-FIELD(idx):NAME EQ "rowType" THEN NEXT.
+            cRowType = cRowType + "|" + hTable:BUFFER-FIELD(idx):NAME.
             svAvailableColumns:ADD-LAST(hTable:BUFFER-FIELD(idx):LABEL,
                                         hTable:BUFFER-FIELD(idx):NAME).
         END.
-
-        IF svSelectedColumns:NUM-ITEMS EQ 0 THEN
-        ASSIGN
-            svSelectedColumns:LIST-ITEM-PAIRS  = svAvailableColumns:LIST-ITEM-PAIRS
-            svAvailableColumns:LIST-ITEM-PAIRS = ?
-            .
+        DO idx = 1 TO NUM-ENTRIES(cSelectedColumns):
+            svAvailableColumns:SCREEN-VALUE = ENTRY(idx,cSelectedColumns) NO-ERROR.
+            APPLY "CHOOSE":U TO btnAdd.
+        END. /* do idx */
     END. /* valid happsrv */
 
 END PROCEDURE.
@@ -971,6 +953,12 @@ PROCEDURE pGetParamValues :
            AND user-print.batch      EQ ""
          NO-ERROR.
     IF NOT AVAILABLE user-print THEN RETURN.
+
+    DO idx = 1 TO EXTENT(user-print.field-name):
+        IF user-print.field-name[idx] NE "svSelectedColumns" THEN NEXT.
+        cSelectedColumns = user-print.field-value[idx].
+        LEAVE.
+    END. /* do idx */
 
     ASSIGN
         hChild = hFrame:FIRST-CHILD
@@ -1096,11 +1084,27 @@ PROCEDURE pSaveParamValues :
         hChild = hChild:NEXT-SIBLING.
     END. /* do while */
 
+    ASSIGN
+        idx = idx + 1
+        user-print.field-name[idx]  = "svTitle"
+        user-print.field-label[idx] = "Title"
+        user-print.field-value[idx] = aoaTitle
+        .
+    
     IF aoaColumns THEN DO WITH FRAME frameColumns:
+        DO cnt = 1 TO svAvailableColumns:NUM-ITEMS:
+            cColumns = cColumns + svAvailableColumns:ENTRY(cnt) + ",".
+        END. /* do cnt */
+        ASSIGN
+            idx = idx + 1
+            user-print.field-name[idx]  = svAvailableColumns:NAME
+            user-print.field-label[idx] = svAvailableColumns:LABEL
+            user-print.field-value[idx] = TRIM(cColumns,",")
+            cColumns = ""
+            .
         DO cnt = 1 TO svSelectedColumns:NUM-ITEMS:
             cColumns = cColumns + svSelectedColumns:ENTRY(cnt) + ",".
         END. /* do cnt */
-        
         ASSIGN
             idx = idx + 1
             user-print.field-name[idx]  = svSelectedColumns:NAME
@@ -1268,9 +1272,8 @@ PROCEDURE pSetWinSize :
 
     IF aoaColumns THEN
     ASSIGN
-        iDiff = hParamFrame:HEIGHT-PIXELS - FRAME frameColumns:HEIGHT-PIXELS
         FRAME frameColumns:HEIGHT-PIXELS = MAXIMUM(hParamFrame:HEIGHT-PIXELS,FRAME frameColumns:HEIGHT-PIXELS)
-        svAvailableColumns:HEIGHT-PIXELS = svAvailableColumns:HEIGHT-PIXELS + iDiff
+        svAvailableColumns:HEIGHT-PIXELS = FRAME frameColumns:HEIGHT-PIXELS - 40
         svSelectedColumns:HEIGHT-PIXELS = svAvailableColumns:HEIGHT-PIXELS
         FRAME frameColumns:X = hParamFrame:WIDTH-PIXELS + 5
         FRAME frameColumns:Y = hParamFrame:Y

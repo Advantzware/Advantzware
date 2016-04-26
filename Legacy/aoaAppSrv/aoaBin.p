@@ -98,6 +98,70 @@ FUNCTION fGetParamValue RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-pGetColumns) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetColumns Procedure 
+PROCEDURE pGetColumns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    &SCOPED-DEFINE multiplier 150
+    
+    DEFINE INPUT PARAMETER iphTable            AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAvailableColumns AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcSelectedColumns  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTitle            AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cRowType  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cField    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iWidth    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iRptWidth AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iLeft     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
+    
+    IF NOT VALID-HANDLE(iphTable) THEN RETURN.
+        
+    iphTable = iphTable:DEFAULT-BUFFER-HANDLE.
+    DO idx = 1 TO NUM-ENTRIES(ipcSelectedColumns):
+        ASSIGN
+            cField    = ENTRY(idx,ipcSelectedColumns)
+            iWidth    = MAX(iphTable:BUFFER-FIELD(cField):WIDTH,
+                            LENGTH(iphTable:BUFFER-FIELD(cField):LABEL)
+                            ) * {&multiplier}
+            cRowType  = cRowType
+                      + "|" + iphTable:BUFFER-FIELD(cField):NAME
+                      + "," + STRING(iWidth)
+                      + "," + STRING(iLeft)
+            iLeft     = iLeft + iWidth + 50
+            iRptWidth = iRptWidth + iWidth
+            .
+    END. /* each idx */
+    iWidth = -1.
+    DO idx = 1 TO NUM-ENTRIES(ipcAvailableColumns):
+        ASSIGN
+            cField   = ENTRY(idx,ipcAvailableColumns)
+            cRowType = cRowType
+                     + "|" + iphTable:BUFFER-FIELD(cField):NAME
+                     + "," + STRING(iWidth)
+            .
+    END. /* each idx */
+    cRowType = "column,width,left|" + ipcTitle + ","
+             + STRING(LENGTH(ipcTitle) * ({&multiplier} + 35)) + ","
+             + STRING(iRptWidth)
+             + cRowType
+             .
+    iphTable:BUFFER-CREATE.
+    iphTable:BUFFER-FIELD("rowType"):BUFFER-VALUE() = cRowType.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-pGetParamValues) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetParamValues Procedure 
@@ -128,17 +192,6 @@ PROCEDURE pGetParamValues :
            AND user-print.program-id EQ ipcName
            AND user-print.batch      EQ "Batch"
          NO-ERROR.
-
-    OUTPUT TO "aoaBin.log" APPEND.
-    PUT UNFORMATTED "[" NOW "] pGetParamValues" SKIP
-        "ipcCompany: " ipcCompany SKIP
-        "ipcName: " ipcName SKIP
-        "ipcUserID: " ipcUserID SKIP
-        "ipiBatch: " ipiBatch SKIP
-        "AVAIL(user-print): " AVAIL(user-print)
-        SKIP(1)
-        .
-    OUTPUT CLOSE.
 
 END PROCEDURE.
 
