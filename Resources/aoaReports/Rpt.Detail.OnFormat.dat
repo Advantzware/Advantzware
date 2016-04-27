@@ -1,0 +1,8 @@
+
+Sub OnFormat
+  If Rpt.Fields.Item("rowType") <> "Data" Then
+    Rpt.Sections.Item("Detail").Visible = False
+  Else
+    Rpt.Sections.Item("Detail").Visible = True
+  End If
+End Sub

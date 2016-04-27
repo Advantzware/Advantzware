@@ -1,0 +1,65 @@
+
+Sub OnReportStart
+  Dim colArray
+  Dim valArray
+  Dim foundItem
+  Dim sectionItem()
+  Dim controlItem()
+  colArray = split(Rpt.Fields.Item("rowType"),"|")
+  iColArray = 0
+  For Each columnData in colArray
+    iColArray = iColArray + 1
+    valArray = split(columnData,",")
+    iValArray = 0
+    For Each valItem in valArray
+      iValArray = iValArray + 1
+      If iColArray = 2 Then
+        If iValArray = 1 Then
+          Rpt.Sections.Item("ReportHeader").Controls.Item("ReportTitle").Caption = valItem
+        End If
+        If iValArray = 2 Then
+          Rpt.Sections.Item("ReportHeader").Controls.Item("ReportTitle").Width = valItem
+        End If
+        If iValArray = 3 Then
+          Rpt.PrintWidth = valItem
+        End If
+      End If
+      If iColArray > 2 Then
+        If iValArray = 1 Then
+          foundItem = -1
+          For ix = 0 to Rpt.Sections.Count - 1
+            For iy = 0 to Rpt.Sections.Item(ix).Controls.Count - 1
+              itemName = valItem + "_" + Rpt.Sections.Item(ix).Name
+              If itemName = Rpt.Sections.Item(ix).Controls.Item(iy).Name Then
+                foundItem = foundItem + 1
+                ReDim Preserve sectionItem(foundItem)
+                ReDim Preserve controlItem(foundItem)
+                sectionItem(foundItem) = ix
+                controlItem(foundItem) = iy
+              End If
+            Next
+          Next
+        End If
+        If iValArray = 2 Then
+          If foundItem > -1 Then
+            For iz = 0 to foundItem
+              If valItem = -1 Then
+                Rpt.Sections.Item(sectionItem(iz)).Controls.Item(controlItem(iz)).Visible = False
+              Else
+                Rpt.Sections.Item(sectionItem(iz)).Controls.Item(controlItem(iz)).Visible = True
+                Rpt.Sections.Item(sectionItem(iz)).Controls.Item(controlItem(iz)).Width = valItem
+              End If
+            Next
+          End If
+        End If
+        If iValArray = 3 Then
+          If foundItem > -1 Then
+            For iz = 0 to foundItem
+              Rpt.Sections.Item(sectionItem(iz)).Controls.Item(controlItem(iz)).Left = valItem
+            Next
+          End If
+        End If
+      End If
+    Next
+  Next
+End Sub
