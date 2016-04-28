@@ -13,8 +13,8 @@ if not avail sys-ctrl then DO:
      sys-ctrl.company  = g_company
      sys-ctrl.name     = "POScreen"
      sys-ctrl.log-fld  = no
-     sys-ctrl.char-fld = ""
-     sys-ctrl.descrip  = "PO Curser Position".
+     sys-ctrl.char-fld = "Item-Job"
+     sys-ctrl.descrip  = "PO Cursor Initial Position and Tab Order".
 end.
     
 v-poscreen-char = sys-ctrl.char-fld.
