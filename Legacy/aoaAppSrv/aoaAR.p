@@ -20,25 +20,28 @@
 
 /* Cash Receipt By SalesRep Name.rpa */
 DEFINE TEMP-TABLE ttCashReceiptBySalesRep NO-UNDO
-    FIELD rowType  AS CHARACTER INITIAL "Data" FORMAT "x(500)"
-    FIELD salesRep    AS CHARACTER LABEL "Sales Rep" FORMAT "x(3)"
-    FIELD salesName   AS CHARACTER LABEL "Sales Name" FORMAT "x(30)"
-    FIELD custNo      AS CHARACTER LABEL "Customer" FORMAT "x(8)"
-    FIELD custName    AS CHARACTER LABEL "Customer Name" FORMAT "x(3)"
-    FIELD terms       AS CHARACTER LABEL "Terms" FORMAT "x(8)"
-    FIELD invoiceNo   AS INTEGER   LABEL "Invoice" FORMAT ">>>>>>>>"
-    FIELD invDate     AS DATE      LABEL "Inv Date" FORMAT 99/99/9999
-    FIELD chkDate     AS DATE      LABEL "Check Date" FORMAT 99/99/9999
-    FIELD Aging       AS DECIMAL   LABEL "Aging"   FORMAT "->>,>>9.99" 
-    FIELD invAmt      AS DECIMAL   LABEL "Inv Amount" FORMAT "->>>,>>>,>>9.99"
-    FIELD amtPaid     AS DECIMAL   LABEL "Amt Paid" FORMAT "->>>,>>>,>>9.99"
-    FIELD discount    AS DECIMAL   LABEL "Discount" FORMAT "->>>>,>>9.99"
-    FIELD balAftPay   AS DECIMAL   LABEL "Bal Aft Pymt" FORMAT "->>>,>>>,>>9.99"
-    FIELD commAmt     AS DECIMAL   LABEL "Comm Amt" FORMAT "->>,>>>,>>9.99"
-    FIELD commPct     AS DECIMAL   LABEL "Comm Pct" FORMAT "->>9.99" 
-    FIELD rec-id      AS RECID
-    FIELD row-id      AS ROWID
+    FIELD rowType    AS CHARACTER LABEL "RowType"       FORMAT "x(500)" INITIAL "Data"
+    FIELD parameters AS CHARACTER LABEL "Parameters"    FORMAT "x(500)"
+    FIELD salesRep   AS CHARACTER LABEL "Sales Rep"     FORMAT "x(3)"
+    FIELD salesName  AS CHARACTER LABEL "Sales Name"    FORMAT "x(30)"
+    FIELD custNo     AS CHARACTER LABEL "Customer"      FORMAT "x(8)"
+    FIELD custName   AS CHARACTER LABEL "Customer Name" FORMAT "x(3)"
+    FIELD terms      AS CHARACTER LABEL "Terms"         FORMAT "x(8)"
+    FIELD invoiceNo  AS INTEGER   LABEL "Invoice"       FORMAT ">>>>>>>>"
+    FIELD invDate    AS DATE      LABEL "Inv Date"      FORMAT 99/99/9999
+    FIELD chkDate    AS DATE      LABEL "Check Date"    FORMAT 99/99/9999
+    FIELD Aging      AS DECIMAL   LABEL "Aging"         FORMAT "->>,>>9.99" 
+    FIELD invAmt     AS DECIMAL   LABEL "Inv Amount"    FORMAT "->>>,>>>,>>9.99"
+    FIELD amtPaid    AS DECIMAL   LABEL "Amt Paid"      FORMAT "->>>,>>>,>>9.99"
+    FIELD discount   AS DECIMAL   LABEL "Discount"      FORMAT "->>>>,>>9.99"
+    FIELD balAftPay  AS DECIMAL   LABEL "Bal Aft Pymt"  FORMAT "->>>,>>>,>>9.99"
+    FIELD commAmt    AS DECIMAL   LABEL "Comm Amt"      FORMAT "->>,>>>,>>9.99"
+    FIELD commPct    AS DECIMAL   LABEL "Comm Pct"      FORMAT "->>9.99" 
+    FIELD xxSort     AS CHARACTER LABEL "Sort"          FORMAT "x(50)"
+    FIELD rec-id     AS RECID
+    FIELD row-id     AS ROWID
     .
+
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD inv-no   AS INTEGER
     FIELD chk-inv  AS LOGICAL INITIAL YES
@@ -57,12 +60,13 @@ DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
     .
 
 DEFINE TEMP-TABLE tt-report-inv NO-UNDO LIKE report 
-    FIELD inv-no AS INT  .
+    FIELD inv-no AS INT.
 /* Cash Receipt By SalesRep Name.rpa */
 
 /* Commision Cash Receipt.rpa */
 DEFINE TEMP-TABLE ttCommissionCashReceipt NO-UNDO
-    FIELD rowType     AS CHARACTER INITIAL "Data"
+    FIELD rowType    AS CHARACTER  LABEL "RowType"      FORMAT "x(500)" INITIAL "Data"
+    FIELD parameters AS CHARACTER  LABEL "Parameters"   FORMAT "x(500)"
     FIELD salesRep    AS CHARACTER LABEL "Sales Rep"    FORMAT "x(3)"
     FIELD custNo      AS CHARACTER LABEL "Customer"     
     FIELD invoiceNo   AS INTEGER   LABEL "Invoice"      FORMAT ">>>>>9"
@@ -88,138 +92,15 @@ DEFINE TEMP-TABLE ttCommissionCashReceipt NO-UNDO
 {sys/ref/CustList.i NEW}
 /* Commision Cash Receipt.rpa */
 
-/* Orders Booked by Order No.rpa */
-DEFINE TEMP-TABLE ttOrderBookbyOrder NO-UNDO
-    FIELD rowType     AS CHARACTER INITIAL "Data" FORMAT "x(500)"
-    FIELD orderNo     AS INT LABEL "OrderNo"  FORMAT ">>>>>>"  
-    FIELD estNo       AS CHARACTER LABEL "EstNo" FORMAT "X(8)"
-    FIELD jobNo       AS CHARACTER LABEL "JobNo" FORMAT "X(9)"
-    FIELD orddate     AS DATE      LABEL "Date" FORMAT 99/99/9999
-    FIELD cusNo       AS CHARACTER LABEL "CustNo" FORMAT "X(8)"
-    FIELD custName    AS CHARACTER LABEL "Name" FORMAT "X(30)"
-    FIELD fgItem      AS CHARACTER LABEL "Item" FORMAT "X(15)"
-    FIELD fgItemName  AS CHARACTER LABEL "Description" FORMAT "X(30)"
-    FIELD fgOrderQty  AS INTEGER   LABEL "FG Order Qty" FORMAT "->>>,>>>,>>9"
-    FIELD fgCost      AS DECIMAL   LABEL "FG Cost" FORMAT "->>>,>>>,>>9.99"
-    FIELD price       AS DECIMAL   LABEL "Price" FORMAT ">>,>>>,>>9.99"
-    FIELD uom         AS CHARACTER  LABEL "UOM"  FORMAT "X(3)"
-    FIELD extPrice     AS DECIMAL   LABEL "Ext Price" FORMAT "->,>>>,>>9.99"
-    FIELD fgItemProfit AS DECIMAL  LABEL "FG Item Profit" FORMAT "->,>>>,>>9.99"
-    FIELD poMsf        AS DECIMAL  LABEL "PO MSF"    FORMAT ">>>9.99"
-    FIELD fgShipped    AS INTEGER  LABEL "FG Shipped" FORMAT "->>,>>>,>>9"
-    FIELD poProfit     AS DECIMAL  LABEL "PO Profit" FORMAT ">,>>>,>>9.99"
-    FIELD poNo         AS INTEGER  LABEL "PO No" FORMAT ">>>>>>>>9"
-    FIELD poQty        AS INTEGER  LABEL "PO Qty" FORMAT "->>,>>>,>>9"
-    FIELD poCost       AS DECIMAL  LABEL "PO Cost" FORMAT ">>>>,>>9.99"
-    FIELD poTotalCost  AS DECIMAL  LABEL "PO Total Cost" FORMAT "->,>>>,>>9.99"
-    FIELD poReceived   AS INTEGER  LABEL "PO Received" FORMAT "->>,>>>,>>9"
-    FIELD orderProfit  AS DECIMAL  LABEL "Order Profit" FORMAT "->>>>>,>>>99%"
-    FIELD msfReceived  AS DECIMAL  LABEL "MSF Recvd" FORMAT "->,>>9.99"
-    FIELD fgShipDate   AS DATE     LABEL "FG Ship Date" FORMAT 99/99/9999
-    FIELD poRecDate    AS DATE     LABEL "PO Rec Date" FORMAT 99/99/9999
-    FIELD fgExtPrice   AS DECIMAL  LABEL "FG Ext Price" FORMAT "->>>>,>>9.99"
-    FIELD poRecCost    AS DECIMAL  LABEL "PO Rec Cost" FORMAT  "->>>,>>9.99"
-    FIELD profSold     AS DECIMAL  LABEL "Profit  Sold" FORMAT "->>>>>,>>9.99"
-    FIELD profSoldp    AS DECIMAL  LABEL "Profit  Sold" FORMAT "->>>>>,>>>99%"
-    FIELD unitBoard    AS INTEGER  LABEL "Units Board" FORMAT "->>>>>>,>>9"
-    FIELD unitWaste    AS DECIMAL  LABEL "Unit Waste" FORMAT "->>>>,>>9.99"
-    FIELD lossp        AS DECIMAL  LABEL "Loss" FORMAT ">>9.99%"
-    FIELD bolNo        AS INTEGER  LABEL "BOL#" FORMAT ">>>>>>>>"
-    FIELD invoiceNo    AS INTEGER  LABEL "Invoice#" FORMAT ">>>>>>"
-    .
-/* Orders Booked by Order No.rpa */
-
-/* Orders Booked.rpa */
-DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
-    FIELD rowType      AS CHARACTER INITIAL "Data" FORMAT "X(500)"
-    FIELD dueDate      AS DATE      LABEL "DUE DATE" FORMAT 99/99/9999
-    FIELD orderNo      AS INTEGER   LABEL "ORDER NO" FORMAT ">>>>>>>"
-    FIELD custNo       AS CHARACTER LABEL "CUST NO" FORMAT "X(8)"
-    FIELD custName     AS CHARACTER LABEL "CUSTOMER NAME"  FORMAT "X(30)"
-    FIELD salesRep     AS CHARACTER LABEL "SALES REP"  FORMAT "X(3)"
-    FIELD salesRepName AS CHARACTER LABEL "SALES NAME"  FORMAT "X(30)"
-    FIELD commPer      AS DECIMAL   LABEL "COMM "  FORMAT ">>>>>9.99"
-    FIELD prodCode     AS CHARACTER LABEL "PROD CODE" FORMAT "x(8)"
-    FIELD fgItemNo     AS CHARACTER LABEL "FG ITEM"  FORMAT "X(15)"
-    FIELD fgItemName   AS CHARACTER LABEL "FG ITEM NAME"  FORMAT "X(30)"
-    FIELD qtyOrdEa     AS INTEGER   LABEL "QTY ORDERED EA" FORMAT ">,>>>,>>>"
-    FIELD sqFit        AS DECIMAL   LABEL "SQ FT"    FORMAT ">>,>>>.999"
-    FIELD totalSqfit   AS DECIMAL   LABEL "TOTAL Sq Ft M" format "->,>>>.999"
-    FIELD msfPrice     AS DECIMAL   LABEL "MSF" FORMAT "->>,>>9.99"
-    FIELD price        AS DECIMAL   LABEL "PRICE" format ">>>,>>9.99<<<<"
-    FIELD orderAmount  AS DECIMAL   LABEL "ORDER AMOUNT" FORMAT "->,>>>,>>9.99"
-    FIELD profitPer    AS DECIMAL   LABEL " PROFIT" FORMAT "->>,>>9.9"
-    FIELD totalTons    AS DECIMAL   LABEL "TOTAL TONS" FORMAT "->,>>>.9"
-    FIELD ton          AS DECIMAL   LABEL  "TON" FORMAT "->>,>>9.99"
-    FIELD vUserID      AS CHARACTER LABEL  "ID" FORMAT "x(8)"
-    FIELD custPartNo   AS CHARACTER LABEL  "CUST PART#" FORMAT "x(15)"
-    .
-
-DEFINE TEMP-TABLE wkrecap NO-UNDO   /* recap by product category */
-    field procat like itemfg.procat column-label "Cat"
-    field t-sqft like itemfg.t-sqft  extent 2 column-label "Sq Ft" format ">>,>>>.999"
-    field t-tons as dec column-label "Tons" extent 2 format "->,>>>.9"
-    field revenue like oe-ordl.t-price   extent 2 column-label "Amount"
-    field price-per-m  as dec column-label "$/MSF" extent 2
-    field price-per-t  as dec column-label "$/TON" extent 2
-    field num-of-ord as int column-label "#Orders"
-    .
-
-DEFINE TEMP-TABLE w-data no-undo
-    field ord-no like oe-ord.ord-no
-    field line   like oe-ordl.line
-    field sman   as char format "x(3)"
-    field item-n like itemfg.i-name column-label "Item Description"
-    format "x(27)"
-    field procat like itemfg.procat column-label "Prod!Code"
-    field qty like oe-ordl.qty column-label "Quantity!Ordered/EA"
-    format ">,>>>,>>>"
-    field sqft like itemfg.t-sqft column-label "Sq Ft" format ">>,>>>.999"
-    field t-sqft like itemfg.t-sqft column-label "Total!Sq Ft/M" format "->,>>>.999"
-    field t-tons as dec column-label "Total!  Tons" format "->,>>>.9"
-    field price like oe-ordl.price format ">>>,>>9.99<<<<"
-    field revenue like oe-ordl.t-price column-label "Order!Amount"
-    field misc as log
-    field cost as dec
-    field comm as dec label "Comm %"
-    FIELD margin AS DEC
-    .
-/* Orders Booked.rpa */
-
-/* Open Order Report.rpa */  
-DEFINE TEMP-TABLE ttOpenOrderReport NO-UNDO
-    FIELD rowType     AS CHARACTER INITIAL "Data" FORMAT "x(500)"
-    FIELD rep         AS CHARACTER LABEL "Rep" FORMAT "x(3)"
-    FIELD custNo      AS CHARACTER LABEL "Cust No" FORMAT "x(8)"
-    FIELD lineDueDate AS DATE      LABEL "Line Due Dt" FORMAT 99/99/9999
-    FIELD relDueDate  AS DATE      LABEL "Rel Due Dt" FORMAT 99/99/9999
-    FIELD custPartNo  AS CHARACTER LABEL "Cust Part" FORMAT "x(15)"
-    FIELD itemDesc    AS CHARACTER LABEL "Item Description" FORMAT "x(30)"
-    FIELD fgItemNo    AS CHARACTER LABEL "FG Item " FORMAT "x(15)"
-    FIELD orderNo     AS INTEGER   LABEL "Order No" FORMAT ">>>>>>"
-    FIELD cadNo       AS CHARACTER LABEL "CAD" FORMAT "x(15)"
-    FIELD poNo        AS CHARACTER LABEL "PO No" FORMAT "x(10)"
-    FIELD orderQty    AS INTEGER   LABEL "Order Qty" FORMAT "->,>>>,>>9"
-    FIELD qtyOnhand   AS INTEGER   LABEL "Qty OnHand" FORMAT "->,>>>,>>9"
-    FIELD qtyShipped  AS INTEGER   LABEL "Qty Shipped" FORMAT "->,>>>,>>9"
-    FIELD qtyActRel   AS INTEGER   LABEL "Qty ActRel" FORMAT "->,>>>,>>9"
-    FIELD qtyWIP      AS INTEGER   LABEL "Qty WIP"  FORMAT "->,>>>,>>9"
-    FIELD qtyAvail    AS INTEGER   LABEL "Qty Avail" FORMAT "->,>>>,>>9"
-    FIELD unit        AS INTEGER   LABEL "Unit" FORMAT ">>>>9"
-    FIELD pallet      AS INTEGER   LABEL "Pallet" FORMAT ">>9"
-    .
-DEFINE TEMP-TABLE tt-fg-bin NO-UNDO LIKE fg-bin.
-/* Open Order Report.rpa */
-
-
 /* ** dummy report used for development and testing by RStark ********** */
 /* Customer.rpa */
 DEFINE TEMP-TABLE ttCust NO-UNDO
-    FIELD rowType  AS CHARACTER INITIAL "Data"
-    FIELD company  AS CHARACTER LABEL "Company" FORMAT "x(3)"
-    FIELD custNo   AS CHARACTER LABEL "CustNo"  FORMAT "x(8)"
-    FIELD custName AS CHARACTER LABEL "Name"    FORMAT "x(30)"
-        INDEX ttCust company custNo
+    FIELD rowType    AS CHARACTER LABEL "RowType"    FORMAT "x(500)" INITIAL "Data"
+    FIELD parameters AS CHARACTER LABEL "Parameters" FORMAT "x(500)"
+    FIELD company    AS CHARACTER LABEL "Company"    FORMAT "x(3)"
+    FIELD custNo     AS CHARACTER LABEL "CustNo"     FORMAT "x(8)"
+    FIELD custName   AS CHARACTER LABEL "Name"       FORMAT "x(30)"
+        INDEX ttCust IS PRIMARY rowType company custNo
         .
 /* Customer.rpa */
 /* ********************************************************************* */
@@ -287,45 +168,6 @@ FUNCTION fCustomers RETURNS HANDLE
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTableHandle Procedure 
 FUNCTION fGetTableHandle RETURNS HANDLE
   ( ipcProgramID AS CHARACTER )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fOpenOrderReport) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOpenOrderReport Procedure 
-FUNCTION fOpenOrderReport RETURNS HANDLE
-    ( ipcCompany AS CHARACTER,
-      ipiBatch   AS INTEGER,
-      ipcUserID  AS CHARACTER )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fOrdersBooked) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOrdersBooked Procedure 
-FUNCTION fOrdersBooked RETURNS HANDLE
-    ( ipcCompany AS CHARACTER,
-      ipiBatch   AS INTEGER,
-      ipcUserID  AS CHARACTER )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fOrdersBookedByOrderNo) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOrdersBookedByOrderNo Procedure 
-FUNCTION fOrdersBookedByOrderNo RETURNS HANDLE
-    ( ipcCompany AS CHARACTER,
-      ipiBatch   AS INTEGER,
-      ipcUserID  AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -427,6 +269,495 @@ PROCEDURE pCashReceiptsBySalesRepName :
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
 
+    /* parameter values loaded into these variables */
+    DEFINE VARIABLE dtStartReceiptDate      AS DATE      NO-UNDO.
+    DEFINE VARIABLE cStartReceiptDateOption AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtEndReceiptDate        AS DATE      NO-UNDO.
+    DEFINE VARIABLE cEndReceiptDateOption   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAllSalesReps           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cStartSalesRep          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndSalesRep            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSort                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lDiscount               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lPrep                   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iOldDay                 AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cAvailableColumns       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSelectedColumns        AS CHARACTER NO-UNDO.
+
+    /* local variables */
+    DEFINE VARIABLE cSortKey                AS CHARACTER NO-UNDO.
+    def var v-sman as   CHAR NO-UNDO.
+    def var v-amt  like ar-cashl.amt-paid extent 2 NO-UNDO.
+    def var v-paid like v-amt NO-UNDO.
+    def var v-dsc  like v-amt NO-UNDO.
+    def var v-com  like ar-cashl.amt-paid NO-UNDO.
+    def var v-com-2 like v-com NO-UNDO.
+    def var v-c-%  as   DEC NO-UNDO.
+    def var v-pct  as   DEC NO-UNDO.
+    DEF VAR v-misc AS   DEC NO-UNDO.
+    DEF VAR v-basis LIKE sman.commbasis INIT "" NO-UNDO.
+    DEF VAR v-term LIKE tt-report.term-id NO-UNDO.
+    def var v-tot-amt as   dec extent 4 NO-UNDO.
+    def var v-tot-rem as   dec extent 4 NO-UNDO.
+    def var v-tot-com like v-tot-amt NO-UNDO.
+    def var v-tot-dsc like v-tot-amt NO-UNDO.
+    def var v-tot-paid like v-tot-amt NO-UNDO.
+    DEF VAR v-aging AS INTE NO-UNDO.
+    DEF VAR v-check-date AS DATE NO-UNDO.
+    DEF VAR v-inv-date AS DATE NO-UNDO.
+    DEF VAR v-amt-full AS DECI NO-UNDO FORM "->>>,>>>,>>9.99".
+    DEF VAR v-inv-full AS DECI NO-UNDO FORM "->>>,>>>,>>9.99".
+    DEF VAR v-rem-bal AS DECI NO-UNDO FORM "->>>,>>>,>>9.99".
+    DEF VAR v-tmp-amt-1 AS DEC NO-UNDO.
+    DEF VAR v-inv-found AS LOG NO-UNDO.
+    def var i as INT NO-UNDO.
+    def var j as INT NO-UNDO.
+
+    /* locate parameter values record */
+    RUN pGetParamValues (ipcCompany, "r-cashs2.", ipcUserID, ipiBatch).
+    
+    /* load parameter values from above record into variables */
+    ASSIGN
+        dtStartReceiptDate      = DATE(DYNAMIC-FUNCTION("fGetParamValue","svStartReceiptDate"))
+        cStartReceiptDateOption = DYNAMIC-FUNCTION("fGetParamValue","svStartReceiptDateOption")
+        dtEndReceiptDate        = DATE(DYNAMIC-FUNCTION("fGetParamValue","svEndReceiptDate"))
+        cEndReceiptDateOption   = DYNAMIC-FUNCTION("fGetParamValue","svEndReceiptDateOption")
+        lAllSalesReps           = DYNAMIC-FUNCTION("fGetParamValue","svAllSalesReps") EQ "yes"
+        cStartSalesRep          = DYNAMIC-FUNCTION("fGetParamValue","svStartSalesRep")
+        cEndSalesRep            = DYNAMIC-FUNCTION("fGetParamValue","svEndSalesRep")         
+        cSort                   = DYNAMIC-FUNCTION("fGetParamValue","svSort")
+        lDiscount               = DYNAMIC-FUNCTION("fGetParamValue","svTdisc") EQ "yes"
+        lPrep                   = DYNAMIC-FUNCTION("fGetParamValue","svPrep") EQ "yes"
+        iOldDay                 = DYNAMIC-FUNCTION("fGetParamValue","svDayOld") 
+        dtStartReceiptDate      = DYNAMIC-FUNCTION("fDateOptionDate",cStartReceiptDateOption,dtStartReceiptDate)
+        dtEndReceiptDate        = DYNAMIC-FUNCTION("fDateOptionDate",cEndReceiptDateOption,dtEndReceiptDate)
+        cAvailableColumns       = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
+        cSelectedColumns        = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
+        .
+
+    IF lAllSalesReps THEN
+    ASSIGN
+        cStartSalesRep = CHR(32)
+        cEndSalesRep   = CHR(255)
+        .
+
+    IF TRUE THEN RETURN.
+
+    for each cust where cust.company eq ipcCompany no-lock:
+      
+    if iOldDay eq 0 then
+    for each ar-inv
+        where ar-inv.company  eq ipcCompany
+          and ar-inv.posted   eq yes
+          and ar-inv.cust-no  eq cust.cust-no
+          and ar-inv.inv-date ge dtStartReceiptDate
+          and ar-inv.inv-date le dtEndReceiptDate
+          and ar-inv.terms    eq "CASH"
+        no-lock,
+
+        each ar-invl
+        where ar-invl.x-no eq ar-inv.x-no
+        no-lock
+        
+        transaction:
+         
+      do i = 1 to 3:
+        v-sman = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
+                 else ar-invl.sman[i].
+
+        if v-sman   lt cStartSalesRep                         or
+           v-sman   gt cEndSalesRep                         or
+           (i ne 1 and
+            (v-sman eq "" or ar-invl.s-pct[i] eq 0)) then next.
+
+        IF NOT CAN-FIND(first tt-report
+            where tt-report.term-id eq v-term
+              and tt-report.key-01  eq v-sman
+              and tt-report.inv-no  eq ar-invl.inv-no
+              and tt-report.rec-id  eq recid(ar-invl)) THEN do:
+          create tt-report.
+          assign
+           tt-report.term-id = v-term
+           tt-report.key-01  = v-sman
+           tt-report.key-09  = cust.cust-no
+           tt-report.key-08  = cust.terms
+           tt-report.key-10  = cust.NAME
+           tt-report.rec-id  = recid(ar-invl)
+           tt-report.inv-no  = ar-invl.inv-no.
+
+          CASE cSort:
+              WHEN "Customer" THEN
+              ASSIGN
+                  tt-report.key-02 = cust.cust-no
+                  tt-report.key-03 = STRING(ar-invl.inv-no,"9999999999")
+                  .
+              WHEN "Invoice" THEN
+              ASSIGN
+                  tt-report.key-02 = STRING(ar-invl.inv-no,"9999999999")
+                  tt-report.key-03 = cust.cust-no
+                  .
+          END CASE.
+
+          RELEASE tt-report.
+        end.
+      end.
+    end.      
+
+    for each ar-cash
+        where ar-cash.company    eq ipcCompany
+          and ar-cash.cust-no    eq cust.cust-no
+          and ar-cash.check-date ge dtStartReceiptDate
+          and ar-cash.check-date le dtEndReceiptDate
+          and ar-cash.posted     eq yes
+          and ar-cash.check-no   ne 0
+        no-lock,
+
+        each ar-cashl
+        where ar-cashl.c-no   eq ar-cash.c-no
+          and ar-cashl.posted eq yes
+          and ar-cashl.memo   eq no
+        no-lock
+      
+        transaction:
+
+      IF NOT (iOldDay eq 0 or
+         (ar-cash.check-date - ar-cashl.inv-date gt iOldDay and
+          ar-cashl.inv-no ne 0)) THEN NEXT.
+
+      if ar-cashl.inv-no ne 0 then
+      for each ar-invl
+          where ar-invl.company eq ipcCompany
+            and ar-invl.cust-no eq ar-cash.cust-no
+            and ar-invl.inv-no  eq ar-cashl.inv-no
+          no-lock:
+
+         do i = 1 to 3:
+            v-sman = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
+                     else ar-invl.sman[i].
+           
+            if v-sman  lt cStartSalesRep                         or
+               v-sman  gt cEndSalesRep                           or
+               (i ne 1 and
+                (v-sman eq "" or ar-invl.s-pct[i] eq 0)) then next.
+           
+            IF NOT CAN-FIND(first tt-report
+                where tt-report.term-id eq v-term
+                  and tt-report.key-01  eq v-sman
+                  and tt-report.inv-no  eq ar-invl.inv-no
+                  and tt-report.rec-id  eq recid(ar-cashl)) then do:
+               create tt-report.
+               assign
+                tt-report.term-id = v-term
+                tt-report.key-01  = v-sman
+                tt-report.key-09  = cust.cust-no
+                tt-report.key-08  = cust.terms
+                tt-report.key-10  = cust.NAME
+                tt-report.rec-id  = recid(ar-cashl)
+                tt-report.inv-no  = ar-invl.inv-no.
+
+               CASE cSort:
+                   WHEN "Customer" THEN
+                   ASSIGN
+                       tt-report.key-02 = cust.cust-no
+                       tt-report.key-03 = STRING(ar-invl.inv-no,"9999999999")
+                       .
+                   WHEN "Invoice" THEN
+                   ASSIGN
+                       tt-report.key-02 = STRING(ar-invl.inv-no,"9999999999")
+                       tt-report.key-03 = cust.cust-no
+                       .
+               END CASE.
+
+               RELEASE tt-report.
+            end.
+         end.
+      end.
+      
+      else
+      if cust.sman ge cStartSalesRep  and
+         cust.sman le cEndSalesRep    then do:
+         v-sman = cust.sman.
+        
+         IF NOT CAN-FIND(first tt-report
+             where tt-report.term-id eq v-term
+               and tt-report.key-01  eq v-sman
+               and tt-report.inv-no  eq ar-cashl.inv-no
+               and tt-report.rec-id  eq recid(ar-cashl)) then do:
+            create tt-report.
+           
+            assign
+             tt-report.term-id = v-term
+             tt-report.key-01  = v-sman
+             tt-report.key-09  = cust.cust-no
+             tt-report.key-08  = cust.terms
+             tt-report.key-10  = cust.NAME
+             tt-report.rec-id  = recid(ar-cashl)
+             tt-report.inv-no  = ar-cashl.inv-no.
+           
+            CASE cSort:
+                WHEN "Customer" THEN
+                ASSIGN
+                    tt-report.key-02 = cust.cust-no
+                    tt-report.key-03 = STRING(ar-invl.inv-no,"9999999999")
+                    .
+                WHEN "Invoice" THEN
+                ASSIGN
+                    tt-report.key-02 = STRING(ar-invl.inv-no,"9999999999")
+                    tt-report.key-03 = cust.cust-no
+                    .
+            END CASE.
+           
+            RELEASE tt-report.
+         end.
+      end.
+    end.
+  end.
+
+  FOR EACH tt-report NO-LOCK:
+    FIND FIRST tt-report-inv WHERE tt-report-inv.inv-no = tt-report.inv-no 
+                                    AND  tt-report-inv.key-01 NE tt-report.key-01  NO-LOCK NO-ERROR.
+      IF NOT AVAIL tt-report-inv THEN do:
+      CREATE  tt-report-inv.
+      ASSIGN
+          tt-report-inv.key-01  =    tt-report.key-01
+          tt-report-inv.key-02  =    tt-report.key-02
+          tt-report-inv.key-03  =    tt-report.key-03
+          tt-report-inv.inv-no  =    tt-report.inv-no  .
+         
+      END. 
+      ELSE do:
+          tt-report.chk-inv = FALSE .
+      END.
+          
+  END.
+  FOR EACH tt-report-inv NO-LOCK:
+      DELETE tt-report-inv .
+  END.
+
+  for each tt-report where tt-report.term-id eq v-term,
+  
+      first cust
+      where cust.company eq ipcCompany
+        and cust.cust-no eq tt-report.key-09
+      no-lock
+          
+      break by tt-report.key-01
+            by tt-report.key-02
+            by tt-report.key-03
+            BY tt-report.inv-no
+      
+      transaction:
+     
+    find first sman
+        where sman.company eq ipcCompany
+          and sman.sman    eq tt-report.key-01
+        no-lock no-error.
+   
+    release ar-inv.
+    release ar-cash.
+
+    ASSIGN v-check-date = ?
+           v-inv-date = ?
+           v-amt-full = 0
+           v-inv-full = 0
+           v-misc = 0.
+    
+    find ar-cashl where recid(ar-cashl) eq tt-report.rec-id no-lock no-error.    
+        
+    if avail ar-cashl then do:
+       find first ar-cash where ar-cash.c-no eq ar-cashl.c-no no-lock.
+       assign
+          v-dsc[1] = if lDiscount then ar-cashl.amt-disc else 0
+          v-check-date = ar-cash.check-date
+          v-amt-full = ar-cashl.amt-paid
+          v-inv-found = NO.
+      
+       if ar-cashl.inv-no ne 0 then
+       for each ar-invl WHERE
+           ar-invl.company eq ipcCompany AND
+           ar-invl.cust-no eq ar-cash.cust-no AND
+           ar-invl.inv-no  eq ar-cashl.inv-no
+           no-lock,
+           first ar-inv where
+                 ar-inv.x-no eq ar-invl.x-no
+                 no-lock
+           break by ar-invl.inv-no:
+      
+           v-inv-found = YES.
+
+           FIND FIRST itemfg
+               WHERE itemfg.company EQ ipcCompany
+                 AND itemfg.i-no    EQ ar-invl.i-no
+               NO-LOCK NO-ERROR.
+           
+           RUN custom/combasis.p (ipcCompany, tt-report.key-01, cust.type,
+                                  (IF AVAIL itemfg THEN itemfg.procat ELSE ""), 0,
+                                  cust.cust-no,
+                                  OUTPUT v-basis).
+           
+           if FIRST-OF(tt-report.inv-no) then
+           DO:
+              IF FIRST(ar-invl.inv-no) THEN
+                 assign
+                    v-amt    = 0
+                    v-amt[1] = ar-inv.tax-amt +
+                               (if ar-inv.f-bill then ar-inv.freight else 0)
+                    v-inv-full = v-amt[1]
+                    v-com    = 0
+                    v-com-2  = 0
+                    v-inv-date = ar-inv.inv-date.
+                
+   
+              ASSIGN
+                 v-inv-full = v-inv-full + ar-invl.amt.
+
+              IF NOT lPrep AND ar-invl.misc THEN v-misc = v-misc + ar-invl.amt.
+              ELSE DO:
+                ASSIGN
+                      v-amt[1] = v-amt[1] + ar-invl.amt
+                      v-tmp-amt-1 = v-amt[1].
+    
+                  if ar-invl.sman[1] ne "" then
+                  do i = 1 to 3:
+                     if tt-report.key-01 eq ar-invl.sman[i] then do:
+                        ASSIGN
+                           v-amt[2] = v-amt[2] + (ar-invl.amt * ar-invl.s-pct[i] / 100)
+                           v-com    = v-com +
+                                      (((ar-invl.amt - if v-basis EQ "G" then ar-invl.t-cost else 0) *
+                                      ar-invl.s-pct[i] / 100) * ar-invl.s-comm[i] / 100).
+                        leave.
+                     end.
+                  end.
+               
+                  else
+                     assign
+                        v-amt[2] = v-amt[2] + ar-invl.amt
+                        v-com    = v-com +
+                                   ((ar-invl.amt - if v-basis EQ "G" then ar-invl.t-cost else 0) *
+                                   (if avail sman then (sman.scomm / 100) else 0)).
+                    
+              END.
+           end. /*end FIRST-OF(tt-report.inv-no)*/
+         
+       END. /*end each ar-invl*/
+
+       IF v-inv-found = NO THEN
+          ASSIGN
+             v-amt[1] = ar-cashl.amt-paid + v-dsc[1] - v-misc
+             v-tmp-amt-1 = v-amt[1]
+             v-amt[2] = v-amt[1]
+             v-com    = v-amt[1] * (if avail sman then (sman.scomm / 100) else 0).
+
+       assign
+          v-pct    = v-amt[2] / v-tmp-amt-1
+          v-amt[1] = (ar-cashl.amt-paid + v-dsc[1] - v-misc) * v-pct    /* task 02261403 */
+          v-pct    = v-amt[1] / v-amt[2]
+          v-com-2  = v-com * v-pct.
+
+       release ar-inv.
+    end.
+    
+    else do:
+      find ar-invl where recid(ar-invl) eq tt-report.rec-id no-lock.
+      find first ar-inv where ar-inv.x-no eq ar-invl.x-no no-lock.
+
+      FIND FIRST itemfg
+            WHERE itemfg.company EQ ipcCompany
+              AND itemfg.i-no    EQ ar-invl.i-no
+            NO-LOCK NO-ERROR.
+
+      RUN custom/combasis.p (ipcCompany, tt-report.key-01, cust.type,
+                             (IF AVAIL itemfg THEN itemfg.procat ELSE ""), 0,
+                             cust.cust-no,
+                             OUTPUT v-basis).
+     ASSIGN
+         v-inv-full = ar-invl.amt .
+
+      IF NOT lPrep AND ar-invl.misc THEN NEXT.
+
+    ASSIGN
+       v-amt[1] = ar-invl.amt 
+       v-tmp-amt-1 = v-amt[1]
+       v-com    = (ar-invl.amt - if v-basis EQ "G" then ar-invl.t-cost else 0) *
+                  (if avail sman then (sman.scomm / 100) else 0)
+       v-com-2  = v-com.
+        
+    end.
+    
+    if v-com-2  eq ? then v-com-2 = 0.
+    if v-amt[1] eq ? then
+       ASSIGN v-amt[1] = 0
+              v-tmp-amt-1 = 0.
+    
+    ASSIGN
+       v-c-% = v-com-2 / v-amt[1] * 100
+       v-amt[1] = v-tmp-amt-1. /*multiple payments against an invoice, reset v-amt[1] value*/
+    
+    if v-c-% eq ? then v-c-% = 0.
+    
+    v-paid[1] = v-amt-full.
+
+  
+
+    v-aging = (IF v-check-date <> ? AND v-inv-date <> ? THEN v-check-date - v-inv-date ELSE 0).
+
+    IF FIRST-OF(tt-report.inv-no) THEN
+       v-rem-bal  = v-inv-full - v-amt-full - v-dsc[1].
+    ELSE
+       v-rem-bal  = v-rem-bal - v-amt-full - v-dsc[1].
+
+       CREATE ttCashReceiptBySalesRep.
+       ASSIGN
+           ttCashReceiptBySalesRep.xxSort        = tt-report.key-01
+                                                 + tt-report.key-02
+                                                 + tt-report.key-03
+           ttCashReceiptBySalesRep.salesRep      = STRING(tt-report.key-01) 
+           ttCashReceiptBySalesRep.salesName     = IF AVAILABLE sman THEN STRING(sman.sname) ELSE ""
+           ttCashReceiptBySalesRep.custNo        = STRING(tt-report.key-09)
+           ttCashReceiptBySalesRep.custName      = tt-report.key-10
+           ttCashReceiptBySalesRep.terms         = tt-report.key-08
+           ttCashReceiptBySalesRep.invoiceNo     = IF AVAILABLE ar-cashl THEN ar-cashl.inv-no ELSE IF AVAIL ar-inv THEN  ar-inv.inv-no ELSE 0
+           ttCashReceiptBySalesRep.invDate       = v-inv-date   
+           ttCashReceiptBySalesRep.chkDate       = v-check-date 
+           ttCashReceiptBySalesRep.Aging         = v-aging
+           ttCashReceiptBySalesRep.invAmt        = v-inv-full
+           ttCashReceiptBySalesRep.amtPaid       = v-amt-full
+           ttCashReceiptBySalesRep.discount      = v-dsc[1]
+           ttCashReceiptBySalesRep.balAftPay     = v-rem-bal
+           ttCashReceiptBySalesRep.commAmt       = v-com-2
+           ttCashReceiptBySalesRep.commPct       = v-c-%
+           .
+    assign
+     v-tot-paid[1] = v-tot-paid[1] + v-paid[1]
+     v-tot-dsc[1] = v-tot-dsc[1] + v-dsc[1]
+     v-tot-amt[1] = v-tot-amt[1] + v-inv-full
+     v-tot-com[1] = v-tot-com[1] + v-com-2.
+
+    IF LAST-OF(tt-report.inv-no) THEN
+       v-tot-rem[1] = v-tot-rem[1] + v-rem-bal.
+     
+    if last-of(tt-report.key-02) then do:
+      if cSort EQ "Customer" then do:
+       
+       v-c-% = v-tot-com[1] / v-tot-amt[1] * 100.
+        
+        if v-c-% eq ? then v-c-% = 0.
+       
+      end.
+
+      ASSIGN
+       v-tot-paid[1] = 0
+       v-tot-dsc[1] = 0
+       v-tot-amt[1] = 0
+       v-tot-rem[1] = 0
+       v-tot-com[1] = 0.
+
+    end. /* last of key-02 */
+ 
+
+    delete tt-report.
+  end.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -469,7 +800,6 @@ PROCEDURE pCommissionCashReceipt :
     DEFINE VARIABLE lCalc                   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAvailableColumns       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSelectedColumns        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTitle                  AS CHARACTER NO-UNDO.
 
     /* local variables */
     DEFINE VARIABLE dtDate                  AS DATE      NO-UNDO.
@@ -516,13 +846,11 @@ PROCEDURE pCommissionCashReceipt :
         dtEndInvoiceDate        = DYNAMIC-FUNCTION("fDateOptionDate",cEndInvoiceDateOption,dtEndInvoiceDate)
         cAvailableColumns       = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
         cSelectedColumns        = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
-        cTitle                  = DYNAMIC-FUNCTION("fGetParamValue","svTitle")
         .
 
     RUN pGetColumns (TEMP-TABLE ttCommissionCashReceipt:HANDLE,
                      cAvailableColumns,
-                     cSelectedColumns,
-                     cTitle
+                     cSelectedColumns
                      ).
 
     IF lAllSalesReps THEN
@@ -802,66 +1130,6 @@ END PROCEDURE.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-pOpenOrderReport) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOpenOrderReport Procedure 
-PROCEDURE pOpenOrderReport :
-/*------------------------------------------------------------------------------
-  Purpose:     Open Order Report.rpa
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pOrdersBooked) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOrdersBooked Procedure 
-PROCEDURE pOrdersBooked :
-/*------------------------------------------------------------------------------
-  Purpose:     Orders Booked.rpa
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pOrdersBookedByOrderNo) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOrdersBookedByOrderNo Procedure 
-PROCEDURE pOrdersBookedByOrderNo :
-/*------------------------------------------------------------------------------
-  Purpose:     Orders Booked by Order No.rpa
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fCashReceiptsBySalesRepName) = 0 &THEN
@@ -927,7 +1195,6 @@ FUNCTION fCustomers RETURNS HANDLE
     DEFINE VARIABLE cEndCustNo        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSelectedColumns  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTitle            AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttCust.
     
@@ -938,7 +1205,6 @@ FUNCTION fCustomers RETURNS HANDLE
         cEndCustNo        = DYNAMIC-FUNCTION("fGetParamValue","svEndCustNo")
         cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
         cSelectedColumns  = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
-        cTitle            = DYNAMIC-FUNCTION("fGetParamValue","svTitle")
         .
 
     FOR EACH cust NO-LOCK 
@@ -956,8 +1222,7 @@ FUNCTION fCustomers RETURNS HANDLE
 
     RUN pGetColumns (TEMP-TABLE ttCust:HANDLE,
                      cAvailableColumns,
-                     cSelectedColumns,
-                     cTitle
+                     cSelectedColumns
                      ).
         
     RETURN TEMP-TABLE ttCust:HANDLE.
@@ -988,88 +1253,7 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Commision Cash Receipt.rpa */
         WHEN "r-commcr." THEN
         RETURN TEMP-TABLE ttCommissionCashReceipt:HANDLE.
-        /* Order Booked by Order No.rpa */
-        WHEN "r-booko#." THEN
-        RETURN TEMP-TABLE ttOrderBookbyOrder:HANDLE.
-        /* Order Booked.rpa */
-        WHEN "r-booked." THEN
-        RETURN TEMP-TABLE ttOrdersBooked:HANDLE.
-        
-        WHEN "r-ordopn." THEN
-        RETURN TEMP-TABLE ttOpenOrderReport:HANDLE.
     END CASE.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fOpenOrderReport) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOpenOrderReport Procedure 
-FUNCTION fOpenOrderReport RETURNS HANDLE
-    ( ipcCompany AS CHARACTER,
-      ipiBatch   AS INTEGER,
-      ipcUserID  AS CHARACTER ) :
-  /*------------------------------------------------------------------------------
-    Purpose:  Open Order Report.rpa
-      Notes:  
-  ------------------------------------------------------------------------------*/
-      EMPTY TEMP-TABLE ttOpenOrderReport.
-
-      RUN pOpenOrderReport (ipcCompany, ipiBatch, ipcUserID).
-
-      RETURN TEMP-TABLE ttOpenOrderReport:HANDLE .
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fOrdersBooked) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOrdersBooked Procedure 
-FUNCTION fOrdersBooked RETURNS HANDLE
-    ( ipcCompany AS CHARACTER,
-      ipiBatch   AS INTEGER,
-      ipcUserID  AS CHARACTER ) :
-  /*------------------------------------------------------------------------------
-    Purpose:  Orders Booked.rpa
-      Notes:  
-  ------------------------------------------------------------------------------*/
-      EMPTY TEMP-TABLE ttOrdersBooked.
-
-      RUN pOrdersBooked (ipcCompany, ipiBatch, ipcUserID).
-
-      RETURN TEMP-TABLE ttOrdersBooked:HANDLE .
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fOrdersBookedByOrderNo) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOrdersBookedByOrderNo Procedure 
-FUNCTION fOrdersBookedByOrderNo RETURNS HANDLE
-    ( ipcCompany AS CHARACTER,
-      ipiBatch   AS INTEGER,
-      ipcUserID  AS CHARACTER ) :
-  /*------------------------------------------------------------------------------
-    Purpose:  Orders Booked by Order No.rpa
-      Notes:  
-  ------------------------------------------------------------------------------*/
-      EMPTY TEMP-TABLE ttOrderBookbyOrder.
-
-      RUN pOrdersBookedByOrderNo (ipcCompany, ipiBatch, ipcUserID).
-
-      RETURN TEMP-TABLE ttOrderBookbyOrder:HANDLE .
 
 END FUNCTION.
 
