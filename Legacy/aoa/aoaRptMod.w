@@ -52,7 +52,8 @@ DEFINE TEMP-TABLE ttSubject NO-UNDO
     FIELD ttFormat AS CHARACTER LABEL "Format" FORMAT "x(20)"
     FIELD ttWidth  AS INTEGER   LABEL "Width"  FORMAT ">>>9"
     FIELD ttSize   AS INTEGER   LABEL "Size"   FORMAT ">>>9"
-        INDEX ttSubject IS PRIMARY ttOrder.
+        INDEX ttSubject IS PRIMARY ttOrder
+        .
 
 DEFINE TEMP-TABLE ttPageHeader NO-UNDO
     FIELD phOrder        AS INTEGER   LABEL "Order"        FORMAT ">>>9"
@@ -63,7 +64,8 @@ DEFINE TEMP-TABLE ttPageHeader NO-UNDO
     FIELD phAlignment    AS INTEGER   LABEL "Alignment"    FORMAT "9"
     FIELD phSectionItem  AS INTEGER   LABEL "SectionItem"  FORMAT ">>9"
     FIELD phControlItem  AS INTEGER   LABEL "ControlItem"  FORMAT ">>9"
-        INDEX ttPageHeader IS PRIMARY phOrder.
+        INDEX ttPageHeader IS PRIMARY phOrder
+        .
 
 DEFINE TEMP-TABLE ttDetail NO-UNDO
     FIELD dtOrder        AS INTEGER   LABEL "Order"        FORMAT ">>>9"
@@ -75,7 +77,8 @@ DEFINE TEMP-TABLE ttDetail NO-UNDO
     FIELD dtOutputFormat AS CHARACTER LABEL "OutputFormat" FORMAT "x(30)"
     FIELD dtSectionItem  AS INTEGER   LABEL "SectionItem"  FORMAT ">>9"
     FIELD dtControlItem  AS INTEGER   LABEL "ControlItem"  FORMAT ">>9"
-        INDEX ttDetail IS PRIMARY dtOrder.
+        INDEX ttDetail IS PRIMARY dtOrder
+        .
 
 DEFINE TEMP-TABLE ttSection NO-UNDO
     FIELD secOrder        AS INTEGER   LABEL "Order"        FORMAT ">>>9"
@@ -89,7 +92,18 @@ DEFINE TEMP-TABLE ttSection NO-UNDO
     FIELD secOutputFormat AS CHARACTER LABEL "OutputFormat" FORMAT "x(30)"
     FIELD secSectionItem  AS INTEGER   LABEL "SectionItem"  FORMAT ">>9"
     FIELD secControlItem  AS INTEGER   LABEL "ControlItem"  FORMAT ">>9"
-        INDEX ttSection IS PRIMARY secOrder.
+        INDEX ttSection IS PRIMARY secOrder
+        .
+
+DEFINE TEMP-TABLE ttParameter NO-UNDO
+    FIELD pOrder        AS INTEGER   LABEL "Order"       FORMAT ">>>9"
+    FIELD pName         AS CHARACTER LABEL "Name"        FORMAT "x(27)"
+    FIELD pCaption      AS CHARACTER LABEL "Caption"     FORMAT "x(40)"
+    FIELD pWidth        AS INTEGER   LABEL "Width"       FORMAT ">>>9"
+    FIELD pSectionItem  AS INTEGER   LABEL "SectionItem" FORMAT ">>9"
+    FIELD pControlItem  AS INTEGER   LABEL "ControlItem" FORMAT ">>9"
+        INDEX ttParameter IS PRIMARY pOrder
+        .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -107,7 +121,8 @@ DEFINE TEMP-TABLE ttSection NO-UNDO
 &Scoped-define BROWSE-NAME ttDetail
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttDetail ttPageHeader ttSection ttSubject
+&Scoped-define INTERNAL-TABLES ttDetail ttPageHeader ttParameter ttSection ~
+ttSubject
 
 /* Definitions for BROWSE ttDetail                                      */
 &Scoped-define FIELDS-IN-QUERY-ttDetail ttDetail.dtOrder ttDetail.dtName ttDetail.dtDataField ttDetail.dtLeft ttDetail.dtWidth ttDetail.dtOutputFormat   
@@ -127,6 +142,16 @@ DEFINE TEMP-TABLE ttSection NO-UNDO
 &Scoped-define OPEN-QUERY-ttPageHeader OPEN QUERY {&SELF-NAME} FOR EACH ttPageHeader.
 &Scoped-define TABLES-IN-QUERY-ttPageHeader ttPageHeader
 &Scoped-define FIRST-TABLE-IN-QUERY-ttPageHeader ttPageHeader
+
+
+/* Definitions for BROWSE ttParameter                                   */
+&Scoped-define FIELDS-IN-QUERY-ttParameter ttParameter.pOrder ttParameter.pName ttParameter.pCaption   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-ttParameter   
+&Scoped-define SELF-NAME ttParameter
+&Scoped-define QUERY-STRING-ttParameter FOR EACH ttParameter
+&Scoped-define OPEN-QUERY-ttParameter OPEN QUERY {&SELF-NAME} FOR EACH ttParameter.
+&Scoped-define TABLES-IN-QUERY-ttParameter ttParameter
+&Scoped-define FIRST-TABLE-IN-QUERY-ttParameter ttParameter
 
 
 /* Definitions for BROWSE ttSection                                     */
@@ -153,20 +178,21 @@ DEFINE TEMP-TABLE ttSection NO-UNDO
 &Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
     ~{&OPEN-QUERY-ttDetail}~
     ~{&OPEN-QUERY-ttPageHeader}~
+    ~{&OPEN-QUERY-ttParameter}~
     ~{&OPEN-QUERY-ttSection}~
     ~{&OPEN-QUERY-ttSubject}
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnOpenRPA btnSetName btnSave btnPublish ~
-ttSubject ttPageHeader ttDetail ttSection btnOnReportStart ~
+ttSubject ttSection ttParameter ttPageHeader ttDetail btnOnReportStart ~
 btnDetailOnFormat 
-&Scoped-Define DISPLAYED-OBJECTS aoaProgramID aoaReportWidth aoaReportTitle ~
-aoaRptFile 
+&Scoped-Define DISPLAYED-OBJECTS aoaProgramID aoaReportWidth aoaRptFile ~
+aoaReportTitle 
 
 /* Custom List Definitions                                              */
 /* aoaReportValue,List-2,List-3,List-4,List-5,List-6                    */
-&Scoped-define aoaReportValue aoaProgramID aoaReportWidth aoaReportTitle ~
-aoaRptFile 
+&Scoped-define aoaReportValue aoaProgramID aoaReportWidth aoaRptFile ~
+aoaReportTitle 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -197,11 +223,11 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnDetailOnFormat 
      LABEL "Script: &Detail OnFormat" 
-     SIZE 31 BY 1.19.
+     SIZE 30 BY 1.19.
 
 DEFINE BUTTON btnOnReportStart 
      LABEL "Script: On&ReportStart" 
-     SIZE 31 BY 1.19.
+     SIZE 30 BY 1.19.
 
 DEFINE BUTTON btnOpenRPA 
      LABEL "..." 
@@ -228,7 +254,7 @@ DEFINE VARIABLE aoaProgramID AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE aoaReportTitle AS CHARACTER FORMAT "X(256)":U 
      LABEL "Report Title" 
      VIEW-AS FILL-IN 
-     SIZE 64 BY 1
+     SIZE 67 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE aoaReportWidth AS INTEGER FORMAT ">>>,>>9":U INITIAL 0 
@@ -240,7 +266,7 @@ DEFINE VARIABLE aoaReportWidth AS INTEGER FORMAT ">>>,>>9":U INITIAL 0
 DEFINE VARIABLE aoaRptFile AS CHARACTER FORMAT "X(256)":U 
      LABEL "AOA Report File" 
      VIEW-AS FILL-IN 
-     SIZE 90 BY 1
+     SIZE 125 BY 1
      BGCOLOR 15  NO-UNDO.
 
 /* Query definitions                                                    */
@@ -250,6 +276,9 @@ DEFINE QUERY ttDetail FOR
 
 DEFINE QUERY ttPageHeader FOR 
       ttPageHeader SCROLLING.
+
+DEFINE QUERY ttParameter FOR 
+      ttParameter SCROLLING.
 
 DEFINE QUERY ttSection FOR 
       ttSection SCROLLING.
@@ -270,7 +299,7 @@ DEFINE BROWSE ttDetail
     ttDetail.dtOutputFormat
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 107 BY 19.76
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 107 BY 14.05
          TITLE "Detail Section".
 
 DEFINE BROWSE ttPageHeader
@@ -283,8 +312,19 @@ DEFINE BROWSE ttPageHeader
     ttPageHeader.phWidth
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 76 BY 19.76
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 76 BY 14.05
          TITLE "PageHeader Section".
+
+DEFINE BROWSE ttParameter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttParameter C-Win _FREEFORM
+  QUERY ttParameter DISPLAY
+      ttParameter.pOrder
+     ttParameter.pName
+     ttParameter.pCaption
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 79 BY 39.29
+         TITLE "Parameter (ReportHeader Section)".
 
 DEFINE BROWSE ttSection
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttSection C-Win _FREEFORM
@@ -297,7 +337,7 @@ ttSection.secWidth
 ttSection.secOutputFormat
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 142 BY 19.29
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 142 BY 25
          TITLE "SubTotal/Total Sections".
 
 DEFINE BROWSE ttSubject
@@ -312,31 +352,32 @@ DEFINE BROWSE ttSubject
     ttSubject.ttSize
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 95 BY 39.29
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 95 BY 25
          TITLE "Business Subject Temp-Table".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     aoaProgramID AT ROW 1.24 COL 5 COLON-ALIGNED WIDGET-ID 18
-     btnOpenRPA AT ROW 1.24 COL 24 WIDGET-ID 16
-     btnSetName AT ROW 1.24 COL 29 WIDGET-ID 4
-     btnSave AT ROW 1.24 COL 44 WIDGET-ID 6
-     btnPublish AT ROW 1.24 COL 59 WIDGET-ID 20
-     aoaReportWidth AT ROW 1.24 COL 86 COLON-ALIGNED WIDGET-ID 10
-     aoaReportTitle AT ROW 1.24 COL 109 COLON-ALIGNED WIDGET-ID 8
-     aoaRptFile AT ROW 1.24 COL 191 COLON-ALIGNED WIDGET-ID 2
-     ttSubject AT ROW 2.43 COL 3 WIDGET-ID 200
-     ttPageHeader AT ROW 2.43 COL 99 WIDGET-ID 300
-     ttDetail AT ROW 2.43 COL 176 WIDGET-ID 400
-     ttSection AT ROW 22.43 COL 141 WIDGET-ID 500
-     btnOnReportStart AT ROW 23.62 COL 104 WIDGET-ID 14
-     btnDetailOnFormat AT ROW 25.05 COL 104 WIDGET-ID 12
+     aoaProgramID AT ROW 1.24 COL 4 COLON-ALIGNED WIDGET-ID 18
+     btnOpenRPA AT ROW 1.24 COL 23 WIDGET-ID 16
+     btnSetName AT ROW 1.24 COL 28 WIDGET-ID 4
+     btnSave AT ROW 1.24 COL 43 WIDGET-ID 6
+     btnPublish AT ROW 1.24 COL 58 WIDGET-ID 20
+     aoaReportWidth AT ROW 1.24 COL 85 COLON-ALIGNED WIDGET-ID 10
+     aoaRptFile AT ROW 1.24 COL 113 COLON-ALIGNED WIDGET-ID 2
+     aoaReportTitle AT ROW 1.24 COL 251 COLON-ALIGNED WIDGET-ID 8
+     ttSubject AT ROW 2.43 COL 2 WIDGET-ID 200
+     ttSection AT ROW 2.43 COL 98 WIDGET-ID 500
+     ttParameter AT ROW 2.43 COL 241 WIDGET-ID 600
+     ttPageHeader AT ROW 27.67 COL 21 WIDGET-ID 300
+     ttDetail AT ROW 27.67 COL 98 WIDGET-ID 400
+     btnOnReportStart AT ROW 29.81 COL 208 WIDGET-ID 14
+     btnDetailOnFormat AT ROW 31.24 COL 208 WIDGET-ID 12
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 283.2 BY 40.86 WIDGET-ID 100.
+         SIZE 320 BY 40.86 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -357,11 +398,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "AOA Report Modifier"
          HEIGHT             = 40.86
-         WIDTH              = 283.2
-         MAX-HEIGHT         = 40.86
-         MAX-WIDTH          = 283.2
-         VIRTUAL-HEIGHT     = 40.86
-         VIRTUAL-WIDTH      = 283.2
+         WIDTH              = 320
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
+         VIRTUAL-HEIGHT     = 320
+         VIRTUAL-WIDTH      = 320
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -384,10 +425,11 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB ttSubject aoaRptFile DEFAULT-FRAME */
-/* BROWSE-TAB ttPageHeader ttSubject DEFAULT-FRAME */
+/* BROWSE-TAB ttSubject aoaReportTitle DEFAULT-FRAME */
+/* BROWSE-TAB ttSection ttSubject DEFAULT-FRAME */
+/* BROWSE-TAB ttParameter ttSection DEFAULT-FRAME */
+/* BROWSE-TAB ttPageHeader ttParameter DEFAULT-FRAME */
 /* BROWSE-TAB ttDetail ttPageHeader DEFAULT-FRAME */
-/* BROWSE-TAB ttSection ttDetail DEFAULT-FRAME */
 /* SETTINGS FOR FILL-IN aoaProgramID IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN aoaReportTitle IN FRAME DEFAULT-FRAME
@@ -421,6 +463,15 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttPageHeader.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE ttPageHeader */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttParameter
+/* Query rebuild information for BROWSE ttParameter
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttParameter.
+     _END_FREEFORM
+     _Query            is OPENED
+*/  /* BROWSE ttParameter */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttSection
@@ -588,7 +639,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  {&WINDOW-NAME}:WINDOW-STATE = 1.
+  RUN pReSize.
   RUN pCreateObjects.
   RUN enable_UI.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -631,10 +682,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY aoaProgramID aoaReportWidth aoaReportTitle aoaRptFile 
+  DISPLAY aoaProgramID aoaReportWidth aoaRptFile aoaReportTitle 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnOpenRPA btnSetName btnSave btnPublish ttSubject ttPageHeader 
-         ttDetail ttSection btnOnReportStart btnDetailOnFormat 
+  ENABLE btnOpenRPA btnSetName btnSave btnPublish ttSubject ttSection 
+         ttParameter ttPageHeader ttDetail btnOnReportStart btnDetailOnFormat 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -686,9 +737,10 @@ PROCEDURE pGetReportFields :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcReportName AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cName    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE ix       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iy       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iOrder AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE ix     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iy     AS INTEGER   NO-UNDO.
     
     PAReportEngine:OpenReport(ipcReportName).
     hReport = PAReportEngine:Report.
@@ -702,12 +754,25 @@ PROCEDURE pGetReportFields :
     EMPTY TEMP-TABLE ttPageHeader.
     EMPTY TEMP-TABLE ttDetail.
     EMPTY TEMP-TABLE ttSection.
+    EMPTY TEMP-TABLE ttParameter.
 
     aoaReportWidth = hReport:PrintWidth.
     DO ix = 0 TO hReport:Sections:Count - 1:
         cName = hReport:Sections:Item(ix):Name.
         DO iy = 0 TO hReport:Sections:Item(ix):Controls:Count - 1:
             CASE cName:
+                WHEN "ReportHeader" THEN DO:
+                    IF hReport:Sections:Item(ix):Controls:Item(iy):Name EQ "ParametersLabel" THEN NEXT.
+                    CREATE ttParameter.
+                    ASSIGN
+                        ttParameter.pOrder       = iOrder
+                        ttParameter.pName        = hReport:Sections:Item(ix):Controls:Item(iy):Name
+                        ttParameter.pCaption     = hReport:Sections:Item(ix):Controls:Item(iy):Caption
+                        ttParameter.pSectionItem = ix
+                        ttParameter.pControlItem = iy
+                        iOrder                   = iOrder + 1
+                        .
+                END.
                 WHEN "PageHeader" THEN DO:
                     CREATE ttPageHeader.
                     ASSIGN
@@ -810,6 +875,7 @@ PROCEDURE pGetTempTableFields :
     DO idx = 1 TO iphTable:NUM-FIELDS:
         IF CAN-DO("RECID,ROWID",iphTable:BUFFER-FIELD(idx):DATA-TYPE) THEN NEXT.
         IF iphTable:BUFFER-FIELD(idx):NAME EQ "rowType" THEN NEXT.
+        IF iphTable:BUFFER-FIELD(idx):NAME EQ "parameters" THEN NEXT.
         CREATE ttSubject.
         ASSIGN
             iOrder             = iOrder + 1
@@ -898,6 +964,51 @@ PROCEDURE pPublish :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE publishExe AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE logText AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE txtLine AS CHARACTER NO-UNDO.
+
+    publishExe = SEARCH("aoaReports\PublishReport.exe").
+    
+    OS-COMMAND SILENT VALUE(publishExe) VALUE(aoaRptFile) > "c:\tmp\publish.log".
+
+    INPUT FROM "c:\tmp\publish.log".
+    DO WHILE TRUE ON ENDKEY UNDO, LEAVE:
+       IMPORT UNFORMATTED txtLine.
+       IF logText <> "" THEN logText = logText + CHR(10).
+       logText = logText + txtLine.
+    END.
+    INPUT CLOSE.
+    
+    IF logText EQ "success" THEN
+        MESSAGE "Published OK" VIEW-AS ALERT-BOX.
+    ELSE
+        MESSAGE "Published Failed: " + logText VIEW-AS ALERT-BOX ERROR.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReSize C-Win 
+PROCEDURE pReSize :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iDiff AS INTEGER NO-UNDO.
+
+    ASSIGN
+        {&WINDOW-NAME}:WINDOW-STATE = 1
+        {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+        iDiff = {&WINDOW-NAME}:HEIGHT-PIXELS - FRAME {&FRAME-NAME}:HEIGHT-PIXELS
+        FRAME {&FRAME-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+        FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+        ttPageHeader:HEIGHT-PIXELS = ttPageHeader:HEIGHT-PIXELS + iDiff
+        ttDetail:HEIGHT-PIXELS = ttDetail:HEIGHT-PIXELS + iDiff
+        ttParameter:HEIGHT-PIXELS = ttParameter:HEIGHT-PIXELS + iDiff
+        .
 
 END PROCEDURE.
 
@@ -911,23 +1022,26 @@ PROCEDURE pSetNames :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cName    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iLeft    AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cFormat  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cName   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iLeft   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cFormat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER   NO-UNDO.
 
     FOR EACH ttSubject:
         cName = CAPS(SUBSTR(ttSubject.ttField,1,1)) + SUBSTR(ttSubject.ttField,2).
         FIND FIRST ttPageHeader
              WHERE ttPageHeader.phOrder EQ ttSubject.ttOrder
              NO-ERROR.
-        IF AVAILABLE ttPageHeader THEN
-        ASSIGN
-            ttPageHeader.phName      = ttSubject.ttField + "_PageHeader"
-            ttPageHeader.phCaption   = ttSubject.ttLabel
-            ttPageHeader.phWidth     = ttSubject.ttSize
-            ttPageHeader.phLeft      = iLeft
-            ttPageHeader.phAlignment = IF CAN-DO("Character,Date",ttSubject.ttType) THEN 0 ELSE 1
-            .
+        IF AVAILABLE ttPageHeader THEN DO:
+            ASSIGN
+                ttPageHeader.phName      = ttSubject.ttField + "_PageHeader"
+                ttPageHeader.phCaption   = ttSubject.ttLabel
+                ttPageHeader.phWidth     = ttSubject.ttSize
+                ttPageHeader.phLeft      = iLeft
+                .
+            IF NOT CAN-DO("Character,Date",ttSubject.ttType) THEN
+            ttPageHeader.phAlignment = 1.
+        END. /* avail ttpageheader */
         FIND FIRST ttDetail
              WHERE ttDetail.dtOrder EQ ttSubject.ttOrder
              NO-ERROR.
@@ -937,7 +1051,6 @@ PROCEDURE pSetNames :
                 ttDetail.dtDataField    = ttSubject.ttLabel
                 ttDetail.dtWidth        = ttSubject.ttSize
                 ttDetail.dtLeft         = iLeft
-                ttDetail.dtAlignment    = 0
                 ttDetail.dtOutputFormat = ""
                 .
             IF ttSubject.ttType NE "Character" THEN DO:
@@ -973,11 +1086,51 @@ PROCEDURE pSetNames :
         iLeft = iLeft + ttSubject.ttSize + 50.
     END. /* each subject */
     
+    FIND FIRST ttParameter WHERE ttParameter.pOrder EQ 0 NO-ERROR.
+    IF AVAILABLE ttParameter THEN
+    ASSIGN
+        ttParameter.pCaption = aoaReportTitle
+        ttParameter.pWidth   = LENGTH(aoaReportTitle) * 180.
+    
+    FIND FIRST user-print NO-LOCK
+         WHERE user-print.company    EQ "001"
+           AND user-print.program-id EQ aoaProgramID
+           AND user-print.user-id    EQ "NoSweat"
+           AND user-print.batch      EQ ""
+         NO-ERROR.
+    IF NOT AVAILABLE user-print THEN
+    FIND FIRST user-print NO-LOCK
+         WHERE user-print.company    EQ "001"
+           AND user-print.program-id EQ aoaProgramID
+           AND user-print.user-id    EQ "ASI"
+           AND user-print.batch      EQ ""
+         NO-ERROR.
+    IF AVAILABLE user-print THEN DO:
+        DO idx = 1 TO EXTENT(user-print.field-name):
+            IF user-print.field-name[idx] EQ "" THEN LEAVE.
+            IF CAN-DO("svTitle,svAvailableColumns,svSelectedColumns,svShowParameters",user-print.field-name[idx]) THEN NEXT.
+            GET NEXT ttParameter.
+            IF NOT AVAILABLE ttParameter THEN LEAVE.
+            ASSIGN
+                ttParameter.pName = user-print.field-name[idx] + "Label"
+                ttParameter.pCaption = IF user-print.field-label[idx] EQ ? THEN ttParameter.pCaption
+                                       ELSE user-print.field-label[idx] + ":"
+                .
+            GET NEXT ttParameter.
+            IF NOT AVAILABLE ttParameter THEN LEAVE.
+            ASSIGN
+                ttParameter.pName    = user-print.field-name[idx]
+                ttParameter.pCaption = user-print.field-name[idx]
+                .
+        END. /* do idx */
+    END. /* avail user-print */
+    ELSE
+        MESSAGE "No User-Print Record Exists to Set Parameters"
+            VIEW-AS ALERT-BOX ERROR.
+    
     aoaReportWidth:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(iLeft).
 
-    ttPageHeader:REFRESH() NO-ERROR.
-    ttDetail:REFRESH() NO-ERROR.
-    ttSection:REFRESH() NO-ERROR.
+    {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
 
 END PROCEDURE.
 
@@ -1038,6 +1191,16 @@ PROCEDURE pSetReportFields :
             hReport:Sections:Item(ix):Controls:Item(iy):Border:BottomStyle = IF ttSection.secType EQ 1 THEN 12 ELSE 0
             .
     END. /* each ttsection */
+    FOR EACH ttParameter:
+        ASSIGN
+            ix = ttParameter.pSectionItem
+            iy = ttParameter.pControlItem
+            hReport:Sections:Item(ix):Controls:Item(iy):Name    = ttParameter.pName
+            hReport:Sections:Item(ix):Controls:Item(iy):Caption = ttParameter.pCaption
+            .
+        IF ttParameter.pWidth NE 0 THEN
+        hReport:Sections:Item(ix):Controls:Item(iy):Width = ttParameter.pWidth.
+    END. /* each ttparameter */
 
 END PROCEDURE.
 

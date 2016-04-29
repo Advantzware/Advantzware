@@ -48,9 +48,10 @@ DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svStartReceiptDate ~
-svStartReceiptDateOption svEndReceiptDate svEndReceiptDateOption ~
-svStartInvoiceDate svStartInvoiceDateOption svEndInvoiceDate ~
+&Scoped-Define ENABLED-OBJECTS svCompany svStartReceiptDate btnCalendar-1 ~
+svStartReceiptDateOption svEndReceiptDate btnCalendar-2 ~
+svEndReceiptDateOption svStartInvoiceDate btnCalendar-3 ~
+svStartInvoiceDateOption svEndInvoiceDate btnCalendar-4 ~
 svEndInvoiceDateOption svAllSalesReps svStartSalesRep svEndSalesRep ~
 svCustList btnCustList svAllCustomers svStartCustNo svEndCustNo ~
 svShowInvoice svDetailed svPrep svCalc 
@@ -64,6 +65,8 @@ svCalc
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
+&Scoped-define List-3 btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
+btnCalendar-4 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -74,6 +77,26 @@ svCalc
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-3 
+     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-4 
+     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE BUTTON btnCustList 
      LABEL "Preview" 
      SIZE 9.8 BY .95.
@@ -108,7 +131,7 @@ DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)"
 
 DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1.
+     SIZE 52 BY 1.
 
 DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -116,7 +139,7 @@ DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)"
 
 DEFINE VARIABLE startSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1.
+     SIZE 52 BY 1.
 
 DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "Company" 
@@ -208,29 +231,33 @@ DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
      svStartReceiptDate AT ROW 3.62 COL 18.8 COLON-ALIGNED HELP
           "Enter Start Receipt Date" WIDGET-ID 72
-     svStartReceiptDateOption AT ROW 3.62 COL 37 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 3.62 COL 37 WIDGET-ID 76
+     svStartReceiptDateOption AT ROW 3.62 COL 40 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
      svEndReceiptDate AT ROW 4.81 COL 19 COLON-ALIGNED HELP
           "Enter End Receipt Date" WIDGET-ID 68
-     svEndReceiptDateOption AT ROW 4.81 COL 37 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 4.81 COL 37 WIDGET-ID 78
+     svEndReceiptDateOption AT ROW 4.81 COL 40 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
      svStartInvoiceDate AT ROW 7.19 COL 19 COLON-ALIGNED HELP
           "Enter Start Invoice Date" WIDGET-ID 26
-     svStartInvoiceDateOption AT ROW 7.19 COL 37 COLON-ALIGNED HELP
+     btnCalendar-3 AT ROW 7.19 COL 37 WIDGET-ID 80
+     svStartInvoiceDateOption AT ROW 7.19 COL 40 COLON-ALIGNED HELP
           "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
      svEndInvoiceDate AT ROW 8.38 COL 19 COLON-ALIGNED HELP
           "Enter End Invoice Date" WIDGET-ID 24
-     svEndInvoiceDateOption AT ROW 8.38 COL 37 COLON-ALIGNED HELP
+     btnCalendar-4 AT ROW 8.38 COL 37 WIDGET-ID 82
+     svEndInvoiceDateOption AT ROW 8.38 COL 40 COLON-ALIGNED HELP
           "Select End Invoice Date Option" NO-LABEL WIDGET-ID 66
      svAllSalesReps AT ROW 10.76 COL 21 HELP
           "All Sales Reps?" WIDGET-ID 58
      svStartSalesRep AT ROW 11.95 COL 19 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep#" WIDGET-ID 22
-     startSalesRepName AT ROW 11.95 COL 36 COLON-ALIGNED HELP
+     startSalesRepName AT ROW 11.95 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
      svEndSalesRep AT ROW 13.14 COL 19 COLON-ALIGNED HELP
           "Enter Ending Sales Rep" WIDGET-ID 20
-     endSalesRepName AT ROW 13.14 COL 36 COLON-ALIGNED HELP
+     endSalesRepName AT ROW 13.14 COL 28 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
      svCustList AT ROW 15.52 COL 21 WIDGET-ID 48
      btnCustList AT ROW 15.52 COL 55 WIDGET-ID 46
@@ -253,7 +280,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 81.4 BY 26.05
+         SIZE 82 BY 26.05
          TITLE "Report Parameters".
 
 
@@ -284,7 +311,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
          HEIGHT             = 26.05
-         WIDTH              = 81.4.
+         WIDTH              = 82.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -310,6 +337,14 @@ END.
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-3 IN FRAME F-Main
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-4 IN FRAME F-Main
+   3                                                                    */
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
@@ -339,6 +374,50 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i svStartReceiptDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 sObject
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i svEndReceiptDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-3 sObject
+ON CHOOSE OF btnCalendar-3 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i svStartInvoiceDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-4 sObject
+ON CHOOSE OF btnCalendar-4 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i svEndInvoiceDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCustList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCustList sObject
@@ -416,6 +495,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svEndInvoiceDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndInvoiceDate sObject
+ON HELP OF svEndInvoiceDate IN FRAME F-Main /* End Invoice Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svEndInvoiceDateOption
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndInvoiceDateOption sObject
 ON VALUE-CHANGED OF svEndInvoiceDateOption IN FRAME F-Main
@@ -423,7 +513,19 @@ DO:
   ASSIGN
       {&SELF-NAME}
       svEndInvoiceDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      btnCalendar-4:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
       .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svEndReceiptDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndReceiptDate sObject
+ON HELP OF svEndReceiptDate IN FRAME F-Main /* End Receipt Date */
+DO:
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -437,6 +539,7 @@ DO:
   ASSIGN
       {&SELF-NAME}
       svEndReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
       .
 END.
 
@@ -478,6 +581,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svStartInvoiceDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartInvoiceDate sObject
+ON HELP OF svStartInvoiceDate IN FRAME F-Main /* Start Invoice Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svStartInvoiceDateOption
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartInvoiceDateOption sObject
 ON VALUE-CHANGED OF svStartInvoiceDateOption IN FRAME F-Main
@@ -485,7 +599,19 @@ DO:
   ASSIGN
       {&SELF-NAME}
       svStartInvoiceDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      btnCalendar-3:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
       .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStartReceiptDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartReceiptDate sObject
+ON HELP OF svStartReceiptDate IN FRAME F-Main /* Start Receipt Date */
+DO:
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -499,6 +625,7 @@ DO:
   ASSIGN
       {&SELF-NAME}
       svStartReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
       .
 END.
 

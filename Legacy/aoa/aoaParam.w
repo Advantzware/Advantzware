@@ -74,7 +74,8 @@ RUN VALUE("aoaAppSrv/" + ENTRY(1,aoaParam,"/") + ".p") PERSISTENT SET hAppSrv.
 &Scoped-define FRAME-NAME paramFrame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCancel btnView 
+&Scoped-Define ENABLED-OBJECTS btnCancel btnView svShowParameters 
+&Scoped-Define DISPLAYED-OBJECTS svShowParameters 
 
 /* Custom List Definitions                                              */
 /* ScheduleFields,List-2,List-3,List-4,List-5,List-6                    */
@@ -251,6 +252,11 @@ DEFINE BUTTON btnView
      LABEL "&View" 
      SIZE 15 BY 1.14.
 
+DEFINE VARIABLE svShowParameters AS LOGICAL INITIAL no 
+     LABEL "Show Parameters" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 20 BY 1.14 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -258,6 +264,7 @@ DEFINE FRAME paramFrame
      btnCancel AT ROW 2.43 COL 1 WIDGET-ID 12
      btnView AT ROW 2.43 COL 17 WIDGET-ID 14
      btnScheduler AT ROW 3.62 COL 1 WIDGET-ID 10
+     svShowParameters AT ROW 4.81 COL 1 WIDGET-ID 16
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -772,7 +779,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnCancel btnView 
+  DISPLAY svShowParameters 
+      WITH FRAME paramFrame IN WINDOW W-Win.
+  ENABLE btnCancel btnView svShowParameters 
       WITH FRAME paramFrame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   DISPLAY svAvailableColumns svSelectedColumns 
@@ -908,6 +917,7 @@ PROCEDURE pGetColumns :
             IF CAN-DO("RECID,ROWID",hTable:BUFFER-FIELD(idx):DATA-TYPE) THEN NEXT.
             IF hTable:BUFFER-FIELD(idx):NAME BEGINS "xx" THEN NEXT.
             IF hTable:BUFFER-FIELD(idx):NAME EQ "rowType" THEN NEXT.
+            IF hTable:BUFFER-FIELD(idx):NAME EQ "parameters" THEN NEXT.
             cRowType = cRowType + "|" + hTable:BUFFER-FIELD(idx):NAME.
             svAvailableColumns:ADD-LAST(hTable:BUFFER-FIELD(idx):LABEL,
                                         hTable:BUFFER-FIELD(idx):NAME).
@@ -955,9 +965,11 @@ PROCEDURE pGetParamValues :
     IF NOT AVAILABLE user-print THEN RETURN.
 
     DO idx = 1 TO EXTENT(user-print.field-name):
-        IF user-print.field-name[idx] NE "svSelectedColumns" THEN NEXT.
+        IF user-print.field-name[idx] EQ "" THEN LEAVE.
+        IF user-print.field-name[idx] EQ "svShowParameters" THEN
+        svShowParameters:SCREEN-VALUE IN FRAME paramFrame = user-print.field-value[idx].
+        IF user-print.field-name[idx] EQ "svSelectedColumns" THEN
         cSelectedColumns = user-print.field-value[idx].
-        LEAVE.
     END. /* do idx */
 
     ASSIGN
@@ -1112,6 +1124,13 @@ PROCEDURE pSaveParamValues :
             user-print.field-value[idx] = TRIM(cColumns,",")
             .
     END. /* aoacolumns */
+    
+    ASSIGN
+        idx = idx + 1
+        user-print.field-name[idx]  = "svShowParameters"
+        user-print.field-label[idx] = "Show Parameters"
+        user-print.field-value[idx] = svShowParameters:SCREEN-VALUE IN FRAME paramFrame
+        .
 
 END PROCEDURE.
 
@@ -1267,6 +1286,8 @@ PROCEDURE pSetWinSize :
             iDiff = hParamFrame:WIDTH-PIXELS - btnView:WIDTH-PIXELS * 2 - 5
             btnView:X = btnView:X + iDiff
             btnCancel:X = btnCancel:X + iDiff
+            svShowParameters:Y = btnView:Y
+            svShowParameters:X = btnView:X + btnView:WIDTH-PIXELS + 5
             .
     END. /* with frame  */
 

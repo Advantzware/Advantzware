@@ -18,6 +18,12 @@
 
 /* ***************************  Definitions  ************************** */
 
+DEFINE TEMP-TABLE ttTemplate NO-UNDO
+    FIELD rowType    AS CHARACTER LABEL "RowType"    FORMAT "x(500)" INITIAL "Data"
+    FIELD parameters AS CHARACTER LABEL "Parameters" FORMAT "x(500)"
+        INDEX ttTemplage IS PRIMARY rowType
+        .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -54,6 +60,28 @@ FUNCTION fDateOptionDate RETURNS DATE
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetParamValue Procedure 
 FUNCTION fGetParamValue RETURNS CHARACTER
   ( ipcField AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fParameters) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fParameters Procedure 
+FUNCTION fParameters RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fTemplate) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTemplate Procedure 
+FUNCTION fTemplate RETURNS HANDLE
+    ( )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -112,7 +140,6 @@ PROCEDURE pGetColumns :
     DEFINE INPUT PARAMETER iphTable            AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER ipcAvailableColumns AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcSelectedColumns  AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcTitle            AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cRowType  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cField    AS CHARACTER NO-UNDO.
@@ -147,13 +174,13 @@ PROCEDURE pGetColumns :
                      + "," + STRING(iWidth)
             .
     END. /* each idx */
-    cRowType = "column,width,left|" + ipcTitle + ","
-             + STRING(LENGTH(ipcTitle) * ({&multiplier} + 35)) + ","
-             + STRING(iRptWidth)
-             + cRowType
-             .
+    
+    cRowType = "ColumnMetaData," + STRING(iRptWidth) + cRowType.
     iphTable:BUFFER-CREATE.
-    iphTable:BUFFER-FIELD("rowType"):BUFFER-VALUE() = cRowType.
+    ASSIGN
+        iphTable:BUFFER-FIELD("rowType"):BUFFER-VALUE()    = cRowType
+        iphTable:BUFFER-FIELD("parameters"):BUFFER-VALUE() = fParameters()
+        .
 
 END PROCEDURE.
 
@@ -295,6 +322,61 @@ FUNCTION fGetParamValue RETURNS CHARACTER
     END. /* do idx */
 
     RETURN cReturnValue.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fParameters) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fParameters Procedure 
+FUNCTION fParameters RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cParameter   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
+
+    cParameter = "Parameters".
+    IF AVAILABLE user-print THEN
+    DO idx = 1 TO EXTENT(user-print.field-name):
+        IF user-print.field-name[idx]  EQ "" THEN LEAVE.
+        IF user-print.field-name[idx]  EQ "svShowParameters" AND
+           user-print.field-value[idx] EQ "no" THEN
+        cParameter = "NoParameters".
+        IF CAN-DO("svTitle,svAvailableColumns,svSelectedColumns,svShowParameters",user-print.field-name[idx]) THEN NEXT.
+        cReturnValue = cReturnValue
+                     + "|" + TRIM(user-print.field-name[idx])
+                     + "^" + user-print.field-value[idx]
+                     .
+    END. /* do idx */
+    cReturnValue = cParameter + cReturnValue.
+
+    RETURN cReturnValue.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fTemplate) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTemplate Procedure 
+FUNCTION fTemplate RETURNS HANDLE
+    ( ) :
+  /*------------------------------------------------------------------------------
+    Purpose:  Template.rpa
+      Notes:  
+  ------------------------------------------------------------------------------*/
+    RETURN TEMP-TABLE ttTemplate:HANDLE .
 
 END FUNCTION.
 
