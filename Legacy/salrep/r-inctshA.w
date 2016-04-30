@@ -1377,6 +1377,10 @@ DISPLAY "" WITH FRAME r-top.
 FOR EACH tt-report:
   DELETE tt-report.
 END.
+FOR EACH xreport:
+  DELETE xreport.
+END.
+
 
 FOR EACH ttCustList 
     WHERE ttCustList.log-fld
@@ -1605,6 +1609,8 @@ FOR EACH ttCustList
       end.     
     end.
   end.
+  FOR EACH xreport NO-LOCK: /* Strange problem of tt-report*/
+  END.
 
   for each tt-report where tt-report.term-id eq "",
 
