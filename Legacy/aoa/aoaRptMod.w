@@ -43,40 +43,41 @@ DEFINE VARIABLE hReport        AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE hScript        AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE cDataPAReport  AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE lOKPressed     AS LOGICAL    NO-UNDO.
+DEFINE VARIABLE cID            AS CHARACTER  NO-UNDO.
 
 DEFINE TEMP-TABLE ttSubject NO-UNDO
-    FIELD ttOrder  AS INTEGER   LABEL "Order"  FORMAT ">>>9"
-    FIELD ttField  AS CHARACTER LABEL "Field"  FORMAT "x(20)"
-    FIELD ttLabel  AS CHARACTER LABEL "Label"  FORMAT "x(20)"
-    FIELD ttType   AS CHARACTER LABEL "Type"   FORMAT "x(10)"
-    FIELD ttFormat AS CHARACTER LABEL "Format" FORMAT "x(20)"
-    FIELD ttWidth  AS INTEGER   LABEL "Width"  FORMAT ">>>9"
-    FIELD ttSize   AS INTEGER   LABEL "Size"   FORMAT ">>>9"
+    FIELD ttOrder        AS INTEGER   LABEL "Order"         FORMAT ">>>9"
+    FIELD ttField        AS CHARACTER LABEL "Field"         FORMAT "x(20)"
+    FIELD ttLabel        AS CHARACTER LABEL "Label"         FORMAT "x(20)"
+    FIELD ttType         AS CHARACTER LABEL "Type"          FORMAT "x(10)"
+    FIELD ttFormat       AS CHARACTER LABEL "Format"        FORMAT "x(20)"
+    FIELD ttWidth        AS INTEGER   LABEL "Width"         FORMAT ">>>9"
+    FIELD ttSize         AS INTEGER   LABEL "Size"          FORMAT ">>>9"
         INDEX ttSubject IS PRIMARY ttOrder
         .
 
 DEFINE TEMP-TABLE ttPageHeader NO-UNDO
-    FIELD phOrder        AS INTEGER   LABEL "Order"        FORMAT ">>>9"
-    FIELD phName         AS CHARACTER LABEL "Name"         FORMAT "x(30)"
-    FIELD phCaption      AS CHARACTER LABEL "Caption"      FORMAT "x(20)"
-    FIELD phLeft         AS INTEGER   LABEL "Position"     FORMAT ">>>>9"
-    FIELD phWidth        AS INTEGER   LABEL "Width"        FORMAT ">>>9"
-    FIELD phAlignment    AS INTEGER   LABEL "Alignment"    FORMAT "9"
-    FIELD phSectionItem  AS INTEGER   LABEL "SectionItem"  FORMAT ">>9"
-    FIELD phControlItem  AS INTEGER   LABEL "ControlItem"  FORMAT ">>9"
+    FIELD phOrder        AS INTEGER   LABEL "Order"         FORMAT ">>>9"
+    FIELD phName         AS CHARACTER LABEL "Name"          FORMAT "x(30)"
+    FIELD phCaption      AS CHARACTER LABEL "Caption"       FORMAT "x(20)"
+    FIELD phLeft         AS INTEGER   LABEL "Position"      FORMAT ">>>>9"
+    FIELD phWidth        AS INTEGER   LABEL "Width"         FORMAT ">>>9"
+    FIELD phAlignment    AS INTEGER   LABEL "Alignment"     FORMAT "9"
+    FIELD phSectionItem  AS INTEGER   LABEL "SectionItem"   FORMAT ">>9"
+    FIELD phControlItem  AS INTEGER   LABEL "ControlItem"   FORMAT ">>9"
         INDEX ttPageHeader IS PRIMARY phOrder
         .
 
 DEFINE TEMP-TABLE ttDetail NO-UNDO
-    FIELD dtOrder        AS INTEGER   LABEL "Order"        FORMAT ">>>9"
-    FIELD dtName         AS CHARACTER LABEL "Name"         FORMAT "x(30)"
-    FIELD dtDataField    AS CHARACTER LABEL "DataField"    FORMAT "x(20)"
-    FIELD dtLeft         AS INTEGER   LABEL "Position"     FORMAT ">>>>9"
-    FIELD dtWidth        AS INTEGER   LABEL "Width"        FORMAT ">>>9"
-    FIELD dtAlignment    AS INTEGER   LABEL "Alignment"    FORMAT "9"
-    FIELD dtOutputFormat AS CHARACTER LABEL "OutputFormat" FORMAT "x(30)"
-    FIELD dtSectionItem  AS INTEGER   LABEL "SectionItem"  FORMAT ">>9"
-    FIELD dtControlItem  AS INTEGER   LABEL "ControlItem"  FORMAT ">>9"
+    FIELD dtOrder        AS INTEGER   LABEL "Order"         FORMAT ">>>9"
+    FIELD dtName         AS CHARACTER LABEL "Name"          FORMAT "x(30)"
+    FIELD dtDataField    AS CHARACTER LABEL "DataField"     FORMAT "x(20)"
+    FIELD dtLeft         AS INTEGER   LABEL "Position"      FORMAT ">>>>9"
+    FIELD dtWidth        AS INTEGER   LABEL "Width"         FORMAT ">>>9"
+    FIELD dtAlignment    AS INTEGER   LABEL "Alignment"     FORMAT "9"
+    FIELD dtOutputFormat AS CHARACTER LABEL "OutputFormat"  FORMAT "x(30)"
+    FIELD dtSectionItem  AS INTEGER   LABEL "SectionItem"   FORMAT ">>9"
+    FIELD dtControlItem  AS INTEGER   LABEL "ControlItem"   FORMAT ">>9"
         INDEX ttDetail IS PRIMARY dtOrder
         .
 
@@ -96,12 +97,12 @@ DEFINE TEMP-TABLE ttSection NO-UNDO
         .
 
 DEFINE TEMP-TABLE ttParameter NO-UNDO
-    FIELD pOrder        AS INTEGER   LABEL "Order"       FORMAT ">>>9"
-    FIELD pName         AS CHARACTER LABEL "Name"        FORMAT "x(27)"
-    FIELD pCaption      AS CHARACTER LABEL "Caption"     FORMAT "x(40)"
-    FIELD pWidth        AS INTEGER   LABEL "Width"       FORMAT ">>>9"
-    FIELD pSectionItem  AS INTEGER   LABEL "SectionItem" FORMAT ">>9"
-    FIELD pControlItem  AS INTEGER   LABEL "ControlItem" FORMAT ">>9"
+    FIELD pOrder          AS INTEGER   LABEL "Order"        FORMAT ">>>9"
+    FIELD pName           AS CHARACTER LABEL "Name"         FORMAT "x(27)"
+    FIELD pCaption        AS CHARACTER LABEL "Caption"      FORMAT "x(40)"
+    FIELD pWidth          AS INTEGER   LABEL "Width"        FORMAT ">>>9"
+    FIELD pSectionItem    AS INTEGER   LABEL "SectionItem"  FORMAT ">>9"
+    FIELD pControlItem    AS INTEGER   LABEL "ControlItem"  FORMAT ">>9"
         INDEX ttParameter IS PRIMARY pOrder
         .
 
@@ -554,8 +555,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOpenRPA C-Win
 ON CHOOSE OF btnOpenRPA IN FRAME DEFAULT-FRAME /* ... */
 DO:
-    DEFINE VARIABLE cID AS CHARACTER NO-UNDO.
-
     SYSTEM-DIALOG GET-FILE cID
       TITLE      "Choose Report to Open ..."
       FILTERS    "AOA Report Files (*.p)" "*.p"
@@ -964,15 +963,29 @@ PROCEDURE pPublish :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE publishExe AS CHARACTER   NO-UNDO.
-    DEFINE VARIABLE logText AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE txtLine AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE publishBat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE publishExe AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE publishLog AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE logText    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE txtLine    AS CHARACTER NO-UNDO.
 
-    publishExe = SEARCH("aoaReports\PublishReport.exe").
+    ASSIGN
+        publishBat = SEARCH("aoaReports\PublishReport.bat")
+        publishExe = SEARCH("aoaReports\PublishReport.exe")
+        publishLog = REPLACE(publishBat,".bat",".log")
+        .
+
+    OUTPUT TO VALUE(publishBat).
+    PUT UNFORMATTED
+        publishExe " " aoaRptFile " guest password > "
+        REPLACE(publishBat,".bat",".log") SKIP.
+    OUTPUT CLOSE.
     
-    OS-COMMAND SILENT VALUE(publishExe) VALUE(aoaRptFile) > "c:\tmp\publish.log".
+    SESSION:SET-WAIT-STATE("General").
+    OS-COMMAND SILENT VALUE(publishBat).
+    SESSION:SET-WAIT-STATE("").
 
-    INPUT FROM "c:\tmp\publish.log".
+    INPUT FROM VALUE(publishLog) NO-ECHO.
     DO WHILE TRUE ON ENDKEY UNDO, LEAVE:
        IMPORT UNFORMATTED txtLine.
        IF logText <> "" THEN logText = logText + CHR(10).

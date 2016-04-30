@@ -25,7 +25,7 @@ DEFINE TEMP-TABLE ttCashReceiptBySalesRep NO-UNDO
     FIELD salesRep   AS CHARACTER LABEL "Sales Rep"     FORMAT "x(3)"
     FIELD salesName  AS CHARACTER LABEL "Sales Name"    FORMAT "x(30)"
     FIELD custNo     AS CHARACTER LABEL "Customer"      FORMAT "x(8)"
-    FIELD custName   AS CHARACTER LABEL "Customer Name" FORMAT "x(3)"
+    FIELD custName   AS CHARACTER LABEL "Customer Name" FORMAT "x(30)"
     FIELD terms      AS CHARACTER LABEL "Terms"         FORMAT "x(8)"
     FIELD invoiceNo  AS INTEGER   LABEL "Invoice"       FORMAT ">>>>>>>>"
     FIELD invDate    AS DATE      LABEL "Inv Date"      FORMAT 99/99/9999
@@ -286,32 +286,29 @@ PROCEDURE pCashReceiptsBySalesRepName :
 
     /* local variables */
     DEFINE VARIABLE cSortKey                AS CHARACTER NO-UNDO.
-    def var v-sman as   CHAR NO-UNDO.
-    def var v-amt  like ar-cashl.amt-paid extent 2 NO-UNDO.
-    def var v-paid like v-amt NO-UNDO.
-    def var v-dsc  like v-amt NO-UNDO.
-    def var v-com  like ar-cashl.amt-paid NO-UNDO.
-    def var v-com-2 like v-com NO-UNDO.
-    def var v-c-%  as   DEC NO-UNDO.
-    def var v-pct  as   DEC NO-UNDO.
-    DEF VAR v-misc AS   DEC NO-UNDO.
-    DEF VAR v-basis LIKE sman.commbasis INIT "" NO-UNDO.
-    DEF VAR v-term LIKE tt-report.term-id NO-UNDO.
-    def var v-tot-amt as   dec extent 4 NO-UNDO.
-    def var v-tot-rem as   dec extent 4 NO-UNDO.
-    def var v-tot-com like v-tot-amt NO-UNDO.
-    def var v-tot-dsc like v-tot-amt NO-UNDO.
-    def var v-tot-paid like v-tot-amt NO-UNDO.
-    DEF VAR v-aging AS INTE NO-UNDO.
-    DEF VAR v-check-date AS DATE NO-UNDO.
-    DEF VAR v-inv-date AS DATE NO-UNDO.
-    DEF VAR v-amt-full AS DECI NO-UNDO FORM "->>>,>>>,>>9.99".
-    DEF VAR v-inv-full AS DECI NO-UNDO FORM "->>>,>>>,>>9.99".
-    DEF VAR v-rem-bal AS DECI NO-UNDO FORM "->>>,>>>,>>9.99".
-    DEF VAR v-tmp-amt-1 AS DEC NO-UNDO.
-    DEF VAR v-inv-found AS LOG NO-UNDO.
-    def var i as INT NO-UNDO.
-    def var j as INT NO-UNDO.
+    DEFINE VARIABLE cSMan AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dAmt  LIKE ar-cashl.amt-paid NO-UNDO EXTENT 2.
+    DEFINE VARIABLE dPaid LIKE dAmt NO-UNDO.
+    DEFINE VARIABLE dDsc  LIKE dAmt NO-UNDO.
+    DEFINE VARIABLE dCom  LIKE ar-cashl.amt-paid NO-UNDO.
+    DEFINE VARIABLE dCom-2 LIKE dCom NO-UNDO.
+    DEFINE VARIABLE dComm%  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPct  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dMisc AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cBasis LIKE sman.commbasis NO-UNDO INIT "".
+    DEFINE VARIABLE cTerm LIKE tt-report.term-id NO-UNDO.
+    DEFINE VARIABLE dTotAmt AS DECIMAL NO-UNDO EXTENT 4.
+    DEFINE VARIABLE dTotCom LIKE dTotAmt NO-UNDO.
+    DEFINE VARIABLE iAging AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dtCheckDate AS DATE NO-UNDO.
+    DEFINE VARIABLE dtInvDate AS DATE NO-UNDO.
+    DEFINE VARIABLE dAmt-full AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dInvFull AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dRemBal AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTmpAmt1 AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lInvFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE i AS INT NO-UNDO.
+    DEFINE VARIABLE j AS INT NO-UNDO.
 
     /* locate parameter values record */
     RUN pGetParamValues (ipcCompany, "r-cashs2.", ipcUserID, ipiBatch).
@@ -335,428 +332,315 @@ PROCEDURE pCashReceiptsBySalesRepName :
         cSelectedColumns        = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
         .
 
+    RUN pGetColumns (TEMP-TABLE ttCashReceiptBySalesRep:HANDLE,
+                     cAvailableColumns,
+                     cSelectedColumns
+                     ).
+
     IF lAllSalesReps THEN
     ASSIGN
         cStartSalesRep = CHR(32)
-        cEndSalesRep   = CHR(255)
-        .
+        cEndSalesRep   = CHR(255).
 
-    IF TRUE THEN RETURN.
-
-    for each cust where cust.company eq ipcCompany no-lock:
-      
-    if iOldDay eq 0 then
-    for each ar-inv
-        where ar-inv.company  eq ipcCompany
-          and ar-inv.posted   eq yes
-          and ar-inv.cust-no  eq cust.cust-no
-          and ar-inv.inv-date ge dtStartReceiptDate
-          and ar-inv.inv-date le dtEndReceiptDate
-          and ar-inv.terms    eq "CASH"
-        no-lock,
-
-        each ar-invl
-        where ar-invl.x-no eq ar-inv.x-no
-        no-lock
-        
-        transaction:
-         
-      do i = 1 to 3:
-        v-sman = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
-                 else ar-invl.sman[i].
-
-        if v-sman   lt cStartSalesRep                         or
-           v-sman   gt cEndSalesRep                         or
-           (i ne 1 and
-            (v-sman eq "" or ar-invl.s-pct[i] eq 0)) then next.
-
-        IF NOT CAN-FIND(first tt-report
-            where tt-report.term-id eq v-term
-              and tt-report.key-01  eq v-sman
-              and tt-report.inv-no  eq ar-invl.inv-no
-              and tt-report.rec-id  eq recid(ar-invl)) THEN do:
-          create tt-report.
-          assign
-           tt-report.term-id = v-term
-           tt-report.key-01  = v-sman
-           tt-report.key-09  = cust.cust-no
-           tt-report.key-08  = cust.terms
-           tt-report.key-10  = cust.NAME
-           tt-report.rec-id  = recid(ar-invl)
-           tt-report.inv-no  = ar-invl.inv-no.
-
-          CASE cSort:
-              WHEN "Customer" THEN
-              ASSIGN
-                  tt-report.key-02 = cust.cust-no
-                  tt-report.key-03 = STRING(ar-invl.inv-no,"9999999999")
-                  .
-              WHEN "Invoice" THEN
-              ASSIGN
-                  tt-report.key-02 = STRING(ar-invl.inv-no,"9999999999")
-                  tt-report.key-03 = cust.cust-no
-                  .
-          END CASE.
-
-          RELEASE tt-report.
-        end.
-      end.
-    end.      
-
-    for each ar-cash
-        where ar-cash.company    eq ipcCompany
-          and ar-cash.cust-no    eq cust.cust-no
-          and ar-cash.check-date ge dtStartReceiptDate
-          and ar-cash.check-date le dtEndReceiptDate
-          and ar-cash.posted     eq yes
-          and ar-cash.check-no   ne 0
-        no-lock,
-
-        each ar-cashl
-        where ar-cashl.c-no   eq ar-cash.c-no
-          and ar-cashl.posted eq yes
-          and ar-cashl.memo   eq no
-        no-lock
-      
-        transaction:
-
-      IF NOT (iOldDay eq 0 or
-         (ar-cash.check-date - ar-cashl.inv-date gt iOldDay and
-          ar-cashl.inv-no ne 0)) THEN NEXT.
-
-      if ar-cashl.inv-no ne 0 then
-      for each ar-invl
-          where ar-invl.company eq ipcCompany
-            and ar-invl.cust-no eq ar-cash.cust-no
-            and ar-invl.inv-no  eq ar-cashl.inv-no
-          no-lock:
-
-         do i = 1 to 3:
-            v-sman = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
-                     else ar-invl.sman[i].
-           
-            if v-sman  lt cStartSalesRep                         or
-               v-sman  gt cEndSalesRep                           or
-               (i ne 1 and
-                (v-sman eq "" or ar-invl.s-pct[i] eq 0)) then next.
-           
-            IF NOT CAN-FIND(first tt-report
-                where tt-report.term-id eq v-term
-                  and tt-report.key-01  eq v-sman
-                  and tt-report.inv-no  eq ar-invl.inv-no
-                  and tt-report.rec-id  eq recid(ar-cashl)) then do:
-               create tt-report.
-               assign
-                tt-report.term-id = v-term
-                tt-report.key-01  = v-sman
-                tt-report.key-09  = cust.cust-no
-                tt-report.key-08  = cust.terms
-                tt-report.key-10  = cust.NAME
-                tt-report.rec-id  = recid(ar-cashl)
-                tt-report.inv-no  = ar-invl.inv-no.
-
-               CASE cSort:
-                   WHEN "Customer" THEN
-                   ASSIGN
-                       tt-report.key-02 = cust.cust-no
-                       tt-report.key-03 = STRING(ar-invl.inv-no,"9999999999")
-                       .
-                   WHEN "Invoice" THEN
-                   ASSIGN
-                       tt-report.key-02 = STRING(ar-invl.inv-no,"9999999999")
-                       tt-report.key-03 = cust.cust-no
-                       .
-               END CASE.
-
-               RELEASE tt-report.
-            end.
-         end.
-      end.
-      
-      else
-      if cust.sman ge cStartSalesRep  and
-         cust.sman le cEndSalesRep    then do:
-         v-sman = cust.sman.
-        
-         IF NOT CAN-FIND(first tt-report
-             where tt-report.term-id eq v-term
-               and tt-report.key-01  eq v-sman
-               and tt-report.inv-no  eq ar-cashl.inv-no
-               and tt-report.rec-id  eq recid(ar-cashl)) then do:
-            create tt-report.
-           
-            assign
-             tt-report.term-id = v-term
-             tt-report.key-01  = v-sman
-             tt-report.key-09  = cust.cust-no
-             tt-report.key-08  = cust.terms
-             tt-report.key-10  = cust.NAME
-             tt-report.rec-id  = recid(ar-cashl)
-             tt-report.inv-no  = ar-cashl.inv-no.
-           
-            CASE cSort:
-                WHEN "Customer" THEN
-                ASSIGN
-                    tt-report.key-02 = cust.cust-no
-                    tt-report.key-03 = STRING(ar-invl.inv-no,"9999999999")
-                    .
-                WHEN "Invoice" THEN
-                ASSIGN
-                    tt-report.key-02 = STRING(ar-invl.inv-no,"9999999999")
-                    tt-report.key-03 = cust.cust-no
-                    .
-            END CASE.
-           
-            RELEASE tt-report.
-         end.
-      end.
-    end.
-  end.
-
-  FOR EACH tt-report NO-LOCK:
-    FIND FIRST tt-report-inv WHERE tt-report-inv.inv-no = tt-report.inv-no 
-                                    AND  tt-report-inv.key-01 NE tt-report.key-01  NO-LOCK NO-ERROR.
-      IF NOT AVAIL tt-report-inv THEN do:
-      CREATE  tt-report-inv.
-      ASSIGN
-          tt-report-inv.key-01  =    tt-report.key-01
-          tt-report-inv.key-02  =    tt-report.key-02
-          tt-report-inv.key-03  =    tt-report.key-03
-          tt-report-inv.inv-no  =    tt-report.inv-no  .
-         
-      END. 
-      ELSE do:
-          tt-report.chk-inv = FALSE .
-      END.
-          
-  END.
-  FOR EACH tt-report-inv NO-LOCK:
-      DELETE tt-report-inv .
-  END.
-
-  for each tt-report where tt-report.term-id eq v-term,
-  
-      first cust
-      where cust.company eq ipcCompany
-        and cust.cust-no eq tt-report.key-09
-      no-lock
-          
-      break by tt-report.key-01
-            by tt-report.key-02
-            by tt-report.key-03
-            BY tt-report.inv-no
-      
-      transaction:
-     
-    find first sman
-        where sman.company eq ipcCompany
-          and sman.sman    eq tt-report.key-01
-        no-lock no-error.
-   
-    release ar-inv.
-    release ar-cash.
-
-    ASSIGN v-check-date = ?
-           v-inv-date = ?
-           v-amt-full = 0
-           v-inv-full = 0
-           v-misc = 0.
-    
-    find ar-cashl where recid(ar-cashl) eq tt-report.rec-id no-lock no-error.    
-        
-    if avail ar-cashl then do:
-       find first ar-cash where ar-cash.c-no eq ar-cashl.c-no no-lock.
-       assign
-          v-dsc[1] = if lDiscount then ar-cashl.amt-disc else 0
-          v-check-date = ar-cash.check-date
-          v-amt-full = ar-cashl.amt-paid
-          v-inv-found = NO.
-      
-       if ar-cashl.inv-no ne 0 then
-       for each ar-invl WHERE
-           ar-invl.company eq ipcCompany AND
-           ar-invl.cust-no eq ar-cash.cust-no AND
-           ar-invl.inv-no  eq ar-cashl.inv-no
-           no-lock,
-           first ar-inv where
-                 ar-inv.x-no eq ar-invl.x-no
-                 no-lock
-           break by ar-invl.inv-no:
-      
-           v-inv-found = YES.
-
-           FIND FIRST itemfg
-               WHERE itemfg.company EQ ipcCompany
-                 AND itemfg.i-no    EQ ar-invl.i-no
-               NO-LOCK NO-ERROR.
-           
-           RUN custom/combasis.p (ipcCompany, tt-report.key-01, cust.type,
-                                  (IF AVAIL itemfg THEN itemfg.procat ELSE ""), 0,
-                                  cust.cust-no,
-                                  OUTPUT v-basis).
-           
-           if FIRST-OF(tt-report.inv-no) then
-           DO:
-              IF FIRST(ar-invl.inv-no) THEN
-                 assign
-                    v-amt    = 0
-                    v-amt[1] = ar-inv.tax-amt +
-                               (if ar-inv.f-bill then ar-inv.freight else 0)
-                    v-inv-full = v-amt[1]
-                    v-com    = 0
-                    v-com-2  = 0
-                    v-inv-date = ar-inv.inv-date.
-                
-   
-              ASSIGN
-                 v-inv-full = v-inv-full + ar-invl.amt.
-
-              IF NOT lPrep AND ar-invl.misc THEN v-misc = v-misc + ar-invl.amt.
-              ELSE DO:
-                ASSIGN
-                      v-amt[1] = v-amt[1] + ar-invl.amt
-                      v-tmp-amt-1 = v-amt[1].
-    
-                  if ar-invl.sman[1] ne "" then
-                  do i = 1 to 3:
-                     if tt-report.key-01 eq ar-invl.sman[i] then do:
+    FOR EACH cust NO-LOCK
+        WHERE cust.company EQ ipcCompany:
+        IF iOldDay EQ 0 THEN
+        FOR EACH ar-inv NO-LOCK
+            WHERE ar-inv.company  EQ ipcCompany
+              AND ar-inv.posted   EQ YES
+              AND ar-inv.cust-no  EQ cust.cust-no
+              AND ar-inv.inv-date GE dtStartReceiptDate
+              AND ar-inv.inv-date LE dtEndReceiptDate
+              AND ar-inv.terms    EQ "CASH",
+            EACH ar-invl NO-LOCK
+            WHERE ar-invl.x-no EQ ar-inv.x-no:
+            DO i = 1 TO 3:
+                cSMan = IF ar-invl.sman[i] EQ "" AND i EQ 1 THEN cust.sman
+                         ELSE ar-invl.sman[i].
+                IF cSMan LT cStartSalesRep OR cSMan GT cEndSalesRep OR
+                  (i NE 1 AND (cSMan EQ "" OR ar-invl.s-pct[i] EQ 0)) THEN NEXT.
+                IF NOT CAN-FIND(FIRST tt-report
+                                WHERE tt-report.term-id EQ cTerm
+                                  AND tt-report.key-01  EQ cSMan
+                                  AND tt-report.inv-no  EQ ar-invl.inv-no
+                                  AND tt-report.rec-id  EQ RECID(ar-invl)) THEN DO:
+                    CREATE tt-report.
+                    ASSIGN
+                        tt-report.term-id = cTerm
+                        tt-report.key-01  = cSMan
+                        tt-report.key-09  = cust.cust-no
+                        tt-report.key-08  = cust.terms
+                        tt-report.key-10  = cust.name
+                        tt-report.rec-id  = RECID(ar-invl)
+                        tt-report.inv-no  = ar-invl.inv-no.
+                    CASE cSort:
+                        WHEN "Customer" THEN
                         ASSIGN
-                           v-amt[2] = v-amt[2] + (ar-invl.amt * ar-invl.s-pct[i] / 100)
-                           v-com    = v-com +
-                                      (((ar-invl.amt - if v-basis EQ "G" then ar-invl.t-cost else 0) *
-                                      ar-invl.s-pct[i] / 100) * ar-invl.s-comm[i] / 100).
-                        leave.
-                     end.
-                  end.
-               
-                  else
-                     assign
-                        v-amt[2] = v-amt[2] + ar-invl.amt
-                        v-com    = v-com +
-                                   ((ar-invl.amt - if v-basis EQ "G" then ar-invl.t-cost else 0) *
-                                   (if avail sman then (sman.scomm / 100) else 0)).
-                    
-              END.
-           end. /*end FIRST-OF(tt-report.inv-no)*/
-         
-       END. /*end each ar-invl*/
-
-       IF v-inv-found = NO THEN
-          ASSIGN
-             v-amt[1] = ar-cashl.amt-paid + v-dsc[1] - v-misc
-             v-tmp-amt-1 = v-amt[1]
-             v-amt[2] = v-amt[1]
-             v-com    = v-amt[1] * (if avail sman then (sman.scomm / 100) else 0).
-
-       assign
-          v-pct    = v-amt[2] / v-tmp-amt-1
-          v-amt[1] = (ar-cashl.amt-paid + v-dsc[1] - v-misc) * v-pct    /* task 02261403 */
-          v-pct    = v-amt[1] / v-amt[2]
-          v-com-2  = v-com * v-pct.
-
-       release ar-inv.
-    end.
-    
-    else do:
-      find ar-invl where recid(ar-invl) eq tt-report.rec-id no-lock.
-      find first ar-inv where ar-inv.x-no eq ar-invl.x-no no-lock.
-
-      FIND FIRST itemfg
-            WHERE itemfg.company EQ ipcCompany
-              AND itemfg.i-no    EQ ar-invl.i-no
-            NO-LOCK NO-ERROR.
-
-      RUN custom/combasis.p (ipcCompany, tt-report.key-01, cust.type,
-                             (IF AVAIL itemfg THEN itemfg.procat ELSE ""), 0,
-                             cust.cust-no,
-                             OUTPUT v-basis).
-     ASSIGN
-         v-inv-full = ar-invl.amt .
-
-      IF NOT lPrep AND ar-invl.misc THEN NEXT.
-
-    ASSIGN
-       v-amt[1] = ar-invl.amt 
-       v-tmp-amt-1 = v-amt[1]
-       v-com    = (ar-invl.amt - if v-basis EQ "G" then ar-invl.t-cost else 0) *
-                  (if avail sman then (sman.scomm / 100) else 0)
-       v-com-2  = v-com.
-        
-    end.
-    
-    if v-com-2  eq ? then v-com-2 = 0.
-    if v-amt[1] eq ? then
-       ASSIGN v-amt[1] = 0
-              v-tmp-amt-1 = 0.
-    
-    ASSIGN
-       v-c-% = v-com-2 / v-amt[1] * 100
-       v-amt[1] = v-tmp-amt-1. /*multiple payments against an invoice, reset v-amt[1] value*/
-    
-    if v-c-% eq ? then v-c-% = 0.
-    
-    v-paid[1] = v-amt-full.
-
-  
-
-    v-aging = (IF v-check-date <> ? AND v-inv-date <> ? THEN v-check-date - v-inv-date ELSE 0).
-
-    IF FIRST-OF(tt-report.inv-no) THEN
-       v-rem-bal  = v-inv-full - v-amt-full - v-dsc[1].
-    ELSE
-       v-rem-bal  = v-rem-bal - v-amt-full - v-dsc[1].
-
-       CREATE ttCashReceiptBySalesRep.
-       ASSIGN
-           ttCashReceiptBySalesRep.xxSort        = tt-report.key-01
-                                                 + tt-report.key-02
-                                                 + tt-report.key-03
-           ttCashReceiptBySalesRep.salesRep      = STRING(tt-report.key-01) 
-           ttCashReceiptBySalesRep.salesName     = IF AVAILABLE sman THEN STRING(sman.sname) ELSE ""
-           ttCashReceiptBySalesRep.custNo        = STRING(tt-report.key-09)
-           ttCashReceiptBySalesRep.custName      = tt-report.key-10
-           ttCashReceiptBySalesRep.terms         = tt-report.key-08
-           ttCashReceiptBySalesRep.invoiceNo     = IF AVAILABLE ar-cashl THEN ar-cashl.inv-no ELSE IF AVAIL ar-inv THEN  ar-inv.inv-no ELSE 0
-           ttCashReceiptBySalesRep.invDate       = v-inv-date   
-           ttCashReceiptBySalesRep.chkDate       = v-check-date 
-           ttCashReceiptBySalesRep.Aging         = v-aging
-           ttCashReceiptBySalesRep.invAmt        = v-inv-full
-           ttCashReceiptBySalesRep.amtPaid       = v-amt-full
-           ttCashReceiptBySalesRep.discount      = v-dsc[1]
-           ttCashReceiptBySalesRep.balAftPay     = v-rem-bal
-           ttCashReceiptBySalesRep.commAmt       = v-com-2
-           ttCashReceiptBySalesRep.commPct       = v-c-%
-           .
-    assign
-     v-tot-paid[1] = v-tot-paid[1] + v-paid[1]
-     v-tot-dsc[1] = v-tot-dsc[1] + v-dsc[1]
-     v-tot-amt[1] = v-tot-amt[1] + v-inv-full
-     v-tot-com[1] = v-tot-com[1] + v-com-2.
-
-    IF LAST-OF(tt-report.inv-no) THEN
-       v-tot-rem[1] = v-tot-rem[1] + v-rem-bal.
-     
-    if last-of(tt-report.key-02) then do:
-      if cSort EQ "Customer" then do:
-       
-       v-c-% = v-tot-com[1] / v-tot-amt[1] * 100.
-        
-        if v-c-% eq ? then v-c-% = 0.
-       
-      end.
-
-      ASSIGN
-       v-tot-paid[1] = 0
-       v-tot-dsc[1] = 0
-       v-tot-amt[1] = 0
-       v-tot-rem[1] = 0
-       v-tot-com[1] = 0.
-
-    end. /* last of key-02 */
- 
-
-    delete tt-report.
-  end.
+                            tt-report.key-02 = cust.cust-no
+                            tt-report.key-03 = STRING(ar-invl.inv-no,"9999999999").
+                        WHEN "Invoice" THEN
+                        ASSIGN
+                            tt-report.key-02 = STRING(ar-invl.inv-no,"9999999999")
+                            tt-report.key-03 = cust.cust-no.
+                    END CASE.
+                    RELEASE tt-report.
+                END. /* if not can-find */
+            END. /* do i */
+        END. /* each ar-inv */
+        FOR EACH ar-cash NO-LOCK
+            WHERE ar-cash.company    EQ ipcCompany
+              AND ar-cash.cust-no    EQ cust.cust-no
+              AND ar-cash.check-date GE dtStartReceiptDate
+              AND ar-cash.check-date LE dtEndReceiptDate
+              AND ar-cash.posted     EQ YES
+              AND ar-cash.check-no   NE 0,
+            EACH ar-cashl NO-LOCK
+            WHERE ar-cashl.c-no   EQ ar-cash.c-no
+              AND ar-cashl.posted EQ YES
+              AND ar-cashl.memo   EQ NO:
+            IF NOT (iOldDay EQ 0 OR
+                   (ar-cash.check-date - ar-cashl.inv-date GT iOldDay AND
+                    ar-cashl.inv-no NE 0)) THEN NEXT.
+            IF ar-cashl.inv-no NE 0 THEN
+            FOR EACH ar-invl NO-LOCK
+                WHERE ar-invl.company EQ ipcCompany
+                  AND ar-invl.cust-no EQ ar-cash.cust-no
+                  AND ar-invl.inv-no  EQ ar-cashl.inv-no:
+                DO i = 1 TO 3:
+                    cSMan = IF ar-invl.sman[i] EQ "" AND i EQ 1 THEN cust.sman
+                    ELSE ar-invl.sman[i].
+                    IF cSMan  LT cStartSalesRep OR cSMan GT cEndSalesRep OR
+                      (i NE 1 AND (cSMan EQ "" OR ar-invl.s-pct[i] EQ 0)) THEN NEXT.
+                    IF NOT CAN-FIND(FIRST tt-report
+                                    WHERE tt-report.term-id EQ cTerm
+                                      AND tt-report.key-01  EQ cSMan
+                                      AND tt-report.inv-no  EQ ar-invl.inv-no
+                                      AND tt-report.rec-id  EQ RECID(ar-cashl)) THEN DO:
+                        CREATE tt-report.
+                        ASSIGN
+                            tt-report.term-id = cTerm
+                            tt-report.key-01  = cSMan
+                            tt-report.key-09  = cust.cust-no
+                            tt-report.key-08  = cust.terms
+                            tt-report.key-10  = cust.name
+                            tt-report.rec-id  = RECID(ar-cashl)
+                            tt-report.inv-no  = ar-invl.inv-no.
+                        CASE cSort:
+                            WHEN "Customer" THEN
+                            ASSIGN
+                                tt-report.key-02 = cust.cust-no
+                                tt-report.key-03 = STRING(ar-invl.inv-no,"9999999999").
+                            WHEN "Invoice" THEN
+                                ASSIGN
+                                tt-report.key-02 = STRING(ar-invl.inv-no,"9999999999")
+                                tt-report.key-03 = cust.cust-no.
+                        END CASE.
+                        RELEASE tt-report.
+                    END. /* if not can-find */
+                END. /* do i */
+            END. /* each ar-invl */
+            ELSE
+            IF cust.sman GE cStartSalesRep AND
+               cust.sman LE cEndSalesRep   THEN DO:
+                cSMan = cust.sman.
+                IF NOT CAN-FIND(FIRST tt-report
+                                WHERE tt-report.term-id EQ cTerm
+                                  AND tt-report.key-01  EQ cSMan
+                                  AND tt-report.inv-no  EQ ar-cashl.inv-no
+                                  AND tt-report.rec-id  EQ RECID(ar-cashl)) THEN DO:
+                    CREATE tt-report.
+                    ASSIGN
+                        tt-report.term-id = cTerm
+                        tt-report.key-01  = cSMan
+                        tt-report.key-09  = cust.cust-no
+                        tt-report.key-08  = cust.terms
+                        tt-report.key-10  = cust.name
+                        tt-report.rec-id  = RECID(ar-cashl)
+                        tt-report.inv-no  = ar-cashl.inv-no.
+                    CASE cSort:
+                        WHEN "Customer" THEN
+                        ASSIGN
+                            tt-report.key-02 = cust.cust-no
+                            tt-report.key-03 = STRING(ar-cashl.inv-no,"9999999999").
+                        WHEN "Invoice" THEN
+                        ASSIGN
+                            tt-report.key-02 = STRING(ar-cashl.inv-no,"9999999999")
+                            tt-report.key-03 = cust.cust-no.
+                    END CASE.
+                    RELEASE tt-report.
+                END. /* if not can-find */
+            END. /* else if */
+        END. /* each ar-cashl */
+    END. /* each cust */
+    FOR EACH tt-report NO-LOCK:
+        FIND FIRST tt-report-inv NO-LOCK
+             WHERE tt-report-inv.inv-no = tt-report.inv-no 
+               AND  tt-report-inv.key-01 NE tt-report.key-01
+             NO-ERROR.
+        IF NOT AVAIL tt-report-inv THEN DO:
+            CREATE  tt-report-inv.
+            ASSIGN
+                tt-report-inv.key-01 = tt-report.key-01
+                tt-report-inv.key-02 = tt-report.key-02
+                tt-report-inv.key-03 = tt-report.key-03
+                tt-report-inv.inv-no = tt-report.inv-no.
+        END. /* not avail tt-report-inv */
+        ELSE tt-report.chk-inv = FALSE.
+    END. /* each tt-report */
+    FOR EACH tt-report-inv NO-LOCK:
+        DELETE tt-report-inv .
+    END. /* each tt-report-inv */
+    FOR EACH tt-report
+        WHERE tt-report.term-id EQ cTerm,
+        FIRST cust NO-LOCK
+        WHERE cust.company EQ ipcCompany
+          AND cust.cust-no EQ tt-report.key-09
+        BREAK BY tt-report.key-01
+              BY tt-report.key-02
+              BY tt-report.key-03
+              BY tt-report.inv-no:
+        FIND FIRST sman NO-LOCK
+             WHERE sman.company EQ ipcCompany
+               AND sman.sman    EQ tt-report.key-01
+             NO-ERROR.
+        RELEASE ar-inv.
+        RELEASE ar-cash.
+        ASSIGN
+            dtCheckDate = ?
+            dtInvDate = ?
+            dAmt-full = 0
+            dInvFull = 0
+            dMisc = 0.
+        FIND ar-cashl NO-LOCK
+             WHERE RECID(ar-cashl) EQ tt-report.rec-id
+             NO-ERROR.
+        IF AVAILABLE ar-cashl THEN DO:
+            FIND FIRST ar-cash NO-LOCK WHERE ar-cash.c-no EQ ar-cashl.c-no.
+            ASSIGN
+                dDsc[1] = IF lDiscount THEN ar-cashl.amt-disc ELSE 0
+                dtCheckDate = ar-cash.check-date
+                dAmt-full = ar-cashl.amt-paid
+                lInvFound = NO.
+            IF ar-cashl.inv-no NE 0 THEN
+            FOR EACH ar-invl NO-LOCK
+                WHERE ar-invl.company EQ ipcCompany
+                  AND ar-invl.cust-no EQ ar-cash.cust-no
+                  AND ar-invl.inv-no  EQ ar-cashl.inv-no,
+                FIRST ar-inv NO-LOCK
+                WHERE ar-inv.x-no EQ ar-invl.x-no
+                BREAK BY ar-invl.inv-no:
+                lInvFound = YES.
+                FIND FIRST itemfg NO-LOCK
+                     WHERE itemfg.company EQ ipcCompany
+                      AND itemfg.i-no     EQ ar-invl.i-no
+                     NO-ERROR.
+                RUN custom/combasis.p (ipcCompany,tt-report.key-01,cust.type,
+                   (IF AVAILABLE itemfg THEN itemfg.procat ELSE ""),0,cust.cust-no,OUTPUT cBasis).
+                IF FIRST-OF(tt-report.inv-no) THEN DO:
+                    IF FIRST(ar-invl.inv-no) THEN
+                    ASSIGN
+                        dAmt    = 0
+                        dAmt[1] = ar-inv.tax-amt +
+                        (if ar-inv.f-bill THEN ar-inv.freight ELSE 0)
+                        dInvFull = dAmt[1]
+                        dCom    = 0
+                        dCom-2  = 0
+                        dtInvDate = ar-inv.inv-date.
+                    dInvFull = dInvFull + ar-invl.amt.
+                    IF NOT lPrep AND ar-invl.misc THEN
+                    dMisc = dMisc + ar-invl.amt.
+                    ELSE DO:
+                        ASSIGN
+                            dAmt[1] = dAmt[1] + ar-invl.amt
+                            dTmpAmt1 = dAmt[1].
+                        IF ar-invl.sman[1] NE "" THEN
+                        DO i = 1 TO 3:
+                            IF tt-report.key-01 EQ ar-invl.sman[i] THEN DO:
+                                ASSIGN
+                                    dAmt[2] = dAmt[2] + (ar-invl.amt * ar-invl.s-pct[i] / 100)
+                                    dCom    = dCom
+                                            + (((ar-invl.amt - IF cBasis EQ "G" THEN ar-invl.t-cost ELSE 0) *
+                                    ar-invl.s-pct[i] / 100) * ar-invl.s-comm[i] / 100).
+                                LEAVE.
+                            END. /* if key-01 */
+                        END. /* do i */
+                        ELSE
+                        ASSIGN
+                            dAmt[2] = dAmt[2] + ar-invl.amt
+                            dCom    = dCom +
+                            ((ar-invl.amt - IF cBasis EQ "G" THEN ar-invl.t-cost ELSE 0) *
+                            (IF AVAILABLE sman THEN (sman.scomm / 100) ELSE 0)).
+                    END. /* else */
+                END. /*end FIRST-OF(tt-report.inv-no)*/
+            END. /*end each ar-invl*/
+            IF lInvFound = NO THEN
+            ASSIGN
+                dAmt[1] = ar-cashl.amt-paid + dDsc[1] - dMisc
+                dTmpAmt1 = dAmt[1]
+                dAmt[2] = dAmt[1]
+                dCom    = dAmt[1] * (if AVAILABLE sman THEN (sman.scomm / 100) ELSE 0).
+            ASSIGN
+                dPct    = dAmt[2] / dTmpAmt1
+                dAmt[1] = (ar-cashl.amt-paid + dDsc[1] - dMisc) * dPct    /* task 02261403 */
+                dPct    = dAmt[1] / dAmt[2]
+                dCom-2  = dCom * dPct.
+            RELEASE ar-inv.
+        END. /* avail ar-cashl */
+        ELSE DO:
+            FIND ar-invl NO-LOCK WHERE RECID(ar-invl) EQ tt-report.rec-id.
+            FIND FIRST ar-inv NO-LOCK WHERE ar-inv.x-no EQ ar-invl.x-no.
+            FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ ipcCompany
+                   AND itemfg.i-no    EQ ar-invl.i-no
+                 NO-ERROR.
+            RUN custom/combasis.p
+                (ipcCompany, tt-report.key-01, cust.type,
+                (IF AVAIL itemfg THEN itemfg.procat ELSE ""), 0,cust.cust-no,OUTPUT cBasis).
+            dInvFull = ar-invl.amt.
+            IF NOT lPrep AND ar-invl.misc THEN NEXT.
+            ASSIGN
+                dAmt[1] = ar-invl.amt 
+                dTmpAmt1 = dAmt[1]
+                dCom    = (ar-invl.amt - IF cBasis EQ "G" THEN ar-invl.t-cost ELSE 0) *
+                (if AVAILABLE sman THEN (sman.scomm / 100) ELSE 0)
+                dCom-2  = dCom.
+        END. /* else do */
+        IF dCom-2  EQ ? THEN dCom-2 = 0.
+        IF dAmt[1] EQ ? THEN
+        ASSIGN
+            dAmt[1] = 0
+            dTmpAmt1 = 0.
+        ASSIGN
+            dComm% = dCom-2 / dAmt[1] * 100
+            dAmt[1] = dTmpAmt1. /* multiple payments against an invoice, reset dAmt[1] value */
+        IF dComm% EQ ? THEN dComm% = 0.
+        ASSIGN
+            dPaid[1] = dAmt-full
+            iAging = (IF dtCheckDate NE ? AND dtInvDate NE ? THEN dtCheckDate - dtInvDate ELSE 0).
+        dRemBal = IF FIRST-OF(tt-report.inv-no) THEN dInvFull - dAmt-full - dDsc[1]
+                  ELSE dRemBal - dAmt-full - dDsc[1].
+        CREATE ttCashReceiptBySalesRep.
+        ASSIGN
+            ttCashReceiptBySalesRep.xxSort    = tt-report.key-01
+            + tt-report.key-02
+            + tt-report.key-03
+            ttCashReceiptBySalesRep.salesRep  = STRING(tt-report.key-01) 
+            ttCashReceiptBySalesRep.salesName = IF AVAILABLE sman THEN STRING(sman.sname) ELSE ""
+            ttCashReceiptBySalesRep.custNo    = STRING(tt-report.key-09)
+            ttCashReceiptBySalesRep.custName  = tt-report.key-10
+            ttCashReceiptBySalesRep.terms     = tt-report.key-08
+            ttCashReceiptBySalesRep.invoiceNo = IF AVAILABLE ar-cashl THEN ar-cashl.inv-no ELSE IF AVAIL ar-inv THEN  ar-inv.inv-no ELSE 0
+            ttCashReceiptBySalesRep.invDate   = dtInvDate   
+            ttCashReceiptBySalesRep.chkDate   = dtCheckDate 
+            ttCashReceiptBySalesRep.Aging     = iAging
+            ttCashReceiptBySalesRep.invAmt    = dInvFull
+            ttCashReceiptBySalesRep.amtPaid   = dAmt-full
+            ttCashReceiptBySalesRep.discount  = dDsc[1]
+            ttCashReceiptBySalesRep.balAftPay = dRemBal
+            ttCashReceiptBySalesRep.commAmt   = dCom-2
+            ttCashReceiptBySalesRep.commPct   = dComm%.
+        IF LAST-OF(tt-report.inv-no) THEN DELETE tt-report.
+    END. /* each tt-report */
 
 END PROCEDURE.
 

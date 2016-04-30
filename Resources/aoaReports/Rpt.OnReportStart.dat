@@ -2,6 +2,8 @@
 Sub OnReportStart
   Dim colArray
   Dim valArray
+  Dim parmArray
+  Dim parmPairArray
   Dim foundItem
   Dim sectionItem()
   Dim controlItem()
@@ -13,18 +15,14 @@ Sub OnReportStart
     iValArray = 0
     For Each valItem in valArray
       iValArray = iValArray + 1
-      If iColArray = 2 Then
-        If iValArray = 1 Then
-          Rpt.Sections.Item("ReportHeader").Controls.Item("ReportTitle").Caption = valItem
-        End If
+      If iColArray = 1 Then
+        ' Set Report Width
         If iValArray = 2 Then
-          Rpt.Sections.Item("ReportHeader").Controls.Item("ReportTitle").Width = valItem
-        End If
-        If iValArray = 3 Then
           Rpt.PrintWidth = valItem
         End If
       End If
-      If iColArray > 2 Then
+      If iColArray > 1 Then
+        ' Locate Object Based on Name
         If iValArray = 1 Then
           foundItem = -1
           For ix = 0 to Rpt.Sections.Count - 1
@@ -40,9 +38,11 @@ Sub OnReportStart
             Next
           Next
         End If
+        ' Set Width of Column
         If iValArray = 2 Then
           If foundItem > -1 Then
             For iz = 0 to foundItem
+              ' Hide Column
               If valItem = -1 Then
                 Rpt.Sections.Item(sectionItem(iz)).Controls.Item(controlItem(iz)).Visible = False
               Else
@@ -52,12 +52,42 @@ Sub OnReportStart
             Next
           End If
         End If
+        ' Set Position of Column
         If iValArray = 3 Then
           If foundItem > -1 Then
             For iz = 0 to foundItem
               Rpt.Sections.Item(sectionItem(iz)).Controls.Item(controlItem(iz)).Left = valItem
             Next
           End If
+        End If
+      End If
+    Next
+  Next
+  ' Set Parameter Values
+  parmArray = split(Rpt.Fields.Item("parameters"),"|")
+  For Each parmPair in parmArray
+    parmPairArray = split(parmPair,"^")
+    iParmVal = 0
+    For Each parmVal in parmPairArray
+      iParmVal = iParmVal + 1
+      If iParmVal = 1 Then
+        If parmVal = "NoParameters" Then
+        ' Hide Parameters by Shrinking Section Size
+          Rpt.Sections.Item("ReportHeader").Height = Rpt.Sections.Item("ReportHeader").Controls.Item("ReportTitle").Height
+        Else
+        ' Find Parameter by Name
+          foundItem = -1
+          For iy = 0 to Rpt.Sections.Item("ReportHeader").Controls.Count - 1
+            If Rpt.Sections.Item("ReportHeader").Controls.Item(iy).Name = parmVal Then
+              foundItem = iy
+            End If
+          Next
+        End If
+      End If
+      ' Set Parameter Value
+      If iParmVal = 2 Then
+        If foundItem <> -1 Then
+          Rpt.Sections.Item("ReportHeader").Controls.Item(foundItem).Caption = parmVal
         End If
       End If
     Next
