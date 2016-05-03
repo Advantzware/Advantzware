@@ -575,6 +575,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-IP-Header W-Win 
+PROCEDURE Get-IP-Header :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER op-Header AS CHARACTER NO-UNDO.
+
+  find rec_key where rec_key.rec_key = ip-rec_key no-lock no-error.
+  if avail rec_key then op-header = rec_key.table_name.
+  else op-header = "".
+    
+  /*op-Header = ip-Header.*/
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-ip-rec_key W-Win 
 PROCEDURE Get-ip-rec_key :
 /*------------------------------------------------------------------------------
