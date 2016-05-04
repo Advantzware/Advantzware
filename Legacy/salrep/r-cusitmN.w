@@ -2109,7 +2109,9 @@ FOR EACH ttCustList
        end.     
     end.
   end.
-
+  FOR EACH xreport NO-LOCK:
+  END.
+  
   for each tt-report where tt-report.term-id eq "",
       first cust
       where cust.company eq cocode
