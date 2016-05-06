@@ -1353,7 +1353,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 def buffer b-f-rc for fg-rcpth.
 def buffer b-f-rd for fg-rdtlh.
 /*
@@ -1401,7 +1401,8 @@ assign
  fcus    = begin_cust-no
  tcus    = end_cust-no
  fitm    = begin_i-no
- titm    = end_i-no.
+ titm    = end_i-no
+ lSelected      = tb_cust-list.
  
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -1441,20 +1442,26 @@ IF tb_excel THEN DO:
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  fcus = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  tcus = ttCustList.cust-no .
+ END.
+
 display "" with frame r-top.
 
 SESSION:SET-WAIT-STATE("general").
 
-FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-    each itemfg
+FOR each itemfg
       where itemfg.company   eq cocode
         and itemfg.i-no      ge fitm
         and itemfg.i-no      le titm
-        and ((itemfg.cust-no EQ ttCustList.cust-no /*fcus and
-              itemfg.cust-no le tcus*/) or
+        and ((itemfg.cust-no GE fcus and
+              itemfg.cust-no le tcus) or
              itemfg.cust-no  eq "")
+        AND ((if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+          AND ttCustList.log-fld no-lock) else true) OR itemfg.cust-no  eq "")
         and can-find(first fg-rcpth
                      where fg-rcpth.company    eq cocode
                        and fg-rcpth.i-no       eq itemfg.i-no

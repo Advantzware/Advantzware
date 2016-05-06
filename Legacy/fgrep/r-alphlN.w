@@ -1547,6 +1547,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form header skip(1)
             v-page-break format "x(132)"
@@ -1627,7 +1628,8 @@ ASSIGN
  /*v-prt-cost   = rd_ext-cst EQ "Cost"*/
  v-custown    = tb_cust-whse
  v-sort-by    = tb_sort
- v-zero       = tb_zero.
+ v-zero       = tb_zero
+ lSelected    = tb_cust-list .
 
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -1677,25 +1679,24 @@ SESSION:SET-WAIT-STATE ("general").
    v-label2    = if v-prt-cost then
                    "          COST" else "         VALUE".
 
-/*IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
-  excelheader = "FG ITEM#,DESCRIPTION,PROD CAT,UOM," + TRIM(v-label1[1]) +
-                " " + TRIM(v-label1[2]) + ",SELLING PRICE,ON HAND,ON ORDER," +
-                "CUSTOMER ORDERS,QTY AVAIL,TOTAL " + TRIM(v-label2).
-  PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-END.*/
-                   
  /* if not v-sho-cost then v-label1 = "".*/
   v-qty-aval = 0 .
-  FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-      each itemfg
+
+  IF lselected THEN DO:
+      FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+      IF AVAIL ttCustList THEN ASSIGN v-cust[1] = ttCustList.cust-no .
+      FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+      IF AVAIL ttCustList THEN ASSIGN v-cust[2] = ttCustList.cust-no .
+  END.
+  
+  FOR each itemfg
       where itemfg.company eq cocode
         and itemfg.i-no    ge v-i-no[1]
         and itemfg.i-no    le v-i-no[2]
-        and itemfg.cust-no EQ ttCustList.cust-no /*v-cust[1]
-        and itemfg.cust-no le v-cust[2]*/
+        and itemfg.cust-no GE v-cust[1]
+        and itemfg.cust-no le v-cust[2]
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         and itemfg.procat  ge v-procat[1]
         and itemfg.procat  le v-procat[2]
       no-lock

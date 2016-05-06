@@ -1819,6 +1819,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF VAR v-sales-rep AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 SESSION:SET-WAIT-STATE("general").
  
@@ -1835,6 +1836,7 @@ ASSIGN
  tsls   = end_slm
  vzer   = tb_inc-zer
  vwhs   = tb_inc-cust
+ lSelected    = tb_cust-list
         /*vpcp   = tb_cust-pt*/
         /*vdue   = rd_sort EQ "due Date"*/ .
 
@@ -1876,16 +1878,21 @@ DISPLAY "" WITH FRAME r-top.
 FOR EACH tt-report:
     DELETE tt-report.
 END.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcus = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcus = ttCustList.cust-no .
+ END.
 
 DEF VAR cSlsREp AS CHAR.
 
-FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-    EACH itemfg
+FOR EACH itemfg
         WHERE itemfg.company    EQ cocode
-        AND itemfg.cust-no    EQ ttCustList.cust-no /*fcus
-        AND itemfg.cust-no    LE tcus*/
+        AND itemfg.cust-no GE fcus
+        AND itemfg.cust-no    LE tcus
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         AND itemfg.cust-po-no GE fpo
         AND itemfg.cust-po-no LE tpo
         NO-LOCK:

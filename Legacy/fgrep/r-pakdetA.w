@@ -1276,7 +1276,7 @@ def var v-price     like itemfg.sell-price NO-UNDO.
 def var v-cases-pal like fg-bin.cases-unit NO-UNDO.
 def var v-date      as   DATE NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 def buffer b-f-rc for fg-rcpth.
 def buffer b-f-rd for fg-rdtlh.
    
@@ -1314,7 +1314,8 @@ assign
  v-Cstprt  =  tgl-Cstprt 
  v-Weight  =  tgl-Weight 
  v-CsPl    =  tgl-CsPl   
- v-PckCnt  =  tgl-PckCnt.
+ v-PckCnt  =  tgl-PckCnt
+ lSelected    = tb_cust-list.
 /* gdm - 04210913 end */
 
 {sys/inc/print1.i}
@@ -1322,6 +1323,14 @@ assign
 {sys/inc/outprint.i value(lines-per-page)}
 
 if td-show-parm then run show-param.
+
+
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  fcus = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  tcus = ttCustList.cust-no .
+ END.
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).

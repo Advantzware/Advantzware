@@ -87,7 +87,7 @@ DEF NEW SHARED VAR cFieldLength AS cha NO-UNDO.
 DEF NEW SHARED VAR cFieldType AS cha NO-UNDO.
 DEF NEW SHARED VAR iColumnLength AS INT NO-UNDO.
 DEF NEW SHARED VAR cTextListToDefault AS cha NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 ASSIGN cTextListToSelect = "ITEM # ,ITEM NAME,WHSE,BIN,UNITS,COUNT,BIN QTY ITEMS TOTAL,TAG #" 
                           
@@ -1656,10 +1656,7 @@ FOR EACH itemfg NO-LOCK WHERE itemfg.company = cocode
                           AND fg-set.part-no EQ itemfg.i-no))) :
 
   isItemofFirst = YES.
-  FOR EACH ttCustList 
-          WHERE ttCustList.log-fld
-          NO-LOCK,
-    EACH fg-bin NO-LOCK
+  FOR EACH fg-bin NO-LOCK
     WHERE fg-bin.company   EQ itemfg.company
       AND fg-bin.i-no      EQ itemfg.i-no
       AND STRING(FILL(" ",6 - LENGTH(TRIM(fg-bin.job-no))) +
@@ -1672,7 +1669,10 @@ FOR EACH itemfg NO-LOCK WHERE itemfg.company = cocode
       AND fg-bin.loc       LE ip-tloc
       AND fg-bin.loc-bin   GE ip-fbin
       AND fg-bin.loc-bin   LE ip-tbin
-      AND fg-bin.cust-no EQ ttCustList.cust-no
+      AND fg-bin.cust-no GE fcus
+      AND fg-bin.cust-no LE tcus
+      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq fg-bin.cust-no
+      AND ttCustList.log-fld no-lock) else true)
       AND ((fg-bin.cust-no EQ "" AND fg-bin.loc NE "CUST") OR ip-cust)
       AND (fg-bin.qty      NE 0 OR ip-zbal):
 
@@ -2255,12 +2255,20 @@ assign
  v-tot-ext      = 0
  v-label1       = ""
  v-label2       = ""
- v-label3       = "".
+ v-label3       = ""
+ lSelected    = tb_cust-list.
     
 assign
   v-file         = fi_file
   v-excel        = tb_excel
   v-runexcel     = tb_runexcel.
+
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  fcus = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  tcus = ttCustList.cust-no .
+ END.
 
 IF v-prt-c THEN DO: 
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).

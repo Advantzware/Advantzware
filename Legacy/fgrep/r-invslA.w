@@ -1072,6 +1072,7 @@ DEF VAR v-custown AS LOG FORMAT "Y/N" INIT "N".
 DEF VAR v-cust-qty AS INT FORMAT "->>>,>>>,>>9".
 DEF VAR v-sales-rep AS CHAR NO-UNDO.
 DEF VAR sort-opt AS CHAR NO-UNDO INIT "C" FORMAT "!".
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
     
 FORMAT
   itemfg.i-no LABEL "ITEM #"
@@ -1100,7 +1101,8 @@ ASSIGN
  tsman        = end_slm
  zbal         = tb_inc-zer
  v-custown    = tb_inc-cust
- sort-opt     = SUBSTR(rd_sort,1,1).
+ sort-opt     = SUBSTR(rd_sort,1,1)
+ lSelected    = tb_cust-list.
 
 {sys/inc/print1.i}
 
@@ -1127,18 +1129,23 @@ IF tb_excel THEN DO:
       "Total Value"
        SKIP.
 END. 
+ IF lselected THEN DO:
+      FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+      IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+      FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+      IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+  END.
 
 EMPTY TEMP-TABLE tt-itemfg.
-
-  FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-      EACH itemfg
+  
+    FOR EACH itemfg
         NO-LOCK
         USE-INDEX customer
         WHERE itemfg.company EQ cocode 
-      AND itemfg.cust-no EQ ttCustList.cust-no /*fcust 
-      AND itemfg.cust-no LE tcust */
+      AND itemfg.cust-no GE fcust 
+      AND itemfg.cust-no LE tcust 
+      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+      AND ttCustList.log-fld no-lock) else true)
       AND itemfg.cust-po-no GE fcustpo 
       AND itemfg.cust-po-no LE tcustpo,
         FIRST cust

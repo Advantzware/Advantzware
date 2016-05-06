@@ -6,6 +6,7 @@ DEFINE {1} SHARED TEMP-TABLE ttCustList
     FIELD dec-fld AS DECIMAL
     FIELD date-fld AS DATE
     FIELD cSource AS CHARACTER
+    INDEX cust-no cust-no 
     .
 DEFINE {1} SHARED VAR custcount AS CHAR NO-UNDO .
 

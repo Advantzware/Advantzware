@@ -1462,7 +1462,7 @@ DEF VAR cSlsREp     AS CHAR NO-UNDO.
     
 DEF BUFFER b-fg-rcpth FOR fg-rcpth.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 FORM HEADER SKIP(1) WITH FRAME r-top.
 
 FORM itemfg.cust-no COLUMN-LABEL "CUSTOMER!   ID"
@@ -1512,7 +1512,8 @@ ASSIGN
  vzer   = tb_inc-zer
  vwhs   = tb_inc-cust
  vpcp   = tb_cust-pt
- vdue   = rd_sort EQ "due Date".
+ vdue   = rd_sort EQ "due Date"
+ lSelected    = tb_cust-list.
 
 {sys/inc/print1.i}
 
@@ -1528,6 +1529,12 @@ END.
 
 VIEW FRAME r-top.
 IF td-show-parm THEN RUN show-param.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcus = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcus = ttCustList.cust-no .
+ END.
 
 FOR EACH tt-report:
     DELETE tt-report.
@@ -1540,8 +1547,10 @@ FOR EACH ttCustList
     NO-LOCK,
     EACH itemfg
     WHERE itemfg.company  EQ cocode
-    AND itemfg.cust-no    EQ ttCustList.cust-no /*fcus
-    AND itemfg.cust-no    LE tcus*/
+    AND itemfg.cust-no GE fcus
+    AND itemfg.cust-no    LE tcus
+    AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+    AND ttCustList.log-fld no-lock) else true)
     AND itemfg.cust-po-no GE fpo
     AND itemfg.cust-po-no LE tpo
     NO-LOCK:

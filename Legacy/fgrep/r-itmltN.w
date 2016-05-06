@@ -1565,25 +1565,14 @@ DEF VAR cSelectedList AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(300)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(300)" NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg.
 DEF BUFFER bf-job FOR job.
     {sys/form/r-top5DL3.f}
 
-/*{sys/form/r-top.i}
-
-{sys/inc/ctrtext.i str-tit 112}.*/
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
-/*form itemfg.i-no label "ITEM #"
-     itemfg.i-name label "NAME"
-     itemfg.procat column-label "PROD!CAT"
-     itemfg.sell-uom label "UOM"
-     itemfg.cust-no label "CUST. #"
-     itemfg.cust-name label "CUST NAME"
-     v-qtyoh column-label "QUANTITY!ON HAND" SKIP
-
-    with down STREAM-IO width 132 frame itemx. */
 
 assign
  str-tit2 = c-win:title
@@ -1600,7 +1589,8 @@ assign
  v-zbal      = tb_zero
  v-custown   = tb_cust-whse
  sort-opt    = SUBSTR(rd_sort,1,1)
- pcat        = tb_prod-cat.
+ pcat        = tb_prod-cat
+ lSelected      = tb_cust-list.
 
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -1629,12 +1619,12 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/print1.i}
 {sys/inc/outprint.i value(lines-per-page)}
 
-/*IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
-  excelheader = "FG ITEM #,NAME,PROD CAT,UOM,CUST. #,CUST NAME,QUANTITY ON HAND,"
-              + "CUST PART#,DESC LINE 1,DESC LINE 2".
-  PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-END.*/
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
+ END.
 
 if td-show-parm then run show-param.
 
@@ -1643,17 +1633,11 @@ display "" with frame r-top.
  
 
     if sort-opt eq "I" then
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-        each itemfg use-index i-no
+    FOR each itemfg use-index i-no
       {fg/rep/itemlistN.i}
 
     else
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-        each itemfg use-index customer
+    FOR each itemfg use-index customer
       {fg/rep/itemlistN.i}
 
 IF tb_excel THEN DO:

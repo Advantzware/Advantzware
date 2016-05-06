@@ -2218,6 +2218,7 @@ DEF VAR v-numColors AS INT NO-UNDO.
 DEF VAR v-SheetSize AS cha NO-UNDO.
 DEF VAR v-Caliper AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 {ce/msfcalc.i}
 
 form fg-rcpth.trans-date            label "DATE"   format "99/99/99"

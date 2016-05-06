@@ -1573,7 +1573,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE decUnitPrice AS DECIMAL    NO-UNDO.
 DEFINE VARIABLE intAllocated AS INTEGER    NO-UNDO.
 DEFINE VARIABLE intAvailable AS INTEGER    NO-UNDO.
@@ -1600,7 +1600,8 @@ assign
  v-totrel     = rd_qoh EQ "Total Allocated"
  v-date       = as-of-date
  v-pur-man    = SUBSTR(rd_pur-man,1,1)
- v-lot-reo    = SUBSTR(rd_lot-reo,1,1).
+ v-lot-reo    = SUBSTR(rd_lot-reo,1,1)
+ lSelected    = tb_cust-list.
  
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -1642,6 +1643,13 @@ DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
+
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
+ END.
 
 display "" with frame r-top.
 
@@ -1685,10 +1693,7 @@ for each itemfg
     v-qty-avail = v-qty-avail - v-alloc-qty.
 
     if itemfg.ord-level gt v-qty-avail then
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-       each oe-ordl
+    FOR each oe-ordl
        where oe-ordl.company eq cocode
          and oe-ordl.i-no    eq itemfg.i-no
        no-lock,
@@ -1698,8 +1703,10 @@ for each itemfg
          and oe-rel.ord-no  eq oe-ordl.ord-no
          and oe-rel.i-no    eq oe-ordl.i-no
          and oe-rel.line    eq oe-ordl.line
-         AND oe-rel.cust-no EQ ttCustList.cust-no /*v-cust[1]*/
-        /* AND oe-rel.cust-no le v-cust[2]*/
+         AND oe-rel.cust-no GE v-cust[1]
+         AND oe-rel.cust-no le v-cust[2]
+         AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-rel.cust-no
+         AND ttCustList.log-fld no-lock) else true)
         no-lock
          by oe-rel.rel-date desc
          by oe-rel.r-no     desc:
