@@ -1587,15 +1587,25 @@ DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR v-type AS CHAR NO-UNDO.
 DEF VAR v-date AS DATE NO-UNDO.
 EMPTY TEMP-TABLE tt-report.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEF VAR v-cust AS CHAR EXTENT 2 NO-UNDO.
+ASSIGN
+    lSelected    = tb_cust-list
+    v-cust[1]    = begin_cust
+    v-cust[2]    = END_cust .
+
+IF lselected THEN DO:
+  FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+  IF AVAIL ttCustList THEN ASSIGN v-cust[1] = ttCustList.cust-no .
+  FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+  IF AVAIL ttCustList THEN ASSIGN v-cust[2] = ttCustList.cust-no .
+END.
 
 
 IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
   DO:
 
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-       EACH fg-rcpth
+    FOR EACH fg-rcpth
         where fg-rcpth.company eq cocode
           AND fg-rcpth.i-no    GE begin_i-no
           AND fg-rcpth.i-no    LE end_i-no
@@ -1603,8 +1613,10 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
         FIRST itemfg WHERE
               itemfg.company EQ cocode AND
               itemfg.i-no    EQ fg-rcpth.i-no AND
-              itemfg.cust-no EQ ttCustList.cust-no /*begin_cust AND
-              itemfg.cust-no LE END_cust*/
+              itemfg.cust-no GE v-cust[1] AND
+              itemfg.cust-no LE v-cust[2] AND 
+              (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+              AND ttCustList.log-fld no-lock) else true)
               NO-LOCK:
         LEAVE.
     END.
@@ -1650,10 +1662,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
         END.
       end.
       
-      FOR EACH ttCustList 
-       WHERE ttCustList.log-fld
-       NO-LOCK,
-         EACH fg-rcpth WHERE
+      FOR EACH fg-rcpth WHERE
           fg-rcpth.company eq cocode AND
           fg-rcpth.i-no    GT v-i-no AND
           fg-rcpth.i-no    GE begin_i-no AND
@@ -1662,8 +1671,10 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
           FIRST itemfg WHERE
                 itemfg.company EQ cocode AND
                 itemfg.i-no    EQ fg-rcpth.i-no AND
-                itemfg.cust-no EQ ttCustList.cust-no /*begin_cust AND
-                itemfg.cust-no LE END_cust*/
+                itemfg.cust-no GE v-cust[1] AND
+                itemfg.cust-no LE v-cust[2] AND 
+                (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+                AND ttCustList.log-fld no-lock) else true)
                 NO-LOCK:
           LEAVE.
        END.
@@ -1678,18 +1689,17 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
           
            IF NOT(begin_cust EQ "" AND END_cust EQ "zzzzzzzz") THEN
            DO v-date = b-post-date TO e-post-date:
-              FOR EACH ttCustList 
-                   WHERE ttCustList.log-fld
-                   NO-LOCK,
-                  each fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
+              FOR each fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
                   where fg-rcpth.company                eq cocode
                     and fg-rcpth.rita-code              eq v-type
                     and fg-rcpth.post-date              EQ v-date
                     AND CAN-FIND(FIRST itemfg WHERE
                         itemfg.company EQ cocode AND
                         itemfg.i-no    EQ fg-rcpth.i-no AND
-                         itemfg.cust-no EQ ttCustList.cust-no /*begin_cust AND
-                        itemfg.cust-no LE END_cust*/ ) 
+                        itemfg.cust-no GE v-cust[1] AND
+                        itemfg.cust-no LE v-cust[2] AND 
+                        (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+                        AND ttCustList.log-fld no-lock) else true) ) 
                   AND fg-rcpth.USER-ID GE begin_user
                  AND fg-rcpth.USER-ID LE END_user
                   USE-INDEX post-date
@@ -1713,10 +1723,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                   RELEASE tt-report.
               end.
              
-              FOR EACH ttCustList 
-                  WHERE ttCustList.log-fld
-                  NO-LOCK,
-                  each fg-rcpth FIELDS(r-no rita-code i-no trans-date)
+              FOR each fg-rcpth FIELDS(r-no rita-code i-no trans-date)
                   where fg-rcpth.company                eq cocode AND
                         fg-rcpth.rita-code              eq v-type AND
                         fg-rcpth.post-date              eq ? AND
@@ -1726,8 +1733,10 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                         AND CAN-FIND(FIRST itemfg WHERE
                         itemfg.company EQ cocode AND
                         itemfg.i-no    EQ fg-rcpth.i-no AND
-                        itemfg.cust-no EQ ttCustList.cust-no /*begin_cust AND
-                        itemfg.cust-no LE END_cust*/)             
+                        itemfg.cust-no GE v-cust[1] AND
+                        itemfg.cust-no LE v-cust[2] AND 
+                        (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+                        AND ttCustList.log-fld no-lock) else true))             
                   AND fg-rcpth.USER-ID GE begin_user
                  AND fg-rcpth.USER-ID LE END_user
                         USE-INDEX post-date
@@ -2275,74 +2284,6 @@ FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
             str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
             excelheader = excelHeader + ttRptSelected.TextList + ",".
 END.
-/*
-ASSIGN str-tit4 = 
-      (IF {sys/inc/rptDisp.i "fg-rcpth.trans-date"} THEN 
-        "DATE     " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "fg-rcpth.i-no"} THEN 
-        "ITEM            " ELSE "" ) +   /*16*/
-    (IF {sys/inc/rptDisp.i "fg-rcpth.i-name"} THEN 
-        "DESCRIPTION " ELSE "" ) +  /*11*/
-    (IF {sys/inc/rptDisp.i "fg-rcpth.po-no"} THEN 
-        "P.O. #    " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "po-ord.vend-no"} THEN 
-        "VENDOR #   " ELSE "")  +  /*10*/
-    (IF {sys/inc/rptDisp.i "fg-rcpth.job-no"} THEN
-       "JOB         " ELSE "" ) +   /*11*/
-    (IF {sys/inc/rptDisp.i "v-tran-type"} THEN 
-        "T " ELSE "" ) +    /*1*/
-    (IF {sys/inc/rptDisp.i "rfidtag.rfidtag"} THEN
-       "RFID TAG #    " ELSE "" ) +  /*13*/
-    (IF {sys/inc/rptDisp.i "v-tag"} THEN
-       "TAG #         " ELSE "" ) +  /*13*/
-    (IF {sys/inc/rptDisp.i "v-cases"}  THEN
-       "UNITS    " ELSE "" ) +  /*8*/
-    (IF {sys/inc/rptDisp.i "v-qty-case"}  THEN
-       "COUNT    " ELSE "" ) +  /*8*/
-    (IF {sys/inc/rptDisp.i "fg-rdtlh.loc-bin"}  THEN
-       "BIN       " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "lv-cost-uom"}       THEN
-       "UOM       " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "v-fg-qty"}  THEN
-       "TOT QTY    " ELSE "" ) +  /*10*/
-    (IF {sys/inc/rptDisp.i "v-fg-cost"}   THEN
-       "TOT COST  " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "v-fg-value"}  THEN
-       "TOT SELL VALUE" ELSE ""  )  /*14*/
- str-tit5 = 
-      (IF {sys/inc/rptDisp.i "fg-rcpth.trans-date"} THEN 
-        "-------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "fg-rcpth.i-no"} THEN 
-        "--------------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "fg-rcpth.i-name"} THEN 
-        "----------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "fg-rcpth.po-no"} THEN 
-        "--------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "po-ord.vend-no"} THEN 
-        "---------- " ELSE "")  +
-    (IF {sys/inc/rptDisp.i "fg-rcpth.job-no"} THEN
-       "----------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-tran-type"} THEN 
-        "_ " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "rfidtag.rfidtag"} THEN
-       "------------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-tag"} THEN
-       "------------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-cases"}  THEN
-       "-------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-qty-case"}  THEN
-       "-------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "fg-rdtlh.loc-bin"}  THEN
-       "--------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "lv-cost-uom"}       THEN
-       "--------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-fg-qty"}  THEN
-       "---------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-fg-cost"}   THEN
-       "--------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-fg-value"}  THEN
-       "------------- " ELSE "" 
-    .*/
 
 {sys/inc/print1.i}
 {sys/inc/outprint.i value(lines-per-page)}
