@@ -1422,10 +1422,7 @@ FOR EACH itemfg NO-LOCK WHERE itemfg.company = cocode
                           AND fg-set.part-no EQ itemfg.i-no))) :
 
   isItemofFirst = YES.
-  FOR EACH ttCustList 
-          WHERE ttCustList.log-fld
-          NO-LOCK,
-    EACH fg-bin NO-LOCK
+  FOR EACH fg-bin NO-LOCK
     WHERE fg-bin.company   EQ itemfg.company
       AND fg-bin.i-no      EQ itemfg.i-no
       AND STRING(FILL(" ",6 - LENGTH(TRIM(fg-bin.job-no))) +

@@ -1024,10 +1024,7 @@ IF lselected THEN DO:
 
 display "" with frame r-top.
 
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-        each itemfg
+    FOR each itemfg
         where itemfg.company eq cocode
           and itemfg.cust-no GE v-cust[1]
           and itemfg.cust-no le v-cust[2]

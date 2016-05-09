@@ -1115,10 +1115,7 @@ STATUS DEFAULT "Processing...".
     EMPTY TEMP-TABLE tt-fg-bin.
     EMPTY TEMP-TABLE tt-itemfg.
 
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-        EACH itemfg
+    FOR EACH itemfg
         WHERE itemfg.company EQ cocode
           AND itemfg.cust-no GE fcus
           AND itemfg.cust-no LE tcus
