@@ -622,22 +622,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_ship
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ship C-Win
-ON HELP OF begin_ship IN FRAME FRAME-A /* Beginning Customer# */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-shipt4.w (cocode,"","",FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME begin_whse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_whse C-Win
 ON LEAVE OF begin_whse IN FRAME FRAME-A /* Beginning Warehouse */
@@ -861,22 +845,6 @@ END.
 ON LEAVE OF end_ship IN FRAME FRAME-A /* Ending Ship-To# */
 DO:
      assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_ship
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ship C-Win
-ON HELP OF end_ship IN FRAME FRAME-A /* Beginning Customer# */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-shipt4.w (cocode,"","",FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  .
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1154,7 +1122,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'IL3',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""IL3""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 

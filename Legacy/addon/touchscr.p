@@ -1,6 +1,5 @@
 /* touchscr.p */
-/* WFK - 15626 */
-/* PROPATH = "..\," + PROPATH. */
+PROPATH = "..\," + PROPATH.
 
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
@@ -75,8 +74,7 @@ RUN custom/gettime.p.   /* time-source */
 */
 
 IF CONNECTED("NOSWEAT") THEN DO:
-    /* WFK - 15626 - Made path relative */
-    RUN addon/nosweat/persist.p PERSISTENT SET Persistent-Handle.
+    RUN ./nosweat/persist.p PERSISTENT SET Persistent-Handle.
     RUN touch/touchscr.w.
 END.
 ELSE

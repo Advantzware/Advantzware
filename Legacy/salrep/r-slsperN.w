@@ -931,7 +931,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HR15',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""HR15""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1841,31 +1841,6 @@ SESSION:SET-WAIT-STATE ("").
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetCustRange C-Win 
-PROCEDURE SetCustRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-        begin_cust-no:SENSITIVE = NOT iplChecked
-        end_cust-no:SENSITIVE = NOT iplChecked
-        begin_cust-no:VISIBLE = NOT iplChecked
-        end_cust-no:VISIBLE = NOT iplChecked
-        btnCustList:SENSITIVE = iplChecked
-       .
-  END.
-  
-END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

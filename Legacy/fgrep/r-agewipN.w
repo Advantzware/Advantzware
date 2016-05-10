@@ -314,7 +314,7 @@ FUNCTION removeChars RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -1516,7 +1516,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'IL15',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""IL15""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -3387,15 +3387,14 @@ PROCEDURE produce-report :
                     AND tt-fg-bin.job-no GT ""
         USE-INDEX ITEM 
         NO-LOCK NO-ERROR.
-       
+
         IF tt-fg-bin.job-no GT "" THEN DO:
             FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
                                  AND job-hdr.job-no EQ tt-fg-bin.job-no
                                  AND job-hdr.job-no2 EQ tt-fg-bin.job-no2
-                                 AND job-hdr.i-no EQ tt-fg-bin.i-no 
                                NO-LOCK NO-ERROR.
             IF AVAIL job-hdr THEN
-            DO:  
+            DO:
               FIND FIRST oe-ordl WHERE
               oe-ordl.company EQ job-hdr.company AND
               oe-ordl.ord-no  EQ job-hdr.ord-no AND
@@ -3414,7 +3413,6 @@ PROCEDURE produce-report :
         
 
         END.
-        
         IF avail oe-ordl THEN DO:
 
           ASSIGN v-u-val  = oe-ordl.t-price / oe-ordl.qty

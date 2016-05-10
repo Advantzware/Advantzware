@@ -9,7 +9,6 @@ DEF VAR li AS INT NO-UNDO.
 DEF VAR li1 AS INT NO-UNDO.
 DEF VAR ll AS LOG NO-UNDO.
 DEF VAR ll-copy-fg AS LOG NO-UNDO.
-DEF VAR li-out-item AS cha NO-UNDO .
 
 def var v-e-num        like xeb.e-num.
 def var v-est-no       like xeb.est-no.
@@ -102,7 +101,16 @@ DO WITH FRAME {&FRAME-NAME}:
           AND ROWID(b-eb)   NE ROWID(eb)
       USE-INDEX est-no NO-LOCK NO-ERROR.
   END.
- 
+  /* Removed for task #10310608
+    
+  IF AVAIL b-eb THEN ll = YES.
+    /*no prompt MESSAGE "Copy from Estimate on FG Item Record?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE ll. */
+
+  IF NOT ll THEN RELEASE b-eb.
+  Removed for task #10310608 */
+  
   li1 = 0.
   IF NOT AVAIL b-eb THEN DO:
     IF (NOT ip-help) AND lv-value NE "" THEN
@@ -144,7 +152,7 @@ DO WITH FRAME {&FRAME-NAME}:
     lv-rowid = IF adm-new-record AND NOT adm-adding-record THEN ? ELSE ROWID(eb).
 
     IF ip-help OR li1 GT 1 THEN DO:
-      IF lv-field EQ "stock-no" THEN RUN est/l-ebstf.w (gcompany,est.est-type,"", lv-rowid, lv-value, OUTPUT li-out-item , OUTPUT lv-rowid).
+      IF lv-field EQ "stock-no" THEN RUN est/l-ebstk.w (gcompany, gloc, est.est-type, lv-rowid, li + 2, lv-value, OUTPUT lv-rowid).
       ELSE RUN est/l-eb.w (gcompany, gloc, est.est-type, lv-rowid, li + 2, lv-value, OUTPUT lv-rowid).
 
       FIND b-eb WHERE ROWID(b-eb) EQ lv-rowid NO-LOCK NO-ERROR.
@@ -199,36 +207,6 @@ DO WITH FRAME {&FRAME-NAME}:
             UPDATE ll-form.
       ELSE ll-form = YES.
     END.
-  END.
-  ELSE DO:
-      FIND FIRST itemfg NO-LOCK
-          WHERE itemfg.company EQ cocode
-          AND itemfg.i-no    EQ ENTRY(1,li-out-item)
-        NO-ERROR.
-
-      
-   IF AVAIL itemfg THEN DO:
-     ASSIGN
-      eb.part-no:SCREEN-VALUE IN BROWSE {&browse-name}    = itemfg.part-no
-      eb.part-dscr1:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name
-      eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name}   = CAPS(itemfg.i-no)
-      eb.style:SCREEN-VALUE IN BROWSE {&browse-name}      = itemfg.style
-      eb.procat:SCREEN-VALUE IN BROWSE {&browse-name}     = itemfg.procat
-      eb.len:SCREEN-VALUE IN BROWSE {&browse-name}        = STRING(itemfg.l-score[50])
-      eb.wid:SCREEN-VALUE IN BROWSE {&browse-name}        = STRING(itemfg.w-score[50])
-      eb.dep:SCREEN-VALUE IN BROWSE {&browse-name}        = STRING(itemfg.d-score[50]).
-     /* Removed for task #10310608
-      lv-copied                                           = ROWID(itemfg) .
-     Removed for task #10310608 */
-     IF itemfg.est-no NE "" THEN
-     FIND FIRST b-eb
-         WHERE b-eb.company  EQ cocode
-           AND b-eb.est-no   EQ itemfg.est-no
-           AND b-eb.stock-no EQ itemfg.i-no
-           AND ROWID(b-eb)   NE ROWID(eb)
-       USE-INDEX est-no NO-LOCK NO-ERROR.
-   END.
-
   END.
 END.
 

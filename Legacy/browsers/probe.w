@@ -1062,7 +1062,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 {methods/winReSize.i}
 
 DEF VAR lv-col-hand AS HANDLE.
-FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
 IF AVAIL ce-ctrl THEN
   v-ceSellPrice = ce-ctrl.sell-by.
 IF v-ceSellPrice NE "F" THEN DO lv-int = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME} 
@@ -1169,7 +1169,7 @@ PROCEDURE calc-fields :
       USE-INDEX est-qty NO-LOCK:
       v-freight = v-freight + est-summ.per-m.
   END.
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
 
   IF lv-changed NE "" THEN
   DO WITH FRAME {&FRAME-NAME}:
@@ -1616,7 +1616,7 @@ IF CAN-FIND(FIRST xprobe
       {custom/getrfq.i}
       
       FIND FIRST cust
-          {sys/look/cust.w}
+          {sys/look/custW.i}
             AND cust.cust-no EQ quotehd.cust-no
           NO-LOCK NO-ERROR.
       FIND FIRST shipto
@@ -2323,7 +2323,7 @@ PROCEDURE local-assign-record :
   probe.sell-price-wo = probe.sell-price -
                         (probe.sell-price * probe.market-price / 100).
         
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
 
   FIND FIRST est NO-LOCK
       WHERE est.company EQ probe.company
@@ -2426,7 +2426,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
@@ -3213,7 +3213,7 @@ PROCEDURE printProbe :
     lv-dest = 2
     lv-font = 15
     lv-ornt = 'P'
-    lv-lines = 63.
+    lv-lines = 65.
 
   ASSIGN
      v-probe-fmt = IF probe.LINE LT 100 THEN "99" ELSE "999"
@@ -3240,7 +3240,7 @@ PROCEDURE printProbe :
     if avail sys-ctrl THEN ASSIGN v-print-fmt = sys-ctrl.char-fld.
     ELSE v-print-fmt = "".
      i = 0 . 
-     IF is-xprint-form THEN lv-lines = 64.
+     IF is-xprint-form THEN lv-lines = 66.
      OUTPUT TO VALUE(ls-outfile) PAGE-SIZE VALUE(lv-lines). /* create .x file with page size */
 
      input from value(lv-dir + trim(est.est-no) + ".s" + string(probe.line,v-probe-fmt)) NO-ECHO.
@@ -3447,7 +3447,7 @@ PROCEDURE run-screen-calc :
         AND est-op.est-no  EQ est.est-no
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ est-op.m-code,
       FIRST reftable NO-LOCK
       WHERE reftable.reftable EQ "mach.obsolete"
@@ -3555,7 +3555,7 @@ PROCEDURE run-whatif :
         AND est-op.est-no  EQ est.est-no
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ est-op.m-code,
       FIRST reftable NO-LOCK
       WHERE reftable.reftable EQ "mach.obsolete"
@@ -4129,7 +4129,7 @@ FUNCTION display-gp RETURNS DECIMAL
   DEF VAR lv-gp AS DEC NO-UNDO.
 
 
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
 
   DO WITH FRAME {&FRAME-NAME}:
     lv-gp = IF ce-ctrl.sell-by EQ "S" THEN

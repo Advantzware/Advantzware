@@ -1317,7 +1317,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'OQ1',
                             INPUT YES,
                             OUTPUT lActive).
-{sys/inc/chblankcust.i ""OQ1""}
+{sys/inc/chblankcust.i}
 
 SESSION:DATA-ENTRY-RETURN = YES.
 

@@ -1026,7 +1026,7 @@ RUN DisplaySelectionList.
                           INPUT 'IR5',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""IR5""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 

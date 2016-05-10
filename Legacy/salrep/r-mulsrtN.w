@@ -1166,7 +1166,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HR10',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""HR10""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -2031,10 +2031,6 @@ FOR EACH ttCustList
       end.
     end.
   end.
-
-  FOR EACH xtt-report:
-      
-  END.
 
   for each tt-report,
 

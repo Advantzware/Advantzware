@@ -17,8 +17,7 @@
   Created: 5.12.2004
 
 ------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.    
-  */
+/*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
 /* Create an unnamed pool to store all the widgets created 
@@ -279,7 +278,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN getValidIDList.
-  startDir = REPLACE(clientDat + '{&scenarios}','\','/').
+  startDir = REPLACE(installDir + '{&loads}','\','/').
   RUN getID (startDir,OUTPUT dirList).
   DO i = 1 TO NUM-ENTRIES(dirList):
     RUN getID (startDir + '/' + ENTRY(i,dirList),OUTPUT ID).

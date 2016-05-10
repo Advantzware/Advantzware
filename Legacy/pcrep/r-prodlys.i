@@ -443,7 +443,7 @@ FOR EACH mch-act NO-LOCK
           chExcelApplication:Goto(v-cell) NO-ERROR.
           ASSIGN chExcelApplication:ActiveCell:Value = STRING(dt-eff,"->>9.99").
          
-          ASSIGN v-cell = "R" + STRING(inrowcount) + "C16".
+          ASSIGN v-cell = "R" + STRING(inrowcount) + "16".
           chExcelApplication:Goto(v-cell) NO-ERROR.
           ASSIGN chExcelApplication:ActiveCell:Value = STRING(tt-srt.qty-prod,"->,>>>,>>9")  .
 

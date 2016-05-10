@@ -16,7 +16,7 @@ RUN getConfiguration.
 &SCOPED-DEFINE useTtbl {&jobTable}
 {{&viewers}/includes/setFilterFlag.i "print"}
 
-printFile = clientDat + '{&print}/' + ID + '/{&printProgramName}.' +
+printFile = installDir + '{&print}/' + ID + '/{&printProgramName}.' +
              (IF ipExcel THEN 'csv' ELSE 'txt').
 
 IF ipExcel THEN linesPerPageValue = 0.

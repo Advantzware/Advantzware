@@ -1685,6 +1685,7 @@ PROCEDURE BatchMail :
        v-depts = fi_depts:SCREEN-VALUE.
 
   IF tb_posted  THEN DO:
+
     FOR EACH  b1-ar-inv
        WHERE  b1-ar-inv.company              EQ cocode
          AND  b1-ar-inv.inv-no               GE finv
@@ -1719,7 +1720,7 @@ PROCEDURE BatchMail :
       lEmailed = YES.
     END.
     /* =-=== end of posted invoices =====*/
-    
+
     for each b1-inv-head
        where b1-inv-head.company         eq cocode
          and b1-inv-head.cust-no         ge icBegCustNo
@@ -1735,10 +1736,11 @@ PROCEDURE BatchMail :
       where b2-cust.company eq cocode
         and b2-cust.cust-no eq b1-inv-head.cust-no
         AND (b2-cust.log-field[1] OR NOT tb_Batchmail OR tb_override-email)
-        AND ((b2-cust.inv-meth EQ ? AND b1-inv-head.multi-invoice) OR
+       /* AND ((b2-cust.inv-meth EQ ? AND b1-inv-head.multi-invoice) OR
              (b2-cust.inv-meth NE ? AND NOT b1-inv-head.multi-invoice))
-             
-         /*AND CAN-FIND(FIRST inv-line OF b1-inv-head)*/
+             */
+         AND ((b2-cust.inv-meth EQ ? AND NOT b1-inv-head.multi-invoice) OR
+             (b2-cust.inv-meth NE ? AND b1-inv-head.multi-invoice))
       no-lock
       BREAK BY b2-cust.cust-no:
       
@@ -1764,7 +1766,6 @@ PROCEDURE BatchMail :
   END.
 
   ELSE DO:  /* not tb_post */
-      
     for each b1-inv-head
        where b1-inv-head.company         eq cocode
          and b1-inv-head.cust-no         ge icBegCustNo
@@ -1780,13 +1781,15 @@ PROCEDURE BatchMail :
       where b2-cust.company eq cocode
         and b2-cust.cust-no eq b1-inv-head.cust-no
         AND (b2-cust.log-field[1] OR NOT tb_Batchmail OR tb_override-email)
-        AND ((b2-cust.inv-meth EQ ? AND b1-inv-head.multi-invoice) OR
+        /*AND ((b2-cust.inv-meth EQ ? AND b1-inv-head.multi-invoice) OR
              (b2-cust.inv-meth NE ? AND NOT b1-inv-head.multi-invoice))
-        /*AND CAN-FIND(FIRST inv-line OF b1-inv-head)*/
+        */     
+        AND ((b2-cust.inv-meth EQ ? AND NOT b1-inv-head.multi-invoice) OR
+             (b2-cust.inv-meth NE ? AND b1-inv-head.multi-invoice))
       no-lock
-      BREAK BY b2-cust.cust-no :
-  
-      IF FIRST-OF (b2-cust.cust-no) THEN DO:
+      BREAK BY b1-inv-head.inv-no /*cust.cust-no*/ :
+      
+      IF FIRST-OF (b1-inv-head.inv-no) THEN DO:
       
         ASSIGN  vlSkipRec = YES
                 vcBegCustNo = b1-inv-head.cust-no
@@ -1799,11 +1802,11 @@ PROCEDURE BatchMail :
                        NO-LOCK NO-ERROR.
              vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
           END.
-/*           MESSAGE "3 batchMail:  " AVAIL inv-line "   soldTo:"  vSoldToNo "," inv-line.ord-no      */
-/*               "," AVAIL oe-ord "," oe-ord.sold-no RECID(oe-ord) SKIP                               */
-/*               "cust: " b2-cust.cust-no  "  inv#: " b1-inv-head.inv-no  " r-no:  " b1-inv-head.r-no */
-/*               VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                   */
-           
+         /* MESSAGE "2 batchMail:  " AVAIL inv-line "   soldTo:"  vSoldToNo "," inv-line.ord-no
+              "," AVAIL oe-ord "," oe-ord.sold-no RECID(oe-ord) SKIP
+              "cust: " b2-cust.cust-no  "  inv#: " b1-inv-head.inv-no  " r-no:  " b1-inv-head.r-no
+              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+           */
           RUN output-to-mail (b1-inv-head.cust-no).
       END.
       lEmailed = YES.
@@ -1928,7 +1931,7 @@ PROCEDURE GenerateEmail :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER icCustNo AS CHAR NO-UNDO.
-   
+
    DO WITH FRAME {&FRAME-NAME}:
    
       IF vlSkipRec THEN RETURN.
@@ -2141,7 +2144,6 @@ PROCEDURE output-to-mail :
      END.
      ELSE /*not posted*/
      DO:
-         
         IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
            sys-ctrl-shipto.company = cocode AND
            sys-ctrl-shipto.NAME = "INVPRINT") THEN
@@ -2202,7 +2204,6 @@ PROCEDURE output-to-mail :
                      lv-pdf-file = init-dir + "\Inv".
                    RUN run-report(buf-inv-head.cust-no,"", TRUE).
                    vSoldToNo = "".
-                   
                    RUN GenerateEmail(buf-inv-head.cust-no).
                 END.
            END.
@@ -2221,7 +2222,6 @@ PROCEDURE output-to-mail :
         END.
      END.
   END.
-  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2806,7 +2806,7 @@ PROCEDURE SendMail-1 :
   DEFINE VARIABLE vcSubject   AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
- 
+
   ASSIGN  vcSubject   = "INVOICE:" + vcInvNums + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
           vcSubject   = IF tb_reprint AND NOT tb_email-orig THEN '[REPRINT] ' + vcSubject ELSE vcSubject
           vcMailBody  = "Please review attached Invoice(s) for Invoice #: " + vcInvNums.
@@ -2847,11 +2847,11 @@ PROCEDURE SendMail-1 :
   IF tb_attachBOL THEN
       list-name = list-name + "," + TRIM(vcBOLfiles, ",").
   
- IF vSoldToNo <> "" THEN
+  IF vSoldToNo <> "" THEN
      ASSIGN icRecType = "SoldTo"
             icIdxKey = icIdxKey + "|" + (vSoldToNo).
-
- RUN custom/xpmail2.p   (input   icRecType,
+ 
+  RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-INVPRT.',
                           input   list-name,
                           input   icIdxKey,
@@ -2860,6 +2860,7 @@ PROCEDURE SendMail-1 :
                           OUTPUT  vcErrorMsg).
   /* for email by sold-to: need type "SoldTo" and icIdxKey(cust-no) and new key
      to have sold-no */
+
 
 END PROCEDURE.
 

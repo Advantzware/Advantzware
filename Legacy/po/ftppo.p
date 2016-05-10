@@ -518,20 +518,7 @@ IF AVAIL sys-ctrl THEN DO:
             ELSE
                 OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpaf.txt").
         END.
-      WHEN "ipaper" THEN DO:     
         
-        IF   getWinScpFile() NE ?
-           THEN 
-        DO:
-            cExec = getWinScpFile().
-            IF cWinScpIniFile GT "" THEN 
-              cExec = cExec + " " + "/ini=" + cWinScpIniFile.  
-            
-            OS-COMMAND VALUE(cExec + " /script=.\po\ftpip.txt").
-        END.
-        ELSE
-          OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpcmdip.txt").
-      END.        
     END CASE.
   END. /* If lSendTheFile */
 END. /* If avail sys-ctrl */

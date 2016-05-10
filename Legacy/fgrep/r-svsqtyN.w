@@ -1023,7 +1023,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                           INPUT 'IL4',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""IL4""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 

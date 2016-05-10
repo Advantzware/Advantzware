@@ -17,7 +17,7 @@
   Author: Ron Stark
 
   Created: 01/12/2000
-  Modified: 03/17/2016 WFK
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -85,18 +85,16 @@ ASSIGN cTextListToSelect = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #,DESCRIPTION,JO
                            "REL#,REL DATE,RFQ#,QTY ALLOCATED,QTY ON HAND,QTY ORDERED," +
                            "QTY SHIPPED,RECEIPT DATE,PRICE,VALUE,RELEASE QTY," +
                            "QTY PROD.,QTY BALANCE,ORDER DATE,SHIP DATE,WHSE," +
-                           "RELEASE PO#,RELEASE LOT#,FG LOT#,SHIPTO,SHIPTO NAME,FG LOT QTY," + 
-                           "FACTORY COST/M,TOT FACTORY COST"
+                           "RELEASE PO#,RELEASE LOT#,FG LOT#,SHIPTO,SHIPTO NAME,FG LOT QTY"
            cFieldListToSelect = "cust.cust-no,oe-ordl.po-no,sman,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,v-job-no," +
                                 "v-rel#,v-relDate,v-rfq,v-relQty,v-qty-onh,v-qty-ord," +
                                 "li-ship-qty,v-rctDate,v-price,v-ext,relqty," +
                                 "qty-pro,qty-bal,ord-date,ship-date,loc," +
-                                "relpo,rellot,fg-lot,shipto,shipname,prodqty," +
-                                "fac-costm,tot-fac-cost"
+                                "relpo,rellot,fg-lot,shipto,shipname,prodqty"
            cFieldLength = "8,15,4,15,15,15,9," + "9,11,10,13,11,11," + "11,12,10,15,11," + "10,11,10,9,5," +
-                          "15,15,16,8,30,11," + "14,16"
+                          "15,15,16,8,30,11"
            cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i," + "i,c,i,i,i," + "i,i,c,c,c," +
-                        "c,c,c,c,c,i," + "i,i" 
+                        "c,c,c,c,c,i"
            .
 
 {sys/inc/ttRptSel.i}
@@ -154,7 +152,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -1185,7 +1183,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'IL8',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""IL8""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1642,10 +1640,6 @@ DEF VAR v-rel-date LIKE oe-rel.rel-date NO-UNDO.
 def var v-smry-dtl as char format "x(9)".
 DEF VAR v-rfq LIKE quotehd.rfq NO-UNDO.
 DEF VAR v-summ-temp AS INT NO-UNDO.
-DEF VAR vmat-cost AS DECIMAL NO-UNDO.
-DEF VAR vmach-cost AS DECIMAL NO-UNDO.
-DEF VAR vtot-costm AS DECIMAL NO-UNDO.
-DEF VAR vtot-job-cost AS DECIMAL NO-UNDO.
 
 DEF BUFFER boe-ordl FOR oe-ordl.
 DEF BUFFER bcust FOR cust.

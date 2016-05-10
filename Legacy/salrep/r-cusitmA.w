@@ -1039,7 +1039,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HZ',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""HZ""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1701,8 +1701,7 @@ FOR EACH ttCustList
        end.     
     end.
   end.
-  FOR EACH xreport NO-LOCK:
-  END.
+
   for each tt-report where tt-report.term-id eq "",
       first cust
       where cust.company eq cocode

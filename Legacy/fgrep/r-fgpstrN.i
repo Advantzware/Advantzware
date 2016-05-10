@@ -152,8 +152,7 @@ for each tt-report where tt-report.term-id eq "" no-lock,
     END.
     ASSIGN 
         prom-date = ? 
-        due-date = ?
-        order-no = 0 .
+        due-date = ? .
         
     IF AVAIL job-hdr AND job-hdr.ord-no <> 0 THEN DO:
         FIND FIRST oe-ordl WHERE oe-ordl.company = cocode
@@ -161,22 +160,9 @@ for each tt-report where tt-report.term-id eq "" no-lock,
                     AND oe-ordl.i-no   = itemfg.i-no NO-LOCK NO-ERROR.
         IF AVAIL oe-ordl THEN
         ASSIGN prom-date = oe-ordl.prom-date 
-               due-date = oe-ordl.req-date 
-               order-no = oe-ordl.ord-no   .
-    END.
-    ELSE IF AVAIL oe-bolh THEN DO:
-       FIND FIRST oe-boll WHERE oe-boll.company = oe-bolh.company 
-            AND oe-boll.b-no = oe-bolh.b-no
-            AND oe-boll.i-no = itemfg.i-no NO-LOCK NO-ERROR.
-       IF AVAIL oe-boll THEN 
-          FIND FIRST oe-ordl WHERE oe-ordl.company = cocode
-                    AND oe-ordl.ord-no = int(oe-boll.ord-no )
-                    AND oe-ordl.i-no   = itemfg.i-no NO-LOCK NO-ERROR.
-
-       IF AVAIL oe-ordl THEN
-          ASSIGN prom-date = oe-ordl.prom-date 
-              due-date = oe-ordl.req-date 
-              order-no = oe-ordl.ord-no   .
+                due-date = oe-ordl.req-date .
+        
+        
     END.
        
 
@@ -377,7 +363,6 @@ for each tt-report where tt-report.term-id eq "" no-lock,
                  WHEN "job-start" THEN cVarValue = IF job-start <> ? THEN string(job-start,"99/99/9999") ELSE "".
                  WHEN "shipto" THEN cVarValue = v-shipto .
                  WHEN "shipname" THEN cVarValue = v-shipto-name  .
-                 WHEN "order-no" THEN cVarValue = string(order-no,">>>>>>>")  .
             END CASE.
               
             cExcelVarValue = cVarValue.

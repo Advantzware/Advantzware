@@ -1862,7 +1862,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'JU1',
                             INPUT YES,
                             OUTPUT lActive).
-{sys/inc/chblankcust.i ""JU1""}
+{sys/inc/chblankcust.i}
   IF ou-log THEN do:
     DO WITH FRAME {&FRAME-NAME}:
         job.est-no:SCREEN-VALUE = FILL(" ",8 - LENGTH(TRIM(INPUT job.est-no))) + TRIM(INPUT job.est-no).

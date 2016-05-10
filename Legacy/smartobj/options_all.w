@@ -42,12 +42,12 @@ CREATE WIDGET-POOL.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_appl Select_help Select_List ~
-Select_spec Select_Search Select_Notes Select_Misc_Fields Select_Browser ~
+&Scoped-Define ENABLED-OBJECTS Select_appl Select_spec Select_help ~
+Select_List Select_Search Select_Notes Select_Misc_Fields Select_Browser ~
 Select_Viewer 
 
 /* Custom List Definitions                                              */
@@ -64,7 +64,7 @@ Select_Viewer
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_appl 
      IMAGE-UP FILE "images/appl.bmp":U NO-FOCUS
-     LABEL "Util_appl" 
+     LABEL "Util App" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_Browser 
@@ -103,7 +103,7 @@ DEFINE BUTTON Select_Search
 
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "images\dict":U NO-FOCUS
-     LABEL "spec_note" 
+     LABEL "Spec Note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
 
 DEFINE BUTTON Select_Viewer 
@@ -116,9 +116,9 @@ DEFINE BUTTON Select_Viewer
 
 DEFINE FRAME F-Main
      Select_appl AT ROW 1 COL 57
+     Select_spec AT ROW 1 COL 49
      Select_help AT ROW 1 COL 65
      Select_List AT ROW 1 COL 9
-     Select_spec AT ROW 1 COL 49
      Select_Search AT ROW 1 COL 1
      Select_Notes AT ROW 1 COL 17
      Select_Misc_Fields AT ROW 1 COL 25
@@ -164,6 +164,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -178,7 +179,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -204,9 +205,14 @@ ASSIGN
 
 &Scoped-define SELF-NAME Select_appl
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_appl s-object
-ON CHOOSE OF Select_appl IN FRAME F-Main /* Util_appl */
+ON CHOOSE OF Select_appl IN FRAME F-Main /* Util App */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:37 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -218,6 +224,11 @@ END.
 ON CHOOSE OF Select_Browser IN FRAME F-Main /* Browser */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:37 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -229,6 +240,11 @@ END.
 ON CHOOSE OF Select_help IN FRAME F-Main /* Help */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:37 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -240,6 +256,11 @@ END.
 ON CHOOSE OF Select_List IN FRAME F-Main /* List */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:37 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -251,6 +272,11 @@ END.
 ON CHOOSE OF Select_Misc_Fields IN FRAME F-Main /* Misc_Fields */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:37 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -262,6 +288,11 @@ END.
 ON CHOOSE OF Select_Notes IN FRAME F-Main /* Notes */
 DO:
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:37 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -273,6 +304,11 @@ END.
 ON CHOOSE OF Select_Search IN FRAME F-Main /* Search */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:37 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -281,9 +317,14 @@ END.
 
 &Scoped-define SELF-NAME Select_spec
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_spec s-object
-ON CHOOSE OF Select_spec IN FRAME F-Main /* spec_note */
+ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
 DO:
     {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:37 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -295,6 +336,11 @@ END.
 ON CHOOSE OF Select_Viewer IN FRAME F-Main /* Viewer */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:37 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

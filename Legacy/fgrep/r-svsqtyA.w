@@ -801,7 +801,7 @@ APPLY "entry" TO lbl_ord-stat IN FRAME {&FRAME-NAME}.
                           INPUT 'IL4',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""IL4""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 

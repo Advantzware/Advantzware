@@ -3928,8 +3928,8 @@ PROCEDURE local-create-record :
   DEF BUFFER b-ef FOR ef.
   DEF BUFFER b-est-flm FOR est-flm.
   DEF BUFFER est-misc FOR reftable.
-  IF AVAIL eb THEN
-      v-rowid-eb  = ROWID(eb).
+
+
   /* Code placed here will execute PRIOR to standard behavior. */
   if avail est then li-form# = est.form-qty. /* for set creation on crt-new-set */
     
@@ -5715,7 +5715,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'EF',
                             INPUT YES,
                             OUTPUT lActive).
- {sys/inc/chblankcust.i ""EF""}
+ {sys/inc/chblankcust.i}
   
   IF ou-log THEN
     DO WITH FRAME {&FRAME-NAME}:

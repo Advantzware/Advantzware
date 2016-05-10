@@ -598,12 +598,9 @@ PROCEDURE calcQtyPerTrans :
       END. /* each machtran */
     END. /* first-of job */
 
-    IF lvVorneRunQty LE ttblVorne.vorneTranRunQty THEN
     ASSIGN
       ttblVorne.vorneTranRunQty = ttblVorne.vorneRunQty - lvVorneRunQty
       ttblVorne.vorneTranRejectQty = ttblVorne.vorneRejectQty - lvVorneRejectQty
-      .
-    ASSIGN  
       lvVorneRunQty = ttblVorne.vorneRunQty
       lvVorneRejectQty = ttblVorne.vorneRejectQty
       .

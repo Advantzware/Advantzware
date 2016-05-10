@@ -43,9 +43,6 @@ def var lv-first-time as log init yes no-undo.
 
 DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
 DEF VAR period_pos AS INTEGER NO-UNDO.
-DEF VAR lActive AS LOG NO-UNDO.
-DEF VAR v-check-page AS LOG INIT NO NO-UNDO .
-DEF VAR v-file-name AS CHAR NO-UNDO .
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -56,17 +53,6 @@ ASSIGN
   period_pos = INDEX(PROGRAM-NAME(1),".")
   v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 9) + 1)
   v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
-
-ASSIGN cocode = ip-company .
-
-IF  PROGRAM-NAME(2) MATCHES "*/v-ord.w*" THEN
-    v-check-page = YES .
-
-DO TRANSACTION:
-     {sys/ref/CustList.i NEW}
-    /*{sys/inc/custlistform.i ""IF1"" }*/
-END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -95,13 +81,11 @@ cust.addr[2] cust.city cust.state cust.zip cust.sman sman.sname
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
       AND cust.company = ip-company and ~
-    ((v-check-page AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "")) OR NOT v-check-page) AND ~
 CAN-DO("A,X,S,E",cust.active) NO-LOCK, ~
       EACH sman OF cust OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
       AND cust.company = ip-company and ~
-     ((v-check-page AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "")) OR NOT v-check-page) AND ~
 CAN-DO("A,X,S,E",cust.active) NO-LOCK, ~
       EACH sman OF cust OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}.
@@ -420,19 +404,6 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-    IF  PROGRAM-NAME(2) MATCHES "*/v-ord.w*" THEN do:
-    v-file-name  = "OU1" .
-    RUN sys/ref/CustList.p (INPUT cocode,
-                            INPUT 'OU1',
-                            INPUT YES,
-                            OUTPUT lActive).
-   END.
- 
-{sys/inc/custlistform.i "v-file-name" }
-{sys/inc/chblankcust.i "v-file-name"}
-    IF ou-cust-int = 0 THEN
-        custcount = "".
-
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     lv-search:SCREEN-VALUE = "".
@@ -442,7 +413,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN new-rd-sort.
 
-    &SCOPED-DEFINE key-phrase INDEX("AXSE",cust.active) GT 0 AND ((v-check-page AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "")) OR NOT v-check-page)
+    &SCOPED-DEFINE key-phrase INDEX("AXSE",cust.active) GT 0
 
     {custom/lookpos3.i &lookup-file="cust" &lookup-field="cust-no"}
   END.

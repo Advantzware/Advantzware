@@ -2354,14 +2354,12 @@ PROCEDURE auto-create-item :
     
          END.
          ELSE DO:
-           IF  v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
+           IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
              FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
              i = LENGTH(lv-i-no).
              IF i GT 2 THEN
              SUBSTRING(lv-i-no, i - 1, 2) = "00".
          END.
-        
-
          bf-eb.stock-no = lv-i-no.
          
         FIND xeb WHERE ROWID(xeb) = ROWID(bf-eb) NO-LOCK.
@@ -2387,6 +2385,8 @@ PROCEDURE auto-create-item :
       IF v-est-fg1 EQ "Hughes" THEN DO:
           RUN fg/hughesfg.p (ROWID(xeb), OUTPUT lv-i-no).
       END.
+      ELSE
+        IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
   END.
 
   FIND FIRST tt-stock-no WHERE tt-stock-no.eb-row-id = ROWID(xeb)
@@ -2752,7 +2752,7 @@ PROCEDURE calc-layout4Artios :
       /*
       IF xef.m-code EQ "" THEN xef.m-code = ceroute-chr.
 
-      find first mach {sys/look/mach.w}
+      find first mach {sys/look/machW.i}
             and mach.m-code eq xef.m-code use-index m-code no-lock no-error.
       if avail mach then 
             assign
@@ -4836,12 +4836,12 @@ DEF VAR li AS INT NO-UNDO.
                   eb.num-len = 1
                   eb.num-up = 1.
 
-               /*IF ll-add-set-part-2 THEN
-               DO:*/ /* ticket 15488 */
+               IF ll-add-set-part-2 THEN
+               DO:
                   find xest where recid(xest) = recid(est).
                   find xef where recid(xef) = recid(ef).
                   find xeb where recid(xeb) = recid(eb).
-              /* END.*/
+               END.
                run cec/calc-dim.p .
             END.
          END.
@@ -4872,7 +4872,7 @@ DEF VAR li AS INT NO-UNDO.
              BY est-op.op-pass
              BY est-op.rec_key:
         
-           {sys/inc/machposw.i est-op SHARE}  
+           {sys/inc/outstrPL.i est-op SHARE}  
            ASSIGN
             li          = li + 1
             est-op.line = li.
@@ -5662,8 +5662,7 @@ PROCEDURE local-create-record :
 
   DEF BUFFER b-eb FOR eb.
   DEF BUFFER b-ef FOR ef.
-      IF AVAIL eb THEN
-          v-rowid-eb  = ROWID(eb).
+
   /* Code placed here will execute PRIOR to standard behavior. */
   if avail est then li-form# = est.form-qty. /* for set creation on crt-new-set */
     
@@ -7800,36 +7799,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user B-table-Win 
-PROCEDURE valid-cust-user :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- custcount = "".
-DEF VAR lActive AS LOG NO-UNDO.
-RUN sys/ref/CustList.p (INPUT cocode,
-                            INPUT 'EC',
-                            INPUT YES,
-                            OUTPUT lActive).
- {sys/inc/chblankcust.i ""EC""}
-  
-  IF ou-log THEN
-    DO WITH FRAME {&FRAME-NAME}:
-      IF LOOKUP(eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},custcount) = 0 THEN do:
-          MESSAGE "Customer is not on Users Customer List.  "  SKIP
-              "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO eb.cust-no .
-          RETURN ERROR.
-      END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-eb-reckey B-table-Win 
 PROCEDURE valid-eb-reckey :
 /*------------------------------------------------------------------------------
@@ -7913,6 +7882,38 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user B-table-Win 
+PROCEDURE valid-cust-user :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ custcount = "".
+DEF VAR lActive AS LOG NO-UNDO.
+RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'EC',
+                            INPUT YES,
+                            OUTPUT lActive).
+ {sys/inc/chblankcust.i}
+  
+  IF ou-log THEN
+    DO WITH FRAME {&FRAME-NAME}:
+      IF LOOKUP(eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},custcount) = 0 THEN do:
+          MESSAGE "Customer is not on Users Customer List.  "  SKIP
+              "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO eb.cust-no .
+          RETURN ERROR.
+      END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-part-no B-table-Win 
 PROCEDURE valid-part-no :

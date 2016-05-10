@@ -1,5 +1,9 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS Procedure
+USING Infragistics.Win.* FROM ASSEMBLY.
+USING Consultingwerk.Util.* FROM PROPATH.
+&ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
 */
@@ -385,6 +389,54 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE InitializeBrowseForGridCallback B-table-Win
+PROCEDURE InitializeGrid:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    DEFINE VARIABLE oValueList  AS ValueList  NO-UNDO . 
+    DEFINE VARIABLE oAppearance AS AppearanceBase NO-UNDO . 
+    
+    
+    oValueList = NEW ValueList () . 
+    
+    oAppearance = oValueList:ValueListItems:Add ("S":U, "Seperate"):Appearance .
+    
+    oAppearance:ForeColor = System.Drawing.Color:Red.
+    oAppearance:FontData:Bold = DefaultableBoolean:TRUE.
+    
+    
+    
+    oAppearance = oValueList:ValueListItems:Add ("I":U, "Integrated"):Appearance .
+    oAppearance:ForeColor = System.Drawing.Color:Green.
+    oAppearance:FontData:Italic = DefaultableBoolean:TRUE.
+    
+    
+    
+    oValueList:ValueListItems:Add ("M":U, "Markup") .
+    
+    
+    
+    oAppearance = oValueList:ValueListItems:Add ("O":U, "Override"):Appearance .
+    oAppearance:Image = ImageHelper:Load ("Consultingwerk/Windows/Images/delete_16.png") .
+    
+    
+    
+    oValueList:ValueListItems:Add ("N":U, "No charge") .
+    oRenderedBrowseControl:DisplayLayout:Bands[0]:Columns["simon"]:ValueList = oValueList .
+
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :

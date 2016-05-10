@@ -224,12 +224,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
-/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 

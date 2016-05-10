@@ -89,16 +89,16 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 
 
-ASSIGN cTextListToSelect = "Whse,Item,Item Name,Description,Product Category,UOM,Cost,On Hand,On Order," +
+ASSIGN cTextListToSelect = "Whse,Item,Description,Product Category,UOM,Cost,On Hand,On Order," +
                            "PO - Due Date,Quantity Available,Value" 
-       cFieldListToSelect = "whse,item,item-name,desc,cat,uom,cost,qty-hand,qty-ord," +
+       cFieldListToSelect = "whse,item,desc,cat,uom,cost,qty-hand,qty-ord," +
                             "po-due-date,qty-abl,val"
-       cFieldLength = "5,10,28,30,16,3,11,15,15," + "100,17,14"
-       cFieldType = "c,c,c,c,c,c,i,i,i," + "c,i,i" 
+       cFieldLength = "5,10,28,16,3,11,15,15," + "100,17,14"
+       cFieldType = "c,c,c,c,c,i,i,i," + "c,i,i" 
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Whse,Item,Item Name,Description,Product Category,UOM,Cost,On Hand,On Order," +
+ASSIGN cTextListToDefault  = "Whse,Item,Description,Product Category,UOM,Cost,On Hand,On Order," +
                            "PO - Due Date,Quantity Available,Value"  .
 
 /* _UIB-CODE-BLOCK-END */
@@ -1848,8 +1848,7 @@ assign
                     CASE cTmpField:             
                          WHEN "whse"    THEN cVarValue = string(item.loc,"x(5)") .
                          WHEN "item"   THEN cVarValue = STRING(item.i-no,"x(10)").
-                         WHEN "item-name"   THEN cVarValue = STRING(item.i-name,"x(28)").
-                         WHEN "desc"   THEN cVarValue = string(item.i-dscr,"x(30)").
+                         WHEN "desc"   THEN cVarValue = string(item.i-name,"x(28)").
                          WHEN "cat"  THEN cVarValue = IF AVAIL procat THEN STRING(procat.dscr,"x(16)") ELSE "" .
                          WHEN "uom"   THEN cVarValue = IF item.i-code ne "E" THEN STRING(ITEM.cons-uom,"x(3)") ELSE "" .
                          WHEN "cost"  THEN cVarValue = IF item.i-code ne "E" THEN string(rm-cst-amt,">>,>>9.9999") ELSE "" .
@@ -1891,7 +1890,6 @@ assign
                     CASE cTmpField:             
                          WHEN "whse"    THEN cVarValue = "" .
                          WHEN "item"   THEN cVarValue = "".
-                         WHEN "item-name"   THEN cVarValue = "" .
                          WHEN "desc"   THEN cVarValue = "".
                          WHEN "cat"  THEN cVarValue = "" .
                          WHEN "uom"   THEN cVarValue = "" .

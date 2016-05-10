@@ -416,7 +416,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'AF1',
                             INPUT YES,
                             OUTPUT lActive).
-{sys/inc/chblankcust.i ""AF1""}
+{sys/inc/chblankcust.i}
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}

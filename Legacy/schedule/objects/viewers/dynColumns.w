@@ -785,15 +785,15 @@ DO:
            AND rptFormat.rptFormat EQ '' NO-ERROR.
     IF AVAILABLE rptFormat AND rptFormat.exclude NE excludeFormat THEN DO:
       rptFormat.exclude = excludeFormat.
-      OUTPUT TO VALUE(staticDat + '{&data}/rptFormat.dat').
+      OUTPUT TO VALUE(installDir + '{&data}/rptFormat.dat').
       FOR EACH rptFormat NO-LOCK WHERE rptFormat.rptFormat EQ ''
             BY rptFormat.rptID BY rptFormat.rptName:
         EXPORT rptFormat.
       END. /* each rptFormat */
       OUTPUT CLOSE.
       FIND CURRENT rptFormat NO-LOCK.
-      OS-COPY VALUE(staticDat + '{&data}/rptFormat.dat')
-              VALUE(staticDat + '{&data}/rptFormat.sav').
+      OS-COPY VALUE(installDir + '{&data}/rptFormat.dat')
+              VALUE(installDir + '{&data}/rptFormat.sav').
     END. /* if avail */
   END. /* layoutformat blank */
   MESSAGE 'Report Layout Saved!' VIEW-AS ALERT-BOX.

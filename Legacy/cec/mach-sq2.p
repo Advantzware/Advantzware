@@ -200,7 +200,7 @@ for each m-lst by m-lst.f-no by m-lst.seq by m-lst.b-no by m-lst.pass-no:
              FIND mach-attach-pat WHERE RECID(mach-attach-pat) = machAttachRec NO-LOCK NO-ERROR.
              IF AVAIL mach-attach-pat AND bf-eb.gluelap = 0 THEN
                  bf-eb.gluelap = mach-attach-pat.slotWidth.
-                 /*{/k16bb.i bf-eb.gluelap}*/
+                 /*{sys/inc/k16bb.i bf-eb.gluelap}*/
           END.
                  
        END.
@@ -222,7 +222,7 @@ for each m-lst by m-lst.f-no by m-lst.seq by m-lst.b-no by m-lst.pass-no:
    est-op.op-rate[2] = (mach.lab-rate[mach.lab-drate] * est-op.op-crew[2]) + 
                        mach.run-varoh + mach.run-fixoh.
    
-  {sys/inc/machposw.i est-op share}
+  {sys/inc/machposW.i est-op share}
          
   if not avail reftable then do:
     create reftable.

@@ -2379,7 +2379,7 @@ END.
 
 /* neet to complete  =======
 if oereordr-log then do:  
-   find first itemfg {sys/look/itemfgrl.w}
+   find first itemfg {sys/look/itemfgrlW.i}
                  and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
    if avail itemfg then run oe/d-fgqty.w  /*oe/fg-qtys.p*/  (recid(itemfg)).
 end.  
@@ -4506,7 +4506,7 @@ PROCEDURE local-update-record :
     END. /* If avail bf-rel */
   END. /* If oeDateChange-log */
   
-  IF tt-report.stat NE lv-key-02 AND NOT adm-new-record THEN DO:  
+  IF tt-report.stat NE lv-key-02 AND NOT adm-new-record THEN DO:
     RUN update-dates.
 
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'record-source':U,OUTPUT char-hdl).
@@ -4593,11 +4593,7 @@ PROCEDURE local-update-record :
 
      END. /* If 'S' record not found */
   END. /* If updating an invoice only "I" record */
-   IF adm-new-record THEN
-       ASSIGN
-       adm-new-record    = NO
-       adm-adding-record = NO.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

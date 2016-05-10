@@ -897,7 +897,7 @@ APPLY "entry" TO begin_cust IN FRAME {&FRAME-NAME}.
                           INPUT 'IL9',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""IL9""}
+  {sys/inc/chblankcust.i}
 
   IF ou-log THEN DO:
       ASSIGN 

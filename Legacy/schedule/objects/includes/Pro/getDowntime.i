@@ -9,11 +9,11 @@
   /* needed for backward compatibility starting in v1.042 */
   IF SEARCH('{&data}/' + ID + '/downtimes.dat') NE ? THEN
   OS-RENAME VALUE(SEARCH('{&data}/' + ID + '/downtimes.dat'))
-            VALUE(clientDat + '{&data}/' + ID + '/downtimes.Actual.dat').
+            VALUE(installDir + '{&data}/' + ID + '/downtimes.Actual.dat').
   FOR EACH ttblDowntime EXCLUSIVE-LOCK WHERE ttblDowntime.dayID NE 0:
     DELETE ttblDowntime.
   END.
-  INPUT FROM VALUE(SEARCH(clientDat + '{&data}/' + ID + '/downtimes.' + scenario + '.dat')) NO-ECHO.
+  INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/downtimes.' + scenario + '.dat')) NO-ECHO.
   REPEAT:
     IMPORT tempDowntime.
     /* IF NOT proOpts[3] THEN

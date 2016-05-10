@@ -1,48 +1,44 @@
 /* sys/inc/SelRptCol.i       SelectRptColumn => Reports */
 
-DEFINE VARIABLE SelectRptColumn-log LIKE sys-ctrl.log-fld  NO-UNDO.
-DEFINE VARIABLE SelectRptColumn-cha LIKE sys-ctrl.char-fld NO-UNDO.
+def var SelectRptColumn-log like sys-ctrl.log-fld no-undo.
+def var SelectRptColumn-cha like sys-ctrl.char-fld no-undo.
 
 
-FIND FIRST sys-ctrl NO-LOCK
-     WHERE sys-ctrl.company EQ cocode
-       AND sys-ctrl.name    EQ "Reports" /*"SelectRptColumn"*/
-     NO-ERROR.
-IF NOT AVAILABLE sys-ctrl THEN DO :
-    CREATE sys-ctrl.
-    ASSIGN 
-        sys-ctrl.company  = cocode
-        sys-ctrl.name     = "Reports" /*SelectRptColumn"*/
-        sys-ctrl.log-fld  = NO
-        sys-ctrl.char-fld = ""
-        sys-ctrl.descrip  = "Selectable Report Columns"
-        .
+find first sys-ctrl
+    where sys-ctrl.company eq cocode
+      and sys-ctrl.name    eq "Reports" /*"SelectRptColumn"*/
+    no-lock no-error.
+if not avail sys-ctrl then do:
+  create sys-ctrl.
+  assign
+   sys-ctrl.company  = cocode
+   sys-ctrl.name     = "Reports" /*SelectRptColumn"*/
+   sys-ctrl.log-fld  = no
+   sys-ctrl.char-fld = ""
+   sys-ctrl.descrip  = "Selectable Report Columns".
   MESSAGE sys-ctrl.descrip
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
       UPDATE sys-ctrl.log-fld.
-END.
+end.
+assign
+ SelectRptColumn-log = sys-ctrl.log-fld
+ SelectRptColumn-cha = sys-ctrl.char-fld.
 
-ASSIGN 
-    SelectRptColumn-log = sys-ctrl.log-fld
-    SelectRptColumn-cha = sys-ctrl.char-fld
-    .
+FIND FIRST sys-ctrl-shipto OF sys-ctrl 
+    WHERE sys-ctrl-shipto.char-fld = "{1}" NO-LOCK NO-ERROR.
+  IF NOT AVAIL sys-ctrl-shipto THEN do:   /* Task 01201407  */
 
-FIND FIRST sys-ctrl-shipto OF sys-ctrl NO-LOCK
-     WHERE sys-ctrl-shipto.char-fld = "{1}"
-     NO-ERROR.
-IF NOT AVAILABLE sys-ctrl-shipto THEN DO :   /* Task 01201407  */
-    CREATE sys-ctrl-shipto.
-    ASSIGN 
-        sys-ctrl-shipto.company  = cocode
-        sys-ctrl-shipto.name     = "Reports" /*SelectRptColumn"*/
-        sys-ctrl-shipto.log-fld  = NO
-        sys-ctrl-shipto.char-fld = "{1}"
-        sys-ctrl-shipto.descrip  = "Selectable Report Columns"
-        .
-END.
+      create sys-ctrl-shipto.
+  assign
+   sys-ctrl-shipto.company  = cocode
+   sys-ctrl-shipto.name     = "Reports" /*SelectRptColumn"*/
+   sys-ctrl-shipto.log-fld  = no
+   sys-ctrl-shipto.char-fld = "{1}"
+   sys-ctrl-shipto.descrip  = "Selectable Report Columns".
 
-IF AVAILABLE sys-ctrl-shipto THEN
-ASSIGN 
-    SelectRptColumn-log = sys-ctrl-ship.log-fld
-    SelectRptColumn-cha = sys-ctrl.char-fld
-    .
+  END.
+
+IF AVAIL sys-ctrl-shipto THEN
+   assign
+ SelectRptColumn-log = sys-ctrl-ship.log-fld
+ SelectRptColumn-cha = sys-ctrl.char-fld.

@@ -195,6 +195,7 @@ THEN W-Win:HIDDEN = yes.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -321,7 +322,7 @@ PROCEDURE adm-create-objects :
 
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'R:/asi_gui/source/fg/V-PRODLN.r':U ,
+             INPUT  'fg/V-PRODLN.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = EXCLUSIVE-LOCK,
                      Hide-on-Init = no,
