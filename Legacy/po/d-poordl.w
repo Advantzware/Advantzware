@@ -164,7 +164,7 @@ DO TRANSACTION:
   {sys/inc/poqty.i}
   {sys/inc/pouom.i}
   {sys/inc/aptax.i}
-  {sys/inc/poscreen.i}
+  {sys/inc/poscreen.i} /* Tab Order*/
 END.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
