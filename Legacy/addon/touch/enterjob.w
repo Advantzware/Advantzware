@@ -590,26 +590,27 @@ DEF VAR liCnt AS INT NO-UNDO.
 DEF VAR lcUserButton AS CHAR NO-UNDO.
 
       ASSIGN
-       v-msg1 =   'MACHINE ' + ipcMCode + ' NOT DEFINED IN JOB STANDARDS'
-       v-msg1-1 = 'REPLACE MACHINE ' + ipcJobMAch + ' WITH MACHINE ' + ipcMCode + '?'
-
+          v-msg1 =  'Machine ' + ipcMCode + ' is not defined in the job standards for ' + string(job-mch.job-no) + '.' 
+          v-msg1-1 = 'Would you like to replace the the GL machine ' + ipcJobMAch + ' with ' + ipcMCode + ' or add ' + ipcMCode + ' as an additional machine? '
+         
             ip-parms = 
-               "type=fill-in,name=fi1,row=2,col=22,enable=false,width=58,scrval=" + v-msg1 + ",FORMAT=X(58)"
-                + "|type=fill-in,name=fi5,row=2.9,col=22,enable=false,width=58,scrval=" + v-msg1-1 + ",FORMAT=X(58)"
-                + "|type=buttonLabel,name=OK,row=11.6,col=22,label=Replace,scrval=" + v-msg4 + ",FORMAT=X(62)"   
-                + "|type=buttonLabel,name=Yes,row=11.6,col=22,label=Copy,scrval=" + v-msg4 + ",FORMAT=X(62)"                 
+               "type=fill-in,name=fi1,row=2,col=22,enable=false,width=98,scrval=" + v-msg1 + ",FORMAT=X(85)"
+                + "|type=fill-in,name=fi5,row=2.9,col=22,enable=false,width=108,scrval=" + v-msg1-1 + ",FORMAT=X(105)"
+                + "|type=buttonLabel,name=OK,row=11.6,col=22,label=Add Machine,scrval=" + v-msg4 + ",FORMAT=X(62)"   
+                + "|type=buttonLabel,name=Yes,row=11.6,col=22,label=Replace,scrval=" + v-msg4 + ",FORMAT=X(62)"                 
                 + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true " 
-                + "|type=win,name=fi3,enable=true,label=Question,FORMAT=X(30),height=8".
+                + "|type=win,name=fi3,enable=true,label=Question,FORMAT=X(30),height=8,width=140".
              RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values).
         DO i = 1 TO NUM-ENTRIES(op-values) BY 2.
             IF ENTRY(i, op-values) EQ "default" THEN
               choice = ENTRY(i + 1, op-values) NO-ERROR.          
         END. /* Do i = 1... */
+        
         CASE choice:
           WHEN "YES" THEN
              opcChoice = "Replace".
           WHEN "NO" THEN
-             opcChoice = "Copy".
+             opcChoice = "Add".
           WHEN "Cancel" THEN
              opcChoice = "Cancel".
           OTHERWISE
@@ -827,14 +828,13 @@ DEF VAR cAction AS CHAR NO-UNDO.
 
        IF actual-entered(job-mch.m-code, job-mch.job) = NO THEN DO: 
            RUN promptToReplace (INPUT machine_code, INPUT job-mch.m-code, OUTPUT cAction).
-
 /*            MESSAGE 'MACHINE' machine_code 'NOT DEFINED IN JOB STANDARDS' SKIP(1)   */
 /*                 'REPLACE MACHINE' job-mch.m-code 'WITH MACHINE' machine_code + '?' */
 /*             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE repl-mach AS LOGICAL. */
            CASE cAction:
              WHEN "Cancel" THEN
                RETURN.
-             WHEN "Copy" THEN DO:
+             WHEN "Add" THEN DO:
                CREATE bf-job-mch.
                BUFFER-COPY job-mch EXCEPT m-code frm blank-no pass TO bf-job-mch.
                ASSIGN
