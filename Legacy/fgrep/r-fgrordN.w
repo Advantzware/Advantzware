@@ -974,7 +974,7 @@ DO:
 
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -2071,62 +2071,7 @@ DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEFINE VARIABLE lExcludeComponents AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 DEF BUFFER bitemfg FOR itemfg.
-
-/*
-FORMAT HEADER "               "
-              "                    "
-              "PROD "
-              "   "
-              "REORDER" 
-              "    QTY"
-              "    QTY"
-              "    QTY"
-              "   MINIMUM"
-              "     QTY"
-              "VENDOR         "
-              "  SUGGESTED"
-              SPACE(15)
-              "LAST 6 MONTHS USAGE"
-              SKIP
-
-              "ITEM #         "
-              "DESCRIPTION         "
-              "CAT  "
-              "UOM"
-              "  LEVEL"
-              "ON HAND"
-              "  ALLOC"
-              " ON ORD"
-              " ORDER QTY"
-              "   AVAIL"
-              "ITEM NUMBER    "
-              "    REORDER"
-              SPACE(0)
-              ls-hlbl
-              SKIP
-
-              "---------------"
-              "--------------------"
-              "-----"
-              "---"
-              "-------"
-              "-------"
-              "-------"
-              "-------"
-              "----------"
-              "-------"
-              "--------------"
-              "-----------"
-              "-------"
-              "-------"
-              "-------"
-              "-------"
-              "-------"
-              "-------"
-              SKIP
-
-    WITH FRAME itemhist-top NO-BOX PAGE-TOP STREAM-IO WIDTH 180.
-*/
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 ASSIGN
  li1   = MONTH(TODAY) + 1
@@ -2173,6 +2118,7 @@ assign
  v-prt-qty   = rd_qav-ven BEGINS "Qty"
  v-prt-prc   = SUBSTR(rd_pri-ven-max,1,1)
  lExcludeComponents = tb_excomp
+ lSelected      = tb_cust-list
 .
 
 
@@ -2205,77 +2151,15 @@ assign
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + "-" . 
 
- END.
+    END.
     
-/*ASSIGN str-tit4 = 
-      (IF {sys/inc/rptDisp.i "itemfg.i-no"} THEN 
-        "ITEM #          " ELSE "" ) +    /*15*/
-    (IF {sys/inc/rptDisp.i "itemfg.part-no"} THEN 
-        "CUST PART #     " ELSE "" ) +    /*15*/
-    (IF {sys/inc/rptDisp.i "itemfg.i-name"} THEN 
-        "DESCRIPTION          " ELSE "" ) + /*20*/
-    (IF {sys/inc/rptDisp.i "itemfg.procat"} THEN 
-        "PROD CAT " ELSE "" ) +   /*7*/
-    (IF {sys/inc/rptDisp.i "itemfg.sell-uom"} THEN 
-        "UOM " ELSE "")  +
-    (IF {sys/inc/rptDisp.i "itemfg.vend-no"} THEN 
-        "VENDOR NUM   " ELSE "")  +  /*12*/
-    (IF {sys/inc/rptDisp.i "itemfg.ord-level"} THEN
-        "REORDER LEVEL " ELSE "" ) +  /*13*/
-    (IF {sys/inc/rptDisp.i "v-qty-onh"} THEN 
-        "QTY ON HAND " ELSE "" ) +  /*11*/
-    (IF {sys/inc/rptDisp.i "v-alloc-qty "} THEN
-       "QTY ALLOC " ELSE "" ) +   /*9*/
-    (IF {sys/inc/rptDisp.i "itemfg.q-ono"} THEN
-       "QTY ON ORDER " ELSE "" ) +  /*12*/
-    (IF {sys/inc/rptDisp.i "itemfg.ord-min"}  THEN
-       "MIN ORDER " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "v-qty-avail"}  THEN
-       "QTY AVAIL " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "itemfg.ord-max"}  THEN
-       "MAX ORDER " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "itemfg.vend-item"}  THEN
-       "VENDOR ITEM NUM " ELSE "" ) +  /*15*/
-    (IF {sys/inc/rptDisp.i "v-reord-qty"}       THEN
-       "SUGGESTED REORDER " ELSE "" ) +  /*17*/
-    (IF {sys/inc/rptDisp.i "li-history"}  THEN
-       "HISTORY HISTORY HISTORY HISTORY HISTORY HISTORY" ELSE ""  )
-  str-tit5 = 
-      (IF {sys/inc/rptDisp.i "itemfg.i-no"} THEN 
-        "--------------- " ELSE "" ) +
-      (IF {sys/inc/rptDisp.i "itemfg.part-no"} THEN 
-        "--------------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "itemfg.i-name"} THEN 
-        "-------------------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "itemfg.procat"} THEN 
-        "-------- " ELSE "" ) +   /*7*/
-    (IF {sys/inc/rptDisp.i "itemfg.sell-uom"} THEN 
-        "--- " ELSE "")  +
-    (IF {sys/inc/rptDisp.i "itemfg.vend-no"} THEN 
-        "------------ " ELSE "")  +   /*12*/
-    (IF {sys/inc/rptDisp.i "itemfg.ord-level"} THEN
-       "------------- " ELSE "" ) +  /*13*/
-    (IF {sys/inc/rptDisp.i "v-qty-onh"} THEN 
-        "----------- " ELSE "" ) +  /*11*/
-    (IF {sys/inc/rptDisp.i "v-alloc-qty "} THEN
-       "--------- " ELSE "" ) +   /*9*/
-    (IF {sys/inc/rptDisp.i "itemfg.q-ono"} THEN
-       "------------ " ELSE "" ) +  /*12*/
-    (IF {sys/inc/rptDisp.i "itemfg.ord-min"}  THEN
-       "--------- " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "v-qty-avail"}  THEN
-       "--------- " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "itemfg.ord-max"}  THEN
-       "---------- " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "itemfg.vend-item"}  THEN
-       "--------------- " ELSE "" ) +  /*15*/
-    (IF {sys/inc/rptDisp.i "v-reord-qty"}       THEN
-       "----------------- " ELSE "" ) +  /*17*/
-    (IF {sys/inc/rptDisp.i "li-history"}  THEN
-       "------- ------- ------- ------- ------- -------" ELSE ""  )
-    .
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
+END.
 
-*/
 
 
 {sys/inc/print1.i}
@@ -2287,58 +2171,7 @@ if td-show-parm then run show-param.
 IF tb_excel THEN 
 DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
-
-  /*
-excelheader = "".
- IF tb_history THEN 
-   excelheader = "ITEM#,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,QTY ALLOC," + 
-              "QTY ON ORD,MIN ORD QTY,QTY AVAIL,VENDOR ITEM#,SUGT REORDER QTY," + 
-              TRIM(TRIM(ls-hlbl2),",").
- ELSE DO:
-     if v-prt-cpn then
-         if v-prt-qty then
-             if v-prt-prc eq "P" then 
- excelheader = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," + 
-               "QTY ALLOC,QTY ON ORD,MIN ORD QTY,QTY AVAIL,SELL PRC,SUGT REORDER QTY".
-             else if v-prt-prc eq "V" then 
- excelheader = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," + 
-               "QTY ALLOC,QTY ON ORD,MIN ORD QTY,QTY AVAIL,VENDOR ITEM#,SUGT REORDER QTY".
-             else
- excelheader = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," +
-               "QTY ALLOC,QTY ON ORD,MIN ORD QTY,QTY AVAIL," + 
-               "MAX ORD QTY,SUGT REORDER QTY".
-         else if v-prt-prc eq "P" then
- excelheader = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," + 
-               "QTY ALLOC,QTY ON ORD,MIN ORD QTY,VENDOR,SELL PRC,SUGGT REORD".
-         else if v-prt-prc eq "V" then 
- excelheader = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," +
-               "QTY ALLOC,QTY ON ORD,MIN ORD QTY,VENDOR,VENDOR ITEM#,SUGT REORDER QTY".
-         else
- excelheader = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," +
-               "QTY ALLOC,QTY ON ORD,MIN ORD QTY,VENDOR," + 
-               "MAX ORD QTY,SUGT REORDER QTY".
-         else if v-prt-qty then
-           if v-prt-prc eq "P" then 
- excelheader = "ITEM #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,QTY ALLOC," + 
-               "QTY ON ORD,MIN ORD QTY,QTY AVAIL,SELL PRC,SUGGT REORD".
-           else if v-prt-prc eq "V" then 
-excelheader = "ITEM #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,QTY ALLOC," + 
-               "QTY ON ORD,MIN ORD QTY,QTY AVAIL,VENDOR ITEM#,SUGT REORDER QTY".
-           else
-excelheader = "ITEM #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,QTY ALLOC," + 
-              "QTY ON ORD,MIN ORD QTY,QTY AVAIL,MAX ORD QTY,SUGT REORDER QTY".
-         else if v-prt-prc eq "P" then 
-excelheader = "ITEM #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,QTY ALLOC," + 
-              "QTY ON ORD,MIN ORD QTY,VENDOR,SELL PRC,SUGT REORDER QTY".
-         else if v-prt-prc eq "V" then 
-excelheader = "ITEM #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,QTY ALLOC," + 
-              "MIN ORD QTY,VENDOR,VENDOR ITEM#,SUGT REORDER QTY".
-         else
-excelheader = "ITEM #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,QTY ALLOC," + 
-              "QTY ON ORD,MIN ORD QTY,VENDOR,MAX ORD QTY,SUGT REORDER QTY".
- END.
- excelheader = excelheader + ", CUSTOMER #, SALES REP, COST, UOM". /*Premier Mod*/
- */
+  
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -2425,7 +2258,7 @@ DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEFINE VARIABLE lExcludeComponents AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 DEF BUFFER bitemfg FOR itemfg.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 ASSIGN
  li1   = MONTH(TODAY) + 1
@@ -2471,7 +2304,8 @@ assign
  v-prt-cpn   = tb_part
  v-prt-qty   = rd_qav-ven BEGINS "Qty"
  v-prt-prc   = SUBSTR(rd_pri-ven-max,1,1)
- lExcludeComponents = tb_excomp.
+ lExcludeComponents = tb_excomp
+ lSelected      = tb_cust-list.
 
 
 
@@ -2503,6 +2337,13 @@ assign
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
 
+ END.
+
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
  END.
     
 

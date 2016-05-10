@@ -851,7 +851,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1558,7 +1558,7 @@ PROCEDURE run-report :
 /* -------------------------------------------------------------------------- */
 
 {sys/form/r-topw.f}
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 form header
      "        "
      "               "
@@ -1856,6 +1856,7 @@ assign
  v-sets         = tb_sets
  v-rct-date     = tb_rct-date
  v-summ-bin     = tb_summ-bin
+ lSelected      = tb_cust-list
 
  v-tot-qty      = 0
  v-tot-cst      = 0
@@ -1887,6 +1888,12 @@ IF v-prt-c THEN DO:
    v-prt-c = ll-secure
    v-prt-p = (v-prt-c and v-dl-mat) or (v-prt-p and not v-dl-mat).
 END.
+IF lselected THEN DO:
+      FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+      IF AVAIL ttCustList THEN ASSIGN fcus = ttCustList.cust-no .
+      FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+      IF AVAIL ttCustList THEN ASSIGN tcus = ttCustList.cust-no .
+ END.
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -2162,13 +2169,12 @@ END. /* IF tb_excel THEN DO: */
     EMPTY TEMP-TABLE tt-fg-bin.
     EMPTY TEMP-TABLE tt-itemfg.
 
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-        EACH itemfg NO-LOCK
+    FOR EACH itemfg NO-LOCK
         WHERE itemfg.company EQ cocode
-          AND itemfg.cust-no EQ ttCustList.cust-no /*fcus
-          AND itemfg.cust-no LE tcus*/
+          AND itemfg.cust-no GE fcus
+          AND itemfg.cust-no LE tcus
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+          AND ttCustList.log-fld no-lock) else true)
           AND itemfg.i-no    GE fino
           AND itemfg.i-no    LE tino
           AND itemfg.procat  GE fcat
