@@ -46,12 +46,12 @@ DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svStartReceiptDate btnCalendar-1 ~
 svStartReceiptDateOption svEndReceiptDate btnCalendar-2 ~
-svEndReceiptDateOption svAllSalesReps svStartSalesRep svEndSalesRep svSort ~
-svTdisc svPrep svDayOld 
+svEndReceiptDateOption svAllSalesRep svStartSalesRep svEndSalesRep svSort ~
+svIncludeTermsDiscount svIncludePrepCharges svDayOld 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svStartReceiptDate ~
 svStartReceiptDateOption svEndReceiptDate svEndReceiptDateOption ~
-svAllSalesReps svStartSalesRep startSalesRepName svEndSalesRep ~
-endSalesRepName svSort svTdisc svPrep svDayOld 
+svAllSalesRep svStartSalesRep startSalesRepName svEndSalesRep ~
+endSalesRepName svSort svIncludeTermsDiscount svIncludePrepCharges svDayOld 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -134,17 +134,17 @@ DEFINE VARIABLE svSort AS CHARACTER INITIAL "SalesRep"
 "SalesRep", "SalesRep"
      SIZE 44 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svAllSalesReps AS LOGICAL INITIAL yes 
+DEFINE VARIABLE svAllSalesRep AS LOGICAL INITIAL yes 
      LABEL "All Sales Reps" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .95 NO-UNDO.
 
-DEFINE VARIABLE svPrep AS LOGICAL INITIAL no 
+DEFINE VARIABLE svIncludePrepCharges AS LOGICAL INITIAL no 
      LABEL "Include Prep Charges?" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svTdisc AS LOGICAL INITIAL no 
+DEFINE VARIABLE svIncludeTermsDiscount AS LOGICAL INITIAL no 
      LABEL "Include Terms Discount?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY 1 NO-UNDO.
@@ -164,7 +164,7 @@ DEFINE FRAME F-Main
      btnCalendar-2 AT ROW 4.1 COL 37 WIDGET-ID 82
      svEndReceiptDateOption AT ROW 4.1 COL 40 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
-     svAllSalesReps AT ROW 5.76 COL 21 HELP
+     svAllSalesRep AT ROW 5.76 COL 21 HELP
           "All Sales Reps?" WIDGET-ID 58
      svStartSalesRep AT ROW 6.95 COL 19 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep#" WIDGET-ID 22
@@ -175,14 +175,14 @@ DEFINE FRAME F-Main
      endSalesRepName AT ROW 8.14 COL 28 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
      svSort AT ROW 9.81 COL 21 NO-LABEL WIDGET-ID 28
-     svTdisc AT ROW 11 COL 21 WIDGET-ID 42
-     svPrep AT ROW 12.19 COL 21 WIDGET-ID 44
+     svIncludeTermsDiscount AT ROW 11 COL 21 WIDGET-ID 42
+     svIncludePrepCharges AT ROW 12.19 COL 21 WIDGET-ID 44
      svDayOld AT ROW 13.38 COL 44 COLON-ALIGNED HELP
           "Show only Invoices with Cash Receipts after" WIDGET-ID 76
-     "Sort?:" VIEW-AS TEXT
-          SIZE 6 BY 1 AT ROW 9.81 COL 14 WIDGET-ID 52
      "Days" VIEW-AS TEXT
           SIZE 5 BY 1 AT ROW 13.38 COL 55 WIDGET-ID 78
+     "Sort?:" VIEW-AS TEXT
+          SIZE 6 BY 1 AT ROW 9.81 COL 14 WIDGET-ID 52
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -295,9 +295,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svAllSalesReps
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllSalesReps sObject
-ON VALUE-CHANGED OF svAllSalesReps IN FRAME F-Main /* All Sales Reps */
+&Scoped-define SELF-NAME svAllSalesRep
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllSalesRep sObject
+ON VALUE-CHANGED OF svAllSalesRep IN FRAME F-Main /* All Sales Reps */
 DO:
   ASSIGN {&SELF-NAME}.
   RUN pSetSalesRepRange ({&SELF-NAME}).
@@ -458,7 +458,7 @@ PROCEDURE pInitialize :
             .
         APPLY "VALUE-CHANGED":U TO svStartReceiptDateOption.
         APPLY "VALUE-CHANGED":U TO svEndReceiptDateOption.
-        APPLY "VALUE-CHANGED":U TO svAllSalesReps.
+        APPLY "VALUE-CHANGED":U TO svAllSalesRep.
         APPLY "LEAVE":U TO svStartSalesRep.
         APPLY "LEAVE":U TO svEndSalesRep.
     END.

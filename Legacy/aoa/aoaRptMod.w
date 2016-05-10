@@ -46,13 +46,13 @@ DEFINE VARIABLE lOKPressed     AS LOGICAL    NO-UNDO.
 DEFINE VARIABLE cID            AS CHARACTER  NO-UNDO.
 
 DEFINE TEMP-TABLE ttSubject NO-UNDO
-    FIELD ttOrder        AS INTEGER   LABEL "Order"         FORMAT ">>>9"
+    FIELD ttOrder        AS INTEGER   LABEL "Order"         FORMAT ">>9"
     FIELD ttField        AS CHARACTER LABEL "Field"         FORMAT "x(20)"
     FIELD ttLabel        AS CHARACTER LABEL "Label"         FORMAT "x(20)"
     FIELD ttType         AS CHARACTER LABEL "Type"          FORMAT "x(10)"
     FIELD ttFormat       AS CHARACTER LABEL "Format"        FORMAT "x(20)"
     FIELD ttWidth        AS INTEGER   LABEL "Width"         FORMAT ">>>9"
-    FIELD ttSize         AS INTEGER   LABEL "Size"          FORMAT ">>>9"
+    FIELD ttSize         AS INTEGER   LABEL "Size"          FORMAT ">>>>9"
         INDEX ttSubject IS PRIMARY ttOrder
         .
 
@@ -186,7 +186,8 @@ ttSubject
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnOpenRPA btnSetName btnSave btnPublish ~
 ttSubject ttSection ttParameter ttPageHeader ttDetail btnOnReportStart ~
-btnDetailOnFormat 
+btnGroupHeaderOnFormat btnGroupFooterOnFormat btnDetailOnFormat ~
+btnOnReportEnd 
 &Scoped-Define DISPLAYED-OBJECTS aoaProgramID aoaReportWidth aoaRptFile ~
 aoaReportTitle 
 
@@ -201,16 +202,9 @@ aoaReportTitle
 
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDetailOnFormat C-Win 
-FUNCTION fDetailOnFormat RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOnReportStart C-Win 
-FUNCTION fOnReportStart RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetScript C-Win 
+FUNCTION fGetScript RETURNS CHARACTER
+  ( ipScriptDatFile AS CHARACTER, ipSection AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -224,11 +218,23 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnDetailOnFormat 
      LABEL "Script: &Detail OnFormat" 
-     SIZE 30 BY 1.19.
+     SIZE 32 BY 1.19.
+
+DEFINE BUTTON btnGroupFooterOnFormat 
+     LABEL "Script: Group &Footer OnFormat" 
+     SIZE 32 BY 1.19.
+
+DEFINE BUTTON btnGroupHeaderOnFormat 
+     LABEL "Script: Group &Header OnFormat" 
+     SIZE 32 BY 1.19.
+
+DEFINE BUTTON btnOnReportEnd 
+     LABEL "Script: OnReport&End" 
+     SIZE 32 BY 1.19.
 
 DEFINE BUTTON btnOnReportStart 
      LABEL "Script: On&ReportStart" 
-     SIZE 30 BY 1.19.
+     SIZE 32 BY 1.19.
 
 DEFINE BUTTON btnOpenRPA 
      LABEL "..." 
@@ -373,12 +379,15 @@ DEFINE FRAME DEFAULT-FRAME
      ttParameter AT ROW 2.43 COL 241 WIDGET-ID 600
      ttPageHeader AT ROW 27.67 COL 21 WIDGET-ID 300
      ttDetail AT ROW 27.67 COL 98 WIDGET-ID 400
-     btnOnReportStart AT ROW 29.81 COL 208 WIDGET-ID 14
-     btnDetailOnFormat AT ROW 31.24 COL 208 WIDGET-ID 12
+     btnOnReportStart AT ROW 29.81 COL 207 WIDGET-ID 14
+     btnGroupHeaderOnFormat AT ROW 31.24 COL 207 WIDGET-ID 22
+     btnGroupFooterOnFormat AT ROW 32.67 COL 207 WIDGET-ID 24
+     btnDetailOnFormat AT ROW 34.1 COL 207 WIDGET-ID 12
+     btnOnReportEnd AT ROW 35.52 COL 207 WIDGET-ID 26
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 320 BY 40.86 WIDGET-ID 100.
+         SIZE 319 BY 40.71 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -398,8 +407,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "AOA Report Modifier"
-         HEIGHT             = 40.86
-         WIDTH              = 320
+         HEIGHT             = 40.71
+         WIDTH              = 319
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -534,6 +543,39 @@ END.
 ON CHOOSE OF btnDetailOnFormat IN FRAME DEFAULT-FRAME /* Script: Detail OnFormat */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.Detail.OnFormat.dat.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnGroupFooterOnFormat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupFooterOnFormat C-Win
+ON CHOOSE OF btnGroupFooterOnFormat IN FRAME DEFAULT-FRAME /* Script: Group Footer OnFormat */
+DO:
+  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.GroupFooter.OnFormat.dat.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnGroupHeaderOnFormat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupHeaderOnFormat C-Win
+ON CHOOSE OF btnGroupHeaderOnFormat IN FRAME DEFAULT-FRAME /* Script: Group Header OnFormat */
+DO:
+  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.GroupHeader.OnFormat.dat.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnOnReportEnd
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnReportEnd C-Win
+ON CHOOSE OF btnOnReportEnd IN FRAME DEFAULT-FRAME /* Script: OnReportEnd */
+DO:
+  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.OnReportEnd.dat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -684,7 +726,9 @@ PROCEDURE enable_UI :
   DISPLAY aoaProgramID aoaReportWidth aoaRptFile aoaReportTitle 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE btnOpenRPA btnSetName btnSave btnPublish ttSubject ttSection 
-         ttParameter ttPageHeader ttDetail btnOnReportStart btnDetailOnFormat 
+         ttParameter ttPageHeader ttDetail btnOnReportStart 
+         btnGroupHeaderOnFormat btnGroupFooterOnFormat btnDetailOnFormat 
+         btnOnReportEnd 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -806,6 +850,7 @@ PROCEDURE pGetReportFields :
                 END.
             END CASE.
             IF (hReport:Sections:Item(ix):Type EQ 1  OR
+                hReport:Sections:Item(ix):Type EQ 4  OR
                 hReport:Sections:Item(ix):Type EQ 5) AND
                 hReport:Sections:Item(ix):Controls:Item(iy):MultiLine EQ FALSE THEN DO:
                 CREATE ttSection.
@@ -826,29 +871,6 @@ PROCEDURE pGetReportFields :
         END. /* do iy */
     END. /* do ix */
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetScript C-Win 
-PROCEDURE pGetScript :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcRptDatFile AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcScript     AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE cDatTxt AS CHARACTER NO-UNDO.
-
-    INPUT FROM VALUE(ipcRptDatFile) NO-ECHO.
-    REPEAT:
-        IMPORT UNFORMATTED cDatTxt.
-        opcScript = opcScript + cDatTxt + CHR(10).
-    END. /* repeat */
-    INPUT CLOSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -977,7 +999,7 @@ PROCEDURE pPublish :
 
     OUTPUT TO VALUE(publishBat).
     PUT UNFORMATTED
-        publishExe " " aoaRptFile " guest password > "
+        publishExe " ~"" aoaRptFile "~" guest password > "
         REPLACE(publishBat,".bat",".log") SKIP.
     OUTPUT CLOSE.
     
@@ -1074,7 +1096,7 @@ PROCEDURE pSetNames :
                         cFormat = REPLACE(ttSubject.ttFormat,">","#")
                         cFormat = REPLACE(cFormat,"9","0")
                         .
-                    IF cFormat BEGINS "-" THEN
+                    IF INDEX(cFormat,"-") NE 0 THEN
                     ASSIGN
                         cFormat = REPLACE(cFormat,"-","")
                         cFormat = cFormat + ";(" + cFormat + ")"
@@ -1084,7 +1106,8 @@ PROCEDURE pSetNames :
             END. /* if not character */
         END. /* avail ttdetail */
         FOR EACH ttSection
-            WHERE ttSection.secDataField EQ ttSubject.ttLabel
+            WHERE (ttSection.secType EQ 1 OR ttSection.secType EQ 5)
+              AND  ttSection.secDataField EQ ttSubject.ttLabel
             :
             ASSIGN
                 ttSection.secName         = ttSubject.ttField + "_" + ttSection.secSection
@@ -1193,6 +1216,9 @@ PROCEDURE pSetReportFields :
             iy = ttSection.secControlItem
             hReport:Sections:Item(ix):Controls:Item(iy):Name               = ttSection.secName
             hReport:Sections:Item(ix):Controls:Item(iy):DataField          = ttSection.secDataField
+            .
+        IF ttSection.secType NE 4 THEN
+        ASSIGN
             hReport:Sections:Item(ix):Controls:Item(iy):Left               = ttSection.secLeft
             hReport:Sections:Item(ix):Controls:Item(iy):Width              = ttSection.secWidth
             hReport:Sections:Item(ix):Controls:Item(iy):Alignment          = ttSection.secAlignment
@@ -1235,21 +1261,21 @@ PROCEDURE pSetScript :
         cScript = hReport:Script
         idx = INDEX(cScript,"Sub OnReportStart")
         idx = IF idx EQ 0 THEN LENGTH(cScript) ELSE idx - 2
-        hReport:Script = SUBSTR(cScript,1,idx) + fOnReportStart()
+        hReport:Script = SUBSTR(cScript,1,idx) + fGetScript("OnReportStart",?)
         /* Set Detail OnForamt Script */
         cScript = hReport:Sections:Item("Detail"):Script
         idx = INDEX(cScript,"Sub OnFormat")
         idx = IF idx EQ 0 THEN LENGTH(cScript) ELSE idx - 2
-        hReport:Sections:Item("Detail"):Script = SUBSTR(cScript,1,idx) + fDetailOnFormat()
+        hReport:Sections:Item("Detail"):Script = SUBSTR(cScript,1,idx) + fGetScript("Detail.OnFormat",?)
         .
-    /* Set SubTotal OnFormat Script */
-    FOR EACH ttSection WHERE ttSection.secType EQ 5:
-        hReport:Sections:Item(ttSection.secSectionItem):Script = CHR(10) +
-            "Sub OnFormat" + CHR(10) +
-            "  Rpt.Sections.Item(~"" + ttSection.secSection + 
-            "~").Visible = Rpt.Sections.Item(~"Detail~").Visible" + CHR(10) +
-            "End Sub" + CHR(10)
-            .
+    /* Set Group Header/Footer OnFormat Script */
+    FOR EACH ttSection BREAK BY ttSection.secType:
+        /* Set GroupHeader OnForamt Script */
+        IF ttSection.secType EQ 4 THEN
+        hReport:Sections:Item(ttSection.secSectionItem):Script = fGetScript("GroupHeader.OnFormat",ttSection.secSection).
+        /* Set GroupFooter OnForamt Script */
+        IF ttSection.secType EQ 5 THEN
+        hReport:Sections:Item(ttSection.secSectionItem):Script = fGetScript("GroupFooter.OnFormat",ttSection.secSection).
     END. /* each ttsection */
 END PROCEDURE.
 
@@ -1258,33 +1284,24 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDetailOnFormat C-Win 
-FUNCTION fDetailOnFormat RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetScript C-Win 
+FUNCTION fGetScript RETURNS CHARACTER
+  ( ipScriptDatFile AS CHARACTER, ipSection AS CHARACTER ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cScript AS CHARACTER NO-UNDO.
-    
-    RUN pGetScript ("aoaReports\Rpt.Detail.OnFormat.dat", OUTPUT cScript).
-    RETURN cScript.
+    DEFINE VARIABLE cDatTxt AS CHARACTER NO-UNDO.
 
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOnReportStart C-Win 
-FUNCTION fOnReportStart RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cScript AS CHARACTER NO-UNDO.
-    
-    RUN pGetScript ("aoaReports\Rpt.OnReportStart.dat", OUTPUT cScript).
+    INPUT FROM VALUE("aoaReports\Rpt." + ipScriptDatFile + ".dat") NO-ECHO.
+    REPEAT:
+        IMPORT UNFORMATTED cDatTxt.
+        cScript = cScript + cDatTxt + CHR(10).
+    END. /* repeat */
+    INPUT CLOSE.
+    IF ipSection NE ? THEN
+    cScript = REPLACE(cScript,"%",ipSection).
     RETURN cScript.
 
 END FUNCTION.

@@ -25,7 +25,7 @@ DEFINE VARIABLE g_company AS CHARACTER NO-UNDO INITIAL "001".
 &ENDIF
 
 DEFINE VARIABLE paramStr AS CHARACTER NO-UNDO
-    INITIAL "{&aoaID},{&aoaProgramID},{&aoaTitle},{&aoaType},{&aoaColumns}".
+    INITIAL "{&aoaID},{&aoaProgramID},{&aoaTitle},{&aoaType},{&aoaColumns},{&aoaCustListForm}".
                                                  
 /* used if testing in AppBuilder */.
 &IF DEFINED(test) NE 0 &THEN
