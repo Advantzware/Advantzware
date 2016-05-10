@@ -34,12 +34,13 @@
 
   m_menu-lst[1] = TRIM(m_menu-lst[1]) + "." + TRIM(m_menu-lst[2]).
 
+
   DO i = 1 TO j:
     IF i = 1 THEN
       IF SEARCH("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1]) NE ? THEN
-      INPUT FROM VALUE("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1]) NO-ECHO.
+      INPUT FROM VALUE(search("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1])) NO-ECHO.
       ELSE
-      INPUT FROM VALUE(m_menu-lst[1]) NO-ECHO.
+      INPUT FROM VALUE(search(m_menu-lst[1])) NO-ECHO.
     ELSE
     INPUT FROM popup.lst NO-ECHO.
     REPEAT:
@@ -63,9 +64,9 @@
   DO i = 1 TO j:
     IF i = 1 THEN
       IF SEARCH("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1]) NE ? THEN
-      INPUT FROM VALUE("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1]) NO-ECHO.
+      INPUT FROM VALUE(search("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1])) NO-ECHO.
       ELSE
-      INPUT FROM VALUE(m_menu-lst[1]) NO-ECHO.
+      INPUT FROM VALUE(search(m_menu-lst[1])) NO-ECHO.
     ELSE
     INPUT FROM popup.lst NO-ECHO.
     REPEAT:

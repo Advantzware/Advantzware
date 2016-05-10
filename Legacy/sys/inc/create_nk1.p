@@ -25,7 +25,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "oeShipFrom,SSFGSCAN,Paperless,FGSetAssembly,AutoFGIssue,CustomerList,SSLoadtag,ChkFmtACH,"
             + "OESellPriceXfer,OEPO#Xfer,SSBolEmail,OEDateAuto,QuoteNotes,OEPriceMatrixCheck,GLJournalPost,"
             + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
-            + "OEJobHold,lmLock".
+            + "OEJobHold,lmLock,JobHoldReason".
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -193,7 +193,13 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "Label Matrix Locking Option",
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                          INPUT NO /* Logical value */).
+                          INPUT NO /* Logical value */).                          
+    WHEN "JobHoldReason" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                          INPUT "Prompt for Reason when Job Placed on Hold",
+                          INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                          INPUT NO /* Logical value */).                      
+                          
 END CASE.
 ELSE
 CASE ip-nk1-value:
