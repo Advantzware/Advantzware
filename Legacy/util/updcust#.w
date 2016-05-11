@@ -758,12 +758,13 @@ for each oe-ord
             bf-cust-new.cust-no EQ v-new-cust
             NO-LOCK NO-ERROR.
 
-        FOR EACH attach WHERE
-            attach.company = oe-ord.company and
-            attach.rec_key = old-rec-key EXCLUSIVE-LOCK:
-            
+       IF AVAIL bf-cust-new THEN
+         FOR EACH attach WHERE
+           attach.company = oe-ord.company and
+           attach.rec_key = old-rec-key EXCLUSIVE-LOCK:
+           
            attach.rec_key = bf-cust-new.rec_key .
-       END.
+         END.
 
     find first b-cust
         where b-cust.company eq cocode
@@ -783,6 +784,25 @@ for each oe-ord
     END.
 
 end.
+
+FIND FIRST bf-cust-new WHERE
+    bf-cust-new.company EQ cocode AND
+    bf-cust-new.cust-no EQ v-new-cust
+    NO-LOCK NO-ERROR.
+
+ IF AVAIL bf-cust-new THEN do:
+     FIND CURRENT cust NO-ERROR.
+     FOR EACH attach WHERE
+         attach.company = cocode and
+         attach.rec_key = cust.rec_key EXCLUSIVE-LOCK:
+         attach.rec_key = bf-cust-new.rec_key .
+     END.
+
+     FOR EACH phone WHERE 
+         phone.table_rec_key = cust.rec_key EXCLUSIVE-LOCK :
+         phone.table_rec_key =  bf-cust-new.rec_key .
+     END.
+ END.
 
 for each oe-relh
     where oe-relh.company eq cocode
