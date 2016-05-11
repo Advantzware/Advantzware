@@ -789,9 +789,9 @@ do v-local-loop = 1 to v-local-copies:
                "User Id:" AT 3 v-user-id   "<c24>"
                "Job #: " AT 3 v-job-prt "<C25>Our Order #: " v-ord-no 
                "<C60>Our Date: " v-ord-date SKIP
-               "Est #: " AT 3 v-est-no "<C25>FG #: " v-fg-set "<C60>Due Date: " v-due-date SKIP
+               "Est #: " AT 3 v-est-no "<C25>FG #: " v-fg-set "<C60>Due Date: " v-due-date  SKIP
                "<=1><R+7><C2><From><R+5><C78><RECT><||3>" SKIP
-               "<=1><R+7><C2>CUSTOMER INFORMATION <C25> ORDER INFORMATION <C53>ITEM DESCRIPTION" SKIP
+               "<=1><R+7><C2>CUSTOMER INFORMATION <C25> ORDER INFORMATION <C53>ITEM DESCRIPTION"  SKIP
                v-cus[1] AT 3 " PO#: " v-po-no " Set Qty: "  v-set-qty
                v-i-line[2] AT 90
                SKIP
@@ -866,7 +866,7 @@ do v-local-loop = 1 to v-local-copies:
                  v-tmp-line = v-tmp-line + 1.
               END.
            END.
-           PUT "<=1><R+13><C2><FROM><R+" + string(v-tmp-line) + "><C78><RECT><||3>" FORM "x(150)" SKIP.
+           PUT "<=1><R+13><C2><FROM><R+" + string(v-tmp-line) + "><C78><RECT><||3>" FORM "x(150)"  SKIP.
            v-tmp-line = v-tmp-line + 13 .
 
            i = 0.
