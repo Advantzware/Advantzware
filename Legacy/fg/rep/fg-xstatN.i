@@ -440,6 +440,7 @@ FOR EACH ttCustList
                                     FOR EACH tt-oe-rel NO-LOCK:
                                         v-summ-temp = v-summ-temp + tt-oe-rel.tot-qty .
                                    END.
+                                  
 
                                    BUFFER boe-ordl:FIND-BY-ROWID(ROWID(oe-ordl), NO-LOCK) .
                                    BUFFER bcust:FIND-BY-ROWID(ROWID(cust), NO-LOCK) .
@@ -487,7 +488,10 @@ FOR EACH ttCustList
                                                  WHEN "shipto" THEN cVarValue = v-shipto .
                                                  WHEN "shipname" THEN cVarValue = v-shipto-name  .
                                                  WHEN "fac-costm" THEN cVarValue = STRING(vtot-costm,"->>,>>>,>>9.99")  .
-                                                 WHEN "tot-fac-cost" THEN cVarValue = STRING(vtot-job-cost,"->>>>,>>>,>>9.99")  .
+                                                 WHEN "tot-fac-cost" THEN cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh * vtot-costm ,"->>>>,>>>,>>9.99")  ELSE "" .
+                                                 WHEN "on-hand-cost" THEN do: 
+                                                     cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh / 1000 * vtot-costm ,"->,>>>,>>9.99") ELSE "" .
+                                                 END.
                                                  
                                            END CASE.
 
@@ -575,6 +579,7 @@ FOR EACH ttCustList
                 WHEN "shipname" THEN cVarValue = "" . 
                 WHEN "fac-costm" THEN cVarValue = ""  .
                 WHEN "tot-fac-cost" THEN cVarValue = ""  . 
+                WHEN "on-hand-cost" THEN cVarValue = "".
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -760,7 +765,10 @@ FOR EACH ttCustList
                 WHEN "shipto" THEN cVarValue = v-shipto .
                 WHEN "shipname" THEN cVarValue = v-shipto-name .
                 WHEN "fac-costm" THEN cVarValue = IF vtot-costm <> 0 THEN STRING(vtot-costm,"->>,>>>,>>9.99") ELSE "" .
-                WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>>>,>>>,>>9.99") ELSE ""  .
+                WHEN "tot-fac-cost" THEN cVarValue = IF v-job-no <> "" THEN STRING(v-qty-onh * vtot-costm,"->>>>,>>>,>>9.99")  ELSE "" .
+                WHEN "on-hand-cost" THEN do: 
+                    cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh / 1000 * vtot-costm,"->,>>>,>>9.99") ELSE "" .
+                END.
 
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -820,6 +828,7 @@ FOR EACH ttCustList
                 WHEN "shipname" THEN cVarValue = "" .
                 WHEN "fac-costm" THEN cVarValue = ""  .
                 WHEN "tot-fac-cost" THEN cVarValue = ""  .
+                WHEN "on-hand-cost" THEN cVarValue = "".
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -1057,6 +1066,9 @@ FOR EACH ttCustList
                 WHEN "shipname" THEN cVarValue = v-shipto-name .
                 WHEN "fac-costm" THEN cVarValue = IF vtot-costm <> 0 THEN STRING(vtot-costm,"->>,>>>,>>9.99") ELSE "" .
                 WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>>>,>>>,>>9.99") ELSE ""  .
+                WHEN "on-hand-cost" THEN do: 
+                    cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh / 1000 * vtot-costm,"->,>>>,>>9.99") ELSE "" .
+                END.
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -1264,6 +1276,9 @@ FOR EACH ttCustList
                 WHEN "shipname" THEN cVarValue = v-shipto-name .
                 WHEN "fac-costm" THEN cVarValue = IF vtot-costm <> 0 THEN STRING(vtot-costm,"->>,>>>,>>9.99") ELSE "" .
                 WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>>>,>>>,>>9.99") ELSE ""  .
+                WHEN "on-hand-cost" THEN do: 
+                    cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh / 1000 * vtot-costm,"->,>>>,>>9.99") ELSE ""  .
+                END.
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -1340,6 +1355,7 @@ FOR EACH ttCustList
                 WHEN "shipname" THEN cVarValue = "" .  
                 WHEN "fac-costm" THEN cVarValue = "" .
                 WHEN "tot-fac-cost" THEN cVarValue = ""  .
+                WHEN "on-hand-cost" THEN cVarValue = "" .
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -1405,7 +1421,7 @@ ASSIGN cDisplay = ""                                                    /*Task# 
                 WHEN "shipname" THEN cVarValue = "" .
                 WHEN "fac-costm" THEN cVarValue = ""  .
                 WHEN "tot-fac-cost" THEN cVarValue = ""  . 
-                                   
+                WHEN "on-hand-cost" THEN cVarValue = ""  .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
