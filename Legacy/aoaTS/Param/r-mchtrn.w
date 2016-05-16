@@ -3,10 +3,14 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
 /*------------------------------------------------------------------------
+
   File: r-commcr.w
+
   Description: from SMART.W - Template for basic ADM2 SmartObject
+
   Author: Ron Stark
   Created: 3.19.2016
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
@@ -44,14 +48,14 @@ DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svStartReceiptDate btnCalendar-1 ~
-svStartReceiptDateOption svEndReceiptDate btnCalendar-2 ~
-svEndReceiptDateOption svAllSalesRep svStartSalesRep svEndSalesRep svSort ~
-svIncludeTermsDiscount svIncludePrepCharges svDayOld 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svStartReceiptDate ~
-svStartReceiptDateOption svEndReceiptDate svEndReceiptDateOption ~
-svAllSalesRep svStartSalesRep startSalesRepName svEndSalesRep ~
-endSalesRepName svSort svIncludeTermsDiscount svIncludePrepCharges svDayOld 
+&Scoped-Define ENABLED-OBJECTS svCompany svStartMachTranDate btnCalendar-1 ~
+svStartMachTranDateOption svEndMachTranDate btnCalendar-2 ~
+svEndMachTranDateOption svAllMachine svStartMachine svEndMachine svSort ~
+svSubRpt_EmployeeTransactions 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svStartMachTranDate ~
+svStartMachTranDateOption svEndMachTranDate svEndMachTranDateOption ~
+svAllMachine svStartMachine startMachineDescription svEndMachine ~
+endMachineDescription svSort svSubRpt_EmployeeTransactions 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -76,117 +80,103 @@ DEFINE BUTTON btnCalendar-2
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
-DEFINE VARIABLE svEndReceiptDateOption AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE svEndMachTranDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svStartReceiptDateOption AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE svStartMachTranDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)" 
+DEFINE VARIABLE endMachineDescription AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1.
+     SIZE 32 BY 1.
 
-DEFINE VARIABLE startSalesRepName AS CHARACTER FORMAT "X(30)" 
+DEFINE VARIABLE startMachineDescription AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1.
+     SIZE 32 BY 1.
 
 DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "Company" 
      VIEW-AS FILL-IN 
      SIZE 5 BY 1.
 
-DEFINE VARIABLE svDayOld AS INTEGER FORMAT "->,>>>,>>9" INITIAL 0 
-     LABEL "Show only Invoices with Cash Receipts after" 
+DEFINE VARIABLE svEndMachine AS CHARACTER FORMAT "X(8)" 
+     LABEL "End Machine" 
      VIEW-AS FILL-IN 
-     SIZE 8 BY 1.
+     SIZE 13 BY 1.
 
-DEFINE VARIABLE svEndReceiptDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
-     LABEL "End Receipt Date" 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
-
-DEFINE VARIABLE svEndSalesRep AS CHARACTER FORMAT "X(3)" 
-     LABEL "End Sales Rep" 
-     VIEW-AS FILL-IN 
-     SIZE 8 BY 1.
-
-DEFINE VARIABLE svStartReceiptDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
-     LABEL "Start Receipt Date" 
+DEFINE VARIABLE svEndMachTranDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
+     LABEL "End Transaction Date" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
-DEFINE VARIABLE svStartSalesRep AS CHARACTER FORMAT "X(3)" 
-     LABEL "Start Sales Rep#" 
+DEFINE VARIABLE svStartMachine AS CHARACTER FORMAT "X(8)" 
+     LABEL "Start Machine" 
      VIEW-AS FILL-IN 
-     SIZE 8 BY 1.
+     SIZE 13 BY 1.
 
-DEFINE VARIABLE svSort AS CHARACTER INITIAL "SalesRep" 
-     VIEW-AS RADIO-SET HORIZONTAL
+DEFINE VARIABLE svStartMachTranDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
+     LABEL "Start Transaction Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1.
+
+DEFINE VARIABLE svSort AS CHARACTER 
+     VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
-          "Customer", "Customer",
-"Invoice", "Invoice",
-"SalesRep", "SalesRep"
-     SIZE 44 BY 1 NO-UNDO.
+          "Start Date / Time", "Start Date / Time",
+"Start Date / Job#", "Start Date / Job#",
+"Machine / Date / Time", "Machine / Date / Time"
+     SIZE 26.4 BY 3.33 NO-UNDO.
 
-DEFINE VARIABLE svAllSalesRep AS LOGICAL INITIAL yes 
-     LABEL "All Sales Reps" 
+DEFINE VARIABLE svAllMachine AS LOGICAL INITIAL yes 
+     LABEL "All Machines" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .95 NO-UNDO.
 
-DEFINE VARIABLE svIncludePrepCharges AS LOGICAL INITIAL no 
-     LABEL "Include Prep Charges?" 
+DEFINE VARIABLE svSubRpt_EmployeeTransactions AS LOGICAL INITIAL no 
+     LABEL "Show Employee Transactions" 
      VIEW-AS TOGGLE-BOX
-     SIZE 25 BY 1 NO-UNDO.
-
-DEFINE VARIABLE svIncludeTermsDiscount AS LOGICAL INITIAL no 
-     LABEL "Include Terms Discount?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 28 BY 1 NO-UNDO.
+     SIZE 32 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
-     svStartReceiptDate AT ROW 2.91 COL 18.8 COLON-ALIGNED HELP
-          "Enter Start Receipt Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 2.91 COL 37 WIDGET-ID 80
-     svStartReceiptDateOption AT ROW 2.91 COL 40 COLON-ALIGNED HELP
+     svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
+     svStartMachTranDate AT ROW 3.62 COL 23 COLON-ALIGNED HELP
+          "Enter Start Transaction Date" WIDGET-ID 72
+     btnCalendar-1 AT ROW 3.62 COL 41 WIDGET-ID 76
+     svStartMachTranDateOption AT ROW 3.62 COL 44 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
-     svEndReceiptDate AT ROW 4.1 COL 19 COLON-ALIGNED HELP
-          "Enter End Receipt Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 4.1 COL 37 WIDGET-ID 82
-     svEndReceiptDateOption AT ROW 4.1 COL 40 COLON-ALIGNED HELP
+     svEndMachTranDate AT ROW 4.81 COL 23 COLON-ALIGNED HELP
+          "Enter End Transaction Date" WIDGET-ID 68
+     btnCalendar-2 AT ROW 4.81 COL 41 WIDGET-ID 78
+     svEndMachTranDateOption AT ROW 4.81 COL 44 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
-     svAllSalesRep AT ROW 5.76 COL 21 HELP
-          "All Sales Reps?" WIDGET-ID 58
-     svStartSalesRep AT ROW 6.95 COL 19 COLON-ALIGNED HELP
-          "Enter Beginning Sales Rep#" WIDGET-ID 22
-     startSalesRepName AT ROW 6.95 COL 28 COLON-ALIGNED HELP
+     svAllMachine AT ROW 7.19 COL 25 HELP
+          "All Macines?" WIDGET-ID 58
+     svStartMachine AT ROW 8.38 COL 23 COLON-ALIGNED HELP
+          "Enter Start Machine" WIDGET-ID 22
+     startMachineDescription AT ROW 8.38 COL 37 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndSalesRep AT ROW 8.14 COL 19 COLON-ALIGNED HELP
-          "Enter Ending Sales Rep" WIDGET-ID 20
-     endSalesRepName AT ROW 8.14 COL 28 COLON-ALIGNED HELP
+     svEndMachine AT ROW 9.57 COL 23 COLON-ALIGNED HELP
+          "Enter End Machine" WIDGET-ID 20
+     endMachineDescription AT ROW 9.57 COL 37 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svSort AT ROW 9.81 COL 21 NO-LABEL WIDGET-ID 28
-     svIncludeTermsDiscount AT ROW 11 COL 21 WIDGET-ID 42
-     svIncludePrepCharges AT ROW 12.19 COL 21 WIDGET-ID 44
-     svDayOld AT ROW 13.38 COL 44 COLON-ALIGNED HELP
-          "Show only Invoices with Cash Receipts after" WIDGET-ID 76
-     "Days" VIEW-AS TEXT
-          SIZE 5 BY 1 AT ROW 13.38 COL 55 WIDGET-ID 78
-     "Sort?:" VIEW-AS TEXT
-          SIZE 6 BY 1 AT ROW 9.81 COL 14 WIDGET-ID 52
+     svSort AT ROW 11.95 COL 25.6 NO-LABEL WIDGET-ID 84
+     svSubRpt_EmployeeTransactions AT ROW 16.24 COL 25 HELP
+          "Select to Show Employee Transactions" WIDGET-ID 88
+     "Sort By:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 11.95 COL 16 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 74 BY 14.57
+         SIZE 71.6 BY 17.43
          TITLE "Report Parameters".
 
 
@@ -216,8 +206,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 14.57
-         WIDTH              = 74.
+         HEIGHT             = 17.43
+         WIDTH              = 71.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -247,9 +237,9 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
    3                                                                    */
-/* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
+/* SETTINGS FOR FILL-IN endMachineDescription IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN startSalesRepName IN FRAME F-Main
+/* SETTINGS FOR FILL-IN startMachineDescription IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
        svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
@@ -277,7 +267,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject
 ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
 DO:
-  {methods/btnCalendar.i svStartReceiptDate}
+  {methods/btnCalendar.i svStartMachTranDate}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -288,19 +278,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 sObject
 ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
 DO:
-  {methods/btnCalendar.i svEndReceiptDate}
+  {methods/btnCalendar.i svEndMachTranDate}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svAllSalesRep
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllSalesRep sObject
-ON VALUE-CHANGED OF svAllSalesRep IN FRAME F-Main /* All Sales Reps */
+&Scoped-define SELF-NAME svAllMachine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllMachine sObject
+ON VALUE-CHANGED OF svAllMachine IN FRAME F-Main /* All Machines */
 DO:
   ASSIGN {&SELF-NAME}.
-  RUN pSetSalesRepRange ({&SELF-NAME}).
+  RUN pSetMachineRange ({&SELF-NAME}).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -311,7 +301,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCompany sObject
 ON ENTRY OF svCompany IN FRAME F-Main /* Company */
 DO:
-  APPLY "ENTRY":U TO svStartReceiptDate.
+  APPLY "ENTRY":U TO svStartMachTranDate.
   RETURN NO-APPLY.
 END.
 
@@ -319,9 +309,26 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndReceiptDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndReceiptDate sObject
-ON HELP OF svEndReceiptDate IN FRAME F-Main /* End Receipt Date */
+&Scoped-define SELF-NAME svEndMachine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndMachine sObject
+ON LEAVE OF svEndMachine IN FRAME F-Main /* End Machine */
+DO:
+    ASSIGN {&SELF-NAME}.
+    FIND FIRST mach NO-LOCK
+         WHERE mach.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
+           AND mach.m-code  EQ {&SELF-NAME}
+         NO-ERROR.
+    endMachineDescription:SCREEN-VALUE = IF AVAILABLE mach THEN mach.m-dscr
+                                         ELSE "<Beginning Range Value>".
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svEndMachTranDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndMachTranDate sObject
+ON HELP OF svEndMachTranDate IN FRAME F-Main /* End Transaction Date */
 DO:
   {methods/calendar.i}
 END.
@@ -330,13 +337,13 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndReceiptDateOption
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndReceiptDateOption sObject
-ON VALUE-CHANGED OF svEndReceiptDateOption IN FRAME F-Main
+&Scoped-define SELF-NAME svEndMachTranDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndMachTranDateOption sObject
+ON VALUE-CHANGED OF svEndMachTranDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      svEndMachTranDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
       btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
       .
 END.
@@ -345,26 +352,26 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndSalesRep
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndSalesRep sObject
-ON LEAVE OF svEndSalesRep IN FRAME F-Main /* End Sales Rep */
+&Scoped-define SELF-NAME svStartMachine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartMachine sObject
+ON LEAVE OF svStartMachine IN FRAME F-Main /* Start Machine */
 DO:
     ASSIGN {&SELF-NAME}.
-    FIND FIRST sman NO-LOCK
-         WHERE sman.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND sman.sman EQ {&SELF-NAME}
+    FIND FIRST mach NO-LOCK
+         WHERE mach.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
+           AND mach.m-code  EQ {&SELF-NAME}
          NO-ERROR.
-    endSalesRepName:SCREEN-VALUE = IF AVAILABLE sman THEN sman.sname
-                                   ELSE "<Ending Range Value>".
+    startMachineDescription:SCREEN-VALUE = IF AVAILABLE mach THEN mach.m-dscr
+                                           ELSE "<Beginning Range Value>".
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartReceiptDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartReceiptDate sObject
-ON HELP OF svStartReceiptDate IN FRAME F-Main /* Start Receipt Date */
+&Scoped-define SELF-NAME svStartMachTranDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartMachTranDate sObject
+ON HELP OF svStartMachTranDate IN FRAME F-Main /* Start Transaction Date */
 DO:
   {methods/calendar.i}
 END.
@@ -373,32 +380,15 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartReceiptDateOption
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartReceiptDateOption sObject
-ON VALUE-CHANGED OF svStartReceiptDateOption IN FRAME F-Main
+&Scoped-define SELF-NAME svStartMachTranDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartMachTranDateOption sObject
+ON VALUE-CHANGED OF svStartMachTranDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      svStartMachTranDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
       btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
       .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME svStartSalesRep
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartSalesRep sObject
-ON LEAVE OF svStartSalesRep IN FRAME F-Main /* Start Sales Rep# */
-DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST sman NO-LOCK
-         WHERE sman.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND sman.sman EQ {&SELF-NAME}
-         NO-ERROR.
-    startSalesRepName:SCREEN-VALUE = IF AVAILABLE sman THEN sman.sname
-                                     ELSE "<Beginning Range Value>".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -456,11 +446,11 @@ PROCEDURE pInitialize :
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
             .
-        APPLY "VALUE-CHANGED":U TO svStartReceiptDateOption.
-        APPLY "VALUE-CHANGED":U TO svEndReceiptDateOption.
-        APPLY "VALUE-CHANGED":U TO svAllSalesRep.
-        APPLY "LEAVE":U TO svStartSalesRep.
-        APPLY "LEAVE":U TO svEndSalesRep.
+        APPLY "VALUE-CHANGED":U TO svStartMachTranDateOption.
+        APPLY "VALUE-CHANGED":U TO svEndMachTranDateOption.
+        APPLY "VALUE-CHANGED":U TO svAllMachine.
+        APPLY "LEAVE":U TO svStartMachine.
+        APPLY "LEAVE":U TO svEndMachine.
     END.
 
 END PROCEDURE.
@@ -478,11 +468,9 @@ PROCEDURE pPopulateOptions :
     DEFINE INPUT PARAMETER iphContainer AS HANDLE NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN
-            hContainer = iphContainer
-            .
-        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartReceiptDateOption:HANDLE).
-        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndReceiptDateOption:HANDLE).
+        hContainer = iphContainer.
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartMachTranDateOption:HANDLE).
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndMachTranDateOption:HANDLE).
     END.
 
 END PROCEDURE.
@@ -490,8 +478,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetSalesRepRange sObject 
-PROCEDURE pSetSalesRepRange :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetMachineRange sObject 
+PROCEDURE pSetMachineRange :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -501,8 +489,8 @@ PROCEDURE pSetSalesRepRange :
 
   DO WITH FRAME {&FRAME-NAME}:
       ASSIGN
-          svStartSalesRep:READ-ONLY = iplChecked
-          svEndSalesRep:READ-ONLY   = iplChecked
+          svStartMachine:READ-ONLY = iplChecked
+          svEndMachine:READ-ONLY   = iplChecked
           .
   END.
 

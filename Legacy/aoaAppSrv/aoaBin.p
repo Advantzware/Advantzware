@@ -19,10 +19,8 @@
 /* ***************************  Definitions  ************************** */
 
 DEFINE TEMP-TABLE ttTemplate NO-UNDO
-    FIELD rowType    AS CHARACTER LABEL "RowType"    FORMAT "x(500)" INITIAL "Data"
-    FIELD parameters AS CHARACTER LABEL "Parameters" FORMAT "x(500)"
-        INDEX ttTemplage IS PRIMARY rowType
-        .
+    {aoaAppSrv/ttFields.i}
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -339,6 +337,7 @@ FUNCTION fParameters RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cShow        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParameter   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
@@ -346,18 +345,41 @@ FUNCTION fParameters RETURNS CHARACTER
     cParameter = "Parameters".
     IF AVAILABLE user-print THEN
     DO idx = 1 TO EXTENT(user-print.field-name):
-        IF user-print.field-name[idx]  EQ "" THEN LEAVE.
-        IF user-print.field-name[idx]  EQ "svShowParameters" AND
-           user-print.field-value[idx] EQ "no" THEN
-        cParameter = "NoParameters".
-        IF CAN-DO("svTitle,svAvailableColumns,svSelectedColumns,svShowParameters",user-print.field-name[idx]) THEN NEXT.
-        cReturnValue = cReturnValue
-                     + "|" + TRIM(user-print.field-name[idx])
-                     + "^" + user-print.field-value[idx]
-                     .
+        IF user-print.field-name[idx] EQ "" THEN LEAVE.
+        IF CAN-DO("svTitle,svAvailableColumns,svSelectedColumns",user-print.field-name[idx]) THEN NEXT.
+        CASE user-print.field-name[idx]:
+            WHEN "svShowParameters"   THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cParameter = "NoParameters".
+            WHEN "svShowReportHeader" THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cShow = cShow + "0^".
+            WHEN "svShowPageHeader"   THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cShow = cShow + "2^".
+            WHEN "svShowGroupHeader"  THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cShow = cShow + "4^".
+            WHEN "svShowGroupFooter"  THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cShow = cShow + "5^".
+            WHEN "svShowPageFooter"   THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cShow = cShow + "3^".
+            WHEN "svShowReportFooter" THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cShow = cShow + "1^".
+            OTHERWISE
+            cReturnValue = cReturnValue
+                         + "|" + TRIM(user-print.field-name[idx])
+                         + "^" + user-print.field-value[idx]
+                         .
+        END CASE.
     END. /* do idx */
-    cReturnValue = cParameter + cReturnValue.
-
+    ASSIGN
+        cShow        = TRIM(cShow,"^") + "|"
+        cReturnValue = cShow + cParameter + cReturnValue
+        .
     RETURN cReturnValue.
 
 END FUNCTION.
