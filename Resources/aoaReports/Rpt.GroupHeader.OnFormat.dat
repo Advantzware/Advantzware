@@ -1,0 +1,5 @@
+
+Sub OnFormat
+    Rpt.Sections.Item("%").Visible = Rpt.Fields.Item("RowType") = "Data"
+  End If
+End Sub
