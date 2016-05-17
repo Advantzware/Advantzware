@@ -32,6 +32,17 @@ ON F1 HELP.
 ON CTRL-F HELP.
 ON CTRL-P HELP.
 
+ON 'CTRL-ALT-D':U ANYWHERE
+DO:
+    RUN aoa/aoaLauncher.w ("Dashboard").
+    RETURN.
+END.
+
+ON 'CTRL-ALT-R':U ANYWHERE
+DO:
+    RUN aoa/aoaLauncher.w ("Report").
+    RETURN.
+END.
    
 /* ***************************  Definitions  ************************** */
  
