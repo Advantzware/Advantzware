@@ -222,7 +222,7 @@ DEF VAR v-up-ext        AS INTE EXTENT 10 NO-UNDO.
 DEF VAR vext            AS INTE NO-UNDO.
 DEF VAR ij              AS INTE NO-UNDO.
 
-v-fill = "<||3><C1><FROM><C108><LINE><||3>".
+v-fill = "<||3><C1><FROM><C109><LINE><||3>".
 
 def new shared frame head.
 def new shared frame head2.
@@ -813,7 +813,7 @@ for each job-hdr NO-LOCK
             v-upc-lbl = "   CAD#".
             IF FIRST-OF(eb.form-no) THEN DO:
               PUT
-                 "<P9><B>F/B         FG Item #       Cust Part #     Art #       PO#            Customer Lot#     Description                    Cad             # Up   " "</B>" SKIP.  /* Style  Carton Size*/
+                 "<P9><B>F/B         FG Item #       Cust Part #     Art #            PO#            Customer Lot#     Description                    Cad            # Up   " "</B>" SKIP.  /* Style  Carton Size*/
 
               ASSIGN v-case-size-ext = ""
                      v-case-qty-ext = 0
@@ -897,12 +897,12 @@ for each job-hdr NO-LOCK
                     trim(string(eb.blank-no,">>9")) FORM "x(11)" 
                     eb.stock-no @ job-hdr.i-no 
                     (IF AVAIL oe-ordl  THEN oe-ordl.part-no ELSE IF AVAIL itemfg THEN itemfg.part-no ELSE "") FORM "x(15)"   
-                    (IF eb.plate-no <> "" THEN eb.plate-no  ELSE IF AVAIL itemfg THEN itemfg.plate-no ELSE "" ) FORM "x(10)"
+                    (IF eb.plate-no <> "" THEN eb.plate-no  ELSE IF AVAIL itemfg THEN itemfg.plate-no ELSE "" ) FORM "x(15)"
                     (IF AVAIL oe-ordl  THEN oe-ordl.po-no ELSE "") FORM "x(15)"
                     v-cust-lot#  FORM "x(17)"
                     v-dsc[1] FORM "x(30)"
                     eb.cad-no  FORM "x(15)" /*v-stypart */
-                    v-up-ext[1]        @ v-up  /*v-size[1] FORM "x(30)"*/
+                    v-up-ext[1]        @ v-up FORMAT ">>9"  /*v-size[1] FORM "x(30)"*/
                     skip
                 with stream-io width 175 no-labels no-box frame line-det1.
 
