@@ -1649,7 +1649,10 @@ FOR EACH tt-report:
   DELETE tt-report.
 END.
 
-  for each cust
+FOR EACH xreport:
+  DELETE xreport.
+END.
+
       where cust.company eq cocode
         and cust.cust-no ge fcust
         and cust.cust-no le tcust
@@ -1872,6 +1875,9 @@ END.
       end.     
     end.
   end.
+
+ FOR EACH xreport NO-LOCK: /* Strange problem of tt-report*/
+ END.
 
   for each tt-report where tt-report.term-id eq "",
 

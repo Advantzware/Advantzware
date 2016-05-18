@@ -1207,6 +1207,10 @@ DISPLAY "" WITH FRAME r-top.
 FOR EACH tt-report:
   DELETE tt-report.
 END.
+FOR EACH xreport:
+  DELETE xreport.
+END.
+
 
   for each cust
       where cust.company eq cocode
@@ -1431,6 +1435,8 @@ END.
       end.     
     end.
   end.
+  FOR EACH xreport NO-LOCK: /* Strange problem of tt-report*/
+  END.
 
   for each tt-report where tt-report.term-id eq "",
 

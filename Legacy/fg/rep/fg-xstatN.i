@@ -421,6 +421,7 @@ FOR EACH ttCustList
                                     FOR EACH tt-oe-rel NO-LOCK:
                                         v-summ-temp = v-summ-temp + tt-oe-rel.tot-qty .
                                    END.
+                                  
 
                                    BUFFER boe-ordl:FIND-BY-ROWID(ROWID(oe-ordl), NO-LOCK) .
                                    BUFFER bcust:FIND-BY-ROWID(ROWID(cust), NO-LOCK) .
@@ -467,6 +468,10 @@ FOR EACH ttCustList
                                                  WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
                                                  WHEN "shipto" THEN cVarValue = v-shipto .
                                                  WHEN "shipname" THEN cVarValue = v-shipto-name  .
+                                                 WHEN "tot-fac-cost" THEN cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh * vtot-costm ,"->>>>,>>>,>>9.99")  ELSE "" .
+                                                 WHEN "on-hand-cost" THEN do: 
+                                                     cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh / 1000 * vtot-costm ,"->,>>>,>>9.99") ELSE "" .
+                                                 END.
                                                  
                                            END CASE.
 
@@ -552,6 +557,7 @@ FOR EACH ttCustList
                 WHEN "fg-lot" THEN cVarValue = "" .
                 WHEN "shipto" THEN cVarValue = "".
                 WHEN "shipname" THEN cVarValue = "" . 
+                WHEN "on-hand-cost" THEN cVarValue = "".
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -736,6 +742,10 @@ FOR EACH ttCustList
                 WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
                  WHEN "shipto" THEN cVarValue = v-shipto .
                  WHEN "shipname" THEN cVarValue = v-shipto-name .
+                WHEN "tot-fac-cost" THEN cVarValue = IF v-job-no <> "" THEN STRING(v-qty-onh * vtot-costm,"->>>>,>>>,>>9.99")  ELSE "" .
+                WHEN "on-hand-cost" THEN do: 
+                    cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh / 1000 * vtot-costm,"->,>>>,>>9.99") ELSE "" .
+                END.
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -792,6 +802,7 @@ FOR EACH ttCustList
                 WHEN "fg-lot" THEN cVarValue = "".
                 WHEN "shipto" THEN cVarValue =  "".
                 WHEN "shipname" THEN cVarValue = "" .
+                WHEN "on-hand-cost" THEN cVarValue = "".
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -1027,6 +1038,9 @@ FOR EACH ttCustList
                 WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
                 WHEN "shipto" THEN cVarValue = v-shipto.
                 WHEN "shipname" THEN cVarValue = v-shipto-name .
+                WHEN "on-hand-cost" THEN do: 
+                    cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh / 1000 * vtot-costm,"->,>>>,>>9.99") ELSE "" .
+                END.
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -1233,6 +1247,9 @@ FOR EACH ttCustList
                 WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
                 WHEN "shipto" THEN cVarValue = v-shipto .
                 WHEN "shipname" THEN cVarValue = v-shipto-name .
+                WHEN "on-hand-cost" THEN do: 
+                    cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh / 1000 * vtot-costm,"->,>>>,>>9.99") ELSE ""  .
+                END.
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -1307,6 +1324,7 @@ FOR EACH ttCustList
                 WHEN "fg-lot" THEN cVarValue = "" .
                 WHEN "shipto" THEN cVarValue = "".
                 WHEN "shipname" THEN cVarValue = "" .    
+                WHEN "on-hand-cost" THEN cVarValue = "" .
                                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -1370,7 +1388,7 @@ ASSIGN cDisplay = ""                                                    /*Task# 
                 WHEN "fg-lot" THEN cVarValue = "".
                 WHEN "shipto" THEN cVarValue = "".
                 WHEN "shipname" THEN cVarValue = "" .
-                                   
+                WHEN "on-hand-cost" THEN cVarValue = ""  .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +

@@ -321,6 +321,8 @@ print-po-blok:
                  THEN LEAVE.
             END. /* FOR EACH JOB-MAT*/
 
+            ASSIGN v-adder = "" .
+
 
             IF AVAIL job-mat THEN DO:
 
