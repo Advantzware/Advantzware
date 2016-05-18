@@ -320,7 +320,7 @@ PROCEDURE ProcessImportedData :
                 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE(bf-itemfg) THEN 
             DO: 
-                PUT STREAM log-file  "Invalid FG Item Number " + '"' + tt-oe-prmtx.i-no + '"' + ", in row " + STRING(tt-oe-prmtx.row-no) + "." SKIP.
+                PUT STREAM log-file UNFORMATTED "Invalid FG Item Number " + '"' + tt-oe-prmtx.i-no + '"' + ", in row " + STRING(tt-oe-prmtx.row-no) + "." SKIP.
                 tt-oe-prmtx.valid = FALSE.
             END.
             ELSE
