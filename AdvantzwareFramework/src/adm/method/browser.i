@@ -25,8 +25,8 @@
 /* ***************************  Definitions  ************************** */
 
 DEFINE VARIABLE adm-sts           AS LOGICAL NO-UNDO.
-DEFINE VARIABLE adm-brs-in-update AS LOGICAL NO-UNDO INIT no.
-DEFINE VARIABLE adm-brs-initted   AS LOGICAL NO-UNDO INIT no.
+DEFINE VARIABLE adm-brs-in-update AS LOGICAL NO-UNDO INIT NO.
+DEFINE VARIABLE adm-brs-initted   AS LOGICAL NO-UNDO INIT NO.
 
 &IF DEFINED(adm-browser) = 0 &THEN
 &GLOBAL adm-browser yes
@@ -119,8 +119,6 @@ Layout,Create-On-Add,SortBy-Case
 
 /* **********************  Internal Procedures  *********************** */
 
-<<<<<<< HEAD
-=======
 &IF DEFINED(EXCLUDE-winkit-initialize) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winkit-initialize Method-Library
@@ -193,8 +191,6 @@ END PROCEDURE.
 
 &ENDIF
 
-
->>>>>>> c56b7c5... Fixed Tab Pages that are not init'ed initially
 &IF DEFINED(EXCLUDE-set-size) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-size Method-Library 
