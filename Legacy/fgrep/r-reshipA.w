@@ -102,7 +102,7 @@ tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY*/ 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -561,7 +561,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -890,8 +890,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   
   {methods/nowait.i}
+    DO WITH FRAME {&FRAME-NAME}:
+        {custom/usrprint.i}
+        APPLY "entry" TO begin_cust.
+    END.
 
-APPLY "entry" TO begin_cust IN FRAME {&FRAME-NAME}.
+/*APPLY "entry" TO begin_cust IN FRAME {&FRAME-NAME}.*/
 
   RUN sys/ref/CustList.p (INPUT cocode,
                           INPUT 'IL9',
@@ -1446,6 +1450,8 @@ DO:
     IF tb_runExcel THEN
       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
 END.
+
+RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
