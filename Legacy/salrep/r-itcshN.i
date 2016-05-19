@@ -835,8 +835,8 @@ ELSE if (LAST-OF(tt-report.key-01) and v-sort1)     or
         /* Task 11221304  */
     CASE cTmpField:               
                  WHEN "w-data.i-no" THEN cVarValue = string(w-data.i-no).
-                 WHEN "cust.cust-no" THEN cVarValue = string(cust.cust-no).
-                 WHEN "cust.name" THEN cVarValue = string(cust.name,"X(20)").
+                 WHEN "cust.cust-no" THEN cVarValue = "". 
+                 WHEN "cust.name" THEN cVarValue = "".
                  WHEN "v-name" THEN cVarValue = STRING(v-name,"X(20)").  
                  WHEN "v-part-no" THEN cVarValue = STRING(v-part-no,"X(20)").
                  WHEN "tt-report.key-03" THEN cVarValue = "".
