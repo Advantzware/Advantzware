@@ -84,7 +84,7 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -404,7 +404,7 @@ DO:
   END.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -893,7 +893,8 @@ def var v-class         as   char.
 def var li              as   int.
 DEF VAR lv-rowid        AS   ROWID NO-UNDO.
 DEF VAR excelheader     AS   CHAR NO-UNDO.
-
+DEF VAR v-cust AS CHAR EXTENT 2 NO-UNDO .
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 form header skip(1)
             v-page-brk
             skip(1)
@@ -920,6 +921,17 @@ DO WITH FRAME {&FRAME-NAME}:
   DISPLAY list_class.
   ASSIGN list_class.
 END.
+ASSIGN
+    v-cust[1] = begin_cust
+    v-cust[2] = end_cust 
+    lSelected    = tb_cust-list .
+
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
+ END.
 
 {sys/inc/print1.i}
 
@@ -944,13 +956,12 @@ IF tb_excel THEN DO:
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
-FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-    each itemfg
+FOR each itemfg
     where itemfg.company eq cocode
-      /*and itemfg.cust-no ge begin_cust*/
-      and itemfg.cust-no EQ ttCustList.cust-no
+      and itemfg.cust-no ge v-cust[1]
+      and itemfg.cust-no LE v-cust[2]
+      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+      AND ttCustList.log-fld no-lock) else true)  
       AND itemfg.cust-no NE ""
       AND LOOKUP(itemfg.class,v-class) GT 0
     NO-LOCK

@@ -98,7 +98,7 @@ FUNCTION replaceChars RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -525,7 +525,7 @@ DO:
   END.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1104,7 +1104,7 @@ DEF VAR dscr1 AS CHAR NO-UNDO.
 DEF VAR dscr2 AS CHAR NO-UNDO.
 DEF VAR ino AS CHAR NO-UNDO.
 DEF VAR cutpart AS CHAR NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 form itemfg.i-no label "ITEM #"
      itemfg.i-name label "NAME"
      itemfg.procat column-label "PROD!CAT"
@@ -1131,7 +1131,8 @@ assign
  v-zbal      = tb_zero
  v-custown   = tb_cust-whse
  sort-opt    = SUBSTR(rd_sort,1,1)
- pcat        = tb_prod-cat.
+ pcat        = tb_prod-cat
+ lSelected      = tb_cust-list .
 
 {sys/inc/print1.i}
 
@@ -1144,22 +1145,23 @@ IF tb_excel THEN DO:
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
+ END.
+
 if td-show-parm then run show-param.
 
 display "" with frame r-top.
 
     if sort-opt eq "I" then
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-      each itemfg use-index i-no
+    FOR each itemfg use-index i-no
       {fg/rep/itemlist.i}
 
     else
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-      each itemfg use-index customer
+    FOR each itemfg use-index customer
       {fg/rep/itemlist.i}
 
 IF tb_excel THEN DO:
