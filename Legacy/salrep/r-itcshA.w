@@ -98,7 +98,7 @@ lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -628,7 +628,7 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1250,6 +1250,7 @@ DEF VAR lv-type AS CHAR NO-UNDO.
 DEF VAR v-est LIKE est.est-no NO-UNDO.
 DEF VAR v-bol LIKE oe-bolh.bol-no NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form header
      "               "
@@ -1326,7 +1327,8 @@ ASSIGN
  v-det      = tb_detailed                  
  v-print1   = rd_show EQ "Customer Name" 
  v-sort1    = rd_sort EQ "Finished Goods"              
- v-inc-fc   = tb_fin-chg. 
+ v-inc-fc   = tb_fin-chg
+ lSelected  = tb_cust-list. 
 
 ASSIGN
  v-hdr[1] = if v-sort1  then "FG Item#" else "Customer Part#"
@@ -1347,6 +1349,12 @@ IF tb_excel THEN DO:
               + (IF rd_show2 EQ "BOL#" THEN "BOL Number," ELSE "Estimate Number,")
               + "Qty Shipped,Unit Price,UOM,Invoice Amt".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+END.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
 END.
 
 if td-show-parm then run show-param.

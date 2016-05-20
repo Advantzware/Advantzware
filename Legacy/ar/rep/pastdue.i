@@ -39,12 +39,12 @@ def shared frame r-top.
 {sys/form/r-top3.f}
 
 
- FOR EACH ttCustList
-       WHERE ttCustList.log-fld
-       NO-LOCK,
-    each cust
+ for each cust
       where cust.company eq cocode
-        and cust.cust-no EQ ttCustList.cust-no /*v-s-cust*/
+        AND cust.cust-no GE v-s-cust
+        AND cust.cust-no LE v-e-cust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+        AND ttCustList.log-fld no-lock) else true)  /*v-s-cust*/
        /* and cust.cust-no le v-e-cust*/
         and cust.sman    ge v-s-sman
         and cust.sman    le v-e-sman

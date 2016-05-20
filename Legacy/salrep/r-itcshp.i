@@ -10,19 +10,18 @@
   
   IF fcust NE tcust AND fitem EQ titem THEN
   DO:
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-      EACH ar-invl WHERE
+    for EACH ar-invl WHERE
          ar-invl.company EQ cocode AND
          ar-invl.i-no EQ fitem
          NO-LOCK,
          FIRST ar-inv WHERE
                ar-inv.x-no EQ ar-invl.x-no AND
                ar-inv.posted   eq YES AND
-               /*ar-inv.cust-no  ge fcust AND
-               ar-inv.cust-no  le tcust AND*/
-               ar-inv.cust-no EQ ttCustList.cust-no AND
+               ar-inv.cust-no  GE fcust and
+               ar-inv.cust-no  LE tcust and 
+               (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no and
+               ttCustList.log-fld no-lock) else true) and
+
                ar-inv.inv-date GE fdate AND
                ar-inv.inv-date LE tdate
                AND NOT (NOT v-inc-fc AND ar-inv.type EQ "FC")
@@ -42,14 +41,12 @@
            RELEASE tt-report.
          END.
      END. /*each ar-invl*/
-     FOR EACH ttCustList 
-      WHERE ttCustList.log-fld
-      NO-LOCK,
-        each cust WHERE
-         cust.company eq cocode AND
-         /*cust.cust-no ge fcust AND
-         cust.cust-no le tcust*/
-         cust.cust-no EQ ttCustList.cust-no
+     for each cust WHERE
+         cust.company eq cocode 
+          AND cust.cust-no GE fcust
+          AND cust.cust-no LE tcust
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+          AND ttCustList.log-fld no-lock) else true)         
          NO-LOCK,
          each ar-cash FIELDS(c-no cust-no) WHERE
              ar-cash.company    eq cocode AND
@@ -83,10 +80,7 @@
      IF fship EQ "" AND tship BEGINS "zzzzz" AND
         not(fitem EQ "" AND titem BEGINS "zzzzzzzz") THEN
         DO:
-           FOR EACH ttCustList 
-               WHERE ttCustList.log-fld
-               NO-LOCK,
-               EACH itemfg FIELDS(i-no) WHERE
+           for EACH itemfg FIELDS(i-no) WHERE
                itemfg.company EQ cocode AND
                itemfg.i-no GE fitem AND
                itemfg.i-no LE titem
@@ -98,9 +92,10 @@
                FIRST ar-inv WHERE
                      ar-inv.x-no     EQ ar-invl.x-no AND
                      ar-inv.posted   eq YES AND
-                     /*ar-inv.cust-no  ge fcust AND
-                     ar-inv.cust-no  le tcust AND*/
-                     ar-inv.cust-no EQ ttCustList.cust-no AND
+                     ar-inv.cust-no  GE fcust and
+                     ar-inv.cust-no  LE tcust and
+                     (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no and 
+                     ttCustList.log-fld no-lock) else true) and
                      ar-inv.inv-date GE fdate AND
                      ar-inv.inv-date LE tdate AND
                      NOT (NOT v-inc-fc AND ar-inv.type EQ "FC")
@@ -122,14 +117,12 @@
                END.
            END. /*end each itemfg*/
          
-           FOR EACH ttCustList 
-               WHERE ttCustList.log-fld
-               NO-LOCK,
-               each cust WHERE
-               cust.company eq cocode AND
-               /*cust.cust-no ge fcust AND
-               cust.cust-no le tcust*/
-               cust.cust-no EQ ttCustList.cust-no 
+           for each cust WHERE
+               cust.company eq cocode 
+               AND cust.cust-no GE fcust
+               AND cust.cust-no LE tcust
+               AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+               AND ttCustList.log-fld no-lock) else true)               
                NO-LOCK,
                each ar-cash FIELDS(c-no cust-no) WHERE
                    ar-cash.company    eq cocode AND
@@ -159,15 +152,13 @@
      ELSE
      DO:
         DO v-loop-date = fdate TO tdate:
-           FOR EACH ttCustList 
-               WHERE ttCustList.log-fld
-               NO-LOCK,
-               each ar-inv
+           for each ar-inv
                where ar-inv.company  eq cocode
                  and ar-inv.posted   eq yes
-                 /*and ar-inv.cust-no  ge fcust
-                 and ar-inv.cust-no  le tcust*/
-                 AND ar-inv.cust-no EQ ttCustList.cust-no
+                 AND ar-inv.cust-no  GE fcust
+                 AND ar-inv.cust-no  LE tcust
+                 AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
+                 AND ttCustList.log-fld no-lock) else true)
                  and ar-inv.inv-date EQ v-loop-date
                  AND NOT (NOT v-inc-fc AND ar-inv.type EQ "FC")
                  USE-INDEX inv-date
@@ -187,14 +178,12 @@
 
            end.
         END.
-        FOR EACH ttCustList 
-               WHERE ttCustList.log-fld
-               NO-LOCK,
-            each cust
+        for each cust
             where cust.company eq cocode
-              /*and cust.cust-no ge fcust
-              and cust.cust-no le tcust*/
-              AND cust.cust-no EQ ttCustList.cust-no 
+              AND cust.cust-no GE fcust
+              AND cust.cust-no LE tcust
+              AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+              AND ttCustList.log-fld no-lock) else true)
             NO-LOCK,
             each ar-cash FIELDS(c-no cust-no) WHERE
                 ar-cash.company    eq cocode AND
@@ -227,13 +216,13 @@
   ELSE /*fcust eq tcust*/
   DO:
      DO v-loop-date = fdate TO tdate:
-        FOR EACH ttCustList 
-               WHERE ttCustList.log-fld
-               NO-LOCK,
-            each ar-inv
+        for each ar-inv
             where ar-inv.company  eq cocode
               and ar-inv.posted   eq yes
-              and ar-inv.cust-no  EQ ttCustList.cust-no
+              AND ar-inv.cust-no  GE fcust
+              AND ar-inv.cust-no  LE tcust
+              AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
+              AND ttCustList.log-fld no-lock) else true)
               and ar-inv.inv-date EQ v-loop-date
               AND NOT (NOT v-inc-fc AND ar-inv.type EQ "FC")
             no-lock
@@ -253,12 +242,12 @@
         end. /*end each ar-inv*/
      END. /*end do v-loop-date*/
        
-     FOR EACH ttCustList 
-         WHERE ttCustList.log-fld
-         NO-LOCK,
-         each ar-cash FIELDS(cust-no c-no) WHERE
+     for each ar-cash FIELDS(cust-no c-no) WHERE
          ar-cash.company    eq cocode AND
-         ar-cash.cust-no    eq ttCustList.cust-no AND
+         ar-cash.cust-no  GE fcust and
+         ar-cash.cust-no  LE tcust and 
+         (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-cash.cust-no and
+         ttCustList.log-fld no-lock) else true) and 
          ar-cash.check-date GE fdate AND
          ar-cash.check-date LE tdate AND
          ar-cash.posted     eq yes

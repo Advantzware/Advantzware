@@ -790,11 +790,14 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  EMPTY TEMP-TABLE ttCustList.
-  RUN BuildCustList(INPUT cocode,
-                    INPUT tb_cust-list AND glCustListActive,
-                    INPUT begin_cust-no,
-                    INPUT END_cust-no).
+  FIND FIRST  ttCustList NO-LOCK NO-ERROR.
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+      EMPTY TEMP-TABLE ttCustList.
+      RUN BuildCustList(INPUT cocode,
+                        INPUT tb_cust-list AND glCustListActive,
+                        INPUT begin_cust-no,
+                        INPUT END_cust-no).
+  END.
   RUN GetSelectionList.
   run run-report. 
 
@@ -1735,6 +1738,7 @@ DEF VAR str-tit5 AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL2.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 IF rs_detail = 1 THEN 
     v-rpt-type = "DETAIL".
@@ -1786,6 +1790,7 @@ assign
  sPrtInvNote = NO
  sPrtCollectionNote = NO
  str-line = "" 
+ lSelected  = tb_cust-list
 
  str-tit3 = "Company From: " + STRING(begin_comp) + " To: " + STRING(end_comp) +  "    As of Date: " + STRING(v-date) 
  {sys/inc/ctrtext.i str-tit3 132}.
@@ -1814,6 +1819,12 @@ do with frame {&frame-name}:
    period-days-3:screen-value = string(v-days[3])
    period-days-3.
 end.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN v-s-cust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN v-e-cust = ttCustList.cust-no .
+END.
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:

@@ -101,7 +101,7 @@ tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -578,7 +578,7 @@ DO:
   END.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1168,7 +1168,7 @@ def var v-cost1 AS CHAR NO-UNDO.
 DEF VAR lv-r-no LIKE oe-retl.r-no NO-UNDO.
 DEF VAR lv-type AS CHAR NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 FORM HEADER
      "Customer:"
      v-cust
@@ -1231,7 +1231,8 @@ ASSIGN
  v-cost1    = SUBSTR(rd_cost1,1,1)           
  v-inc-fc   = tb_fin-chg
  f-po       = begin_po 
- t-po       = end_po  . 
+ t-po       = end_po
+ lSelected  = tb_cust-list  . 
  
 IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
 
@@ -1244,6 +1245,12 @@ IF tb_excel THEN DO:
   excelheader = "Cust PO#,Ship To,Ship Date,Invoice#,Order#,UOM,Qty Ordered,"
               + "Qty Shipped,Price,GP %".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+END.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
 END.
 
 IF td-show-parm THEN RUN show-param.

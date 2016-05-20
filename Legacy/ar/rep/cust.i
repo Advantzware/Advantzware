@@ -4,14 +4,13 @@
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
-    FOR EACH ttCustList
-       WHERE ttCustList.log-fld
-       NO-LOCK,
-     EACH cust
+    for EACH cust
         WHERE cust.company       GE fco
           AND cust.company       LE tco
-          AND cust.cust-no       EQ ttCustList.cust-no /*fcust*/
-       /*   AND cust.cust-no       LE tcust*/
+          AND cust.cust-no GE fcust
+          AND cust.cust-no LE tcust
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+          AND ttCustList.log-fld no-lock) else true)
           AND cust.type          GE ftype
           AND cust.type          LE ttype
           AND cust.sman          GE fsman
