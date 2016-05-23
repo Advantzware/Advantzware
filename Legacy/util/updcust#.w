@@ -801,6 +801,14 @@ FIND FIRST bf-cust-new WHERE
      FOR EACH phone WHERE 
          phone.table_rec_key = cust.rec_key EXCLUSIVE-LOCK :
          phone.table_rec_key =  bf-cust-new.rec_key .
+         IF NOT CAN-FIND (FIRST reftable NO-LOCK
+                          WHERE reftable.rec_key = phone.table_rec_key
+                          AND reftable.CODE    = STRING (phone.rec_key)) 
+         THEN DO:
+                CREATE reftable.
+                ASSIGN reftable.rec_key   = STRING (phone.table_rec_key)
+                       reftable.CODE      = STRING (phone.rec_key).
+         END. /* not avail reftable */
      END.
  END.
 
