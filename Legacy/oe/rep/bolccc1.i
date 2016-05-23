@@ -41,6 +41,6 @@
                 "<R19><C64><FROM><R21><C64><LINE>" 
                 "<R19><C75.2><FROM><R21><C75.2><LINE>" SKIP            
                 
-            "<=5><R+1> Part# / Job#         PO#                Description              Tag#/Lot#           PAL    Unit-Quantity  Total" SKIP(1)
+            "<=5><R+1> Part# / Job#         PO#                Description              Lot#               PAL    Unit-Quantity  Total" SKIP(1)
             .
             v-printline = v-printline + 16.
