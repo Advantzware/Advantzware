@@ -1,1 +1,1 @@
-.\aoaReports\PublishReport.exe .\aoaReports\AR\Customers.rpa guest password > .\aoaReports\PublishReport.log
+.\aoaReports\PublishReport.exe ".\aoaReports\DC\Production Analysis.rpa" guest password > .\aoaReports\PublishReport.log
