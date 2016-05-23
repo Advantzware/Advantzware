@@ -9,5 +9,3 @@ DEFINE {1} SHARED TEMP-TABLE ttCustList
     INDEX cust-no cust-no 
     .
 DEFINE {1} SHARED VAR custcount AS CHAR NO-UNDO .
-
-
