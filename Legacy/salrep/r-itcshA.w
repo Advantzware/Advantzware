@@ -883,8 +883,14 @@ ON VALUE-CHANGED OF tb_detailed IN FRAME FRAME-A /* Detailed? */
 DO:
   assign {&self-name}.
   
-  IF {&self-name} = YES THEN
-      ASSIGN rd_sort:SCREEN-VALUE = "Finished Goods" .
+  IF {&self-name} = NO THEN do:
+      ASSIGN rd_sort:SCREEN-VALUE = "Finished Goods"
+             rd_show:SCREEN-VALUE = "Item" 
+             rd_show:SENSITIVE = NO .
+  END.
+  ELSE DO:
+      rd_show:SENSITIVE = YES .
+  END.
      
 END.
 
@@ -1032,6 +1038,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         .
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
+
+   IF tb_detailed:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" THEN do:
+       ASSIGN 
+           rd_show:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Item" 
+           rd_show:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
+  END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.

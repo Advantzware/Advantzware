@@ -737,12 +737,12 @@
        (first-of(tt-report.key-02) and not v-sort1) then
     DO:
       display w-data.i-no
-             /* v-name*/ .
+              v-name .
 
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED
              '"' w-data.i-no                    '",'
-             /*'"' v-name                         '",'*/ .
+             '"' v-name                         '",' .
     END.
 
     assign
