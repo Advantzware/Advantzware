@@ -362,9 +362,9 @@ do v-local-loop = 1 to v-local-copies:
 
      PUT UNFORMATTED
             "<=#4> " v-i-line[1] FORM "x(40)"
-            "<=#4><R+.6>" " Name: " itemfg.i-name FORMAT "x(36)"
+            "<=#4><R+.6>" " Name: " (IF AVAIL xeb THEN xeb.part-dscr1 else itemfg.i-name) FORMAT "x(36)"
             "<=#4><R+1.2> " v-i-line[2] FORM "x(40)"
-            "<=#4><R+1.8>" " CAD#: " itemfg.cad-no FORMAT "x(30)"
+            "<=#4><R+1.8>" " CAD#: " (IF AVAIL xeb THEN xeb.cad-no ELSE itemfg.cad-no) FORMAT "x(30)"
             "<=#4><R+2.4> " v-i-line[3] FORM "x(40)"
             "<=#4><R+3.2> " v-i-line[4] FORM "x(40)"
             "<=#4><R+4> Adders:" v-adders FORM "x(33)" .
