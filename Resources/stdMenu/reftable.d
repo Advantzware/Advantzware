@@ -28,6 +28,7 @@
 "Utilities" "" "DeleteOF4Prices.r" "OP" "OF3" "Purge Obsolete Price Matrixes from OF3" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0429201308755539" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "delnotes.r" "FG" "IF" "Delete Finished Goods Spec Notes  (Drop Down)" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1103200501121389" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "delordln.r" "OP" "OU1" "Delete Duplicate Line Item with Qty 0" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1202200904164089" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
+"Utilities" "" "delZero.r" "FG" "IF1" "Purge Zero FG Bins" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0524201609950814" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "DPBOXIMG.R" "CE" "EB" "Dump Box Images" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1206200601765398" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "DPINKS.r" "RM" "MF" "Dump Inks from Advantzware System" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0208200601499194" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "Dpstyle.r" "CE" "EB" "Dump Styles to Style.Dat File" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0618200803067483" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
@@ -80,6 +81,7 @@
 "Utilities" "" "fxshpqty.r" "OP" "OU1" "Updates Orders Ship Quantity" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0616200601618388" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "FxTrncs2.r" "RM" "MF" "Updates RM History Cost from Purchase Order" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1107200702279461" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "glinvdif.r" "GL" "G" "Report shows differences in invoice amt vs posted amount" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0302201005453775" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
+"Utilities" "" "impfgrcp.r" "IU" "IU" "Import FG Receipts from XML file" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0419201609923394" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "LDBOXIMG.R" "CE" "EB" "Load Box Images" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1206200601765400" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "ldinks.r" "RM" "MF" "Load Inks from Inks.Dat File" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1103200501121401" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "ldstyle.r" "CE" "EB" "Load Styles from Style.Dat File" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1103200501121400" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
@@ -149,4 +151,5 @@
 "Utilities" "" "w-updsmn.r" "AF" "AF" "Update Salesman on Estimate,Quotes and Order from Customer" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0113201409115208" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "warinvrestore.r" "AR" "AQ" "Restores Purged Invoices via N-F-13" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0703200803138471" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "XrefTypetoGroup.r" "AF" "AF1" "COPY the A-F-1 Customer Type to the A-F-1 Cust Group Field." 0 0 0 0 0 0 0 0 0 0 0 0 0 "0102201509550279" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
+"Utilities" "" "zeroBin.r" "FG" "IF1" "Purge Zero Quantity FG bin records" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0519201609945536" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "ZeroParts.r" "FG" "IF1" "Set Qty on Hand to Zero for Overrun Parts of Set" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0412200601572995" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
