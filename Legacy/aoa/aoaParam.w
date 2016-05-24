@@ -57,7 +57,7 @@ DEFINE TEMP-TABLE ttUserPrint NO-UNDO LIKE user-print
 DEFINE TEMP-TABLE ttParamValue NO-UNDO
     FIELD paramOrder AS INTEGER
     FIELD batch-seq  AS INTEGER
-    FIELD paramLabel AS CHARACTER LABEL "Param Label" FORMAT "x(30)"
+    FIELD paramLabel AS CHARACTER LABEL "Param Label" FORMAT "x(31)"
     FIELD paramValue AS CHARACTER LABEL "Param Value" FORMAT "x(30)"
         INDEX paramOrder IS PRIMARY paramOrder
     .
@@ -120,7 +120,7 @@ DEFINE BUFFER bUserPrint FOR user-print.
 &Scoped-define showFields svShowAll svShowReportHeader svShowParameters ~
 svShowPageHeader svShowGroupHeader svShowGroupFooter svShowPageFooter ~
 svShowReportFooter 
-&Scoped-define batchObjects browseParamValue browseUserPrint btnDelete ~
+&Scoped-define batchObjects browseUserPrint browseParamValue btnDelete ~
 btnApply btnSave 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -191,52 +191,52 @@ DEFINE BUTTON btnRemove
 DEFINE VARIABLE svAvailableColumns AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
      LIST-ITEM-PAIRS "empty","empty" 
-     SIZE 34 BY 9.52 NO-UNDO.
+     SIZE 28 BY 6.14 NO-UNDO.
 
 DEFINE VARIABLE svSelectedColumns AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
      LIST-ITEM-PAIRS "empty","empty" 
-     SIZE 34 BY 9.52 NO-UNDO.
+     SIZE 28 BY 6.14 NO-UNDO.
 
 DEFINE VARIABLE svShowAll AS LOGICAL INITIAL no 
      LABEL "Show ALL" 
      VIEW-AS TOGGLE-BOX
-     SIZE 40 BY .81 NO-UNDO.
+     SIZE 34 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowGroupFooter AS LOGICAL INITIAL no 
-     LABEL "Show Group Footer (SubTotals)" 
+     LABEL "Group Footer (SubTotals)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 40 BY .81 NO-UNDO.
+     SIZE 34 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowGroupHeader AS LOGICAL INITIAL no 
-     LABEL "Show Group Header" 
+     LABEL "Group Header" 
      VIEW-AS TOGGLE-BOX
-     SIZE 40 BY .81 NO-UNDO.
+     SIZE 34 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowPageFooter AS LOGICAL INITIAL no 
-     LABEL "Show Page Footer (Date / Page No.)" 
+     LABEL "Page Footer (Date / Page No.)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 40 BY .81 NO-UNDO.
+     SIZE 34 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowPageHeader AS LOGICAL INITIAL no 
-     LABEL "Show Page Header (Column Headers)" 
+     LABEL "Page Header (Column Headers)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 40 BY .81 NO-UNDO.
+     SIZE 34 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowParameters AS LOGICAL INITIAL no 
-     LABEL "Show Parameters (Report Header)" 
+     LABEL "Parameters (Report Header)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 36 BY .81 NO-UNDO.
+     SIZE 31 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowReportFooter AS LOGICAL INITIAL no 
-     LABEL "Show Report Footer (Grand Totals)" 
+     LABEL "Report Footer (Grand Totals)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 40 BY .81 NO-UNDO.
+     SIZE 34 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowReportHeader AS LOGICAL INITIAL no 
-     LABEL "Show Report Header (Report Title)" 
+     LABEL "Report Header (Report Title)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 40 BY .81 NO-UNDO.
+     SIZE 34 BY .81 NO-UNDO.
 
 DEFINE BUTTON btnApply 
      LABEL "&Apply" 
@@ -244,7 +244,7 @@ DEFINE BUTTON btnApply
 
 DEFINE BUTTON btnCancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 12.6 BY 1.14.
 
 DEFINE BUTTON btnDelete 
      LABEL "&Delete" 
@@ -260,7 +260,7 @@ DEFINE BUTTON btnScheduler
 
 DEFINE BUTTON btnView 
      LABEL "&View" 
-     SIZE 15 BY 1.14.
+     SIZE 12.6 BY 1.14.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -279,7 +279,7 @@ DEFINE BROWSE browseParamValue
     ttParamValue.paramValue
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 66 BY 11.43
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 67 BY 11.67
          TITLE "Batch Parameter Values".
 
 DEFINE BROWSE browseUserPrint
@@ -290,25 +290,46 @@ DEFINE BROWSE browseUserPrint
       STRING(ttUserPrint.last-time,"hh:mm:ss am") LABEL "Time" FORMAT "x(12)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 7.38
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 12.86
          TITLE "Batch".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME paramFrame
-     browseParamValue AT ROW 1 COL 173 WIDGET-ID 600
-     btnCancel AT ROW 2.43 COL 1 WIDGET-ID 12
-     btnView AT ROW 2.43 COL 17 WIDGET-ID 14
-     btnScheduler AT ROW 3.62 COL 2 WIDGET-ID 10
-     browseUserPrint AT ROW 5.05 COL 1 WIDGET-ID 500
-     btnDelete AT ROW 11.24 COL 127 WIDGET-ID 4
-     btnApply AT ROW 11.24 COL 141 WIDGET-ID 16
-     btnSave AT ROW 11.24 COL 155 WIDGET-ID 18
+     browseUserPrint AT ROW 10.05 COL 42 WIDGET-ID 500
+     browseParamValue AT ROW 12.67 COL 83 WIDGET-ID 600
+     btnCancel AT ROW 21.71 COL 2 WIDGET-ID 12
+     btnView AT ROW 21.71 COL 15 WIDGET-ID 14
+     btnScheduler AT ROW 23.14 COL 2 WIDGET-ID 10
+     btnDelete AT ROW 23.14 COL 41 WIDGET-ID 4
+     btnApply AT ROW 23.14 COL 55 WIDGET-ID 16
+     btnSave AT ROW 23.14 COL 69 WIDGET-ID 18
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 239 BY 11.52.
+         SIZE 150 BY 23.5.
+
+DEFINE FRAME frameColumns
+     svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
+     svSelectedColumns AT ROW 1.71 COL 39 NO-LABEL WIDGET-ID 70
+     btnDefault AT ROW 1.95 COL 30 HELP
+          "Add Selected Table to Display" WIDGET-ID 76
+     btnAdd AT ROW 3.14 COL 30 HELP
+          "Add Selected Table to Display" WIDGET-ID 58
+     btnMoveUp AT ROW 4.81 COL 33 WIDGET-ID 66
+     btnRemove AT ROW 5.76 COL 33 HELP
+          "Remove Selected Table from Tables to Audit" WIDGET-ID 64
+     btnMoveDown AT ROW 6.71 COL 33 WIDGET-ID 62
+     "Selected Columns (In Order)" VIEW-AS TEXT
+          SIZE 28 BY .62 AT ROW 1 COL 39 WIDGET-ID 72
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 1 COL 2 WIDGET-ID 74
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 83 ROW 1
+         SIZE 67 BY 7.86
+         TITLE "Report Columns" WIDGET-ID 200.
 
 DEFINE FRAME frameShow
      svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
@@ -321,30 +342,9 @@ DEFINE FRAME frameShow
      svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 127 ROW 1
-         SIZE 45 BY 8.81
+         AT COL 42 ROW 1
+         SIZE 40 BY 8.81
          TITLE "Show/Hide Sections" WIDGET-ID 300.
-
-DEFINE FRAME frameColumns
-     svAvailableColumns AT ROW 1.76 COL 1 NO-LABEL WIDGET-ID 68
-     svSelectedColumns AT ROW 1.76 COL 45 NO-LABEL WIDGET-ID 70
-     btnDefault AT ROW 2.91 COL 36 HELP
-          "Add Selected Table to Display" WIDGET-ID 76
-     btnMoveUp AT ROW 2.91 COL 80 WIDGET-ID 66
-     btnMoveDown AT ROW 4 COL 80 WIDGET-ID 62
-     btnRemove AT ROW 5.14 COL 80 HELP
-          "Remove Selected Table from Tables to Audit" WIDGET-ID 64
-     btnAdd AT ROW 5.29 COL 36 HELP
-          "Add Selected Table to Display" WIDGET-ID 58
-     "Selected Columns (In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 1 COL 45 WIDGET-ID 72
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 1 COL 2 WIDGET-ID 74
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 85 BY 11.43
-         TITLE "Report Columns" WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -364,12 +364,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "AdvantzwareOA"
-         HEIGHT             = 11.52
-         WIDTH              = 239
-         MAX-HEIGHT         = 11.52
-         MAX-WIDTH          = 239
-         VIRTUAL-HEIGHT     = 11.52
-         VIRTUAL-WIDTH      = 239
+         HEIGHT             = 23.52
+         WIDTH              = 150
+         MAX-HEIGHT         = 23.52
+         MAX-WIDTH          = 150
+         VIRTUAL-HEIGHT     = 23.52
+         VIRTUAL-WIDTH      = 150
          SHOW-IN-TASKBAR    = no
          MAX-BUTTON         = no
          RESIZE             = no
@@ -438,8 +438,8 @@ ASSIGN
    2                                                                    */
 /* SETTINGS FOR FRAME paramFrame
    FRAME-NAME                                                           */
-/* BROWSE-TAB browseParamValue frameShow paramFrame */
-/* BROWSE-TAB browseUserPrint btnScheduler paramFrame */
+/* BROWSE-TAB browseUserPrint frameColumns paramFrame */
+/* BROWSE-TAB browseParamValue browseUserPrint paramFrame */
 /* SETTINGS FOR BROWSE browseParamValue IN FRAME paramFrame
    NO-ENABLE 3                                                          */
 ASSIGN 
@@ -785,7 +785,7 @@ END.
 
 &Scoped-define SELF-NAME svShowGroupFooter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowGroupFooter W-Win
-ON VALUE-CHANGED OF svShowGroupFooter IN FRAME frameShow /* Show Group Footer (SubTotals) */
+ON VALUE-CHANGED OF svShowGroupFooter IN FRAME frameShow /* Group Footer (SubTotals) */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -797,7 +797,7 @@ END.
 
 &Scoped-define SELF-NAME svShowGroupHeader
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowGroupHeader W-Win
-ON VALUE-CHANGED OF svShowGroupHeader IN FRAME frameShow /* Show Group Header */
+ON VALUE-CHANGED OF svShowGroupHeader IN FRAME frameShow /* Group Header */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -809,7 +809,7 @@ END.
 
 &Scoped-define SELF-NAME svShowPageFooter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowPageFooter W-Win
-ON VALUE-CHANGED OF svShowPageFooter IN FRAME frameShow /* Show Page Footer (Date / Page No.) */
+ON VALUE-CHANGED OF svShowPageFooter IN FRAME frameShow /* Page Footer (Date / Page No.) */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -821,7 +821,7 @@ END.
 
 &Scoped-define SELF-NAME svShowPageHeader
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowPageHeader W-Win
-ON VALUE-CHANGED OF svShowPageHeader IN FRAME frameShow /* Show Page Header (Column Headers) */
+ON VALUE-CHANGED OF svShowPageHeader IN FRAME frameShow /* Page Header (Column Headers) */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -833,7 +833,7 @@ END.
 
 &Scoped-define SELF-NAME svShowParameters
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowParameters W-Win
-ON VALUE-CHANGED OF svShowParameters IN FRAME frameShow /* Show Parameters (Report Header) */
+ON VALUE-CHANGED OF svShowParameters IN FRAME frameShow /* Parameters (Report Header) */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -845,7 +845,7 @@ END.
 
 &Scoped-define SELF-NAME svShowReportFooter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowReportFooter W-Win
-ON VALUE-CHANGED OF svShowReportFooter IN FRAME frameShow /* Show Report Footer (Grand Totals) */
+ON VALUE-CHANGED OF svShowReportFooter IN FRAME frameShow /* Report Footer (Grand Totals) */
 DO:
     ASSIGN {&SELF-NAME}.
     fSetShowAll().
@@ -857,7 +857,7 @@ END.
 
 &Scoped-define SELF-NAME svShowReportHeader
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowReportHeader W-Win
-ON VALUE-CHANGED OF svShowReportHeader IN FRAME frameShow /* Show Report Header (Report Title) */
+ON VALUE-CHANGED OF svShowReportHeader IN FRAME frameShow /* Report Header (Report Title) */
 DO:
     ASSIGN {&SELF-NAME}.
     IF {&SELF-NAME} EQ FALSE THEN
@@ -918,7 +918,7 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_aoaParam ,
-             FRAME frameColumns:HANDLE , 'BEFORE':U ).
+             FRAME frameShow:HANDLE , 'BEFORE':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -961,12 +961,6 @@ PROCEDURE enable_UI :
   ENABLE btnCancel btnView 
       WITH FRAME paramFrame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
-  DISPLAY svAvailableColumns svSelectedColumns 
-      WITH FRAME frameColumns IN WINDOW W-Win.
-  ENABLE svAvailableColumns svSelectedColumns btnDefault btnMoveUp btnMoveDown 
-         btnRemove btnAdd 
-      WITH FRAME frameColumns IN WINDOW W-Win.
-  {&OPEN-BROWSERS-IN-QUERY-frameColumns}
   DISPLAY svShowAll svShowReportHeader svShowParameters svShowPageHeader 
           svShowGroupHeader svShowGroupFooter svShowPageFooter 
           svShowReportFooter 
@@ -976,6 +970,12 @@ PROCEDURE enable_UI :
          svShowReportFooter 
       WITH FRAME frameShow IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-frameShow}
+  DISPLAY svAvailableColumns svSelectedColumns 
+      WITH FRAME frameColumns IN WINDOW W-Win.
+  ENABLE svAvailableColumns svSelectedColumns btnDefault btnAdd btnMoveUp 
+         btnRemove btnMoveDown 
+      WITH FRAME frameColumns IN WINDOW W-Win.
+  {&OPEN-BROWSERS-IN-QUERY-frameColumns}
   VIEW W-Win.
 END PROCEDURE.
 
@@ -1520,7 +1520,6 @@ PROCEDURE pSetWinSize :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE hParamFrame    AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE iColumnsHeight AS INTEGER NO-UNDO.
     DEFINE VARIABLE iColumnsWidth  AS INTEGER NO-UNDO.
     DEFINE VARIABLE iDiff          AS INTEGER NO-UNDO.
     DEFINE VARIABLE lReport        AS LOGICAL NO-UNDO.
@@ -1536,16 +1535,10 @@ PROCEDURE pSetWinSize :
 
     DO WITH FRAME {&FRAME-NAME}:
         IF aoaColumns THEN
-        ASSIGN
-            iColumnsHeight   = FRAME frameColumns:HEIGHT-PIXELS + 5
-            iColumnsWidth    = FRAME frameColumns:WIDTH-PIXELS + 5
-                             + FRAME frameShow:WIDTH-PIXELS + 5
-                             + BROWSE browseParamValue:WIDTH-PIXELS + 5
-            .
+        iColumnsWidth = FRAME frameShow:WIDTH-PIXELS + 5 + FRAME frameColumns:WIDTH-PIXELS + 5.
 
         ASSIGN
-            {&WINDOW-NAME}:HEIGHT-PIXELS              = MAXIMUM(iColumnsHeight,
-                                                                hParamFrame:HEIGHT-PIXELS + 5 + btnView:HEIGHT-PIXELS + 5)
+            {&WINDOW-NAME}:HEIGHT-PIXELS              = hParamFrame:HEIGHT-PIXELS + 5 + btnView:HEIGHT-PIXELS + 5
             {&WINDOW-NAME}:WIDTH-PIXELS               = hParamFrame:WIDTH-PIXELS + 5 + iColumnsWidth
             {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS      = {&WINDOW-NAME}:HEIGHT-PIXELS
             {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS       = {&WINDOW-NAME}:WIDTH-PIXELS
@@ -1563,23 +1556,31 @@ PROCEDURE pSetWinSize :
 
         IF aoaColumns THEN DO:
             ASSIGN
-                FRAME frameColumns:HEIGHT-PIXELS      = MAXIMUM(hParamFrame:HEIGHT-PIXELS,FRAME frameColumns:HEIGHT-PIXELS) + btnView:HEIGHT-PIXELS + 5
+                iDiff = hParamFrame:HEIGHT-PIXELS / 2
+                FRAME frameColumns:HEIGHT-PIXELS      = iDiff
                 svAvailableColumns:HEIGHT-PIXELS      = FRAME frameColumns:HEIGHT-PIXELS - 40
                 svSelectedColumns:HEIGHT-PIXELS       = svAvailableColumns:HEIGHT-PIXELS
-                FRAME frameColumns:X                  = hParamFrame:WIDTH-PIXELS + 5
-                FRAME frameColumns:Y                  = hParamFrame:Y
-                FRAME frameColumns:HIDDEN             = FALSE
+                
+                
                 FRAME frameShow:X                     = hParamFrame:WIDTH-PIXELS + 5
-                                                      + FRAME frameColumns:WIDTH-PIXELS + 5
                 FRAME frameShow:Y                     = hParamFrame:Y
                 FRAME frameShow:HIDDEN                = FALSE
+                
                 BROWSE browseUserPrint:X              = FRAME frameShow:X
                 BROWSE browseUserPrint:Y              = FRAME frameShow:HEIGHT-PIXELS + 5
-                BROWSE browseUserPrint:HEIGHT-PIXELS  = FRAME frameColumns:HEIGHT-PIXELS - FRAME frameShow:HEIGHT-PIXELS - 33
+                BROWSE browseUserPrint:HEIGHT-PIXELS  = hParamFrame:HEIGHT-PIXELS - FRAME frameShow:HEIGHT-PIXELS - 5
                 BROWSE browseUserPrint:HIDDEN         = FALSE
-                BROWSE browseParamValue:X             = FRAME frameShow:X + FRAME frameShow:WIDTH-PIXELS + 5
-                BROWSE browseParamValue:HEIGHT-PIXELS = FRAME frameColumns:HEIGHT-PIXELS
+                
+                FRAME frameColumns:X                  = hParamFrame:WIDTH-PIXELS + 5
+                                                      + FRAME frameShow:WIDTH-PIXELS + 5
+                FRAME frameColumns:Y                  = hParamFrame:Y
+                FRAME frameColumns:HIDDEN             = FALSE
+                
+                BROWSE browseParamValue:X             = FRAME frameColumns:X
+                BROWSE browseParamValue:Y             = FRAME frameColumns:HEIGHT-PIXELS + 5
+                BROWSE browseParamValue:HEIGHT-PIXELS = iDiff + 25
                 BROWSE browseParamValue:HIDDEN        = FALSE
+
                 btnDelete:X                           = BROWSE browseUserPrint:X
                 btnDelete:Y                           = btnView:Y
                 btnApply:X                            = btnDelete:X + btnDelete:WIDTH-PIXELS + 5

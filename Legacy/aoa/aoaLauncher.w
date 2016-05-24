@@ -43,23 +43,16 @@ DEFINE VARIABLE ipcLaunchType AS CHARACTER NO-UNDO INITIAL "Report".
 /* Local Variable Definitions ---                                       */
 
 DEFINE TEMP-TABLE ttModule NO-UNDO
-    FIELD module   AS CHARACTER LABEL "Module"      FORMAT "x(2)"
-    FIELD modDescr AS CHARACTER LABEL "Description" FORMAT "x(20)"
+    FIELD module   AS CHARACTER LABEL "Module"      FORMAT "x(5)"
+    FIELD modDescr AS CHARACTER LABEL "Description" FORMAT "x(25)"
         INDEX module IS PRIMARY UNIQUE module.
 
 DEFINE TEMP-TABLE ttAOA NO-UNDO
-    FIELD module  AS CHARACTER
+    FIELD module  AS CHARACTER LABEL "Module"   FORMAT "x(5)"
     FIELD aoaFile AS CHARACTER LABEL "AOA File" FORMAT "x(40)"
     FIELD progID  AS CHARACTER LABEL "Prog ID"  FORMAT "x(10)"
     FIELD menuID  AS CHARACTER LABEL "Menu ID"  FORMAT "x(4)"
-        INDEX aoa IS PRIMARY UNIQUE module aoaFile.
-
-DEFINE TEMP-TABLE ttALL NO-UNDO
-    FIELD aoaFile AS CHARACTER LABEL "AOA File" FORMAT "x(40)"
-    FIELD module  AS CHARACTER LABEL "Module"   FORMAT "x(2)"
-    FIELD progID  AS CHARACTER LABEL "Prog ID"  FORMAT "x(10)"
-    FIELD menuID  AS CHARACTER LABEL "Menu ID"  FORMAT "x(4)"
-        INDEX ttALL IS PRIMARY UNIQUE aoaFile.
+        INDEX aoa IS PRIMARY UNIQUE aoaFile.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -74,27 +67,17 @@ DEFINE TEMP-TABLE ttALL NO-UNDO
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
-&Scoped-define BROWSE-NAME browseAll
+&Scoped-define BROWSE-NAME browseAOA
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttALL ttAOA ttModule
-
-/* Definitions for BROWSE browseAll                                     */
-&Scoped-define FIELDS-IN-QUERY-browseAll ttALL.aoaFile ttALL.module ttALL.progID ttALL.menuID   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-browseAll   
-&Scoped-define SELF-NAME browseAll
-&Scoped-define QUERY-STRING-browseAll FOR EACH ttALL
-&Scoped-define OPEN-QUERY-browseAll OPEN QUERY {&SELF-NAME} FOR EACH ttALL.
-&Scoped-define TABLES-IN-QUERY-browseAll ttALL
-&Scoped-define FIRST-TABLE-IN-QUERY-browseAll ttALL
-
+&Scoped-define INTERNAL-TABLES ttAOA ttModule
 
 /* Definitions for BROWSE browseAOA                                     */
-&Scoped-define FIELDS-IN-QUERY-browseAOA ttAOA.aoaFile ttAOA.progID ttAOA.menuID   
+&Scoped-define FIELDS-IN-QUERY-browseAOA ttAOA.aoaFile ttAOA.progID ttAOA.menuID ttAOA.module   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseAOA   
 &Scoped-define SELF-NAME browseAOA
-&Scoped-define QUERY-STRING-browseAOA FOR EACH ttAOA WHERE ttAOA.module EQ ttModule.module
-&Scoped-define OPEN-QUERY-browseAOA OPEN QUERY {&SELF-NAME} FOR EACH ttAOA WHERE ttAOA.module EQ ttModule.module.
+&Scoped-define QUERY-STRING-browseAOA FOR EACH ttAOA WHERE ttModule.module EQ "*" OR ttAOA.module EQ ttModule.module
+&Scoped-define OPEN-QUERY-browseAOA OPEN QUERY {&SELF-NAME} FOR EACH ttAOA WHERE ttModule.module EQ "*" OR ttAOA.module EQ ttModule.module.
 &Scoped-define TABLES-IN-QUERY-browseAOA ttAOA
 &Scoped-define FIRST-TABLE-IN-QUERY-browseAOA ttAOA
 
@@ -111,13 +94,11 @@ DEFINE TEMP-TABLE ttALL NO-UNDO
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
-    ~{&OPEN-QUERY-browseAll}~
     ~{&OPEN-QUERY-browseAOA}~
     ~{&OPEN-QUERY-browseModule}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS browseModule browseAOA browseAll btnLaunch ~
-btnLaunch-2 btnClose 
+&Scoped-Define ENABLED-OBJECTS browseModule browseAOA btnLaunch btnClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -141,15 +122,8 @@ DEFINE BUTTON btnLaunch
      LABEL "&Launch" 
      SIZE 15 BY 1.
 
-DEFINE BUTTON btnLaunch-2 
-     LABEL "&Launch" 
-     SIZE 15 BY 1.
-
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY browseAll FOR 
-      ttALL SCROLLING.
-
 DEFINE QUERY browseAOA FOR 
       ttAOA SCROLLING.
 
@@ -158,27 +132,16 @@ DEFINE QUERY browseModule FOR
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE browseAll
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browseAll C-Win _FREEFORM
-  QUERY browseAll DISPLAY
-      ttALL.aoaFile
-    ttALL.module
-    ttALL.progID
-    ttALL.menuID
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 74 BY 25.24
-         TITLE "ALL AOA".
-
 DEFINE BROWSE browseAOA
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browseAOA C-Win _FREEFORM
   QUERY browseAOA DISPLAY
       ttAOA.aoaFile
     ttAOA.progID
     ttAOA.menuID
+    ttAOA.module
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 65 BY 25.24
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 73 BY 25.24
          TITLE "AOA Files".
 
 DEFINE BROWSE browseModule
@@ -188,7 +151,7 @@ DEFINE BROWSE browseModule
     ttModule.modDescr
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 33 BY 25.24
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 38 BY 25.24
          TITLE "Modules".
 
 
@@ -196,15 +159,13 @@ DEFINE BROWSE browseModule
 
 DEFINE FRAME DEFAULT-FRAME
      browseModule AT ROW 1.24 COL 2 WIDGET-ID 200
-     browseAOA AT ROW 1.24 COL 36 WIDGET-ID 300
-     browseAll AT ROW 1.24 COL 102 WIDGET-ID 400
-     btnLaunch AT ROW 26.71 COL 36 WIDGET-ID 4
-     btnLaunch-2 AT ROW 26.71 COL 102 WIDGET-ID 6
-     btnClose AT ROW 26.71 COL 161 WIDGET-ID 2
+     browseAOA AT ROW 1.24 COL 41 WIDGET-ID 300
+     btnLaunch AT ROW 26.71 COL 41 WIDGET-ID 4
+     btnClose AT ROW 26.71 COL 99 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 176 BY 27.05 WIDGET-ID 100.
+         SIZE 114 BY 27.05 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -225,11 +186,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "AOA Launcher"
          HEIGHT             = 27.05
-         WIDTH              = 176
+         WIDTH              = 114
          MAX-HEIGHT         = 27.05
-         MAX-WIDTH          = 176
+         MAX-WIDTH          = 114
          VIRTUAL-HEIGHT     = 27.05
-         VIRTUAL-WIDTH      = 176
+         VIRTUAL-WIDTH      = 114
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -254,7 +215,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    FRAME-NAME                                                           */
 /* BROWSE-TAB browseModule 1 DEFAULT-FRAME */
 /* BROWSE-TAB browseAOA browseModule DEFAULT-FRAME */
-/* BROWSE-TAB browseAll browseAOA DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -264,19 +224,10 @@ THEN C-Win:HIDDEN = no.
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE browseAll
-/* Query rebuild information for BROWSE browseAll
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttALL.
-     _END_FREEFORM
-     _Query            is OPENED
-*/  /* BROWSE browseAll */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE browseAOA
 /* Query rebuild information for BROWSE browseAOA
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttAOA WHERE ttAOA.module EQ ttModule.module.
+OPEN QUERY {&SELF-NAME} FOR EACH ttAOA WHERE ttModule.module EQ "*" OR ttAOA.module EQ ttModule.module.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE browseAOA */
@@ -323,8 +274,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME browseAOA
-&Scoped-define SELF-NAME browseAOA
 &Scoped-define BROWSE-NAME browseModule
 &Scoped-define SELF-NAME browseModule
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseModule C-Win
@@ -361,19 +310,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnLaunch-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLaunch-2 C-Win
-ON CHOOSE OF btnLaunch-2 IN FRAME DEFAULT-FRAME /* Launch */
-DO:
-  RUN VALUE("aoa" + ttALL.module + "/" + ttALL.progID + "p").
-  RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define BROWSE-NAME browseAll
+&Scoped-define BROWSE-NAME browseAOA
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -441,7 +378,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE browseModule browseAOA browseAll btnLaunch btnLaunch-2 btnClose 
+  ENABLE browseModule browseAOA btnLaunch btnClose 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -475,15 +412,14 @@ PROCEDURE pGetAOAFiles :
             ttAOA.progID  = cProgID
             ttAOA.menuID  = cMenuID
             .
-        CREATE ttALL.
-        BUFFER-COPY ttAOA TO ttALL.
     END. /* repeat */
     INPUT CLOSE.
 
     INPUT FROM VALUE("aoaDAT/Module.dat") NO-ECHO.
     REPEAT:
         IMPORT cModule cModDescr.
-        IF NOT CAN-FIND(FIRST ttAOA WHERE ttAOA.module EQ cModule) THEN NEXT.
+        IF NOT CAN-FIND(FIRST ttAOA WHERE ttAOA.module EQ cModule)
+           AND cModule NE "*" THEN NEXT.
         CREATE ttModule.
         ASSIGN
             ttModule.module   = cModule

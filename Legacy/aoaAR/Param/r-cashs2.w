@@ -154,39 +154,39 @@ DEFINE VARIABLE svIncludeTermsDiscount AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
-     svStartReceiptDate AT ROW 2.91 COL 18.8 COLON-ALIGNED HELP
+     svStartReceiptDate AT ROW 3.14 COL 19 COLON-ALIGNED HELP
           "Enter Start Receipt Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 2.91 COL 37 WIDGET-ID 80
-     svStartReceiptDateOption AT ROW 2.91 COL 40 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 3.14 COL 37.2 WIDGET-ID 80
+     svStartReceiptDateOption AT ROW 3.14 COL 40.2 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
-     svEndReceiptDate AT ROW 4.1 COL 19 COLON-ALIGNED HELP
+     svEndReceiptDate AT ROW 4.33 COL 19.2 COLON-ALIGNED HELP
           "Enter End Receipt Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 4.1 COL 37 WIDGET-ID 82
-     svEndReceiptDateOption AT ROW 4.1 COL 40 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 4.33 COL 37.2 WIDGET-ID 82
+     svEndReceiptDateOption AT ROW 4.33 COL 40.2 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
-     svAllSalesRep AT ROW 5.76 COL 21 HELP
+     svAllSalesRep AT ROW 6.24 COL 21 HELP
           "All Sales Reps?" WIDGET-ID 58
-     svStartSalesRep AT ROW 6.95 COL 19 COLON-ALIGNED HELP
+     svStartSalesRep AT ROW 7.43 COL 19 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep#" WIDGET-ID 22
-     startSalesRepName AT ROW 6.95 COL 28 COLON-ALIGNED HELP
+     startSalesRepName AT ROW 7.43 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndSalesRep AT ROW 8.14 COL 19 COLON-ALIGNED HELP
+     svEndSalesRep AT ROW 8.62 COL 19 COLON-ALIGNED HELP
           "Enter Ending Sales Rep" WIDGET-ID 20
-     endSalesRepName AT ROW 8.14 COL 28 COLON-ALIGNED HELP
+     endSalesRepName AT ROW 8.62 COL 28 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svSort AT ROW 9.81 COL 21 NO-LABEL WIDGET-ID 28
-     svIncludeTermsDiscount AT ROW 11 COL 21 WIDGET-ID 42
-     svIncludePrepCharges AT ROW 12.19 COL 21 WIDGET-ID 44
-     svDayOld AT ROW 13.38 COL 44 COLON-ALIGNED HELP
+     svSort AT ROW 10.52 COL 21 NO-LABEL WIDGET-ID 28
+     svIncludeTermsDiscount AT ROW 11.71 COL 21 WIDGET-ID 42
+     svIncludePrepCharges AT ROW 12.91 COL 21 WIDGET-ID 44
+     svDayOld AT ROW 14.57 COL 44 COLON-ALIGNED HELP
           "Show only Invoices with Cash Receipts after" WIDGET-ID 76
-     "Days" VIEW-AS TEXT
-          SIZE 5 BY 1 AT ROW 13.38 COL 55 WIDGET-ID 78
      "Sort?:" VIEW-AS TEXT
-          SIZE 6 BY 1 AT ROW 9.81 COL 14 WIDGET-ID 52
+          SIZE 6 BY 1 AT ROW 10.52 COL 14 WIDGET-ID 52
+     "Days" VIEW-AS TEXT
+          SIZE 5 BY 1 AT ROW 14.57 COL 55 WIDGET-ID 78
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 74 BY 14.57
+         SIZE 74 BY 16
          TITLE "Report Parameters".
 
 
@@ -216,7 +216,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 14.57
+         HEIGHT             = 16
          WIDTH              = 74.
 /* END WINDOW DEFINITION */
                                                                         */

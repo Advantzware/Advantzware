@@ -48,18 +48,19 @@ DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList ~
-svAllCustomers svStartCustNo svEndCustNo svStartOrderDate btnCalendar-1 ~
+&Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList svAllCustNo ~
+svStartCustNo svEndCustNo svStartOrderDate btnCalendar-1 ~
 svStartOrdDateOption svEndOrderDate btnCalendar-2 svEndOrdDateOption ~
-svAllSalesReps svStartSalesRep svEndSalesRep svAllProdCategory ~
+svAllSalesRep svStartSalesRep svEndSalesRep svAllProdCategory ~
 svStartProdCategory svEndProdCategory svMiscChg svPageRep svSetCom svRepTot ~
 svRelOrd svUnder svUnderValue svOver svOverValue 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustomers ~
+&Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
 startCustName svStartCustNo endCustName svEndCustNo svStartOrderDate ~
-svStartOrdDateOption svEndOrderDate svEndOrdDateOption svAllSalesReps ~
+svStartOrdDateOption svEndOrderDate svEndOrdDateOption svAllSalesRep ~
 svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
-svAllProdCategory svStartProdCategory svEndProdCategory svMiscChg svPageRep ~
-svSetCom svRepTot svRelOrd svUnder svUnderValue svOver svOverValue 
+svAllProdCategory svStartProdCategory startProdCategoryName ~
+svEndProdCategory endProdCategoryName svMiscChg svPageRep svSetCom svRepTot ~
+svRelOrd svUnder svUnderValue svOver svOverValue 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -104,6 +105,10 @@ DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)"
      VIEW-AS FILL-IN 
      SIZE 48.6 BY 1.
 
+DEFINE VARIABLE endProdCategoryName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 49 BY 1.
+
 DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 48 BY 1.
@@ -111,6 +116,10 @@ DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)"
 DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 48.6 BY 1.
+
+DEFINE VARIABLE startProdCategoryName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 49 BY 1.
 
 DEFINE VARIABLE startSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -132,7 +141,7 @@ DEFINE VARIABLE svEndOrderDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49
      SIZE 15.6 BY 1.
 
 DEFINE VARIABLE svEndProdCategory AS CHARACTER FORMAT "X(5)" 
-     LABEL "End Prod Category#" 
+     LABEL "End Prod Category" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
@@ -156,7 +165,7 @@ DEFINE VARIABLE svStartOrderDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50
      SIZE 15.6 BY 1.
 
 DEFINE VARIABLE svStartProdCategory AS CHARACTER FORMAT "X(5)" 
-     LABEL "Start Prod Category#" 
+     LABEL "Start Prod Category" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
@@ -169,7 +178,7 @@ DEFINE VARIABLE svUnderValue AS INTEGER FORMAT ">9" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 4.4 BY 1.
 
-DEFINE VARIABLE svAllCustomers AS LOGICAL INITIAL yes 
+DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY .95 NO-UNDO.
@@ -179,7 +188,7 @@ DEFINE VARIABLE svAllProdCategory AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .95 NO-UNDO.
 
-DEFINE VARIABLE svAllSalesReps AS LOGICAL INITIAL yes 
+DEFINE VARIABLE svAllSalesRep AS LOGICAL INITIAL yes 
      LABEL "All Sales Reps" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .95 NO-UNDO.
@@ -231,7 +240,7 @@ DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 21.6 COLON-ALIGNED WIDGET-ID 60
      svCustList AT ROW 3.14 COL 24 WIDGET-ID 48
      btnCustList AT ROW 3.14 COL 59 WIDGET-ID 46
-     svAllCustomers AT ROW 4.33 COL 24 HELP
+     svAllCustNo AT ROW 4.33 COL 24 HELP
           "All Customers?" WIDGET-ID 56
      startCustName AT ROW 5.52 COL 38.4 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
@@ -251,7 +260,7 @@ DEFINE FRAME F-Main
      btnCalendar-2 AT ROW 9.81 COL 39 WIDGET-ID 78
      svEndOrdDateOption AT ROW 9.81 COL 42 COLON-ALIGNED HELP
           "Select End Order Date Option" NO-LABEL WIDGET-ID 82
-     svAllSalesReps AT ROW 11.71 COL 24 HELP
+     svAllSalesRep AT ROW 11.71 COL 24 HELP
           "All Sales Reps?" WIDGET-ID 58
      svStartSalesRep AT ROW 12.91 COL 22 COLON-ALIGNED HELP
           "Enter Beginning SalesRep#" WIDGET-ID 22
@@ -264,9 +273,11 @@ DEFINE FRAME F-Main
      svAllProdCategory AT ROW 16 COL 24 HELP
           "All Sales Reps?" WIDGET-ID 112
      svStartProdCategory AT ROW 17.19 COL 22 COLON-ALIGNED HELP
-          "Enter Beginning Prod Category#" WIDGET-ID 90
+          "Enter Start Product Category" WIDGET-ID 90
+     startProdCategoryName AT ROW 17.19 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 210
      svEndProdCategory AT ROW 18.38 COL 22 COLON-ALIGNED HELP
-          "Enter Ending Prod Category" WIDGET-ID 88
+          "Enter End Product Category" WIDGET-ID 88
+     endProdCategoryName AT ROW 18.38 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 208
      svMiscChg AT ROW 20.29 COL 24 WIDGET-ID 42
      svPageRep AT ROW 20.29 COL 59.8 WIDGET-ID 92
      svSetCom AT ROW 21.24 COL 24 WIDGET-ID 94
@@ -349,9 +360,13 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN endProdCategoryName IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startProdCategoryName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startSalesRepName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -410,9 +425,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svAllCustomers
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCustomers sObject
-ON VALUE-CHANGED OF svAllCustomers IN FRAME F-Main /* All Customers */
+&Scoped-define SELF-NAME svAllCustNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCustNo sObject
+ON VALUE-CHANGED OF svAllCustNo IN FRAME F-Main /* All Customers */
 DO:
   ASSIGN {&SELF-NAME}.
   RUN pSetCustRange ({&SELF-NAME}).
@@ -434,9 +449,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svAllSalesReps
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllSalesReps sObject
-ON VALUE-CHANGED OF svAllSalesReps IN FRAME F-Main /* All Sales Reps */
+&Scoped-define SELF-NAME svAllSalesRep
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllSalesRep sObject
+ON VALUE-CHANGED OF svAllSalesRep IN FRAME F-Main /* All Sales Reps */
 DO:
   ASSIGN {&SELF-NAME}.
   RUN pSetSalesRepRange ({&SELF-NAME}).
@@ -515,9 +530,15 @@ END.
 
 &Scoped-define SELF-NAME svEndProdCategory
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndProdCategory sObject
-ON LEAVE OF svEndProdCategory IN FRAME F-Main /* End Prod Category# */
+ON LEAVE OF svEndProdCategory IN FRAME F-Main /* End Prod Category */
 DO:
     ASSIGN {&SELF-NAME}.
+    FIND FIRST procat NO-LOCK
+         WHERE procat.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
+           AND procat.procat EQ {&SELF-NAME}
+         NO-ERROR.
+    endProdCategoryName:SCREEN-VALUE = IF AVAILABLE procat THEN procat.dscr
+                                       ELSE "<Ending Range Value>".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -592,10 +613,15 @@ END.
 
 &Scoped-define SELF-NAME svStartProdCategory
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartProdCategory sObject
-ON LEAVE OF svStartProdCategory IN FRAME F-Main /* Start Prod Category# */
+ON LEAVE OF svStartProdCategory IN FRAME F-Main /* Start Prod Category */
 DO:
     ASSIGN {&SELF-NAME}.
-    
+    FIND FIRST procat NO-LOCK
+         WHERE procat.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
+           AND procat.procat EQ {&SELF-NAME}
+         NO-ERROR.
+    startProdCategoryName:SCREEN-VALUE = IF AVAILABLE procat THEN procat.dscr
+                                         ELSE "<Starting Range Value>".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -677,15 +703,21 @@ PROCEDURE pInitialize :
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
             .
-        APPLY "VALUE-CHANGED":U TO svStartOrdDateOption.
-        APPLY "VALUE-CHANGED":U TO svEndOrdDateOption.
-        /*APPLY "VALUE-CHANGED":U TO svCustList.
-        APPLY "VALUE-CHANGED":U TO svAllCustomers.
-        APPLY "VALUE-CHANGED":U TO svAllSalesReps.*/
+        APPLY "VALUE-CHANGED":U TO svCustList.
+        APPLY "VALUE-CHANGED":U TO svAllCustNo.
         APPLY "LEAVE":U TO svStartCustNo.
         APPLY "LEAVE":U TO svEndCustNo.
-      /*  APPLY "LEAVE":U TO svStartOrd.
-        APPLY "LEAVE":U TO svEndOrd.**/
+        
+        APPLY "VALUE-CHANGED":U TO svStartOrdDateOption.
+        APPLY "VALUE-CHANGED":U TO svEndOrdDateOption.
+
+        APPLY "VALUE-CHANGED":U TO svAllSalesRep.
+        APPLY "LEAVE":U TO svStartSalesRep.
+        APPLY "LEAVE":U TO svEndSalesRep.
+        
+        APPLY "VALUE-CHANGED":U TO svAllProdCategory.
+        APPLY "LEAVE":U TO svStartProdCategory.
+        APPLY "LEAVE":U TO svEndProdCategory.
     END.
 
 END PROCEDURE.
@@ -772,6 +804,30 @@ PROCEDURE pSetSalesRepRange :
           svStartSalesRep:READ-ONLY = iplChecked
           svEndSalesRep:READ-ONLY   = iplChecked
           .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUseCustList sObject 
+PROCEDURE pUseCustList :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+          svStartCustNo:READ-ONLY = iplChecked
+          svEndCustNo:READ-ONLY   = iplChecked
+          btnCustList:SENSITIVE   = iplChecked
+          .
+      IF iplChecked THEN
+      ASSIGN svAllCustNo:SCREEN-VALUE = "no".
   END.
 
 END PROCEDURE.

@@ -222,8 +222,9 @@ PROCEDURE pCustomerInventory :
               AND oe-ordl.i-no     EQ itemfg.i-no,
             FIRST oe-ord OF oe-ordl NO-LOCK
             WHERE oe-ord.cust-no EQ ttCustList.cust-no
-            BY oe-ordl.req-date DESC
-            BY oe-ordl.ord-no   DESC:
+              BY oe-ordl.req-date DESC
+              BY oe-ordl.ord-no   DESC
+            :
             LEAVE.
         END. /* each oe-ordl */
         IF AVAIL oe-ordl THEN
@@ -251,7 +252,7 @@ PROCEDURE pCustomerInventory :
             ttCustomerInventory.releasePO   = oe-rel.po-no WHEN AVAILABLE oe-rel
             ttCustomerInventory.qtyOnHand   = itemfg.q-onh
             ttCustomerInventory.palletCount = iPalletCount
-            ttCustomerInventory.requestDate = oe-ordl.req-date
+            ttCustomerInventory.requestDate = oe-ordl.req-date WHEN AVAILABLE oe-rel
             .
     END. /* each ttcust */
 

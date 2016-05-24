@@ -1,6 +1,6 @@
 /* r-booko#.p */
 
-&SCOPED-DEFINE aoaID 6D52DC8508254644AC33108000F1F266 
+&SCOPED-DEFINE aoaID <DataPA PublishID>
 &SCOPED-DEFINE aoaProgramID r-booko#.
 &SCOPED-DEFINE aoaTitle Orders Booked By Order No
 &SCOPED-DEFINE aoaType Report

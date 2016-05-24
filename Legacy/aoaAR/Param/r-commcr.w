@@ -271,7 +271,7 @@ DEFINE FRAME F-Main
           "Enter Ending Customer" WIDGET-ID 6
      endCustName AT ROW 19.1 COL 36 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svShowInvoice AT ROW 21.48 COL 22 NO-LABEL WIDGET-ID 28
+     svShowInvoice AT ROW 21.48 COL 21 NO-LABEL WIDGET-ID 28
      svDetailed AT ROW 23.86 COL 22 WIDGET-ID 42
      svPrep AT ROW 23.86 COL 39 WIDGET-ID 44
      svCalc AT ROW 25.05 COL 22 WIDGET-ID 40

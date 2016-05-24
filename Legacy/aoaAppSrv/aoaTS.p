@@ -208,7 +208,7 @@ PROCEDURE pMachineTransactions :
                                                + STRING(machtran.end_date)
                                                + STRING(machtran.end_time)
             .
-        IF lShowEmployeeTrans THEN
+        IF lSubRpt_EmployeeTransactions THEN
         FOR EACH machemp NO-LOCK
             WHERE machemp.table_rec_key EQ machtran.rec_key
             :

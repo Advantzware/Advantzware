@@ -1,6 +1,6 @@
 /* r-ordopn.p */
 
-&SCOPED-DEFINE aoaID 67F1B734920944EEA9304418E3CC6A06 
+&SCOPED-DEFINE aoaID <DataPA PublishID>
 &SCOPED-DEFINE aoaProgramID r-ordopn.
 &SCOPED-DEFINE aoaTitle Open Order Report
 &SCOPED-DEFINE aoaType Report

@@ -8,8 +8,8 @@
 
   Description: from SMART.W - Template for basic ADM2 SmartObject
 
-  Author: 
-  Created: 
+  Author: Ron Stark
+  Created: 3.19.2016
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -48,24 +48,36 @@ DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS  svCompany svStartCustNo svEndCustNo ~
-svStartOrdDate svStartOrdDateOption svEndOrdDate svEndOrdDateOption ~
-svStartDueDate svStartDueDateOption svEndDueDate svEndDueDateOption svStartPo ~
-svEndPo svStartJob svStartJob2 svEndJob svEndJob2 svStartItem svEndItem  ~
-svStartCad svEndCad svStartUser svEndUser svStartRep svEndRep  svSortPer ~
-svSortSec svPrintJobQtyDetails svIncOrdBalItem svSelJob svDropUnderrun ~
-svIncQtyWIP svIncRelQty svSelOrd svJobsWQOH svSelWip svInActive-2 
-&Scoped-Define DISPLAYED-OBJECTS RECT-1 svCompany svStartCustNo startCustName ~
-svEndCustNo endCustName svStartOrdDate svStartOrdDateOption svEndOrdDate ~
-svEndOrdDateOption svStartDueDate svStartDueDateOption svEndDueDate ~
-svEndDueDateOption svStartPo svEndPo  svStartJob svStartJob2 svEndJob svEndJob2 ~
-svStartItem svEndItem svStartCad svEndCad svStartUser svEndUser svEndRep ~
-svStartRep svSortPer svSortSec svPrintJobQtyDetails svIncOrdBalItem ~
-svSelJob svDropUnderrun svIncQtyWIP svIncRelQty svSelOrd svJobsWQOH ~
-svSelWip svInActive-2 
+&Scoped-Define ENABLED-OBJECTS svCompany svAllCustNo svCustList btnCustList ~
+svStartCustNo svEndCustNo svStartOrderDate btnCalendar-7 ~
+svStartOrderDateOption svEndOrderDate btnCalendar-8 svEndOrderDateOption ~
+svAllPONumber svStartPONumber svEndPONumber svAllJobNo svStartJobNo ~
+svStartJobNo2 svEndJobNo svEndJobNo2 svAllItemNo svStartItemNo svEndItemNo ~
+svAllCAD svStartCAD svEndCAD svStartDueDate btnCalendar-9 ~
+svStartDueDateOption svEndDueDate btnCalendar-10 svEndDueDateOption ~
+svAllUserID svStartUserID svEndUserID svAllSalesRep svStartSalesRep ~
+svEndSalesRep svPrimarySort svJobStatus svPrimarySort-2 svOrderStatus ~
+svWIPQty svSubRpt_PrintJobQtyDetails svDropOrderUnderrun ~
+svIncludeZeroOrderBalanceItems svIncludeZeroQtyActReleaseQty ~
+svIncludeJobsQOH svIncludeZeroQtyWIPItems svIncludeInactiveItems 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svAllCustNo svCustList ~
+svStartCustNo startCustName svEndCustNo endCustName svStartOrderDate ~
+svStartOrderDateOption svEndOrderDate svEndOrderDateOption svAllPONumber ~
+svStartPONumber svEndPONumber svAllJobNo svStartJobNo svStartJobNo2 ~
+svEndJobNo svEndJobNo2 svAllItemNo svStartItemNo startItemName svEndItemNo ~
+endItemName svAllCAD svStartCAD svEndCAD svStartDueDate ~
+svStartDueDateOption svEndDueDate svEndDueDateOption svAllUserID ~
+svStartUserID startUserIDName svEndUserID endUserIDName svAllSalesRep ~
+svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
+svPrimarySort svJobStatus svPrimarySort-2 svOrderStatus svWIPQty ~
+svSubRpt_PrintJobQtyDetails svDropOrderUnderrun ~
+svIncludeZeroOrderBalanceItems svIncludeZeroQtyActReleaseQty ~
+svIncludeJobsQOH svIncludeZeroQtyWIPItems svIncludeInactiveItems 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
+&Scoped-define List-3 btnCalendar-7 btnCalendar-8 btnCalendar-9 ~
+btnCalendar-10 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -76,13 +88,37 @@ svSelWip svInActive-2
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-10 
+     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-7 
+     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-8 
+     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-9 
+     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCustList 
+     LABEL "Preview" 
+     SIZE 9.8 BY .95.
+
 DEFINE VARIABLE svEndDueDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svEndOrdDateOption AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE svEndOrderDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
@@ -94,7 +130,7 @@ DEFINE VARIABLE svStartDueDateOption AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svStartOrdDateOption AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE svStartOrderDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
@@ -102,295 +138,386 @@ DEFINE VARIABLE svStartOrdDateOption AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1.
+     SIZE 45 BY 1.
+
+DEFINE VARIABLE endItemName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 38 BY 1.
+
+DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 52 BY 1.
+
+DEFINE VARIABLE endUserIDName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 45 BY 1.
 
 DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1.
+     SIZE 45 BY 1.
+
+DEFINE VARIABLE startItemName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 38 BY 1.
+
+DEFINE VARIABLE startSalesRepName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 52 BY 1.
+
+DEFINE VARIABLE startUserIDName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 45 BY 1.
 
 DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "Company" 
      VIEW-AS FILL-IN 
      SIZE 5 BY 1.
 
-DEFINE VARIABLE svEndCad AS CHARACTER FORMAT "X(15)" 
-     LABEL "End CAD#" 
+DEFINE VARIABLE svEndCAD AS CHARACTER FORMAT "X(8)" 
+     LABEL "End CAD" 
      VIEW-AS FILL-IN 
-     SIZE 21.2 BY 1.
+     SIZE 22 BY 1.
 
 DEFINE VARIABLE svEndCustNo AS CHARACTER FORMAT "X(8)" 
      LABEL "End Customer" 
      VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
+     SIZE 15 BY 1.
 
 DEFINE VARIABLE svEndDueDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
      LABEL "End Due Date" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
-DEFINE VARIABLE svEndItem AS CHARACTER FORMAT "X(15)" 
-     LABEL "End Item#" 
+DEFINE VARIABLE svEndItemNo AS CHARACTER FORMAT "X(8)" 
+     LABEL "End Item" 
      VIEW-AS FILL-IN 
-     SIZE 21.2 BY 1.
+     SIZE 22 BY 1.
 
-DEFINE VARIABLE svEndJob AS CHARACTER FORMAT "X(6)" 
-     LABEL "End Job#" 
+DEFINE VARIABLE svEndJobNo AS CHARACTER FORMAT "X(6)" 
+     LABEL "End Job" 
      VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
+     SIZE 9 BY 1.
 
-DEFINE VARIABLE svEndJob2 AS INTEGER FORMAT ">9" INITIAL 99 
+DEFINE VARIABLE svEndJobNo2 AS INTEGER FORMAT ">9" INITIAL 0 
+     LABEL ":" 
      VIEW-AS FILL-IN 
-     SIZE 5.6 BY 1.
+     SIZE 4 BY 1.
 
-DEFINE VARIABLE svEndOrdDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
+DEFINE VARIABLE svEndOrderDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
      LABEL "End Order Date" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
-DEFINE VARIABLE svEndPo AS CHARACTER FORMAT "X(15)" 
-     LABEL "End Customer Po#" 
+DEFINE VARIABLE svEndPONumber AS CHARACTER FORMAT "X(8)" 
+     LABEL "End PO Number" 
      VIEW-AS FILL-IN 
-     SIZE 21.2 BY 1.
+     SIZE 22 BY 1.
 
-DEFINE VARIABLE svEndRep AS CHARACTER FORMAT "X(3)" 
-     LABEL "End SalesRep#" 
+DEFINE VARIABLE svEndSalesRep AS CHARACTER FORMAT "X(3)" 
+     LABEL "End Sales Rep" 
      VIEW-AS FILL-IN 
-     SIZE 21.2 BY 1.
+     SIZE 8 BY 1.
 
-DEFINE VARIABLE svEndUser AS CHARACTER FORMAT "X(8)" 
-     LABEL "End UserID#" 
+DEFINE VARIABLE svEndUserID AS CHARACTER FORMAT "X(8)" 
+     LABEL "End User ID" 
      VIEW-AS FILL-IN 
-     SIZE 21.2 BY 1.
+     SIZE 15 BY 1.
 
-DEFINE VARIABLE svStartJob2 AS INTEGER FORMAT ">9" INITIAL 0 
+DEFINE VARIABLE svStartCAD AS CHARACTER FORMAT "X(15)" 
+     LABEL "Start CAD" 
      VIEW-AS FILL-IN 
-     SIZE 5.8 BY 1.
-
-DEFINE VARIABLE svStartCad AS CHARACTER FORMAT "X(15)" 
-     LABEL "Start CAD#" 
-     VIEW-AS FILL-IN 
-     SIZE 21.2 BY 1.
+     SIZE 22 BY 1.
 
 DEFINE VARIABLE svStartCustNo AS CHARACTER FORMAT "X(8)" 
      LABEL "Start Customer" 
      VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
+     SIZE 15 BY 1.
 
 DEFINE VARIABLE svStartDueDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
      LABEL "Start Due Date" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
-DEFINE VARIABLE svStartItem AS CHARACTER FORMAT "X(15)" 
-     LABEL "Start Item#" 
+DEFINE VARIABLE svStartItemNo AS CHARACTER FORMAT "X(15)" 
+     LABEL "Start Item" 
      VIEW-AS FILL-IN 
-     SIZE 21.2 BY 1.
+     SIZE 22 BY 1.
 
-DEFINE VARIABLE svStartJob AS CHARACTER FORMAT "X(6)" 
-     LABEL "Start Job#" 
+DEFINE VARIABLE svStartJobNo AS CHARACTER FORMAT "X(6)" 
+     LABEL "Start Job" 
      VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
+     SIZE 9 BY 1.
 
-DEFINE VARIABLE svStartOrdDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
+DEFINE VARIABLE svStartJobNo2 AS INTEGER FORMAT ">9" INITIAL 0 
+     LABEL ":" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1.
+
+DEFINE VARIABLE svStartOrderDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
      LABEL "Start Order Date" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
-DEFINE VARIABLE svStartPo AS CHARACTER FORMAT "X(15)" 
-     LABEL "Start Customer Po#" 
+DEFINE VARIABLE svStartPONumber AS CHARACTER FORMAT "X(15)" 
+     LABEL "Start PO Number" 
      VIEW-AS FILL-IN 
-     SIZE 21.2 BY 1.
+     SIZE 22 BY 1.
 
-DEFINE VARIABLE svStartRep AS CHARACTER FORMAT "X(3)" 
-     LABEL "Start SalesRep#" 
+DEFINE VARIABLE svStartSalesRep AS CHARACTER FORMAT "X(3)" 
+     LABEL "Start Sales Rep#" 
      VIEW-AS FILL-IN 
-     SIZE 21.2 BY 1.
+     SIZE 8 BY 1.
 
-DEFINE VARIABLE svStartUser AS CHARACTER FORMAT "X(8)" 
-     LABEL "Start UserID#" 
+DEFINE VARIABLE svStartUserID AS CHARACTER FORMAT "X(8)" 
+     LABEL "Start User ID" 
      VIEW-AS FILL-IN 
-     SIZE 21.2 BY 1.
+     SIZE 15 BY 1.
 
-DEFINE VARIABLE svSelJob AS CHARACTER 
+DEFINE VARIABLE svJobStatus AS CHARACTER INITIAL "All" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Open", "Open",
 "Closed", "Closed",
 "All", "All"
-     SIZE 26.6 BY .81 NO-UNDO.
+     SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svSelOrd AS CHARACTER 
+DEFINE VARIABLE svOrderStatus AS CHARACTER INITIAL "All" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Open", "Open",
 "Closed", "Closed",
 "All", "All"
-     SIZE 26.6 BY .81 NO-UNDO.
+     SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svSelWip AS CHARACTER 
+DEFINE VARIABLE svPrimarySort AS CHARACTER INITIAL "Customer" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Order Qty - OH - Ship", "1",
-"Job Qty - Rcpts", "2"
-     SIZE 46.6 BY .81 NO-UNDO.
+          "Customer", "Customer",
+"Line Due Date", "Line Due Date",
+"Release Due Date", "Release Due Date",
+"Sales Rep", "Sales Rep"
+     SIZE 68 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svSortPer AS CHARACTER 
+DEFINE VARIABLE svPrimarySort-2 AS CHARACTER INITIAL "PO" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Customer#", "Customer#",
-"Line Due Date", "Due Date",
-"Release Due Date", "Rel Date",
-"Sales Rep", "Salesman"
-     SIZE 75 BY 1.19 NO-UNDO.
-
-DEFINE VARIABLE svSortSec AS CHARACTER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "PO#", "PO#",
+          "PO", "PO",
 "Item", "Item",
-"Cust Part#", "Cust Part#",
+"Cust. Part", "Cust. Part",
 "FG Item Name", "FG Item Name",
-"Order#", "Order#",
+"Order", "Order",
 "Due Date", "Due Date",
-"CAD#", "CAD#"
-     SIZE 83.6 BY 1.19 NO-UNDO.
+"CAD", "CAD"
+     SIZE 77 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 109 BY 2.86.
+DEFINE VARIABLE svWIPQty AS CHARACTER INITIAL "Order" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Order Qty - OH - Ship", "Order",
+"Job Qty - Rcpts", "Job"
+     SIZE 44.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svDropUnderrun AS LOGICAL INITIAL no 
+DEFINE VARIABLE svAllCAD AS LOGICAL INITIAL yes 
+     LABEL "All CAD" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 11 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
+     LABEL "All Customers" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllItemNo AS LOGICAL INITIAL yes 
+     LABEL "All Items" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 12 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllJobNo AS LOGICAL INITIAL yes 
+     LABEL "All Jobs" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 12 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllPONumber AS LOGICAL INITIAL yes 
+     LABEL "All PO Numbers" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 19 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllSalesRep AS LOGICAL INITIAL yes 
+     LABEL "All Sales Reps" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllUserID AS LOGICAL INITIAL yes 
+     LABEL "All User IDs" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svCustList AS LOGICAL INITIAL no 
+     LABEL "Use Defined Customer List" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svDropOrderUnderrun AS LOGICAL INITIAL no 
      LABEL "Drop Order Underrun%" 
      VIEW-AS TOGGLE-BOX
-     SIZE 22.2 BY 1 NO-UNDO.
+     SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svInActive-2 AS LOGICAL INITIAL no 
-     LABEL "Include Inactive Items?" 
+DEFINE VARIABLE svIncludeInactiveItems AS LOGICAL INITIAL no 
+     LABEL "Include Inactive Items" 
      VIEW-AS TOGGLE-BOX
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svIncOrdBalItem AS LOGICAL INITIAL no 
-     LABEL "Include 0 Order Balance Items?" 
+DEFINE VARIABLE svIncludeJobsQOH AS LOGICAL INITIAL no 
+     LABEL "Include Jobs with QOH" 
      VIEW-AS TOGGLE-BOX
-     SIZE 34.4 BY 1 NO-UNDO.
+     SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svIncQtyWIP AS LOGICAL INITIAL no 
-     LABEL "Include 0 Qty WIP Items?" 
+DEFINE VARIABLE svIncludeZeroOrderBalanceItems AS LOGICAL INITIAL yes 
+     LABEL "Include 0 Order Balance Items" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svIncRelQty AS LOGICAL INITIAL no 
-     LABEL "Include 0 Qty/Act. Release Qty = 0" 
+DEFINE VARIABLE svIncludeZeroQtyActReleaseQty AS LOGICAL INITIAL yes 
+     LABEL "Include 0 Qty / Act. Release Qty = 0" 
      VIEW-AS TOGGLE-BOX
-     SIZE 37 BY 1 NO-UNDO.
+     SIZE 39.2 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svJobsWQOH AS LOGICAL INITIAL no 
-     LABEL "Include Jobs w/QOH?" 
+DEFINE VARIABLE svIncludeZeroQtyWIPItems AS LOGICAL INITIAL yes 
+     LABEL "Include 0 Qty WIP Items" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svPrintJobQtyDetails AS LOGICAL INITIAL no 
-     LABEL "Print Job Qty Details?" 
+DEFINE VARIABLE svSubRpt_PrintJobQtyDetails AS LOGICAL INITIAL no 
+     LABEL "Print Job Qty Details" 
      VIEW-AS TOGGLE-BOX
-     SIZE 25.2 BY 1 NO-UNDO.
+     SIZE 23 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.33 COL 23 COLON-ALIGNED WIDGET-ID 60
-     svStartCustNo AT ROW 2.76 COL 23 COLON-ALIGNED HELP
-          "Enter Beginning Customer" WIDGET-ID 2
-     startCustName AT ROW 2.76 COL 40 COLON-ALIGNED HELP
-          "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 3.71 COL 23 COLON-ALIGNED HELP
-          "Enter Ending Customer" WIDGET-ID 6
-     endCustName AT ROW 3.71 COL 40 COLON-ALIGNED HELP
-          "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svStartOrdDate AT ROW 4.67 COL 23 COLON-ALIGNED HELP
-          "Enter Start Order Date" WIDGET-ID 84
-     svStartOrdDateOption AT ROW 4.67 COL 41.2 COLON-ALIGNED HELP
-          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 86
-     svEndOrdDate AT ROW 5.62 COL 23 COLON-ALIGNED HELP
-          "Enter End Order Date" WIDGET-ID 80
-     svEndOrdDateOption AT ROW 5.62 COL 41.2 COLON-ALIGNED HELP
-          "Select End Order Date Option" NO-LABEL WIDGET-ID 82
-     svStartDueDate AT ROW 6.62 COL 23 COLON-ALIGNED HELP
-          "Enter Start Due Date" WIDGET-ID 132
-     svStartDueDateOption AT ROW 6.62 COL 41.2 COLON-ALIGNED HELP
-          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 134
-     svEndDueDate AT ROW 7.57 COL 23 COLON-ALIGNED HELP
-          "Enter End Due Date" WIDGET-ID 128
-     svEndDueDateOption AT ROW 7.57 COL 41.2 COLON-ALIGNED HELP
-          "Select End Due Date Option" NO-LABEL WIDGET-ID 130
-    svStartPo AT ROW 8.52 COL 23 COLON-ALIGNED HELP
-          "Enter Beginning Customer Po#" WIDGET-ID 22
-     svEndPo AT ROW 8.43 COL 73 COLON-ALIGNED HELP
-          "Enter Ending Customer Po" WIDGET-ID 20
-     svStartJob AT ROW 9.48 COL 23 COLON-ALIGNED HELP
-          "Enter Beginning Job#" WIDGET-ID 90
-     svStartJob2 AT ROW 9.52 COL 38.4 COLON-ALIGNED HELP
-          "Enter Beginning Prod Category#" NO-LABEL WIDGET-ID 112
-     svEndJob AT ROW 9.38 COL 73 COLON-ALIGNED HELP
-          "Enter Ending Prod Category" WIDGET-ID 88
-     svEndJob2 AT ROW 9.43 COL 88.6 COLON-ALIGNED HELP
-          "Enter Beginning Job2#" NO-LABEL WIDGET-ID 114
-     svStartItem AT ROW 10.48 COL 23 COLON-ALIGNED HELP
-          "Enter Beginning Item#" WIDGET-ID 118
-     svEndItem AT ROW 10.38 COL 73 COLON-ALIGNED HELP
-          "Enter Ending Item" WIDGET-ID 116
-     svStartCad AT ROW 11.43 COL 23 COLON-ALIGNED HELP
-          "Enter Beginning CAD#" WIDGET-ID 122
-     svEndCad AT ROW 11.29 COL 73 COLON-ALIGNED HELP
-          "Enter Ending CAD" WIDGET-ID 120
-     svStartUser AT ROW 12.43 COL 23 COLON-ALIGNED HELP
-          "Enter Beginning Userid#" WIDGET-ID 138
-     svEndUser AT ROW 12.33 COL 73 COLON-ALIGNED HELP
-          "Enter Ending UserID" WIDGET-ID 136
-     svStartRep AT ROW 13.43 COL 23 COLON-ALIGNED HELP
-          "Enter BeginningSalesRep" WIDGET-ID 142
-     svEndRep AT ROW 13.33 COL 73 COLON-ALIGNED HELP
-          "Enter Ending SalesRep" WIDGET-ID 140
-     svSortPer AT ROW 15.29 COL 28.4 NO-LABEL WIDGET-ID 144
-     svSortSec AT ROW 16.33 COL 28.4 NO-LABEL WIDGET-ID 150
-     svPrintJobQtyDetails AT ROW 18.14 COL 54.6 WIDGET-ID 92
-     svIncOrdBalItem AT ROW 18.14 COL 79.6 WIDGET-ID 42
-     svSelJob AT ROW 19.1 COL 23.4 NO-LABEL WIDGET-ID 172
-     svDropUnderrun AT ROW 19.1 COL 54.6 WIDGET-ID 100
+     svCompany AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 60
+     svAllCustNo AT ROW 1.24 COL 22 HELP
+          "All Customers?" WIDGET-ID 56
+     svCustList AT ROW 1.24 COL 43 WIDGET-ID 48
+     btnCustList AT ROW 1.24 COL 73 WIDGET-ID 46
+     svStartCustNo AT ROW 2.43 COL 20 COLON-ALIGNED HELP
+          "Enter Start Customer" WIDGET-ID 2
+     startCustName AT ROW 2.43 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 3.62 COL 20 COLON-ALIGNED HELP
+          "Enter End Customer" WIDGET-ID 6
+     endCustName AT ROW 3.62 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svStartOrderDate AT ROW 4.81 COL 20 COLON-ALIGNED HELP
+          "Enter Start Order Date" WIDGET-ID 122
+     btnCalendar-7 AT ROW 4.81 COL 38 WIDGET-ID 114
+     svStartOrderDateOption AT ROW 4.81 COL 41 COLON-ALIGNED HELP
+          "Select Start Order Date Option" NO-LABEL WIDGET-ID 124
+     svEndOrderDate AT ROW 6 COL 20 COLON-ALIGNED HELP
+          "Enter End Order Date" WIDGET-ID 118
+     btnCalendar-8 AT ROW 6 COL 38 WIDGET-ID 116
+     svEndOrderDateOption AT ROW 6 COL 41 COLON-ALIGNED HELP
+          "Select End Order Date Option" NO-LABEL WIDGET-ID 120
+     svAllPONumber AT ROW 7.19 COL 22 HELP
+          "All PO Numbers?" WIDGET-ID 142
+     svStartPONumber AT ROW 8.14 COL 20 COLON-ALIGNED HELP
+          "Enter Start PO Number" WIDGET-ID 146
+     svEndPONumber AT ROW 8.14 COL 59 COLON-ALIGNED HELP
+          "Enter End PO Number" WIDGET-ID 144
+     svAllJobNo AT ROW 9.33 COL 22 HELP
+          "All Jobs?" WIDGET-ID 174
+     svStartJobNo AT ROW 9.33 COL 41 COLON-ALIGNED HELP
+          "Enter Start Job" WIDGET-ID 178
+     svStartJobNo2 AT ROW 9.33 COL 52 COLON-ALIGNED HELP
+          "Enter Start Job Run" WIDGET-ID 180
+     svEndJobNo AT ROW 9.33 COL 66 COLON-ALIGNED HELP
+          "Enter End Job" WIDGET-ID 176
+     svEndJobNo2 AT ROW 9.33 COL 77 COLON-ALIGNED HELP
+          "Enter End Job Run" WIDGET-ID 182
+     svAllItemNo AT ROW 10.52 COL 22 HELP
+          "All Items?" WIDGET-ID 164
+     svStartItemNo AT ROW 11.71 COL 20 COLON-ALIGNED HELP
+          "Enter Start Item" WIDGET-ID 168
+     startItemName AT ROW 11.71 COL 43 COLON-ALIGNED NO-LABEL WIDGET-ID 172
+     svEndItemNo AT ROW 12.91 COL 20 COLON-ALIGNED HELP
+          "Enter End Item" WIDGET-ID 166
+     endItemName AT ROW 12.91 COL 43 COLON-ALIGNED NO-LABEL WIDGET-ID 170
+     svAllCAD AT ROW 14.1 COL 22 HELP
+          "All PO Numbers?" WIDGET-ID 148
+     svStartCAD AT ROW 15.29 COL 20 COLON-ALIGNED HELP
+          "Enter Start CAD" WIDGET-ID 152
+     svEndCAD AT ROW 15.29 COL 53 COLON-ALIGNED HELP
+          "Enter End CAD" WIDGET-ID 150
+     svStartDueDate AT ROW 16.48 COL 20 COLON-ALIGNED HELP
+          "Enter Start Due Date" WIDGET-ID 134
+     btnCalendar-9 AT ROW 16.48 COL 38 WIDGET-ID 126
+     svStartDueDateOption AT ROW 16.48 COL 41 COLON-ALIGNED HELP
+          "Select Start Due Date Option" NO-LABEL WIDGET-ID 136
+     svEndDueDate AT ROW 17.67 COL 20 COLON-ALIGNED HELP
+          "Enter End Due Date" WIDGET-ID 130
+     btnCalendar-10 AT ROW 17.67 COL 38 WIDGET-ID 128
+     svEndDueDateOption AT ROW 17.67 COL 41 COLON-ALIGNED HELP
+          "Select End Due Date Option" NO-LABEL WIDGET-ID 132
+     svAllUserID AT ROW 18.86 COL 22 HELP
+          "All User IDs?" WIDGET-ID 158
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 118.2 BY 24.81.
+         SIZE 98.4 BY 36.62.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     svIncQtyWIP AT ROW 19.1 COL 79.6 WIDGET-ID 94
-     svIncRelQty AT ROW 20.14 COL 79.6 WIDGET-ID 96
-     svSelOrd AT ROW 20.24 COL 23.4 NO-LABEL WIDGET-ID 176
-     svJobsWQOH AT ROW 21.24 COL 79.6 WIDGET-ID 98
-     svSelWip AT ROW 21.38 COL 23.4 NO-LABEL WIDGET-ID 180
-     svInActive-2 AT ROW 22.43 COL 79.6 WIDGET-ID 184
-     "" VIEW-AS TEXT
-          SIZE 67 BY .95 AT ROW 23.86 COL 12 WIDGET-ID 2
-     " Sort By" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 14.71 COL 8.8
-     "WIP Qty?" VIEW-AS TEXT
-          SIZE 13.8 BY .62 AT ROW 21.48 COL 8.6 WIDGET-ID 170
-     "Order Status?" VIEW-AS TEXT
-          SIZE 14.8 BY .62 AT ROW 20.38 COL 8.6 WIDGET-ID 168
-     "Job Status?" VIEW-AS TEXT
-          SIZE 14.8 BY .62 AT ROW 19.19 COL 8.6 WIDGET-ID 166
-     "Print Selections" VIEW-AS TEXT
-          SIZE 16.8 BY .62 AT ROW 18.14 COL 7.8 WIDGET-ID 164
-     "Secondary Sort?" VIEW-AS TEXT
-          SIZE 17.2 BY .62 AT ROW 16.57 COL 10 WIDGET-ID 162
-     "Primary Sort?" VIEW-AS TEXT
-          SIZE 13.2 BY .62 AT ROW 15.52 COL 14 WIDGET-ID 160
-     RECT-1 AT ROW 15.05 COL 7 WIDGET-ID 158
+     svStartUserID AT ROW 20.05 COL 20 COLON-ALIGNED HELP
+          "Enter Start User ID" WIDGET-ID 162
+     startUserIDName AT ROW 20.05 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 156
+     svEndUserID AT ROW 21.24 COL 20 COLON-ALIGNED HELP
+          "Enter End User ID" WIDGET-ID 160
+     endUserIDName AT ROW 21.24 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 154
+     svAllSalesRep AT ROW 22.43 COL 22 HELP
+          "All Sales Reps?" WIDGET-ID 108
+     svStartSalesRep AT ROW 23.62 COL 20 COLON-ALIGNED HELP
+          "Enter Beginning Sales Rep#" WIDGET-ID 112
+     startSalesRepName AT ROW 23.62 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     svEndSalesRep AT ROW 24.81 COL 20 COLON-ALIGNED HELP
+          "Enter Ending Sales Rep" WIDGET-ID 110
+     endSalesRepName AT ROW 24.81 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     svPrimarySort AT ROW 26 COL 22 HELP
+          "Select Primary Sort Option" NO-LABEL WIDGET-ID 84
+     svJobStatus AT ROW 28.38 COL 22 HELP
+          "Select Job Status" NO-LABEL WIDGET-ID 210
+     svPrimarySort-2 AT ROW 28.38 COL 22 HELP
+          "Select Secondary Sort Option" NO-LABEL WIDGET-ID 202
+     svOrderStatus AT ROW 29.57 COL 22 HELP
+          "Select Order Status" NO-LABEL WIDGET-ID 214
+     svWIPQty AT ROW 30.76 COL 22 HELP
+          "Select QIP Qty" NO-LABEL WIDGET-ID 218
+     svSubRpt_PrintJobQtyDetails AT ROW 31.95 COL 22 HELP
+          "Select to Print Job Qty Details" WIDGET-ID 88
+     svDropOrderUnderrun AT ROW 33.14 COL 22 HELP
+          "Select to Drop Order Underrun%" WIDGET-ID 234
+     svIncludeZeroOrderBalanceItems AT ROW 34.33 COL 22 HELP
+          "Select to Include 0 Order Balance Items" WIDGET-ID 224
+     svIncludeZeroQtyActReleaseQty AT ROW 34.33 COL 56 HELP
+          "Select to Include 0 Qty / Act. Release Qty = 0" WIDGET-ID 222
+     svIncludeJobsQOH AT ROW 34.33 COL 56 HELP
+          "Select to Include Jobs with QOH" WIDGET-ID 230
+     svIncludeZeroQtyWIPItems AT ROW 35.52 COL 22 HELP
+          "Select to Include 0 Qty WIP Items" WIDGET-ID 226
+     svIncludeInactiveItems AT ROW 35.52 COL 56 HELP
+          "Select to Include Inactive Items" WIDGET-ID 228
+     "WIP Qty:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 30.76 COL 12 WIDGET-ID 246
+     "Order Status:" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 29.57 COL 9 WIDGET-ID 244
+     "Job Status:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 28.38 COL 10 WIDGET-ID 242
+     "Secondary Sort By:" VIEW-AS TEXT
+          SIZE 19 BY 1 AT ROW 27.19 COL 2 WIDGET-ID 208
+     "Primary Sort By:" VIEW-AS TEXT
+          SIZE 15 BY 1 AT ROW 26 COL 6 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 118.2 BY 24.81
+         SIZE 98.4 BY 36.62
          TITLE "Report Parameters".
 
 
@@ -420,8 +547,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 24.81
-         WIDTH              = 118.2.
+         HEIGHT             = 36.62
+         WIDTH              = 98.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -447,9 +574,29 @@ END.
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnCalendar-10 IN FRAME F-Main
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-7 IN FRAME F-Main
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-8 IN FRAME F-Main
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-9 IN FRAME F-Main
+   3                                                                    */
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN endItemName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN endUserIDName IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startItemName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startSalesRepName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startUserIDName IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
        svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
@@ -473,11 +620,150 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME btnCalendar-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-10 sObject
+ON CHOOSE OF btnCalendar-10 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i svEndDueDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-7
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-7 sObject
+ON CHOOSE OF btnCalendar-7 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i svStartOrderDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-8
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-8 sObject
+ON CHOOSE OF btnCalendar-8 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i svEndOrderDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-9
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-9 sObject
+ON CHOOSE OF btnCalendar-9 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i svStartDueDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCustList
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCustList sObject
+ON CHOOSE OF btnCustList IN FRAME F-Main /* Preview */
+DO:
+    RUN sys/ref/CustListManager.w (svCompany, "AR15").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllCAD
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCAD sObject
+ON VALUE-CHANGED OF svAllCAD IN FRAME F-Main /* All CAD */
+DO:
+  ASSIGN {&SELF-NAME}.
+  RUN pSetCADRange ({&SELF-NAME}).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllCustNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCustNo sObject
+ON VALUE-CHANGED OF svAllCustNo IN FRAME F-Main /* All Customers */
+DO:
+  ASSIGN {&SELF-NAME}.
+  RUN pSetCustRange ({&SELF-NAME}).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllItemNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllItemNo sObject
+ON VALUE-CHANGED OF svAllItemNo IN FRAME F-Main /* All Items */
+DO:
+  ASSIGN {&SELF-NAME}.
+  RUN pSetItemRange ({&SELF-NAME}).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllJobNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllJobNo sObject
+ON VALUE-CHANGED OF svAllJobNo IN FRAME F-Main /* All Jobs */
+DO:
+  ASSIGN {&SELF-NAME}.
+  RUN pSetJobRange ({&SELF-NAME}).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllPONumber
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllPONumber sObject
+ON VALUE-CHANGED OF svAllPONumber IN FRAME F-Main /* All PO Numbers */
+DO:
+  ASSIGN {&SELF-NAME}.
+  RUN pSetPONumberRange ({&SELF-NAME}).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllSalesRep
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllSalesRep sObject
+ON VALUE-CHANGED OF svAllSalesRep IN FRAME F-Main /* All Sales Reps */
+DO:
+  ASSIGN {&SELF-NAME}.
+  RUN pSetSalesRepRange ({&SELF-NAME}).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllUserID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllUserID sObject
+ON VALUE-CHANGED OF svAllUserID IN FRAME F-Main /* All User IDs */
+DO:
+  ASSIGN {&SELF-NAME}.
+  RUN pSetUserIDRange ({&SELF-NAME}).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svCompany
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCompany sObject
 ON ENTRY OF svCompany IN FRAME F-Main /* Company */
 DO:
-  APPLY "ENTRY":U TO svStartCustNo.
+  APPLY "ENTRY":U TO svCustList.
   RETURN NO-APPLY.
 END.
 
@@ -485,11 +771,23 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndCad
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndCad sObject
-ON LEAVE OF svEndCad IN FRAME F-Main /* End CAD# */
+&Scoped-define SELF-NAME svCustList
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCustList sObject
+ON VALUE-CHANGED OF svCustList IN FRAME F-Main /* Use Defined Customer List */
 DO:
-    ASSIGN {&SELF-NAME}.
+  ASSIGN {&SELF-NAME}.
+  RUN pUseCustList ({&SELF-NAME}).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svDropOrderUnderrun
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svDropOrderUnderrun sObject
+ON VALUE-CHANGED OF svDropOrderUnderrun IN FRAME F-Main /* Drop Order Underrun% */
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -513,13 +811,25 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svEndDueDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndDueDate sObject
+ON HELP OF svEndDueDate IN FRAME F-Main /* End Due Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svEndDueDateOption
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndDueDateOption sObject
 ON VALUE-CHANGED OF svEndDueDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndOrdDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      svEndDueDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      btnCalendar-10:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
       .
 END.
 
@@ -527,47 +837,42 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndItem
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndItem sObject
-ON LEAVE OF svEndItem IN FRAME F-Main /* End Item# */
+&Scoped-define SELF-NAME svEndItemNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndItemNo sObject
+ON LEAVE OF svEndItemNo IN FRAME F-Main /* End Item */
 DO:
     ASSIGN {&SELF-NAME}.
+    FIND FIRST itemfg NO-LOCK
+         WHERE itemfg.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
+           AND itemfg.i-no EQ {&SELF-NAME}
+         NO-ERROR.
+    endItemName:SCREEN-VALUE = IF AVAILABLE itemfg THEN itemfg.i-dscr
+                               ELSE "<Ending Range Value>".
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndJob
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndJob sObject
-ON LEAVE OF svEndJob IN FRAME F-Main /* End Job# */
+&Scoped-define SELF-NAME svEndOrderDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndOrderDate sObject
+ON HELP OF svEndOrderDate IN FRAME F-Main /* End Order Date */
 DO:
-    ASSIGN {&SELF-NAME}.
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndJob2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndJob2 sObject
-ON LEAVE OF svEndJob2 IN FRAME F-Main
-DO:
-    ASSIGN {&SELF-NAME}.
-    
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME svEndOrdDateOption
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndOrdDateOption sObject
-ON VALUE-CHANGED OF svEndOrdDateOption IN FRAME F-Main
+&Scoped-define SELF-NAME svEndOrderDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndOrderDateOption sObject
+ON VALUE-CHANGED OF svEndOrderDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndOrdDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      svEndOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      btnCalendar-8:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
       .
 END.
 
@@ -575,57 +880,110 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndPo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndPo sObject
-ON LEAVE OF svEndPo IN FRAME F-Main /* End Customer Po# */
+&Scoped-define SELF-NAME svEndSalesRep
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndSalesRep sObject
+ON LEAVE OF svEndSalesRep IN FRAME F-Main /* End Sales Rep */
 DO:
     ASSIGN {&SELF-NAME}.
+    FIND FIRST sman NO-LOCK
+         WHERE sman.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
+           AND sman.sman EQ {&SELF-NAME}
+         NO-ERROR.
+    endSalesRepName:SCREEN-VALUE = IF AVAILABLE sman THEN sman.sname
+                                   ELSE "<Ending Range Value>".
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndRep
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndRep sObject
-ON LEAVE OF svEndRep IN FRAME F-Main /* End SalesRep# */
+&Scoped-define SELF-NAME svEndUserID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndUserID sObject
+ON LEAVE OF svEndUserID IN FRAME F-Main /* End User ID */
 DO:
     ASSIGN {&SELF-NAME}.
+    FIND FIRST users NO-LOCK
+         WHERE users.user_id EQ {&SELF-NAME}
+         NO-ERROR.
+    endUserIDName:SCREEN-VALUE = IF AVAILABLE users THEN users.user_name
+                                 ELSE "<Ending Range Value>".
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndUser
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndUser sObject
-ON LEAVE OF svEndUser IN FRAME F-Main /* End UserID# */
+&Scoped-define SELF-NAME svIncludeInactiveItems
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svIncludeInactiveItems sObject
+ON VALUE-CHANGED OF svIncludeInactiveItems IN FRAME F-Main /* Include Inactive Items */
 DO:
-    ASSIGN {&SELF-NAME}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartJob2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartJob2 sObject
-ON LEAVE OF svStartJob2 IN FRAME F-Main
+&Scoped-define SELF-NAME svIncludeJobsQOH
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svIncludeJobsQOH sObject
+ON VALUE-CHANGED OF svIncludeJobsQOH IN FRAME F-Main /* Include Jobs with QOH */
 DO:
-    ASSIGN {&SELF-NAME}.
-    
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartCad
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartCad sObject
-ON LEAVE OF svStartCad IN FRAME F-Main /* Start CAD# */
+&Scoped-define SELF-NAME svIncludeZeroOrderBalanceItems
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svIncludeZeroOrderBalanceItems sObject
+ON VALUE-CHANGED OF svIncludeZeroOrderBalanceItems IN FRAME F-Main /* Include 0 Order Balance Items */
 DO:
-    ASSIGN {&SELF-NAME}.
-    
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svIncludeZeroQtyActReleaseQty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svIncludeZeroQtyActReleaseQty sObject
+ON VALUE-CHANGED OF svIncludeZeroQtyActReleaseQty IN FRAME F-Main /* Include 0 Qty / Act. Release Qty = 0 */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svIncludeZeroQtyWIPItems
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svIncludeZeroQtyWIPItems sObject
+ON VALUE-CHANGED OF svIncludeZeroQtyWIPItems IN FRAME F-Main /* Include 0 Qty WIP Items */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svJobStatus
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svJobStatus sObject
+ON VALUE-CHANGED OF svJobStatus IN FRAME F-Main
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svOrderStatus
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svOrderStatus sObject
+ON VALUE-CHANGED OF svOrderStatus IN FRAME F-Main
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -649,13 +1007,25 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svStartDueDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartDueDate sObject
+ON HELP OF svStartDueDate IN FRAME F-Main /* Start Due Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svStartDueDateOption
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartDueDateOption sObject
 ON VALUE-CHANGED OF svStartDueDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartOrdDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      svStartDueDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      btnCalendar-9:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
       .
 END.
 
@@ -663,37 +1033,42 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartItem
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartItem sObject
-ON LEAVE OF svStartItem IN FRAME F-Main /* Start Item# */
+&Scoped-define SELF-NAME svStartItemNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartItemNo sObject
+ON LEAVE OF svStartItemNo IN FRAME F-Main /* Start Item */
 DO:
     ASSIGN {&SELF-NAME}.
-    
+    FIND FIRST itemfg NO-LOCK
+         WHERE itemfg.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
+           AND itemfg.i-no EQ {&SELF-NAME}
+         NO-ERROR.
+    startItemName:SCREEN-VALUE = IF AVAILABLE itemfg THEN itemfg.i-dscr
+                                 ELSE "<Beginning Range Value>".
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartJob
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartJob sObject
-ON LEAVE OF svStartJob IN FRAME F-Main /* Start Job# */
+&Scoped-define SELF-NAME svStartOrderDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartOrderDate sObject
+ON HELP OF svStartOrderDate IN FRAME F-Main /* Start Order Date */
 DO:
-    ASSIGN {&SELF-NAME}.
-    
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartOrdDateOption
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartOrdDateOption sObject
-ON VALUE-CHANGED OF svStartOrdDateOption IN FRAME F-Main
+&Scoped-define SELF-NAME svStartOrderDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartOrderDateOption sObject
+ON VALUE-CHANGED OF svStartOrderDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartOrdDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      svStartOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
+      btnCalendar-7:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
       .
 END.
 
@@ -701,36 +1076,44 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartPo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartPo sObject
-ON LEAVE OF svStartPo IN FRAME F-Main /* Start Customer Po# */
+&Scoped-define SELF-NAME svStartSalesRep
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartSalesRep sObject
+ON LEAVE OF svStartSalesRep IN FRAME F-Main /* Start Sales Rep# */
 DO:
     ASSIGN {&SELF-NAME}.
-    
+    FIND FIRST sman NO-LOCK
+         WHERE sman.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
+           AND sman.sman EQ {&SELF-NAME}
+         NO-ERROR.
+    startSalesRepName:SCREEN-VALUE = IF AVAILABLE sman THEN sman.sname
+                                     ELSE "<Beginning Range Value>".
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartRep
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartRep sObject
-ON LEAVE OF svStartRep IN FRAME F-Main /* Start SalesRep# */
+&Scoped-define SELF-NAME svStartUserID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartUserID sObject
+ON LEAVE OF svStartUserID IN FRAME F-Main /* Start User ID */
 DO:
     ASSIGN {&SELF-NAME}.
-    
+    FIND FIRST users NO-LOCK
+         WHERE users.user_id EQ {&SELF-NAME}
+         NO-ERROR.
+    startUserIDName:SCREEN-VALUE = IF AVAILABLE users THEN users.user_name
+                                   ELSE "<Beginning Range Value>".
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartUser
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartUser sObject
-ON LEAVE OF svStartUser IN FRAME F-Main /* Start UserID# */
+&Scoped-define SELF-NAME svWIPQty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svWIPQty sObject
+ON VALUE-CHANGED OF svWIPQty IN FRAME F-Main
 DO:
-    ASSIGN {&SELF-NAME}.
-    
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -788,15 +1171,34 @@ PROCEDURE pInitialize :
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
             .
-        APPLY "VALUE-CHANGED":U TO svStartOrdDateOption.
-        APPLY "VALUE-CHANGED":U TO svEndOrdDateOption.
-        /*APPLY "VALUE-CHANGED":U TO svCustList.
-        APPLY "VALUE-CHANGED":U TO svAllCustomers.
-        APPLY "VALUE-CHANGED":U TO svAllSalesReps.*/
+
+        APPLY "VALUE-CHANGED":U TO svStartOrderDateOption.
+        APPLY "VALUE-CHANGED":U TO svEndOrderDateOption.
+        
+        APPLY "VALUE-CHANGED":U TO svStartDueDateOption.
+        APPLY "VALUE-CHANGED":U TO svEndDueDateOption.
+        
+        APPLY "VALUE-CHANGED":U TO svAllSalesRep.
+        APPLY "LEAVE":U TO svStartSalesRep.
+        APPLY "LEAVE":U TO svEndSalesRep.
+        
+        APPLY "VALUE-CHANGED":U TO svAllCustNo.
         APPLY "LEAVE":U TO svStartCustNo.
         APPLY "LEAVE":U TO svEndCustNo.
-      /*  APPLY "LEAVE":U TO svStartOrd.
-        APPLY "LEAVE":U TO svEndOrd.**/
+        
+        APPLY "VALUE-CHANGED":U TO svAllPONumber.
+        
+        APPLY "VALUE-CHANGED":U TO svAllCAD.
+        
+        APPLY "VALUE-CHANGED":U TO svAllUserID.
+        APPLY "LEAVE":U TO svStartUserID.
+        APPLY "LEAVE":U TO svEndUserID.
+        
+        APPLY "VALUE-CHANGED":U TO svAllItemNo.
+        APPLY "LEAVE":U TO svStartItemNo.
+        APPLY "LEAVE":U TO svEndItemNo.
+        
+        APPLY "VALUE-CHANGED":U TO svAllJobNo.
     END.
 
 END PROCEDURE.
@@ -814,15 +1216,35 @@ PROCEDURE pPopulateOptions :
     DEFINE INPUT PARAMETER iphContainer AS HANDLE NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN
-            hContainer = iphContainer
-            .
-        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartOrdDateOption:HANDLE).
-        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndOrdDateOption:HANDLE).
+        hContainer = iphContainer.
+        
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartOrderDateOption:HANDLE).
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndOrderDateOption:HANDLE).
+        
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartDueDateOption:HANDLE).
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndDueDateOption:HANDLE).
-        
     END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCADRange sObject 
+PROCEDURE pSetCADRange :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+          svStartCAD:READ-ONLY = iplChecked
+          svEndCAD:READ-ONLY   = iplChecked
+          .
+  END.
 
 END PROCEDURE.
 
@@ -843,6 +1265,137 @@ PROCEDURE pSetCustRange :
           svStartCustNo:READ-ONLY = iplChecked
           svEndCustNo:READ-ONLY   = iplChecked
           .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetItemRange sObject 
+PROCEDURE pSetItemRange :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+          svStartItemNo:READ-ONLY = iplChecked
+          svEndItemNo:READ-ONLY   = iplChecked
+          .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetJobRange sObject 
+PROCEDURE pSetJobRange :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+          svStartJobNo:READ-ONLY  = iplChecked
+          svStartJobNo2:READ-ONLY = iplChecked
+          svEndJobNo:READ-ONLY    = iplChecked
+          svEndJobNo2:READ-ONLY   = iplChecked
+          .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetPONumberRange sObject 
+PROCEDURE pSetPONumberRange :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+          svStartPONumber:READ-ONLY = iplChecked
+          svEndPONumber:READ-ONLY   = iplChecked
+          .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetSalesRepRange sObject 
+PROCEDURE pSetSalesRepRange :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+          svStartSalesRep:READ-ONLY = iplChecked
+          svEndSalesRep:READ-ONLY   = iplChecked
+          .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetUserIDRange sObject 
+PROCEDURE pSetUserIDRange :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+          svStartUserID:READ-ONLY = iplChecked
+          svEndUserID:READ-ONLY   = iplChecked
+          .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUseCustList sObject 
+PROCEDURE pUseCustList :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+          svStartCustNo:READ-ONLY = iplChecked
+          svEndCustNo:READ-ONLY   = iplChecked
+          btnCustList:SENSITIVE   = iplChecked
+          .
+      IF iplChecked THEN
+      ASSIGN svAllCustNo:SCREEN-VALUE = "no".
   END.
 
 END PROCEDURE.

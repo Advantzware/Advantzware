@@ -265,7 +265,7 @@ PROCEDURE pProductionAnalysis :
                         ttProductionAnalysis.pass       = mch-act.pass
                         ttProductionAnalysis.actMachine = mch-act.m-code
                         .
-              RUN pro-rate-mr.
+              RUN pProRateMR.
             END. /* not avail tt */
             IF job-code.cat EQ "RUN" THEN DO:
                 ASSIGN
@@ -463,7 +463,7 @@ PROCEDURE pProductionAnalysis :
         END. /* round decimals */
     END. /* each ttProductionAnalysis */
 
-    RUN pProductionAnalysis2.
+    RUN pProductionAnalysis2 (ipcCompany).
 
 END PROCEDURE.
 
@@ -645,6 +645,45 @@ PROCEDURE pProductionAnalysis2 :
             ttProductionAnalysis.totalHours  = ttProductionAnalysis.mrActHr + ttProductionAnalysis.runActHr + ttProductionAnalysis.actDTHr
             .
     END. /* each ttProductionAnalysis */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pProRateMR) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProRateMR Procedure 
+PROCEDURE pProRateMR :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE BUFFER bMchAct  FOR mch-act.
+  DEFINE BUFFER bJobCode FOR job-code.
+
+
+  FOR EACH bMchAct NO-LOCK
+      WHERE bMchAct.company  EQ mch-act.company
+        AND bMchAct.job      EQ mch-act.job
+        AND bMchAct.job-no   EQ mch-act.job-no
+        AND bMchAct.job-no2  EQ mch-act.job-no2
+        AND bMchAct.m-code   EQ mch-act.m-code
+        AND bMchAct.dept     EQ mch-act.dept
+        AND bMchAct.pass     EQ mch-act.pass
+        AND bMchAct.frm      EQ mch-act.frm
+        AND bMchAct.blank-no EQ mch-act.blank-no,
+      FIRST bJobCode NO-LOCK
+      WHERE bJobCode.code EQ bMchAct.code
+      :
+      IF bJobCode.cat EQ "RUN" THEN
+      ttProductionAnalysis.totRunHours = ttProductionAnalysis.totRunHours + bMchAct.hours.
+      ELSE IF bJobCode.cat EQ "MR" THEN
+           ttProductionAnalysis.totMRHours = ttProductionAnalysis.totMRHours + bMchAct.hours.
+  END. /* each bmchact */
 
 END PROCEDURE.
 

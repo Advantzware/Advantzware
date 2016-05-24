@@ -148,35 +148,35 @@ DEFINE VARIABLE svSubRpt_EmployeeTransactions AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
-     svStartMachTranDate AT ROW 3.62 COL 23 COLON-ALIGNED HELP
+     svStartMachTranDate AT ROW 3.14 COL 23 COLON-ALIGNED HELP
           "Enter Start Transaction Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 3.62 COL 41 WIDGET-ID 76
-     svStartMachTranDateOption AT ROW 3.62 COL 44 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 3.14 COL 41 WIDGET-ID 76
+     svStartMachTranDateOption AT ROW 3.14 COL 44 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
-     svEndMachTranDate AT ROW 4.81 COL 23 COLON-ALIGNED HELP
+     svEndMachTranDate AT ROW 4.33 COL 23 COLON-ALIGNED HELP
           "Enter End Transaction Date" WIDGET-ID 68
-     btnCalendar-2 AT ROW 4.81 COL 41 WIDGET-ID 78
-     svEndMachTranDateOption AT ROW 4.81 COL 44 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 4.33 COL 41 WIDGET-ID 78
+     svEndMachTranDateOption AT ROW 4.33 COL 44 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
-     svAllMachine AT ROW 7.19 COL 25 HELP
+     svAllMachine AT ROW 6.48 COL 25 HELP
           "All Macines?" WIDGET-ID 58
-     svStartMachine AT ROW 8.38 COL 23 COLON-ALIGNED HELP
+     svStartMachine AT ROW 7.67 COL 23 COLON-ALIGNED HELP
           "Enter Start Machine" WIDGET-ID 22
-     startMachineDescription AT ROW 8.38 COL 37 COLON-ALIGNED HELP
+     startMachineDescription AT ROW 7.67 COL 37 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndMachine AT ROW 9.57 COL 23 COLON-ALIGNED HELP
+     svEndMachine AT ROW 8.86 COL 23 COLON-ALIGNED HELP
           "Enter End Machine" WIDGET-ID 20
-     endMachineDescription AT ROW 9.57 COL 37 COLON-ALIGNED HELP
+     endMachineDescription AT ROW 8.86 COL 37 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svSort AT ROW 11.95 COL 25.6 NO-LABEL WIDGET-ID 84
-     svSubRpt_EmployeeTransactions AT ROW 16.24 COL 25 HELP
+     svSort AT ROW 10.76 COL 25 NO-LABEL WIDGET-ID 84
+     svSubRpt_EmployeeTransactions AT ROW 14.76 COL 25 HELP
           "Select to Show Employee Transactions" WIDGET-ID 88
      "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 11.95 COL 16 WIDGET-ID 90
+          SIZE 8 BY 1 AT ROW 10.76 COL 16 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 71.6 BY 17.43
+         SIZE 71.6 BY 16
          TITLE "Report Parameters".
 
 
@@ -206,7 +206,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 17.43
+         HEIGHT             = 16
          WIDTH              = 71.6.
 /* END WINDOW DEFINITION */
                                                                         */
