@@ -127,22 +127,22 @@ DEFINE FRAME FRAME-B
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Archive Zero Qty Bins"
+         TITLE              = "Purge  Zero Qty Bins"
          HEIGHT             = 11.38
          WIDTH              = 90.2
          MAX-HEIGHT         = 19.76
          MAX-WIDTH          = 98.2
          VIRTUAL-HEIGHT     = 19.76
          VIRTUAL-WIDTH      = 98.2
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -168,7 +168,7 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -181,7 +181,7 @@ THEN C-Win:HIDDEN = NO.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Archive Zero Qty Bins */
+ON END-ERROR OF C-Win /* Purge  Zero Qty Bins */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -194,7 +194,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Archive Zero Qty Bins */
+ON WINDOW-CLOSE OF C-Win /* Purge  Zero Qty Bins */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
