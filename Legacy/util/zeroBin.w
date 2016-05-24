@@ -35,10 +35,10 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 
 ASSIGN
- cocode = gcompany
- locode = gloc.
+    cocode = gcompany
+    locode = gloc.
 
-DEF VAR v-process AS LOG NO-UNDO.
+DEFINE VARIABLE v-process AS LOG           NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -68,47 +68,47 @@ DEF VAR v-process AS LOG NO-UNDO.
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win     AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
-     LABEL "Ca&ncel" 
-     SIZE 18 BY 1.14.
+    LABEL "Ca&ncel" 
+    SIZE 18 BY 1.14.
 
 DEFINE BUTTON btn-process 
-     LABEL "&Start Process" 
-     SIZE 18 BY 1.14.
+    LABEL "&Start Process" 
+    SIZE 18 BY 1.14.
 
 DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 5.48.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 89 BY 5.48.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     btn-process AT ROW 11 COL 19
-     btn-cancel AT ROW 11 COL 51
-     "Purge All Zero Quantity Bins" VIEW-AS TEXT
-          SIZE 31 BY 1.91 AT ROW 6.48 COL 24 WIDGET-ID 8
-     RECT-17 AT ROW 4.81 COL 1
+    btn-process AT ROW 11 COL 19
+    btn-cancel AT ROW 11 COL 51
+    "Purge All Zero Quantity Bins" VIEW-AS TEXT
+    SIZE 31 BY 1.91 AT ROW 6.48 COL 24 WIDGET-ID 8
+    RECT-17 AT ROW 4.81 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 89.6 BY 18.52.
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1
+    SIZE 89.6 BY 18.52.
 
 DEFINE FRAME FRAME-B
-     "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
-          SIZE 76 BY .95 AT ROW 2.91 COL 8
-          BGCOLOR 11 FGCOLOR 12 FONT 5
-     "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
-          SIZE 84 BY .95 AT ROW 1.95 COL 4
-          BGCOLOR 11 FGCOLOR 12 FONT 5
+    "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
+    SIZE 76 BY .95 AT ROW 2.91 COL 8
+    BGCOLOR 11 FGCOLOR 12 FONT 5
+    "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
+    SIZE 84 BY .95 AT ROW 1.95 COL 4
+    BGCOLOR 11 FGCOLOR 12 FONT 5
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 89.2 BY 3.81
-         BGCOLOR 11 .
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1
+    SIZE 89.2 BY 3.81
+    BGCOLOR 11 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -125,30 +125,30 @@ DEFINE FRAME FRAME-B
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW C-Win ASSIGN
-         HIDDEN             = YES
-         TITLE              = "Purge  Zero Qty Bins"
-         HEIGHT             = 11.38
-         WIDTH              = 90.2
-         MAX-HEIGHT         = 19.76
-         MAX-WIDTH          = 98.2
-         VIRTUAL-HEIGHT     = 19.76
-         VIRTUAL-WIDTH      = 98.2
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
-         BGCOLOR            = ?
-         FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+    CREATE WINDOW C-Win ASSIGN
+        HIDDEN             = YES
+        TITLE              = "Purge  Zero Qty Bins"
+        HEIGHT             = 11.38
+        WIDTH              = 90.2
+        MAX-HEIGHT         = 19.76
+        MAX-WIDTH          = 98.2
+        VIRTUAL-HEIGHT     = 19.76
+        VIRTUAL-WIDTH      = 98.2
+        RESIZE             = YES
+        SCROLL-BARS        = NO
+        STATUS-AREA        = YES
+        BGCOLOR            = ?
+        FGCOLOR            = ?
+        KEEP-FRAME-Z-ORDER = YES
+        THREE-D            = YES
+        MESSAGE-AREA       = NO
+        SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
     MESSAGE "Unable to load icon: images\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -161,14 +161,15 @@ IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* REPARENT FRAME */
-ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
+ASSIGN 
+    FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+    THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -182,12 +183,13 @@ THEN C-Win:HIDDEN = no.
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Purge  Zero Qty Bins */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
-  /* This case occurs when the user presses the "Esc" key.
-     In a persistently run window, just ignore this.  If we did not, the
-     application would exit. */
-  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-END.
+    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+    DO:
+        /* This case occurs when the user presses the "Esc" key.
+           In a persistently run window, just ignore this.  If we did not, the
+           application would exit. */
+        IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -195,11 +197,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Purge  Zero Qty Bins */
-DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
-END.
+    DO:
+        /* This event will close the window and terminate the procedure.  */
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -208,9 +210,9 @@ END.
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-DO:
-    APPLY "close" TO THIS-PROCEDURE.
-END.
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -219,9 +221,9 @@ END.
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
-DO:
-   RUN run-process.
-END.
+    DO:
+        RUN run-process.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -241,7 +243,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
-   RUN disable_UI.
+    RUN disable_UI.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -250,12 +252,12 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-  RUN enable_UI.
-  {methods/nowait.i}
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    RUN enable_UI.
+    {methods/nowait.i}
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -266,18 +268,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Delete the WINDOW we created */
+    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+        THEN DELETE WIDGET C-Win.
+    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -285,21 +287,21 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  ENABLE RECT-17 btn-process btn-cancel 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-  VIEW FRAME FRAME-B IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-FRAME-B}
-  VIEW C-Win.
+    /*------------------------------------------------------------------------------
+      Purpose:     ENABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we display/view/enable the widgets in the
+                   user-interface.  In addition, OPEN all queries
+                   associated with each FRAME and BROWSE.
+                   These statements here are based on the "Other 
+                   Settings" section of the widget Property Sheets.
+    ------------------------------------------------------------------------------*/
+    ENABLE RECT-17 btn-process btn-cancel 
+        WITH FRAME FRAME-A IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+    VIEW FRAME FRAME-B IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-FRAME-B}
+    VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -307,64 +309,68 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-/* ------------------------------------------------ sys/del/est.p 3/29/95 CTS */
-/* Delete / Archive old estimates                                             */
-/* -------------------------------------------------------------------------- */
+    /* ------------------------------------------------ sys/del/est.p 3/29/95 CTS */
+    /* Delete / Archive old estimates                                             */
+    /* -------------------------------------------------------------------------- */
   
 
-DEF VAR archive AS LOG FORMAT "Archive/Delete" NO-UNDO.
-DEF VAR v-file-path AS CHAR FORMAT "X(75)" NO-UNDO.
-DEF VAR lv-msg AS CHAR NO-UNDO.
-DEF VAR tmp-dir AS CHAR NO-UNDO.
-DEF VAR viDirCount AS INT NO-UNDO.
+    DEFINE VARIABLE archive     AS LOG       FORMAT "Archive/Delete" NO-UNDO.
+    DEFINE VARIABLE v-file-path AS CHARACTER FORMAT "X(75)" NO-UNDO.
+    DEFINE VARIABLE lv-msg      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE tmp-dir     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE viDirCount  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iDelCnt     AS INTEGER   NO-UNDO.
 
-
-DO WITH FRAME {&frame-name}:
+    DO WITH FRAME {&frame-name}:
  
- DISABLE TRIGGERS FOR LOAD OF fg-bin.
+        DISABLE TRIGGERS FOR LOAD OF fg-bin.
 
-   lv-msg = "Are you sure you want to delete the bins with 0 quantity?".
+        lv-msg = "Are you sure you want to purge the bins with 0 quantity?".
           
 
-MESSAGE lv-msg
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
+        MESSAGE lv-msg
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
           
-IF v-process THEN DO:
+        IF v-process THEN 
+        DO:
 
-  SESSION:SET-WAIT-STATE("General").
+            SESSION:SET-WAIT-STATE("General").
 
-  FIND FIRST sys-ctrl WHERE
-       sys-ctrl.company EQ cocode AND
-       sys-ctrl.name    EQ "CEBROWSE"
-       NO-LOCK.
+            FIND FIRST sys-ctrl WHERE
+                sys-ctrl.company EQ cocode AND
+                sys-ctrl.name    EQ "CEBROWSE"
+                NO-LOCK.
 
-  IF sys-ctrl.char-fld NE "" THEN
-     tmp-dir = sys-ctrl.char-fld.
-  ELSE
-     tmp-dir = "users\".
+            IF sys-ctrl.char-fld NE "" THEN
+                tmp-dir = sys-ctrl.char-fld.
+            ELSE
+                tmp-dir = "users\".
 
-  IF LOOKUP(SUBSTRING(tmp-dir,LENGTH(tmp-dir)),"\,/") EQ 0 THEN
-     tmp-dir = tmp-dir + "\".
+            IF LOOKUP(SUBSTRING(tmp-dir,LENGTH(tmp-dir)),"\,/") EQ 0 THEN
+                tmp-dir = tmp-dir + "\".
 
-  tmp-dir = REPLACE(tmp-dir,"/","\").
+            tmp-dir = REPLACE(tmp-dir,"/","\").
 
 
 
-  FOR EACH asi.fg-bin
-      WHERE asi.fg-bin.company    EQ cocode
-        AND asi.fg-bin.qty     EQ 0
-       exclusive with frame f-est
-          
-      transaction:
+            FOR EACH asi.fg-bin
+                WHERE asi.fg-bin.company    EQ cocode
+                AND asi.fg-bin.qty     EQ 0
+                EXCLUSIVE-LOCK WITH FRAME f-est          
+                TRANSACTION:
+                idelCnt = idelCnt + 1.
+                DELETE asi.fg-bin.
+                
+            END.
+            
+            
+            SESSION:SET-WAIT-STATE("").
 
-  END.
-  SESSION:SET-WAIT-STATE("").
-
-  MESSAGE "Process Is Completed." VIEW-AS ALERT-BOX.
-  APPLY "close" TO THIS-PROCEDURE.
-END. /* if v-process */
-END. /* do with frame */
-RETURN NO-APPLY.
+            MESSAGE iDelCnt "Records Purged" SKIP  "Process Is Completed." VIEW-AS ALERT-BOX.
+            APPLY "close" TO THIS-PROCEDURE.
+        END. /* if v-process */
+    END. /* do with frame */
+    RETURN NO-APPLY.
   
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
