@@ -305,7 +305,7 @@ DEFINE BROWSE browseUserPrint
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 6.19
-         TITLE "Batch".
+         TITLE "Batch Parameter".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -332,27 +332,12 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 149 BY 15.5.
 
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
-     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 40 BY 8.81
-         TITLE "Show/Hide Sections" WIDGET-ID 300.
-
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
      btnDefault AT ROW 1.71 COL 32 HELP
           "Reset Selected Columns to Default" WIDGET-ID 76
      svSelectedColumns AT ROW 1.71 COL 37 NO-LABEL WIDGET-ID 70
-     btnAdd AT ROW 2.9 COL 32 HELP
+     btnAdd AT ROW 2.91 COL 32 HELP
           "Add Available Column to Selected Columns" WIDGET-ID 58
      btnMoveUp AT ROW 5.29 COL 32 HELP
           "Move Selected Column Up" WIDGET-ID 66
@@ -369,6 +354,21 @@ DEFINE FRAME frameColumns
          AT COL 82 ROW 1
          SIZE 67 BY 8.81
          TITLE "Report Columns" WIDGET-ID 200.
+
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
+     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 40 BY 8.81
+         TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -598,7 +598,7 @@ END.
 &Scoped-define BROWSE-NAME browseUserPrint
 &Scoped-define SELF-NAME browseUserPrint
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseUserPrint W-Win
-ON VALUE-CHANGED OF browseUserPrint IN FRAME paramFrame /* Batch */
+ON VALUE-CHANGED OF browseUserPrint IN FRAME paramFrame /* Batch Parameter */
 DO:
     {&OPEN-QUERY-browseParamValue}
 END.
@@ -1604,11 +1604,6 @@ PROCEDURE pSetWinSize :
                 FRAME frameShow:X                        = hParamFrame:WIDTH-PIXELS + 5
                 FRAME frameShow:Y                        = hParamFrame:Y
                 FRAME frameShow:HIDDEN                   = FALSE
-                BROWSE browseUserPrint:X                 = FRAME frameShow:X
-                BROWSE browseUserPrint:Y                 = FRAME frameShow:HEIGHT-PIXELS + 5
-                BROWSE browseUserPrint:HEIGHT-PIXELS     = hParamFrame:HEIGHT-PIXELS
-                                                         - FRAME frameShow:HEIGHT-PIXELS - 5
-                BROWSE browseUserPrint:HIDDEN            = FALSE
                 FRAME frameColumns:X                     = hParamFrame:WIDTH-PIXELS + 5
                                                          + FRAME frameShow:WIDTH-PIXELS + 5
                 FRAME frameColumns:Y                     = hParamFrame:Y
@@ -1619,6 +1614,13 @@ PROCEDURE pSetWinSize :
                                                          - FRAME frameColumns:HEIGHT-PIXELS
                                                          + btnSave:HEIGHT-PIXELS
                 BROWSE browseParamValue:HIDDEN           = FALSE
+                
+                BROWSE browseUserPrint:X                 = FRAME frameShow:X
+                BROWSE browseUserPrint:Y                 = BROWSE browseParamValue:Y
+                BROWSE browseUserPrint:HEIGHT-PIXELS     = BROWSE browseParamValue:HEIGHT-PIXELS
+                                                         - btnSave:HEIGHT-PIXELS - 5
+                BROWSE browseUserPrint:HIDDEN            = FALSE
+                
                 btnSave:Y                                = btnView:Y
                 btnApply:Y                               = btnView:Y
                 btnDelete:Y                              = btnView:Y
