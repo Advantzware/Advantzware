@@ -39,8 +39,7 @@ DEFINE INPUT PARAMETER ipcParamStr AS CHARACTER NO-UNDO.
 
 {aoa/aoaParamDefs.i}
 
-DEFINE VARIABLE hAppSrv       AS HANDLE    NO-UNDO.
-
+DEFINE VARIABLE hAppSrv          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrinterFile     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrinterList     AS CHARACTER NO-UNDO.
@@ -50,6 +49,7 @@ DEFINE VARIABLE cPrtCmd          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrtPort         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRowType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE idx              AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lShowBatchObjs   AS LOGICAL   NO-UNDO INITIAL YES.
 
 DEFINE TEMP-TABLE ttUserPrint NO-UNDO LIKE user-print
     FIELD UserPrintRowID AS ROWID.
@@ -116,12 +116,14 @@ DEFINE BUFFER bUserPrint FOR user-print.
 &Scoped-Define ENABLED-OBJECTS btnCancel btnView 
 
 /* Custom List Definitions                                              */
-/* ScheduleFields,showFields,batchObjects,List-4,List-5,List-6          */
+/* ScheduleFields,showFields,batchObjects,batchShowHide,List-5,List-6   */
 &Scoped-define showFields svShowAll svShowReportHeader svShowParameters ~
 svShowPageHeader svShowGroupHeader svShowGroupFooter svShowPageFooter ~
 svShowReportFooter 
-&Scoped-define batchObjects browseUserPrint browseParamValue btnDelete ~
-btnApply btnSave 
+&Scoped-define batchObjects btnDelete btnApply btnSave browseUserPrint ~
+browseParamValue btnShowBatch 
+&Scoped-define batchShowHide btnDelete btnApply btnSave browseUserPrint ~
+browseParamValue 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -166,37 +168,39 @@ DEFINE VARIABLE h_aoaParam AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAdd 
+     IMAGE-UP FILE "aoa/images/aoaadd.jpg":U
      LABEL "&Add" 
-     SIZE 8 BY 1.
+     SIZE 4.4 BY 1 TOOLTIP "Add Available Column to Selected Columns".
 
 DEFINE BUTTON btnDefault 
+     IMAGE-UP FILE "aoa/images/aoadefault.jpg":U
      LABEL "&Default" 
-     SIZE 8 BY 1.
+     SIZE 4.4 BY 1 TOOLTIP "Reset Selected Columns to Default".
 
 DEFINE BUTTON btnMoveDown 
-     IMAGE-UP FILE "images/down.bmp":U
+     IMAGE-UP FILE "aoa/images/aoadown.jpg":U
      LABEL "Move Down" 
-     SIZE 5 BY 1.
+     SIZE 4.4 BY 1 TOOLTIP "Move Selected Column Down".
 
 DEFINE BUTTON btnMoveUp 
-     IMAGE-UP FILE "images/up.bmp":U
+     IMAGE-UP FILE "aoa/images/aoaup.jpg":U
      LABEL "Move Up" 
-     SIZE 5 BY 1.
+     SIZE 4.4 BY 1 TOOLTIP "Move Selected Column Up".
 
 DEFINE BUTTON btnRemove 
-     IMAGE-UP FILE "images/cancel.bmp":U
+     IMAGE-UP FILE "aoa/images/aoacancel.jpg":U
      LABEL "<< &Remove" 
-     SIZE 5 BY 1.
+     SIZE 4.4 BY 1 TOOLTIP "Remove Selected Column".
 
 DEFINE VARIABLE svAvailableColumns AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
      LIST-ITEM-PAIRS "empty","empty" 
-     SIZE 28 BY 6.14 NO-UNDO.
+     SIZE 30 BY 6.91 NO-UNDO.
 
 DEFINE VARIABLE svSelectedColumns AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
      LIST-ITEM-PAIRS "empty","empty" 
-     SIZE 28 BY 6.14 NO-UNDO.
+     SIZE 30 BY 6.91 NO-UNDO.
 
 DEFINE VARIABLE svShowAll AS LOGICAL INITIAL no 
      LABEL "Show ALL" 
@@ -239,28 +243,38 @@ DEFINE VARIABLE svShowReportHeader AS LOGICAL INITIAL no
      SIZE 34 BY .81 NO-UNDO.
 
 DEFINE BUTTON btnApply 
+     IMAGE-UP FILE "aoa/images/aoaapply.jpg":U
      LABEL "&Apply" 
-     SIZE 12.6 BY 1.1.
+     SIZE 4.4 BY 1 TOOLTIP "Apply Batch Values to Parameter Values".
 
 DEFINE BUTTON btnCancel AUTO-END-KEY 
+     IMAGE-UP FILE "aoa/images/aoaclose.jpg":U
      LABEL "&Cancel" 
-     SIZE 12.6 BY 1.14.
+     SIZE 4.4 BY 1 TOOLTIP "Close".
 
 DEFINE BUTTON btnDelete 
+     IMAGE-UP FILE "aoa/images/aoacancel.jpg":U
      LABEL "&Delete" 
-     SIZE 12.6 BY 1.1.
+     SIZE 4.4 BY 1 TOOLTIP "Delete Batch ID".
 
 DEFINE BUTTON btnSave 
+     IMAGE-UP FILE "aoa/images/aoasave.jpg":U
      LABEL "&Save" 
-     SIZE 12.6 BY 1.1.
+     SIZE 4.4 BY 1 TOOLTIP "Save Parameter Values to Batch ID".
 
 DEFINE BUTTON btnScheduler 
      LABEL "Assign &Scheduler Batch ID" 
-     SIZE 31 BY 1.14.
+     SIZE 27 BY 1 TOOLTIP "Assign Batch ID to Parameter Values".
+
+DEFINE BUTTON btnShowBatch 
+     IMAGE-UP FILE "aoa/images/aoashowbatch.jpg":U
+     LABEL "&ShowBatch" 
+     SIZE 4.4 BY 1 TOOLTIP "Show Batch Parameter Values".
 
 DEFINE BUTTON btnView 
+     IMAGE-UP FILE "aoa/images/aoaview.jpg":U
      LABEL "&View" 
-     SIZE 12.6 BY 1.14.
+     SIZE 4.4 BY 1 TOOLTIP "View".
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -279,7 +293,7 @@ DEFINE BROWSE browseParamValue
     ttParamValue.paramValue
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 67 BY 11.67
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 67 BY 6.19
          TITLE "Batch Parameter Values".
 
 DEFINE BROWSE browseUserPrint
@@ -290,46 +304,33 @@ DEFINE BROWSE browseUserPrint
       STRING(ttUserPrint.last-time,"hh:mm:ss am") LABEL "Time" FORMAT "x(12)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 12.86
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 6.19
          TITLE "Batch".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME paramFrame
-     browseUserPrint AT ROW 10.05 COL 42 WIDGET-ID 500
-     browseParamValue AT ROW 12.67 COL 83 WIDGET-ID 600
-     btnCancel AT ROW 21.71 COL 2 WIDGET-ID 12
-     btnView AT ROW 21.71 COL 15 WIDGET-ID 14
-     btnScheduler AT ROW 23.14 COL 2 WIDGET-ID 10
-     btnDelete AT ROW 23.14 COL 41 WIDGET-ID 4
-     btnApply AT ROW 23.14 COL 55 WIDGET-ID 16
-     btnSave AT ROW 23.14 COL 69 WIDGET-ID 18
+     btnCancel AT ROW 2.43 COL 2 HELP
+          "Close" WIDGET-ID 12
+     btnView AT ROW 2.43 COL 7 HELP
+          "View" WIDGET-ID 14
+     btnDelete AT ROW 2.43 COL 26 HELP
+          "Delete Batch ID" WIDGET-ID 4
+     btnApply AT ROW 2.43 COL 31 HELP
+          "Apply Batch Values to Parameter Values" WIDGET-ID 16
+     btnSave AT ROW 2.43 COL 36 HELP
+          "Save Parameter Values to Batch ID" WIDGET-ID 18
+     browseUserPrint AT ROW 10.05 COL 41 WIDGET-ID 500
+     browseParamValue AT ROW 10.05 COL 82 WIDGET-ID 600
+     btnScheduler AT ROW 15.29 COL 2 HELP
+          "Assign Batch ID to Parameter Values" WIDGET-ID 10
+     btnShowBatch AT ROW 15.29 COL 30 HELP
+          "Show Batch Parameter Values" WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 23.5.
-
-DEFINE FRAME frameColumns
-     svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
-     svSelectedColumns AT ROW 1.71 COL 39 NO-LABEL WIDGET-ID 70
-     btnDefault AT ROW 1.95 COL 30 HELP
-          "Add Selected Table to Display" WIDGET-ID 76
-     btnAdd AT ROW 3.14 COL 30 HELP
-          "Add Selected Table to Display" WIDGET-ID 58
-     btnMoveUp AT ROW 4.81 COL 33 WIDGET-ID 66
-     btnRemove AT ROW 5.76 COL 33 HELP
-          "Remove Selected Table from Tables to Audit" WIDGET-ID 64
-     btnMoveDown AT ROW 6.71 COL 33 WIDGET-ID 62
-     "Selected Columns (In Order)" VIEW-AS TEXT
-          SIZE 28 BY .62 AT ROW 1 COL 39 WIDGET-ID 72
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 1 COL 2 WIDGET-ID 74
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 83 ROW 1
-         SIZE 67 BY 7.86
-         TITLE "Report Columns" WIDGET-ID 200.
+         SIZE 149 BY 15.5.
 
 DEFINE FRAME frameShow
      svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
@@ -342,9 +343,32 @@ DEFINE FRAME frameShow
      svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 42 ROW 1
+         AT COL 41 ROW 1
          SIZE 40 BY 8.81
          TITLE "Show/Hide Sections" WIDGET-ID 300.
+
+DEFINE FRAME frameColumns
+     svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
+     btnDefault AT ROW 1.71 COL 32 HELP
+          "Reset Selected Columns to Default" WIDGET-ID 76
+     svSelectedColumns AT ROW 1.71 COL 37 NO-LABEL WIDGET-ID 70
+     btnAdd AT ROW 2.9 COL 32 HELP
+          "Add Available Column to Selected Columns" WIDGET-ID 58
+     btnMoveUp AT ROW 5.29 COL 32 HELP
+          "Move Selected Column Up" WIDGET-ID 66
+     btnRemove AT ROW 6.48 COL 32 HELP
+          "Remove Selected Column" WIDGET-ID 64
+     btnMoveDown AT ROW 7.67 COL 32 HELP
+          "Move Selected Column Down" WIDGET-ID 62
+     "Selected Columns (In Order)" VIEW-AS TEXT
+          SIZE 28 BY .62 AT ROW 1 COL 37 WIDGET-ID 72
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 1 COL 2 WIDGET-ID 74
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 82 ROW 1
+         SIZE 67 BY 8.81
+         TITLE "Report Columns" WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -364,12 +388,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "AdvantzwareOA"
-         HEIGHT             = 23.52
-         WIDTH              = 150
-         MAX-HEIGHT         = 23.52
-         MAX-WIDTH          = 150
-         VIRTUAL-HEIGHT     = 23.52
-         VIRTUAL-WIDTH      = 150
+         HEIGHT             = 15.52
+         WIDTH              = 149
+         MAX-HEIGHT         = 15.52
+         MAX-WIDTH          = 149
+         VIRTUAL-HEIGHT     = 15.52
+         VIRTUAL-WIDTH      = 149
          SHOW-IN-TASKBAR    = no
          MAX-BUTTON         = no
          RESIZE             = no
@@ -438,20 +462,20 @@ ASSIGN
    2                                                                    */
 /* SETTINGS FOR FRAME paramFrame
    FRAME-NAME                                                           */
-/* BROWSE-TAB browseUserPrint frameColumns paramFrame */
+/* BROWSE-TAB browseUserPrint btnSave paramFrame */
 /* BROWSE-TAB browseParamValue browseUserPrint paramFrame */
 /* SETTINGS FOR BROWSE browseParamValue IN FRAME paramFrame
-   NO-ENABLE 3                                                          */
+   NO-ENABLE 3 4                                                        */
 ASSIGN 
        browseParamValue:HIDDEN  IN FRAME paramFrame                = TRUE.
 
 /* SETTINGS FOR BROWSE browseUserPrint IN FRAME paramFrame
-   NO-ENABLE 3                                                          */
+   NO-ENABLE 3 4                                                        */
 ASSIGN 
        browseUserPrint:HIDDEN  IN FRAME paramFrame                = TRUE.
 
 /* SETTINGS FOR BUTTON btnApply IN FRAME paramFrame
-   NO-ENABLE 3                                                          */
+   NO-ENABLE 3 4                                                        */
 ASSIGN 
        btnApply:HIDDEN IN FRAME paramFrame           = TRUE.
 
@@ -460,12 +484,12 @@ ASSIGN
                 "WinKitRibbon".
 
 /* SETTINGS FOR BUTTON btnDelete IN FRAME paramFrame
-   NO-ENABLE 3                                                          */
+   NO-ENABLE 3 4                                                        */
 ASSIGN 
        btnDelete:HIDDEN IN FRAME paramFrame           = TRUE.
 
 /* SETTINGS FOR BUTTON btnSave IN FRAME paramFrame
-   NO-ENABLE 3                                                          */
+   NO-ENABLE 3 4                                                        */
 ASSIGN 
        btnSave:HIDDEN IN FRAME paramFrame           = TRUE.
 
@@ -474,6 +498,13 @@ ASSIGN
 ASSIGN 
        btnScheduler:HIDDEN IN FRAME paramFrame           = TRUE
        btnScheduler:PRIVATE-DATA IN FRAME paramFrame     = 
+                "WinKitRibbon".
+
+/* SETTINGS FOR BUTTON btnShowBatch IN FRAME paramFrame
+   NO-ENABLE 3                                                          */
+ASSIGN 
+       btnShowBatch:HIDDEN IN FRAME paramFrame           = TRUE
+       btnShowBatch:PRIVATE-DATA IN FRAME paramFrame     = 
                 "WinKitRibbon".
 
 ASSIGN 
@@ -726,6 +757,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnShowBatch
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnShowBatch W-Win
+ON CHOOSE OF btnShowBatch IN FRAME paramFrame /* ShowBatch */
+DO:
+    RUN pShowBatchObjs.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnView
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView W-Win
 ON CHOOSE OF btnView IN FRAME paramFrame /* View */
@@ -972,7 +1014,7 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-frameShow}
   DISPLAY svAvailableColumns svSelectedColumns 
       WITH FRAME frameColumns IN WINDOW W-Win.
-  ENABLE svAvailableColumns svSelectedColumns btnDefault btnAdd btnMoveUp 
+  ENABLE svAvailableColumns btnDefault svSelectedColumns btnAdd btnMoveUp 
          btnRemove btnMoveDown 
       WITH FRAME frameColumns IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-frameColumns}
@@ -996,6 +1038,7 @@ PROCEDURE local-create-objects :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pSetWinSize.
+  RUN pShowBatchObjs.
   
 END PROCEDURE.
 
@@ -1519,27 +1562,23 @@ PROCEDURE pSetWinSize :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hParamFrame    AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE iColumnsWidth  AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iDiff          AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lReport        AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE hParamFrame AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE iWidth      AS INTEGER NO-UNDO.
 
     RUN get-attribute IN h_aoaParam ('adm-object-handle':U).
-    ASSIGN
-        hParamFrame = WIDGET-HANDLE(RETURN-VALUE)
-        lReport     = aoaType EQ "report"
-        lReport     = NO /* disable schedule frame */
-        .
+    hParamFrame = WIDGET-HANDLE(RETURN-VALUE).
 
     IF NOT VALID-HANDLE(hParamFrame) THEN RETURN.
 
+    IF aoaColumns THEN
+    iWidth = FRAME frameShow:WIDTH-PIXELS + 5
+           + FRAME frameColumns:WIDTH-PIXELS + 5.
+    
     DO WITH FRAME {&FRAME-NAME}:
-        IF aoaColumns THEN
-        iColumnsWidth = FRAME frameShow:WIDTH-PIXELS + 5 + FRAME frameColumns:WIDTH-PIXELS + 5.
-
         ASSIGN
-            {&WINDOW-NAME}:HEIGHT-PIXELS              = hParamFrame:HEIGHT-PIXELS + 5 + btnView:HEIGHT-PIXELS + 5
-            {&WINDOW-NAME}:WIDTH-PIXELS               = hParamFrame:WIDTH-PIXELS + 5 + iColumnsWidth
+            {&WINDOW-NAME}:HEIGHT-PIXELS              = hParamFrame:HEIGHT-PIXELS + 5
+                                                      + btnView:HEIGHT-PIXELS + 5
+            {&WINDOW-NAME}:WIDTH-PIXELS               = hParamFrame:WIDTH-PIXELS + 5 + iWidth
             {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS      = {&WINDOW-NAME}:HEIGHT-PIXELS
             {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS       = {&WINDOW-NAME}:WIDTH-PIXELS
             FRAME {&FRAME-NAME}:WIDTH-PIXELS          = {&WINDOW-NAME}:WIDTH-PIXELS
@@ -1547,50 +1586,79 @@ PROCEDURE pSetWinSize :
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
             btnScheduler:Y                            = hParamFrame:HEIGHT-PIXELS + 5
+            btnShowBatch:Y                            = hParamFrame:HEIGHT-PIXELS + 5
             btnCancel:Y                               = hParamFrame:HEIGHT-PIXELS + 5
             btnView:Y                                 = hParamFrame:HEIGHT-PIXELS + 5
-            iDiff                                     = hParamFrame:WIDTH-PIXELS - btnView:WIDTH-PIXELS * 2 - 5
-            btnView:X                                 = btnView:X + iDiff
-            btnCancel:X                               = btnCancel:X + iDiff
+            btnShowBatch:X                            = btnScheduler:X + btnScheduler:WIDTH-PIXELS + 2
+            btnView:X                                 = hParamFrame:WIDTH-PIXELS - btnView:WIDTH-PIXELS
+            btnCancel:X                               = btnView:X - btnCancel:WIDTH-PIXELS - 2
             .
 
         IF aoaColumns THEN DO:
             ASSIGN
-                iDiff = hParamFrame:HEIGHT-PIXELS / 2
-                FRAME frameColumns:HEIGHT-PIXELS      = iDiff
-                svAvailableColumns:HEIGHT-PIXELS      = FRAME frameColumns:HEIGHT-PIXELS - 40
-                svSelectedColumns:HEIGHT-PIXELS       = svAvailableColumns:HEIGHT-PIXELS
-                
-                
-                FRAME frameShow:X                     = hParamFrame:WIDTH-PIXELS + 5
-                FRAME frameShow:Y                     = hParamFrame:Y
-                FRAME frameShow:HIDDEN                = FALSE
-                
-                BROWSE browseUserPrint:X              = FRAME frameShow:X
-                BROWSE browseUserPrint:Y              = FRAME frameShow:HEIGHT-PIXELS + 5
-                BROWSE browseUserPrint:HEIGHT-PIXELS  = hParamFrame:HEIGHT-PIXELS - FRAME frameShow:HEIGHT-PIXELS - 5
-                BROWSE browseUserPrint:HIDDEN         = FALSE
-                
-                FRAME frameColumns:X                  = hParamFrame:WIDTH-PIXELS + 5
-                                                      + FRAME frameShow:WIDTH-PIXELS + 5
-                FRAME frameColumns:Y                  = hParamFrame:Y
-                FRAME frameColumns:HIDDEN             = FALSE
-                
-                BROWSE browseParamValue:X             = FRAME frameColumns:X
-                BROWSE browseParamValue:Y             = FRAME frameColumns:HEIGHT-PIXELS + 5
-                BROWSE browseParamValue:HEIGHT-PIXELS = iDiff + 25
-                BROWSE browseParamValue:HIDDEN        = FALSE
-
-                btnDelete:X                           = BROWSE browseUserPrint:X
-                btnDelete:Y                           = btnView:Y
-                btnApply:X                            = btnDelete:X + btnDelete:WIDTH-PIXELS + 5
-                btnApply:Y                            = btnView:Y
-                btnSave:X                             = btnApply:X + btnApply:WIDTH-PIXELS + 5
-                btnSave:Y                             = btnView:Y
+                FRAME frameColumns:HEIGHT-PIXELS         = MAXIMUM(FRAME frameShow:HEIGHT-PIXELS,
+                                                                   hParamFrame:HEIGHT-PIXELS / 2)
+                FRAME frameColumns:VIRTUAL-HEIGHT-PIXELS = FRAME frameColumns:HEIGHT-PIXELS
+                svAvailableColumns:HEIGHT-PIXELS         = FRAME frameColumns:HEIGHT-PIXELS - 40
+                svSelectedColumns:HEIGHT-PIXELS          = svAvailableColumns:HEIGHT-PIXELS
+                FRAME frameShow:X                        = hParamFrame:WIDTH-PIXELS + 5
+                FRAME frameShow:Y                        = hParamFrame:Y
+                FRAME frameShow:HIDDEN                   = FALSE
+                BROWSE browseUserPrint:X                 = FRAME frameShow:X
+                BROWSE browseUserPrint:Y                 = FRAME frameShow:HEIGHT-PIXELS + 5
+                BROWSE browseUserPrint:HEIGHT-PIXELS     = hParamFrame:HEIGHT-PIXELS
+                                                         - FRAME frameShow:HEIGHT-PIXELS - 5
+                BROWSE browseUserPrint:HIDDEN            = FALSE
+                FRAME frameColumns:X                     = hParamFrame:WIDTH-PIXELS + 5
+                                                         + FRAME frameShow:WIDTH-PIXELS + 5
+                FRAME frameColumns:Y                     = hParamFrame:Y
+                FRAME frameColumns:HIDDEN                = FALSE
+                BROWSE browseParamValue:X                = FRAME frameColumns:X
+                BROWSE browseParamValue:Y                = FRAME frameColumns:HEIGHT-PIXELS + 5
+                BROWSE browseParamValue:HEIGHT-PIXELS    = hParamFrame:HEIGHT-PIXELS
+                                                         - FRAME frameColumns:HEIGHT-PIXELS
+                                                         + btnSave:HEIGHT-PIXELS
+                BROWSE browseParamValue:HIDDEN           = FALSE
+                btnSave:Y                                = btnView:Y
+                btnApply:Y                               = btnView:Y
+                btnDelete:Y                              = btnView:Y
+                btnSave:X                                = FRAME frameShow:X
+                                                         + FRAME frameShow:WIDTH-PIXELS
+                                                         - btnDelete:WIDTH-PIXELS - 15
+                btnApply:X                               = btnSave:X - btnSave:WIDTH-PIXELS - 2
+                btnDelete:X                              = btnApply:X - btnApply:WIDTH-PIXELS - 2
                 .
             ENABLE {&batchObjects}.
         END. /* if aoacolumns */
     END. /* with frame  */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowBatchObjs W-Win 
+PROCEDURE pShowBatchObjs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        lShowBatchObjs = NOT lShowBatchObjs.
+        IF lShowBatchObjs THEN DO:
+            FRAME frameColumns:HIDDEN = TRUE.
+            RUN pSetWinSize.
+        END. /* if showbatchobjs */
+        ELSE DO:
+            HIDE {&batchShowHide}.
+            ASSIGN
+                FRAME frameColumns:HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS - 5
+                svAvailableColumns:HEIGHT-PIXELS = FRAME frameColumns:HEIGHT-PIXELS - 40
+                svSelectedColumns:HEIGHT-PIXELS  = svAvailableColumns:HEIGHT-PIXELS
+                .
+        END. /* else */
+    END. /* do with frame */
 
 END PROCEDURE.
 
