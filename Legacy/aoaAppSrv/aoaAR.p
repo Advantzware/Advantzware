@@ -62,6 +62,33 @@ DEFINE TEMP-TABLE tt-report-inv NO-UNDO LIKE report
     FIELD inv-no AS INT.
 /* Cash Receipt By SalesRep Name.rpa */
 
+/* Cash Receipts By SalesRep.rpa */
+DEFINE TEMP-TABLE ttCashReceiptBySalesRep NO-UNDO
+    FIELD salesRep    AS CHARACTER LABEL "Sales Rep"
+    FIELD salesName   AS CHARACTER LABEL "Sales Name"
+    FIELD custNo      AS CHARACTER LABEL "Customer"
+    FIELD custName    AS CHARACTER LABEL "Customer Name"
+    FIELD terms       AS CHARACTER LABEL "Terms"
+    FIELD invoiceNo   AS INTEGER   LABEL "Invoice"
+    FIELD invDate     AS DATE      LABEL "Inv Date"
+    FIELD chkDate     AS DATE      LABEL "Check Date"
+    FIELD Aging       AS DECIMAL   LABEL "Aging"
+    FIELD invAmt      AS DECIMAL   LABEL "Inv Amount"
+    FIELD amtPaid     AS DECIMAL   LABEL "Amt Paid"
+    FIELD discount    AS DECIMAL   LABEL "Discount"
+    FIELD balAftPay   AS DECIMAL   LABEL "Bal Aft Pymt"
+    FIELD commAmt     AS DECIMAL   LABEL "Comm Amt"
+    FIELD commPct     AS DECIMAL   LABEL "Comm Pct"
+    FIELD rec-id      AS RECID
+    FIELD row-id      AS ROWID
+    .
+DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
+    FIELD inv-no AS INT 
+    FIELD chk-inv AS LOG INIT YES.
+DEFINE TEMP-TABLE tt-report-inv NO-UNDO LIKE report 
+    FIELD inv-no AS INT  .
+/* Cash Receipts By SalesRep.rpa */
+
 /* Commision Cash Receipt.rpa */
 DEFINE TEMP-TABLE ttCommissionCashReceipt NO-UNDO
     {aoaAppSrv/ttFields.i}
@@ -110,6 +137,19 @@ DEFINE TEMP-TABLE ttCommissionCashReceipt NO-UNDO
 /* ************************  Function Prototypes ********************** */
 
 &IF DEFINED(EXCLUDE-fCashReceiptBySalesRepName) = 0 &THEN
+&IF DEFINED(EXCLUDE-fCashReceiptBySalesRep) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCashReceiptBySalesRep Procedure 
+FUNCTION fCashReceiptBySalesRep RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCashReceiptBySalesRepName Procedure 
 FUNCTION fCashReceiptBySalesRepName RETURNS HANDLE
@@ -573,6 +613,161 @@ END PROCEDURE.
 
 &ENDIF
 
+                 v-inv-full = v-inv-full + ar-invl.amt.
+
+              IF NOT lPrep AND ar-invl.misc THEN v-misc = v-misc + ar-invl.amt.
+              ELSE DO:
+                ASSIGN
+                      v-amt[1] = v-amt[1] + ar-invl.amt
+                      v-tmp-amt-1 = v-amt[1].
+    
+                  if ar-invl.sman[1] ne "" then
+                  do i = 1 to 3:
+                     if tt-report.key-01 eq ar-invl.sman[i] then do:
+                        ASSIGN
+                           v-amt[2] = v-amt[2] + (ar-invl.amt * ar-invl.s-pct[i] / 100)
+                           v-com    = v-com +
+                                      (((ar-invl.amt - if v-basis EQ "G" then ar-invl.t-cost else 0) *
+                                      ar-invl.s-pct[i] / 100) * ar-invl.s-comm[i] / 100).
+                        leave.
+                     end.
+                  end.
+               
+                  else
+                     assign
+                        v-amt[2] = v-amt[2] + ar-invl.amt
+                        v-com    = v-com +
+                                   ((ar-invl.amt - if v-basis EQ "G" then ar-invl.t-cost else 0) *
+                                   (if avail sman then (sman.scomm / 100) else 0)).
+                    
+              END.
+           end. /*end FIRST-OF(tt-report.inv-no)*/
+         
+       END. /*end each ar-invl*/
+
+       IF v-inv-found = NO THEN
+          ASSIGN
+             v-amt[1] = ar-cashl.amt-paid + v-dsc[1] - v-misc
+             v-tmp-amt-1 = v-amt[1]
+             v-amt[2] = v-amt[1]
+             v-com    = v-amt[1] * (if avail sman then (sman.scomm / 100) else 0).
+
+       assign
+          v-pct    = v-amt[2] / v-tmp-amt-1
+          v-amt[1] = (ar-cashl.amt-paid + v-dsc[1] - v-misc) * v-pct    /* task 02261403 */
+          v-pct    = v-amt[1] / v-amt[2]
+          v-com-2  = v-com * v-pct.
+
+       release ar-inv.
+    end.
+    
+    else do:
+      find ar-invl where recid(ar-invl) eq tt-report.rec-id no-lock.
+      find first ar-inv where ar-inv.x-no eq ar-invl.x-no no-lock.
+
+      FIND FIRST itemfg
+            WHERE itemfg.company EQ ipcCompany
+              AND itemfg.i-no    EQ ar-invl.i-no
+            NO-LOCK NO-ERROR.
+
+      RUN custom/combasis.p (ipcCompany, tt-report.key-01, cust.type,
+                             (IF AVAIL itemfg THEN itemfg.procat ELSE ""), 0,
+                             cust.cust-no,
+                             OUTPUT v-basis).
+     ASSIGN
+         v-inv-full = ar-invl.amt .
+
+      IF NOT lPrep AND ar-invl.misc THEN NEXT.
+
+    ASSIGN
+       v-amt[1] = ar-invl.amt 
+       v-tmp-amt-1 = v-amt[1]
+       v-com    = (ar-invl.amt - if v-basis EQ "G" then ar-invl.t-cost else 0) *
+                  (if avail sman then (sman.scomm / 100) else 0)
+       v-com-2  = v-com.
+        
+    end.
+    
+    if v-com-2  eq ? then v-com-2 = 0.
+    if v-amt[1] eq ? then
+       ASSIGN v-amt[1] = 0
+              v-tmp-amt-1 = 0.
+    
+    ASSIGN
+       v-c-% = v-com-2 / v-amt[1] * 100
+       v-amt[1] = v-tmp-amt-1. /*multiple payments against an invoice, reset v-amt[1] value*/
+    
+    if v-c-% eq ? then v-c-% = 0.
+    
+    v-paid[1] = v-amt-full.
+
+  
+
+    v-aging = (IF v-check-date <> ? AND v-inv-date <> ? THEN v-check-date - v-inv-date ELSE 0).
+
+    IF FIRST-OF(tt-report.inv-no) THEN
+       v-rem-bal  = v-inv-full - v-amt-full - v-dsc[1].
+    ELSE
+       v-rem-bal  = v-rem-bal - v-amt-full - v-dsc[1].
+
+       PUT UNFORMATTED "ttCashReceiptBySalesRep" SKIP.
+
+       CREATE ttCashReceiptBySalesRep .
+       ASSIGN
+           ttCashReceiptBySalesRep.salesRep      = string(tt-report.key-01) 
+           ttCashReceiptBySalesRep.salesName     =  IF AVAIL sman THEN string(sman.sname) ELSE ""
+           ttCashReceiptBySalesRep.custNo        = STRING(tt-report.key-09)
+           ttCashReceiptBySalesRep.custName      = tt-report.key-10
+           ttCashReceiptBySalesRep.terms         = tt-report.key-08
+           ttCashReceiptBySalesRep.invoiceNo     = IF AVAIL ar-cashl THEN  ar-cashl.inv-no ELSE IF AVAIL ar-inv THEN  ar-inv.inv-no ELSE 0
+           ttCashReceiptBySalesRep.invDate       = v-inv-date   
+           ttCashReceiptBySalesRep.chkDate       = v-check-date 
+           ttCashReceiptBySalesRep.Aging         = v-aging
+           ttCashReceiptBySalesRep.invAmt        = v-inv-full
+           ttCashReceiptBySalesRep.amtPaid       = v-amt-full
+           ttCashReceiptBySalesRep.discount      = v-dsc[1]
+           ttCashReceiptBySalesRep.balAftPay     = v-rem-bal
+           ttCashReceiptBySalesRep.commAmt       = v-com-2
+           ttCashReceiptBySalesRep.commPct       = v-c-%  .
+          
+    assign
+     v-tot-paid[1] = v-tot-paid[1] + v-paid[1]
+     v-tot-dsc[1] = v-tot-dsc[1] + v-dsc[1]
+     v-tot-amt[1] = v-tot-amt[1] + v-inv-full
+     v-tot-com[1] = v-tot-com[1] + v-com-2.
+
+    IF LAST-OF(tt-report.inv-no) THEN
+       v-tot-rem[1] = v-tot-rem[1] + v-rem-bal.
+     
+    if last-of(tt-report.key-02) then do:
+      if cShowInvoice then do:
+       
+       v-c-% = v-tot-com[1] / v-tot-amt[1] * 100.
+        
+        if v-c-% eq ? then v-c-% = 0.
+       
+      end.
+
+      ASSIGN
+       v-tot-paid[1] = 0
+       v-tot-dsc[1] = 0
+       v-tot-amt[1] = 0
+       v-tot-rem[1] = 0
+       v-tot-com[1] = 0.
+
+    end. /* last of key-02 */
+ 
+
+    delete tt-report.
+  end.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-pCommissionCashReceipt) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCommissionCashReceipt Procedure 
@@ -866,6 +1061,30 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fCashReceiptBySalesRepName) = 0 &THEN
+&IF DEFINED(EXCLUDE-fCashReceiptBySalesRep) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCashReceiptBySalesRep Procedure 
+FUNCTION fCashReceiptBySalesRep RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Cash Receipts by Sales Rep.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttCashReceiptBySalesRep.
+
+    RUN pCashReceiptBySalesRep (ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttCashReceiptBySalesRep:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCashReceiptBySalesRepName Procedure 
 FUNCTION fCashReceiptBySalesRepName RETURNS HANDLE
@@ -926,6 +1145,9 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Cash Receipt By SalesRep Name.rpa */
         WHEN "r-cashs2." THEN
         RETURN TEMP-TABLE ttCashReceiptBySalesRepName:HANDLE.
+        /* Cash Receipts By SalesRep.rpa */
+        WHEN "r-cashs2." THEN
+        RETURN TEMP-TABLE ttCashReceiptBySalesRep:HANDLE.
         /* Commision Cash Receipt.rpa */
         WHEN "r-commcr." THEN
         RETURN TEMP-TABLE ttCommissionCashReceipt:HANDLE.
