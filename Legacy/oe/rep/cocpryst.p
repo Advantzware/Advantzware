@@ -12,12 +12,13 @@ def buffer xitemfg      for itemfg.
 {oe/rep/oe-lad.i}
 
 def var v-fob               as   char format "x(7)".
-def var v-terms              as   char format "x(12)".
+def var v-terms             as   char format "x(12)".
 def var v-name              as   char format "x(30)".
-def var v-price              as   INT format ">>>>>>>>".
-def var v-tot-price              as   INT format ">>>>>>>>>>".
+def var v-price             as   INT format ">>>>>>>>".
+def var v-tot-price         as   INT format ">>>>>>>>>>".
 def var v-dscr              as   char format "x(30)".
 def var v-ord-bol           as   char format "x(15)".
+def var v-ord-no            as   INT  format ">>>>>>>".
 def var v-ord-date          like oe-ord.ord-date.
 def var v-part-qty          as   dec.
 def var v-po-no             like oe-bolh.po-no extent 2.
@@ -25,6 +26,11 @@ def var v-bol-qty           like oe-boll.qty.
 def var v-qty-alf           as   char format "x(10)".
 def var v-bin               as   char format "x(22)" extent 4.
 def var v-ship-i            as   char extent 2 format "x(60)".
+DEF VAR cases               AS   INT NO-UNDO.
+DEF VAR qty-cases           AS   INT NO-UNDO.
+DEF VAR pallet              AS   INT NO-UNDO.
+DEF VAR v-line-count        AS   INT NO-UNDO.
+
 
 def var v-ship-name  like shipto.ship-name.
 def var v-ship-addr  like shipto.ship-addr.
@@ -47,7 +53,6 @@ FILE-INFO:FILE-NAME = ls-image1.
 ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 FILE-INFO:FILE-NAME = ls-image2.
 ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".
-
 
 def workfile w1
   field part-no like fg-set.part-no
@@ -144,9 +149,11 @@ for each report   where report.term-id eq v-term-id,
      xreport.key-01  = report.key-01
      xreport.key-02  = report.key-02
      xreport.key-03  = report.key-03
-     xreport.key-04  = report.key-04
-     xreport.key-05  = if avail oe-rel then oe-rel.po-no else ""
+     xreport.key-04  = /*report.key-04*/ string(oe-boll.ord-no )
+     xreport.key-05  = if avail oe-rel then oe-rel.po-no else "" 
      xreport.key-06  = oe-boll.i-no
+     xreport.key-07  = string(oe-boll.cases)
+     xreport.key-08  = string(oe-boll.qty-case)
      xreport.rec-id  = recid(oe-boll).
   end.
 
@@ -168,14 +175,15 @@ for each report   where report.term-id eq v-term-id no-lock,
           by report.key-04
           by report.key-05
           by report.key-06
-
+          by report.key-07
+          by report.key-08
     with frame coc-mid:
 
   assign
    v-po-no[1] = report.key-04
    v-po-no[2] = report.key-05.
 
-  if first-of(report.key-05) then do:
+  if first-of(report.key-06) then do:
     find first carrier
         where carrier.company eq cocode
           and carrier.carrier eq oe-bolh.carrier
@@ -209,7 +217,12 @@ for each report   where report.term-id eq v-term-id no-lock,
      v-tot-price  = 0 
      v-ord-bol  = trim(string(oe-bolh.ord-no,">>>>>9")) + " / " +
                   trim(string(oe-bolh.bol-no,">>>>>9"))
-     v-ord-date = oe-bolh.bol-date.
+     v-ord-date = oe-bolh.bol-date
+     cases      = 0   
+     qty-cases  = 0
+     pallet     = 0 
+     v-line-count = 0
+        .
 
     find first oe-ord
         where oe-ord.company eq cocode
@@ -227,10 +240,15 @@ for each report   where report.term-id eq v-term-id no-lock,
        v-fob      = if oe-ord.fob-code begins "ORIG" then "ORIG"
                                                      else "DEST"
        v-ord-date = oe-ord.ord-date
-       v-terms    = oe-ord.terms               .
+       v-terms    = oe-ord.terms     
+       v-ord-no   = oe-ord.ord-no          .
 
     end.
-    {oe/rep/cocpryst.i}
+    IF FIRST-OF (report.key-06) THEN do:
+        IF NOT FIRST(report.key-06) THEN
+            PAGE.
+        {oe/rep/cocpryst.i}
+    END.
     /*page.
       hide frame coc-bot no-pause.
     */
@@ -242,8 +260,13 @@ for each report   where report.term-id eq v-term-id no-lock,
   end.
   
   v-bol-qty = v-bol-qty + oe-boll.qty.
+  ASSIGN
+     cases      = oe-boll.cases  
+     qty-cases  = oe-boll.qty-case 
+     pallet     = pallet +  oe-boll.tot-pallets  .
+
   
-  if last-of(report.key-06) then do:
+  if FIRST-OF(report.key-06) then do:
     v-qty-alf = trim(string(v-bol-qty,">>>>>>>>>9")).
     find first oe-ordl
         where oe-ordl.company eq cocode
@@ -255,7 +278,9 @@ for each report   where report.term-id eq v-term-id no-lock,
         v-name = IF AVAIL oe-ordl AND oe-ordl.i-name <> "" THEN oe-ordl.i-name ELSE itemfg.i-name 
         v-dscr = IF AVAIL oe-ordl AND oe-ordl.part-dscr1 <> "" THEN oe-ordl.part-dscr1 ELSE itemfg.part-dscr1
         v-price = IF AVAIL oe-ordl  THEN oe-ordl.price ELSE 0
-        v-tot-price = IF AVAIL oe-ordl  THEN oe-ordl.t-price ELSE 0 .
+        v-tot-price = IF AVAIL oe-ordl  THEN oe-ordl.t-price ELSE 0
+        v-ord-no   = IF AVAIL oe-ordl THEN oe-ordl.ord-no ELSE oe-boll.ord-no  .
+
 
     PUT  "<R30></b>    " v-qty-alf  SPACE(5)
             /*" <C59>" v-price 
@@ -269,7 +294,8 @@ for each report   where report.term-id eq v-term-id no-lock,
     assign
      i     = 0
      j     = 0
-     v-bin = "".
+     v-bin = ""
+     v-line-count = 33.
 
     find first fg-set
         where fg-set.company eq cocode
@@ -285,7 +311,8 @@ for each report   where report.term-id eq v-term-id no-lock,
         assign
          i     = 1
          j     = 0
-         v-bin = "".
+         v-bin = ""
+         v-line-count = v-line-count + 3.
       end.
 
       {sys/inc/part-qty.i v-part-qty fg-set}
@@ -312,6 +339,7 @@ for each report   where report.term-id eq v-term-id no-lock,
             skip.
 
         j = j + 2.
+         v-line-count = v-line-count + 1.
       end.
     
       find next fg-set
@@ -327,21 +355,37 @@ for each report   where report.term-id eq v-term-id no-lock,
           skip.
 
       j = j + 2.
+      v-line-count = v-line-count + 1.
     end.
 
     do j = (j + 1) to 5:
       put skip(1).
     end.
-    IF NOT last(report.key-06)  THEN DO:
+     v-line-count = v-line-count + 5.
+   /* IF NOT last(report.key-06)  THEN DO:
         PAGE.
         {oe/rep/cocpryst.i}
-    END.
+    END.*/
     v-bol-qty = 0.
   end.
+
+   if last-of(report.key-08) then do:
+      PUT "<R" v-line-count ">" SPACE(30) pallet " Pallet(s) @ " cases FORMAT ">>>>>"  " cases " qty-cases "/case " SKIP 
+        .
+      ASSIGN 
+          pallet = 0 
+          cases  = 0
+          qty-cases = 0
+          v-line-count = v-line-count + 2. 
+
+    END.
+ 
 end. /* for each report */
 
-hide frame coc-top no-pause.
+/*hide frame coc-top no-pause.*/
 page.
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
+
+
 
