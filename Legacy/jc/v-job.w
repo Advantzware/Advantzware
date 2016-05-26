@@ -72,6 +72,12 @@ RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "",
 IF llRecFound THEN
    OEJobHold-log = LOGICAL(lcReturn) NO-ERROR.  
 
+DEF VAR JobHoldReason-log AS LOG NO-UNDO.
+RUN sys/ref/nk1look.p (cocode, "JOBHoldReason", "L", NO, NO, "", "", 
+                          OUTPUT lcReturn, OUTPUT llRecFound).
+IF llRecFound THEN
+   JobHoldReason-log = LOGICAL(lcReturn) NO-ERROR.
+
 DEF BUFFER xjob FOR job.
 
 noDate = CAN-FIND(FIRST sys-ctrl
@@ -127,12 +133,13 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date 
+&Scoped-Define ENABLED-FIELDS job.start-date job.reason job.loc ~
+job.due-date 
 &Scoped-define ENABLED-TABLES job
 &Scoped-define FIRST-ENABLED-TABLE job
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
-job.start-date job.user-id job.close-date job.loc job.due-date 
+job.start-date job.reason job.close-date job.user-id job.loc job.due-date 
 &Scoped-define DISPLAYED-TABLES job
 &Scoped-define FIRST-DISPLAYED-TABLE job
 
@@ -198,14 +205,17 @@ DEFINE FRAME F-Main
           LABEL "Start"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     job.user-id AT ROW 2.43 COL 101 COLON-ALIGNED
-          LABEL "User ID"
+     job.reason AT ROW 2.43 COL 101 COLON-ALIGNED WIDGET-ID 4
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 8 BY 1
      job.close-date AT ROW 2.43 COL 127 COLON-ALIGNED
           LABEL "Close"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+     job.user-id AT ROW 3.62 COL 67 COLON-ALIGNED
+          LABEL "User ID"
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
      job.loc AT ROW 3.62 COL 101 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
@@ -333,6 +343,14 @@ DO:
         IF char-val <> "" THEN 
            ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
       END.
+      WHEN "reason" THEN DO:
+            RUN windows/l-rejjob.w (cocode, lw-focus:screen-value, OUTPUT char-val).
+            /* If value selected, set code to first entry of string,
+               set tooltip to second entry of string (description). */
+            IF char-val <> "" THEN
+                ASSIGN lw-focus:SCREEN-VALUE = TRIM(char-val)
+                       .
+        END.
   END CASE.
 
   RETURN NO-APPLY.
@@ -768,7 +786,12 @@ PROCEDURE hold-release :
                 ELSE "W"
                 ELSE "R"
                 ELSE "H".
-
+            if JobHoldReason-log and job.stat = "H" then do:                
+                run windows/l-rejjob.w (cocode, job.reason, OUTPUT char-hdl).
+                job.reason = entry(1,char-hdl).                
+            end.
+            if job.stat <> "H" then job.reason = "".
+            
             FIND CURRENT job NO-LOCK NO-ERROR.
 
             RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
