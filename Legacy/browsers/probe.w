@@ -2824,6 +2824,7 @@ PROCEDURE print-box-est :
   DEF VAR list-name AS cha NO-UNDO.
   DEF VAR ret-code AS INT NO-UNDO.
   DEF VAR ls-mail-file2 AS cha NO-UNDO.
+  DEF VAR v-line-count AS INT NO-UNDO .
 
   {est/checkuse.i}
 
@@ -2891,9 +2892,10 @@ PROCEDURE print-box-est :
   
   IF v-prt-box THEN RUN printBoxImage.
 
+ASSIGN v-line-count = LINE-COUNTER .
   IF v-prt-note THEN DO:
-    OUTPUT TO VALUE(ls-outfile) APPEND /*PAGE-SIZE 64 */ .
-    RUN print-notes.
+    OUTPUT TO VALUE(ls-outfile) APPEND PAGE-SIZE 64  .
+    RUN print-notes(v-line-count) .
     OUTPUT CLOSE.
   END.
 
@@ -2934,6 +2936,7 @@ PROCEDURE print-notes :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEF INPUT parameter v-line-count AS INT NO-UNDO .
   {custom/notesdef.i}
   DEF VAR v-inst2 AS cha EXTENT 200 NO-UNDO.    
   DEF VAR v-dept-inst AS cha FORM "x(80)" EXTENT 200 NO-UNDO.
@@ -2980,12 +2983,18 @@ PROCEDURE print-notes :
   
   PUT SKIP(1)
       "Department Notes: " SKIP.
+  
 
   IF lv-k GT EXTENT(v-dept-inst) THEN lv-k = EXTENT(v-dept-inst).
-
+       
   DO i = 1 TO lv-k:
+      IF v-line-count > 62 THEN do:
+          PAGE.
+          v-line-count = 0 .
+      END.
      v-dept-inst[i] = v-inst2[i].
      PUT v-dept-inst[i] AT 2 SKIP.
+     v-line-count = v-line-count + 1 .
   END.
 
 END PROCEDURE.
@@ -3257,7 +3266,7 @@ PROCEDURE printProbe :
            END.
      end.
      
-     IF NOT is-xprint-form AND v-prt-note THEN RUN print-notes.
+     IF NOT is-xprint-form AND v-prt-note THEN RUN print-notes(LINE-COUNTER).
     input close.
     IF PAGE-NUM = 1 THEN
     OUTPUT CLOSE.
