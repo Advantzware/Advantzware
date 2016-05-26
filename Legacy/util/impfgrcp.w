@@ -296,8 +296,7 @@ DO:
       
   /*run PostFGImport.*/   
   run fg/fgpost.p (input table FGReceiptRow). 
-  MESSAGE "Posting is completed!"
-  VIEW-AS ALERT-BOX.
+  
  
 END.
 
@@ -701,10 +700,7 @@ for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ :
 
         BY w-fg-rctd.tag
         BY w-fg-rctd.rct-date
-        BY w-fg-rctd.r-no:
-            
-MESSAGE "post loop:"  itemfg.i-no ":" string(w-fg-rctd.row-id) ":" w-fg-rctd.tag 
-VIEW-AS ALERT-BOX.
+        BY w-fg-rctd.r-no:            
 
       IF fgPostLog THEN RUN fgPostLog ('Start fg/fg-post.i ' + TRIM(itemfg.i-no)).
       {fg/fg-post.i w-fg-rctd w-fg-rctd}
@@ -996,6 +992,56 @@ PROCEDURE ValidateFGImport:
     THEN assign op-error = yes
                 op-error-msg = "Invalid Cost-UOM!"     
                 .
+    /* cost calc if no cost imported */
+    if FGReceiptRow.std-cost = 0 then do:
+       if FGReceiptRow.job-no <> "" then do:
+          find job-hdr where job-hdr.company = cocode
+                         and job-hdr.job-no = FGReceiptRow.job-no                
+                         and job-hdr.job-no2 = FGReceiptRow.job-no2 no-lock no-error. 
+          if avail job-hdr then FGReceiptRow.std-cost = (job-hdr.std-mat-cost +
+                                   job-hdr.std-lab-cost +
+                                   job-hdr.std-fix-cost +
+                                   job-hdr.std-var-cost) . 
+       end.
+       else if FGReceiptRow.po-no <> "" then do:
+           def var lv-cost as dec no-undo.
+           find first po-ordl where po-ordl.company = cocode and
+                              po-ordl.po-no = integer(FGReceiptRow.po-no) and
+                              po-ordl.i-no = FGReceiptRow.i-no
+                                  no-lock no-error.
+           if avail po-ordl then do:
+                  assign FGReceiptRow.cost-uom = po-ordl.pr-uom
+                         lv-cost = po-ordl.cost * (IF po-ordl.disc NE 0 THEN (1 - (po-ordl.disc / 100)) ELSE 1).
+                         
+                  /*RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).*/
+                  FIND FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND
+                                          po-ord.po-no   EQ po-ordl.po-no    NO-LOCK NO-ERROR.
+                  IF AVAIL po-ord THEN DO:
+                     FIND FIRST vend WHERE vend.company EQ po-ord.company AND
+                                           vend.vend-no EQ po-ord.vend-no NO-LOCK NO-ERROR.
+                     IF AVAIL vend THEN  DO:
+                        FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
+                        IF vend.curr-code NE company.curr-code THEN DO:
+                           FIND FIRST currency WHERE currency.company EQ po-ord.company AND
+                                                     currency.c-code EQ vend.curr-code  
+                                                     NO-LOCK NO-ERROR.
+                           IF AVAIL currency THEN lv-cost = lv-cost * currency.ex-rate.               
+                        END.
+                     END.
+                  END.      
+           END.
+           FGReceiptRow.std-cost = lv-cost.                                          
+       end.
+       else if FGReceiptRow.i-no <> "" then do:
+            find itemfg where itemfg.company = cocode
+                          and itemfg.i-no = FGReceiptRow.i-no no-lock no-error.
+            if avail itemfg then 
+               assign FGReceiptRow.std-cost = itemfg.avg-cost
+                      FGReceiptRow.cost-uom = itemfg.prod-uom
+                      .
+       end. 
+    end.
+                       
     
 END PROCEDURE.
 	
