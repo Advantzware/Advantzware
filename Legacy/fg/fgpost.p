@@ -45,25 +45,23 @@ DEF TEMP-TABLE tt-email NO-UNDO FIELD tt-recid AS RECID
 
 DEF VAR v-fgpostgl AS CHAR NO-UNDO.                        
 def var v-post-date as date init today no-undo.
-{sys/inc/var.i new shared}
-{methods/prgsecur.i}
-/*{custom/globdefs.i}*/
-{methods/defines/hndldefs.i}
-{custom/gcompany.i}
-{custom/getcmpny.i}
+def var v-prgmname as cha no-undo.
 
-assign
- cocode = g_company
- locode = g_loc. 
+{methods/defines/globdefs.i}
+{methods/defines/hndldefs.i}
+{sys/inc/var.i "new shared"}
+
+ASSIGN
+  cocode = g_company
+  locode = g_loc.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
-MESSAGE "p1"
-VIEW-AS ALERT-BOX.
+
 for each ipFGRctd no-lock:
-    buffer-copy ipFGRctd to FGReceiptRow.
+    buffer-copy ipFGRctd to FGReceiptRow.    
 end.
 run ProcFGPosting.
 
@@ -190,15 +188,13 @@ PROCEDURE ProcFGPosting:
          STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
 
   IF fgPostLog THEN RUN fgPostLog ('Started').
-  MESSAGE "p2"
-  VIEW-AS ALERT-BOX.
+ 
 for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ : 
   /*assign cocode = FGReceiptRow.company
          g_company = FGReceiptRow.company
          .
   */       
-  MESSAGE "p3 loop: "  FGReceiptRow.tag 
-  VIEW-AS ALERT-BOX.
+
   FIND FIRST period NO-LOCK
       WHERE period.company EQ  cocode
         AND period.pst     LE v-post-date
@@ -221,7 +217,9 @@ for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ :
   BUFFER-COPY FGReceiptRow TO w-fg-rctd
   ASSIGN w-fg-rctd.row-id  = FGReceiptRow.TableRowid
          w-fg-rctd.has-rec = YES.
-
+  find fg-rctd where rowid(fg-rctd) = FGReceiptRow.tableRowid no-lock no-error.
+  if avail fg-rctd then w-fg-rctd.r-no = fg-rctd.r-no.
+  
   FOR EACH w-fg-rctd,
 
         FIRST itemfg

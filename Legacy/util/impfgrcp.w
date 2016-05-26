@@ -298,6 +298,7 @@ DO:
   run fg/fgpost.p (input table FGReceiptRow). 
   MESSAGE "Posting is completed!"
   VIEW-AS ALERT-BOX.
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */
