@@ -84,21 +84,21 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 150 BY 24
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 31 ROW 2.91
          SIZE 120 BY 1.43
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -228,12 +228,13 @@ ON WINDOW-CLOSE OF W-Win /* WAREHOUSE TRANSACTION RECEIPTS(FINISHED GOODS) */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  DEF VAR lv-can-exit AS LOG NO-UNDO.
+  /*DEF VAR lv-can-exit AS LOG NO-UNDO.
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
   RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
-  IF NOT lv-can-exit THEN RETURN NO-apply.
+  IF NOT lv-can-exit THEN RETURN NO-apply.*/
 
+  RUN do-cancel IN h_p-updbar.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
