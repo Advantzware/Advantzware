@@ -133,7 +133,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -559,7 +559,7 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1460,7 +1460,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEF BUFFER bf-ar-inv FOR ar-inv.
 
 
@@ -1489,7 +1489,8 @@ form ar-invl.i-no           column-label "PRODUCT"
   fitem      = begin_i-no
   titem      = END_i-no
   fdate      = begin_inv-date
-  tdate      = end_inv-date.
+  tdate      = end_inv-date
+  lSelected  = tb_cust-list.
 
  DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1515,7 +1516,12 @@ form ar-invl.i-no           column-label "PRODUCT"
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
 
-
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
   
 {sys/inc/print1.i}
        
@@ -1535,14 +1541,12 @@ display "" with frame r-top.
 SESSION:SET-WAIT-STATE ("general").
 
 EMPTY TEMP-TABLE tt-report.
-FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-    each cust
+  FOR each cust
       where cust.company eq cocode
-        /*and cust.cust-no ge fcust
-        and cust.cust-no le tcust*/
-        and cust.cust-no EQ ttCustList.cust-no
+        AND cust.cust-no GE fcust
+        AND cust.cust-no LE tcust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+        AND ttCustList.log-fld no-lock) else true)
       no-lock:
       {custom/statusMsg.i "'Processing Customer # ' + string(cust.cust-no)"} 
     {sa/sa-sls03.i "fdate" "tdate"}
