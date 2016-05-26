@@ -218,7 +218,7 @@ for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ :
   ASSIGN w-fg-rctd.row-id  = FGReceiptRow.TableRowid
          w-fg-rctd.has-rec = YES.
   find fg-rctd where rowid(fg-rctd) = FGReceiptRow.tableRowid no-lock no-error.
-  if avail fg-rctd then w-fg-rctd.r-no = fg-rctd.r-no.
+  if avail fg-rctd then w-fg-rctd.r-no = fg-rctd.r-no.  
   
   FOR EACH w-fg-rctd,
 
