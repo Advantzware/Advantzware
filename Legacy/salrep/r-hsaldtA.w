@@ -99,7 +99,7 @@ begin_date3 end_date3 begin_date4 end_date4
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -617,7 +617,7 @@ DO:
   END.
   
    FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1227,6 +1227,8 @@ def var fdate     as   date format "99/99/9999" extent 4 NO-UNDO.
 def var tdate     like fdate NO-UNDO.
 def var fsman     like cust.sman            init "" NO-UNDO.
 def var tsman     like fsman                init "zzz" NO-UNDO.
+def var fcus     like cust.cust-no          init "" NO-UNDO.
+def var tcus     like cust.cust-no          init "zzzzzzzz" NO-UNDO.
 
 def var v-col     as   int                  format ">9" NO-UNDO.
 def var v-custs   as   int                  format ">>,>>9" NO-UNDO.
@@ -1249,7 +1251,7 @@ DEF VAR lo-date AS DATE INIT 12/31/9999 NO-UNDO.
 DEF VAR hi-date AS DATE INIT 01/01/0001 NO-UNDO.
 DEF VAR lv-sman AS CHAR NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 FORM HEADER
      "Salesrep:"
      lv-sman        FORMAT "x(40)"
@@ -1291,7 +1293,10 @@ assign
  v-col      = srt-col
  v-custs    = cust
  v-sort     = rd_print EQ "Customer"
- v-inc      = tb_zer-col. 
+ v-inc      = tb_zer-col
+ lSelected  = tb_cust-list
+ fcus       = begin_cust
+ tcus       = END_cust. 
 
 do li = 1 to 4:
   v-label[li] = string(fdate[li],"99/99/99") + "-" + string(tdate[li],"99/99/99").
@@ -1310,6 +1315,12 @@ IF tb_excel THEN DO:
               + "Salesrep Total Amt,".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
+IF lselected THEN DO:
+           FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+           IF AVAIL ttCustList THEN ASSIGN fcus = ttCustList.cust-no .
+           FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+           IF AVAIL ttCustList THEN ASSIGN tcus = ttCustList.cust-no .
+END.
 
 {sys/inc/print1.i}
 
@@ -1321,12 +1332,12 @@ EMPTY TEMP-TABLE tt-report.
 EMPTY TEMP-TABLE tt-report2.
 
 SESSION:SET-WAIT-STATE ("general").
-      FOR EACH ttCustList 
-         WHERE ttCustList.log-fld
-         NO-LOCK,
-         EACH ar-inv
+      FOR EACH ar-inv
           WHERE ar-inv.company  EQ cocode
-            AND ar-inv.cust-no EQ ttCustList.cust-no
+            AND ar-inv.cust-no  GE fcus
+            AND ar-inv.cust-no  LE tcus
+            AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
+            AND ttCustList.log-fld no-lock) else true)
             AND ar-inv.inv-date GE lo-date
             AND ar-inv.inv-date LE hi-date
             AND ar-inv.posted   EQ YES
@@ -1379,11 +1390,11 @@ SESSION:SET-WAIT-STATE ("general").
         end.
       END.
 
-      FOR EACH ttCustList 
-         WHERE ttCustList.log-fld
-         NO-LOCK,
-         each cust where cust.company eq cocode
-          AND cust.cust-no EQ ttCustList.cust-no no-lock,
+      FOR each cust where cust.company eq cocode
+          AND cust.cust-no GE fcus
+          AND cust.cust-no LE tcus
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+          AND ttCustList.log-fld no-lock) else true) no-lock,
        
           each ar-cash
           where ar-cash.company    eq cocode

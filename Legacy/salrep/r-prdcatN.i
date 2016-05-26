@@ -22,14 +22,13 @@
     DELETE tt-report.
   END.
 
-  FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-     each ar-inv
+  for each ar-inv
       where ar-inv.company  eq cocode
         and ar-inv.posted   eq yes
-        and ar-inv.cust-no  EQ ttCustList.cust-no /*fcust*/
-       /* and ar-inv.cust-no  le tcust*/
+        AND ar-inv.cust-no  GE fcust
+        AND ar-inv.cust-no  LE tcust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         and ar-inv.inv-date ge fdate[3]
         and ar-inv.inv-date le edate[3]
         and (ar-inv.type    ne "FC" or v-inc-fc)
@@ -48,13 +47,12 @@
     {sa/sa-smanN3.i ar-invl}
   end.
 
-  FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-      each cust
+  for each cust
       where cust.company eq cocode
-        and cust.cust-no EQ ttCustList.cust-no /*fcust*/
-       /* and cust.cust-no le tcust*/
+        AND cust.cust-no GE fcust
+        AND cust.cust-no LE tcust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+        AND ttCustList.log-fld no-lock) else true)
       no-lock,
       each ar-cash
       where ar-cash.company    eq cocode

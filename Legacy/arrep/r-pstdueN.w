@@ -162,7 +162,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -634,7 +634,7 @@ DO:
   RUN GetSelectionList.
   
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
    EMPTY TEMP-TABLE ttCustList.
     RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive,
@@ -1639,6 +1639,7 @@ DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 {sys/form/r-top5DL2.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 /*
 format header
   skip(1)
@@ -1666,10 +1667,18 @@ assign
  /*v-prt-add  = tb_address*/
  v-export   = tb_excel
  v-exp-name = fi_file
+ lSelected  = tb_cust-list
  /*v-include-factored = tb_include-factored*/
 
  str-tit3 = "As of Date: " + STRING(v-date)
  {sys/inc/ctrtext.i str-tit3 133}.
+
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN v-s-cust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN v-e-cust = ttCustList.cust-no .
+END.
  
 SESSION:SET-WAIT-STATE ("general").
 
