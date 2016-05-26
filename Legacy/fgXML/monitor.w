@@ -34,8 +34,8 @@ PROCEDURE postMonitor:
            labelLine = FILL(' ',1000)
            SUBSTR(labelLine,1)  = 'Job No'
            SUBSTR(labelLine,11) = 'Item No'
-           SUBSTR(labelLine,26) = 'Quantity'
-           SUBSTR(labelLine,37) = 'Cust No'
+           SUBSTR(labelLine,28) = 'Quantity'
+           SUBSTR(labelLine,37) = 'PO No'
            SUBSTR(labelLine,46) = 'Error'
            .
       RUN monitorActivity (labelLine,NO,'').
@@ -70,8 +70,8 @@ PROCEDURE postMonitor:
               dataLine = FILL(' ',1000)
               SUBSTR(dataLine,1)  = FGReceiptRow.job-no + "-" + STRING(FGReceiptRow.job-no2)
               SUBSTR(dataLine,11) = FGReceiptRow.i-no
-              SUBSTR(dataLine,26) = STRING(FGReceiptRow.qty,">>,>>>,>>9")
-              SUBSTR(dataLine,37) = FGReceiptRow.cust-no
+              SUBSTR(dataLine,26) = STRING(FGReceiptRow.t-qty,">>,>>>,>>9")
+              SUBSTR(dataLine,37) = FGReceiptRow.po-no
               SUBSTR(dataLine,46) = cErrorMsg
             .
           RUN monitorActivity (dataLine,NO,'').
