@@ -370,7 +370,7 @@ for each report   where report.term-id eq v-term-id no-lock,
   end.
 
    if last-of(report.key-08) then do:
-      PUT "<R" v-line-count ">" SPACE(30) pallet " Pallet(s) @ " cases FORMAT ">>>>>"  " cases " qty-cases "/case " SKIP 
+      PUT "<R" v-line-count ">" SPACE(30) pallet " Pallet(s) @ " cases FORMAT ">>>>>"  " cases  @" qty-cases "/case " SKIP 
         .
       ASSIGN 
           pallet = 0 
