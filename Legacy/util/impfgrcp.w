@@ -436,9 +436,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE FGPostLog wWin
-PROCEDURE FGPostLog:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE FGPostLog wWin 
+PROCEDURE FGPostLog :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -449,15 +448,12 @@ PROCEDURE FGPostLog:
      STRING(TIME,'hh:mm:ss am') ' : ' ipLogText SKIP.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE gl-from-work wWin
-PROCEDURE gl-from-work:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE gl-from-work wWin 
+PROCEDURE gl-from-work :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -504,11 +500,9 @@ PROCEDURE gl-from-work:
   end.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ImportFGReceipts wWin 
 PROCEDURE ImportFGReceipts :
@@ -559,10 +553,14 @@ PROCEDURE ImportFGReceipts :
              fg-rctd.cases-unit   = 1
              fg-rctd.ext-cost     = 0
            */
+           
            FGReceiptRow.TableRowid = rowid(fg-rctd)
            lv-rno = lv-rno + 1
            .     
-          
+  def var lv-error as log no-undo.
+  def var lv-error-msg as cha no-undo.          
+  run ValidateFGImport (output lv-error, output lv-error-msg).
+
      RUN fg/invrecpt.p (ROWID(fg-rctd), 1).   
   END.
 
@@ -589,8 +587,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PostFGImport wWin
-PROCEDURE PostFGImport:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PostFGImport wWin 
+PROCEDURE PostFGImport :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -927,12 +925,12 @@ for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ :
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PreFGImport wWin
-PROCEDURE PreFGImport:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PreFGImport wWin 
+PROCEDURE PreFGImport :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -955,18 +953,18 @@ PROCEDURE PreFGImport:
 /*      run validate-tag(FGReceiptRow.tag2, output lv-error, output lv-error-msg).                           */
 /*      run validate-loc (FGReceiptRow.loc2, FGReceiptRow.loc-bin2, output lv-error, output lv-error-msg).   */
 /*      run validate-uom (FGReceiptRow.cost-uom, output lv-error, output lv-error-msg).                      */
-        run ValidateFGImport (output lv-error, output lv-error-msg).
+    /*    run ValidateFGImport (output lv-error, output lv-error-msg). */
            
   end.
       
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ValidateFGImport wWin
-PROCEDURE ValidateFGImport:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ValidateFGImport wWin 
+PROCEDURE ValidateFGImport :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -987,14 +985,11 @@ PROCEDURE ValidateFGImport:
     /* validate po-no */
                 
     /* validate cost-uom */
-    if FGReceiptRow.std-cost <> 0 then do:
-      RUN sys/ref/uom-fg.p (NO, OUTPUT lv-uom-list).
-      IF INDEX(lv-uom-list,FGReceiptRow.cost-uom) LE 0 
-      THEN assign op-error = yes
+    RUN sys/ref/uom-fg.p (NO, OUTPUT lv-uom-list).
+    IF INDEX(lv-uom-list,FGReceiptRow.cost-uom) LE 0 
+    THEN assign op-error = yes
                 op-error-msg = "Invalid Cost-UOM!"     
                 .
-    end.
-                
     /* cost calc if no cost imported */
     if FGReceiptRow.std-cost = 0 then do:
        if FGReceiptRow.job-no <> "" then do:
@@ -1044,8 +1039,9 @@ PROCEDURE ValidateFGImport:
       
                   ASSIGN FGReceiptRow.cost-uom = lvCalcCostUom
                          FGReceiptRow.std-cost = (lvCalcStdCost)
-                         FGReceiptRow.ext-cost = (lvCalcExtCost).   
-                                
+                         FGReceiptRow.ext-cost = (lvCalcExtCost)
+                         lv-cost = FGReceiptRow.std-cost.    
+                            
                   /*RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).*/
                   FIND FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND
                                           po-ord.po-no   EQ po-ordl.po-no    NO-LOCK NO-ERROR.
@@ -1077,10 +1073,7 @@ PROCEDURE ValidateFGImport:
                        
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 

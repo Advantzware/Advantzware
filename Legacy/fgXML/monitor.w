@@ -65,6 +65,16 @@ PROCEDURE postMonitor:
       TEMP-TABLE FGReceiptRow:READ-XML ("File",cFile,"Empty",?,NO).
 
       FOR EACH FGReceiptRow:
+          CREATE fg-rctd.
+          BUFFER-COPY FGReceiptRow TO fg-rctd.
+          ASSIGN
+              fg-rctd.r-no = iNextRNo
+              fg-rctd.rita-code = "R"
+              fg-rctd.trans-time   = TIME
+              FGReceiptRow.TableRowid = rowid(fg-rctd)
+              iNextRNo = iNextRNo + 1
+              .
+              
           RUN pValidateFGImport (OUTPUT cErrorMsg).
           ASSIGN
               dataLine = FILL(' ',1000)
@@ -77,15 +87,7 @@ PROCEDURE postMonitor:
           RUN monitorActivity (dataLine,NO,'').
           IF cErrorMsg NE "" THEN NEXT.
 
-          CREATE fg-rctd.
-          BUFFER-COPY FGReceiptRow TO fg-rctd.
-          ASSIGN
-              fg-rctd.r-no = iNextRNo
-              fg-rctd.rita-code = "R"
-              fg-rctd.trans-time   = TIME
-              FGReceiptRow.TableRowid = rowid(fg-rctd)
-              iNextRNo = iNextRNo + 1
-              .
+          
          RUN fg/invrecpt.p (ROWID(fg-rctd), 1).   
       END. /* reach fgreceiptrow */
       
@@ -171,7 +173,8 @@ PROCEDURE pValidateFGImport:
       
                   ASSIGN FGReceiptRow.cost-uom = lvCalcCostUom
                          FGReceiptRow.std-cost = (lvCalcStdCost)
-                         FGReceiptRow.ext-cost = (lvCalcExtCost).   
+                         FGReceiptRow.ext-cost = (lvCalcExtCost)
+                         lv-cost = FGreceiptRow.std-cost.   
                          
                   /*RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).*/
                   FIND FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND
