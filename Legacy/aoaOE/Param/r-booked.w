@@ -508,8 +508,8 @@ ON VALUE-CHANGED OF svEndOrdDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svEndOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -591,8 +591,8 @@ ON VALUE-CHANGED OF svStartOrdDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svStartOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 

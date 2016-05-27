@@ -274,6 +274,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define BROWSE-NAME browseAOA
+&Scoped-define SELF-NAME browseAOA
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseAOA C-Win
+ON DEFAULT-ACTION OF browseAOA IN FRAME DEFAULT-FRAME /* AOA Files */
+DO:
+    APPLY "CHOOSE":U TO btnLaunch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define BROWSE-NAME browseModule
 &Scoped-define SELF-NAME browseModule
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseModule C-Win

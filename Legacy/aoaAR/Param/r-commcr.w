@@ -512,8 +512,8 @@ ON VALUE-CHANGED OF svEndInvoiceDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndInvoiceDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-4:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svEndInvoiceDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-4:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -538,8 +538,8 @@ ON VALUE-CHANGED OF svEndReceiptDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svEndReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -598,8 +598,8 @@ ON VALUE-CHANGED OF svStartInvoiceDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartInvoiceDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-3:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svStartInvoiceDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-3:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -624,8 +624,8 @@ ON VALUE-CHANGED OF svStartReceiptDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svStartReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 

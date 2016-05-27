@@ -114,7 +114,7 @@ DEFINE VARIABLE endMachineDescription AS CHARACTER FORMAT "X(30)"
 
 DEFINE VARIABLE endShiftName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 52 BY 1.
+     SIZE 56 BY 1.
 
 DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -130,7 +130,7 @@ DEFINE VARIABLE startMachineDescription AS CHARACTER FORMAT "X(30)"
 
 DEFINE VARIABLE startShiftName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 52 BY 1.
+     SIZE 56 BY 1.
 
 DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "Company" 
@@ -160,7 +160,7 @@ DEFINE VARIABLE svEndOpDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49
 DEFINE VARIABLE svEndShift AS INTEGER FORMAT ">9" INITIAL 0 
      LABEL "End Shift" 
      VIEW-AS FILL-IN 
-     SIZE 8 BY 1.
+     SIZE 4 BY 1.
 
 DEFINE VARIABLE svStartCustNo AS CHARACTER FORMAT "X(8)" 
      LABEL "Start Customer" 
@@ -185,7 +185,7 @@ DEFINE VARIABLE svStartOpDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50
 DEFINE VARIABLE svStartShift AS INTEGER FORMAT ">9" INITIAL 0 
      LABEL "Start Shift" 
      VIEW-AS FILL-IN 
-     SIZE 8 BY 1.
+     SIZE 4 BY 1.
 
 DEFINE VARIABLE svSort AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -273,11 +273,11 @@ DEFINE FRAME F-Main
           "All Shifts?" WIDGET-ID 118
      svStartShift AT ROW 15.05 COL 23 COLON-ALIGNED HELP
           "Enter Start Shift" WIDGET-ID 122
-     startShiftName AT ROW 15.05 COL 32 COLON-ALIGNED HELP
+     startShiftName AT ROW 15.05 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 116
      svEndShift AT ROW 16.24 COL 23 COLON-ALIGNED HELP
           "Enter End Shift" WIDGET-ID 120
-     endShiftName AT ROW 16.24 COL 32 COLON-ALIGNED HELP
+     endShiftName AT ROW 16.24 COL 28 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 114
      svCustList AT ROW 17.91 COL 25 WIDGET-ID 48
      btnCustList AT ROW 17.91 COL 55 WIDGET-ID 46
@@ -573,8 +573,8 @@ ON VALUE-CHANGED OF svEndOpDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndOpDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svEndOpDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -589,7 +589,7 @@ DO:
     ASSIGN {&SELF-NAME}.
     FIND FIRST shift NO-LOCK
          WHERE shift.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND shift.shift EQ {&SELF-NAME}
+           AND shift.shift   EQ {&SELF-NAME}
          NO-ERROR.
     endShiftName:SCREEN-VALUE = IF AVAILABLE shift THEN shift.descr
                                 ELSE "<Ending Range Value>".
@@ -700,8 +700,8 @@ ON VALUE-CHANGED OF svStartOpDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartOpDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svStartOpDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -716,7 +716,7 @@ DO:
     ASSIGN {&SELF-NAME}.
     FIND FIRST shift NO-LOCK
          WHERE shift.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND shift.shift EQ {&SELF-NAME}
+           AND shift.shift   EQ {&SELF-NAME}
          NO-ERROR.
     startShiftName:SCREEN-VALUE = IF AVAILABLE shift THEN shift.descr
                                   ELSE "<Beginning Range Value>".

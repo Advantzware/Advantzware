@@ -828,8 +828,8 @@ ON VALUE-CHANGED OF svEndDueDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndDueDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-10:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svEndDueDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-10:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -871,8 +871,8 @@ ON VALUE-CHANGED OF svEndOrderDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-8:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svEndOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-8:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -1024,8 +1024,8 @@ ON VALUE-CHANGED OF svStartDueDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartDueDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-9:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svStartDueDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-9:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -1067,8 +1067,8 @@ ON VALUE-CHANGED OF svStartOrderDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-7:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svStartOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-7:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 

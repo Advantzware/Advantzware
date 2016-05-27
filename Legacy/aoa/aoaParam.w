@@ -332,6 +332,21 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 149 BY 15.5.
 
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
+     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 40 BY 8.81
+         TITLE "Show/Hide Sections" WIDGET-ID 300.
+
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
      btnDefault AT ROW 1.71 COL 32 HELP
@@ -354,21 +369,6 @@ DEFINE FRAME frameColumns
          AT COL 82 ROW 1
          SIZE 67 BY 8.81
          TITLE "Report Columns" WIDGET-ID 200.
-
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
-     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 40 BY 8.81
-         TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1329,12 +1329,12 @@ PROCEDURE pGetUserPrint :
         ttUserPrint.UserPrintRowID = ROWID(bUserPrint).
         DO idx = 1 TO EXTENT(bUserPrint.field-name):
             IF bUserPrint.field-name[idx] EQ "" THEN LEAVE.
-            IF bUserPrint.field-name[idx] EQ "svTitle" THEN LEAVE.
             CREATE ttParamValue.
             ASSIGN
                 ttParamValue.paramOrder = idx
                 ttParamValue.batch-seq  = bUserPrint.batch-seq
-                ttParamValue.paramLabel = bUserPrint.field-label[idx]
+                ttParamValue.paramLabel = IF bUserPrint.field-label[idx] NE ? THEN bUserPrint.field-label[idx]
+                                          ELSE "[ " + bUserPrint.field-name[idx] + " ]"
                 ttParamValue.paramValue = bUserPrint.field-value[idx]
                 .
         END. /* do idx */
@@ -1724,16 +1724,28 @@ FUNCTION fDateOptions RETURNS LOGICAL (ipDateOption AS HANDLE) :
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE dateOptions AS CHARACTER NO-UNDO INITIAL
-"Fixed date~
-,Current date~
-,Start of this month~
-,End of this month~
-,First day of last month~
-,Last day of last month~
-,Start of this year~
-,End of this year~
-,First day of last year~
-,Last day of last year~
+"Fixed Date~
+,Current Date~
+,Current Date -1~
+,Current Date +1~
+,Current Date -2~
+,Current Date +2~
+,Current Date -3~
+,Current Date +3~
+,Current Date -4~
+,Current Date +4~
+,Current Date -5~
+,Current Date +5~
+,Current Date -6~
+,Current Date +6~
+,Start of this Month~
+,End of this Month~
+,First Day of Last Month~
+,Last Day of Last Month~
+,Start of this Year~
+,End of this Year~
+,First Day of Last Year~
+,Last Day of Last Year~
 ,Last Sunday~
 ,Last Monday~
 ,Last Tuesday~

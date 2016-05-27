@@ -646,8 +646,8 @@ ON VALUE-CHANGED OF svEndOrderDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svEndOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -672,8 +672,8 @@ ON VALUE-CHANGED OF svEndReceiptDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-4:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svEndReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-4:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -698,8 +698,8 @@ ON VALUE-CHANGED OF svEndShipDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svEndShipDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-6:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svEndShipDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-6:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -780,8 +780,8 @@ ON VALUE-CHANGED OF svStartOrderDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svStartOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -806,8 +806,8 @@ ON VALUE-CHANGED OF svStartReceiptDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-3:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svStartReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-3:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 
@@ -832,8 +832,8 @@ ON VALUE-CHANGED OF svStartShipDateOption IN FRAME F-Main
 DO:
   ASSIGN
       {&SELF-NAME}
-      svStartShipDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-5:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
+      svStartShipDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
+      btnCalendar-5:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
       .
 END.
 

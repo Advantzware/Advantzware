@@ -1,4 +1,4 @@
-/* pCustomerInventory.i - auto generated 05.10.2016 @  7:56:21 pm from aoa/aoaParam.w */
+/* pCustomerInventory.i - auto generated 05.24.2016 @  5:53:19 pm from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
