@@ -65,6 +65,16 @@ PROCEDURE postMonitor:
       TEMP-TABLE FGReceiptRow:READ-XML ("File",cFile,"Empty",?,NO).
 
       FOR EACH FGReceiptRow:
+          CREATE fg-rctd.
+          BUFFER-COPY FGReceiptRow TO fg-rctd.
+          ASSIGN
+              fg-rctd.r-no = iNextRNo
+              fg-rctd.rita-code = "R"
+              fg-rctd.trans-time   = TIME
+              FGReceiptRow.TableRowid = rowid(fg-rctd)
+              iNextRNo = iNextRNo + 1
+              .
+              
           RUN pValidateFGImport (OUTPUT cErrorMsg).
           ASSIGN
               dataLine = FILL(' ',1000)
@@ -77,15 +87,7 @@ PROCEDURE postMonitor:
           RUN monitorActivity (dataLine,NO,'').
           IF cErrorMsg NE "" THEN NEXT.
 
-          CREATE fg-rctd.
-          BUFFER-COPY FGReceiptRow TO fg-rctd.
-          ASSIGN
-              fg-rctd.r-no = iNextRNo
-              fg-rctd.rita-code = "R"
-              fg-rctd.trans-time   = TIME
-              FGReceiptRow.TableRowid = rowid(fg-rctd)
-              iNextRNo = iNextRNo + 1
-              .
+          
          RUN fg/invrecpt.p (ROWID(fg-rctd), 1).   
       END. /* reach fgreceiptrow */
       
