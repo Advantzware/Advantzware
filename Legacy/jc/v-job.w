@@ -133,13 +133,12 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS job.start-date job.reason job.loc ~
-job.due-date 
+&Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date 
 &Scoped-define ENABLED-TABLES job
 &Scoped-define FIRST-ENABLED-TABLE job
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
-job.start-date job.reason job.close-date job.user-id job.loc job.due-date 
+job.start-date job.close-date job.user-id job.loc job.due-date 
 &Scoped-define DISPLAYED-TABLES job
 &Scoped-define FIRST-DISPLAYED-TABLE job
 
@@ -180,6 +179,11 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE vHoldReason AS CHARACTER FORMAT "x(50)" 
+     LABEL "Hold Reason" 
+     VIEW-AS FILL-IN 
+     SIZE 34 BY 1.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 148 BY 4.29.
@@ -205,9 +209,7 @@ DEFINE FRAME F-Main
           LABEL "Start"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     job.reason AT ROW 2.43 COL 101 COLON-ALIGNED WIDGET-ID 4
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
+     vHoldReason AT ROW 2.43 COL 79 COLON-ALIGNED WIDGET-ID 4
      job.close-date AT ROW 2.43 COL 127 COLON-ALIGNED
           LABEL "Close"
           VIEW-AS FILL-IN 
@@ -301,6 +303,11 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN job.user-id IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN vHoldReason IN FRAME F-Main
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       vHoldReason:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1053,7 +1060,16 @@ DEF VAR char-hdl AS cha NO-UNDO.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */ 
+  /* Code placed here will execute AFTER standard behavior.    */
+  if job.stat = "H" then do: 
+     find first rejct-cd WHERE rejct-cd.type = "JH" 
+                          and rejct-cd.code = job.reason NO-LOCK no-error.
+     if avail rejct-cd then
+        assign vHoldReason:hidden in frame {&frame-name} = no
+               vHoldReason:screen-value  = job.reason + " " + rejct-cd.dscr.      
+  end.
+  else assign vHoldReason:hidden in frame {&frame-name} = yes
+              vHoldReason:screen-value  = "".
   
   RUN get-start-date (NO). 
 
