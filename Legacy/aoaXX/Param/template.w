@@ -64,7 +64,8 @@ svEndShipDate btnCalendar-12 svEndShipDateOption svAllUserID svStartUserID ~
 svSort svEndUserID svSubRpt_SubReportName svAllItemNo svStartItemNo ~
 svEndItemNo svAllJobNo svAllOrderNo svStartJobNo svStartJobNo2 ~
 svStartOrderNo svEndJobNo svEndJobNo2 svEndOrderNo svAllProdCategory ~
-svStartProdCategory svEndProdCategory 
+svStartProdCategory svEndProdCategory svAllShift svStartShift svEndShift ~
+svAllDept svStartDept svEndDept 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
 svStartTranDate svStartTranDateOption svStartCustNo startCustName ~
 svEndTranDate svEndTranDateOption svEndCustNo endCustName ~
@@ -82,7 +83,9 @@ svSubRpt_SubReportName svAllItemNo svStartItemNo startItemName svEndItemNo ~
 endItemName svAllJobNo svAllOrderNo svStartJobNo svStartJobNo2 ~
 svStartOrderNo svEndJobNo svEndJobNo2 svEndOrderNo svAllProdCategory ~
 svStartProdCategory startProdCategoryName svEndProdCategory ~
-endProdCategoryName 
+endProdCategoryName svAllShift svStartShift startShiftDescription ~
+svEndShift endShiftDescription svAllDept svStartDept startDeptName ~
+svEndDept endDeptName 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -239,6 +242,10 @@ DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)"
      VIEW-AS FILL-IN 
      SIZE 45 BY 1.
 
+DEFINE VARIABLE endDeptName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 52 BY 1.
+
 DEFINE VARIABLE endItemName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 38 BY 1.
@@ -249,11 +256,15 @@ DEFINE VARIABLE endMachineDescription AS CHARACTER FORMAT "X(30)"
 
 DEFINE VARIABLE endProdCategoryName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1.
+     SIZE 45 BY 1.
 
 DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 52 BY 1.
+
+DEFINE VARIABLE endShiftDescription AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 56 BY 1.
 
 DEFINE VARIABLE endUserIDName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -262,6 +273,10 @@ DEFINE VARIABLE endUserIDName AS CHARACTER FORMAT "X(30)"
 DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 45 BY 1.
+
+DEFINE VARIABLE startDeptName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 52 BY 1.
 
 DEFINE VARIABLE startItemName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -273,11 +288,15 @@ DEFINE VARIABLE startMachineDescription AS CHARACTER FORMAT "X(30)"
 
 DEFINE VARIABLE startProdCategoryName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1.
+     SIZE 45 BY 1.
 
 DEFINE VARIABLE startSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 52 BY 1.
+
+DEFINE VARIABLE startShiftDescription AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 56 BY 1.
 
 DEFINE VARIABLE startUserIDName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -297,6 +316,11 @@ DEFINE VARIABLE svEndCustNo AS CHARACTER FORMAT "X(8)"
      LABEL "End Customer" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1.
+
+DEFINE VARIABLE svEndDept AS CHARACTER FORMAT "X(2)" 
+     LABEL "End Department" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1.
 
 DEFINE VARIABLE svEndDueDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
      LABEL "End Due Date" 
@@ -358,6 +382,11 @@ DEFINE VARIABLE svEndSalesRep AS CHARACTER FORMAT "X(3)"
      VIEW-AS FILL-IN 
      SIZE 8 BY 1.
 
+DEFINE VARIABLE svEndShift AS INTEGER FORMAT ">9" INITIAL 3 
+     LABEL "End Shift" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1.
+
 DEFINE VARIABLE svEndShipDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
      LABEL "End Ship Date" 
      VIEW-AS FILL-IN 
@@ -382,6 +411,11 @@ DEFINE VARIABLE svStartCustNo AS CHARACTER FORMAT "X(8)"
      LABEL "Start Customer" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1.
+
+DEFINE VARIABLE svStartDept AS CHARACTER FORMAT "X(2)" 
+     LABEL "Start Department" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1.
 
 DEFINE VARIABLE svStartDueDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
      LABEL "Start Due Date" 
@@ -443,6 +477,11 @@ DEFINE VARIABLE svStartSalesRep AS CHARACTER FORMAT "X(3)"
      VIEW-AS FILL-IN 
      SIZE 8 BY 1.
 
+DEFINE VARIABLE svStartShift AS INTEGER FORMAT ">9" INITIAL 1 
+     LABEL "Start Shift" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1.
+
 DEFINE VARIABLE svStartShipDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
      LABEL "Start Ship Date" 
      VIEW-AS FILL-IN 
@@ -475,6 +514,11 @@ DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllDept AS LOGICAL INITIAL yes 
+     LABEL "All Departments" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY .95 NO-UNDO.
 
 DEFINE VARIABLE svAllItemNo AS LOGICAL INITIAL yes 
      LABEL "All Items" 
@@ -510,6 +554,11 @@ DEFINE VARIABLE svAllSalesRep AS LOGICAL INITIAL yes
      LABEL "All Sales Reps" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllShift AS LOGICAL INITIAL yes 
+     LABEL "All Shifts" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 12 BY .95 NO-UNDO.
 
 DEFINE VARIABLE svAllUserID AS LOGICAL INITIAL yes 
      LABEL "All User IDs" 
@@ -591,7 +640,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 151.4 BY 34.33.
+         SIZE 151.4 BY 42.43.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
@@ -655,7 +704,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 151.4 BY 34.33.
+         SIZE 151.4 BY 42.43.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
@@ -683,16 +732,34 @@ DEFINE FRAME F-Main
           "All Sales Reps?" WIDGET-ID 202
      svStartProdCategory AT ROW 31.95 COL 89 COLON-ALIGNED HELP
           "Enter Start Product Category" WIDGET-ID 206
-     startProdCategoryName AT ROW 31.95 COL 106 COLON-ALIGNED NO-LABEL WIDGET-ID 210
+     startProdCategoryName AT ROW 31.95 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 210
      svEndProdCategory AT ROW 33.14 COL 89 COLON-ALIGNED HELP
           "Enter End Product Category" WIDGET-ID 204
-     endProdCategoryName AT ROW 33.14 COL 106 COLON-ALIGNED NO-LABEL WIDGET-ID 208
+     endProdCategoryName AT ROW 33.14 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 208
+     svAllShift AT ROW 34.81 COL 91 HELP
+          "All Shifts?" WIDGET-ID 216
+     svStartShift AT ROW 36 COL 89 COLON-ALIGNED HELP
+          "Enter Start Shift" WIDGET-ID 220
+     startShiftDescription AT ROW 36 COL 94 COLON-ALIGNED NO-LABEL WIDGET-ID 214
+     svEndShift AT ROW 37.19 COL 89 COLON-ALIGNED HELP
+          "Enter End Shift" WIDGET-ID 218
+     endShiftDescription AT ROW 37.19 COL 94 COLON-ALIGNED NO-LABEL WIDGET-ID 212
+     svAllDept AT ROW 38.86 COL 91 HELP
+          "All Departments?" WIDGET-ID 226
+     svStartDept AT ROW 40.05 COL 89 COLON-ALIGNED HELP
+          "Enter Start Department" WIDGET-ID 230
+     startDeptName AT ROW 40.05 COL 98 COLON-ALIGNED HELP
+          "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 224
+     svEndDept AT ROW 41.24 COL 89 COLON-ALIGNED HELP
+          "Enter End Department" WIDGET-ID 228
+     endDeptName AT ROW 41.24 COL 98 COLON-ALIGNED HELP
+          "Enter Ending Customer Name" NO-LABEL WIDGET-ID 222
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 20.05 COL 15 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 151.4 BY 34.33
+         SIZE 151.4 BY 42.43
          TITLE "Report Parameters".
 
 
@@ -722,7 +789,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 34.33
+         HEIGHT             = 42.43
          WIDTH              = 151.4.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -775,6 +842,8 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN endDeptName IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endItemName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endMachineDescription IN FRAME F-Main
@@ -783,9 +852,13 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN endShiftDescription IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endUserIDName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startDeptName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startItemName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -794,6 +867,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN startProdCategoryName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startSalesRepName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startShiftDescription IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startUserIDName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -966,8 +1041,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCAD sObject
 ON VALUE-CHANGED OF svAllCAD IN FRAME F-Main /* All CAD */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetCADRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartCAD:READ-ONLY = {&SELF-NAME}
+      svEndCAD:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -978,8 +1055,24 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCustNo sObject
 ON VALUE-CHANGED OF svAllCustNo IN FRAME F-Main /* All Customers */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetCustRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartCustNo:READ-ONLY = {&SELF-NAME}
+      svEndCustNo:READ-ONLY   = {&SELF-NAME}
+      .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllDept
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllDept sObject
+ON VALUE-CHANGED OF svAllDept IN FRAME F-Main /* All Departments */
+DO:
+  ASSIGN {&SELF-NAME}
+      svStartDept:READ-ONLY = {&SELF-NAME}
+      svEndDept:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -990,8 +1083,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllItemNo sObject
 ON VALUE-CHANGED OF svAllItemNo IN FRAME F-Main /* All Items */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetItemRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartItemNo:READ-ONLY = {&SELF-NAME}
+      svEndItemNo:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1002,8 +1097,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllJobNo sObject
 ON VALUE-CHANGED OF svAllJobNo IN FRAME F-Main /* All Jobs */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetJobRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartJobNo:READ-ONLY  = {&SELF-NAME}
+      svStartJobNo2:READ-ONLY = {&SELF-NAME}
+      svEndJobNo:READ-ONLY    = {&SELF-NAME}
+      svEndJobNo2:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1014,8 +1113,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllMachine sObject
 ON VALUE-CHANGED OF svAllMachine IN FRAME F-Main /* All Machines */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetMachineRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartMachine:READ-ONLY = {&SELF-NAME}
+      svEndMachine:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1026,8 +1127,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllOrderNo sObject
 ON VALUE-CHANGED OF svAllOrderNo IN FRAME F-Main /* All Orders */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetOrderRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartOrderNo:READ-ONLY = {&SELF-NAME}
+      svEndOrderNo:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1038,8 +1141,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllPONumber sObject
 ON VALUE-CHANGED OF svAllPONumber IN FRAME F-Main /* All PO Numbers */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetPONumberRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartPONumber:READ-ONLY = {&SELF-NAME}
+      svEndPONumber:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1050,8 +1155,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllProdCategory sObject
 ON VALUE-CHANGED OF svAllProdCategory IN FRAME F-Main /* All Product Categories */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetProdCategoryRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartProdCategory:READ-ONLY = {&SELF-NAME}
+      svEndProdCategory:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1062,8 +1169,24 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllSalesRep sObject
 ON VALUE-CHANGED OF svAllSalesRep IN FRAME F-Main /* All Sales Reps */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetSalesRepRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartSalesRep:READ-ONLY = {&SELF-NAME}
+      svEndSalesRep:READ-ONLY   = {&SELF-NAME}
+      .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllShift
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllShift sObject
+ON VALUE-CHANGED OF svAllShift IN FRAME F-Main /* All Shifts */
+DO:
+  ASSIGN {&SELF-NAME}
+      svStartShift:READ-ONLY = {&SELF-NAME}
+      svEndShift:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1074,8 +1197,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllUserID sObject
 ON VALUE-CHANGED OF svAllUserID IN FRAME F-Main /* All User IDs */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetUserIDRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartUserID:READ-ONLY = {&SELF-NAME}
+      svEndUserID:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1098,8 +1223,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCustList sObject
 ON VALUE-CHANGED OF svCustList IN FRAME F-Main /* Use Defined Customer List */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pUseCustList ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartCustNo:READ-ONLY = {&SELF-NAME}
+      svEndCustNo:READ-ONLY   = {&SELF-NAME}
+      btnCustList:SENSITIVE   = {&SELF-NAME}
+      .
+  IF {&SELF-NAME} THEN
+  ASSIGN svAllCustNo:SCREEN-VALUE = "no".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1110,13 +1240,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndCustNo sObject
 ON LEAVE OF svEndCustNo IN FRAME F-Main /* End Customer */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST cust NO-LOCK
-         WHERE cust.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND cust.cust-no EQ {&SELF-NAME}
-         NO-ERROR.
-    endCustName:SCREEN-VALUE = IF AVAILABLE cust THEN cust.name
-                               ELSE "<Ending Range Value>".
+    endCustName:SCREEN-VALUE = {aoa/fSetDescription.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svEndDept
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndDept sObject
+ON LEAVE OF svEndDept IN FRAME F-Main /* End Department */
+DO:
+    endDeptName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1138,11 +1273,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndDueDateOption sObject
 ON VALUE-CHANGED OF svEndDueDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svEndDueDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-10:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svEndDueDate &btnCalendar=10}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1164,11 +1295,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndInvoiceDateOption sObject
 ON VALUE-CHANGED OF svEndInvoiceDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svEndInvoiceDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-6:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svEndInvoiceDate &btnCalendar=6}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1179,13 +1306,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndItemNo sObject
 ON LEAVE OF svEndItemNo IN FRAME F-Main /* End Item */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST itemfg NO-LOCK
-         WHERE itemfg.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND itemfg.i-no EQ {&SELF-NAME}
-         NO-ERROR.
-    endItemName:SCREEN-VALUE = IF AVAILABLE itemfg THEN itemfg.i-dscr
-                               ELSE "<Ending Range Value>".
+    endItemName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1196,13 +1317,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndMachine sObject
 ON LEAVE OF svEndMachine IN FRAME F-Main /* End Machine */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST mach NO-LOCK
-         WHERE mach.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND mach.m-code  EQ {&SELF-NAME}
-         NO-ERROR.
-    endMachineDescription:SCREEN-VALUE = IF AVAILABLE mach THEN mach.m-dscr
-                                         ELSE "<Ending Range Value>".
+    endMachineDescription:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1224,11 +1339,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndOrderDateOption sObject
 ON VALUE-CHANGED OF svEndOrderDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svEndOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-8:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svEndOrderDate &btnCalendar=8}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1239,13 +1350,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndProdCategory sObject
 ON LEAVE OF svEndProdCategory IN FRAME F-Main /* End Prod Category */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST procat NO-LOCK
-         WHERE procat.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND procat.procat EQ {&SELF-NAME}
-         NO-ERROR.
-    endProdCategoryName:SCREEN-VALUE = IF AVAILABLE procat THEN procat.dscr
-                                       ELSE "<Ending Range Value>".
+    endProdCategoryName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1267,11 +1372,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndReceiptDateOption sObject
 ON VALUE-CHANGED OF svEndReceiptDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svEndReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svEndReceiptDate &btnCalendar=4}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1282,13 +1383,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndSalesRep sObject
 ON LEAVE OF svEndSalesRep IN FRAME F-Main /* End Sales Rep */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST sman NO-LOCK
-         WHERE sman.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND sman.sman EQ {&SELF-NAME}
-         NO-ERROR.
-    endSalesRepName:SCREEN-VALUE = IF AVAILABLE sman THEN sman.sname
-                                   ELSE "<Ending Range Value>".
+    endSalesRepName:SCREEN-VALUE = {aoa/fSetDescription.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svEndShift
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndShift sObject
+ON LEAVE OF svEndShift IN FRAME F-Main /* End Shift */
+DO:
+    endShiftDescription:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1310,11 +1416,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndShipDateOption sObject
 ON VALUE-CHANGED OF svEndShipDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svEndShipDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-12:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svEndShipDate &btnCalendar=12}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1336,11 +1438,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndTranDateOption sObject
 ON VALUE-CHANGED OF svEndTranDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svEndTranDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svEndTranDate &btnCalendar=2}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1351,12 +1449,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndUserID sObject
 ON LEAVE OF svEndUserID IN FRAME F-Main /* End User ID */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST users NO-LOCK
-         WHERE users.user_id EQ {&SELF-NAME}
-         NO-ERROR.
-    endUserIDName:SCREEN-VALUE = IF AVAILABLE users THEN users.user_name
-                                 ELSE "<Ending Range Value>".
+    endUserIDName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1367,13 +1460,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartCustNo sObject
 ON LEAVE OF svStartCustNo IN FRAME F-Main /* Start Customer */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST cust NO-LOCK
-         WHERE cust.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND cust.cust-no EQ {&SELF-NAME}
-         NO-ERROR.
-    startCustName:SCREEN-VALUE = IF AVAILABLE cust THEN cust.name
-                                 ELSE "<Beginning Range Value>".
+    startCustName:SCREEN-VALUE = {aoa/fSetDescription.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStartDept
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartDept sObject
+ON LEAVE OF svStartDept IN FRAME F-Main /* Start Department */
+DO:
+    startDeptName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1395,11 +1493,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartDueDateOption sObject
 ON VALUE-CHANGED OF svStartDueDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svStartDueDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-9:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svStartDueDate &btnCalendar=9}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1421,11 +1515,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartInvoiceDateOption sObject
 ON VALUE-CHANGED OF svStartInvoiceDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svStartInvoiceDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-5:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svStartInvoiceDate &btnCalendar=5}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1436,13 +1526,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartItemNo sObject
 ON LEAVE OF svStartItemNo IN FRAME F-Main /* Start Item */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST itemfg NO-LOCK
-         WHERE itemfg.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND itemfg.i-no EQ {&SELF-NAME}
-         NO-ERROR.
-    startItemName:SCREEN-VALUE = IF AVAILABLE itemfg THEN itemfg.i-dscr
-                                 ELSE "<Beginning Range Value>".
+    startItemName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1453,13 +1537,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartMachine sObject
 ON LEAVE OF svStartMachine IN FRAME F-Main /* Start Machine */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST mach NO-LOCK
-         WHERE mach.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND mach.m-code  EQ {&SELF-NAME}
-         NO-ERROR.
-    startMachineDescription:SCREEN-VALUE = IF AVAILABLE mach THEN mach.m-dscr
-                                           ELSE "<Beginning Range Value>".
+    startMachineDescription:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1481,11 +1559,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartOrderDateOption sObject
 ON VALUE-CHANGED OF svStartOrderDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svStartOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-7:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svStartOrderDate &btnCalendar=7}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1496,13 +1570,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartProdCategory sObject
 ON LEAVE OF svStartProdCategory IN FRAME F-Main /* Start Prod Category */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST procat NO-LOCK
-         WHERE procat.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND procat.procat EQ {&SELF-NAME}
-         NO-ERROR.
-    startProdCategoryName:SCREEN-VALUE = IF AVAILABLE procat THEN procat.dscr
-                                         ELSE "<Beginning Range Value>".
+    startProdCategoryName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1524,11 +1592,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartReceiptDateOption sObject
 ON VALUE-CHANGED OF svStartReceiptDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svStartReceiptDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svStartReceiptDate &btnCalendar=3}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1539,13 +1603,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartSalesRep sObject
 ON LEAVE OF svStartSalesRep IN FRAME F-Main /* Start Sales Rep# */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST sman NO-LOCK
-         WHERE sman.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND sman.sman EQ {&SELF-NAME}
-         NO-ERROR.
-    startSalesRepName:SCREEN-VALUE = IF AVAILABLE sman THEN sman.sname
-                                     ELSE "<Beginning Range Value>".
+    startSalesRepName:SCREEN-VALUE = {aoa/fSetDescription.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStartShift
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartShift sObject
+ON LEAVE OF svStartShift IN FRAME F-Main /* Start Shift */
+DO:
+    startShiftDescription:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1567,11 +1636,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartShipDateOption sObject
 ON VALUE-CHANGED OF svStartShipDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svStartShipDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-11:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svStartShipDate &btnCalendar=11}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1593,11 +1658,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartTranDateOption sObject
 ON VALUE-CHANGED OF svStartTranDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svStartTranDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svStartTranDate &btnCalendar=1}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1608,12 +1669,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartUserID sObject
 ON LEAVE OF svStartUserID IN FRAME F-Main /* Start User ID */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST users NO-LOCK
-         WHERE users.user_id EQ {&SELF-NAME}
-         NO-ERROR.
-    startUserIDName:SCREEN-VALUE = IF AVAILABLE users THEN users.user_name
-                                   ELSE "<Beginning Range Value>".
+    startUserIDName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1721,6 +1777,14 @@ PROCEDURE pInitialize :
         APPLY "VALUE-CHANGED":U TO svAllProdCategory.
         APPLY "LEAVE":U TO svStartProdCategory.
         APPLY "LEAVE":U TO svEndProdCategory.
+        
+        APPLY "VALUE-CHANGED":U TO svAllShift.
+        APPLY "LEAVE":U TO svStartShift.
+        APPLY "LEAVE":U TO svEndShift.
+        
+        APPLY "VALUE-CHANGED":U TO svAllDept.
+        APPLY "LEAVE":U TO svStartDept.
+        APPLY "LEAVE":U TO svEndDept.
     END.
 
 END PROCEDURE.
@@ -1758,242 +1822,6 @@ PROCEDURE pPopulateOptions :
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartShipDateOption:HANDLE).
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndShipDateOption:HANDLE).
     END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCADRange sObject 
-PROCEDURE pSetCADRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartCAD:READ-ONLY = iplChecked
-          svEndCAD:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCustRange sObject 
-PROCEDURE pSetCustRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartCustNo:READ-ONLY = iplChecked
-          svEndCustNo:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetItemRange sObject 
-PROCEDURE pSetItemRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartItemNo:READ-ONLY = iplChecked
-          svEndItemNo:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetJobRange sObject 
-PROCEDURE pSetJobRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartJobNo:READ-ONLY  = iplChecked
-          svStartJobNo2:READ-ONLY = iplChecked
-          svEndJobNo:READ-ONLY    = iplChecked
-          svEndJobNo2:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetMachineRange sObject 
-PROCEDURE pSetMachineRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartMachine:READ-ONLY = iplChecked
-          svEndMachine:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetOrderRange sObject 
-PROCEDURE pSetOrderRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartOrderNo:READ-ONLY = iplChecked
-          svEndOrderNo:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetPONumberRange sObject 
-PROCEDURE pSetPONumberRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartPONumber:READ-ONLY = iplChecked
-          svEndPONumber:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetProdCategoryRange sObject 
-PROCEDURE pSetProdCategoryRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartProdCategory:READ-ONLY = iplChecked
-          svEndProdCategory:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetSalesRepRange sObject 
-PROCEDURE pSetSalesRepRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartSalesRep:READ-ONLY = iplChecked
-          svEndSalesRep:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetUserIDRange sObject 
-PROCEDURE pSetUserIDRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartUserID:READ-ONLY = iplChecked
-          svEndUserID:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUseCustList sObject 
-PROCEDURE pUseCustList :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartCustNo:READ-ONLY = iplChecked
-          svEndCustNo:READ-ONLY   = iplChecked
-          btnCustList:SENSITIVE   = iplChecked
-          .
-      IF iplChecked THEN
-      ASSIGN svAllCustNo:SCREEN-VALUE = "no".
-  END.
 
 END PROCEDURE.
 

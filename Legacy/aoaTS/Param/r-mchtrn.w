@@ -50,12 +50,13 @@ DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svStartMachTranDate btnCalendar-1 ~
 svStartMachTranDateOption svEndMachTranDate btnCalendar-2 ~
-svEndMachTranDateOption svAllMachine svStartMachine svEndMachine svSort ~
-svSubRpt_EmployeeTransactions 
+svEndMachTranDateOption svAllMachine svStartMachine svEndMachine svAllShift ~
+svStartShift svEndShift svSort svSubRpt_EmployeeTransactions 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svStartMachTranDate ~
 svStartMachTranDateOption svEndMachTranDate svEndMachTranDateOption ~
 svAllMachine svStartMachine startMachineDescription svEndMachine ~
-endMachineDescription svSort svSubRpt_EmployeeTransactions 
+endMachineDescription svAllShift svStartShift startShiftDescription ~
+svEndShift endShiftDescription svSort svSubRpt_EmployeeTransactions 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -96,9 +97,17 @@ DEFINE VARIABLE endMachineDescription AS CHARACTER FORMAT "X(30)"
      VIEW-AS FILL-IN 
      SIZE 32 BY 1.
 
+DEFINE VARIABLE endShiftDescription AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 41 BY 1.
+
 DEFINE VARIABLE startMachineDescription AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1.
+
+DEFINE VARIABLE startShiftDescription AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 41 BY 1.
 
 DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "Company" 
@@ -115,6 +124,11 @@ DEFINE VARIABLE svEndMachTranDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
+DEFINE VARIABLE svEndShift AS INTEGER FORMAT ">9" INITIAL 3 
+     LABEL "End Shift" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1.
+
 DEFINE VARIABLE svStartMachine AS CHARACTER FORMAT "X(8)" 
      LABEL "Start Machine" 
      VIEW-AS FILL-IN 
@@ -124,6 +138,11 @@ DEFINE VARIABLE svStartMachTranDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50
      LABEL "Start Transaction Date" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
+
+DEFINE VARIABLE svStartShift AS INTEGER FORMAT ">9" INITIAL 1 
+     LABEL "Start Shift" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1.
 
 DEFINE VARIABLE svSort AS CHARACTER 
      VIEW-AS RADIO-SET VERTICAL
@@ -137,6 +156,11 @@ DEFINE VARIABLE svAllMachine AS LOGICAL INITIAL yes
      LABEL "All Machines" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllShift AS LOGICAL INITIAL yes 
+     LABEL "All Shifts" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 12 BY .95 NO-UNDO.
 
 DEFINE VARIABLE svSubRpt_EmployeeTransactions AS LOGICAL INITIAL no 
      LABEL "Show Employee Transactions" 
@@ -168,15 +192,23 @@ DEFINE FRAME F-Main
           "Enter End Machine" WIDGET-ID 20
      endMachineDescription AT ROW 8.86 COL 37 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svSort AT ROW 10.76 COL 25 NO-LABEL WIDGET-ID 84
-     svSubRpt_EmployeeTransactions AT ROW 14.76 COL 25 HELP
+     svAllShift AT ROW 10.76 COL 25 HELP
+          "All Shifts?" WIDGET-ID 216
+     svStartShift AT ROW 11.95 COL 23 COLON-ALIGNED HELP
+          "Enter Start Shift" WIDGET-ID 220
+     startShiftDescription AT ROW 11.95 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 214
+     svEndShift AT ROW 13.14 COL 23 COLON-ALIGNED HELP
+          "Enter End Shift" WIDGET-ID 218
+     endShiftDescription AT ROW 13.14 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 212
+     svSort AT ROW 15.05 COL 25 NO-LABEL WIDGET-ID 84
+     svSubRpt_EmployeeTransactions AT ROW 19.05 COL 25 HELP
           "Select to Show Employee Transactions" WIDGET-ID 88
      "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 10.76 COL 16 WIDGET-ID 90
+          SIZE 8 BY 1 AT ROW 15.05 COL 16 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 71.6 BY 16
+         SIZE 70.6 BY 20.1
          TITLE "Report Parameters".
 
 
@@ -206,8 +238,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 16
-         WIDTH              = 71.6.
+         HEIGHT             = 20.1
+         WIDTH              = 70.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -239,7 +271,11 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR FILL-IN endMachineDescription IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN endShiftDescription IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startMachineDescription IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startShiftDescription IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
        svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
@@ -289,8 +325,24 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllMachine sObject
 ON VALUE-CHANGED OF svAllMachine IN FRAME F-Main /* All Machines */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetMachineRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartMachine:READ-ONLY = {&SELF-NAME}
+      svEndMachine:READ-ONLY   = {&SELF-NAME}
+      .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllShift
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllShift sObject
+ON VALUE-CHANGED OF svAllShift IN FRAME F-Main /* All Shifts */
+DO:
+  ASSIGN {&SELF-NAME}
+      svStartShift:READ-ONLY = {&SELF-NAME}
+      svEndShift:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -313,13 +365,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndMachine sObject
 ON LEAVE OF svEndMachine IN FRAME F-Main /* End Machine */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST mach NO-LOCK
-         WHERE mach.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND mach.m-code  EQ {&SELF-NAME}
-         NO-ERROR.
-    endMachineDescription:SCREEN-VALUE = IF AVAILABLE mach THEN mach.m-dscr
-                                         ELSE "<Beginning Range Value>".
+    endMachineDescription:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -341,11 +387,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndMachTranDateOption sObject
 ON VALUE-CHANGED OF svEndMachTranDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svEndMachTranDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svEndMachTranDate &btnCalendar=2}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svEndShift
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndShift sObject
+ON LEAVE OF svEndShift IN FRAME F-Main /* End Shift */
+DO:
+    endShiftDescription:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -356,13 +409,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartMachine sObject
 ON LEAVE OF svStartMachine IN FRAME F-Main /* Start Machine */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST mach NO-LOCK
-         WHERE mach.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND mach.m-code  EQ {&SELF-NAME}
-         NO-ERROR.
-    startMachineDescription:SCREEN-VALUE = IF AVAILABLE mach THEN mach.m-dscr
-                                           ELSE "<Beginning Range Value>".
+    startMachineDescription:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -384,11 +431,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartMachTranDateOption sObject
 ON VALUE-CHANGED OF svStartMachTranDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svStartMachTranDate:READ-ONLY = {&SELF-NAME} NE "Fixed date"
-      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed date"
-      .
+    {aoa/tDateOption.i &dateObject=svStartMachTranDate &btnCalendar=1}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStartShift
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartShift sObject
+ON LEAVE OF svStartShift IN FRAME F-Main /* Start Shift */
+DO:
+    startShiftDescription:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -446,11 +500,17 @@ PROCEDURE pInitialize :
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
             .
+
         APPLY "VALUE-CHANGED":U TO svStartMachTranDateOption.
         APPLY "VALUE-CHANGED":U TO svEndMachTranDateOption.
+        
         APPLY "VALUE-CHANGED":U TO svAllMachine.
         APPLY "LEAVE":U TO svStartMachine.
         APPLY "LEAVE":U TO svEndMachine.
+        
+        APPLY "VALUE-CHANGED":U TO svAllShift.
+        APPLY "LEAVE":U TO svStartShift.
+        APPLY "LEAVE":U TO svEndShift.
     END.
 
 END PROCEDURE.
@@ -469,30 +529,10 @@ PROCEDURE pPopulateOptions :
     
     DO WITH FRAME {&FRAME-NAME}:
         hContainer = iphContainer.
+
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartMachTranDateOption:HANDLE).
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndMachTranDateOption:HANDLE).
     END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetMachineRange sObject 
-PROCEDURE pSetMachineRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartMachine:READ-ONLY = iplChecked
-          svEndMachine:READ-ONLY   = iplChecked
-          .
-  END.
 
 END PROCEDURE.
 

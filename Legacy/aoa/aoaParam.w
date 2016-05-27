@@ -150,6 +150,13 @@ FUNCTION fGetCompany RETURNS CHARACTER FORWARD.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetDescription W-Win 
+FUNCTION fSetDescription RETURNS CHARACTER
+  ( ipObject AS HANDLE )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetShowAll W-Win 
 FUNCTION fSetShowAll RETURNS LOGICAL
   ( /* parameter-definitions */ )  FORWARD.
@@ -1329,12 +1336,12 @@ PROCEDURE pGetUserPrint :
         ttUserPrint.UserPrintRowID = ROWID(bUserPrint).
         DO idx = 1 TO EXTENT(bUserPrint.field-name):
             IF bUserPrint.field-name[idx] EQ "" THEN LEAVE.
-            IF bUserPrint.field-name[idx] EQ "svTitle" THEN LEAVE.
             CREATE ttParamValue.
             ASSIGN
                 ttParamValue.paramOrder = idx
                 ttParamValue.batch-seq  = bUserPrint.batch-seq
-                ttParamValue.paramLabel = bUserPrint.field-label[idx]
+                ttParamValue.paramLabel = IF bUserPrint.field-label[idx] NE ? THEN bUserPrint.field-label[idx]
+                                          ELSE "[ " + bUserPrint.field-name[idx] + " ]"
                 ttParamValue.paramValue = bUserPrint.field-value[idx]
                 .
         END. /* do idx */
@@ -1724,16 +1731,28 @@ FUNCTION fDateOptions RETURNS LOGICAL (ipDateOption AS HANDLE) :
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE dateOptions AS CHARACTER NO-UNDO INITIAL
-"Fixed date~
-,Current date~
-,Start of this month~
-,End of this month~
-,First day of last month~
-,Last day of last month~
-,Start of this year~
-,End of this year~
-,First day of last year~
-,Last day of last year~
+"Fixed Date~
+,Current Date~
+,Current Date -1~
+,Current Date +1~
+,Current Date -2~
+,Current Date +2~
+,Current Date -3~
+,Current Date +3~
+,Current Date -4~
+,Current Date +4~
+,Current Date -5~
+,Current Date +5~
+,Current Date -6~
+,Current Date +6~
+,Start of this Month~
+,End of this Month~
+,First Day of Last Month~
+,Last Day of Last Month~
+,Start of this Year~
+,End of this Year~
+,First Day of Last Year~
+,Last Day of Last Year~
 ,Last Sunday~
 ,Last Monday~
 ,Last Tuesday~
@@ -1883,6 +1902,95 @@ FUNCTION fGetCompany RETURNS CHARACTER:
     Notes:  
 ------------------------------------------------------------------------------*/
   RETURN aoaCompany.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetDescription W-Win 
+FUNCTION fSetDescription RETURNS CHARACTER
+  ( ipObject AS HANDLE ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRange       AS CHARACTER NO-UNDO.
+
+    cRange = REPLACE(ipObject:NAME,"sv","").
+    
+    CASE ipObject:NAME:
+        WHEN "svStartCustNo" OR WHEN "svEndCustNo" THEN DO:
+            cRange = REPLACE(cRange,"CustNo","").
+            FIND FIRST cust NO-LOCK
+                 WHERE cust.company EQ aoaCompany
+                   AND cust.cust-no EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE cust THEN cDescription = cust.name.
+        END.
+        WHEN "svStartDept" OR WHEN "svEndDept" THEN DO:
+            cRange = REPLACE(cRange,"Dept","").
+            FIND FIRST dept NO-LOCK
+                 WHERE dept.company EQ aoaCompany
+                   AND dept.code EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE dept THEN cDescription = dept.dscr.
+        END.
+        WHEN "svStartItemNo" OR WHEN "svEndItemNo" THEN DO:
+            cRange = REPLACE(cRange,"ItemNo","").
+            FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ aoaCompany
+                   AND itemfg.i-no    EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE itemfg THEN cDescription = itemfg.i-dscr.
+        END.
+        WHEN "svStartMachine" OR WHEN "svEndMachine" THEN DO:
+            cRange = REPLACE(cRange,"Machine","").
+            FIND FIRST mach NO-LOCK
+                 WHERE mach.company EQ aoaCompany
+                   AND mach.m-code  EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE mach THEN cDescription = mach.m-dscr.
+        END.
+        WHEN "svStartProdCategory" OR WHEN "svEndProdCategory" THEN DO:
+            cRange = REPLACE(cRange,"ProdCategory","").
+            FIND FIRST procat NO-LOCK
+                 WHERE procat.company EQ aoaCompany
+                   AND procat.procat  EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE procat THEN cDescription = procat.dscr.
+        END.
+        WHEN "svStartSalesRep" OR WHEN "svEndSalesRep" THEN DO:
+            cRange = REPLACE(cRange,"SalesRep","").
+            FIND FIRST sman NO-LOCK
+                 WHERE sman.company EQ aoaCompany
+                   AND sman.sman EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE sman THEN cDescription = sman.sname.
+        END.
+        WHEN "svStartShift" OR WHEN "svEndShift" THEN DO:
+            cRange = REPLACE(cRange,"Shift","").
+            FIND FIRST shift NO-LOCK
+                 WHERE shift.company EQ aoaCompany
+                   AND shift.shift   EQ INTEGER(ipObject:SCREEN-VALUE)
+                 NO-ERROR.
+            IF AVAILABLE shift THEN cDescription = shift.descr.
+        END.
+        WHEN "svStartUserID" OR WHEN "svEndUserID" THEN DO:
+            cRange = REPLACE(cRange,"UserID","").
+            FIND FIRST users NO-LOCK
+                 WHERE cust.company EQ aoaCompany
+                   AND users.user_id EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE users THEN cDescription = users.user_name.
+        END.
+    END CASE.
+
+    IF cDescription EQ "" THEN
+    cDescription = "<" + cRange + " Range Value>".
+
+    RETURN cDescription.
 
 END FUNCTION.
 

@@ -1,4 +1,4 @@
-/* pMachineTransactions.i - auto generated 05.13.2016 @  3:17:34 pm from aoa/aoaParam.w */
+/* pMachineTransactions.i - auto generated 05.25.2016 @  2:58:13 pm from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
@@ -12,6 +12,9 @@
     DEFINE VARIABLE lAllMachine AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cStartMachine AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndMachine AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAllShift AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iStartShift AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iEndShift AS INTEGER NO-UNDO.
     DEFINE VARIABLE cSort AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSubRpt_EmployeeTransactions AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO.
@@ -31,6 +34,9 @@
         lAllMachine = DYNAMIC-FUNCTION("fGetParamValue","svAllMachine") EQ "yes"
         cStartMachine = DYNAMIC-FUNCTION("fGetParamValue","svStartMachine")
         cEndMachine = DYNAMIC-FUNCTION("fGetParamValue","svEndMachine")
+        lAllShift = DYNAMIC-FUNCTION("fGetParamValue","svAllShift") EQ "yes"
+        iStartShift = DYNAMIC-FUNCTION("fGetParamValue","svStartShift")
+        iEndShift = DYNAMIC-FUNCTION("fGetParamValue","svEndShift")
         cSort = DYNAMIC-FUNCTION("fGetParamValue","svSort")
         lSubRpt_EmployeeTransactions = DYNAMIC-FUNCTION("fGetParamValue","svSubRpt_EmployeeTransactions") EQ "yes"
         cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
@@ -46,5 +52,11 @@
     ASSIGN
         cStartMachine = CHR(32)
         cEndMachine   = CHR(255)
+        .
+
+    IF lAllShift THEN
+    ASSIGN
+        iStartShift = 0
+        iEndShift   = 99999999
         .
 

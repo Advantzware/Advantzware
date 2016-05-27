@@ -883,7 +883,7 @@ PROCEDURE pGetAOAFiles :
     DEFINE VARIABLE cProgID   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMenuID   AS CHARACTER NO-UNDO.
 
-    INPUT FROM VALUE("aoaDAT/Report.dat") NO-ECHO.
+    INPUT FROM VALUE(SEARCH("aoaDAT/Report.dat")) NO-ECHO.
     REPEAT:
         IMPORT cModule cAOAFile cProgID cMenuID.
         CREATE ttAOA.
@@ -955,7 +955,7 @@ PROCEDURE pGetReportFields :
                         ttParameter.pControlItem = iy
                         iOrder                   = iOrder + 1
                         .
-                END.
+                END. /* report header */
                 WHEN "PageHeader" THEN DO:
                     ASSIGN
                         cCaption = hReport:Sections:Item(ix):Controls:Item(iy):Caption
@@ -976,7 +976,7 @@ PROCEDURE pGetReportFields :
                     FIND FIRST ttSubject WHERE ttSubject.ttLabel EQ ttPageHeader.phCaption NO-ERROR.
                     IF AVAILABLE ttSubject THEN
                     ttPageHeader.phOrder = ttSubject.ttOrder.
-                END.
+                END. /* page header */
                 WHEN "Detail" THEN DO:
                     IF iy EQ 0 THEN NEXT.
                     ASSIGN
@@ -999,7 +999,7 @@ PROCEDURE pGetReportFields :
                     FIND FIRST ttSubject WHERE ttSubject.ttLabel EQ ttDetail.dtDataField NO-ERROR.
                     IF AVAILABLE ttSubject THEN
                     ttDetail.dtOrder = ttSubject.ttOrder.
-                END.
+                END. /* detail */
             END CASE.
             IF (hReport:Sections:Item(ix):Type EQ 1  OR
                 hReport:Sections:Item(ix):Type EQ 4  OR
@@ -1019,7 +1019,7 @@ PROCEDURE pGetReportFields :
                     ttSection.secSectionItem  = ix
                     ttSection.secControlItem  = iy
                     .
-            END. /* groupfooter */
+            END. /* group footer/header/total */
         END. /* do iy */
     END. /* do ix */
 
@@ -1395,6 +1395,15 @@ PROCEDURE pSetReportFields :
             hReport:Sections:Item(ix):Controls:Item(iy):Border:BottomStyle = IF ttSection.secType EQ 1 THEN 12 ELSE 0
             .
     END. /* each ttsection */
+    /* temp rename the object incase parameters moved
+       around so to avoid duplicate which causes an error */
+    FOR EACH ttParameter:
+        ASSIGN
+            ix = ttParameter.pSectionItem
+            iy = ttParameter.pControlItem
+            hReport:Sections:Item(ix):Controls:Item(iy):Name = ttParameter.pName + STRING(iy)
+            .
+    END. /* each ttparameter */
     FOR EACH ttParameter:
         ASSIGN
             ix = ttParameter.pSectionItem

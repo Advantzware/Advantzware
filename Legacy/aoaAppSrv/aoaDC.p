@@ -289,7 +289,7 @@ PROCEDURE pProductionAnalysis :
                          NO-ERROR.
                     FIND ef OF eb NO-LOCK NO-ERROR.
                     IF AVAILABLE ef THEN
-                    iTotalUP = IF ef.spare-int-1 = 0 THEN ef.n-out * ef.n-out-l * ef.n-out-d
+                    iTotalUP = IF ef.spare-int-1 EQ 0 THEN ef.n-out * ef.n-out-l * ef.n-out-d
                              ELSE ef.spare-int-1.
 
                     IF CAN-DO("R,S,B",mach.p-type) THEN DO:

@@ -274,6 +274,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define BROWSE-NAME browseAOA
+&Scoped-define SELF-NAME browseAOA
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseAOA C-Win
+ON DEFAULT-ACTION OF browseAOA IN FRAME DEFAULT-FRAME /* AOA Files */
+DO:
+    APPLY "CHOOSE":U TO btnLaunch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define BROWSE-NAME browseModule
 &Scoped-define SELF-NAME browseModule
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseModule C-Win
@@ -402,7 +414,7 @@ PROCEDURE pGetAOAFiles :
     DEFINE VARIABLE cProgID   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMenuID   AS CHARACTER NO-UNDO.
 
-    INPUT FROM VALUE("aoaDAT/" + ipcLaunchDat + ".dat") NO-ECHO.
+    INPUT FROM VALUE(SEARCH("aoaDAT/" + ipcLaunchDat + ".dat")) NO-ECHO.
     REPEAT:
         IMPORT cModule cAOAFile cProgID cMenuID.
         CREATE ttAOA.
@@ -415,7 +427,7 @@ PROCEDURE pGetAOAFiles :
     END. /* repeat */
     INPUT CLOSE.
 
-    INPUT FROM VALUE("aoaDAT/Module.dat") NO-ECHO.
+    INPUT FROM VALUE(SEARCH("aoaDAT/Module.dat")) NO-ECHO.
     REPEAT:
         IMPORT cModule cModDescr.
         IF NOT CAN-FIND(FIRST ttAOA WHERE ttAOA.module EQ cModule)
