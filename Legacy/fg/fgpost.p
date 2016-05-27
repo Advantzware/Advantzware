@@ -61,8 +61,11 @@ ASSIGN
 /* ***************************  Main Block  *************************** */
 
 for each ipFGRctd no-lock:
-    buffer-copy ipFGRctd to FGReceiptRow.    
+    create FGReceiptRow.
+    buffer-copy ipFGRctd to FGReceiptRow.
+
 end.
+
 run ProcFGPosting.
 
 /* **********************  Internal Procedures  *********************** */
@@ -195,6 +198,7 @@ for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ :
          .
   */       
 
+    
   FIND FIRST period NO-LOCK
       WHERE period.company EQ  cocode
         AND period.pst     LE v-post-date
