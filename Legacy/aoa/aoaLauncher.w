@@ -414,7 +414,7 @@ PROCEDURE pGetAOAFiles :
     DEFINE VARIABLE cProgID   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMenuID   AS CHARACTER NO-UNDO.
 
-    INPUT FROM VALUE("aoaDAT/" + ipcLaunchDat + ".dat") NO-ECHO.
+    INPUT FROM VALUE(SEARCH("aoaDAT/" + ipcLaunchDat + ".dat")) NO-ECHO.
     REPEAT:
         IMPORT cModule cAOAFile cProgID cMenuID.
         CREATE ttAOA.
@@ -427,7 +427,7 @@ PROCEDURE pGetAOAFiles :
     END. /* repeat */
     INPUT CLOSE.
 
-    INPUT FROM VALUE("aoaDAT/Module.dat") NO-ECHO.
+    INPUT FROM VALUE(SEARCH("aoaDAT/Module.dat")) NO-ECHO.
     REPEAT:
         IMPORT cModule cModDescr.
         IF NOT CAN-FIND(FIRST ttAOA WHERE ttAOA.module EQ cModule)
