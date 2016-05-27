@@ -361,7 +361,7 @@ DO:
  
 IF AVAIL tt-report AND tt-report.key-03 = v-vend-no THEN DO:
     ASSIGN 
-        tt-report.key-03:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 16
+        tt-report.key-03:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 14
         .
     END.
  END.
@@ -557,8 +557,9 @@ PROCEDURE build-table :
             FIND FIRST po-ord WHERE po-ord.company = g_company 
                 AND po-ord.po-no = int(fg-rcpth.po-no) NO-LOCK NO-ERROR.
             IF AVAIL po-ord AND tt-report.key-03 = po-ord.vend-no THEN
-                ASSIGN v-vend-no = po-ord.vend-no 
-                       tt-report.po-no = fg-rcpth.po-no .
+                ASSIGN v-vend-no = po-ord.vend-no .
+            IF AVAIL po-ord AND tt-report.key-03 = po-ord.vend-no AND NOT ip-rm THEN
+                    tt-report.po-no = fg-rcpth.po-no .
            LEAVE.
            END.
 
