@@ -251,8 +251,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCustNo sObject
 ON VALUE-CHANGED OF svAllCustNo IN FRAME F-Main /* All Customers */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetCustRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartCustNo:READ-ONLY = {&SELF-NAME}
+      svEndCustNo:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -275,8 +277,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCustList sObject
 ON VALUE-CHANGED OF svCustList IN FRAME F-Main /* Use Defined Customer List */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pUseCustList ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartCustNo:READ-ONLY  = {&SELF-NAME}
+      svEndCustNo:READ-ONLY    = {&SELF-NAME}
+      btnCustList:SENSITIVE    = {&SELF-NAME}
+      .
+  IF {&SELF-NAME} THEN
+  ASSIGN svAllCustNo:SCREEN-VALUE = "no".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -287,13 +294,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndCustNo sObject
 ON LEAVE OF svEndCustNo IN FRAME F-Main /* End Customer */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST cust NO-LOCK
-         WHERE cust.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND cust.cust-no EQ {&SELF-NAME}
-         NO-ERROR.
-    endCustName:SCREEN-VALUE = IF AVAILABLE cust THEN cust.name
-                               ELSE "<Ending Range Value>".
+    endCustName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -332,13 +333,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartCustNo sObject
 ON LEAVE OF svStartCustNo IN FRAME F-Main /* Start Customer */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST cust NO-LOCK
-         WHERE cust.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND cust.cust-no EQ {&SELF-NAME}
-         NO-ERROR.
-    startCustName:SCREEN-VALUE = IF AVAILABLE cust THEN cust.name
-                                 ELSE "<Beginning Range Value>".
+    startCustName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -396,56 +391,12 @@ PROCEDURE pInitialize :
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
             .
+        
         APPLY "VALUE-CHANGED":U TO svCustList.
         APPLY "VALUE-CHANGED":U TO svAllCustNo.
         APPLY "LEAVE":U TO svStartCustNo.
         APPLY "LEAVE":U TO svEndCustNo.
     END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCustRange sObject 
-PROCEDURE pSetCustRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartCustNo:READ-ONLY = iplChecked
-          svEndCustNo:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUseCustList sObject 
-PROCEDURE pUseCustList :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartCustNo:READ-ONLY  = iplChecked
-          svEndCustNo:READ-ONLY    = iplChecked
-          btnCustList:SENSITIVE    = iplChecked
-          .
-      IF iplChecked THEN
-      ASSIGN svAllCustNo:SCREEN-VALUE = "no".
-  END.
 
 END PROCEDURE.
 

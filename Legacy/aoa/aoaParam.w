@@ -150,6 +150,13 @@ FUNCTION fGetCompany RETURNS CHARACTER FORWARD.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetDescription W-Win 
+FUNCTION fSetDescription RETURNS CHARACTER
+  ( ipObject AS HANDLE )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetShowAll W-Win 
 FUNCTION fSetShowAll RETURNS LOGICAL
   ( /* parameter-definitions */ )  FORWARD.
@@ -332,21 +339,6 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 149 BY 15.5.
 
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
-     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 40 BY 8.81
-         TITLE "Show/Hide Sections" WIDGET-ID 300.
-
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
      btnDefault AT ROW 1.71 COL 32 HELP
@@ -369,6 +361,21 @@ DEFINE FRAME frameColumns
          AT COL 82 ROW 1
          SIZE 67 BY 8.81
          TITLE "Report Columns" WIDGET-ID 200.
+
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
+     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 40 BY 8.81
+         TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1895,6 +1902,95 @@ FUNCTION fGetCompany RETURNS CHARACTER:
     Notes:  
 ------------------------------------------------------------------------------*/
   RETURN aoaCompany.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetDescription W-Win 
+FUNCTION fSetDescription RETURNS CHARACTER
+  ( ipObject AS HANDLE ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRange       AS CHARACTER NO-UNDO.
+
+    cRange = REPLACE(ipObject:NAME,"sv","").
+    
+    CASE ipObject:NAME:
+        WHEN "svStartCustNo" OR WHEN "svEndCustNo" THEN DO:
+            cRange = REPLACE(cRange,"CustNo","").
+            FIND FIRST cust NO-LOCK
+                 WHERE cust.company EQ aoaCompany
+                   AND cust.cust-no EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE cust THEN cDescription = cust.name.
+        END.
+        WHEN "svStartDept" OR WHEN "svEndDept" THEN DO:
+            cRange = REPLACE(cRange,"Dept","").
+            FIND FIRST dept NO-LOCK
+                 WHERE dept.company EQ aoaCompany
+                   AND dept.code EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE dept THEN cDescription = dept.dscr.
+        END.
+        WHEN "svStartItemNo" OR WHEN "svEndItemNo" THEN DO:
+            cRange = REPLACE(cRange,"ItemNo","").
+            FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ aoaCompany
+                   AND itemfg.i-no    EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE itemfg THEN cDescription = itemfg.i-dscr.
+        END.
+        WHEN "svStartMachine" OR WHEN "svEndMachine" THEN DO:
+            cRange = REPLACE(cRange,"Machine","").
+            FIND FIRST mach NO-LOCK
+                 WHERE mach.company EQ aoaCompany
+                   AND mach.m-code  EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE mach THEN cDescription = mach.m-dscr.
+        END.
+        WHEN "svStartProdCategory" OR WHEN "svEndProdCategory" THEN DO:
+            cRange = REPLACE(cRange,"ProdCategory","").
+            FIND FIRST procat NO-LOCK
+                 WHERE procat.company EQ aoaCompany
+                   AND procat.procat  EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE procat THEN cDescription = procat.dscr.
+        END.
+        WHEN "svStartSalesRep" OR WHEN "svEndSalesRep" THEN DO:
+            cRange = REPLACE(cRange,"SalesRep","").
+            FIND FIRST sman NO-LOCK
+                 WHERE sman.company EQ aoaCompany
+                   AND sman.sman EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE sman THEN cDescription = sman.sname.
+        END.
+        WHEN "svStartShift" OR WHEN "svEndShift" THEN DO:
+            cRange = REPLACE(cRange,"Shift","").
+            FIND FIRST shift NO-LOCK
+                 WHERE shift.company EQ aoaCompany
+                   AND shift.shift   EQ INTEGER(ipObject:SCREEN-VALUE)
+                 NO-ERROR.
+            IF AVAILABLE shift THEN cDescription = shift.descr.
+        END.
+        WHEN "svStartUserID" OR WHEN "svEndUserID" THEN DO:
+            cRange = REPLACE(cRange,"UserID","").
+            FIND FIRST users NO-LOCK
+                 WHERE cust.company EQ aoaCompany
+                   AND users.user_id EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE users THEN cDescription = users.user_name.
+        END.
+    END CASE.
+
+    IF cDescription EQ "" THEN
+    cDescription = "<" + cRange + " Range Value>".
+
+    RETURN cDescription.
 
 END FUNCTION.
 

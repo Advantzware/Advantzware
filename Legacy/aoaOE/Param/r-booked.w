@@ -289,11 +289,11 @@ DEFINE FRAME F-Main
      svOver AT ROW 23.38 COL 59.8 WIDGET-ID 102
      svOverValue AT ROW 23.38 COL 82.6 COLON-ALIGNED HELP
           "Enter Beginning Prod Category#" NO-LABEL WIDGET-ID 106
+     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
+          SIZE 67 BY .95 AT ROW 24.95 COL 22 WIDGET-ID 108
      "Note: Profit Includes Estimate Markups and Commissions." VIEW-AS TEXT
           SIZE 60 BY .71 AT ROW 26 COL 23.4 WIDGET-ID 110
           FGCOLOR 1 
-     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
-          SIZE 67 BY .95 AT ROW 24.95 COL 22 WIDGET-ID 108
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -429,8 +429,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCustNo sObject
 ON VALUE-CHANGED OF svAllCustNo IN FRAME F-Main /* All Customers */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetCustRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartCustNo:READ-ONLY = {&SELF-NAME}
+      svEndCustNo:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -441,8 +443,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllProdCategory sObject
 ON VALUE-CHANGED OF svAllProdCategory IN FRAME F-Main /* All Product Categories */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetProdCategoryRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartProdCategory:READ-ONLY = {&SELF-NAME}
+      svEndProdCategory:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -453,8 +457,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllSalesRep sObject
 ON VALUE-CHANGED OF svAllSalesRep IN FRAME F-Main /* All Sales Reps */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetSalesRepRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartSalesRep:READ-ONLY = {&SELF-NAME}
+      svEndSalesRep:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -477,8 +483,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCustList sObject
 ON VALUE-CHANGED OF svCustList IN FRAME F-Main /* Use Defined Customer List */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pUseCustList ({&SELF-NAME}).
+    ASSIGN {&SELF-NAME}
+        svStartCustNo:READ-ONLY = {&SELF-NAME}
+        svEndCustNo:READ-ONLY   = {&SELF-NAME}
+        btnCustList:SENSITIVE   = {&SELF-NAME}
+        .
+    IF {&SELF-NAME} THEN
+    ASSIGN svAllCustNo:SCREEN-VALUE = "no".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -489,13 +500,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndCustNo sObject
 ON LEAVE OF svEndCustNo IN FRAME F-Main /* End Customer */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST cust NO-LOCK
-         WHERE cust.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND cust.cust-no EQ {&SELF-NAME}
-         NO-ERROR.
-    endCustName:SCREEN-VALUE = IF AVAILABLE cust THEN cust.name
-                               ELSE "<Ending Range Value>".
+    endCustName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -506,11 +511,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndOrdDateOption sObject
 ON VALUE-CHANGED OF svEndOrdDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svEndOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
-      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
-      .
+    {aoa/tDateOption.i &dateObject=svEndOrderDate &btnCalendar=2}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -532,13 +533,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndProdCategory sObject
 ON LEAVE OF svEndProdCategory IN FRAME F-Main /* End Prod Category */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST procat NO-LOCK
-         WHERE procat.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND procat.procat EQ {&SELF-NAME}
-         NO-ERROR.
-    endProdCategoryName:SCREEN-VALUE = IF AVAILABLE procat THEN procat.dscr
-                                       ELSE "<Ending Range Value>".
+    endProdCategoryName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -549,7 +544,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndSalesRep sObject
 ON LEAVE OF svEndSalesRep IN FRAME F-Main /* End SalesRep# */
 DO:
-    ASSIGN {&SELF-NAME}.
+    endSalesRepName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -572,13 +567,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartCustNo sObject
 ON LEAVE OF svStartCustNo IN FRAME F-Main /* Start Customer */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST cust NO-LOCK
-         WHERE cust.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND cust.cust-no EQ {&SELF-NAME}
-         NO-ERROR.
-    startCustName:SCREEN-VALUE = IF AVAILABLE cust THEN cust.name
-                                 ELSE "<Beginning Range Value>".
+    startCustName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -589,11 +578,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartOrdDateOption sObject
 ON VALUE-CHANGED OF svStartOrdDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svStartOrderDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
-      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
-      .
+    {aoa/tDateOption.i &dateObject=svStartOrderDate &btnCalendar=1}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -615,13 +600,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartProdCategory sObject
 ON LEAVE OF svStartProdCategory IN FRAME F-Main /* Start Prod Category */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST procat NO-LOCK
-         WHERE procat.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND procat.procat EQ {&SELF-NAME}
-         NO-ERROR.
-    startProdCategoryName:SCREEN-VALUE = IF AVAILABLE procat THEN procat.dscr
-                                         ELSE "<Starting Range Value>".
+    startProdCategoryName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -632,8 +611,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartSalesRep sObject
 ON LEAVE OF svStartSalesRep IN FRAME F-Main /* Start SalesRep# */
 DO:
-    ASSIGN {&SELF-NAME}.
-    
+    startSalesRepName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -742,93 +720,6 @@ PROCEDURE pPopulateOptions :
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndOrdDateOption:HANDLE).
         
     END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCustRange sObject 
-PROCEDURE pSetCustRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartCustNo:READ-ONLY = iplChecked
-          svEndCustNo:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetProdCategoryRange sObject 
-PROCEDURE pSetProdCategoryRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartProdCategory:READ-ONLY = iplChecked
-          svEndProdCategory:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetSalesRepRange sObject 
-PROCEDURE pSetSalesRepRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartSalesRep:READ-ONLY = iplChecked
-          svEndSalesRep:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUseCustList sObject 
-PROCEDURE pUseCustList :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartCustNo:READ-ONLY = iplChecked
-          svEndCustNo:READ-ONLY   = iplChecked
-          btnCustList:SENSITIVE   = iplChecked
-          .
-      IF iplChecked THEN
-      ASSIGN svAllCustNo:SCREEN-VALUE = "no".
-  END.
 
 END PROCEDURE.
 

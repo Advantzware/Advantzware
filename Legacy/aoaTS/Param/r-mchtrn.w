@@ -325,8 +325,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllMachine sObject
 ON VALUE-CHANGED OF svAllMachine IN FRAME F-Main /* All Machines */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetMachineRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartMachine:READ-ONLY = {&SELF-NAME}
+      svEndMachine:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -337,8 +339,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllShift sObject
 ON VALUE-CHANGED OF svAllShift IN FRAME F-Main /* All Shifts */
 DO:
-  ASSIGN {&SELF-NAME}.
-  RUN pSetShiftRange ({&SELF-NAME}).
+  ASSIGN {&SELF-NAME}
+      svStartShift:READ-ONLY = {&SELF-NAME}
+      svEndShift:READ-ONLY   = {&SELF-NAME}
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -361,13 +365,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndMachine sObject
 ON LEAVE OF svEndMachine IN FRAME F-Main /* End Machine */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST mach NO-LOCK
-         WHERE mach.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND mach.m-code  EQ {&SELF-NAME}
-         NO-ERROR.
-    endMachineDescription:SCREEN-VALUE = IF AVAILABLE mach THEN mach.m-dscr
-                                         ELSE "<Ending Range Value>".
+    endMachineDescription:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -389,11 +387,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndMachTranDateOption sObject
 ON VALUE-CHANGED OF svEndMachTranDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svEndMachTranDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
-      btnCalendar-2:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
-      .
+    {aoa/tDateOption.i &dateObject=svEndMachTranDate &btnCalendar=2}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -404,13 +398,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndShift sObject
 ON LEAVE OF svEndShift IN FRAME F-Main /* End Shift */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST shift NO-LOCK
-         WHERE shift.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND shift.shift   EQ {&SELF-NAME}
-         NO-ERROR.
-    endShiftDescription:SCREEN-VALUE = IF AVAILABLE shift THEN shift.descr
-                                       ELSE "<Ending Range Value>".
+    endShiftDescription:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -421,13 +409,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartMachine sObject
 ON LEAVE OF svStartMachine IN FRAME F-Main /* Start Machine */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST mach NO-LOCK
-         WHERE mach.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND mach.m-code  EQ {&SELF-NAME}
-         NO-ERROR.
-    startMachineDescription:SCREEN-VALUE = IF AVAILABLE mach THEN mach.m-dscr
-                                           ELSE "<Beginning Range Value>".
+    startMachineDescription:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -449,11 +431,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartMachTranDateOption sObject
 ON VALUE-CHANGED OF svStartMachTranDateOption IN FRAME F-Main
 DO:
-  ASSIGN
-      {&SELF-NAME}
-      svStartMachTranDate:READ-ONLY = {&SELF-NAME} NE "Fixed Date"
-      btnCalendar-1:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
-      .
+    {aoa/tDateOption.i &dateObject=svStartMachTranDate &btnCalendar=1}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -464,13 +442,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartShift sObject
 ON LEAVE OF svStartShift IN FRAME F-Main /* Start Shift */
 DO:
-    ASSIGN {&SELF-NAME}.
-    FIND FIRST shift NO-LOCK
-         WHERE shift.company EQ DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
-           AND shift.shift   EQ {&SELF-NAME}
-         NO-ERROR.
-    startShiftDescription:SCREEN-VALUE = IF AVAILABLE shift THEN shift.descr
-                                         ELSE "<Beginning Range Value>".
+    startShiftDescription:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -528,6 +500,7 @@ PROCEDURE pInitialize :
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
             .
+
         APPLY "VALUE-CHANGED":U TO svStartMachTranDateOption.
         APPLY "VALUE-CHANGED":U TO svEndMachTranDateOption.
         
@@ -556,51 +529,10 @@ PROCEDURE pPopulateOptions :
     
     DO WITH FRAME {&FRAME-NAME}:
         hContainer = iphContainer.
+
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartMachTranDateOption:HANDLE).
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndMachTranDateOption:HANDLE).
     END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetMachineRange sObject 
-PROCEDURE pSetMachineRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartMachine:READ-ONLY = iplChecked
-          svEndMachine:READ-ONLY   = iplChecked
-          .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetShiftRange sObject 
-PROCEDURE pSetShiftRange :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-          svStartShift:READ-ONLY = iplChecked
-          svEndShift:READ-ONLY   = iplChecked
-          .
-  END.
 
 END PROCEDURE.
 
