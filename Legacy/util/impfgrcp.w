@@ -987,11 +987,14 @@ PROCEDURE ValidateFGImport:
     /* validate po-no */
                 
     /* validate cost-uom */
-    RUN sys/ref/uom-fg.p (NO, OUTPUT lv-uom-list).
-    IF INDEX(lv-uom-list,FGReceiptRow.cost-uom) LE 0 
-    THEN assign op-error = yes
+    if FGReceiptRow.std-cost <> 0 then do:
+      RUN sys/ref/uom-fg.p (NO, OUTPUT lv-uom-list).
+      IF INDEX(lv-uom-list,FGReceiptRow.cost-uom) LE 0 
+      THEN assign op-error = yes
                 op-error-msg = "Invalid Cost-UOM!"     
                 .
+    end.
+                
     /* cost calc if no cost imported */
     if FGReceiptRow.std-cost = 0 then do:
        if FGReceiptRow.job-no <> "" then do:
@@ -1012,7 +1015,37 @@ PROCEDURE ValidateFGImport:
            if avail po-ordl then do:
                   assign FGReceiptRow.cost-uom = po-ordl.pr-uom
                          lv-cost = po-ordl.cost * (IF po-ordl.disc NE 0 THEN (1 - (po-ordl.disc / 100)) ELSE 1).
-                         
+                  find fg-rctd where rowid(fg-rctd) = FGReceiptRow.TableRowid no-lock no-error.
+                  DEF VAR lv-use-full-qty AS LOG.
+                  DEF VAR lv-full-qty AS DEC NO-UNDO.      
+                  DEF VAR lvCalcCostUom LIKE fg-rctd.cost-uom NO-UNDO.
+                  DEF VAR lvCalcStdCost LIKE fg-rctd.std-cost NO-UNDO.
+                  DEF VAR lvCalcExtCost LIKE fg-rctd.ext-cost NO-UNDO.
+                  DEF VAR lvCalcFrtCost LIKE fg-rctd.frt-cost NO-UNDO.
+                  DEF VAR lvSetupPerCostUom AS DEC NO-UNDO.  
+                  RUN fg/calcRcptCostFromPO.p 
+                    (INPUT cocode ,
+                     INPUT ROWID(po-ordl),
+                     INPUT ROWID(fg-rctd),
+                     INPUT FGReceiptRow.qty-case,
+                     INPUT string(FGReceiptRow.cases),
+                     INPUT fg-rctd.partial,
+                     INPUT fg-rctd.job-no,
+                     INPUT fg-rctd.job-no2,
+                     INPUT fg-rctd.cost-uom,
+                     INPUT fg-rctd.t-qty,
+                     OUTPUT lv-use-full-qty,
+                     OUTPUT lv-full-qty,
+                     OUTPUT lvCalcCostUom,
+                     OUTPUT lvCalcStdCost,
+                     OUTPUT lvCalcExtCost,
+                     OUTPUT lvCalcFrtCost,
+                     OUTPUT lvSetupPerCostUom).
+      
+                  ASSIGN FGReceiptRow.cost-uom = lvCalcCostUom
+                         FGReceiptRow.std-cost = (lvCalcStdCost)
+                         FGReceiptRow.ext-cost = (lvCalcExtCost).   
+                                
                   /*RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).*/
                   FIND FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND
                                           po-ord.po-no   EQ po-ordl.po-no    NO-LOCK NO-ERROR.
