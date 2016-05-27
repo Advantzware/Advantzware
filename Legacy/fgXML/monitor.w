@@ -173,7 +173,8 @@ PROCEDURE pValidateFGImport:
       
                   ASSIGN FGReceiptRow.cost-uom = lvCalcCostUom
                          FGReceiptRow.std-cost = (lvCalcStdCost)
-                         FGReceiptRow.ext-cost = (lvCalcExtCost).   
+                         FGReceiptRow.ext-cost = (lvCalcExtCost)
+                         lv-cost = FGreceuitRow.std-cost.   
                          
                   /*RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).*/
                   FIND FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND
