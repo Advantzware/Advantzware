@@ -2,4 +2,7 @@
 "AR" "Commission Cash Receipt" "r-commcr." "AR15"
 "DC" "Production Analysis" "r-prodlys." "DE2"
 "FG" "Customer Inventory" "r-cusinv." "IL12"
+"OE" "Open Order Report" "r-ordopn." "OR16"
+"OE" "Orders Booked" "r-booked." "OR5"
+"OE" "Orders Booked By Order No" "r-booko#." "OR11"
 "TS" "Machine Transactions" "r-mchtrn." "TR3"

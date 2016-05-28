@@ -18,10 +18,6 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE TEMP-TABLE ttTemplate NO-UNDO
-    {aoaAppSrv/ttFields.i}
-    .
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -69,17 +65,6 @@ FUNCTION fGetParamValue RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fParameters Procedure 
 FUNCTION fParameters RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fTemplate) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTemplate Procedure 
-FUNCTION fTemplate RETURNS HANDLE
-    ( )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -405,24 +390,6 @@ FUNCTION fParameters RETURNS CHARACTER
         cReturnValue = cShow + cParameter + cReturnValue
         .
     RETURN cReturnValue.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fTemplate) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTemplate Procedure 
-FUNCTION fTemplate RETURNS HANDLE
-    ( ) :
-  /*------------------------------------------------------------------------------
-    Purpose:  Template.rpa
-      Notes:  
-  ------------------------------------------------------------------------------*/
-    RETURN TEMP-TABLE ttTemplate:HANDLE .
 
 END FUNCTION.
 

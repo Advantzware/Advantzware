@@ -27,6 +27,7 @@ DEFINE TEMP-TABLE ttTemplate NO-UNDO
     FIELD field4 AS DATE      LABEL "Date Field"      FORMAT "99/99/9999"
     FIELD field5 AS LOGICAL   LABEL "Logical Field"
     .
+{sys/ref/CustList.i NEW}
 /* Template.rpa */
 
 /* _UIB-CODE-BLOCK-END */
@@ -110,6 +111,50 @@ FUNCTION fTemplate RETURNS HANDLE
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-pBuildCustList) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildCustList Procedure 
+PROCEDURE pBuildCustList :
+/*------------------------------------------------------------------------------
+  Purpose:     Template.rpa
+  Parameters:  Company, Use List?, Start Cust, End Cust, ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplList      AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcStartCust AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEndCust   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcID        AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bCust FOR cust.
+    
+    DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttCustList.
+
+    IF iplList THEN
+    RUN sys/ref/CustList.p (ipcCompany, ipcID, YES, OUTPUT lActive).
+    ELSE DO:
+        FOR EACH bCust NO-LOCK
+            WHERE bCust.company EQ ipcCompany
+              AND bCust.cust-no GE ipcStartCust
+              AND bCust.cust-no LE ipcEndCust
+            :
+            CREATE ttCustList.
+            ASSIGN 
+                ttCustList.cust-no = bCust.cust-no
+                ttCustList.log-fld = YES
+                .
+        END. /* each bcust */
+    END. /* else */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-pTemplate) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTemplate Procedure 
@@ -122,8 +167,19 @@ PROCEDURE pTemplate :
     {aoaAppSrv/pTemplate.i}
     
     /* local variables */
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 
     /* subject business logic */
+    DO idx = 1 TO 5:
+        CREATE ttTemplate.
+        ASSIGN
+            ttTemplate.field1 = STRING(idx)
+            ttTemplate.field2 = idx
+            ttTemplate.field3 = idx * 1.1
+            ttTemplate.field4 = TODAY + idx
+            ttTemplate.field5 = idx MOD 2 EQ 0
+            .
+    END.
 
 END PROCEDURE.
 
