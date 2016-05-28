@@ -1,4 +1,4 @@
-/* loadPro.p - ASI as of 2.3.2016 @ 5:45pm */
+/* loadPro.p - ASI as of 2.3.2016 @ 6:40pm */
 
 &SCOPED-DEFINE sbDB nosweat
 &SCOPED-DEFINE ID ASI/ALL
@@ -180,7 +180,7 @@ FUNCTION prodQty RETURNS CHARACTER (ipCompany AS CHARACTER,ipResource AS CHARACT
 
   IF traceON THEN
   PUT UNFORMATTED 'Function prodQty @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
-  
+
   RUN VALUE(ipProdQtyProgram) (ipCompany,ipResource,ipJobNo,ipJobNo2,ipFrm,ipBlankNo,OUTPUT prodQty).
   RETURN LEFT-TRIM(STRING(prodQty,'zzz,zzz,zz9')).
 END FUNCTION.
@@ -920,7 +920,7 @@ FOR EACH job-hdr NO-LOCK
       userField[52] = setUserField(52,IF AVAILABLE itemfg THEN STRING(DECIMAL(userField[52]) * itemfg.t-sqft / 1000,'->,>>9.999') ELSE '')
       userField[53] = setUserField(53,IF AVAILABLE eb THEN STRING(eb.tab-in,'In/Out') ELSE '')
       runMSF = 0
-      runMSF = job-mch.run-qty * itemfg.t-sqft / 1000 WHEN AVAIL itemfg AND job-mch.run-qty NE ?
+      runMSF = job-mch.run-qty * itemfg.t-sqft / 10000 WHEN AVAILABLE itemfg AND job-mch.run-qty NE ?
       userField[54] = setUserField(54,IF runMSF LT 1000 THEN STRING(runMSF,'->>>,>>9.99999') ELSE '')
       userField[57] = ''
       userField[57] = setUserField(57,prodQty(job-mch.company,job-mch.m-code,job-mch.job-no,
