@@ -223,12 +223,12 @@ DEFINE BROWSE br_table
       est-op.op-waste FORMAT ">>>>>9":U
       est-op.op-speed FORMAT ">>>>>9":U
       est-op.op-spoil FORMAT ">>9.99":U
-      est-op.op-crew[1] COLUMN-LABEL "MRCrew" FORMAT "9.99":U WIDTH 9.2
-      est-op.op-crew[2] COLUMN-LABEL "RunCrew" FORMAT "9.99":U
+      est-op.op-crew[1] COLUMN-LABEL "MRCrew" FORMAT ">9.99":U WIDTH 9.2
+      est-op.op-crew[2] COLUMN-LABEL "RunCrew" FORMAT ">9.99":U
             WIDTH 9.6
-      est-op.op-rate[1] COLUMN-LABEL "MRate" FORMAT ">>9.99":U
-            WIDTH 7.6
-      est-op.op-rate[2] COLUMN-LABEL "RRate" FORMAT ">>9.99":U
+      est-op.op-rate[1] COLUMN-LABEL "MRate" FORMAT ">>>9.99":U
+            WIDTH 8.6
+      est-op.op-rate[2] COLUMN-LABEL "RRate" FORMAT ">>>9.99":U
       est-op.num-col COLUMN-LABEL "Inks" FORMAT ">>>":U WIDTH 9
       est-op.num-coat COLUMN-LABEL "Varnish" FORMAT ">>>":U WIDTH 12
       est-op.plates FORMAT ">>>":U
