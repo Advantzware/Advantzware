@@ -1165,7 +1165,8 @@ PROCEDURE pExcel :
     DEFINE VARIABLE cColumns    AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE fieldName   AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE iColumn     AS INTEGER    NO-UNDO.
-    DEFINE VARIABLE iRow        AS INTEGER    NO-UNDO.
+    DEFINE VARIABLE iRow        AS INTEGER    NO-UNDO INITIAL 1.
+    DEFINE VARIABLE iStatusRow  AS INTEGER    NO-UNDO INITIAL 3.
     DEFINE VARIABLE hQuery      AS HANDLE     NO-UNDO.
     DEFINE VARIABLE hQueryBuf   AS HANDLE     NO-UNDO.
     DEFINE VARIABLE cDynFunc    AS CHARACTER  NO-UNDO.
@@ -1226,34 +1227,71 @@ PROCEDURE pExcel :
             chWorkSheet:Name = aoaTitle
             /* Disable screen updating so it will go faster */
             chExcel:ScreenUpdating = TRUE
-            chWorkSheet:Cells(3,2):Value = "Running Query..."
             .
         /* remove spare worksheet */
         chWorkbook:WorkSheets(2):DELETE NO-ERROR.
+
+        IF svShowReportHeader THEN DO:
+            ASSIGN
+                chWorkSheet:Range("A1"):Value = aoaTitle
+                chWorkSheet:Range("A1"):Font:Bold = TRUE
+                chWorkSheet:Range("A2"):Value = "Created " + STRING(TODAY,"99/99/9999")
+                                              + " @ " + STRING(TIME,"hh:mm:ss am")
+                iRow = iRow + 2
+                iStatusRow = iStatusRow + 2
+                .
+        END. /* show report title */
         
+        IF svShowParameters THEN DO:
+            ASSIGN
+                chWorkSheet:Cells(iRow,1):Value = "Parameter: Value"
+                chWorkSheet:Cells(iRow,1):Font:Bold = TRUE
+                chWorkSheet:Cells(iRow,1):Font:Underline = TRUE
+                iRow = iRow + 1
+                iStatusRow = iStatusRow + 1
+                .
+            DO iColumn = 1 TO EXTENT(user-print.field-name):
+                IF user-print.field-name[iColumn] EQ "" THEN LEAVE.
+                IF user-print.field-name[iColumn] EQ "svTitle" THEN LEAVE.
+                IF INDEX(user-print.field-name[iColumn],"DateOption") EQ 0 THEN
+                ASSIGN
+                    chWorkSheet:Cells(iRow,1):Value = (IF user-print.field-label[iColumn] NE ? THEN
+                                                          user-print.field-label[iColumn] ELSE
+                                                          user-print.field-name[iColumn])
+                                                    + ": " + user-print.field-value[iColumn]
+                    iRow = iRow + 1
+                    iStatusRow = iStatusRow + 1
+                    .
+                ELSE
+                chWorkSheet:Cells(iRow - 1,1):Value = chWorkSheet:Cells(iRow - 1,1):Value
+                                                    + " (" + user-print.field-value[iColumn] + ")".
+            END. /* do icolumn */
+        END. /* show parameters */
+
         ASSIGN
+            chWorkSheet:Cells(iStatusRow,2):Value = "Running Query..."
             cDynFunc = "f" + REPLACE(aoaTitle," ","")
             hTable = DYNAMIC-FUNCTION(cDynFunc IN hAppSrv, aoaCompany,0,USERID("NoSweat")).
         IF NOT VALID-HANDLE(hTable) THEN RETURN.
 
-        ASSIGN
-            hTable = hTable:DEFAULT-BUFFER-HANDLE
-            iRow   = 1.
+        hTable = hTable:DEFAULT-BUFFER-HANDLE.
 
         /* build header row column labels */
         DO iColumn = 1 TO svSelectedColumns:NUM-ITEMS:
             ASSIGN
-                chWorkSheet:Cells(3,2):Value = "Running Query...Done"
-                chWorkSheet:Cells(5,2):Value = "Formatting Cells..."
+                chWorkSheet:Cells(iStatusRow,2):Value = "Running Query...Done"
+                chWorkSheet:Cells(iStatusRow + 2,2):Value = "Formatting Cells..."
                 fieldName = svSelectedColumns:ENTRY(iColumn)
                 cDataType = hTable:BUFFER-FIELD(fieldName):DATA-TYPE
                 /* align left (-4131) or right (-4152) */
-                chWorkSheet:Cells(iRow,iColumn):HorizontalAlignment = IF cDataType EQ "Character" THEN -4131 ELSE -4152
-                /* column label */
-                chWorkSheet:Cells(iRow,iColumn):Value = hTable:BUFFER-FIELD(fieldName):LABEL
-                chRangeRow = chWorkSheet:Cells(2,iColumn)
+                chWorkSheet:Cells(iRow,iColumn):HorizontalAlignment = IF cDataType EQ "Character" THEN -4131
+                                                                                                  ELSE -4152
+                chRangeRow = chWorkSheet:Cells(iRow,iColumn)
                 chRangeCol = chWorkSheet:Cells(65536,iColumn)
                 .
+            /* column label */
+            IF svShowPageHeader THEN
+            chWorkSheet:Cells(iRow,iColumn):Value = hTable:BUFFER-FIELD(fieldName):LABEL.
             /* apply column format based on data type */
             CASE cDataType:
                 WHEN "Character" THEN
@@ -1278,26 +1316,35 @@ PROCEDURE pExcel :
                 END. /* integer/decimal */
             END CASE.
         END. /* do iColumn */
+        IF svShowPageHeader THEN DO:
+            /* bold and underline header row */
+            ASSIGN
+                chRangeRow = chWorkSheet:Cells(iRow,1)
+                chRangeCol = chWorkSheet:Cells(iRow,svSelectedColumns:NUM-ITEMS)
+                chWorkSheet:Range(chRangeRow,chRangeCol):Font:Bold = TRUE
+                chWorkSheet:Range(chRangeRow,chRangeCol):Font:Underline = TRUE
+                .
+            chWorkSheet:Range(chRangeRow,chRangeCol):Select.
+            /* auto size the columns */
+            chExcel:Selection:Columns:AutoFit.
+            chWorksheet:Cells(iRow + 1,1):Select.
+        END.
+        ELSE
+        iRow = iRow - 1.
         
-        /* bold and underline header row */
         ASSIGN
-            chRangeRow = chWorkSheet:Cells(iRow,1)
-            chRangeCol = chWorkSheet:Cells(iRow,svSelectedColumns:NUM-ITEMS)
-            chWorkSheet:Range(chRangeRow,chRangeCol):Font:Bold = TRUE
-            chWorkSheet:Range(chRangeRow,chRangeCol):Font:Underline = TRUE
-            chWorkSheet:Cells(5,2):Value = "Formatting Cells...Done"
-            chWorkSheet:Cells(7,2):Value = "Building Wooksheet..."
+            chWorkSheet:Cells(iStatusRow + 2,2):Value = "Formatting Cells...Done"
+            chWorkSheet:Cells(iStatusRow + 4,2):Value = "Building Wooksheet..."
             .
-
         /* pause to let excel display catch up */
         PAUSE 1 NO-MESSAGE.
 
         /* turn off display to run faster and clear status messages */
         ASSIGN
             chExcel:ScreenUpdating = FALSE
-            chWorkSheet:Cells(3,2):Value = ""
-            chWorkSheet:Cells(5,2):Value = ""
-            chWorkSheet:Cells(7,2):Value = ""
+            chWorkSheet:Cells(iStatusRow,2):Value     = ""
+            chWorkSheet:Cells(iStatusRow + 2,2):Value = ""
+            chWorkSheet:Cells(iStatusRow + 4,2):Value = ""
             .
         
         /* scroll returned temp-table records */
@@ -1321,12 +1368,18 @@ PROCEDURE pExcel :
         hQuery:QUERY-CLOSE().
         DELETE OBJECT hQuery.
         
-        /* select everything */
-        chWorksheet:Columns("A:ZZ"):Select.
+        /* select header and data */
+        ASSIGN
+            chRangeRow = chWorkSheet:Cells(iStatusRow - 2,1)
+            chRangeCol = chWorkSheet:Cells(iRow,svSelectedColumns:NUM-ITEMS)
+            .
+        chWorkSheet:Range(chRangeRow,chRangeCol):Select.
         /* auto size the columns */
         chExcel:Selection:Columns:AutoFit.
+        /* put data into a table */
+        chWorkSheet:ListObjects:Add(,chWorkSheet:Range(chRangeRow,chRangeCol),,NOT svShowPageHeader):Name = "TableAOA".
         /* select first none header cell */
-        chWorksheet:Range("A2"):Select.
+        chWorksheet:Cells(iStatusRow - 1,1):Select.
         /* enable screen updating */
         chExcel:ScreenUpdating = TRUE.
         /* auto save excel file */
