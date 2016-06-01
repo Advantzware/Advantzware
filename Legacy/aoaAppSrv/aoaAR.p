@@ -19,27 +19,26 @@
 /* ***************************  Definitions  ************************** */
 
 /* Cash Receipt By SalesRep Name.rpa */
-DEFINE TEMP-TABLE ttCashReceiptBySalesRep NO-UNDO
-    FIELD rowType    AS CHARACTER LABEL "RowType"       FORMAT "x(500)" INITIAL "Data"
-    FIELD parameters AS CHARACTER LABEL "Parameters"    FORMAT "x(500)"
-    FIELD salesRep   AS CHARACTER LABEL "Sales Rep"     FORMAT "x(3)"
-    FIELD salesName  AS CHARACTER LABEL "Sales Name"    FORMAT "x(30)"
-    FIELD custNo     AS CHARACTER LABEL "Customer"      FORMAT "x(8)"
-    FIELD custName   AS CHARACTER LABEL "Customer Name" FORMAT "x(30)"
-    FIELD terms      AS CHARACTER LABEL "Terms"         FORMAT "x(8)"
-    FIELD invoiceNo  AS INTEGER   LABEL "Invoice"       FORMAT ">>>>>>>>"
-    FIELD invDate    AS DATE      LABEL "Inv Date"      FORMAT 99/99/9999
-    FIELD chkDate    AS DATE      LABEL "Check Date"    FORMAT 99/99/9999
-    FIELD Aging      AS DECIMAL   LABEL "Aging"         FORMAT "->>,>>9.99" 
-    FIELD invAmt     AS DECIMAL   LABEL "Inv Amount"    FORMAT "->>>,>>>,>>9.99"
-    FIELD amtPaid    AS DECIMAL   LABEL "Amt Paid"      FORMAT "->>>,>>>,>>9.99"
-    FIELD discount   AS DECIMAL   LABEL "Discount"      FORMAT "->>>>,>>9.99"
-    FIELD balAftPay  AS DECIMAL   LABEL "Bal Aft Pymt"  FORMAT "->>>,>>>,>>9.99"
-    FIELD commAmt    AS DECIMAL   LABEL "Comm Amt"      FORMAT "->>,>>>,>>9.99"
-    FIELD commPct    AS DECIMAL   LABEL "Comm Pct"      FORMAT "->>9.99" 
-    FIELD xxSort     AS CHARACTER LABEL "Sort"          FORMAT "x(50)"
-    FIELD rec-id     AS RECID
-    FIELD row-id     AS ROWID
+DEFINE TEMP-TABLE ttCashReceiptBySalesRepName NO-UNDO
+    {aoaAppSrv/ttFields.i}
+    FIELD salesRep  AS CHARACTER LABEL "Sales Rep"     FORMAT "x(3)"
+    FIELD salesName AS CHARACTER LABEL "Sales Name"    FORMAT "x(30)"
+    FIELD custNo    AS CHARACTER LABEL "Customer"      FORMAT "x(8)"
+    FIELD custName  AS CHARACTER LABEL "Customer Name" FORMAT "x(30)"
+    FIELD terms     AS CHARACTER LABEL "Terms"         FORMAT "x(8)"
+    FIELD invoiceNo AS INTEGER   LABEL "Invoice"       FORMAT ">>>>>>>>"
+    FIELD invDate   AS DATE      LABEL "Inv Date"      FORMAT 99/99/9999
+    FIELD chkDate   AS DATE      LABEL "Check Date"    FORMAT 99/99/9999
+    FIELD Aging     AS DECIMAL   LABEL "Aging"         FORMAT "$->>,>>9.99" 
+    FIELD invAmt    AS DECIMAL   LABEL "Inv Amount"    FORMAT "$->>>,>>>,>>9.99"
+    FIELD amtPaid   AS DECIMAL   LABEL "Amt Paid"      FORMAT "$->>>,>>>,>>9.99"
+    FIELD discount  AS DECIMAL   LABEL "Discount"      FORMAT "$->>>>,>>9.99"
+    FIELD balAftPay AS DECIMAL   LABEL "Bal Aft Pymt"  FORMAT "$->>>,>>>,>>9.99"
+    FIELD commAmt   AS DECIMAL   LABEL "Comm Amt"      FORMAT "$->>,>>>,>>9.99"
+    FIELD commPct   AS DECIMAL   LABEL "Comm Pct"      FORMAT "->>9.99" 
+    FIELD xxSort    AS CHARACTER LABEL "Sort"          FORMAT "x(50)"
+    FIELD rec-id    AS RECID
+    FIELD row-id    AS ROWID
     .
 
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
@@ -65,8 +64,7 @@ DEFINE TEMP-TABLE tt-report-inv NO-UNDO LIKE report
 
 /* Commision Cash Receipt.rpa */
 DEFINE TEMP-TABLE ttCommissionCashReceipt NO-UNDO
-    FIELD rowType    AS CHARACTER  LABEL "RowType"      FORMAT "x(500)" INITIAL "Data"
-    FIELD parameters AS CHARACTER  LABEL "Parameters"   FORMAT "x(500)"
+    {aoaAppSrv/ttFields.i}
     FIELD salesRep    AS CHARACTER LABEL "Sales Rep"    FORMAT "x(3)"
     FIELD custNo      AS CHARACTER LABEL "Customer"     
     FIELD invoiceNo   AS INTEGER   LABEL "Invoice"      FORMAT ">>>>>9"
@@ -74,12 +72,12 @@ DEFINE TEMP-TABLE ttCommissionCashReceipt NO-UNDO
     FIELD custPart    AS CHARACTER LABEL "Cust Part"    FORMAT "x(15)"
     FIELD orderNo     AS INTEGER   LABEL "Order"        FORMAT ">>>>>9"
     FIELD invQty      AS DECIMAL   LABEL "Quantity"
-    FIELD invAmt      AS DECIMAL   LABEL "Inv Amt"
+    FIELD invAmt      AS DECIMAL   LABEL "Inv Amt"      FORMAT "$->>>,>>9.99"
     FIELD cashDate    AS DATE      LABEL "Cash Date"    FORMAT "99/99/9999"
-    FIELD delta       AS DECIMAL   LABEL "Delta"
-    FIELD grossProfit AS DECIMAL   LABEL "Gross Profit" 
-    FIELD commission  AS DECIMAL   LABEL "Commission"
-    FIELD commAmt     AS DECIMAL   LABEL "Comm Amt"
+    FIELD delta       AS DECIMAL   LABEL "Delta"        FORMAT "$->>>,>>9.99"
+    FIELD grossProfit AS DECIMAL   LABEL "Gross Profit" FORMAT "$->>>,>>9.99"
+    FIELD commission  AS DECIMAL   LABEL "Commission"   FORMAT "$->>>,>>9.99"
+    FIELD commAmt     AS DECIMAL   LABEL "Comm Amt"     FORMAT "$->>>,>>9.99"
     FIELD basis       AS CHARACTER LABEL "Basis"        FORMAT "x"
     FIELD totalCost   AS DECIMAL   LABEL "Total Cost"
     FIELD xxAmtPaid   AS DECIMAL
@@ -91,19 +89,6 @@ DEFINE TEMP-TABLE ttCommissionCashReceipt NO-UNDO
     .
 {sys/ref/CustList.i NEW}
 /* Commision Cash Receipt.rpa */
-
-/* ** dummy report used for development and testing by RStark ********** */
-/* Customer.rpa */
-DEFINE TEMP-TABLE ttCust NO-UNDO
-    FIELD rowType    AS CHARACTER LABEL "RowType"    FORMAT "x(500)" INITIAL "Data"
-    FIELD parameters AS CHARACTER LABEL "Parameters" FORMAT "x(500)"
-    FIELD company    AS CHARACTER LABEL "Company"    FORMAT "x(3)"
-    FIELD custNo     AS CHARACTER LABEL "CustNo"     FORMAT "x(8)"
-    FIELD custName   AS CHARACTER LABEL "Name"       FORMAT "x(30)"
-        INDEX ttCust IS PRIMARY rowType company custNo
-        .
-/* Customer.rpa */
-/* ********************************************************************* */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -124,10 +109,10 @@ DEFINE TEMP-TABLE ttCust NO-UNDO
 
 /* ************************  Function Prototypes ********************** */
 
-&IF DEFINED(EXCLUDE-fCashReceiptsBySalesRepName) = 0 &THEN
+&IF DEFINED(EXCLUDE-fCashReceiptBySalesRepName) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCashReceiptsBySalesRepName Procedure 
-FUNCTION fCashReceiptsBySalesRepName RETURNS HANDLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCashReceiptBySalesRepName Procedure 
+FUNCTION fCashReceiptBySalesRepName RETURNS HANDLE
     ( ipcCompany AS CHARACTER,
       ipiBatch   AS INTEGER,
       ipcUserID  AS CHARACTER )  FORWARD.
@@ -141,19 +126,6 @@ FUNCTION fCashReceiptsBySalesRepName RETURNS HANDLE
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCommissionCashReceipt Procedure 
 FUNCTION fCommissionCashReceipt RETURNS HANDLE
-  ( ipcCompany AS CHARACTER,
-    ipiBatch   AS INTEGER,
-    ipcUserID  AS CHARACTER )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fCustomers) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCustomers Procedure 
-FUNCTION fCustomers RETURNS HANDLE
   ( ipcCompany AS CHARACTER,
     ipiBatch   AS INTEGER,
     ipcUserID  AS CHARACTER )  FORWARD.
@@ -256,95 +228,47 @@ END PROCEDURE.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-pCashReceiptsBySalesRepName) = 0 &THEN
+&IF DEFINED(EXCLUDE-pCashReceiptBySalesRepName) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCashReceiptsBySalesRepName Procedure 
-PROCEDURE pCashReceiptsBySalesRepName :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCashReceiptBySalesRepName Procedure 
+PROCEDURE pCashReceiptBySalesRepName :
 /*------------------------------------------------------------------------------
   Purpose:     Cash Receipt By SalesRep Name.rpa
-  Parameters:  <none>
+  Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
-
-    /* parameter values loaded into these variables */
-    DEFINE VARIABLE dtStartReceiptDate      AS DATE      NO-UNDO.
-    DEFINE VARIABLE cStartReceiptDateOption AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtEndReceiptDate        AS DATE      NO-UNDO.
-    DEFINE VARIABLE cEndReceiptDateOption   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAllSalesReps           AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cStartSalesRep          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cEndSalesRep            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cSort                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lDiscount               AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lPrep                   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iOldDay                 AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cAvailableColumns       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cSelectedColumns        AS CHARACTER NO-UNDO.
+    {aoaAppSrv/pCashReceiptBySalesRepName.i}
 
     /* local variables */
-    DEFINE VARIABLE cSortKey                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cSMan AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dAmt  LIKE ar-cashl.amt-paid NO-UNDO EXTENT 2.
-    DEFINE VARIABLE dPaid LIKE dAmt NO-UNDO.
-    DEFINE VARIABLE dDsc  LIKE dAmt NO-UNDO.
-    DEFINE VARIABLE dCom  LIKE ar-cashl.amt-paid NO-UNDO.
-    DEFINE VARIABLE dCom-2 LIKE dCom NO-UNDO.
-    DEFINE VARIABLE dComm%  AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dPct  AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dMisc AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE cBasis LIKE sman.commbasis NO-UNDO INIT "".
-    DEFINE VARIABLE cTerm LIKE tt-report.term-id NO-UNDO.
-    DEFINE VARIABLE dTotAmt AS DECIMAL NO-UNDO EXTENT 4.
-    DEFINE VARIABLE dTotCom LIKE dTotAmt NO-UNDO.
-    DEFINE VARIABLE iAging AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dtCheckDate AS DATE NO-UNDO.
-    DEFINE VARIABLE dtInvDate AS DATE NO-UNDO.
-    DEFINE VARIABLE dAmt-full AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dInvFull AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dRemBal AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dTmpAmt1 AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lInvFound AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE i AS INT NO-UNDO.
-    DEFINE VARIABLE j AS INT NO-UNDO.
+    DEFINE VARIABLE cSortKey    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSMan       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dAmt      LIKE ar-cashl.amt-paid NO-UNDO EXTENT 2.
+    DEFINE VARIABLE dPaid     LIKE dAmt      NO-UNDO.
+    DEFINE VARIABLE dDsc      LIKE dAmt      NO-UNDO.
+    DEFINE VARIABLE dCom      LIKE ar-cashl.amt-paid NO-UNDO.
+    DEFINE VARIABLE dCom-2    LIKE dCom      NO-UNDO.
+    DEFINE VARIABLE dComm%      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dPct        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dMisc       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cBasis    LIKE sman.commbasis NO-UNDO INITIAL "".
+    DEFINE VARIABLE cTerm     LIKE tt-report.term-id NO-UNDO.
+    DEFINE VARIABLE dTotAmt     AS DECIMAL   NO-UNDO EXTENT 4.
+    DEFINE VARIABLE dTotCom   LIKE dTotAmt   NO-UNDO.
+    DEFINE VARIABLE iAging      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dtCheckDate AS DATE      NO-UNDO.
+    DEFINE VARIABLE dtInvDate   AS DATE      NO-UNDO.
+    DEFINE VARIABLE dAmt-full   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dInvFull    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dRemBal     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTmpAmt1    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lInvFound   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE i           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE j           AS INTEGER   NO-UNDO.
 
-    /* locate parameter values record */
-    RUN pGetParamValues (ipcCompany, "r-cashs2.", ipcUserID, ipiBatch).
-    
-    /* load parameter values from above record into variables */
-    ASSIGN
-        dtStartReceiptDate      = DATE(DYNAMIC-FUNCTION("fGetParamValue","svStartReceiptDate"))
-        cStartReceiptDateOption = DYNAMIC-FUNCTION("fGetParamValue","svStartReceiptDateOption")
-        dtEndReceiptDate        = DATE(DYNAMIC-FUNCTION("fGetParamValue","svEndReceiptDate"))
-        cEndReceiptDateOption   = DYNAMIC-FUNCTION("fGetParamValue","svEndReceiptDateOption")
-        lAllSalesReps           = DYNAMIC-FUNCTION("fGetParamValue","svAllSalesReps") EQ "yes"
-        cStartSalesRep          = DYNAMIC-FUNCTION("fGetParamValue","svStartSalesRep")
-        cEndSalesRep            = DYNAMIC-FUNCTION("fGetParamValue","svEndSalesRep")         
-        cSort                   = DYNAMIC-FUNCTION("fGetParamValue","svSort")
-        lDiscount               = DYNAMIC-FUNCTION("fGetParamValue","svTdisc") EQ "yes"
-        lPrep                   = DYNAMIC-FUNCTION("fGetParamValue","svPrep") EQ "yes"
-        iOldDay                 = DYNAMIC-FUNCTION("fGetParamValue","svDayOld") 
-        dtStartReceiptDate      = DYNAMIC-FUNCTION("fDateOptionDate",cStartReceiptDateOption,dtStartReceiptDate)
-        dtEndReceiptDate        = DYNAMIC-FUNCTION("fDateOptionDate",cEndReceiptDateOption,dtEndReceiptDate)
-        cAvailableColumns       = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
-        cSelectedColumns        = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
-        .
-
-    RUN pGetColumns (TEMP-TABLE ttCashReceiptBySalesRep:HANDLE,
-                     cAvailableColumns,
-                     cSelectedColumns
-                     ).
-
-    IF lAllSalesReps THEN
-    ASSIGN
-        cStartSalesRep = CHR(32)
-        cEndSalesRep   = CHR(255).
-
+    /* subject business logic */
     FOR EACH cust NO-LOCK
         WHERE cust.company EQ ipcCompany:
-        IF iOldDay EQ 0 THEN
+        IF iDayOld EQ 0 THEN
         FOR EACH ar-inv NO-LOCK
             WHERE ar-inv.company  EQ ipcCompany
               AND ar-inv.posted   EQ YES
@@ -398,8 +322,8 @@ PROCEDURE pCashReceiptsBySalesRepName :
             WHERE ar-cashl.c-no   EQ ar-cash.c-no
               AND ar-cashl.posted EQ YES
               AND ar-cashl.memo   EQ NO:
-            IF NOT (iOldDay EQ 0 OR
-                   (ar-cash.check-date - ar-cashl.inv-date GT iOldDay AND
+            IF NOT (iDayOld EQ 0 OR
+                   (ar-cash.check-date - ar-cashl.inv-date GT iDayOld AND
                     ar-cashl.inv-no NE 0)) THEN NEXT.
             IF ar-cashl.inv-no NE 0 THEN
             FOR EACH ar-invl NO-LOCK
@@ -517,7 +441,7 @@ PROCEDURE pCashReceiptsBySalesRepName :
         IF AVAILABLE ar-cashl THEN DO:
             FIND FIRST ar-cash NO-LOCK WHERE ar-cash.c-no EQ ar-cashl.c-no.
             ASSIGN
-                dDsc[1] = IF lDiscount THEN ar-cashl.amt-disc ELSE 0
+                dDsc[1] = IF lIncludeTermsDiscount THEN ar-cashl.amt-disc ELSE 0
                 dtCheckDate = ar-cash.check-date
                 dAmt-full = ar-cashl.amt-paid
                 lInvFound = NO.
@@ -547,7 +471,7 @@ PROCEDURE pCashReceiptsBySalesRepName :
                         dCom-2  = 0
                         dtInvDate = ar-inv.inv-date.
                     dInvFull = dInvFull + ar-invl.amt.
-                    IF NOT lPrep AND ar-invl.misc THEN
+                    IF NOT lIncludePrepCharges AND ar-invl.misc THEN
                     dMisc = dMisc + ar-invl.amt.
                     ELSE DO:
                         ASSIGN
@@ -597,7 +521,7 @@ PROCEDURE pCashReceiptsBySalesRepName :
                 (ipcCompany, tt-report.key-01, cust.type,
                 (IF AVAIL itemfg THEN itemfg.procat ELSE ""), 0,cust.cust-no,OUTPUT cBasis).
             dInvFull = ar-invl.amt.
-            IF NOT lPrep AND ar-invl.misc THEN NEXT.
+            IF NOT lIncludePrepCharges AND ar-invl.misc THEN NEXT.
             ASSIGN
                 dAmt[1] = ar-invl.amt 
                 dTmpAmt1 = dAmt[1]
@@ -619,26 +543,26 @@ PROCEDURE pCashReceiptsBySalesRepName :
             iAging = (IF dtCheckDate NE ? AND dtInvDate NE ? THEN dtCheckDate - dtInvDate ELSE 0).
         dRemBal = IF FIRST-OF(tt-report.inv-no) THEN dInvFull - dAmt-full - dDsc[1]
                   ELSE dRemBal - dAmt-full - dDsc[1].
-        CREATE ttCashReceiptBySalesRep.
+        CREATE ttCashReceiptBySalesRepName.
         ASSIGN
-            ttCashReceiptBySalesRep.xxSort    = tt-report.key-01
-            + tt-report.key-02
-            + tt-report.key-03
-            ttCashReceiptBySalesRep.salesRep  = STRING(tt-report.key-01) 
-            ttCashReceiptBySalesRep.salesName = IF AVAILABLE sman THEN STRING(sman.sname) ELSE ""
-            ttCashReceiptBySalesRep.custNo    = STRING(tt-report.key-09)
-            ttCashReceiptBySalesRep.custName  = tt-report.key-10
-            ttCashReceiptBySalesRep.terms     = tt-report.key-08
-            ttCashReceiptBySalesRep.invoiceNo = IF AVAILABLE ar-cashl THEN ar-cashl.inv-no ELSE IF AVAIL ar-inv THEN  ar-inv.inv-no ELSE 0
-            ttCashReceiptBySalesRep.invDate   = dtInvDate   
-            ttCashReceiptBySalesRep.chkDate   = dtCheckDate 
-            ttCashReceiptBySalesRep.Aging     = iAging
-            ttCashReceiptBySalesRep.invAmt    = dInvFull
-            ttCashReceiptBySalesRep.amtPaid   = dAmt-full
-            ttCashReceiptBySalesRep.discount  = dDsc[1]
-            ttCashReceiptBySalesRep.balAftPay = dRemBal
-            ttCashReceiptBySalesRep.commAmt   = dCom-2
-            ttCashReceiptBySalesRep.commPct   = dComm%.
+            ttCashReceiptBySalesRepName.xxSort    = tt-report.key-01
+                                                  + tt-report.key-02
+                                                  + tt-report.key-03
+            ttCashReceiptBySalesRepName.salesRep  = STRING(tt-report.key-01) 
+            ttCashReceiptBySalesRepName.salesName = IF AVAILABLE sman THEN STRING(sman.sname) ELSE ""
+            ttCashReceiptBySalesRepName.custNo    = STRING(tt-report.key-09)
+            ttCashReceiptBySalesRepName.custName  = tt-report.key-10
+            ttCashReceiptBySalesRepName.terms     = tt-report.key-08
+            ttCashReceiptBySalesRepName.invoiceNo = IF AVAILABLE ar-cashl THEN ar-cashl.inv-no ELSE IF AVAIL ar-inv THEN  ar-inv.inv-no ELSE 0
+            ttCashReceiptBySalesRepName.invDate   = dtInvDate   
+            ttCashReceiptBySalesRepName.chkDate   = dtCheckDate 
+            ttCashReceiptBySalesRepName.Aging     = iAging
+            ttCashReceiptBySalesRepName.invAmt    = dInvFull
+            ttCashReceiptBySalesRepName.amtPaid   = dAmt-full
+            ttCashReceiptBySalesRepName.discount  = dDsc[1]
+            ttCashReceiptBySalesRepName.balAftPay = dRemBal
+            ttCashReceiptBySalesRepName.commAmt   = dCom-2
+            ttCashReceiptBySalesRepName.commPct   = dComm%.
         IF LAST-OF(tt-report.inv-no) THEN DELETE tt-report.
     END. /* each tt-report */
 
@@ -658,99 +582,24 @@ PROCEDURE pCommissionCashReceipt :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
-
-    /* parameter values loaded into these variables */
-    DEFINE VARIABLE dtStartReceiptDate      AS DATE      NO-UNDO.
-    DEFINE VARIABLE cStartReceiptDateOption AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtEndReceiptDate        AS DATE      NO-UNDO.
-    DEFINE VARIABLE cEndReceiptDateOption   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtStartInvoiceDate      AS DATE      NO-UNDO.
-    DEFINE VARIABLE cStartInvoiceDateOption AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtEndInvoiceDate        AS DATE      NO-UNDO.
-    DEFINE VARIABLE cEndInvoiceDateOption   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAllSalesReps           AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cStartSalesRep          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cEndSalesRep            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lCustList               AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lAllCustomers           AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cStartCustNo            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cEndCustNo              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShowInvoice            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lDetailed               AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lPrep                   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lCalc                   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cAvailableColumns       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cSelectedColumns        AS CHARACTER NO-UNDO.
-
+    {aoaAppSrv/pCommissionCashReceipt.i}
+    
     /* local variables */
-    DEFINE VARIABLE dtDate                  AS DATE      NO-UNDO.
-    DEFINE VARIABLE dAmt                    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dAmtPaid                AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dAmtD                   AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dInvPct                 AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lComplete               AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE idx                     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cSalesRep               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dSalesPct               AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cCommBasis              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dProfit                 AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dtDate     AS DATE      NO-UNDO.
+    DEFINE VARIABLE dAmt       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dAmtPaid   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dAmtD      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dInvPct    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lComplete  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cSalesRep  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dSalesPct  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cCommBasis AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dProfit    AS DECIMAL   NO-UNDO.
 
+    /* subject business logic */
     DEFINE BUFFER bARInvl FOR ar-invl.
     
-    /* locate parameter values record */
-    RUN pGetParamValues (ipcCompany, "r-commcr.", ipcUserID, ipiBatch).
-    
-    /* load parameter values from above record into variables */
-    ASSIGN
-        dtStartReceiptDate      = DATE(DYNAMIC-FUNCTION("fGetParamValue","svStartReceiptDate"))
-        cStartReceiptDateOption = DYNAMIC-FUNCTION("fGetParamValue","svStartReceiptDateOption")
-        dtEndReceiptDate        = DATE(DYNAMIC-FUNCTION("fGetParamValue","svEndReceiptDate"))
-        cEndReceiptDateOption   = DYNAMIC-FUNCTION("fGetParamValue","svEndReceiptDateOption")
-        dtStartInvoiceDate      = DATE(DYNAMIC-FUNCTION("fGetParamValue","svStartInvoiceDate"))
-        cStartInvoiceDateOption = DYNAMIC-FUNCTION("fGetParamValue","svStartInvoiceDateOption")
-        dtEndInvoiceDate        = DATE(DYNAMIC-FUNCTION("fGetParamValue","svEndInvoiceDate"))
-        cEndInvoiceDateOption   = DYNAMIC-FUNCTION("fGetParamValue","svEndInvoiceDateOption")
-        lAllSalesReps           = DYNAMIC-FUNCTION("fGetParamValue","svAllSalesReps") EQ "yes"
-        cStartSalesRep          = DYNAMIC-FUNCTION("fGetParamValue","svStartSalesRep")
-        cEndSalesRep            = DYNAMIC-FUNCTION("fGetParamValue","svEndSalesRep")
-        lCustList               = DYNAMIC-FUNCTION("fGetParamValue","svCustList") EQ "yes"
-        lAllCustomers           = DYNAMIC-FUNCTION("fGetParamValue","svAllCustomers") EQ "yes"
-        cStartCustNo            = DYNAMIC-FUNCTION("fGetParamValue","svStartCustNo")
-        cEndCustNo              = DYNAMIC-FUNCTION("fGetParamValue","svEndCustNo")
-        cShowInvoice            = DYNAMIC-FUNCTION("fGetParamValue","svShowInvoice")
-        lDetailed               = DYNAMIC-FUNCTION("fGetParamValue","svDetailed") EQ "yes"
-        lPrep                   = DYNAMIC-FUNCTION("fGetParamValue","svPrep") EQ "yes"
-        lCalc                   = DYNAMIC-FUNCTION("fGetParamValue","svCalc") EQ "yes"
-        dtStartReceiptDate      = DYNAMIC-FUNCTION("fDateOptionDate",cStartReceiptDateOption,dtStartReceiptDate)
-        dtEndReceiptDate        = DYNAMIC-FUNCTION("fDateOptionDate",cEndReceiptDateOption,dtEndReceiptDate)
-        dtStartInvoiceDate      = DYNAMIC-FUNCTION("fDateOptionDate",cStartInvoiceDateOption,dtStartInvoiceDate)
-        dtEndInvoiceDate        = DYNAMIC-FUNCTION("fDateOptionDate",cEndInvoiceDateOption,dtEndInvoiceDate)
-        cAvailableColumns       = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
-        cSelectedColumns        = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
-        .
-
-    RUN pGetColumns (TEMP-TABLE ttCommissionCashReceipt:HANDLE,
-                     cAvailableColumns,
-                     cSelectedColumns
-                     ).
-
-    IF lAllSalesReps THEN
-    ASSIGN
-        cStartSalesRep = CHR(32)
-        cEndSalesRep   = CHR(255)
-        .
-
-    IF lAllCustomers THEN
-    ASSIGN
-        cStartCustNo = CHR(32)
-        cEndCustNo   = CHR(255)
-        .
-
-    RUN pBuildCustList (ipcCompany, lCustList, cStartCustNo, cEndCustNo, "AR15").
-
     FIND FIRST oe-ctrl NO-LOCK WHERE oe-ctrl.company EQ ipcCompany NO-ERROR.
     IF NOT AVAILABLE oe-ctrl THEN RETURN.
 
@@ -1016,10 +865,10 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&IF DEFINED(EXCLUDE-fCashReceiptsBySalesRepName) = 0 &THEN
+&IF DEFINED(EXCLUDE-fCashReceiptBySalesRepName) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCashReceiptsBySalesRepName Procedure 
-FUNCTION fCashReceiptsBySalesRepName RETURNS HANDLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCashReceiptBySalesRepName Procedure 
+FUNCTION fCashReceiptBySalesRepName RETURNS HANDLE
     ( ipcCompany AS CHARACTER,
       ipiBatch   AS INTEGER,
       ipcUserID  AS CHARACTER ) :
@@ -1027,11 +876,11 @@ FUNCTION fCashReceiptsBySalesRepName RETURNS HANDLE
     Purpose:  Cash Receipt By SalesRep Name.rpa
       Notes:  
   ------------------------------------------------------------------------------*/
-      EMPTY TEMP-TABLE ttCashReceiptBySalesRep.
+      EMPTY TEMP-TABLE ttCashReceiptBySalesRepName.
 
-      RUN pCashReceiptsBySalesRepName (ipcCompany, ipiBatch, ipcUserID).
+      RUN pCashReceiptBySalesRepName (ipcCompany, ipiBatch, ipcUserID).
 
-      RETURN TEMP-TABLE ttCashReceiptBySalesRep:HANDLE .
+      RETURN TEMP-TABLE ttCashReceiptBySalesRepName:HANDLE .
 
 END FUNCTION.
 
@@ -1064,60 +913,6 @@ END FUNCTION.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-fCustomers) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCustomers Procedure 
-FUNCTION fCustomers RETURNS HANDLE
-  ( ipcCompany AS CHARACTER,
-    ipiBatch   AS INTEGER,
-    ipcUserID  AS CHARACTER ) :
-/*------------------------------------------------------------------------------
-  Purpose:  Customer.rpa
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cStartCustNo      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cEndCustNo        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cSelectedColumns  AS CHARACTER NO-UNDO.
-    
-    EMPTY TEMP-TABLE ttCust.
-    
-    RUN pGetParamValues (ipcCompany, "custaoa.", ipcUserID, ipiBatch).
-
-    ASSIGN
-        cStartCustNo      = DYNAMIC-FUNCTION("fGetParamValue","svStartCustNo")
-        cEndCustNo        = DYNAMIC-FUNCTION("fGetParamValue","svEndCustNo")
-        cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
-        cSelectedColumns  = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
-        .
-
-    FOR EACH cust NO-LOCK 
-        WHERE cust.company EQ ipcCompany
-          AND cust.cust-no GT cStartCustNo
-          AND cust.cust-no LE cEndCustNo
-        :
-        CREATE ttCust.
-        ASSIGN 
-            ttCust.company  = cust.company
-            ttCust.custNo   = cust.cust-no
-            ttCust.custName = cust.name
-            .
-    END. /* each cust */
-
-    RUN pGetColumns (TEMP-TABLE ttCust:HANDLE,
-                     cAvailableColumns,
-                     cSelectedColumns
-                     ).
-        
-    RETURN TEMP-TABLE ttCust:HANDLE.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 &IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTableHandle Procedure 
@@ -1128,12 +923,9 @@ FUNCTION fGetTableHandle RETURNS HANDLE
     Notes:  
 ------------------------------------------------------------------------------*/
     CASE ipcProgramID:
-        /* Customers.rpa */
-        WHEN "custaoa." THEN
-        RETURN TEMP-TABLE ttCust:HANDLE.
         /* Cash Receipt By SalesRep Name.rpa */
         WHEN "r-cashs2." THEN
-        RETURN TEMP-TABLE ttCashReceiptBySalesRep:HANDLE.
+        RETURN TEMP-TABLE ttCashReceiptBySalesRepName:HANDLE.
         /* Commision Cash Receipt.rpa */
         WHEN "r-commcr." THEN
         RETURN TEMP-TABLE ttCommissionCashReceipt:HANDLE.

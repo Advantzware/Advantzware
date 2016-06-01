@@ -46,13 +46,13 @@ DEFINE VARIABLE lOKPressed     AS LOGICAL    NO-UNDO.
 DEFINE VARIABLE cID            AS CHARACTER  NO-UNDO.
 
 DEFINE TEMP-TABLE ttSubject NO-UNDO
-    FIELD ttOrder        AS INTEGER   LABEL "Order"         FORMAT ">>>9"
+    FIELD ttOrder        AS INTEGER   LABEL "Order"         FORMAT ">>9"
     FIELD ttField        AS CHARACTER LABEL "Field"         FORMAT "x(20)"
     FIELD ttLabel        AS CHARACTER LABEL "Label"         FORMAT "x(20)"
     FIELD ttType         AS CHARACTER LABEL "Type"          FORMAT "x(10)"
     FIELD ttFormat       AS CHARACTER LABEL "Format"        FORMAT "x(20)"
     FIELD ttWidth        AS INTEGER   LABEL "Width"         FORMAT ">>>9"
-    FIELD ttSize         AS INTEGER   LABEL "Size"          FORMAT ">>>9"
+    FIELD ttSize         AS INTEGER   LABEL "Size"          FORMAT ">>>>9"
         INDEX ttSubject IS PRIMARY ttOrder
         .
 
@@ -73,7 +73,7 @@ DEFINE TEMP-TABLE ttDetail NO-UNDO
     FIELD dtName         AS CHARACTER LABEL "Name"          FORMAT "x(30)"
     FIELD dtDataField    AS CHARACTER LABEL "DataField"     FORMAT "x(20)"
     FIELD dtLeft         AS INTEGER   LABEL "Position"      FORMAT ">>>>9"
-    FIELD dtWidth        AS INTEGER   LABEL "Width"         FORMAT ">>>9"
+    FIELD dtWidth        AS INTEGER   LABEL "Width"         FORMAT ">>>>9"
     FIELD dtAlignment    AS INTEGER   LABEL "Alignment"     FORMAT "9"
     FIELD dtOutputFormat AS CHARACTER LABEL "OutputFormat"  FORMAT "x(30)"
     FIELD dtSectionItem  AS INTEGER   LABEL "SectionItem"   FORMAT ">>9"
@@ -106,6 +106,14 @@ DEFINE TEMP-TABLE ttParameter NO-UNDO
         INDEX ttParameter IS PRIMARY pOrder
         .
 
+DEFINE TEMP-TABLE ttAOA NO-UNDO
+    FIELD module  AS CHARACTER LABEL "Module"  FORMAT "x(2)"
+    FIELD aoaFile AS CHARACTER
+    FIELD progID  AS CHARACTER LABEL "Prog ID" FORMAT "x(15)"
+    FIELD menuID  AS CHARACTER
+        INDEX aoa IS PRIMARY UNIQUE module progID
+        .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -122,8 +130,8 @@ DEFINE TEMP-TABLE ttParameter NO-UNDO
 &Scoped-define BROWSE-NAME ttDetail
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttDetail ttPageHeader ttParameter ttSection ~
-ttSubject
+&Scoped-define INTERNAL-TABLES ttDetail ttPageHeader ttParameter ttAOA ~
+ttSection ttSubject
 
 /* Definitions for BROWSE ttDetail                                      */
 &Scoped-define FIELDS-IN-QUERY-ttDetail ttDetail.dtOrder ttDetail.dtName ttDetail.dtDataField ttDetail.dtLeft ttDetail.dtWidth ttDetail.dtOutputFormat   
@@ -155,6 +163,16 @@ ttSubject
 &Scoped-define FIRST-TABLE-IN-QUERY-ttParameter ttParameter
 
 
+/* Definitions for BROWSE ttProgID                                      */
+&Scoped-define FIELDS-IN-QUERY-ttProgID ttAOA.module ttAOA.progID   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-ttProgID   
+&Scoped-define SELF-NAME ttProgID
+&Scoped-define QUERY-STRING-ttProgID FOR EACH ttAOA
+&Scoped-define OPEN-QUERY-ttProgID OPEN QUERY {&SELF-NAME} FOR EACH ttAOA.
+&Scoped-define TABLES-IN-QUERY-ttProgID ttAOA
+&Scoped-define FIRST-TABLE-IN-QUERY-ttProgID ttAOA
+
+
 /* Definitions for BROWSE ttSection                                     */
 &Scoped-define FIELDS-IN-QUERY-ttSection ttSection.secSection ttSection.secName ttSection.secDataField ttSection.secLeft ttSection.secWidth ttSection.secOutputFormat   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-ttSection   
@@ -180,13 +198,15 @@ ttSubject
     ~{&OPEN-QUERY-ttDetail}~
     ~{&OPEN-QUERY-ttPageHeader}~
     ~{&OPEN-QUERY-ttParameter}~
+    ~{&OPEN-QUERY-ttProgID}~
     ~{&OPEN-QUERY-ttSection}~
     ~{&OPEN-QUERY-ttSubject}
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnOpenRPA btnSetName btnSave btnPublish ~
-ttSubject ttSection ttParameter ttPageHeader ttDetail btnOnReportStart ~
-btnDetailOnFormat 
+ttProgID ttPageHeader ttDetail ttParameter btnOnReportStart ~
+btnGroupHeaderOnFormat btnGroupFooterOnFormat btnDetailOnFormat ~
+btnOnReportEnd btnUpdate ttSubject ttSection 
 &Scoped-Define DISPLAYED-OBJECTS aoaProgramID aoaReportWidth aoaRptFile ~
 aoaReportTitle 
 
@@ -201,16 +221,9 @@ aoaReportTitle
 
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDetailOnFormat C-Win 
-FUNCTION fDetailOnFormat RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOnReportStart C-Win 
-FUNCTION fOnReportStart RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetScript C-Win 
+FUNCTION fGetScript RETURNS CHARACTER
+  ( ipScriptDatFile AS CHARACTER, ipSection AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -223,12 +236,24 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnDetailOnFormat 
-     LABEL "Script: &Detail OnFormat" 
-     SIZE 30 BY 1.19.
+     LABEL "&Detail OnFormat" 
+     SIZE 25 BY 1.19.
+
+DEFINE BUTTON btnGroupFooterOnFormat 
+     LABEL "Group &Footer OnFormat" 
+     SIZE 25 BY 1.19.
+
+DEFINE BUTTON btnGroupHeaderOnFormat 
+     LABEL "Group &Header OnFormat" 
+     SIZE 25 BY 1.19.
+
+DEFINE BUTTON btnOnReportEnd 
+     LABEL "OnReport&End" 
+     SIZE 25 BY 1.19.
 
 DEFINE BUTTON btnOnReportStart 
-     LABEL "Script: On&ReportStart" 
-     SIZE 30 BY 1.19.
+     LABEL "On&ReportStart" 
+     SIZE 25 BY 1.19.
 
 DEFINE BUTTON btnOpenRPA 
      LABEL "..." 
@@ -246,10 +271,18 @@ DEFINE BUTTON btnSetName
      LABEL "Set &Names" 
      SIZE 14 BY 1.
 
+DEFINE BUTTON btnSubReport 
+     LABEL "SubRpt: None" 
+     SIZE 24 BY 1.
+
+DEFINE BUTTON btnUpdate 
+     LABEL "Update Scripts && Publish" 
+     SIZE 27 BY 1.
+
 DEFINE VARIABLE aoaProgramID AS CHARACTER FORMAT "X(256)":U 
      LABEL "ID" 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 18 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE aoaReportTitle AS CHARACTER FORMAT "X(256)":U 
@@ -267,7 +300,7 @@ DEFINE VARIABLE aoaReportWidth AS INTEGER FORMAT ">>>,>>9":U INITIAL 0
 DEFINE VARIABLE aoaRptFile AS CHARACTER FORMAT "X(256)":U 
      LABEL "AOA Report File" 
      VIEW-AS FILL-IN 
-     SIZE 125 BY 1
+     SIZE 90 BY 1
      BGCOLOR 15  NO-UNDO.
 
 /* Query definitions                                                    */
@@ -280,6 +313,9 @@ DEFINE QUERY ttPageHeader FOR
 
 DEFINE QUERY ttParameter FOR 
       ttParameter SCROLLING.
+
+DEFINE QUERY ttProgID FOR 
+      ttAOA SCROLLING.
 
 DEFINE QUERY ttSection FOR 
       ttSection SCROLLING.
@@ -300,7 +336,7 @@ DEFINE BROWSE ttDetail
     ttDetail.dtOutputFormat
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 107 BY 14.05
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 108 BY 20.95
          TITLE "Detail Section".
 
 DEFINE BROWSE ttPageHeader
@@ -313,7 +349,7 @@ DEFINE BROWSE ttPageHeader
     ttPageHeader.phWidth
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 76 BY 14.05
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 76 BY 20.95
          TITLE "PageHeader Section".
 
 DEFINE BROWSE ttParameter
@@ -327,6 +363,16 @@ DEFINE BROWSE ttParameter
     WITH NO-ROW-MARKERS SEPARATORS SIZE 79 BY 39.29
          TITLE "Parameter (ReportHeader Section)".
 
+DEFINE BROWSE ttProgID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttProgID C-Win _FREEFORM
+  QUERY ttProgID DISPLAY
+      ttAOA.module
+    ttAOA.progID
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 28 BY 19.76
+         TITLE "Prog ID".
+
 DEFINE BROWSE ttSection
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttSection C-Win _FREEFORM
   QUERY ttSection DISPLAY
@@ -338,7 +384,7 @@ ttSection.secWidth
 ttSection.secOutputFormat
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 142 BY 25
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 142 BY 18.1
          TITLE "SubTotal/Total Sections".
 
 DEFINE BROWSE ttSubject
@@ -353,7 +399,7 @@ DEFINE BROWSE ttSubject
     ttSubject.ttSize
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 95 BY 25
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 97 BY 18.1
          TITLE "Business Subject Temp-Table".
 
 
@@ -361,24 +407,30 @@ DEFINE BROWSE ttSubject
 
 DEFINE FRAME DEFAULT-FRAME
      aoaProgramID AT ROW 1.24 COL 4 COLON-ALIGNED WIDGET-ID 18
-     btnOpenRPA AT ROW 1.24 COL 23 WIDGET-ID 16
-     btnSetName AT ROW 1.24 COL 28 WIDGET-ID 4
-     btnSave AT ROW 1.24 COL 43 WIDGET-ID 6
-     btnPublish AT ROW 1.24 COL 58 WIDGET-ID 20
-     aoaReportWidth AT ROW 1.24 COL 85 COLON-ALIGNED WIDGET-ID 10
-     aoaRptFile AT ROW 1.24 COL 113 COLON-ALIGNED WIDGET-ID 2
-     aoaReportTitle AT ROW 1.24 COL 251 COLON-ALIGNED WIDGET-ID 8
-     ttSubject AT ROW 2.43 COL 2 WIDGET-ID 200
-     ttSection AT ROW 2.43 COL 98 WIDGET-ID 500
-     ttParameter AT ROW 2.43 COL 241 WIDGET-ID 600
-     ttPageHeader AT ROW 27.67 COL 21 WIDGET-ID 300
-     ttDetail AT ROW 27.67 COL 98 WIDGET-ID 400
-     btnOnReportStart AT ROW 29.81 COL 208 WIDGET-ID 14
-     btnDetailOnFormat AT ROW 31.24 COL 208 WIDGET-ID 12
+     btnOpenRPA AT ROW 1.24 COL 25 WIDGET-ID 16
+     btnSetName AT ROW 1.24 COL 31 WIDGET-ID 4
+     btnSave AT ROW 1.24 COL 48 WIDGET-ID 6
+     btnPublish AT ROW 1.24 COL 65 WIDGET-ID 20
+     aoaReportWidth AT ROW 1.24 COL 94 COLON-ALIGNED WIDGET-ID 10
+     aoaRptFile AT ROW 1.24 COL 123 COLON-ALIGNED WIDGET-ID 2
+     btnSubReport AT ROW 1.24 COL 217 WIDGET-ID 28
+     aoaReportTitle AT ROW 1.24 COL 252 COLON-ALIGNED WIDGET-ID 8
+     ttProgID AT ROW 2.43 COL 1 WIDGET-ID 700
+     ttPageHeader AT ROW 2.43 COL 30 WIDGET-ID 300
+     ttDetail AT ROW 2.43 COL 107 WIDGET-ID 400
+     ttParameter AT ROW 2.43 COL 242 WIDGET-ID 600
+     btnOnReportStart AT ROW 3.38 COL 216 WIDGET-ID 14
+     btnGroupHeaderOnFormat AT ROW 4.81 COL 216 WIDGET-ID 22
+     btnGroupFooterOnFormat AT ROW 6.24 COL 216 WIDGET-ID 24
+     btnDetailOnFormat AT ROW 7.67 COL 216 WIDGET-ID 12
+     btnOnReportEnd AT ROW 9.1 COL 216 WIDGET-ID 26
+     btnUpdate AT ROW 22.43 COL 2 WIDGET-ID 30
+     ttSubject AT ROW 23.62 COL 1 WIDGET-ID 200
+     ttSection AT ROW 23.62 COL 99 WIDGET-ID 500
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 320 BY 40.86 WIDGET-ID 100.
+         SIZE 320 BY 40.71 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -398,7 +450,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "AOA Report Modifier"
-         HEIGHT             = 40.86
+         HEIGHT             = 40.71
          WIDTH              = 320
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
@@ -426,11 +478,12 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB ttSubject aoaReportTitle DEFAULT-FRAME */
-/* BROWSE-TAB ttSection ttSubject DEFAULT-FRAME */
-/* BROWSE-TAB ttParameter ttSection DEFAULT-FRAME */
-/* BROWSE-TAB ttPageHeader ttParameter DEFAULT-FRAME */
+/* BROWSE-TAB ttProgID aoaReportTitle DEFAULT-FRAME */
+/* BROWSE-TAB ttPageHeader ttProgID DEFAULT-FRAME */
 /* BROWSE-TAB ttDetail ttPageHeader DEFAULT-FRAME */
+/* BROWSE-TAB ttParameter ttDetail DEFAULT-FRAME */
+/* BROWSE-TAB ttSubject btnUpdate DEFAULT-FRAME */
+/* BROWSE-TAB ttSection ttSubject DEFAULT-FRAME */
 /* SETTINGS FOR FILL-IN aoaProgramID IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN aoaReportTitle IN FRAME DEFAULT-FRAME
@@ -439,6 +492,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN aoaRptFile IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
+/* SETTINGS FOR BUTTON btnSubReport IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -473,6 +528,15 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttParameter.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE ttParameter */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttProgID
+/* Query rebuild information for BROWSE ttProgID
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttAOA.
+     _END_FREEFORM
+     _Query            is OPENED
+*/  /* BROWSE ttProgID */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttSection
@@ -531,7 +595,7 @@ END.
 
 &Scoped-define SELF-NAME btnDetailOnFormat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDetailOnFormat C-Win
-ON CHOOSE OF btnDetailOnFormat IN FRAME DEFAULT-FRAME /* Script: Detail OnFormat */
+ON CHOOSE OF btnDetailOnFormat IN FRAME DEFAULT-FRAME /* Detail OnFormat */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.Detail.OnFormat.dat.
 END.
@@ -540,9 +604,42 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnGroupFooterOnFormat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupFooterOnFormat C-Win
+ON CHOOSE OF btnGroupFooterOnFormat IN FRAME DEFAULT-FRAME /* Group Footer OnFormat */
+DO:
+  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.GroupFooter.OnFormat.dat.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnGroupHeaderOnFormat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupHeaderOnFormat C-Win
+ON CHOOSE OF btnGroupHeaderOnFormat IN FRAME DEFAULT-FRAME /* Group Header OnFormat */
+DO:
+  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.GroupHeader.OnFormat.dat.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnOnReportEnd
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnReportEnd C-Win
+ON CHOOSE OF btnOnReportEnd IN FRAME DEFAULT-FRAME /* OnReportEnd */
+DO:
+  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.OnReportEnd.dat.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnOnReportStart
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnReportStart C-Win
-ON CHOOSE OF btnOnReportStart IN FRAME DEFAULT-FRAME /* Script: OnReportStart */
+ON CHOOSE OF btnOnReportStart IN FRAME DEFAULT-FRAME /* OnReportStart */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.OnReportStart.dat.
 END.
@@ -576,7 +673,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPublish C-Win
 ON CHOOSE OF btnPublish IN FRAME DEFAULT-FRAME /* Publish */
 DO:
-    RUN pPublish.
+    RUN pPublish (YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -613,6 +710,50 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnSubReport
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSubReport C-Win
+ON CHOOSE OF btnSubReport IN FRAME DEFAULT-FRAME /* SubRpt: None */
+DO:
+    DEFINE VARIABLE hSubReport AS HANDLE NO-UNDO.
+    /*hSubReport = PAReportEngine:SubReport.*/
+    MESSAGE VALID-HANDLE(hSubReport) PAReportEngine:SubReportName
+        VIEW-AS ALERT-BOX INFO BUTTONS OK.
+    /*
+    RUN aoa/aoaSubRpt.w (aoaProgramID, {&SELF-NAME}:PRIVATE-DATA).
+    */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnUpdate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpdate C-Win
+ON CHOOSE OF btnUpdate IN FRAME DEFAULT-FRAME /* Update Scripts  Publish */
+DO:
+  RUN pUpdate.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME ttProgID
+&Scoped-define SELF-NAME ttProgID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttProgID C-Win
+ON DEFAULT-ACTION OF ttProgID IN FRAME DEFAULT-FRAME /* Prog ID */
+DO:
+    ASSIGN
+        cID = "aoa" + ttAOA.module + "/" + ttAOA.progID + "p"
+        cID = SEARCH(cID)
+        .
+    RUN pOpenAOAProgram (cID).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define BROWSE-NAME ttDetail
 &UNDEFINE SELF-NAME
 
@@ -640,6 +781,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN pReSize.
   RUN pCreateObjects.
+  RUN pGetAOAFiles.
   RUN enable_UI.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -683,8 +825,10 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY aoaProgramID aoaReportWidth aoaRptFile aoaReportTitle 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnOpenRPA btnSetName btnSave btnPublish ttSubject ttSection 
-         ttParameter ttPageHeader ttDetail btnOnReportStart btnDetailOnFormat 
+  ENABLE btnOpenRPA btnSetName btnSave btnPublish ttProgID ttPageHeader 
+         ttDetail ttParameter btnOnReportStart btnGroupHeaderOnFormat 
+         btnGroupFooterOnFormat btnDetailOnFormat btnOnReportEnd btnUpdate 
+         ttSubject ttSection 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -727,6 +871,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetAOAFiles C-Win 
+PROCEDURE pGetAOAFiles :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cModule   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAOAFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cProgID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMenuID   AS CHARACTER NO-UNDO.
+
+    INPUT FROM VALUE(SEARCH("aoaDAT/Report.dat")) NO-ECHO.
+    REPEAT:
+        IMPORT cModule cAOAFile cProgID cMenuID.
+        CREATE ttAOA.
+        ASSIGN
+            ttAOA.module  = cModule
+            ttAOA.aoaFile = cAOAFile
+            ttAOA.progID  = cProgID
+            ttAOA.menuID  = cMenuID
+            .
+    END. /* repeat */
+    INPUT CLOSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetReportFields C-Win 
 PROCEDURE pGetReportFields :
 /*------------------------------------------------------------------------------
@@ -736,10 +910,13 @@ PROCEDURE pGetReportFields :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcReportName AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cName  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iOrder AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE ix     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iy     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cName      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iOrder     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE ix         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iy         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cDataField AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCaption   AS CHARACTER NO-UNDO.
     
     PAReportEngine:OpenReport(ipcReportName).
     hReport = PAReportEngine:Report.
@@ -759,6 +936,13 @@ PROCEDURE pGetReportFields :
     DO ix = 0 TO hReport:Sections:Count - 1:
         cName = hReport:Sections:Item(ix):Name.
         DO iy = 0 TO hReport:Sections:Item(ix):Controls:Count - 1:
+            IF hReport:Sections:Item(ix):Controls:Item(iy):Name BEGINS "SubRpt_" THEN DO WITH FRAME {&FRAME-NAME}:
+                ASSIGN
+                    btnSubReport:PRIVATE-DATA = hReport:Sections:Item(ix):Controls:Item(iy):ReportName
+                    btnSubReport:LABEL = "SubRpt: " + btnSubReport:PRIVATE-DATA
+                    .
+                NEXT.
+            END. /* if sub report */
             CASE cName:
                 WHEN "ReportHeader" THEN DO:
                     IF hReport:Sections:Item(ix):Controls:Item(iy):Name EQ "ParametersLabel" THEN NEXT.
@@ -771,12 +955,18 @@ PROCEDURE pGetReportFields :
                         ttParameter.pControlItem = iy
                         iOrder                   = iOrder + 1
                         .
-                END.
+                END. /* report header */
                 WHEN "PageHeader" THEN DO:
+                    ASSIGN
+                        cCaption = hReport:Sections:Item(ix):Controls:Item(iy):Caption
+                        idx = INDEX(cCaption,CHR(183))
+                        .
+                    IF idx NE 0 THEN
+                    cCaption = SUBSTR(cCaption,idx + 1).
                     CREATE ttPageHeader.
                     ASSIGN
                         ttPageHeader.phName        = hReport:Sections:Item(ix):Controls:Item(iy):Name
-                        ttPageHeader.phCaption     = hReport:Sections:Item(ix):Controls:Item(iy):Caption
+                        ttPageHeader.phCaption     = cCaption
                         ttPageHeader.phLeft        = hReport:Sections:Item(ix):Controls:Item(iy):Left 
                         ttPageHeader.phWidth       = hReport:Sections:Item(ix):Controls:Item(iy):Width
                         ttPageHeader.phAlignment   = hReport:Sections:Item(ix):Controls:Item(iy):Alignment
@@ -786,13 +976,19 @@ PROCEDURE pGetReportFields :
                     FIND FIRST ttSubject WHERE ttSubject.ttLabel EQ ttPageHeader.phCaption NO-ERROR.
                     IF AVAILABLE ttSubject THEN
                     ttPageHeader.phOrder = ttSubject.ttOrder.
-                END.
+                END. /* page header */
                 WHEN "Detail" THEN DO:
                     IF iy EQ 0 THEN NEXT.
+                    ASSIGN
+                        cDataField = hReport:Sections:Item(ix):Controls:Item(iy):DataField
+                        idx = INDEX(cDataField,CHR(183))
+                        .
+                    IF idx NE 0 THEN
+                    cDataField = SUBSTR(cDataField,idx + 1).
                     CREATE ttDetail.
                     ASSIGN
                         ttDetail.dtName         = hReport:Sections:Item(ix):Controls:Item(iy):Name
-                        ttDetail.dtDataField    = hReport:Sections:Item(ix):Controls:Item(iy):DataField
+                        ttDetail.dtDataField    = cDataField
                         ttDetail.dtLeft         = hReport:Sections:Item(ix):Controls:Item(iy):Left
                         ttDetail.dtWidth        = hReport:Sections:Item(ix):Controls:Item(iy):Width
                         ttDetail.dtAlignment    = hReport:Sections:Item(ix):Controls:Item(iy):Alignment
@@ -803,9 +999,10 @@ PROCEDURE pGetReportFields :
                     FIND FIRST ttSubject WHERE ttSubject.ttLabel EQ ttDetail.dtDataField NO-ERROR.
                     IF AVAILABLE ttSubject THEN
                     ttDetail.dtOrder = ttSubject.ttOrder.
-                END.
+                END. /* detail */
             END CASE.
             IF (hReport:Sections:Item(ix):Type EQ 1  OR
+                hReport:Sections:Item(ix):Type EQ 4  OR
                 hReport:Sections:Item(ix):Type EQ 5) AND
                 hReport:Sections:Item(ix):Controls:Item(iy):MultiLine EQ FALSE THEN DO:
                 CREATE ttSection.
@@ -822,33 +1019,10 @@ PROCEDURE pGetReportFields :
                     ttSection.secSectionItem  = ix
                     ttSection.secControlItem  = iy
                     .
-            END. /* groupfooter */
+            END. /* group footer/header/total */
         END. /* do iy */
     END. /* do ix */
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetScript C-Win 
-PROCEDURE pGetScript :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcRptDatFile AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcScript     AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE cDatTxt AS CHARACTER NO-UNDO.
-
-    INPUT FROM VALUE(ipcRptDatFile) NO-ECHO.
-    REPEAT:
-        IMPORT UNFORMATTED cDatTxt.
-        opcScript = opcScript + cDatTxt + CHR(10).
-    END. /* repeat */
-    INPUT CLOSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -949,7 +1123,11 @@ PROCEDURE pOpenAOAProgram :
     RUN pGetTempTableFields (hTable).
     RUN pGetReportFields (aoaRptFile).
 
-    {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+    {&OPEN-QUERY-ttPageHeader}
+    {&OPEN-QUERY-ttDetail}
+    {&OPEN-QUERY-ttSubject}
+    {&OPEN-QUERY-ttSection}
+    {&OPEN-QUERY-ttParameter}
 
 END PROCEDURE.
 
@@ -963,6 +1141,8 @@ PROCEDURE pPublish :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplShow AS LOGICAL NO-UNDO.
+
     DEFINE VARIABLE publishBat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE publishExe AS CHARACTER NO-UNDO.
     DEFINE VARIABLE publishLog AS CHARACTER NO-UNDO.
@@ -977,7 +1157,7 @@ PROCEDURE pPublish :
 
     OUTPUT TO VALUE(publishBat).
     PUT UNFORMATTED
-        publishExe " " aoaRptFile " guest password > "
+        publishExe " ~"" aoaRptFile "~" guest password > "
         REPLACE(publishBat,".bat",".log") SKIP.
     OUTPUT CLOSE.
     
@@ -988,15 +1168,21 @@ PROCEDURE pPublish :
     INPUT FROM VALUE(publishLog) NO-ECHO.
     DO WHILE TRUE ON ENDKEY UNDO, LEAVE:
        IMPORT UNFORMATTED txtLine.
-       IF logText <> "" THEN logText = logText + CHR(10).
+       IF logText NE "" THEN logText = logText + CHR(10).
        logText = logText + txtLine.
     END.
     INPUT CLOSE.
     
-    IF logText EQ "success" THEN
-        MESSAGE "Published OK" VIEW-AS ALERT-BOX.
-    ELSE
-        MESSAGE "Published Failed: " + logText VIEW-AS ALERT-BOX ERROR.
+    IF iplShow THEN DO:
+        IF logText EQ "success" THEN
+            MESSAGE "Published OK" VIEW-AS ALERT-BOX.
+        ELSE
+            MESSAGE "Published Failed: " + logText VIEW-AS ALERT-BOX ERROR.
+    END. /* if iplshow */
+    ELSE IF logText NE "success" THEN
+         MESSAGE "Published Failed: " + logText
+             VIEW-AS ALERT-BOX ERROR
+             TITLE aoaRptFile.
 
 END PROCEDURE.
 
@@ -1014,12 +1200,13 @@ PROCEDURE pReSize :
 
     ASSIGN
         {&WINDOW-NAME}:WINDOW-STATE = 1
+        {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - 50
         {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
         iDiff = {&WINDOW-NAME}:HEIGHT-PIXELS - FRAME {&FRAME-NAME}:HEIGHT-PIXELS
         FRAME {&FRAME-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
         FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-        ttPageHeader:HEIGHT-PIXELS = ttPageHeader:HEIGHT-PIXELS + iDiff
-        ttDetail:HEIGHT-PIXELS = ttDetail:HEIGHT-PIXELS + iDiff
+        ttSubject:HEIGHT-PIXELS = ttSubject:HEIGHT-PIXELS + iDiff
+        ttSection:HEIGHT-PIXELS = ttSection:HEIGHT-PIXELS + iDiff
         ttParameter:HEIGHT-PIXELS = ttParameter:HEIGHT-PIXELS + iDiff
         .
 
@@ -1074,7 +1261,7 @@ PROCEDURE pSetNames :
                         cFormat = REPLACE(ttSubject.ttFormat,">","#")
                         cFormat = REPLACE(cFormat,"9","0")
                         .
-                    IF cFormat BEGINS "-" THEN
+                    IF INDEX(cFormat,"-") NE 0 THEN
                     ASSIGN
                         cFormat = REPLACE(cFormat,"-","")
                         cFormat = cFormat + ";(" + cFormat + ")"
@@ -1084,7 +1271,8 @@ PROCEDURE pSetNames :
             END. /* if not character */
         END. /* avail ttdetail */
         FOR EACH ttSection
-            WHERE ttSection.secDataField EQ ttSubject.ttLabel
+            WHERE (ttSection.secType EQ 1 OR ttSection.secType EQ 5)
+              AND  ttSection.secDataField EQ ttSubject.ttLabel
             :
             ASSIGN
                 ttSection.secName         = ttSubject.ttField + "_" + ttSection.secSection
@@ -1178,7 +1366,7 @@ PROCEDURE pSetReportFields :
             ix = ttDetail.dtSectionItem
             iy = ttDetail.dtControlItem
             hReport:Sections:Item(ix):Controls:Item(iy):Name         = ttDetail.dtName
-            hReport:Sections:Item(ix):Controls:Item(iy):DataField    = ttDetail.dtDataField
+         /* hReport:Sections:Item(ix):Controls:Item(iy):DataField    = ttDetail.dtDataField */
             hReport:Sections:Item(ix):Controls:Item(iy):Left         = ttDetail.dtLeft
             hReport:Sections:Item(ix):Controls:Item(iy):Width        = ttDetail.dtWidth
             hReport:Sections:Item(ix):Controls:Item(iy):Alignment    = ttDetail.dtAlignment
@@ -1193,6 +1381,9 @@ PROCEDURE pSetReportFields :
             iy = ttSection.secControlItem
             hReport:Sections:Item(ix):Controls:Item(iy):Name               = ttSection.secName
             hReport:Sections:Item(ix):Controls:Item(iy):DataField          = ttSection.secDataField
+            .
+        IF ttSection.secType NE 4 THEN
+        ASSIGN
             hReport:Sections:Item(ix):Controls:Item(iy):Left               = ttSection.secLeft
             hReport:Sections:Item(ix):Controls:Item(iy):Width              = ttSection.secWidth
             hReport:Sections:Item(ix):Controls:Item(iy):Alignment          = ttSection.secAlignment
@@ -1204,6 +1395,15 @@ PROCEDURE pSetReportFields :
             hReport:Sections:Item(ix):Controls:Item(iy):Border:BottomStyle = IF ttSection.secType EQ 1 THEN 12 ELSE 0
             .
     END. /* each ttsection */
+    /* temp rename the object incase parameters moved
+       around so to avoid duplicate which causes an error */
+    FOR EACH ttParameter:
+        ASSIGN
+            ix = ttParameter.pSectionItem
+            iy = ttParameter.pControlItem
+            hReport:Sections:Item(ix):Controls:Item(iy):Name = ttParameter.pName + STRING(iy)
+            .
+    END. /* each ttparameter */
     FOR EACH ttParameter:
         ASSIGN
             ix = ttParameter.pSectionItem
@@ -1235,22 +1435,45 @@ PROCEDURE pSetScript :
         cScript = hReport:Script
         idx = INDEX(cScript,"Sub OnReportStart")
         idx = IF idx EQ 0 THEN LENGTH(cScript) ELSE idx - 2
-        hReport:Script = SUBSTR(cScript,1,idx) + fOnReportStart()
+        hReport:Script = SUBSTR(cScript,1,idx) + fGetScript("OnReportStart",?)
         /* Set Detail OnForamt Script */
         cScript = hReport:Sections:Item("Detail"):Script
         idx = INDEX(cScript,"Sub OnFormat")
         idx = IF idx EQ 0 THEN LENGTH(cScript) ELSE idx - 2
-        hReport:Sections:Item("Detail"):Script = SUBSTR(cScript,1,idx) + fDetailOnFormat()
+        hReport:Sections:Item("Detail"):Script = SUBSTR(cScript,1,idx) + fGetScript("Detail.OnFormat",?)
         .
-    /* Set SubTotal OnFormat Script */
-    FOR EACH ttSection WHERE ttSection.secType EQ 5:
-        hReport:Sections:Item(ttSection.secSectionItem):Script = CHR(10) +
-            "Sub OnFormat" + CHR(10) +
-            "  Rpt.Sections.Item(~"" + ttSection.secSection + 
-            "~").Visible = Rpt.Sections.Item(~"Detail~").Visible" + CHR(10) +
-            "End Sub" + CHR(10)
-            .
+    /* Set Group Header/Footer OnFormat Script */
+    FOR EACH ttSection BREAK BY ttSection.secType:
+        /* Set GroupHeader OnForamt Script */
+        IF ttSection.secType EQ 4 THEN
+        hReport:Sections:Item(ttSection.secSectionItem):Script = fGetScript("GroupHeader.OnFormat",ttSection.secSection).
+        /* Set GroupFooter OnForamt Script */
+        IF ttSection.secType EQ 5 THEN
+        hReport:Sections:Item(ttSection.secSectionItem):Script = fGetScript("GroupFooter.OnFormat",ttSection.secSection).
     END. /* each ttsection */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdate C-Win 
+PROCEDURE pUpdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    FOR EACH ttAOA:
+        ASSIGN
+            cID = "aoa" + ttAOA.module + "/" + ttAOA.progID + "p"
+            cID = SEARCH(cID)
+            .
+        RUN pOpenAOAProgram (cID).
+        RUN pSetScript.
+        RUN pPublish (NO).
+    END. /* each ttaoa */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1258,33 +1481,24 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDetailOnFormat C-Win 
-FUNCTION fDetailOnFormat RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetScript C-Win 
+FUNCTION fGetScript RETURNS CHARACTER
+  ( ipScriptDatFile AS CHARACTER, ipSection AS CHARACTER ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cScript AS CHARACTER NO-UNDO.
-    
-    RUN pGetScript ("aoaReports\Rpt.Detail.OnFormat.dat", OUTPUT cScript).
-    RETURN cScript.
+    DEFINE VARIABLE cDatTxt AS CHARACTER NO-UNDO.
 
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOnReportStart C-Win 
-FUNCTION fOnReportStart RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cScript AS CHARACTER NO-UNDO.
-    
-    RUN pGetScript ("aoaReports\Rpt.OnReportStart.dat", OUTPUT cScript).
+    INPUT FROM VALUE("aoaReports\Rpt." + ipScriptDatFile + ".dat") NO-ECHO.
+    REPEAT:
+        IMPORT UNFORMATTED cDatTxt.
+        cScript = cScript + cDatTxt + CHR(10).
+    END. /* repeat */
+    INPUT CLOSE.
+    IF ipSection NE ? THEN
+    cScript = REPLACE(cScript,"%",ipSection).
     RETURN cScript.
 
 END FUNCTION.

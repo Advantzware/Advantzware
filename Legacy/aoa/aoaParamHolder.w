@@ -4,12 +4,12 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
 /*------------------------------------------------------------------------
 
-  File:
+  File: aoa/aoaParamHolder.w
 
   Description: from SMART.W - Template for basic ADM2 SmartObject
 
-  Author:
-  Created:
+  Author:  Ron Stark
+  Created: 5.18.2016
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */

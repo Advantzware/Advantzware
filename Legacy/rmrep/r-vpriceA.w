@@ -978,9 +978,9 @@ SESSION:SET-WAIT-STATE ("general").
                DO:
                    
                    PUT STREAM st-excel 
-                              e-item.run-qty[i]  FORMAT "ZZZZZZZ9.99" 
+                              e-item.run-qty[i]  FORMAT "ZZZZZZZ9.9999" 
                               v-comma
-                              e-item.run-cost[i] FORMAT "ZZZZZZZ9.99"
+                              e-item.run-cost[i] FORMAT "ZZZZZZZ9.9999"
                               v-comma.
                END.
 
@@ -1073,9 +1073,9 @@ SESSION:SET-WAIT-STATE ("general").
                   
                   IF tb_excel THEN
                      PUT STREAM st-excel
-                         e-item-vend.run-qty[i]  FORMAT "ZZZZZZ9.99"
+                         e-item-vend.run-qty[i]  FORMAT "ZZZZZZ9.9999"
                          v-comma
-                         e-item-vend.run-cost[i] FORMAT "ZZZZZZ9.99"
+                         e-item-vend.run-cost[i] FORMAT "ZZZZZZ9.9999"
                          v-comma.
                  
                   

@@ -180,7 +180,7 @@ FUNCTION getInvSman RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -701,7 +701,7 @@ DO:
   ELSE is-xprint-form = NO.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1674,6 +1674,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form space(8)
      w-data.i-no
@@ -1750,7 +1751,8 @@ form cust.cust-no
    tdate       = END_inv-date
    /*v-det       = tb_detailed*/
    v-inc-fc    = tb_fin-chg
-   v-sort      = fi_SORT.
+   v-sort      = fi_SORT
+   lSelected   = tb_cust-list.
 
   DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1774,6 +1776,12 @@ form cust.cust-no
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
+ END.
+ IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
  END.
 
   {sys/inc/print1.i}
@@ -1806,15 +1814,13 @@ form cust.cust-no
     DELETE tt-report.
   END.
 
-FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-  each ar-inv
+FOR each ar-inv
       where ar-inv.company  eq cocode
         and ar-inv.posted   eq yes
-        /*and ar-inv.cust-no  ge fcust
-        and ar-inv.cust-no  le tcust*/ 
-        and ar-inv.cust-no  EQ ttCustList.cust-no
+        AND ar-inv.cust-no  GE fcust
+        AND ar-inv.cust-no  LE tcust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         and ar-inv.inv-date ge fdate
         and ar-inv.inv-date le tdate
         and (ar-inv.type    ne "FC" or v-inc-fc)
@@ -1831,14 +1837,12 @@ FOR EACH ttCustList
      
   end.
 
-  FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-     each cust
+  FOR each cust
       where cust.company eq cocode
-        /*and cust.cust-no ge fcust
-        and cust.cust-no le tcust*/
-        and cust.cust-no EQ ttCustList.cust-no
+        AND cust.cust-no GE fcust
+        AND cust.cust-no LE tcust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+        AND ttCustList.log-fld no-lock) else true)
       no-lock,
 
       each ar-cash

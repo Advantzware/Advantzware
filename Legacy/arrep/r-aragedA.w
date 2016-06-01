@@ -750,11 +750,14 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  EMPTY TEMP-TABLE ttCustList.
-  RUN BuildCustList(INPUT cocode,
-                    INPUT tb_cust-list AND glCustListActive,
-                    INPUT begin_cust-no,
-                    INPUT END_cust-no).
+  FIND FIRST  ttCustList NO-LOCK NO-ERROR.
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+      EMPTY TEMP-TABLE ttCustList.
+      RUN BuildCustList(INPUT cocode,
+                        INPUT tb_cust-list AND glCustListActive,
+                        INPUT begin_cust-no,
+                        INPUT END_cust-no).
+  END.
   run run-report. 
 
   case rd-dest:
@@ -1439,7 +1442,7 @@ PROCEDURE run-report :
 /* -------------------------------------------------------------------------- */
 
 {sys/form/r-top3w.f}
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 def var li as int no-undo.
 DEF VAR v-hdr AS CHAR INIT "Customer,Name,Contact,SalesRep,Terms,Address1,Address2,City,State,Zip,Credit Limit,Phone,Fax,Check/Memo,DaysOld,Type,Invoice#,InvoiceDate,InvoiceAmt,Current,ADTP,TD," NO-UNDO.  /*Task# 11151304*/
 DEF VAR v-hdr2 AS CHAR NO-UNDO.
@@ -1492,6 +1495,7 @@ assign
  v-print-cust-po    = tb_cust-po
  sPrtInvNote = tb_PrintInvNotes
  sPrtCollectionNote = tb_PrintCollectionNotes
+ lSelected          = tb_cust-list
 
  str-tit3 = "Company From: " + STRING(begin_comp) + " To: " + STRING(end_comp) +  "    As of Date: " + STRING(v-date)
  {sys/inc/ctrtext.i str-tit3 132}.
@@ -1520,6 +1524,12 @@ do with frame {&frame-name}:
    period-days-3:screen-value = string(v-days[3])
    period-days-3.
 end.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN v-s-cust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN v-e-cust = ttCustList.cust-no .
+END.
 
 {sys/inc/print1.i}
 

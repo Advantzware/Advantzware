@@ -22,7 +22,7 @@ def var v-ord-date          like oe-ord.ord-date.
 def var v-part-qty          as   dec.
 def var v-po-no             like oe-bolh.po-no extent 2.
 def var v-bol-qty           like oe-boll.qty.
-def var v-qty-alf           as   char format "x(5)".
+def var v-qty-alf           as   char format "x(10)".
 def var v-bin               as   char format "x(22)" extent 4.
 def var v-ship-i            as   char extent 2 format "x(60)".
 
@@ -36,8 +36,8 @@ def var v-cust-addr3 as   char format "x(30)".
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
 DEF VAR v-printline AS INT NO-UNDO.
 DEF VAR v-carrier-dscr LIKE carrier.dscr NO-UNDO.
 
@@ -244,7 +244,7 @@ for each report   where report.term-id eq v-term-id no-lock,
   v-bol-qty = v-bol-qty + oe-boll.qty.
   
   if last-of(report.key-06) then do:
-    v-qty-alf = trim(string(v-bol-qty,">>>>>9")).
+    v-qty-alf = trim(string(v-bol-qty,">>>>>>>>>9")).
     find first oe-ordl
         where oe-ordl.company eq cocode
           and oe-ordl.ord-no  eq oe-boll.ord-no

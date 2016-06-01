@@ -32,6 +32,17 @@ ON F1 HELP.
 ON CTRL-F HELP.
 ON CTRL-P HELP.
 
+ON 'CTRL-ALT-D':U ANYWHERE
+DO:
+    RUN aoa/aoaLauncher.w ("Dashboard").
+    RETURN.
+END.
+
+ON 'CTRL-ALT-R':U ANYWHERE
+DO:
+    RUN aoa/aoaLauncher.w ("Report").
+    RETURN.
+END.
    
 /* ***************************  Definitions  ************************** */
  
@@ -335,7 +346,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF AVAIL sys-ctrl AND sys-ctrl.DESCrip <> "" THEN
         boxes:LOAD-IMAGE(sys-ctrl.DESCrip).
   {methods/mainmenu.i}
+    
   RUN Read_Menus.
+  
   
   
   
@@ -506,8 +519,11 @@ PROCEDURE Read_Menus :
 
   ls-menu-lst[1] = TRIM(ls-menu-lst[1]) + "." + TRIM(ls-menu-lst[2]).
   /* ========== end of mods =========================*/
+  IF SEARCH(ls-menu-lst[1]) <> ? THEN
+      ls-menu-lst[1] = search(ls-menu-lst[1]) .
+
   IF SEARCH("usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1]) <> ? THEN
-      ls-menu-lst[1] = "usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1].
+      ls-menu-lst[1] = search("usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1]).
 
   INPUT FROM VALUE(ls-menu-lst[1]) NO-ECHO.
   REPEAT:

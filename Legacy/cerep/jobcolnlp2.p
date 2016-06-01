@@ -985,7 +985,7 @@ FOR  EACH job-hdr NO-LOCK
                x = 1.
              end. /* each wrk-sheet */   
 
-              /** Print Leaf/Film **/
+              /** Print Leaf/Film ticket 15459 **/
 
              FOR EACH wrk-film WHERE wrk-film.form-no = ef.form-no
                  /*break by wrk-sheet.form-no*/ NO-LOCK BREAK BY wrk-film.leaf :
@@ -1015,8 +1015,8 @@ FOR  EACH job-hdr NO-LOCK
 
                 /*IF LAST(wrk-film.leaf) THEN
                      PUT "<P10>" SKIP(1) .*/
-
              END.
+              /** Print Leaf/Film ticket 15459 **/
              
              PUT "<B> PASS  SIDE   LBS  INK NAME                 UNIT#   PASS   SIDE   LBS INK NAME                 UNIT#       </B>"
                  SKIP.

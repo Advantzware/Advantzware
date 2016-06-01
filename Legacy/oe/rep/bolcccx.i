@@ -168,8 +168,8 @@ for each report where report.term-id eq v-term-id,
           oe-ordl.part-no   WHEN AVAIL oe-ordl 
           oe-boll.po-no 
           oe-ordl.i-name FORM "x(27)"
-          oe-boll.tag FORM "x(20)"
-          oe-boll.i-no WHEN oe-boll.tag = "" @ oe-boll.tag
+          /*oe-boll.tag*/ oe-boll.lot-no  FORM "x(20)"
+          /*oe-boll.i-no WHEN oe-boll.tag = "" @ oe-boll.tag*/
           lv-pal-tot FORM ">>>,>>9"
           lv-cases-tot FORM "->>>>" AT 91 "@" 
           lv-qcase-tot FORM "->>>>>Z"           
@@ -197,11 +197,11 @@ for each report where report.term-id eq v-term-id,
                          + string(lv-qty-tot,"->>>>>z")
                  ELSE "" /*===================="*/ .
 
-    IF oe-ordl.part-dscr1 <> "" OR v-unit-qty <> "" OR v-lot-no <> "" OR v-job-no <> "" THEN DO:
+    IF oe-ordl.part-dscr1 <> "" OR v-unit-qty <> "" /*OR v-lot-no <> ""*/ OR v-job-no <> "" THEN DO:
        PUT {1}
           v-job-no
           oe-ordl.part-dscr1 AT 33 FORM "x(27)"
-          v-lot-no AT 61 FORM "X(15)"
+          /*v-lot-no AT 61 FORM "X(15)"*/
           v-unit-qty AT 91 FORM "x(15)"  
           .
         v-printline = v-printline + 1.

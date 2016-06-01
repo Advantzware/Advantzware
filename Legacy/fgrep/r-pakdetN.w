@@ -132,7 +132,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY*/ 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -583,7 +583,7 @@ DO:
   END.
 
     FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1486,7 +1486,7 @@ DEF VAR str-line AS cha FORM "x(150)" NO-UNDO.
 /*{sys/form/r-top5DL3.f} */
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
   
 form header skip(1)
             v-page-brk
@@ -1510,7 +1510,8 @@ assign
  tcat     = end_cat
  v-sort   = SUBSTR(rd_sort,1,1)
  v-break  = tb_pg-brk
- v-exc    = tb_zero.
+ v-exc    = tb_zero
+ lSelected    = tb_cust-list.
  
 /* gdm - 04210913 */
  /*v-item#   =  tgl-item#  
@@ -1560,6 +1561,12 @@ IF tb_excel THEN DO:
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  fcus = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  tcus = ttCustList.cust-no .
+ END.
  
 display "" with frame r-top.  
 

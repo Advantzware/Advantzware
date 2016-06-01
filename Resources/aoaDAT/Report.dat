@@ -1,0 +1,5 @@
+"AR" "Cash Receipt By SalesRep Name" "r-cashs2." "AR16"
+"AR" "Commission Cash Receipt" "r-commcr." "AR15"
+"DC" "Production Analysis" "r-prodlys." "DE2"
+"FG" "Customer Inventory" "r-cusinv." "IL12"
+"TS" "Machine Transactions" "r-mchtrn." "TR3"
