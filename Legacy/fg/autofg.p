@@ -109,15 +109,16 @@ FOR FIRST b-eb FIELDS(company est-no form-no) WHERE
   FOR EACH oe-ordl
       WHERE oe-ordl.company          EQ eb.company
         AND oe-ordl.i-no             BEGINS TRIM(op-i-no)
-        AND SUBSTR(oe-ordl.i-no,v-len,v-numRuleLen) GT v-licha /*STRING(li,"9999")*/
+        AND SUBSTR(oe-ordl.i-no,v-len,v-numRuleLen) GE v-licha /*STRING(li,"9999")*/
         AND SUBSTR(oe-ordl.i-no,v-len,v-numRuleLen) LE SUBSTRING(v-numMax,1,v-numRuleLen) /* "9999" */
       NO-LOCK
       BY SUBSTR(oe-ordl.i-no,1,v-catRuleLen + v-indRuleLen + v-custRuleLen + v-numRuleLen) DESC:
-    li1 = INT(SUBSTR(oe-ordl.i-no,v-len,v-numRuleLen)) NO-ERROR. 
+    li1 = INT(SUBSTR(oe-ordl.i-no,v-len,v-numRuleLen)) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN li1 = 0.
     ELSE LEAVE.
-  END.
+  END.  
   li1 = li1 + 1.
+  
   ASSIGN
      li = MAX(li,li1)
      li1 = 0.
@@ -139,11 +140,16 @@ FOR FIRST b-eb FIELDS(company est-no form-no) WHERE
     li1 = li1 + 1.
     IF ROWID(bb) EQ ROWID(b-eb) THEN LEAVE.
   END.
+  
   IF est.est-type EQ 2 OR est.est-type EQ 6 THEN DO:
      v-sufChar = IF v-sufRule = "&&" THEN STRING(li1,"99")
                  ELSE IF v-sufRule = ">"  THEN STRING(li1,"9")
                  ELSE STRING(li1,"9").
   END.
+  else if v-sufRule <> "" then v-sufChar = if length(v-sufRule) = 1 then string("9")
+                                           else if length(v-sufRule) = 2 then string("99")
+                                           else if length(v-sufRule) = 3 then string("99")
+                                           else "".    
   ELSE li1 = 0.
 
   op-i-no = op-i-no + 
@@ -155,21 +161,21 @@ FOR FIRST b-eb FIELDS(company est-no form-no) WHERE
             (IF est.est-type EQ 2 OR est.est-type EQ 6 THEN
                STRING(li1,"99")
              ELSE "99")  */
-/*                                                                                               */
-/*   MESSAGE "Autofg.p op-i-no:" op-i-no SKIP                                                    */
-/*         "v-licha: " v-licha ",  asirule:" v-asisrule " ,sufchar:" v-sufchar SKIP              */
-/*         "numlen: " v-numRuleLen SKIP                                                          */
-/*         "rules: " v-catRule ",  " v-indRule ",  " v-custRule ",  " v-indRule ",  "  v-sufrule */
-/*       SKIP                                                                                    */
-/*       PROGRAM-NAME(1) SKIP                                                                    */
-/*       PROGRAM-NAME(2) SKIP                                                                    */
-/*       PROGRAM-NAME(3) SKIP                                                                    */
-/*       PROGRAM-NAME(4) SKIP                                                                    */
-/*       PROGRAM-NAME(5) SKIP                                                                    */
-/*       PROGRAM-NAME(6) SKIP                                                                    */
-/*       PROGRAM-NAME(7) SKIP                                                                    */
-/*       PROGRAM-NAME(8) SKIP                                                                    */
-/*     VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                        */
+
+/*   MESSAGE "Autofg.p op-i-no:" op-i-no " , li: " Li SKIP                                      */
+/*         "v-licha: " v-licha ",  asirule:" v-asisrule " ,sufchar:" v-sufchar SKIP             */
+/*         "numlen: " v-numRuleLen SKIP                                                         */
+/*         "rules: " v-catRule ",  " v-indRule ",  " v-custRule ",  " v-indRule ",  "  v-sufrule*/
+/*       SKIP                                                                                   */
+/*       PROGRAM-NAME(1) SKIP                                                                   */
+/*       PROGRAM-NAME(2) SKIP                                                                   */
+/*       PROGRAM-NAME(3) SKIP                                                                   */
+/*       PROGRAM-NAME(4) SKIP                                                                   */
+/*       PROGRAM-NAME(5) SKIP                                                                   */
+/*       PROGRAM-NAME(6) SKIP                                                                   */
+/*       PROGRAM-NAME(7) SKIP                                                                   */
+/*       PROGRAM-NAME(8) SKIP                                                                   */
+/*     VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                       */
 
 END.
 
