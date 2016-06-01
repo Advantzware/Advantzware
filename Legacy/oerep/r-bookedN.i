@@ -579,6 +579,18 @@ format wkrecap.procat
      v-revenue     (total by tt-report.key-01)
      w-data.cost   (total by tt-report.key-01).
 
+    IF AVAIL oe-ordl THEN do:
+        FIND first itemfg
+            where itemfg.company eq cocode
+            and itemfg.i-no    eq oe-ordl.i-no NO-LOCK NO-ERROR.
+
+        FIND FIRST eb WHERE eb.company EQ cocode
+            AND eb.est-no  EQ oe-ordl.est-no
+            AND eb.stock-no EQ oe-ordl.i-no NO-LOCK NO-ERROR .
+    END. /* avail oe-ordl  */
+    
+          
+
   
     if prt-sqft then do:       
        /*==== new with selectable columns ====*/
@@ -643,6 +655,7 @@ format wkrecap.procat
                  WHEN "v-profit" THEN cVarValue = IF prt-profit THEN string(v-profit,"->>,>>9.9") ELSE "".
                  WHEN "v-price-per-t" THEN cVarValue = string(v-price-per-t,"->>,>>9.99").
                  WHEN "cust-po" THEN cVarValue = IF AVAIL oe-ordl AND oe-ordl.cust-no <> "" THEN string(oe-ordl.po-no,"x(15)") ELSE string(oe-ord.po-no,"x(15)") . /* ticket 14966*/
+                 WHEN "die-no" THEN cVarValue = IF AVAIL itemfg AND itemfg.die-no <> "" THEN string(itemfg.die-no,"x(15)") ELSE IF AVAIL eb THEN string(eb.die-no,"x(15)") ELSE "" . /* ticket 16188*/
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
             cExcelVarValue = cVarValue.
@@ -706,6 +719,7 @@ format wkrecap.procat
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
                    WHEN "cust-po" THEN cVarValue = "" . /* ticket 14966*/
+                   WHEN "die-no" THEN cVarValue =  "" . /* ticket 16188*/
                    WHEN "t-sqft" THEN cVarValue = string(tot-sqft,"->,>>>.999").
                    WHEN "v-price-per-m" THEN cVarValue = string(v-price-per-m,"->>,>>9.99").
                    WHEN "v-revenue" THEN cVarValue = string(tot-renv,"->,>>>,>>9.99").
@@ -769,6 +783,7 @@ format wkrecap.procat
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
                    WHEN "cust-po" THEN cVarValue = "" . /* ticket 14966*/
+                   WHEN "die-no" THEN cVarValue =  "" . /* ticket 16188*/
                    WHEN "t-sqft" THEN cVarValue = string((accum total w-data.t-sqft),"->,>>>.999"). 
                    WHEN "v-price-per-m" THEN cVarValue = string(v-price-per-m,"->>,>>9.99"). 
                    WHEN "v-revenue" THEN cVarValue = string((accum total v-revenue),"->,>>>,>>9.99").
@@ -841,6 +856,7 @@ format wkrecap.procat
                 WHEN "v-profit" THEN cVarValue = IF prt-profit THEN string(v-profit,"->>,>>9.9") ELSE "".
                 WHEN "v-price-per-t" THEN cVarValue = string(v-price-per-t,"->>,>>9.99").
                 WHEN "cust-po" THEN cVarValue = IF AVAIL oe-ordl AND oe-ordl.cust-no <> "" THEN string(oe-ordl.po-no,"x(15)") ELSE string(oe-ord.po-no,"x(15)") . /* ticket 14966*/
+                WHEN "die-no" THEN cVarValue = IF AVAIL itemfg AND itemfg.die-no <> "" THEN string(itemfg.die-no,"x(15)") ELSE IF AVAIL eb THEN string(eb.die-no,"x(15)") ELSE "" . /* ticket 16188*/
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.  
             cExcelVarValue = cVarValue.
