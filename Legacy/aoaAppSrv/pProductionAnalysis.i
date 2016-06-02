@@ -1,10 +1,11 @@
-/* pProductionAnalysis.i - auto generated 05.15.2016 @  5:32:11 pm from aoa/aoaParam.w */
+/* pProductionAnalysis.i - auto generated 05.31.2016 @  8:42:17 pm from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
 
     /* parameter values loaded into these variables */
+    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAllDept AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cStartDept AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndDept AS CHARACTER NO-UNDO.
@@ -34,6 +35,7 @@
 
     /* load parameter values from above record into variables */
     ASSIGN
+        cLocation = DYNAMIC-FUNCTION("fGetParamValue","svLocation")
         lAllDept = DYNAMIC-FUNCTION("fGetParamValue","svAllDept") EQ "yes"
         cStartDept = DYNAMIC-FUNCTION("fGetParamValue","svStartDept")
         cEndDept = DYNAMIC-FUNCTION("fGetParamValue","svEndDept")

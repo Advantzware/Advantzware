@@ -48,9 +48,9 @@ DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList svAllCustNo ~
-svStartTranDate btnCalendar-1 svStartTranDateOption svStartCustNo ~
-svEndTranDate btnCalendar-2 svEndTranDateOption svEndCustNo ~
+&Scoped-Define ENABLED-OBJECTS svCompany svLocation svCustList btnCustList ~
+svAllCustNo svStartTranDate btnCalendar-1 svStartTranDateOption ~
+svStartCustNo svEndTranDate btnCalendar-2 svEndTranDateOption svEndCustNo ~
 svStartReceiptDate btnCalendar-3 svStartReceiptDateOption svAllMachine ~
 svEndReceiptDate btnCalendar-4 svEndReceiptDateOption svStartMachine ~
 svStartInvoiceDate btnCalendar-5 svStartInvoiceDateOption svEndMachine ~
@@ -66,9 +66,9 @@ svEndItemNo svAllJobNo svAllOrderNo svStartJobNo svStartJobNo2 ~
 svStartOrderNo svEndJobNo svEndJobNo2 svEndOrderNo svAllProdCategory ~
 svStartProdCategory svEndProdCategory svAllShift svStartShift svEndShift ~
 svAllDept svStartDept svEndDept 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
-svStartTranDate svStartTranDateOption svStartCustNo startCustName ~
-svEndTranDate svEndTranDateOption svEndCustNo endCustName ~
+&Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svCustList ~
+svAllCustNo svStartTranDate svStartTranDateOption svStartCustNo ~
+startCustName svEndTranDate svEndTranDateOption svEndCustNo endCustName ~
 svStartReceiptDate svStartReceiptDateOption svAllMachine svEndReceiptDate ~
 svEndReceiptDateOption svStartMachine startMachineDescription ~
 svStartInvoiceDate svStartInvoiceDateOption svEndMachine ~
@@ -402,6 +402,11 @@ DEFINE VARIABLE svEndUserID AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 15 BY 1.
 
+DEFINE VARIABLE svLocation AS CHARACTER FORMAT "X(5)" 
+     LABEL "Location" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1.
+
 DEFINE VARIABLE svStartCAD AS CHARACTER FORMAT "X(15)" 
      LABEL "Start CAD" 
      VIEW-AS FILL-IN 
@@ -580,6 +585,7 @@ DEFINE VARIABLE svSubRpt_SubReportName AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
+     svLocation AT ROW 1.24 COL 39 COLON-ALIGNED WIDGET-ID 232
      svCustList AT ROW 1.24 COL 91 WIDGET-ID 48
      btnCustList AT ROW 1.24 COL 121 WIDGET-ID 46
      svAllCustNo AT ROW 2.43 COL 91 HELP
@@ -635,8 +641,6 @@ DEFINE FRAME F-Main
      btnCalendar-7 AT ROW 11.48 COL 41 WIDGET-ID 114
      svStartOrderDateOption AT ROW 11.48 COL 44 COLON-ALIGNED HELP
           "Select Start Order Date Option" NO-LABEL WIDGET-ID 124
-     svStartSalesRep AT ROW 11.71 COL 89 COLON-ALIGNED HELP
-          "Enter Beginning Sales Rep#" WIDGET-ID 112
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -644,6 +648,8 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     svStartSalesRep AT ROW 11.71 COL 89 COLON-ALIGNED HELP
+          "Enter Beginning Sales Rep#" WIDGET-ID 112
      startSalesRepName AT ROW 11.71 COL 98 COLON-ALIGNED NO-LABEL WIDGET-ID 106
      svEndOrderDate AT ROW 12.67 COL 23 COLON-ALIGNED HELP
           "Enter End Order Date" WIDGET-ID 118
@@ -697,10 +703,6 @@ DEFINE FRAME F-Main
      endUserIDName AT ROW 21 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 154
      svSubRpt_SubReportName AT ROW 21.24 COL 46 HELP
           "Select to Show Sub Report" WIDGET-ID 88
-     svAllItemNo AT ROW 22.67 COL 91 HELP
-          "All Items?" WIDGET-ID 164
-     svStartItemNo AT ROW 23.86 COL 89 COLON-ALIGNED HELP
-          "Enter Start Item" WIDGET-ID 168
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -708,6 +710,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     svAllItemNo AT ROW 22.67 COL 91 HELP
+          "All Items?" WIDGET-ID 164
+     svStartItemNo AT ROW 23.86 COL 89 COLON-ALIGNED HELP
+          "Enter Start Item" WIDGET-ID 168
      startItemName AT ROW 23.86 COL 112 COLON-ALIGNED NO-LABEL WIDGET-ID 172
      svEndItemNo AT ROW 25.05 COL 89 COLON-ALIGNED HELP
           "Enter End Item" WIDGET-ID 166
@@ -874,6 +880,9 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
+
+ASSIGN 
+       svLocation:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -1456,6 +1465,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svLocation
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svLocation sObject
+ON ENTRY OF svLocation IN FRAME F-Main /* Location */
+DO:
+  APPLY "ENTRY":U TO svStartTranDate.
+  RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svStartCustNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartCustNo sObject
 ON LEAVE OF svStartCustNo IN FRAME F-Main /* Start Customer */
@@ -1726,6 +1747,8 @@ PROCEDURE pInitialize :
             hContainer = iphContainer
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
+            svLocation:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetLocation' IN hContainer)
+            svLocation
             .
 
         APPLY "VALUE-CHANGED":U TO svStartTranDateOption.
