@@ -48,12 +48,13 @@ DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svAllDept svStartDept svEndDept ~
-svAllMachine svStartMachine svEndMachine svStartOpDate btnCalendar-1 ~
-svStartOpDateOption svEndOpDate btnCalendar-2 svEndOpDateOption svAllShift ~
-svStartShift svEndShift svCustList btnCustList svAllCustNo svStartCustNo ~
-svEndCustNo svPrintByScheduledMachine svRoundDecimals svShotTotalJob svSort 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svAllDept svStartDept ~
+&Scoped-Define ENABLED-OBJECTS svCompany svLocation svAllDept svStartDept ~
+svEndDept svAllMachine svStartMachine svEndMachine svStartOpDate ~
+btnCalendar-1 svStartOpDateOption svEndOpDate btnCalendar-2 ~
+svEndOpDateOption svAllShift svStartShift svEndShift svCustList btnCustList ~
+svAllCustNo svStartCustNo svEndCustNo svPrintByScheduledMachine ~
+svRoundDecimals svShotTotalJob svSort 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svAllDept svStartDept ~
 startDeptName svEndDept endDeptName svAllMachine svStartMachine ~
 startMachineDescription svEndMachine endMachineDescription svStartOpDate ~
 svStartOpDateOption svEndOpDate svEndOpDateOption svAllShift svStartShift ~
@@ -162,6 +163,11 @@ DEFINE VARIABLE svEndShift AS INTEGER FORMAT ">9" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 4 BY 1.
 
+DEFINE VARIABLE svLocation AS CHARACTER FORMAT "X(5)" 
+     LABEL "Location" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1.
+
 DEFINE VARIABLE svStartCustNo AS CHARACTER FORMAT "X(8)" 
      LABEL "Start Customer" 
      VIEW-AS FILL-IN 
@@ -239,6 +245,7 @@ DEFINE VARIABLE svShotTotalJob AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
+     svLocation AT ROW 1.24 COL 39 COLON-ALIGNED WIDGET-ID 130
      svAllDept AT ROW 2.91 COL 25 HELP
           "All Departments?" WIDGET-ID 108
      svStartDept AT ROW 4.1 COL 23 COLON-ALIGNED HELP
@@ -381,6 +388,9 @@ ASSIGN
 ASSIGN 
        svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
 
+ASSIGN 
+       svLocation:READ-ONLY IN FRAME F-Main        = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -493,7 +503,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCompany sObject
 ON ENTRY OF svCompany IN FRAME F-Main /* Company */
 DO:
-  APPLY "ENTRY":U TO svStartOpDate.
+  APPLY "ENTRY":U TO svAllDept.
   RETURN NO-APPLY.
 END.
 
@@ -578,6 +588,18 @@ END.
 ON LEAVE OF svEndShift IN FRAME F-Main /* End Shift */
 DO:
     endShiftName:SCREEN-VALUE = {aoa/fSetDescription.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svLocation
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svLocation sObject
+ON ENTRY OF svLocation IN FRAME F-Main /* Location */
+DO:
+  APPLY "ENTRY":U TO svAllDept.
+  RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -733,6 +755,8 @@ PROCEDURE pInitialize :
             hContainer = iphContainer
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
+            svLocation:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetLocation' IN hContainer)
+            svLocation
             .
 
         APPLY "VALUE-CHANGED":U TO svAllDept.
