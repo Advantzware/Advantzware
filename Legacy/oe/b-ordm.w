@@ -1510,11 +1510,14 @@ PROCEDURE local-update-record :
 
   RUN valid-bill NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-  
+ 
+  oe-ordm.spare-char-1 = oe-ordm.spare-char-1:SCREEN-VALUE .
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */  
+  
 
   ASSIGN
      lv-new-recid = ?
