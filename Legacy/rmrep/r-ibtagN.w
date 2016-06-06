@@ -1893,7 +1893,7 @@ SESSION:SET-WAIT-STATE ("general").
    END.
 
 
-    IF lv-fistdt = "" THEN ASSIGN lv-fistdt = STRING(tt-rm-bin.trans-date) .
+    IF lv-lstdt = "" THEN ASSIGN lv-lstdt = STRING(tt-rm-bin.trans-date) .
     
     v-cost = if ce-ctrl.r-cost then item.avg-cost else tt-rm-bin.cost.
 
@@ -2015,14 +2015,14 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "v-Tons" THEN cVarValue = STRING(v-Tons,"->>>,>>9.99").
                 WHEN "v-CostMSF" THEN cVarValue = STRING(v-costMSF,"->>>,>>9.99").
                 WHEN "cVendTag" THEN cVarValue = cVendTag.
-                WHEN "trans-date" THEN cVarValue = string(lv-fistdt).
+                WHEN "trans-date" THEN cVarValue = string(lv-lstdt) /*string(lv-fistdt)*/ .
                 WHEN "loc-bin" THEN cVarValue = STRING(tt-rm-bin.loc-bin).
                 WHEN "tag" THEN cVarValue = STRING(tt-rm-bin.tag).
                 WHEN "qty" THEN cVarValue = STRING(tt-rm-bin.qty,"->>>>>9.999").
                 WHEN "cVendPo" THEN cVarValue = STRING(tt-rm-bin.po-no,"->>>>>>>>"). /* task 02261404 */
                 WHEN "crtlot" THEN cVarValue = IF tt-rm-bin.tag2 NE "" THEN string(tt-rm-bin.tag2,"x(30)") ELSE "".
                 WHEN "cVendCode" THEN cVarValue = STRING(cVendor).
-                WHEN "cLstRcd" THEN cVarValue = string(lv-lstdt).
+                WHEN "cLstRcd" THEN cVarValue = string(lv-fistdt)  /*string(lv-lstdt)*/ .
                 WHEN "cali" THEN cVarValue = string(ITEM.cal,"9.99999"). 
                 WHEN "wt-msf" THEN cVarValue = string(item.basis-w,">>9.99").
                 WHEN "po-gl-act" THEN cVarValue = STRING(vpo-gl-act) .
