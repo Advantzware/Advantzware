@@ -33,7 +33,6 @@ DEFINE        VARIABLE v-disc-type  AS CHARACTER FORMAT "x(4)".
 DEFINE        VARIABLE v-sman       AS CHARACTER FORMAT "x(21)".
 DEFINE        VARIABLE v-dec        AS DECIMAL   EXTENT 4 NO-UNDO.
 DEFINE        VARIABLE v-cr-lim     LIKE cust.cr-lim NO-UNDO.
-DEFINE        VARIABLE lSelected    AS LOG       INIT YES NO-UNDO.
 DEFINE SHARED FRAME r-top.
 
 {sys/form/r-top3.f}
