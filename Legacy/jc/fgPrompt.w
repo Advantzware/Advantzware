@@ -604,13 +604,14 @@ PROCEDURE set-auto-add-item :
   IF NOT AVAIL xest THEN
       RETURN.
   
-  IF xest.est-type eq 2 or xest.est-type eq 6 THEN DO:
-    lv-num-created = lv-num-created + 1.    
-    RUN auto-create-item (INPUT lv-i-no).    
-  END.
-
-  /* Process regular items */
-  ELSE DO :
+/*  IF xest.est-type eq 2 or xest.est-type eq 6 THEN DO:*/
+/*    lv-num-created = lv-num-created + 1.              */
+/*    RUN auto-create-item (INPUT lv-i-no).             */
+/*  END.                                                */
+/*                                                      */
+/*  /* Process regular items */                         */
+/*  ELSE                                                */
+  DO :
       FIND bf-est WHERE bf-est.company EQ eb.company
           AND bf-est.est-no  EQ eb.est-no
           NO-LOCK NO-ERROR.

@@ -64,8 +64,8 @@ ASSIGN v-catRuleLen = LENGTH(v-catRule)
        v-sufRuleLen = LENGTH(v-sufRule)
        .
 
-IF v-catRule <> "" THEN op-i-no = SUBSTRING(ip-category,1,v-catRuleLen) .
-IF v-indRule <> "" THEN op-i-no = op-i-no + SUBSTRING(ip-industry,1,v-indRuleLen).
+IF v-catRule <> "" THEN op-i-no = SUBSTRING(caps(ip-category),1,v-catRuleLen) .
+IF v-indRule <> "" THEN op-i-no = op-i-no + SUBSTRING(caps(ip-industry),1,v-indRuleLen).
 IF v-custRule <> "" THEN op-i-no = op-i-no + SUBSTRING(ip-cust-no,1,v-custRuleLen).
 
 FOR FIRST b-eb FIELDS(company est-no form-no) WHERE
