@@ -187,7 +187,7 @@ DEFINE VARIABLE h_aoaParam AS HANDLE NO-UNDO.
 DEFINE BUTTON btnAdd 
      IMAGE-UP FILE "aoa/images/aoaadd.jpg":U
      LABEL "&Add" 
-     SIZE 4.4 BY 1 TOOLTIP "Add Available Column to Selected Columns".
+     SIZE 4.4 BY 1 TOOLTIP "Add Available Column(s) to Selected Columns".
 
 DEFINE BUTTON btnDefault 
      IMAGE-UP FILE "aoa/images/aoadefault.jpg":U
@@ -204,18 +204,18 @@ DEFINE BUTTON btnMoveUp
      LABEL "Move Up" 
      SIZE 4.4 BY 1 TOOLTIP "Move Selected Column Up".
 
-DEFINE BUTTON btnRemove 
-     IMAGE-UP FILE "aoa/images/aoacancel.jpg":U
-     LABEL "<< &Remove" 
-     SIZE 4.4 BY 1 TOOLTIP "Remove Selected Column".
+DEFINE BUTTON btnRemoveColumn 
+     IMAGE-UP FILE "aoa/images/aoaremove.jpg":U
+     LABEL "&Remove" 
+     SIZE 4.4 BY 1 TOOLTIP "Remove Selected Column(s)".
 
 DEFINE VARIABLE svAvailableColumns AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      LIST-ITEM-PAIRS "empty","empty" 
      SIZE 30 BY 6.91 NO-UNDO.
 
 DEFINE VARIABLE svSelectedColumns AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      LIST-ITEM-PAIRS "empty","empty" 
      SIZE 30 BY 6.91 NO-UNDO.
 
@@ -270,7 +270,7 @@ DEFINE BUTTON btnCancel AUTO-END-KEY
      SIZE 4.4 BY 1 TOOLTIP "Close".
 
 DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "aoa/images/aoacancel.jpg":U
+     IMAGE-UP FILE "aoa/images/aoadelete.jpg":U
      LABEL "&Delete" 
      SIZE 4.4 BY 1 TOOLTIP "Delete Batch ID".
 
@@ -376,12 +376,12 @@ DEFINE FRAME frameColumns
      btnDefault AT ROW 1.71 COL 32 HELP
           "Reset Selected Columns to Default" WIDGET-ID 76
      svSelectedColumns AT ROW 1.71 COL 37 NO-LABEL WIDGET-ID 70
-     btnAdd AT ROW 2.91 COL 32 HELP
-          "Add Available Column to Selected Columns" WIDGET-ID 58
-     btnMoveUp AT ROW 5.29 COL 32 HELP
+     btnAdd AT ROW 3.38 COL 32 HELP
+          "Add Available Column(s) to Selected Columns" WIDGET-ID 58
+     btnRemoveColumn AT ROW 4.57 COL 32 HELP
+          "Remove Selected Column(s)" WIDGET-ID 78
+     btnMoveUp AT ROW 6.48 COL 32 HELP
           "Move Selected Column Up" WIDGET-ID 66
-     btnRemove AT ROW 6.48 COL 32 HELP
-          "Remove Selected Column" WIDGET-ID 64
      btnMoveDown AT ROW 7.67 COL 32 HELP
           "Move Selected Column Down" WIDGET-ID 62
      "Available Columns" VIEW-AS TEXT
@@ -463,6 +463,10 @@ ASSIGN FRAME frameColumns:FRAME = FRAME paramFrame:HANDLE
 ASSIGN 
        FRAME frameColumns:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnMoveDown IN FRAME frameColumns
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnMoveUp IN FRAME frameColumns
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME frameShow
    NOT-VISIBLE                                                          */
 ASSIGN 
@@ -693,7 +697,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDefault W-Win
 ON CHOOSE OF btnDefault IN FRAME frameColumns /* Default */
 DO:
-  svSelectedColumns:LIST-ITEM-PAIRS = ?.
+    ASSIGN
+        cSelectedColumns = ""
+        svSelectedColumns:LIST-ITEM-PAIRS = ?
+        .
   RUN pGetColumns.
 END.
 
@@ -758,11 +765,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnRemove
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemove W-Win
-ON CHOOSE OF btnRemove IN FRAME frameColumns /* << Remove */
+&Scoped-define SELF-NAME btnRemoveColumn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemoveColumn W-Win
+ON CHOOSE OF btnRemoveColumn IN FRAME frameColumns /* Remove */
 DO:
-  RUN pDeleteColumn.
+  RUN pRemoveColumn.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -839,7 +846,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svSelectedColumns W-Win
 ON DEFAULT-ACTION OF svSelectedColumns IN FRAME frameColumns
 DO:
-    RUN pDeleteColumn.
+    RUN pRemoveColumn.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svSelectedColumns W-Win
+ON VALUE-CHANGED OF svSelectedColumns IN FRAME frameColumns
+DO:
+  IF NUM-ENTRIES({&SELF-NAME}:SCREEN-VALUE) EQ 1 THEN
+  ENABLE btnMoveUp btnMoveDown WITH FRAME frameColumns.
+  ELSE
+  DISABLE btnMoveUp btnMoveDown WITH FRAME frameColumns.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1056,8 +1076,7 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-frameShow}
   DISPLAY svAvailableColumns svSelectedColumns 
       WITH FRAME frameColumns IN WINDOW W-Win.
-  ENABLE svAvailableColumns btnDefault svSelectedColumns btnAdd btnMoveUp 
-         btnRemove btnMoveDown 
+  ENABLE svAvailableColumns btnDefault svSelectedColumns btnAdd btnRemoveColumn 
       WITH FRAME frameColumns IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-frameColumns}
   VIEW W-Win.
@@ -1128,31 +1147,20 @@ PROCEDURE pAddColumn :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+
     IF svAvailableColumns:SCREEN-VALUE IN FRAME frameColumns EQ ? THEN RETURN.
 
-    svSelectedColumns:ADD-LAST(ENTRY((svAvailableColumns:LOOKUP(svAvailableColumns:SCREEN-VALUE) * 2) - 1,
-                                      svAvailableColumns:LIST-ITEM-PAIRS),
-                                      svAvailableColumns:SCREEN-VALUE).
-    svAvailableColumns:DELETE(svAvailableColumns:SCREEN-VALUE).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteColumn W-Win 
-PROCEDURE pDeleteColumn :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF svSelectedColumns:SCREEN-VALUE IN FRAME frameColumns EQ ? THEN RETURN.
-
-    svAvailableColumns:ADD-LAST(ENTRY((svSelectedColumns:LOOKUP(svSelectedColumns:SCREEN-VALUE) * 2) - 1,
-                                       svSelectedColumns:LIST-ITEM-PAIRS),
-                                       svSelectedColumns:SCREEN-VALUE).
-    svSelectedColumns:DELETE(svSelectedColumns:SCREEN-VALUE).
+    DO idx = 1 TO svAvailableColumns:NUM-ITEMS:
+        IF svAvailableColumns:IS-SELECTED(idx) THEN
+        svSelectedColumns:ADD-LAST(ENTRY((svAvailableColumns:LOOKUP(svAvailableColumns:ENTRY(idx)) * 2) - 1,
+                                          svAvailableColumns:LIST-ITEM-PAIRS),
+                                          svAvailableColumns:ENTRY(idx)).
+    END. /* do idx */
+    DO idx = svAvailableColumns:NUM-ITEMS TO 1 BY -1:
+        IF svAvailableColumns:IS-SELECTED(idx) THEN
+        svAvailableColumns:DELETE(idx).
+    END. /* do idx */
 
 END PROCEDURE.
 
@@ -1257,6 +1265,7 @@ PROCEDURE pExcel :
                 iRow = iRow + 1
                 iStatusRow = iStatusRow + 1
                 .
+            PUT UNFORMATTED "Parameter: Value" SKIP.
             DO iColumn = 1 TO EXTENT(user-print.field-name):
                 IF user-print.field-name[iColumn] EQ "" THEN LEAVE.
                 IF user-print.field-name[iColumn] EQ "svTitle" THEN LEAVE.
@@ -1299,6 +1308,8 @@ PROCEDURE pExcel :
             /* column label */
             IF svShowPageHeader THEN
             chWorkSheet:Cells(iRow,iColumn):Value = hTable:BUFFER-FIELD(fieldName):LABEL.
+            IF svShowPageHeader THEN
+            PUT UNFORMATTED hTable:BUFFER-FIELD(fieldName):LABEL "|".
             /* apply column format based on data type */
             CASE cDataType:
                 WHEN "Character" THEN
@@ -1374,7 +1385,7 @@ PROCEDURE pExcel :
         END. /* repeat */
         hQuery:QUERY-CLOSE().
         DELETE OBJECT hQuery.
-        
+
         /* select header and data */
         ASSIGN
             chRangeRow = chWorkSheet:Cells(iStatusRow - 2,1)
@@ -1498,10 +1509,16 @@ PROCEDURE pGetColumns :
             svAvailableColumns:ADD-LAST(hTable:BUFFER-FIELD(idx):LABEL,
                                         hTable:BUFFER-FIELD(idx):NAME).
         END.
+        IF cSelectedColumns NE "" THEN
         DO idx = 1 TO NUM-ENTRIES(cSelectedColumns):
             svAvailableColumns:SCREEN-VALUE = ENTRY(idx,cSelectedColumns) NO-ERROR.
             APPLY "CHOOSE":U TO btnAdd.
         END. /* do idx */
+        ELSE
+        ASSIGN
+            svSelectedColumns:LIST-ITEM-PAIRS  = svAvailableColumns:LIST-ITEM-PAIRS
+            svAvailableColumns:LIST-ITEM-PAIRS = ?
+            .
     END. /* valid happsrv */
 
 END PROCEDURE.
@@ -1650,8 +1667,11 @@ PROCEDURE pMoveColumn :
 
     IF svSelectedColumns:SCREEN-VALUE IN FRAME frameColumns EQ ? THEN RETURN.
 
+    idx = svSelectedColumns:LOOKUP(svSelectedColumns:SCREEN-VALUE).
+    IF ipcMove EQ "Down" AND idx EQ svSelectedColumns:NUM-ITEMS THEN RETURN.
+    IF ipcMove EQ "Up"   AND idx EQ 1 THEN RETURN.
+
     ASSIGN
-        idx    = svSelectedColumns:LOOKUP(svSelectedColumns:SCREEN-VALUE)
         pos    = IF ipcMove EQ "Down" THEN idx + 1 ELSE idx - 1
         ldummy = IF ipcMove EQ "Down" THEN svSelectedColumns:INSERT(
             ENTRY((svSelectedColumns:LOOKUP(svSelectedColumns:SCREEN-VALUE) * 2) - 1,
@@ -1665,6 +1685,33 @@ PROCEDURE pMoveColumn :
                                       ELSE svSelectedColumns:DELETE(idx + 1)
         svSelectedColumns:SCREEN-VALUE = svSelectedColumns:ENTRY(pos)
         .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRemoveColumn W-Win 
+PROCEDURE pRemoveColumn :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+
+    IF svSelectedColumns:SCREEN-VALUE IN FRAME frameColumns EQ ? THEN RETURN.
+
+    DO idx = 1 TO svSelectedColumns:NUM-ITEMS:
+        IF svSelectedColumns:IS-SELECTED(idx) THEN
+        svAvailableColumns:ADD-LAST(ENTRY((svSelectedColumns:LOOKUP(svSelectedColumns:ENTRY(idx)) * 2) - 1,
+                                           svSelectedColumns:LIST-ITEM-PAIRS),
+                                           svSelectedColumns:ENTRY(idx)).
+    END. /* do idx */
+    DO idx = svSelectedColumns:NUM-ITEMS TO 1 BY -1:
+        IF svSelectedColumns:IS-SELECTED(idx) THEN
+        svSelectedColumns:DELETE(idx).
+    END. /* do idx */
 
 END PROCEDURE.
 
