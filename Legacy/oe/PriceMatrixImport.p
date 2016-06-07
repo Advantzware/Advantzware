@@ -291,7 +291,54 @@ PROCEDURE ProcessImportedData :
 
 
     FOR EACH tt-oe-prmtx:
-        /*VALIDATE DATA*/
+       
+        /*VALIDATE DATA*/ 
+        IF tt-oe-prmtx.custype      = "?" OR tt-oe-prmtx.custype        = ? THEN tt-oe-prmtx.custype      = "".
+        IF tt-oe-prmtx.procat       = "?" OR tt-oe-prmtx.procat         = ? THEN tt-oe-prmtx.procat       = "".
+        IF tt-oe-prmtx.i-no         = "?" OR tt-oe-prmtx.i-no           = ? THEN tt-oe-prmtx.i-no         = "".
+        IF tt-oe-prmtx.meth         = ?   THEN tt-oe-prmtx.meth         = YES .
+        IF tt-oe-prmtx.qty[1]       = ?   THEN tt-oe-prmtx.qty[1]       = 0.
+        IF tt-oe-prmtx.price[1]     = ?   THEN tt-oe-prmtx.price[1]     = 0.
+        IF tt-oe-prmtx.discount[1]  = ?   THEN tt-oe-prmtx.discount[1]  = 0.
+        IF tt-oe-prmtx.uom[1]       = "?" OR tt-oe-prmtx.uom[1]         = ? THEN tt-oe-prmtx.uom[1]       = "".
+        IF tt-oe-prmtx.qty[2]       = ?   THEN tt-oe-prmtx.qty[2]       = 0.
+        IF tt-oe-prmtx.price[2]     = ?   THEN tt-oe-prmtx.price[2]     = 0.
+        IF tt-oe-prmtx.discount[2]  = ?   THEN tt-oe-prmtx.discount[2]  = 0.
+        IF tt-oe-prmtx.uom[2]       = "?" OR  tt-oe-prmtx.uom[2]        = ? THEN tt-oe-prmtx.uom[2]       = "".
+        IF tt-oe-prmtx.qty[3]       = ?   THEN tt-oe-prmtx.qty[3]       = 0.
+        IF tt-oe-prmtx.price[3]     = ?   THEN tt-oe-prmtx.price[3]     = 0.
+        IF tt-oe-prmtx.discount[3]  = ?   THEN tt-oe-prmtx.discount[3]  = 0.
+        IF tt-oe-prmtx.uom[3]       = "?" OR  tt-oe-prmtx.uom[3]        = ? THEN tt-oe-prmtx.uom[3]       = "".
+        IF tt-oe-prmtx.qty[4]       = ?   THEN tt-oe-prmtx.qty[4]       = 0.
+        IF tt-oe-prmtx.price[4]     = ?   THEN tt-oe-prmtx.price[4]     = 0.
+        IF tt-oe-prmtx.discount[4]  = ?   THEN tt-oe-prmtx.discount[4]  = 0.
+        IF tt-oe-prmtx.uom[4]       = "?" OR  tt-oe-prmtx.uom[4]        = ? THEN tt-oe-prmtx.uom[4]       = "".
+        IF tt-oe-prmtx.qty[5]       = ?   THEN tt-oe-prmtx.qty[5]       = 0.
+        IF tt-oe-prmtx.price[5]     = ?   THEN tt-oe-prmtx.price[5]     = 0.
+        IF tt-oe-prmtx.discount[5]  = ?   THEN tt-oe-prmtx.discount[5]  = 0.
+        IF tt-oe-prmtx.uom[5]       = "?" OR  tt-oe-prmtx.uom[5]        = ? THEN tt-oe-prmtx.uom[5]       = "".
+        IF tt-oe-prmtx.qty[6]       = ?   THEN tt-oe-prmtx.qty[6]       = 0.
+        IF tt-oe-prmtx.price[6]     = ?   THEN tt-oe-prmtx.price[6]     = 0.
+        IF tt-oe-prmtx.discount[6]  = ?   THEN tt-oe-prmtx.discount[6]  = 0.
+        IF tt-oe-prmtx.uom[6]       = "?" OR  tt-oe-prmtx.uom[6]        = ? THEN tt-oe-prmtx.uom[6]       = "".
+        IF tt-oe-prmtx.qty[7]       = ?   THEN tt-oe-prmtx.qty[7]       = 0.
+        IF tt-oe-prmtx.price[7]     = ?   THEN tt-oe-prmtx.price[7]     = 0.
+        IF tt-oe-prmtx.discount[7]  = ?   THEN tt-oe-prmtx.discount[7]  = 0.
+        IF tt-oe-prmtx.uom[7]       = "?" OR  tt-oe-prmtx.uom[7]        = ? THEN tt-oe-prmtx.uom[7]       = "".
+        IF tt-oe-prmtx.qty[8]       = ?   THEN tt-oe-prmtx.qty[8]       = 0.
+        IF tt-oe-prmtx.price[8]     = ?   THEN tt-oe-prmtx.price[8]     = 0.
+        IF tt-oe-prmtx.discount[8]  = ?   THEN tt-oe-prmtx.discount[8]  = 0.
+        IF tt-oe-prmtx.uom[8]       = "?" OR  tt-oe-prmtx.uom[8]        = ? THEN tt-oe-prmtx.uom[8]       = "". 
+        IF tt-oe-prmtx.qty[9]       = ?   THEN tt-oe-prmtx.qty[9]       = 0. 
+        IF tt-oe-prmtx.price[9]     = ?   THEN tt-oe-prmtx.price[9]     = 0. 
+        IF tt-oe-prmtx.discount[9]  = ?   THEN tt-oe-prmtx.discount[9]  = 0. 
+        IF tt-oe-prmtx.uom[9]       = "?" OR  tt-oe-prmtx.uom[9]        = ? THEN tt-oe-prmtx.uom[9]       = "". 
+        IF tt-oe-prmtx.qty[10]      = ?   THEN tt-oe-prmtx.qty[10]      = 0. 
+        IF tt-oe-prmtx.price[10]    = ?   THEN tt-oe-prmtx.price[10]    = 0. 
+        IF tt-oe-prmtx.discount[10] = ?   THEN tt-oe-prmtx.discount[10] = 0. 
+        IF tt-oe-prmtx.uom[10]      = "?" OR  tt-oe-prmtx.uom[10]       = ? THEN tt-oe-prmtx.uom[10]      = "".
+        
+
         IF tt-oe-prmtx.cust-no EQ ? THEN
             ASSIGN
                 tt-oe-prmtx.cust-no = "".
