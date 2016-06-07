@@ -15,7 +15,7 @@ def var v-frt-pay-dscr as char format "x(11)" no-undo.
 /* === with xprint ====*/
 DEF VAR v-term AS cha NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
 DEF SHARED VAR s-print-pricing AS LOG NO-UNDO.
 
 ASSIGN ls-image1 = "images\icc.jpg".
@@ -61,6 +61,7 @@ DEF VAR lv-price AS DEC DECIMALS 4 NO-UNDO.
 DEF VAR lv-ext-price AS DEC NO-UNDO.
 DEF VAR lv-price-string AS CHAR NO-UNDO.
 DEF VAR v-total AS DEC NO-UNDO.
+DEF VAR v-job-no AS CHAR NO-UNDO .
 
 ASSIGN tmpstore = fill("-",130).
 
@@ -102,7 +103,7 @@ IF ll-display-comp THEN DO:
 
 format
   tt-rell.ord-no
-  tt-rell.po-no at 9
+  tt-rell.po-no at 12
   /*tt-rell.loc-bin  AT 23  FORM "x(5)"*/
   tt-rell.i-no at 29  oe-ordl.i-name at 44
   oe-ordl.qty format "->>>>>>>9" to 83
@@ -110,7 +111,7 @@ format
   with down frame relprint no-box no-label STREAM-IO width 110.
 
 FORMAT
-  tt-rell.loc-bin  AT 9  FORM "x(9)"
+  tt-rell.loc-bin  AT 12  FORM "x(9)"
   v-tag AT 29 FORM "x(15)"
   oe-ordl.part-dscr1 at 44 format "x(30)" 
   tt-rell.partial  TO 83 
@@ -352,7 +353,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               oe-ordl.i-name   when avail oe-ordl  SKIP
               with frame relprint STREAM-IO NO-BOX NO-LABELS WIDTH 120.
               down with frame relprint.
-
+              
+              v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(INT(oe-ordl.job-no2), "99" ) .
               IF s-print-pricing THEN
               DO:
                  RUN calc-ext-cost(OUTPUT lv-price, OUTPUT lv-ext-price).
@@ -360,8 +362,10 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                  lv-price-string = TRIM(STRING(lv-price,"-ZZ,ZZZ,ZZ9.9999") + "/" + oe-ordl.pr-uom)
                  v-total = v-total + lv-ext-price
                  v-printline = v-printline + 1.
-                 PUT lv-price-string AT 44 FORM "X(20)" lv-ext-price FORM "->>,>>>,>>9.99" TO 93.
+                 PUT v-job-no FORM "X(11)" lv-price-string AT 44 FORM "X(20)" lv-ext-price FORM "->>,>>>,>>9.99" TO 93.
               END.
+              ELSE
+                PUT v-job-no FORM "X(11)"  .
 
               DISPLAY
                tt-rell.loc-bin  
@@ -380,13 +384,17 @@ if v-zone-p then v-zone-hdr = "Route No.:".
 
             display
               tt-rell.ord-no
-              tt-rell.po-no  AT 9
+              tt-rell.po-no  AT 12
               tt-rell.i-no   AT 29
               tt-rell.qty-case @ oe-ordl.qty TO 83
               tt-rell.cases @ tt-rell.qty 
               with frame ln-s-comp STREAM-IO NO-BOX NO-LABELS WIDTH 120.
              v-printline = v-printline + 2.
             down with frame ln-s-comp.
+
+             v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(int(oe-ordl.job-no2), "99" ) .
+
+              PUT v-job-no FORM "X(11)"  .
                                            
             IF s-print-pricing THEN
                DO:
@@ -419,7 +427,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
 
           display
             tt-rell.ord-no
-            tt-rell.po-no       AT 9
+            tt-rell.po-no       AT 12
             /*tt-rell.loc-bin     AT 23   FORMAT "x(5)"   WHEN v-p-bin*/
             tt-rell.i-no        AT 29
             tt-rell.qty-case @ oe-ordl.qty TO 83
@@ -427,6 +435,10 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             with frame ln-s.
           down with frame ln-s STREAM-IO NO-BOX NO-LABELS WIDTH 120.
           v-printline = v-printline + 1.
+
+           v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(int(oe-ordl.job-no2), "99" ) .
+
+              PUT v-job-no FORM "X(11)"  .
 
           IF s-print-pricing AND AVAIL oe-ordl THEN
           DO:

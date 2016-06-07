@@ -35,7 +35,7 @@
                    "<FArial><=4><R+1>        CASES                    WEIGHT                    FOB                         SHIP VIA                                             FREIGHT TERMS" SKIP
                    "<FCourier New><=4><R+3>     " lv-tot-cases /*v-pallets*/ SPACE(6) v-weight space(10) oe-ord.fob-code SPACE(5) v-carrier space(10) v-frt-terms   SKIP
                    "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
-                   "<R24><C7><FROM><R26><C7><LINE>" SKIP
+                   "<R24><C10><FROM><R26><C10><LINE>" SKIP
                    /*"<R24><C18><FROM><R26><C18><LINE>" SKIP*/
                    "<R24><C24><FROM><R26><C24><LINE>" SKIP
                    "<R24><C35><FROM><R26><C35><LINE>" SKIP                   
@@ -43,7 +43,7 @@
                    "<R24><C64><FROM><R26><C64><LINE>" SKIP 
                    "<R24><C72><FROM><R26><C72><LINE>" SKIP                                                                                                     /*job#*/
                "<FArial><=5><C64.5>"
-               "<=5><R+1> Order#            PO#   /    BIN#                   FG ITEM#                           DESCRIPTION                                     PACK          CASES"
+               "<=5><R+1> Order#/Job#       PO#  /   BIN#                 FG ITEM#                           DESCRIPTION                                     PACK          CASES"
                "<FCourier New>"          
            .
                v-printline = v-printline + 15.
