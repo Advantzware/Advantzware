@@ -1,14 +1,14 @@
     
-    FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
+    FIND FIRST oe-ctrl NO-LOCK WHERE oe-ctrl.company EQ cocode  NO-ERROR.
     
-    FOR EACH ttCustList NO-LOCK,
-        EACH oe-ord
+    FOR EACH oe-ord
         WHERE oe-ord.company  EQ cocode
-          AND oe-ord.cust-no EQ ttCustList.cust-no
-/*           AND oe-ord.cust-no  GE v-cust[1] */
-/*           AND oe-ord.cust-no  LE v-cust[2] */
-          AND oe-ord.user-id  GE begin_userid
-          AND oe-ord.user-id  LE end_userid
+          AND oe-ord.cust-no  GE v-cust[1] 
+          AND oe-ord.cust-no  LE v-cust[2]
+          AND (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ oe-ord.cust-no
+          AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
+          AND oe-ord.USER-ID  GE begin_userid
+          AND oe-ord.USER-ID  LE end_userid
           AND (v-ostat EQ "A"                           OR
                (oe-ord.opened AND v-ostat EQ "O")       OR
                (NOT oe-ord.opened AND v-ostat EQ "C"))
@@ -63,10 +63,10 @@
          tt-report.q-shp = v-q-shp
          tt-report.q-rel = v-q-rel.
 
-        FIND FIRST itemfg WHERE
+        FIND FIRST itemfg NO-LOCK WHERE 
              itemfg.company eq cocode AND
              itemfg.i-no    eq tt-report.key-06
-             NO-LOCK NO-ERROR.
+             NO-ERROR.
 
         IF AVAIL itemfg THEN
         DO:
@@ -125,30 +125,22 @@
       IF FIRST-OF(tt-report.key-01) THEN DO:
          lv-date-msf = 0.
          lv-date-msf2 = 0.
-
         lv-slsmn = tt-report.key-01.
+       IF v-print-line  THEN DO:
+        put "Due Date: " SUBSTRING(tt-report.key-01,5,2) + "/" + SUBSTRING(tt-report.key-01,7,2) +
+                              "/" +  SUBSTRING(tt-report.key-01,1,4)  FORM "x(10)" SKIP.
+        PUT str-tit5 SKIP .
+       END.
 
-      /*  IF rd_sort-1 EQ "Salesman" THEN DO:
-          VIEW FRAME r-top2.
-          IF tb_excel THEN
-            PUT STREAM st-excel
-                       "Sales Rep: "
-                       lv-slsmn
-                       SKIP.
-          IF NOT FIRST(tt-report.key-01) THEN PAGE.
-        END.
-
-        IF FIRST(tt-report.key-01) THEN
-           VIEW FRAME r-top3. */
-       
+      
       END.
 
-      ASSIGN lv-due-dt =  substring(tt-report.key-01,5,2) + "/" + substring(tt-report.key-01,7,2) +
-                              "/" +  substring(tt-report.key-01,1,4) 
-             lv-job-no = trim(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")
+      ASSIGN lv-due-dt =  SUBSTRING(tt-report.key-01,5,2) + "/" + SUBSTRING(tt-report.key-01,7,2) +
+                              "/" +  SUBSTRING(tt-report.key-01,1,4) 
+             lv-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")
              lv-routing = REPLACE(tt-report.routing,","," ") .
 
-      assign lv-date-msf = lv-date-msf + tt-report.msf
+      ASSIGN lv-date-msf = lv-date-msf + tt-report.msf
                 lv-tot-msf = lv-tot-msf + tt-report.msf
              lv-date-msf2 = lv-date-msf2 + tt-report.msf2
                 lv-tot-msf2 = lv-tot-msf2 + tt-report.msf2.
@@ -213,18 +205,21 @@
                          WHEN "ord-qty"   THEN cVarValue = STRING(oe-ordl.qty,"->>>>>>9") .
                          WHEN "rel-qty"   THEN cVarValue = STRING(tt-report.q-rel,"->>>>>>9") .
                          WHEN "unt"       THEN cVarValue = STRING(tt-report.NumOfUnit,"->>>>>>9") .
-                         WHEN "rel-msf"       THEN cVarValue = STRING(tt-report.msf,"->>>>>>9.99") .
-                         WHEN "ord-msf"       THEN cVarValue = STRING(tt-report.msf2,"->>>>>>9.99") .
+                         WHEN "rel-msf"   THEN cVarValue = STRING(tt-report.msf,"->>>>>>9.99") .
+                         WHEN "ord-msf"   THEN cVarValue = STRING(tt-report.msf2,"->>>>>>9.99") .
                          
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
             END.
           
             PUT UNFORMATTED cDisplay SKIP.
+            IF v-print-line = YES THEN
+                PUT str-tit5 SKIP .
+
             IF tb_excel THEN DO:
                  PUT STREAM st-excel UNFORMATTED  
                        cExcelDisplay SKIP.
@@ -236,7 +231,7 @@
             AND tt-fg-bin.i-no    EQ tt-report.key-06
             AND tt-fg-bin.qty     GT 0
             AND (tt-fg-bin.ord-no EQ oe-ord.ord-no OR
-                 SUBSTR(tt-report.key-04,1,6) EQ "")
+                 SUBSTRING(tt-report.key-04,1,6) EQ "")
           NO-LOCK
           BREAK BY tt-fg-bin.job-no
                 BY tt-fg-bin.job-no2
@@ -304,22 +299,7 @@
           ASSIGN s-b-line = "S/B: " + STRING(tt-fg-set.part-qty) + "/"
                           + STRING(tt-fg-set.part-qty-dec).
 
-        /*  DISPLAY 
-             s-b-line
-             tt-fg-set.part-no 
-             tt-fg-set.routing
-             tt-fg-set.rm-no  
-          WITH FRAME tt-fg-set-frame.
- 
-          DOWN WITH FRAME tt-fg-set-frame.
-
-          IF tb_excel THEN
-             PUT STREAM st-excel
-                 s-b-line v-comma
-                 v-comma
-                 tt-fg-set.part-no v-comma
-                 REPLACE(tt-fg-set.routing,","," ") v-comma
-                 tt-fg-set.rm-no SKIP . */ 
+       
 
           ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -329,7 +309,7 @@
               
              
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+               cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "due-dt"    THEN cVarValue = "" .
                          WHEN "cust"      THEN cVarValue = "" .
@@ -348,28 +328,24 @@
                       
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
             END.
           
-            PUT UNFORMATTED s-b-line + substring(cDisplay,9,300)  SKIP.
+            PUT UNFORMATTED s-b-line + SUBSTRING(cDisplay,9,300)  SKIP.
             IF tb_excel THEN DO:
                 PUT STREAM st-excel UNFORMATTED  
-                    s-b-line + substring(cExcelDisplay,3,300) SKIP.
+                    s-b-line + SUBSTRING(cExcelDisplay,3,300) SKIP.
             END.
       END.
       PUT SKIP(1) .
       END.
 
-      if last-of (tt-report.key-01) then do:
-         
-        /* disp  "Total: " @ tt-report.q-rel 
-                 lv-date-msf @ tt-report.msf with frame summ-re.
-         down with frame summ-re.
-         UNDERLINE tt-report.q-rel tt-report.msf WITH FRAME summ-re.
-         DOWN WITH FRAME summ-re. */
-          PUT SKIP str-line SKIP .
-          ASSIGN cDisplay = ""
+      IF LAST-OF (tt-report.key-01) THEN DO:
+      
+        IF v-print-line = NO THEN
+                PUT str-line SKIP .
+        ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
                    cExcelDisplay = ""
@@ -377,7 +353,7 @@
               
               
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+               cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "due-dt"    THEN cVarValue = "" .
                          WHEN "cust"      THEN cVarValue = "" .
@@ -396,30 +372,29 @@
                       
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
             END.
           
             PUT UNFORMATTED "       Total" + substring(cDisplay,13,300)  SKIP.
+             IF v-print-line = YES THEN
+                PUT str-tit5 SKIP .
+            
       end.
 
-      if last (tt-report.key-01) then do:
-         
-        /* disp  "Grand Total: " @ tt-report.q-rel 
-                 lv-tot-msf @ tt-report.msf with frame summ-re.
-         down with frame summ-re.
-         underline tt-report.q-rel tt-report.msf with frame summ-re.
-         down with frame summ-re. */
-          PUT SKIP str-line SKIP .
+      if LAST (tt-report.key-01) THEN DO:
+        
           ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-              
+
+            IF v-print-line = NO THEN
+                PUT str-line SKIP .
               
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+               cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "due-dt"    THEN cVarValue = "" .
                          WHEN "cust"      THEN cVarValue = "" .
@@ -438,13 +413,15 @@
                       
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
             END.
           
-            PUT UNFORMATTED "       Grand Total" + substring(cDisplay,19,300)  SKIP.
+            PUT UNFORMATTED "       Grand Total" + SUBSTRING(cDisplay,19,300)  SKIP.
+            IF v-print-line = YES THEN
+                PUT str-tit5 SKIP .
          
-      end.
+      END. /* LAST (tt-report.key-01)*/
 
       DELETE tt-report.
     END. /* each tt-report */
