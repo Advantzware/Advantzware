@@ -77,6 +77,7 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 def var v-hdr       as   char init
 "Customer,Name,Contact,SalesRep,Terms,Address1,Address2,City,State,Zip,Credit Limit,Phone,Fax,Check/Memo,DaysOld,Type,Invoice#,InvoiceDate,InvoiceAmt,Current," no-undo.
 DEF NEW SHARED VAR det-rpt2 AS LOG NO-UNDO. 
+DEF NEW SHARED VAR lSelected AS LOG INIT YES NO-UNDO.
 def new shared frame r-top.
 form header "" with frame r-top.
  
@@ -1274,7 +1275,7 @@ PROCEDURE run-report :
 {sys/form/r-top3.f}
 
 def var li as int no-undo.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 format header
   skip(1)
   "Customer/Contact/SalesRep/Terms" skip
