@@ -1510,7 +1510,8 @@ PROCEDURE local-update-record :
 
   RUN valid-bill NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
- 
+
+  FIND CURRENT oe-ordm EXCLUSIVE-LOCK NO-ERROR.
   oe-ordm.spare-char-1 = oe-ordm.spare-char-1:SCREEN-VALUE .
 
   /* Dispatch standard ADM method.                             */
