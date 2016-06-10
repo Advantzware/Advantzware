@@ -2,28 +2,28 @@
 /* Vendor Aging Report Program - A/P Module                                   */
 /* -------------------------------------------------------------------------- */
 
-for each ap-inv
-    where ap-inv.company   eq vend.company
-      and ap-inv.vend-no   eq vend.vend-no
-      and ap-inv.posted    eq yes
-      and (ap-inv.inv-date le as_of_date or not v-idate)
-    use-index ap-inv no-lock,
+FOR EACH ap-inv NO-LOCK
+    WHERE ap-inv.company   EQ vend.company
+      AND ap-inv.vend-no   EQ vend.vend-no
+      AND ap-inv.posted    EQ YES 
+      AND (ap-inv.inv-date LE as_of_date OR NOT v-idate)
+    USE-INDEX ap-inv ,
     
-    first ap-ledger
-    where ap-ledger.company  eq vend.company
-      and ap-ledger.vend-no  eq ap-inv.vend-no
-      and ap-ledger.ref-date eq ap-inv.inv-date
-      and ap-ledger.refnum   eq ("INV# " + ap-inv.inv-no)
-      and (ap-ledger.tr-date le as_of_date or v-idate)
-    use-index ap-ledger no-lock
+    FIRST ap-ledger NO-LOCK 
+    WHERE ap-ledger.company  EQ vend.company
+      AND ap-ledger.vend-no  EQ ap-inv.vend-no
+      AND ap-ledger.ref-date EQ ap-inv.inv-date
+      AND ap-ledger.refnum   EQ ("INV# " + ap-inv.inv-no)
+      AND (ap-ledger.tr-date LE as_of_date OR v-idate)
+    USE-INDEX ap-ledger
     
-    break by ap-inv.vend-no
-          by (if v-idate then ap-inv.inv-date else ap-ledger.tr-date)
-          by ap-inv.inv-no:
+    BREAK BY ap-inv.vend-no
+          BY (IF v-idate THEN ap-inv.inv-date ELSE ap-ledger.tr-date)
+          BY ap-inv.inv-no:
   
-  if FIRST(ap-inv.vend-no) then do:
-    assign
-     first-time = yes
+  IF FIRST(ap-inv.vend-no) THEN DO:
+    ASSIGN 
+     first-time = YES 
      cust-t[1]  = 0
      cust-t[2]  = 0
      cust-t[3]  = 0
@@ -32,43 +32,43 @@ for each ap-inv
      m3 = vend.area-code + vend.phone
      m2 = vend.cont
      ni = 0.
-  end.
+  END.
 
-  assign
+  ASSIGN 
    v-amt  = 0
-   v-date = if v-idate then ap-inv.inv-date else ap-ledger.tr-date.
+   v-date = IF v-idate THEN ap-inv.inv-date ELSE ap-ledger.tr-date.
    
-  for each ap-payl no-lock
-      where ap-payl.inv-no   eq ap-inv.inv-no
-        and ap-payl.vend-no  eq ap-inv.vend-no
-        and ap-payl.posted   eq yes
-        and ap-payl.due-date eq ap-inv.due-date
-      use-index inv-no:
+  FOR EACH ap-payl NO-LOCK
+      WHERE ap-payl.inv-no   EQ ap-inv.inv-no
+        AND ap-payl.vend-no  EQ ap-inv.vend-no
+        AND ap-payl.posted   EQ YES 
+        AND ap-payl.due-date EQ ap-inv.due-date
+      USE-INDEX inv-no:
 
-    find first ap-pay no-lock
-        where ap-pay.company eq vend.company
-          and ap-pay.c-no eq ap-payl.c-no
-        use-index c-no no-error.
+    FIND FIRST ap-pay NO-LOCK
+        WHERE ap-pay.company EQ vend.company
+          AND ap-pay.c-no EQ ap-payl.c-no
+        USE-INDEX c-no NO-ERROR.
 
-    if avail ap-pay THEN
+    IF AVAILABLE ap-pay THEN
     DO:
        v-check-date = ap-pay.check-date.
 
        /*check for voided check transaction date*/
-      if ap-payl.amt-paid lt 0  and
-         ap-payl.memo                eq no and
-         ap-inv.net + ap-inv.freight gt 0 THEN
+      IF ap-payl.amt-paid LT 0  AND
+         ap-payl.memo                EQ NO AND
+         ap-inv.net + ap-inv.freight GT 0 THEN
          DO:
             v-refnum = "VOIDED CHECK"
-                        + string(ap-pay.check-no, "zzzzzzz9").
+                        + STRING(ap-pay.check-no, "zzzzzzz9").
 
-            FIND FIRST xap-ledger WHERE
+            FIND FIRST xap-ledger NO-LOCK WHERE
                  xap-ledger.company EQ vend.company AND
                  xap-ledger.vend-no EQ ap-pay.vend-no AND
-                 xap-ledger.refnum = v-refnum
-                 NO-LOCK NO-ERROR.
+                 xap-ledger.refnum  EQ v-refnum
+                 NO-ERROR.
 
-            IF AVAIL xap-ledger THEN
+            IF AVAILABLE xap-ledger THEN
             DO:
                v-check-date = xap-ledger.tr-date.
                RELEASE xap-ledger.
@@ -91,34 +91,34 @@ for each ap-inv
 /*              END.                                                           */
 /*          END.                                                               */
 
-       IF v-check-date le as_of_date then do:
+       IF v-check-date LE as_of_date THEN DO:
 
-       if ap-payl.amt-paid ne 0 then v-amt = v-amt - ap-payl.amt-paid.
-       if ap-payl.amt-disc ne 0 then do:
-          if not ap-payl.memo then v-amt = v-amt - ap-payl.amt-disc.
-          if ap-payl.memo then v-amt = v-amt + ap-payl.amt-disc.
-       end.
-    end.
+       IF ap-payl.amt-paid NE 0 THEN v-amt = v-amt - ap-payl.amt-paid.
+       IF ap-payl.amt-disc NE 0 THEN DO:
+          IF NOT ap-payl.memo THEN v-amt = v-amt - ap-payl.amt-disc.
+          IF ap-payl.memo THEN v-amt = v-amt + ap-payl.amt-disc.
+       END.
+    END.
     END.
 
-    release ap-pay.
+    RELEASE ap-pay.
     
-  end. /* for each ap-payl */
+  END. /* for each ap-payl */
 
-  assign
+  ASSIGN
    d     = as_of_date - v-date
    v-amt = v-amt + ap-inv.net + ap-inv.freight
    t1    = t1 + v-amt
    ni    = ni + 1.
 
-  /* if days old less then 0 make equal to 0 */
-  if d lt 0 then assign d = 0.
+  /* IF days old less then 0 make equal to 0 */
+  IF d LT 0 THEN ASSIGN d = 0.
   
-  if v-amt ne 0 then do:
+  IF v-amt NE 0 THEN DO:
    
-      FIND FIRST terms WHERE terms.company = vend.company AND
-          terms.t-code = vend.terms NO-LOCK NO-ERROR.
-      IF AVAIL terms THEN v-terms = terms.dscr.
+      FIND FIRST terms NO-LOCK WHERE terms.company EQ vend.company AND
+          terms.t-code EQ vend.terms NO-ERROR.
+      IF AVAILABLE terms THEN v-terms = terms.dscr.
       
     ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -127,28 +127,28 @@ for each ap-inv
                    cExcelVarValue = "".
           
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+               cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "curr"    THEN cVarValue = string(tt-vend.curr-code,"x(8)") .
-                         WHEN "vend"   THEN cVarValue = string(vend.vend-no,"x(10)").
-                         WHEN "vend-name"   THEN cVarValue = STRING(vend.name,"x(30)").
-                         WHEN "phone"  THEN cVarValue = STRING(m3,"(999) 999-9999")  .
-                         WHEN "type"   THEN cVarValue = STRING(vend.TYPE) .
-                         WHEN "term"  THEN cVarValue = STRING(v-terms) .
-                         WHEN "inv"   THEN cVarValue = STRING(ap-inv.inv-no) .
-                         WHEN "date"  THEN cVarValue = STRING(v-date,"99/99/99") .
-                         WHEN "amt"   THEN cVarValue = STRING(v-amt,"->,>>>,>>>,>>9.99") .
-                         WHEN "day"  THEN cVarValue = STRING(d,">>>>>>") .
+                         WHEN "curr"      THEN cVarValue = STRING(tt-vend.curr-code,"x(8)") .
+                         WHEN "vend"      THEN cVarValue = STRING(vend.vend-no,"x(10)").
+                         WHEN "vend-name" THEN cVarValue = STRING(vend.NAME,"x(30)").
+                         WHEN "phone"     THEN cVarValue = STRING(m3,"(999) 999-9999")  .
+                         WHEN "type"      THEN cVarValue = STRING(vend.TYPE) .
+                         WHEN "term"      THEN cVarValue = STRING(v-terms,"x(17)") .
+                         WHEN "inv"       THEN cVarValue = STRING(ap-inv.inv-no) .
+                         WHEN "date"      THEN cVarValue = STRING(v-date,"99/99/99") .
+                         WHEN "amt"       THEN cVarValue = STRING(v-amt,"->,>>>,>>>,>>9.99") .
+                         WHEN "day"       THEN cVarValue = STRING(d,">>>>>>") .
                          
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
             END.
    
-    assign
+    ASSIGN 
      ag        = 0
      i         = (IF d LE v-days[1] THEN 1 
                   ELSE IF d LE v-days[2] THEN 2
@@ -158,7 +158,7 @@ for each ap-inv
      ag[i]     = v-amt
      cust-t[i] = cust-t[i] + ag[i].
    
-    if v-dtl then
+    IF v-dtl THEN 
     DO:
       /*display ap-inv.inv-no     at 3        format "x(12)"
               space(2)
@@ -174,13 +174,13 @@ for each ap-inv
               
           with frame detail{1} no-labels no-box stream-io width 132.*/
 
-          cDisplay =  cDisplay + string(ag[1],"->,>>>,>>>,>>9.99") + " " + string(ag[2],"->,>>>,>>>,>>9.99") + 
-                     " " + string(ag[3],"->,>>>,>>>,>>9.99") + " " + string(ag[4],"->,>>>,>>>,>>9.99") + " " +
-                     string(ag[5],"->,>>>,>>>,>>9.99") .
+          cDisplay =  cDisplay + STRING(ag[1],"->,>>>,>>>,>>9.99") + " " + STRING(ag[2],"->,>>>,>>>,>>9.99") + 
+                     " " + STRING(ag[3],"->,>>>,>>>,>>9.99") + " " + STRING(ag[4],"->,>>>,>>>,>>9.99") + " " +
+                     STRING(ag[5],"->,>>>,>>>,>>9.99") .
 
-           cExcelDisplay = cExcelDisplay +  string(ag[1]) + "," + string(ag[2]) + "," +
-                            string(ag[3]) + "," + string(ag[4]) + "," +
-                            string(ag[5]) .
+           cExcelDisplay = cExcelDisplay +  STRING(ag[1]) + "," + STRING(ag[2]) + "," +
+                            STRING(ag[3]) + "," + STRING(ag[4]) + "," +
+                            STRING(ag[5]) .
 
           PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
@@ -190,10 +190,10 @@ for each ap-inv
     END.  /* end of detail */
 
     ELSE DO:
-         if first-time then do:
-      FIND FIRST terms WHERE terms.company = vend.company AND
-          terms.t-code = vend.terms NO-LOCK NO-ERROR.
-      IF AVAIL terms THEN v-terms = terms.dscr.
+         IF first-time THEN DO:
+      FIND FIRST terms NO-LOCK WHERE terms.company EQ vend.company AND
+          terms.t-code EQ vend.terms NO-ERROR.
+      IF AVAILABLE terms THEN v-terms = terms.dscr.
      
       PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
@@ -201,18 +201,18 @@ for each ap-inv
                        cExcelDisplay SKIP.
              END.
 
-      first-time = no.
+      first-time = NO.
 
      
-    end.  /* end of first-time */
+    END.  /* end of first-time */
 
     END.
 
-  end.  /* if v-amt ne 0  */
+  END.  /* if v-amt ne 0  */
 
-  if LAST(ap-inv.vend-no) and t1 ne 0 then do:
-    if ni gt 1 then m3 = "".
-    if ni eq 1 then m3 = m2.
+  IF LAST(ap-inv.vend-no) AND t1 NE 0 THEN DO:
+    IF ni GT 1 THEN m3 = "".
+    IF ni EQ 1 THEN m3 = m2.
     PUT str-line SKIP .
     
     /*display space (10) "VENDOR TOTALS" t1 to 44
@@ -226,57 +226,57 @@ for each ap-inv
         with frame vendor3{1} no-labels no-box no-attr-space stream-io width 132.*/
 
      ASSIGN cDisplay = ""
-                   cTmpField = ""
-                   cVarValue = ""
-                   cExcelDisplay = ""
-                   cExcelVarValue = "".
+            cTmpField = ""
+            cVarValue = ""
+            cExcelDisplay = ""
+            cExcelVarValue = "".
           
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+               cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "curr"    THEN cVarValue = "" .
-                         WHEN "vend"   THEN cVarValue = "".
-                         WHEN "vend-name"   THEN cVarValue = "".
-                         WHEN "phone"  THEN cVarValue = "" .
-                         WHEN "type"   THEN cVarValue = "" .
-                         WHEN "term"  THEN cVarValue = "" .
-                         WHEN "inv"   THEN cVarValue = "" .
-                         WHEN "date"  THEN cVarValue = "" .
-                         WHEN "amt"   THEN cVarValue = STRING(t1,"->,>>>,>>>,>>9.99") .
-                         WHEN "day"  THEN cVarValue = "" .
+                         WHEN "curr"      THEN cVarValue = "" .
+                         WHEN "vend"      THEN cVarValue = "".
+                         WHEN "vend-name" THEN cVarValue = "".
+                         WHEN "phone"     THEN cVarValue = "" .
+                         WHEN "type"      THEN cVarValue = "" .
+                         WHEN "term"      THEN cVarValue = "" .
+                         WHEN "inv"       THEN cVarValue = "" .
+                         WHEN "date"      THEN cVarValue = "" .
+                         WHEN "amt"       THEN cVarValue = STRING(t1,"->,>>>,>>>,>>9.99") .
+                         WHEN "day"       THEN cVarValue = "" .
                          
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
             END.
 
-            cDisplay =  cDisplay + string(cust-t[1],"->,>>>,>>>,>>9.99") + " " + string(cust-t[2],"->,>>>,>>>,>>9.99") + 
-                     " " + string(cust-t[3],"->,>>>,>>>,>>9.99") + " " + string(cust-t[4],"->,>>>,>>>,>>9.99") + " " +
-                     string(cust-t[5],"->,>>>,>>>,>>9.99") .
+            cDisplay =  cDisplay + STRING(cust-t[1],"->,>>>,>>>,>>9.99") + " " + STRING(cust-t[2],"->,>>>,>>>,>>9.99") + 
+                     " " + STRING(cust-t[3],"->,>>>,>>>,>>9.99") + " " + STRING(cust-t[4],"->,>>>,>>>,>>9.99") + " " +
+                     STRING(cust-t[5],"->,>>>,>>>,>>9.99") .
 
-            cExcelDisplay = cExcelDisplay +  string(cust-t[1]) + "," + string(cust-t[2]) + "," +
-                            string(cust-t[3]) + "," + string(cust-t[4]) + "," +
-                            string(cust-t[5]) .
+            cExcelDisplay = cExcelDisplay +  STRING(cust-t[1]) + "," + STRING(cust-t[2]) + "," +
+                            STRING(cust-t[3]) + "," + STRING(cust-t[4]) + "," +
+                            STRING(cust-t[5]) .
 
 
-          PUT UNFORMATTED "    Total Dollars" substring(cDisplay,18,300) SKIP(1).
+          PUT UNFORMATTED "    Total Dollars" SUBSTRING(cDisplay,18,300) SKIP(1).
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                       'Total Dollars ,' + SUBSTRING(cExcelDisplay,4,300) SKIP.
              END.
         
     
-    do i = 1 to 5:
+    DO i = 1 TO 5:
        curr-t[i] = curr-t[i] + cust-t[i].
-    end.
-    assign
+    END.
+    ASSIGN 
      cust-t = 0
      t2     = t2 + t1
      t1     = 0.
-  end.  /* last-of loop */
-end.  /* for each ap-inv */
+  END.  /* last-of loop */
+END.  /* for each ap-inv */
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */
