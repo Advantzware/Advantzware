@@ -287,11 +287,11 @@ DEFINE FRAME DEFAULT-FRAME
           "Click to Cancel and Exit"
      "Type:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 7.67 COL 12
-     "Employee Login:" VIEW-AS TEXT
-          SIZE 16 BY .81 AT ROW 8.86 COL 2
      "Select Shift to Post ... Enter Date Range" VIEW-AS TEXT
           SIZE 49 BY .62 AT ROW 1.24 COL 2
           FONT 6
+     "Employee Login:" VIEW-AS TEXT
+          SIZE 16 BY .81 AT ROW 8.86 COL 2
      RECT-1 AT ROW 6 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -566,13 +566,13 @@ PROCEDURE calcQtyPerTrans :
     IF FIRST-OF(ttblVorne.vorneJob) THEN DO:
       FIND FIRST ttblJob
            WHERE ttblJob.resource EQ ttblVorne.vorneResource
-             AND ttblJob.job      EQ ttblVorne.vorneJob NO-ERROR.
+             AND ttblJob.job EQ ttblVorne.vorneJob NO-ERROR.
       IF AVAILABLE ttblJob THEN
       jobMchRowID = TO-ROWID(ENTRY(2,ttblJob.rowIDs)).
       ELSE DO:
         FIND FIRST pendingJob
              WHERE pendingJob.resource EQ ttblVorne.vorneResource
-               AND pendingJob.job      EQ ttblVorne.vorneJob NO-ERROR.
+               AND pendingJob.job EQ ttblVorne.vorneJob NO-ERROR.
         IF NOT AVAILABLE pendingJob THEN NEXT.
         jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
       END. /* not avail ttbljob */
@@ -583,12 +583,12 @@ PROCEDURE calcQtyPerTrans :
         lvVorneRejectQty = 0
         .
       FOR EACH machtran NO-LOCK
-          WHERE machtran.company       EQ job-mch.company
-            AND machtran.machine       EQ ttblVorne.vorneResource
-            AND machtran.job_number    EQ job-mch.job-no
-            AND machtran.job_sub       EQ job-mch.job-no2
-            AND machtran.form_number   EQ job-mch.frm
-            AND machtran.blank_number  EQ job-mch.blank-no
+          WHERE machtran.company EQ job-mch.company
+            AND machtran.machine EQ ttblVorne.vorneResource
+            AND machtran.job_number EQ job-mch.job-no
+            AND machtran.job_sub EQ job-mch.job-no2
+            AND machtran.form_number EQ job-mch.frm
+            AND machtran.blank_number EQ job-mch.blank-no
             AND machtran.pass_sequence EQ job-mch.pass
             AND machtran.jobseq EQ 0:
         ASSIGN
@@ -597,13 +597,14 @@ PROCEDURE calcQtyPerTrans :
           .
       END. /* each machtran */
     END. /* first-of job */
-    IF lvVorneRunQty LE ttblVorne.vorneRunQty THEN
+
+    IF lvVorneRunQty LE ttblVorne.vorneTranRunQty THEN
     ASSIGN
-      ttblVorne.vorneTranRunQty    = ttblVorne.vorneRunQty    - lvVorneRunQty
+      ttblVorne.vorneTranRunQty = ttblVorne.vorneRunQty - lvVorneRunQty
       ttblVorne.vorneTranRejectQty = ttblVorne.vorneRejectQty - lvVorneRejectQty
       .
     ASSIGN  
-      lvVorneRunQty    = ttblVorne.vorneRunQty
+      lvVorneRunQty = ttblVorne.vorneRunQty
       lvVorneRejectQty = ttblVorne.vorneRejectQty
       .
   END. /* each ttblvorne */
@@ -621,14 +622,14 @@ PROCEDURE completeMR :
   Notes:       
 ------------------------------------------------------------------------------*/
   FIND LAST machtran EXCLUSIVE-LOCK
-       WHERE machtran.company       EQ job-mch.company
-         AND machtran.machine       EQ ttblVorne.vorneResource
-         AND machtran.job_number    EQ job-mch.job-no
-         AND machtran.job_sub       EQ job-mch.job-no2
-         AND machtran.form_number   EQ job-mch.frm
-         AND machtran.blank_number  EQ job-mch.blank-no
+       WHERE machtran.company EQ job-mch.company
+         AND machtran.machine EQ ttblVorne.vorneResource
+         AND machtran.job_number EQ job-mch.job-no
+         AND machtran.job_sub EQ job-mch.job-no2
+         AND machtran.form_number EQ job-mch.frm
+         AND machtran.blank_number EQ job-mch.blank-no
          AND machtran.pass_sequence EQ job-mch.pass
-         AND machtran.charge_code   EQ 'MR'
+         AND machtran.charge_code EQ 'MR'
        NO-ERROR.
   IF AVAILABLE machtran THEN
   machtran.completed = YES.
@@ -654,7 +655,7 @@ PROCEDURE createEmpLogin :
      NUM-ENTRIES(ttblVorne.vorneEmployee,' ') LT 2 THEN RETURN.
   ASSIGN
     lvVorneFirstName = ENTRY(1,ttblVorne.vorneEmployee,' ')
-    lvVorneLastName  = ENTRY(2,ttblVorne.vorneEmployee,' ')
+    lvVorneLastName = ENTRY(2,ttblVorne.vorneEmployee,' ')
     .
   FIND FIRST employee NO-LOCK
        WHERE employee.last_name EQ lvVorneLastName
@@ -662,27 +663,27 @@ PROCEDURE createEmpLogin :
        NO-ERROR.
   IF AVAILABLE employee THEN DO:
     IF CAN-FIND(FIRST emplogin
-                WHERE emplogin.company    EQ employee.company
-                  AND emplogin.employee   EQ employee.employee
+                WHERE emplogin.company EQ employee.company
+                  AND emplogin.employee EQ employee.employee
                   AND emplogin.start_date EQ machtran.start_date
                   AND emplogin.start_time EQ machtran.start_time
-                  AND emplogin.machine    EQ ttblVorne.vorneResource) THEN
+                  AND emplogin.machine EQ ttblVorne.vorneResource) THEN
     ASSIGN
       machtran.start_time = machtran.start_time + 1
       machtran.total_time = machtran.total_time + 1
       .
     CREATE empLogin.
     ASSIGN
-      emplogin.company    = employee.company
-      emplogin.employee   = employee.employee
-      emplogin.machine    = ttblVorne.vorneResource
+      emplogin.company = employee.company
+      emplogin.employee = employee.employee
+      emplogin.machine = ttblVorne.vorneResource
       emplogin.start_date = machtran.start_date
       emplogin.start_time = machtran.start_time
-      emplogin.end_date   = machtran.end_date
-      emplogin.end_time   = machtran.end_time
+      emplogin.end_date = machtran.end_date
+      emplogin.end_time = machtran.end_time
       emplogin.total_time = machtran.total_time
-      emplogin.shift      = ttblVorne.vorneShift
-      opEmpLoginRowID     = ROWID(emplogin)
+      emplogin.shift = ttblVorne.vorneShift
+      opEmpLoginRowID = ROWID(emplogin)
       .
   END. /* avail employee */
 
@@ -707,7 +708,7 @@ PROCEDURE createMachEmp :
   IF NOT AVAILABLE emplogin THEN RETURN.
 
   FIND FIRST employee NO-LOCK
-       WHERE employee.company  EQ emplogin.company
+       WHERE employee.company EQ emplogin.company
          AND employee.employee EQ emplogin.employee
        NO-ERROR.
   IF NOT AVAILABLE employee THEN RETURN.
@@ -715,14 +716,14 @@ PROCEDURE createMachEmp :
   CREATE machemp.
   ASSIGN
     machemp.table_rec_key = machtran.rec_key
-    machemp.employee   = emplogin.employee
+    machemp.employee = emplogin.employee
     machemp.start_date = IF machtran.start_date GT emplogin.start_date THEN machtran.start_date ELSE emplogin.start_date
     machemp.start_time = IF machtran.start_date GT emplogin.start_date THEN machtran.start_time ELSE emplogin.start_time
-    machemp.shift      = machtran.shift
-    machemp.ratetype   = 'Standard' 
+    machemp.shift = machtran.shift
+    machemp.ratetype = 'Standard' 
     machemp.rate_usage = employee.rate_usage
-    machemp.end_date   = IF machtran.end_date LT emplogin.end_date OR emplogin.end_date EQ ? THEN machtran.end_date ELSE emplogin.end_date
-    machemp.end_time   = IF machtran.end_date LT emplogin.end_date OR emplogin.end_date EQ ? THEN machtran.end_time ELSE emplogin.end_time
+    machemp.end_date = IF machtran.end_date LT emplogin.end_date OR emplogin.end_date EQ ? THEN machtran.end_date ELSE emplogin.end_date
+    machemp.end_time = IF machtran.end_date LT emplogin.end_date OR emplogin.end_date EQ ? THEN machtran.end_time ELSE emplogin.end_time
     .
   RUN employeeRate(machtran.company,machemp.employee,machemp.shift,machtran.machine,
                    machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
@@ -765,20 +766,20 @@ PROCEDURE createTtblVorne :
     ASSIGN
       lvVorneStart = ENTRY(5,lvVorneData,'|')
       lvVorneStart = SUBSTR(lvVorneStart,1,10)
-      lvStartDate  = DATE(INT(ENTRY(2,lvVorneStart,'-')),
-                          INT(ENTRY(3,lvVorneStart,'-')),
-                          INT(ENTRY(1,lvVorneStart,'-')))
+      lvStartDate = DATE(INT(ENTRY(2,lvVorneStart,'-')),
+                         INT(ENTRY(3,lvVorneStart,'-')),
+                         INT(ENTRY(1,lvVorneStart,'-')))
       lvVorneEnd = ENTRY(6,lvVorneData,'|')
       lvVorneEnd = SUBSTR(lvVorneEnd,1,10)
-      lvEndDate  = DATE(INT(ENTRY(2,lvVorneEnd,'-')),
-                        INT(ENTRY(3,lvVorneEnd,'-')),
-                        INT(ENTRY(1,lvVorneEnd,'-')))
+      lvEndDate = DATE(INT(ENTRY(2,lvVorneEnd,'-')),
+                       INT(ENTRY(3,lvVorneEnd,'-')),
+                       INT(ENTRY(1,lvVorneEnd,'-')))
       .
     IF lvPostVorne AND
       ((selectedShift NE 'All' AND
         selectedShift NE ENTRY(13,lvVorneData,'|')) OR
-        lvStartDate   LT selectedStartDate OR
-        lvEndDate     GT selectedEndDate) THEN DO:
+        lvStartDate LT selectedStartDate OR
+        lvEndDate GT selectedEndDate) THEN DO:
       PUT STREAM sHold UNFORMATTED lvVorneData SKIP.
       NEXT.
     END. /* if vorneshift ne */
@@ -801,10 +802,10 @@ PROCEDURE createTtblVorne :
     IF lvVorneJob NE 'null' AND
        NOT CAN-FIND(FIRST ttblJob
                     WHERE ttblJob.resource EQ lvVorneResource
-                      AND ttblJob.job      EQ lvVorneJob) AND
+                      AND ttblJob.job EQ lvVorneJob) AND
        NOT CAN-FIND(FIRST pendingJob
                     WHERE pendingJob.resource EQ lvVorneResource
-                      AND pendingJob.job      EQ lvVorneJob) THEN DO:
+                      AND pendingJob.job EQ lvVorneJob) THEN DO:
       PUT STREAM sError UNFORMATTED lvVorneData SKIP.
       NEXT.
     END. /* cannot find job in SB */
@@ -845,12 +846,12 @@ PROCEDURE createTtblVorne :
                         ELSE IF lvVorneState EQ 'setup' THEN 'MR'
                         ELSE 'NC'
       ttblVorne.vorneEmployee = lvVorneEmployee
-      ttblVorne.vorneShift    = ENTRY(1,ENTRY(13,lvVorneData,'|'),' ')
-      ttblVorne.vorneShift    = STRING(LOOKUP(ttblVorne.vorneShift,lvShifts))
+      ttblVorne.vorneShift = ENTRY(1,ENTRY(13,lvVorneData,'|'),' ')
+      ttblVorne.vorneShift = STRING(LOOKUP(ttblVorne.vorneShift,lvShifts))
       .
     IF lvVorneJob NE 'null' THEN
     ASSIGN
-      ttblVorne.vorneRunQty    = INT(ENTRY(10,lvVorneData,'|'))
+      ttblVorne.vorneRunQty = INT(ENTRY(10,lvVorneData,'|'))
       ttblVorne.vorneRejectQty = INT(ENTRY(11,lvVorneData,'|'))
       .
     /* cannot have a midnight ending time */
@@ -859,13 +860,13 @@ PROCEDURE createTtblVorne :
     /* scan failed and created null transactions, check if they belong to this one */
     FOR EACH buffVorne
         WHERE buffVorne.vorneResource EQ ttblVorne.vorneResource
-          AND buffVorne.vorneJob      EQ 'null'
-          AND buffVorne.vorneSeq      LT ttblVorne.vorneSeq
+          AND buffVorne.vorneJob EQ 'null'
+          AND buffVorne.vorneSeq LT ttblVorne.vorneSeq
         :
       ASSIGN
-        buffVorne.vorneJob       = ttblVorne.vorneJob
-        buffVorne.vorneItem      = ttblVorne.vorneItem
-        buffVorne.vorneRunQty    = ttblVorne.vorneRunQty
+        buffVorne.vorneJob = ttblVorne.vorneJob
+        buffVorne.vorneItem = ttblVorne.vorneItem
+        buffVorne.vorneRunQty = ttblVorne.vorneRunQty
         buffVorne.vorneRejectQty = ttblVorne.vorneRejectQty
         .
     END. /* each buffvorne */
@@ -923,20 +924,20 @@ PROCEDURE employeeRate :
   IF ipRate_usage THEN
   ipMachine = ''.
   FIND bRate NO-LOCK
-       WHERE bRate.company  EQ ipCompany
+       WHERE bRate.company EQ ipCompany
          AND bRate.employee EQ ipEmployee
-         AND bRate.shift    EQ ipShift
-         AND bRate.machine  EQ ipMachine
+         AND bRate.shift EQ ipShift
+         AND bRate.machine EQ ipMachine
          AND bRate.ratetype EQ 'Standard'
        NO-ERROR.
   IF NOT AVAILABLE bRate THEN
   RETURN.
   opRate = bRate.rate.
   FIND bRate NO-LOCK
-       WHERE bRate.company  = ipCompany
+       WHERE bRate.company = ipCompany
          AND bRate.employee = ipEmployee
-         AND bRate.shift    = ipShift
-         AND bRate.machine  = ipMachine
+         AND bRate.shift = ipShift
+         AND bRate.machine = ipMachine
          AND bRate.ratetype = ipRatetype
        NO-ERROR.
   IF AVAILABLE bRate THEN
@@ -1015,9 +1016,9 @@ PROCEDURE postVorne :
     SET lvVorneFile ^ lvAttrList.
     IF lvAttrList NE 'f' OR INDEX(lvVorneFile,'.psv') EQ 0 THEN NEXT.
     ASSIGN
-      lvFile      = lvVorneDir + '/' + lvVorneFile
-      lvTemp      = REPLACE(lvFile,'.psv','.tmp')
-      lvHoldFile  = REPLACE(lvFile,'.psv','.hold')
+      lvFile = lvVorneDir + '/' + lvVorneFile
+      lvTemp = REPLACE(lvFile,'.psv','.tmp')
+      lvHoldFile = REPLACE(lvFile,'.psv','.hold')
       lvProcessed = lvVorneDir + '/processed/'
                   + REPLACE(lvVorneFile,'.psv','.'
                   + STRING(YEAR(TODAY),'9999')
@@ -1025,7 +1026,7 @@ PROCEDURE postVorne :
                   + STRING(DAY(TODAY),'99')
                   + '.' + STRING(TIME,'99999')
                   + '.psv')
-      lvArchive   = REPLACE(lvProcessed,'processed','archive')
+      lvArchive = REPLACE(lvProcessed,'processed','archive')
       lvErrorFile = REPLACE(lvProcessed,'processed','errors')
       .
 
@@ -1106,9 +1107,8 @@ PROCEDURE setRecKey :
 
   CREATE rec_key.
   ASSIGN
-    machtran.rec_key   = STRING(TODAY,"99999999")
-                       + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
-    rec_key.rec_key    = machtran.rec_key
+    machtran.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+    rec_key.rec_key = machtran.rec_key
     rec_key.table_name = "machtran"
     .
 
@@ -1133,14 +1133,14 @@ PROCEDURE setSBJobs :
     IF FIRST-OF(ttblVorne.vorneJob) THEN DO:
       FIND FIRST ttblJob
            WHERE ttblJob.resource EQ ttblVorne.vorneResource
-             AND ttblJob.job      EQ ttblVorne.vorneJob NO-ERROR.
+             AND ttblJob.job EQ ttblVorne.vorneJob NO-ERROR.
       IF AVAILABLE ttblJob THEN DO:
         IF ttblJob.jobLocked THEN NEXT.
       END. /* avail ttbljob */
       ELSE DO:
         FIND FIRST pendingJob
              WHERE pendingJob.resource EQ ttblVorne.vorneResource
-               AND pendingJob.job      EQ ttblVorne.vorneJob NO-ERROR.
+               AND pendingJob.job EQ ttblVorne.vorneJob NO-ERROR.
         IF NOT AVAILABLE pendingJob THEN NEXT.
         CREATE ttblJob.
         BUFFER-COPY pendingJob TO ttblJob.
@@ -1258,46 +1258,46 @@ PROCEDURE vorneSummary :
     END. /* first-of */
     IF AVAILABLE buffVorne AND (ROWID(buffVorne) NE ROWID(ttblVorne)) THEN DO:
       ASSIGN
-        buffVorne.vorneTranRunQty    = buffVorne.vorneTranRunQty + ttblVorne.vorneTranRunQty
+        buffVorne.vorneTranRunQty = buffVorne.vorneTranRunQty + ttblVorne.vorneTranRunQty
         buffVorne.vorneTranRejectQty = buffVorne.vorneTranRejectQty + ttblVorne.vorneTranRejectQty
-        buffVorne.vorneDuration      = buffVorne.vorneDuration + ttblVorne.vorneDuration
-        buffVorne.vorneEndDate       = ttblVorne.vorneEndDate
-        buffVorne.vorneEndTime       = ttblVorne.vorneEndTime
-        ttblVorne.deleteFlag         = YES
+        buffVorne.vorneDuration = buffVorne.vorneDuration + ttblVorne.vorneDuration
+        buffVorne.vorneEndDate = ttblVorne.vorneEndDate
+        buffVorne.vorneEndTime = ttblVorne.vorneEndTime
+        ttblVorne.deleteFlag = YES
         .
     END. /* avail buffvorne */
   END. /* each ttblVorne */
 
   /* Pass 2: move non-RUN qty values to RUN transaction */
   FOR EACH ttblVorne
-      WHERE ttblVorne.vorneState         NE 'RUN'
-       AND  ttblVorne.deleteFlag         EQ NO
-       AND (ttblVorne.vorneTranRunQty    NE 0
+      WHERE ttblVorne.vorneState NE 'RUN'
+       AND  ttblVorne.deleteFlag EQ NO
+       AND (ttblVorne.vorneTranRunQty NE 0
         OR  ttblVorne.vorneTranRejectQty NE 0)
       :
     FIND FIRST buffVorne
          WHERE buffVorne.vorneResource EQ ttblVorne.vorneResource
-           AND buffVorne.vorneJob      EQ ttblVorne.vorneJob
-           AND buffVorne.vorneItem     EQ ttblVorne.vorneItem
-           AND buffVorne.vorneShift    EQ ttblVorne.vorneShift
+           AND buffVorne.vorneJob EQ ttblVorne.vorneJob
+           AND buffVorne.vorneItem EQ ttblVorne.vorneItem
+           AND buffVorne.vorneShift EQ ttblVorne.vorneShift
            AND buffVorne.vorneEmployee EQ ttblVorne.vorneEmployee
-           AND buffVorne.vorneState    EQ 'RUN'
-           AND ttblVorne.deleteFlag    EQ NO
+           AND buffVorne.vorneState EQ 'RUN'
+           AND ttblVorne.deleteFlag EQ NO
          NO-ERROR.
     IF AVAILABLE buffVorne THEN
     ASSIGN
-      buffVorne.vorneTranRunQty    = buffVorne.vorneTranRunQty + ttblVorne.vorneTranRunQty
+      buffVorne.vorneTranRunQty = buffVorne.vorneTranRunQty + ttblVorne.vorneTranRunQty
       buffVorne.vorneTranRejectQty = buffVorne.vorneTranRejectQty + ttblVorne.vorneTranRejectQty
-      ttblVorne.vorneTranRunQty    = 0
+      ttblVorne.vorneTranRunQty = 0
       ttblVorne.vorneTranRejectQty = 0
       .
   END. /* each ttblVorne */
 
   /* Pass 3: flag records as run completed if necessary */
   FOR EACH ttblVorne
-      WHERE ttblVorne.vorneState  EQ 'RUN'
+      WHERE ttblVorne.vorneState EQ 'RUN'
         AND ttblVorne.vorneReason EQ lvRunComplete
-        AND ttblVorne.deleteFlag  EQ YES
+        AND ttblVorne.deleteFlag EQ YES
       BREAK BY ttblVorne.vorneResource
             BY ttblVorne.vorneJob
             BY ttblVorne.vorneItem
@@ -1309,13 +1309,13 @@ PROCEDURE vorneSummary :
       :
     FIND LAST buffVorne
          WHERE buffVorne.vorneResource EQ ttblVorne.vorneResource
-           AND buffVorne.vorneJob      EQ ttblVorne.vorneJob
-           AND buffVorne.vorneItem     EQ ttblVorne.vorneItem
+           AND buffVorne.vorneJob EQ ttblVorne.vorneJob
+           AND buffVorne.vorneItem EQ ttblVorne.vorneItem
            AND buffVorne.vorneEmployee EQ ttblVorne.vorneEmployee
-           AND buffVorne.vorneShift    EQ ttblVorne.vorneShift
-           AND buffVorne.vorneState    EQ 'RUN'
-           AND buffVorne.vorneReason   NE lvRunComplete
-           AND buffVorne.deleteFlag    EQ NO
+           AND buffVorne.vorneShift EQ ttblVorne.vorneShift
+           AND buffVorne.vorneState EQ 'RUN'
+           AND buffVorne.vorneReason NE lvRunComplete
+           AND buffVorne.deleteFlag EQ NO
          NO-ERROR.
     IF AVAILABLE buffVorne THEN
     buffVorne.vorneReason = lvRunComplete.
@@ -1323,13 +1323,13 @@ PROCEDURE vorneSummary :
   
   /* Pass 4: remove deleted flag records */
   FOR EACH ttblVorne:
-    IF ttblVorne.deleteFlag         EQ YES OR
-      (ttblVorne.vorneState         EQ 'NC' AND
-       ttblVorne.vorneDuration      LE 60 AND
-       ttblVorne.vorneTranRunQty    EQ 0 AND
+    IF ttblVorne.deleteFlag EQ YES OR
+      (ttblVorne.vorneState EQ 'NC' AND
+       ttblVorne.vorneDuration LE 60 AND
+       ttblVorne.vorneTranRunQty EQ 0 AND
        ttblVorne.vorneTranRejectQty EQ 0 AND
-       ttblVorne.vorneReason        NE lvRunComplete) OR
-       ttblVorne.vorneJob           EQ 'null' THEN
+       ttblVorne.vorneReason NE lvRunComplete) OR
+       ttblVorne.vorneJob EQ 'null' THEN
     DELETE ttblVorne.
   END. /* each ttblvorne */
 
@@ -1349,13 +1349,13 @@ PROCEDURE vorneSummary :
       CREATE buffVorne.
       BUFFER-COPY ttblVorne TO buffVorne.
       ASSIGN
-        buffVorne.vorneStartDate     = ttblVorne.vorneEndDate
-        buffVorne.vorneStartTime     = 0
-        buffVorne.vorneDuration      = buffVorne.vorneEndTime - buffVorne.vorneStartTime
-        ttblVorne.vorneEndDate       = ttblVorne.vorneStartDate
-        ttblVorne.vorneEndTime       = 86340
-        ttblVorne.vorneDuration      = ttblVorne.vorneEndTime - ttblVorne.vorneStartTime
-        ttblVorne.vorneTranRunQty    = 0
+        buffVorne.vorneStartDate = ttblVorne.vorneEndDate
+        buffVorne.vorneStartTime = 0
+        buffVorne.vorneDuration = buffVorne.vorneEndTime - buffVorne.vorneStartTime
+        ttblVorne.vorneEndDate = ttblVorne.vorneStartDate
+        ttblVorne.vorneEndTime = 86340
+        ttblVorne.vorneDuration = ttblVorne.vorneEndTime - ttblVorne.vorneStartTime
+        ttblVorne.vorneTranRunQty = 0
         ttblVorne.vorneTranRejectQty = 0
         .
     END. /* spans midnight */
@@ -1382,40 +1382,40 @@ PROCEDURE vorneSummary :
     END. /* first-of */
     IF AVAILABLE buffVorne AND (ROWID(buffVorne) NE ROWID(ttblVorne)) THEN DO:
       ASSIGN
-        buffVorne.vorneTranRunQty    = buffVorne.vorneTranRunQty + ttblVorne.vorneTranRunQty
+        buffVorne.vorneTranRunQty = buffVorne.vorneTranRunQty + ttblVorne.vorneTranRunQty
         buffVorne.vorneTranRejectQty = buffVorne.vorneTranRejectQty + ttblVorne.vorneTranRejectQty
-        buffVorne.vorneDuration      = buffVorne.vorneDuration + ttblVorne.vorneDuration
-        buffVorne.vorneEndDate       = ttblVorne.vorneEndDate
-        buffVorne.vorneEndTime       = ttblVorne.vorneEndTime
-        buffVorne.vorneReason        = ttblVorne.vorneReason
-        ttblVorne.deleteFlag         = YES
+        buffVorne.vorneDuration = buffVorne.vorneDuration + ttblVorne.vorneDuration
+        buffVorne.vorneEndDate = ttblVorne.vorneEndDate
+        buffVorne.vorneEndTime = ttblVorne.vorneEndTime
+        buffVorne.vorneReason = ttblVorne.vorneReason
+        ttblVorne.deleteFlag = YES
         .
     END. /* avail buffvorne */
   END. /* each ttblVorne */
   
   /* Pass 7: move RUN qty values to last RUN transaction */
   FOR EACH ttblVorne
-      WHERE ttblVorne.vorneState         EQ 'RUN'
-       AND  ttblVorne.deleteFlag         EQ NO
-       AND (ttblVorne.vorneTranRunQty    NE 0
+      WHERE ttblVorne.vorneState EQ 'RUN'
+       AND  ttblVorne.deleteFlag EQ NO
+       AND (ttblVorne.vorneTranRunQty NE 0
         OR  ttblVorne.vorneTranRejectQty NE 0)
       :
     FIND LAST buffVorne
          WHERE buffVorne.vorneResource EQ ttblVorne.vorneResource
-           AND buffVorne.vorneJob      EQ ttblVorne.vorneJob
-           AND buffVorne.vorneItem     EQ ttblVorne.vorneItem
-           AND buffVorne.vorneShift    EQ ttblVorne.vorneShift
+           AND buffVorne.vorneJob EQ ttblVorne.vorneJob
+           AND buffVorne.vorneItem EQ ttblVorne.vorneItem
+           AND buffVorne.vorneShift EQ ttblVorne.vorneShift
            AND buffVorne.vorneEmployee EQ ttblVorne.vorneEmployee
-           AND buffVorne.vorneState    EQ 'RUN'
-           AND buffVorne.deleteFlag    EQ NO
-           AND buffVorne.vorneSeq      GT ttblVorne.vorneSeq
-           AND ROWID(buffVorne)        NE ROWID(ttblVorne)
+           AND buffVorne.vorneState EQ 'RUN'
+           AND buffVorne.deleteFlag EQ NO
+           AND buffVorne.vorneSeq GT ttblVorne.vorneSeq
+           AND ROWID(buffVorne) NE ROWID(ttblVorne)
          NO-ERROR.
     IF AVAILABLE buffVorne THEN
     ASSIGN
-      buffVorne.vorneTranRunQty    = buffVorne.vorneTranRunQty + ttblVorne.vorneTranRunQty
+      buffVorne.vorneTranRunQty = buffVorne.vorneTranRunQty + ttblVorne.vorneTranRunQty
       buffVorne.vorneTranRejectQty = buffVorne.vorneTranRejectQty + ttblVorne.vorneTranRejectQty
-      ttblVorne.vorneTranRunQty    = 0
+      ttblVorne.vorneTranRunQty = 0
       ttblVorne.vorneTranRejectQty = 0
       .
   END. /* each ttblVorne */
@@ -1442,7 +1442,7 @@ PROCEDURE vorneSummary :
       ELSE DO:
         FIND FIRST pendingJob
              WHERE pendingJob.resource EQ ttblVorne.vorneResource
-               AND pendingJob.job      EQ ttblVorne.vorneJob NO-ERROR.
+               AND pendingJob.job EQ ttblVorne.vorneJob NO-ERROR.
         IF NOT AVAILABLE pendingJob THEN NEXT.
         jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
       END. /* not avail ttbljob */
@@ -1452,24 +1452,26 @@ PROCEDURE vorneSummary :
     
     CREATE machtran.
     ASSIGN
+      /* substract 1 second so the end time doesn't match start time of next transaction */
+      ttblVorne.vorneEndTime = ttblVorne.vorneEndTime - 1
       ttblVorne.vorneDuration = ttblVorne.vorneEndTime - ttblVorne.vorneStartTime
-      machtran.company        = job-mch.company
-      machtran.machine        = ttblVorne.vorneResource
-      machtran.job_number     = job-mch.job-no
-      machtran.job_sub        = job-mch.job-no2
-      machtran.form_number    = job-mch.frm
-      machtran.blank_number   = job-mch.blank-no
-      machtran.pass_sequence  = job-mch.pass
-      machtran.charge_code    = ttblVorne.vorneState
-      machtran.completed      = ttblVorne.vorneReason EQ lvRunComplete
-      machtran.start_date     = ttblVorne.vorneStartDate
-      machtran.start_time     = ttblVorne.vorneStartTime
-      machtran.end_date       = ttblVorne.vorneEndDate
-      machtran.end_time       = ttblVorne.vorneEndTime
-      machtran.run_qty        = ttblVorne.vorneTranRunQty
-      machtran.waste_qty      = ttblVorne.vorneTranRejectQty
-      machtran.shift          = ttblVorne.vorneShift
-      machtran.total_time     = machtran.end_time - machtran.start_time
+      machtran.company = job-mch.company
+      machtran.machine = ttblVorne.vorneResource
+      machtran.job_number = job-mch.job-no
+      machtran.job_sub = job-mch.job-no2
+      machtran.form_number = job-mch.frm
+      machtran.blank_number = job-mch.blank-no
+      machtran.pass_sequence = job-mch.pass
+      machtran.charge_code = ttblVorne.vorneState
+      machtran.completed = ttblVorne.vorneReason EQ lvRunComplete
+      machtran.start_date = ttblVorne.vorneStartDate
+      machtran.start_time = ttblVorne.vorneStartTime
+      machtran.end_date = ttblVorne.vorneEndDate
+      machtran.end_time = ttblVorne.vorneEndTime
+      machtran.run_qty = ttblVorne.vorneTranRunQty
+      machtran.waste_qty = ttblVorne.vorneTranRejectQty
+      machtran.shift = ttblVorne.vorneShift
+      machtran.total_time = machtran.end_time - machtran.start_time
       .
     IF machtran.total_time LT 0 OR machtran.total_time EQ ? THEN
     machtran.total_time = 0.
