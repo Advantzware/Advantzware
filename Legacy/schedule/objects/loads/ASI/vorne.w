@@ -1444,6 +1444,7 @@ PROCEDURE vorneSummary :
     IF ttblVorne.deleteFlag THEN NEXT.
 
     IF FIRST-OF(ttblVorne.vorneJob) THEN DO:
+      lvTime = ttblVorne.vorneStartTime.
       FIND FIRST ttblJob
            WHERE ttblJob.resource EQ ttblVorne.vorneResource
              AND ttblJob.job EQ ttblVorne.vorneJob NO-ERROR.
@@ -1458,7 +1459,6 @@ PROCEDURE vorneSummary :
       END. /* not avail ttbljob */
       FIND job-mch NO-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
       IF NOT AVAILABLE job-mch THEN NEXT.
-      lvTime = ttblVorne.vorneStartTime.
     END. /* first-of job */
 
     ASSIGN
