@@ -782,9 +782,6 @@ PROCEDURE postMonitor:
       TEMP-TABLE FGReceiptRow:READ-XML ("File",cFile,"Empty",?,NO).
       
       FOR EACH FGReceiptRow:
-          MESSAGE "m1 loop" iNextRno recid(fgreceiptrow) 
-          VIEW-AS ALERT-BOX.
-          
           
           CREATE fg-rctd.
           BUFFER-COPY FGReceiptRow TO fg-rctd.
@@ -869,8 +866,7 @@ PROCEDURE postMonitor:
              RUN get-next-tag (INPUT fg-rctd.i-no, OUTPUT v-next-tag). 
              RUN create-loadtag (INPUT-OUTPUT v-next-tag, INPUT ROWID(fg-rctd)).
              assign /*FGreceiptRow.tag = v-next-tag  this assignment make process run twice */
-                    fg-rctd.tag = v-next-tag.             
-             FGReceiptRow.tag = fg-rctd.tag. 
+                    fg-rctd.tag = v-next-tag.                           
                                                                           
           END.
           
@@ -881,7 +877,7 @@ PROCEDURE postMonitor:
           
           IF /*NOT ll-set-parts*/ itemfg.isaset THEN RUN fg/invrecpt.p (ROWID(fg-rctd), 1).   
           
-          RUN fg/fgpost.p (INPUT TABLE FGReceiptRow).
+          RUN fg/fgpost.p (INPUT TABLE FGReceiptRow, input fg-rctd.tag).
               
       END. /* reach fgreceiptrow */
             

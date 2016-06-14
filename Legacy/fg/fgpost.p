@@ -16,6 +16,7 @@
 define TEMP-TABLE ipFGRctd like fg-rctd
                   field TableRowid as rowid.
 define INPUT PARAM TABLE FOR ipFGRctd.
+def input param ipTag as char.
 def temp-table FGReceiptRow like ipFGRctd.
 
 DEF STREAM logFile.
@@ -62,7 +63,8 @@ ASSIGN
 
 for each ipFGRctd no-lock:
     create FGReceiptRow.
-    buffer-copy ipFGRctd to FGReceiptRow.    
+    buffer-copy ipFGRctd to FGReceiptRow.
+    assign FGReceiptRow.tag = ipTag.    
 end.
 
 run ProcFGPosting.
