@@ -54,7 +54,7 @@ def var v-prgmname as cha no-undo.
 ASSIGN
   cocode = g_company
   locode = g_loc.
-
+  
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -62,13 +62,48 @@ ASSIGN
 
 for each ipFGRctd no-lock:
     create FGReceiptRow.
-    buffer-copy ipFGRctd to FGReceiptRow.
-
+    buffer-copy ipFGRctd to FGReceiptRow.    
 end.
 
 run ProcFGPosting.
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE fgPostLog:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipLogText AS CHARACTER NO-UNDO.
+        
+   PUT STREAM logFile UNFORMATTED STRING(TODAY,'99.99.9999') ' '
+     STRING(TIME,'hh:mm:ss am') ' : ' ipLogText SKIP.
+
+END PROCEDURE.
+
+PROCEDURE get-next-tag:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAMETER ipc-i-no AS CHAR NO-UNDO.
+  DEF OUTPUT PARAMETER opc-next-tag AS CHAR NO-UNDO.
+  DEF BUFFER bf-loadtag FOR loadtag.
+  DEF VAR io-tag-no AS INT NO-UNDO.
+
+  FIND LAST bf-loadtag NO-LOCK
+      WHERE bf-loadtag.company     EQ cocode
+        AND bf-loadtag.item-type   EQ NO
+        AND bf-loadtag.is-case-tag EQ NO
+        AND bf-loadtag.tag-no      BEGINS ipc-i-no
+        AND SUBSTR(bf-loadtag.tag-no,1,15) EQ ipc-i-no
+      USE-INDEX tag NO-ERROR.
+
+  io-tag-no = (IF AVAIL bf-loadtag THEN INT(SUBSTR(bf-loadtag.tag-no,16,5)) ELSE 0) + 1.
+
+  opc-next-tag = STRING(CAPS(ipc-i-no),"x(15)") + STRING(io-tag-no,"99999").
+
+END PROCEDURE.
 
 PROCEDURE gl-from-work:
 /*------------------------------------------------------------------------------
@@ -117,6 +152,15 @@ PROCEDURE gl-from-work:
   end.
 
 END PROCEDURE.
+
+PROCEDURE mail EXTERNAL "xpMail.dll" :
+      DEF INPUT PARAM mailTo AS CHAR.
+      DEF INPUT PARAM mailsubject AS CHAR.
+      DEF INPUT PARAM mailText AS CHAR.
+      DEF INPUT PARAM mailFiles AS CHAR.
+      DEF INPUT PARAM mailDialog AS LONG.
+      DEF OUTPUT PARAM retCode AS LONG.
+END.
 
 PROCEDURE ProcFGPosting:
 /*------------------------------------------------------------------------------
@@ -192,12 +236,11 @@ PROCEDURE ProcFGPosting:
 
   IF fgPostLog THEN RUN fgPostLog ('Started').
  
-for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ : 
+  for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ : 
   /*assign cocode = FGReceiptRow.company
          g_company = FGReceiptRow.company
          .
   */       
-
     
   FIND FIRST period NO-LOCK
       WHERE period.company EQ  cocode
@@ -226,11 +269,8 @@ for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ :
                                w-fg-rctd.trans-time = fg-rctd.trans-time.  
   
   FOR EACH w-fg-rctd,
-
-        FIRST itemfg
-        WHERE itemfg.company eq cocode
-          AND itemfg.i-no    EQ w-fg-rctd.i-no
-
+        FIRST itemfg WHERE itemfg.company eq cocode
+                       AND itemfg.i-no    EQ w-fg-rctd.i-no
         BY w-fg-rctd.tag
         BY w-fg-rctd.rct-date
         BY w-fg-rctd.r-no:
