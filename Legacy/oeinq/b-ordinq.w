@@ -1158,8 +1158,8 @@ END.
 ON HELP OF fi_cust-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-cust2.w (INPUT g_company, INPUT focus:screen-value,"", OUTPUT char-val).
-          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+   RUN windows/l-cust2.w (INPUT g_company, INPUT {&SELF-NAME}:screen-value,"", OUTPUT char-val).
+          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
           return no-apply.
 END.
 
@@ -1172,8 +1172,8 @@ END.
 ON HELP OF fi_ord-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-ordno2.w (INPUT g_company,"", INPUT focus:screen-value, OUTPUT char-val).
-          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+   RUN windows/l-ordno2.w (INPUT g_company,"", INPUT {&SELF-NAME}:screen-value, OUTPUT char-val).
+          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
           return no-apply.
 END.
 
@@ -1186,8 +1186,8 @@ END.
 ON HELP OF fi_i-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-itemfg.w (INPUT g_company,"", INPUT focus:SCREEN-VALUE, OUTPUT char-val).
-          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+   RUN windows/l-itemfg.w (INPUT g_company,"", INPUT {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
           return no-apply.
 END.
 
@@ -1201,11 +1201,11 @@ ON HELP OF fi_est-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
    DEF BUFFER buff-eb FOR eb.
-   RUN windows/l-est2.w (INPUT g_company,"", INPUT focus:screen-value,  OUTPUT char-val).
+   RUN windows/l-est2.w (INPUT g_company,"", INPUT {&SELF-NAME}:screen-value,  OUTPUT char-val).
           if char-val <> "" then
               FIND FIRST buff-eb where recid(buff-eb) eq int(entry(1,char-val)) no-lock no-error. 
           IF AVAIL buff-eb THEN
-              ASSIGN FOCUS:SCREEN-VALUE = (buff-eb.est-no).
+              ASSIGN {&SELF-NAME}:SCREEN-VALUE = (buff-eb.est-no).
           return no-apply.
 END.
 
@@ -1219,8 +1219,8 @@ ON HELP OF fi_job-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
     DEF VAR char-rec AS RECID NO-UNDO.
-   RUN windows/l-jobno3.w (INPUT g_company,"", INPUT focus:screen-value,  OUTPUT char-val , OUTPUT char-rec ).
-          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+   RUN windows/l-jobno3.w (INPUT g_company,"", INPUT {&SELF-NAME}:screen-value,  OUTPUT char-val , OUTPUT char-rec ).
+          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
           return no-apply.
 END.
 
@@ -1254,7 +1254,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_part-no B-table-Win
 ON VALUE-CHANGED OF fi_part-no IN FRAME F-Main
 DO:
-  IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  IF LASTKEY <> 32 THEN {&SELF-NAME}:SCREEN-VALUE = CAPS({&SELF-NAME}:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1267,10 +1267,10 @@ ON HELP OF fi_part-no IN FRAME F-Main
 DO:
   DEF VAR char-val AS cha NO-UNDO.
   DEF VAR char-rec AS RECID NO-UNDO.
-  RUN windows/l-cstprt.w (cocode,fi_cust-no:SCREEN-VALUE,fi_part-no:SCREEN-VALUE,
+  RUN windows/l-cstprt.w (cocode,fi_cust-no:SCREEN-VALUE,{&SELF-NAME}:SCREEN-VALUE,
                          fi_i-no:SCREEN-VALUE,  OUTPUT char-val, OUTPUT char-rec ) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+  if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
           return no-apply.
 END.
 
