@@ -2,7 +2,7 @@
 &ANALYZE-RESUME
 /* Connected Databases 
 */
-&Scoped-define WINDOW-NAME W-Win
+&SCOPED-DEFINE WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
@@ -26,11 +26,11 @@ CREATE WIDGET-POOL.
 
 
 /* Parameters Definitions ---                                           */
-DEF INPUT PARAMETER ip-type AS CHAR NO-UNDO. /* rjct-cd.type */
-DEF INPUT PARAMETER ip-code-label AS CHAR NO-UNDO.
-DEF INPUT PARAMETER ip-desc-label AS CHAR NO-UNDO.
-DEF INPUT PARAMETER ip-win-title AS CHAR NO-UNDO.
-DEF INPUT PARAMETER ip-container-handle AS HANDLE NO-UNDO.
+DEFINE INPUT PARAMETER ip-type AS CHARACTER NO-UNDO. /* rjct-cd.type */
+DEFINE INPUT PARAMETER ip-code-label AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ip-desc-label AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ip-win-title AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ip-container-handle AS HANDLE NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
@@ -41,10 +41,10 @@ DEF INPUT PARAMETER ip-container-handle AS HANDLE NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartWindow
-&Scoped-define DB-AWARE no
+&SCOPED-DEFINE PROCEDURE-TYPE SmartWindow
+&SCOPED-DEFINE DB-AWARE NO
 
-&Scoped-define ADM-CONTAINER WINDOW
+&SCOPED-DEFINE ADM-CONTAINER WINDOW
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
@@ -60,7 +60,7 @@ DEF INPUT PARAMETER ip-container-handle AS HANDLE NO-UNDO.
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
@@ -76,21 +76,21 @@ DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
+         AT COLUMN 1 ROW 1
          SIZE 150 BY 24
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
+         AT COLUMN 2 ROW 1
          SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 46 ROW 2.91
+         AT COLUMN 46 ROW 2.91
          SIZE 105 BY 1.43
          BGCOLOR 15 .
 
@@ -112,21 +112,21 @@ DEFINE FRAME message-frame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Date Change Reason Codes"
+         TITLE              = "Job Hold Reason Codes"
          HEIGHT             = 24
          WIDTH              = 149.8
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -171,7 +171,7 @@ ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-fram
 /* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -203,7 +203,7 @@ THEN W-Win:HIDDEN = yes.
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME W-Win
+&SCOPED-DEFINE SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON END-ERROR OF W-Win /* Date Change Reason Codes */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
@@ -257,7 +257,7 @@ PROCEDURE adm-create-objects :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE adm-current-page  AS INTEGER NO-UNDO.
 
-  RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+  RUN GET-ATTRIBUTE IN THIS-PROCEDURE ('Current-Page':U).
   ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
 
   CASE adm-current-page: 
@@ -302,7 +302,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_rejct-cd ).
        RUN set-position IN h_rejct-cd ( 4.81 , 6.00 ) NO-ERROR.
-       RUN set-size IN h_rejct-cd ( 19.52 , 85.00 ) NO-ERROR.
+       RUN SET-SIZE IN h_rejct-cd ( 19.52 , 85.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
@@ -331,17 +331,17 @@ PROCEDURE adm-create-objects :
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
        RUN set-position IN h_p-navico ( 21.71 , 8.00 ) NO-ERROR.
-       RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
+       RUN SET-SIZE IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-updsav.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
+                     SmartPanelType = UPDATE,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
        RUN set-position IN h_p-updsav ( 21.71 , 79.20 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.14 , 58.00 ) NO-ERROR.
+       RUN SET-SIZE IN h_p-updsav ( 2.14 , 58.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -361,7 +361,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page eq 0 
+  IF adm-current-page EQ 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
