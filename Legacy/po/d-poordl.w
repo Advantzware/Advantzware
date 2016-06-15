@@ -1597,6 +1597,7 @@ DO:
   ASSIGN
    ll-poord-warned = NO
    ll-pojob-warned = NO.
+  ASSIGN po-ordl.b-num:SCREEN-VALUE  =  ? .
 END.
 
 /* _UIB-CODE-BLOCK-END */
