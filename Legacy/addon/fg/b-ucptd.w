@@ -700,16 +700,23 @@ DO:
              MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
              RETURN NO-APPLY.
           END.
-          FIND FIRST rm-bin WHERE rm-bin.company = g_company 
+          FIND FIRST fg-bin WHERE fg-bin.company = g_company 
+                           AND fg-bin.i-no = ""
+                           AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+                           AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+                           USE-INDEX co-ino NO-LOCK NO-ERROR.
+          IF NOT AVAIL fg-bin THEN DO:
+           FIND FIRST rm-bin WHERE rm-bin.company = g_company 
                            AND rm-bin.i-no = ""
                            AND rm-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
                            AND rm-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
                            /*USE-INDEX co-ino*/ NO-LOCK NO-ERROR.
-          IF NOT AVAIL rm-bin THEN DO:
-             MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
-             APPLY "entry" TO fg-rctd.loc .
-             RETURN NO-APPLY.
+             IF NOT AVAIL rm-bin THEN DO:
+               MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
+               RETURN NO-APPLY.
+             END.
           END.
+          
 
           APPLY "leave" TO SELF.
           APPLY "tab" TO fg-rctd.loc-bin IN BROWSE {&browse-name}.      
@@ -741,16 +748,24 @@ DO:
   IF LASTKEY = -1 THEN RETURN .
 
   IF SELF:MODIFIED THEN DO:
-       FIND FIRST rm-bin WHERE rm-bin.company = g_company 
+       FIND FIRST fg-bin WHERE fg-bin.company = g_company 
+                           AND fg-bin.i-no = ""
+                           AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+                           AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+                           USE-INDEX co-ino NO-LOCK NO-ERROR.
+
+       IF NOT AVAIL fg-bin THEN DO: 
+           FIND FIRST rm-bin WHERE rm-bin.company = g_company 
                            AND rm-bin.i-no = ""
                            AND rm-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
                            AND rm-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
                            /*USE-INDEX co-ino*/ NO-LOCK NO-ERROR.
-       IF NOT AVAIL rm-bin THEN DO:
-          MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
+           IF NOT AVAIL rm-bin THEN DO:
+               MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
+               RETURN NO-APPLY.
+           END.
        END.
-   END.
+  END.
 
 
    
@@ -1601,15 +1616,21 @@ PROCEDURE validate-record :
           RETURN ERROR.
   END.
   
-  FIND FIRST rm-bin WHERE rm-bin.company = g_company 
-                      AND rm-bin.i-no = ""
-                      AND rm-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND rm-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                      /*USE-INDEX co-ino*/ NO-LOCK NO-ERROR.
-  IF NOT AVAIL rm-bin THEN DO:
-          MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO fg-rctd.loc-bin.
-          RETURN ERROR.
+  FIND FIRST fg-bin WHERE fg-bin.company = g_company 
+                      AND fg-bin.i-no = ""
+                      AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+                      AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+                      USE-INDEX co-ino NO-LOCK NO-ERROR.
+  IF NOT AVAIL fg-bin THEN DO: 
+          FIND FIRST rm-bin WHERE rm-bin.company = g_company 
+                           AND rm-bin.i-no = ""
+                           AND rm-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+                           AND rm-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+                           /*USE-INDEX co-ino*/ NO-LOCK NO-ERROR.
+           IF NOT AVAIL rm-bin THEN DO:
+               MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
+               RETURN NO-APPLY.
+           END.
   END.
 
   IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = "" AND 
