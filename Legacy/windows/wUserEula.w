@@ -36,7 +36,7 @@ DEFINE INPUT PARAMETER ipcEulaFile AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplAccepts AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-DEFINE INPUT PARAMETER cVersion AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVersion AS CHARACTER NO-UNDO.
 {src/adm2/widgetprto.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -58,7 +58,7 @@ DEFINE INPUT PARAMETER cVersion AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS edEulaText btAccept fiAcceptDate 
+&Scoped-Define ENABLED-OBJECTS edEulaText btAccept fiAcceptDate btReject 
 &Scoped-Define DISPLAYED-OBJECTS edEulaText fiAcceptDate 
 
 /* Custom List Definitions                                              */
@@ -77,11 +77,11 @@ DEFINE VAR wWin AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btAccept 
      LABEL "YES, I Accept" 
-     SIZE 15 BY 1.14.
+     SIZE 21 BY 1.14.
 
 DEFINE BUTTON btReject 
      LABEL "NO, I Do Not Accept" 
-     SIZE 15 BY 1.14.
+     SIZE 26 BY 1.14.
 
 DEFINE VARIABLE edEulaText AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
@@ -97,7 +97,7 @@ DEFINE VARIABLE fiAcceptDate AS CHARACTER FORMAT "X(256)":U
 
 DEFINE FRAME fMain
      edEulaText AT ROW 1.48 COL 3 NO-LABEL WIDGET-ID 2
-     btAccept AT ROW 18.86 COL 19 WIDGET-ID 4
+     btAccept AT ROW 18.86 COL 17.4 WIDGET-ID 4
      fiAcceptDate AT ROW 18.86 COL 44 COLON-ALIGNED WIDGET-ID 12
      btReject AT ROW 18.86 COL 46 WIDGET-ID 6
      "Do you accept the terms of the Advantzware User Agreement?" VIEW-AS TEXT
@@ -133,14 +133,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 146.2
          VIRTUAL-HEIGHT     = 28.81
          VIRTUAL-WIDTH      = 146.2
-         RESIZE             = NO
-         SCROLL-BARS        = NO
-         STATUS-AREA        = NO
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -163,10 +163,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMain
    FRAME-NAME                                                           */
-/* SETTINGS FOR BUTTON btReject IN FRAME fMain
-   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
-THEN wWin:HIDDEN = YES.
+THEN wWin:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -305,7 +303,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY edEulaText fiAcceptDate 
       WITH FRAME fMain IN WINDOW wWin.
-  ENABLE edEulaText btAccept fiAcceptDate 
+  ENABLE edEulaText btAccept fiAcceptDate btReject 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.
