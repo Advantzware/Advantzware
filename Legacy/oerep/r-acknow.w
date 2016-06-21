@@ -2331,7 +2331,8 @@ FOR EACH oe-ord
   CREATE report.
   ASSIGN
    report.term-id = v-term
-   report.rec-id  = RECID(oe-ord).
+   report.rec-id  = RECID(oe-ord)
+   report.key-01 = string(oe-ord.ack-prnt).
  
 END.
 
@@ -2375,7 +2376,10 @@ END.
 
 OUTPUT CLOSE.
 
-FOR EACH report WHERE report.term-id EQ v-term-id: 
+FOR EACH report WHERE report.term-id EQ v-term-id:
+   find oe-ord WHERE RECID(oe-ord) EQ report.rec-id.
+   if string(oe-ord.ack-prnt) <> report.key-01 and oe-ord.ack-prnt then oe-ord.ack-prnt-date = today.
+     
   DELETE report.
 END.
 
