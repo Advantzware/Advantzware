@@ -286,14 +286,14 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       STRING(fg-rctd.trans-time,'HH:MM') @ trans-time COLUMN-LABEL "Receipt!Time"
             WIDTH 10
-      fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U LABEL-BGCOLOR 14
+      fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U LABEL-BGCOLOR 14 WIDTH 25
       fg-rctd.po-no FORMAT "x(9)":U WIDTH 14 LABEL-BGCOLOR 14
-      fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U LABEL-BGCOLOR 14
+      fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U LABEL-BGCOLOR 14 WIDTH 8
       fg-rctd.job-no2 FORMAT "99":U
-      fg-rctd.i-no COLUMN-LABEL "Item" FORMAT "X(15)":U LABEL-BGCOLOR 14
+      fg-rctd.i-no COLUMN-LABEL "Item" FORMAT "X(15)":U LABEL-BGCOLOR 14 WIDTH 18
       fg-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
-      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14
+      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14 WIDTH 6
       fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U LABEL-BGCOLOR 14
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT ">>>,>>9":U
@@ -457,19 +457,19 @@ reftable.loc      EQ STRING(fg-rctd.r-no,""9999999999"") AND
      _FldNameList[3]   > "_<CALC>"
 "STRING(fg-rctd.trans-time,'HH:MM') @ trans-time" "Receipt!Time" ? ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rctd.tag
-"fg-rctd.tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.fg-rctd.po-no
 "fg-rctd.po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.fg-rctd.job-no
-"fg-rctd.job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.fg-rctd.job-no2
 "fg-rctd.job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.fg-rctd.i-no
-"fg-rctd.i-no" "Item" "X(15)" "character" ? ? ? 14 ? ? yes "FG Item Number" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.i-no" "Item" "X(15)" "character" ? ? ? 14 ? ? yes "FG Item Number" no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.fg-rctd.i-name
 "fg-rctd.i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.fg-rctd.loc
-"fg-rctd.loc" "Whse" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc" "Whse" ? "character" ? ? ? 14 ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.fg-rctd.loc-bin
 "fg-rctd.loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.fg-rctd.cases
