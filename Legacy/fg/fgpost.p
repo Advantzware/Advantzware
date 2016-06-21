@@ -232,10 +232,12 @@ PROCEDURE ProcFGPosting:
   RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
   
   fgPostLog = SEARCH('logs/fgpstall.log') NE ?.
-  IF fgPostLog THEN
-  OUTPUT STREAM logFile TO VALUE('logs/fgpstall.' +
+  IF fgPostLog THEN do:
+     file-info:file-name = search('logs/fgpstall.log').
+     OUTPUT STREAM logFile TO
+        VALUE(substring(file-info:full-pathname,1,length(file-info:full-pathname) - 17) + 'logs/fgpstall.' +
          STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
-
+  end.
   IF fgPostLog THEN RUN fgPostLog ('Started').
  
   for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ : 
