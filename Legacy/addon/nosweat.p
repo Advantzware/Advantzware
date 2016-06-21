@@ -67,17 +67,57 @@ cEulaFile = SEARCH("Eula.txt").
 IF CONNECTED("NOSWEAT") THEN
 DO: 
     lEulaAccepted = NO.
-    IF cEulaFile NE ? THEN DO:
+    IF cEulaFile NE ? THEN 
+    DO:
         RUN system/checkEula.p (INPUT cEulaFile, OUTPUT lEulaAccepted, OUTPUT cEulaVersion).
         IF NOT lEulaAccepted THEN 
             RUN windows/wUserEula.w (INPUT cEulaFile, OUTPUT lEulaAccepted).
     END. 
     ELSE 
-      MESSAGE "User Agreement File Not Found! Exiting."
-      VIEW-AS ALERT-BOX.
+        MESSAGE "User Agreement File Not Found! Exiting."
+            VIEW-AS ALERT-BOX.
     IF NOT lEulaAccepted THEN 
         QUIT.
-  
+    DEFINE VARIABLE iExpiredDays    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lModulesExpired AS LOG     NO-UNDO.
+    FOR EACH module NO-LOCK:
+        IF module.expire-date LE TODAY + 7 THEN
+            ASSIGN lModulesExpired = TRUE
+                iExpiredDays    = module.expire-date - TODAY.
+    END.
+    
+    IF lModulesExpired EQ TRUE THEN 
+    DO:
+        MESSAGE "Warning: One or more of your Advantzware licenses will expire in " iExpiredDays
+            VIEW-AS ALERT-BOX.
+        
+        DEFINE VARIABLE cNewLicense AS CHARACTER NO-UNDO.
+        IF USERID("nosweat") EQ 'nosweat' THEN 
+        DO:
+            MESSAGE "Do you have a new license code to enter?"
+                VIEW-AS ALERT-BOX QUESTION UPDATE lNewLicense AS LOG.
+        END.
+        IF lNewLicense THEN 
+        DO:
+            UPDATE cNewLicense.
+            DEFINE VARIABLE iCnt AS INTEGER.
+            DO iCnt = 1 TO LENGTH(cNewLicense):
+                SUBSTRING(cNewLicense, i, 1) = STRING(9 - INTEGER(SUBSTRING(cNewlicense, i, 1))).
+            END.
+        END.
+    
+        FIND FIRST sys-ctrl WHERE sys-ctrl.name = "site number" NO-LOCK NO-ERROR.
+        IF AVAILABLE sys-ctrl AND lNewLicense THEN 
+        DO:
+            IF INTEGER(SUBSTRING(cNewLicense, 1, 5)) EQ 
+                sys-ctrl.int-fld THEN 
+                FOR EACH module:
+                    module.expire-date = TODAY + 365.
+                END.
+        END.        
+    END.
+
+
     RUN createSingleUserPFs.
     {methods/setdevid.i}
     RUN addon/nosweat/persist.p PERSISTENT SET Persistent-Handle.
