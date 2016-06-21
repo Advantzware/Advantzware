@@ -1469,9 +1469,11 @@ FOR  EACH job-hdr NO-LOCK
 
         FOR EACH notes WHERE notes.rec_key = job.rec_key
                     AND (notes.note_form_no = job-hdr.frm OR notes.note_form_no = 0)
+                    AND (( notes.note_type EQ "O" AND notes.note_group EQ string(job.job) ) OR  notes.note_type NE "O" )
                     AND LOOKUP(notes.note_code,v-exc-depts) EQ 0 
                     /*AND notes.note_type NE 'O'*/  NO-LOCK  /* ticket 14661 */
                     BREAK BY notes.note_code:
+             
             IF FIRST-OF(notes.note_code) THEN DO:
                lv-text = "".
                FOR EACH tt-formtext:

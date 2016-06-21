@@ -1405,13 +1405,13 @@ for each job-hdr NO-LOCK
 
         /* gdm - 01060907 */
         FOR EACH notes WHERE notes.rec_key = job.rec_key
-                    /*AND notes.note_form_no = job-hdr.frm OR notes.note_form_no = 0)*/
+                    AND (notes.note_form_no = job-hdr.frm OR notes.note_form_no = 0)
                     AND LOOKUP(notes.note_code,v-exc-depts) EQ 0 
-                    /*AND notes.note_type NE 'O'*/ /* ticket 14661  */
+                    AND (( notes.note_type EQ "O" AND notes.note_group EQ string(job.job) ) OR  notes.note_type NE "O" )
                     NO-LOCK
                     BREAK BY notes.note_code
                     BY notes.note_form_no:
-
+          
             IF FIRST(notes.note_code) THEN 
               PUT "<B>DEPARTMENT                 INSTRUCTION NOTES</B>" 
                 SKIP.
