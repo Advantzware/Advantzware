@@ -946,7 +946,7 @@ PROCEDURE pValidateFGImport:
                   ASSIGN FGReceiptRow.cost-uom = po-ordl.pr-uom
                          lv-cost = po-ordl.cost * (IF po-ordl.disc NE 0 THEN (1 - (po-ordl.disc / 100)) ELSE 1)
                          .
-                  FIND fg-rctd WHERE ROWID(fg-rctd) = FGReceiptRow.TableRowid NO-LOCK NO-ERROR.
+                  
                   DEF VAR lv-use-full-qty AS LOG.
                   DEF VAR lv-full-qty AS DEC NO-UNDO.      
                   DEF VAR lvCalcCostUom LIKE fg-rctd.cost-uom NO-UNDO.
