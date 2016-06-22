@@ -654,7 +654,9 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
               tot-scrap-pct = sort-qty-scrap-rec / sort-qty-sheets * 100.
            ELSE
               tot-scrap-pct = 0.
-
+           IF sort-mr-hrs = ? THEN sort-mr-hrs = 0.
+           IF sort-shift-setups = ? THEN sort-shift-setups = 0.
+          
            PUT STREAM excel UNFORMATTED
                SKIP(1)
                '"' "" '",'
@@ -665,7 +667,7 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
                '"' "" '",' 
                '"' "Setups:" '",'         
                '"' STRING(sort-shift-setups) '",' 
-               '"' STRING((sort-mr-hrs * 60 ) / sort-shift-setups,">>>>9.99") '"'
+               '"' IF ((sort-mr-hrs * 60 ) / sort-shift-setups) NE ? THEN STRING((sort-mr-hrs * 60 ) / sort-shift-setups,">>>>9.99") ELSE "" '"'
                SKIP
                '"' "" '",'
                '"' "" '",'         
