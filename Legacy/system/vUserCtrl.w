@@ -357,7 +357,10 @@ PROCEDURE initializeObject :
     RUN SUPER.
 
 /* Code placed here will execute AFTER standard behavior.    */
-    FIND FIRST userControl NO-LOCK.
+    FIND FIRST userControl NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE userControl THEN 
+      CREATE userControl.
+    FIND CURRENT userControl NO-LOCK.
     DO WITH FRAME {&frame-name}:
         
         ENABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail.
