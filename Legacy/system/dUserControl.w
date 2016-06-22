@@ -80,7 +80,7 @@ secondAdminEmail userAdminEmail
 &Scoped-Define MANDATORY-FIELDS 
 &Scoped-Define APPLICATION-SERVICE 
 &Scoped-Define ASSIGN-LIST 
-&Scoped-Define DATA-FIELD-DEFS "C:\Advantzware\Legacy\system\dUserControl.i"
+&Scoped-Define DATA-FIELD-DEFS "system\dUserControl.i"
 &Scoped-Define DATA-TABLE-NO-UNDO NO-UNDO
 &Scoped-define QUERY-STRING-Query-Main FOR EACH userControl NO-LOCK INDEXED-REPOSITION
 {&DB-REQUIRED-START}

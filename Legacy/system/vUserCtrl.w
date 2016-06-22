@@ -9,7 +9,7 @@
 
 /* Temp-Table and Buffer definitions                                    */
 DEFINE TEMP-TABLE RowObject NO-UNDO
-{"system/dusercontrol.i"}.
+       {"system/dusercontrol.i"}.
 
 
 
@@ -68,7 +68,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 cbHours cbNumUsersOver ~
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-16 cbHours cbNumUsersOver ~
 fiNotificationEmailAddr fiSecondEmail cbTimeDirective btUpdate btCancel 
 &Scoped-Define DISPLAYED-OBJECTS cbHours cbNumUsersOver ~
 fiNotificationEmailAddr fiSecondEmail cbTimeDirective 
@@ -86,68 +86,73 @@ fiNotificationEmailAddr fiSecondEmail cbTimeDirective
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btCancel 
-    LABEL "Cancel" 
-    SIZE 15 BY 1.14.
+     LABEL "Cancel" 
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btUpdate 
-    LABEL "Update" 
-    SIZE 15 BY 1.14.
+     LABEL "Update" 
+     SIZE 15 BY 1.14.
 
-DEFINE VARIABLE cbHours                 AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 18 
-    LABEL "Time-out user when logged in for" 
-    VIEW-AS COMBO-BOX INNER-LINES 8
-    LIST-ITEM-PAIRS "6 Hours",6,
-    "8 Hours",8,
-    "12 Hours",12,
-    "18 Hours",18,
-    "24 Hours",24,
-    "36 Hours",36
-    DROP-DOWN-LIST
-    SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE cbHours AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 18 
+     LABEL "Time-out user when logged in for" 
+     VIEW-AS COMBO-BOX INNER-LINES 8
+     LIST-ITEM-PAIRS "6 Hours",6,
+                     "8 Hours",8,
+                     "12 Hours",12,
+                     "18 Hours",18,
+                     "24 Hours",24,
+                     "36 Hours",36
+     DROP-DOWN-LIST
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE cbNumUsersOver          AS INTEGER   FORMAT ">>9":U INITIAL 2 
-    LABEL "Allowable Users Over Limit" 
-    VIEW-AS COMBO-BOX INNER-LINES 20
-    LIST-ITEMS "         0","         1","         2","         3","         4","         5","         6","         7","         8","         9","        10","        11","        12","        13","        14","        15","        16","        17","        18","        19","        20" 
-    DROP-DOWN-LIST
-    SIZE 9 BY 1 NO-UNDO.
+DEFINE VARIABLE cbNumUsersOver AS INTEGER FORMAT ">>9":U INITIAL 2 
+     LABEL "Allowable Users Over Limit" 
+     VIEW-AS COMBO-BOX INNER-LINES 20
+     LIST-ITEMS "         0","         1","         2","         3","         4","         5","         6","         7","         8","         9","        10","        11","        12","        13","        14","        15","        16","        17","        18","        19","        20" 
+     DROP-DOWN-LIST
+     SIZE 9 BY 1 NO-UNDO.
 
-DEFINE VARIABLE cbTimeDirective         AS CHARACTER FORMAT "X(256)":U 
-    LABEL "Over Limit Behavior" 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEMS "No Warning","Warning Prompt","Warning + Email","Warning Prompt + Email" 
-    DROP-DOWN-LIST
-    SIZE 30 BY 1 NO-UNDO.
+DEFINE VARIABLE cbTimeDirective AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Over Limit Behavior" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "No Warning","Warning Prompt","Warning + Email","Warning Prompt + Email" 
+     DROP-DOWN-LIST
+     SIZE 30 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiNotificationEmailAddr AS CHARACTER FORMAT "X(256)":U 
-    LABEL "Notification Email Addr" 
-    VIEW-AS FILL-IN 
-    SIZE 53 BY 1 NO-UNDO.
+     LABEL "Notification Email Addr" 
+     VIEW-AS FILL-IN 
+     SIZE 53 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiSecondEmail           AS CHARACTER FORMAT "X(256)":U 
-    LABEL "2nd Notification Email Addr" 
-    VIEW-AS FILL-IN 
-    SIZE 53 BY 1 NO-UNDO.
+DEFINE VARIABLE fiSecondEmail AS CHARACTER FORMAT "X(256)":U 
+     LABEL "2nd Notification Email Addr" 
+     VIEW-AS FILL-IN 
+     SIZE 53 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 33 BY 1.67.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 33 BY 1.67.
+
+DEFINE RECTANGLE RECT-16
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 91 BY 9.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-    cbHours AT ROW 3.38 COL 48 COLON-ALIGNED WIDGET-ID 18
-    cbNumUsersOver AT ROW 4.81 COL 48 COLON-ALIGNED WIDGET-ID 22
-    fiNotificationEmailAddr AT ROW 6.48 COL 48 COLON-ALIGNED WIDGET-ID 30
-    fiSecondEmail AT ROW 7.91 COL 48 COLON-ALIGNED WIDGET-ID 32
-    cbTimeDirective AT ROW 9.81 COL 48 COLON-ALIGNED WIDGET-ID 20
-    btUpdate AT ROW 14.33 COL 37 WIDGET-ID 24
-    btCancel AT ROW 14.33 COL 53 WIDGET-ID 26
-    RECT-1 AT ROW 14.1 COL 36 WIDGET-ID 28
+     cbHours AT ROW 3.38 COL 48 COLON-ALIGNED WIDGET-ID 18
+     cbNumUsersOver AT ROW 4.81 COL 48 COLON-ALIGNED WIDGET-ID 22
+     fiNotificationEmailAddr AT ROW 6.48 COL 48 COLON-ALIGNED WIDGET-ID 30
+     fiSecondEmail AT ROW 7.91 COL 48 COLON-ALIGNED WIDGET-ID 32
+     cbTimeDirective AT ROW 9.81 COL 48 COLON-ALIGNED WIDGET-ID 20
+     btUpdate AT ROW 14.33 COL 37 WIDGET-ID 24
+     btCancel AT ROW 14.33 COL 53 WIDGET-ID 26
+     RECT-1 AT ROW 14.1 COL 36 WIDGET-ID 28
+     RECT-16 AT ROW 2.52 COL 15 WIDGET-ID 34
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY USE-DICT-EXPS 
-    SIDE-LABELS NO-UNDERLINE THREE-D NO-AUTO-VALIDATE 
-    AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         SIDE-LABELS NO-UNDERLINE THREE-D NO-AUTO-VALIDATE 
+         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -171,11 +176,10 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN 
-DO:
-    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+  RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -210,8 +214,8 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
-    FRAME F-Main:SCROLLABLE = FALSE
-    FRAME F-Main:HIDDEN     = TRUE.
+       FRAME F-Main:SCROLLABLE       = FALSE
+       FRAME F-Main:HIDDEN           = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -235,7 +239,7 @@ ASSIGN
 &Scoped-define SELF-NAME btCancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btCancel vTable
 ON CHOOSE OF btCancel IN FRAME F-Main /* Cancel */
-    DO:
+DO:
         DO WITH FRAME {&frame-name}:
             btUpdate:LABEL = "Update".
             DISABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail  .
@@ -249,28 +253,41 @@ ON CHOOSE OF btCancel IN FRAME F-Main /* Cancel */
 &Scoped-define SELF-NAME btUpdate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdate vTable
 ON CHOOSE OF btUpdate IN FRAME F-Main /* Update */
-    DO:
-        IF SELF:LABEL = "Update" THEN 
+DO:
+
+        IF SELF:LABEL = "Update" THEN DO:
           SELF:LABEL = "Save".
-        DO WITH FRAME f-main:
-            ENABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail  .
-            IF SELF:LABEL EQ "Save" THEN DO:
-            FIND FIRST userControl EXCLUSIVE-LOCK.
-            ASSIGN 
-                cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail
-                .
-            ASSIGN 
-                userControl.adminEmailAddr     = fiNotificationEmailAddr:SCREEN-VALUE
-                userControl.autoLogoutTime     = INTEGER(cbHours)
-                userControl.loginTimeDirective = fiNotificationEmailAddr:SCREEN-VALUE
-                userControl.numUsersOverLimit  = INTEGER(cbNumUsersOver)
-                userControl.secondAdminEmail   = fiSecondEmail:SCREEN-VALUE.
-            .
-            FIND CURRENT userControl NO-LOCK.
-            RELEASE userControl.
+       
+            DO WITH FRAME f-main:
+                
+                ENABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail  .
+
             END.
+            
         END.
-        SELF:LABEL = "Update".
+        ELSE DO:
+
+            SELF:LABEL = "Update".
+            DO WITH FRAME f-main:
+
+                FIND FIRST userControl EXCLUSIVE-LOCK.
+                ASSIGN 
+                    cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail
+                    .
+                ASSIGN 
+                    userControl.adminEmailAddr     = fiNotificationEmailAddr:SCREEN-VALUE
+                    userControl.autoLogoutTime     = INTEGER(cbHours:SCREEN-VALUE)
+                    userControl.loginTimeDirective = cbTimeDirective:SCREEN-VALUE
+                    userControl.numUsersOverLimit  = INTEGER(cbNumUsersOver:SCREEN-VALUE)
+                    userControl.secondAdminEmail   = fiSecondEmail:SCREEN-VALUE.
+                .
+                FIND CURRENT userControl NO-LOCK.
+                RELEASE userControl.
+                DISABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail  .
+                
+            END.        
+                
+        END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -311,17 +328,17 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI vTable  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME F-Main.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME F-Main.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -329,30 +346,35 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject vTable 
 PROCEDURE initializeObject :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    FIND FIRST userControl NO-LOCK.
-    DO WITH FRAME {&frame-name}:
-        ASSIGN 
-            fiNotificationEmailAddr:SCREEN-VALUE = userControl.adminEmailAddr
-            cbHours:SCREEN-VALUE                 = STRING(userControl.autoLogoutTime)
-            fiNotificationEmailAddr:SCREEN-VALUE = userControl.loginTimeDirective
-            cbNumUsersOver:SCREEN-VALUE          = STRING(userControl.numUsersOverLimit)
-            fiSecondEmail:SCREEN-VALUE           = userControl.secondAdminEmail.
-     
-        DISABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail.
-    END.
-  
-  
+
   
     RUN SUPER.
 
 /* Code placed here will execute AFTER standard behavior.    */
+    FIND FIRST userControl NO-LOCK.
+    DO WITH FRAME {&frame-name}:
+        
+        ENABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail.
+        cbHours:SCREEN-VALUE = STRING(userControl.autoLogoutTime).
+        cbTimeDirective:SCREEN-VALUE = userControl.loginTimeDirective.
+        cbNumUsersOver:SCREEN-VALUE = STRING( userControl.numUsersOverLimit).
+        
+        DISABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail.
+        
+        DISPLAY 
+            userControl.adminEmailAddr @  fiNotificationEmailAddr
+            userControl.secondAdminEmail @ fiSecondEmail
+            .
+     
 
+        DISABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail.
+    END.
 
 END PROCEDURE.
 

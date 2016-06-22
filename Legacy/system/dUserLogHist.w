@@ -78,7 +78,7 @@ loginDateTime logoutDateTime rec_key sessionID userName userStatus user_id
 &Scoped-Define MANDATORY-FIELDS 
 &Scoped-Define APPLICATION-SERVICE 
 &Scoped-Define ASSIGN-LIST 
-&Scoped-Define DATA-FIELD-DEFS "C:\Advantzware\Legacy\system\dUserLogHist.i"
+&Scoped-Define DATA-FIELD-DEFS "system\dUserLogHist.i"
 &Scoped-Define DATA-TABLE-NO-UNDO NO-UNDO
 &Scoped-define QUERY-STRING-Query-Main FOR EACH userLog ~
       WHERE userLog.logoutDateTime <> ? NO-LOCK INDEXED-REPOSITION

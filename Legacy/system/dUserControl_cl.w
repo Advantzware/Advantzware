@@ -2,4 +2,4 @@
 
 &GLOBAL-DEFINE DB-REQUIRED FALSE
 
-{"C:/Advantzware/Legacy/system/dUserControl.w"}
+{"C:system/dUserControl.w"}
