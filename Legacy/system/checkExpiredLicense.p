@@ -31,6 +31,9 @@ END.
     
 IF lModulesExpired EQ TRUE THEN 
 DO:
-    MESSAGE "Warning: One or more of your Advantzware licenses will expire in " iExpiredDays
+    
+    MESSAGE "Warning: One or more of your Advantzware licenses will expire in " iExpiredDays " days." SKIP 
+            "Please contact Advantzware at 215-369-7800 to obtain a new license key."
         VIEW-AS ALERT-BOX.                 
+        
 END.
