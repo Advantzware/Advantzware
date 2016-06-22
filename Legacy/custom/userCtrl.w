@@ -124,7 +124,7 @@ DEFINE FRAME userControl
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 120.8 BY 13.38.
+         SIZE 120.8 BY 15.24.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -144,7 +144,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Order Processing Control"
-         HEIGHT             = 13.38
+         HEIGHT             = 15.24
          WIDTH              = 120.8
          MAX-HEIGHT         = 23.38
          MAX-WIDTH          = 120.8
