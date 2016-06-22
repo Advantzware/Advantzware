@@ -148,7 +148,7 @@ FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
      xreport.key-02  = report.key-02
      xreport.key-03  = report.key-03
      xreport.key-04  = /*report.key-04*/ STRING(oe-boll.ord-no )
-     xreport.key-05  = IF AVAIL oe-rel THEN oe-rel.po-no ELSE "" 
+     xreport.key-05  = /*IF AVAIL oe-rel THEN oe-rel.po-no ELSE "" */ oe-boll.po-no  /* ticket 16064 */ 
      xreport.key-06  = oe-boll.i-no
      xreport.key-07  = STRING(oe-boll.cases)
      xreport.key-08  = STRING(oe-boll.qty-case)
