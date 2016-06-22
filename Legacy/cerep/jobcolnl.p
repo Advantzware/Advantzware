@@ -902,7 +902,7 @@ for each job-hdr NO-LOCK
                     v-cust-lot#  FORM "x(17)"
                     v-dsc[1] FORM "x(30)"
                     eb.cad-no  FORM "x(15)" /*v-stypart */
-                    v-up-ext[1]        @ v-up FORMAT ">>9"  /*v-size[1] FORM "x(30)"*/
+                    v-up-ext[vext]        @ v-up FORMAT ">>9"  /*v-size[1] FORM "x(30)"*/
                     skip
                 with stream-io width 175 no-labels no-box frame line-det1.
 
