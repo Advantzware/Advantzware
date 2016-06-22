@@ -322,15 +322,18 @@ ON WINDOW-CLOSE OF {&WINDOW-NAME}
         FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-id = _myconnection._myconn-id
             NO-ERROR. 
   
-        FIND FIRST userLog EXCLUSIVE-LOCK 
+        FIND FIRST userLog NO-LOCK 
             WHERE userLog.user_id       = USERID("NOSWEAT")       
             AND userLog.sessionID     = asi._connect._connect-pid
             NO-ERROR.
+        
   
-        IF AVAILABLE  userLog THEN  
+        IF AVAILABLE  userLog THEN DO:
+            FIND CURRENT userLog EXCLUSIVE-LOCK.  
             ASSIGN userLog.logoutDateTime = DATETIME(TODAY, MTIME)
                    userLog.userStatus = "User Logged Out".
-        FIND CURRENT userLog NO-LOCK.
+            FIND CURRENT userLog NO-LOCK.
+        END.
         
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
