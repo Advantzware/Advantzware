@@ -81,10 +81,10 @@ loginDateTime logoutDateTime rec_key sessionID userName userStatus user_id
 &Scoped-Define DATA-FIELD-DEFS "system/dUserLogOpen.i"
 &Scoped-Define DATA-TABLE-NO-UNDO NO-UNDO
 &Scoped-define QUERY-STRING-Query-Main FOR EACH userLog ~
-      WHERE userLog.logoutDateTime <> ? NO-LOCK INDEXED-REPOSITION
+      WHERE userLog.logoutDateTime EQ ? NO-LOCK INDEXED-REPOSITION
 {&DB-REQUIRED-START}
 &Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH userLog ~
-      WHERE userLog.logoutDateTime <> ? NO-LOCK INDEXED-REPOSITION.
+      WHERE userLog.logoutDateTime EQ ? NO-LOCK INDEXED-REPOSITION.
 {&DB-REQUIRED-END}
 &Scoped-define TABLES-IN-QUERY-Query-Main userLog
 &Scoped-define FIRST-TABLE-IN-QUERY-Query-Main userLog
@@ -171,7 +171,7 @@ END.
 /* Query rebuild information for SmartDataObject Query-Main
      _TblList          = "asi.userLog"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _Where[1]         = "asi.userLog.logoutDateTime <> ?"
+     _Where[1]         = "asi.userLog.logoutDateTime EQ ?"
      _FldNameList[1]   > asi.userLog.deviceName
 "deviceName" "deviceName" ? ? "character" ? ? ? ? ? ? yes ? no 25 yes ?
      _FldNameList[2]   > asi.userLog.EulaVersion

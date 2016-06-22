@@ -319,18 +319,19 @@ ON WINDOW-CLOSE OF {&WINDOW-NAME}
         
         FIND FIRST asi._myconnection NO-LOCK.  
 
-        FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-usr = _myconnection._myconn-userid
+        FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-id = _myconnection._myconn-id
             NO-ERROR. 
   
         FIND FIRST userLog EXCLUSIVE-LOCK 
             WHERE userLog.user_id       = USERID("NOSWEAT")       
-            AND userLog.sessionID     = asi._myconnection._myconn-pid
+            AND userLog.sessionID     = asi._connect._connect-pid
             NO-ERROR.
   
         IF AVAILABLE  userLog THEN  
             ASSIGN userLog.logoutDateTime = DATETIME(TODAY, MTIME)
                    userLog.userStatus = "User Logged Out".
-              
+        FIND CURRENT userLog NO-LOCK.
+        
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -385,7 +386,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             userLog.userStatus    = "Logged In"
             userLog.loginDateTime = DATETIME(TODAY, MTIME).
     END.  
-    
+    FIND CURRENT userLog NO-LOCK.
      
     {methods/mainmenu.i}
     
