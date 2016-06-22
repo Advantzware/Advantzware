@@ -2740,7 +2740,7 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
                 WHEN "trans-date" THEN cVarValue = "".
                 WHEN "loc-bin" THEN cVarValue = "".
                 WHEN "tag" THEN cVarValue = "".
-                WHEN "qty" THEN cVarValue = STRING(v-cum-qty2,"->>>>>9.999").
+                WHEN "qty" THEN cVarValue = STRING(v-cum-qty2,"->,>>>,>>9.999").
                 WHEN "cVendPo" THEN cVarValue = STRING(tt-rm-bin.po-no,"->>>>>>>>").
                 WHEN "crtlot" THEN cVarValue = "".
                 WHEN "cVendCode" THEN cVarValue = STRING(cVendor).
@@ -2852,7 +2852,7 @@ END.
                  WHEN "trans-date" THEN cVarValue = "".
                  WHEN "loc-bin" THEN cVarValue = "" .
                  WHEN "tag" THEN cVarValue = "" .
-                 WHEN "qty" THEN cVarValue = STRING(v-cum-qty2,"->>>>>9.999").
+                 WHEN "qty" THEN cVarValue = STRING(v-cum-qty2,"->,>>>,>>9.999").
                  WHEN "cVendPo" THEN cVarValue = "".
                  WHEN "crtlot" THEN cVarValue = "".
                  WHEN "cVendCode" THEN cVarValue = "".
@@ -2944,7 +2944,7 @@ END.
                  WHEN "trans-date" THEN cVarValue = "".
                  WHEN "loc-bin" THEN cVarValue = "" .
                  WHEN "tag" THEN cVarValue = "" .
-                 WHEN "qty" THEN cVarValue = STRING(v-gt-qty2,"->>>>>9.999").
+                 WHEN "qty" THEN cVarValue = STRING(v-gt-qty2,"->,>>>,>>9.999").
                  WHEN "cVendPo" THEN cVarValue = "".
                  WHEN "crtlot" THEN cVarValue = "".
                  WHEN "cVendCode" THEN cVarValue = "".
