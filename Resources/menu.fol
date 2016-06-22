@@ -541,6 +541,8 @@ s8 s est
 sys-ctrl. s8 est
 w-head. s8 est
 utlookmn. s8 est
+wNewLic. s8 est
+wUserCtrl. s8 est
 custproc. s est
 u-fntclr. s est
 s11 s est
@@ -573,6 +575,7 @@ uom. ss est
 statecod. ss est
 users. ss est
 holiday. ss est
+xref. ss est
 sr s est
 w-usrprt. sr est
 sr2. sr est
