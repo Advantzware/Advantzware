@@ -7,15 +7,16 @@
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
-DEFINE NEW SHARED        VARIABLE quit_login     AS LOGICAL   NO-UNDO.
-DEFINE                   VARIABLE m_id           LIKE NOSWEAT._user._userid NO-UNDO.
-DEFINE                   VARIABLE ldummy         AS LOGICAL   NO-UNDO.
-DEFINE                   VARIABLE i              AS INTEGER   NO-UNDO.
-DEFINE                   VARIABLE cEulaFile      AS CHARACTER NO-UNDO.
-DEFINE                   VARIABLE cEulaVersion   AS CHARACTER NO-UNDO.
-DEFINE                   VARIABLE lEulaAccepted  AS LOGICAL   NO-UNDO.
+DEFINE NEW SHARED        VARIABLE quit_login      AS LOGICAL   NO-UNDO.
+DEFINE                   VARIABLE m_id            LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE                   VARIABLE ldummy          AS LOGICAL   NO-UNDO.
+DEFINE                   VARIABLE i               AS INTEGER   NO-UNDO.
+DEFINE                   VARIABLE cEulaFile       AS CHARACTER NO-UNDO.
+DEFINE                   VARIABLE cEulaVersion    AS CHARACTER NO-UNDO.
+DEFINE                   VARIABLE lEulaAccepted   AS LOGICAL   NO-UNDO.
 
-DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter AS LOG       NO-UNDO.  /* no, it's yes only from sharpsh.p */
+DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG       NO-UNDO.  /* no, it's yes only from sharpsh.p */
+
 
 g-sharpshooter = NO.
 
@@ -80,18 +81,21 @@ cEulaFile = SEARCH("Eula.txt").
 IF CONNECTED("NOSWEAT") THEN
 DO:
     lEulaAccepted = NO.
-    IF cEulaFile NE ? THEN DO:
+    IF cEulaFile NE ? THEN 
+    DO:
         RUN system/checkEula.p (INPUT cEulaFile, OUTPUT lEulaAccepted, OUTPUT cEulaVersion).
         IF NOT lEulaAccepted THEN 
             RUN windows/wUserEula.w (INPUT cEulaFile, OUTPUT lEulaAccepted).
     END. 
     ELSE 
-      MESSAGE "User Agreement File Not Found! Exiting."
-      VIEW-AS ALERT-BOX.
+        MESSAGE "User Agreement File Not Found! Exiting."
+            VIEW-AS ALERT-BOX.
           
     IF NOT lEulaAccepted THEN 
         QUIT.
- 
+    
+    RUN system/checkExpiredLicense.p.
+            
     RUN createSingleUserPFs.
     {methods/setdevid.i}
     RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
