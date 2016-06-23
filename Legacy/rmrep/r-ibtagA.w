@@ -1398,19 +1398,19 @@ SESSION:SET-WAIT-STATE ("general").
          DO:
            IF NOT(tb_total-rolls AND item.r-wid > 0) THEN
              PUT "----------------"          TO 105
-                 "--------------"          TO 129 SKIP 
+                 "--------------"          TO 132 SKIP 
                  "Bin Sub-total"        AT 61
                  v-cum-qty              TO 105
-                 v-cum-price            TO 129.
+                 v-cum-price            TO 132.
            ELSE
            DO:
               PUT "----------------"         TO 105
-                 "--------------"          TO 129 skip
+                 "--------------"          TO 132 skip
                  "Total Rolls"          AT 41
                  v-cum-rolls            TO 58
                  "Bin Sub-total"        AT 61
                  v-cum-qty              TO 105
-                 v-cum-price            TO 129.
+                 v-cum-price            TO 132.
            END.
          END.
       
@@ -1430,21 +1430,21 @@ SESSION:SET-WAIT-STATE ("general").
         IF NOT FIRST-OF(tt-rm-bin.i-no) AND
            NOT(tb_total-rolls AND ITEM.r-wid > 0) THEN
            PUT "----------------"     TO 105
-               "--------------"       TO 129 skip
+               "--------------"       TO 132 skip
                "Item Total"           AT 63
                v-cum-qty2             TO 105
-               v-cum-price2           TO 129.
+               v-cum-price2           TO 132.
         ELSE
         IF tb_total-rolls AND ITEM.r-wid GT 0 THEN
         DO:
            PUT "------"               TO 58
                "----------------"     TO 105
-               "--------------"       TO 129 skip
+               "--------------"       TO 132 skip
                "Item Total Rolls"     AT 36
                v-item-rolls           TO 58
                "Item Total"           AT 63
                v-cum-qty2             TO 105
-               v-cum-price2           TO 129.
+               v-cum-price2           TO 132.
         END.
       END.
 
@@ -1466,23 +1466,23 @@ SESSION:SET-WAIT-STATE ("general").
            PUT SKIP(1)
                "------"                    TO 58
                "--------------------"      TO 105
-               "-----------------"         TO  129
+               "-----------------"         TO  132
                "Grand Totals"              AT 40
                v-tot-rolls                 TO 58
                v-gt-qty2                   TO 105
-               v-tot-price                 TO 129
+               v-tot-price                 TO 132
                "------"                    TO 58
                "--------------------"      TO 105
-               "-----------------"         TO 129.
+               "-----------------"         TO 132.
         ELSE
            PUT SKIP(1)
                "--------------------"         TO 105
-               "-----------------"            TO 129
+               "-----------------"            TO 132
                "Grand Totals"                 AT 40
                v-gt-qty2                      TO 105
-               v-tot-price                    TO 129
+               v-tot-price                    TO 132
                "--------------------"         TO 105
-               "-----------------"            TO 129.
+               "-----------------"            TO 132.
       END.
 
       ASSIGN
