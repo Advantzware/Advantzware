@@ -57,8 +57,7 @@ DEFINE VARIABLE cVersion AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btRefresh fiActive fiLicensed fiAvailable ~
-fiUnique 
+&Scoped-Define ENABLED-OBJECTS RECT-5 btRefresh 
 &Scoped-Define DISPLAYED-OBJECTS fiActive fiLicensed fiAvailable fiUnique 
 
 /* Custom List Definitions                                              */
@@ -107,15 +106,20 @@ DEFINE VARIABLE fiUnique AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 144 BY 1.67.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME fMain
-     btRefresh AT ROW 1.14 COL 113 WIDGET-ID 22
-     fiActive AT ROW 1.19 COL 9 COLON-ALIGNED WIDGET-ID 14
-     fiLicensed AT ROW 1.24 COL 35 COLON-ALIGNED WIDGET-ID 16
-     fiAvailable AT ROW 1.24 COL 62 COLON-ALIGNED WIDGET-ID 18
-     fiUnique AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 20
+     fiActive AT ROW 1.48 COL 10 COLON-ALIGNED WIDGET-ID 14
+     fiLicensed AT ROW 1.48 COL 43 COLON-ALIGNED WIDGET-ID 16
+     fiAvailable AT ROW 1.48 COL 74 COLON-ALIGNED WIDGET-ID 18
+     fiUnique AT ROW 1.48 COL 105 COLON-ALIGNED WIDGET-ID 20
+     btRefresh AT ROW 1.48 COL 129 WIDGET-ID 22
+     RECT-5 AT ROW 1.24 COL 4 WIDGET-ID 24
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -177,6 +181,14 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMain
    FRAME-NAME                                                           */
+/* SETTINGS FOR FILL-IN fiActive IN FRAME fMain
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiAvailable IN FRAME fMain
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiLicensed IN FRAME fMain
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiUnique IN FRAME fMain
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
 THEN wWin:HIDDEN = yes.
 
@@ -263,7 +275,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'FolderLabels':U + 'Active Sessions|Session History|Configuration' + 'FolderTabWidth0FolderFont-1HideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_folder ).
-       RUN repositionObject IN h_folder ( 2.91 , 4.00 ) NO-ERROR.
+       RUN repositionObject IN h_folder ( 3.19 , 4.00 ) NO-ERROR.
        RUN resizeObject IN h_folder ( 17.86 , 145.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
@@ -271,7 +283,7 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
        RUN adjustTabOrder ( h_folder ,
-             fiUnique:HANDLE IN FRAME fMain , 'AFTER':U ).
+             btRefresh:HANDLE IN FRAME fMain , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN constructObject (
@@ -287,8 +299,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'ScrollRemotenoNumDown0CalcWidthnoMaxWidth80FetchOnReposToEndyesUseSortIndicatoryesSearchFieldDataSourceNames?UpdateTargetNames?LogicalObjectNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_brsuserctrl ).
-       RUN repositionObject IN h_brsuserctrl ( 5.05 , 12.00 ) NO-ERROR.
-       RUN resizeObject IN h_brsuserctrl ( 14.29 , 124.00 ) NO-ERROR.
+       RUN repositionObject IN h_brsuserctrl ( 5.05 , 7.00 ) NO-ERROR.
+       RUN resizeObject IN h_brsuserctrl ( 15.48 , 139.00 ) NO-ERROR.
 
        /* Links to SmartDataBrowser h_brsuserctrl. */
        RUN addLink ( h_duserlogopen , 'Data':U , h_brsuserctrl ).
@@ -312,8 +324,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'ScrollRemotenoNumDown0CalcWidthnoMaxWidth80FetchOnReposToEndyesUseSortIndicatoryesSearchFieldDataSourceNames?UpdateTargetNames?LogicalObjectNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_brsuserloghist ).
-       RUN repositionObject IN h_brsuserloghist ( 4.57 , 8.00 ) NO-ERROR.
-       RUN resizeObject IN h_brsuserloghist ( 12.38 , 138.00 ) NO-ERROR.
+       RUN repositionObject IN h_brsuserloghist ( 5.05 , 7.00 ) NO-ERROR.
+       RUN resizeObject IN h_brsuserloghist ( 15.00 , 138.00 ) NO-ERROR.
 
        /* Links to SmartDataBrowser h_brsuserloghist. */
        RUN addLink ( h_duserloghist , 'Data':U , h_brsuserloghist ).
@@ -378,7 +390,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiActive fiLicensed fiAvailable fiUnique 
       WITH FRAME fMain IN WINDOW wWin.
-  ENABLE btRefresh fiActive fiLicensed fiAvailable fiUnique 
+  ENABLE RECT-5 btRefresh 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.
@@ -421,7 +433,8 @@ PROCEDURE initializeObject :
     RUN showCounts.
 
 /* Code placed here will execute AFTER standard behavior.    */
-
+RUN disableFolderPage IN h_folder
+    ( INPUT 3).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
