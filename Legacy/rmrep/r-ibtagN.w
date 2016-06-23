@@ -81,7 +81,7 @@ ASSIGN cTextListToSelect = "Whse,Item,Description,Bin,Tag,Rolls," +
        cFieldListToSelect = "tt-rm-bin.loc,tt-rm-bin.i-no,v-itemname,loc-bin,tag,rolls," +
                             "trans-date,qty,v-cost,v-total,v-msf,v-tons,v-costMSF,cVendTag,cVendPo,crtlot,cVendCode,cLstRcd,cali," +
                             "wt-msf,po-gl-act"
-       cFieldLength = "5,10,30,8,22,5," + "8,14,10,11,11,11,11,30,10,30,8,9,7," + "6,25"
+       cFieldLength = "5,10,30,8,22,5," + "8,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25"
        cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c"
        .
 
@@ -2009,7 +2009,7 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "rolls" THEN cVarValue = "" .
                 WHEN "v-itemname" THEN cVarValue = item.i-name.
                 WHEN "v-cost" THEN cvarValue = STRING(v-cost,">>>,>>9.99<<<<").
-                WHEN "v-total" THEN cVarValue = STRING(tt-rm-bin.qty * v-cost,"->>>,>>9.99").
+                WHEN "v-total" THEN cVarValue = STRING(tt-rm-bin.qty * v-cost,"->,>>>,>>9.99").
                 WHEN "v-MSF" THEN cVarValue = STRING(v-MSF,"->>>,>>9.99").
                 WHEN "v-Tons" THEN cVarValue = STRING(v-Tons,"->>>,>>9.99").
                 WHEN "v-CostMSF" THEN cVarValue = STRING(v-costMSF,"->>>,>>9.99").
@@ -2017,7 +2017,7 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "trans-date" THEN cVarValue = STRING(lv-lstdt) /*string(lv-fistdt)*/ .
                 WHEN "loc-bin" THEN cVarValue = STRING(tt-rm-bin.loc-bin).
                 WHEN "tag" THEN cVarValue = STRING(tt-rm-bin.tag).
-                WHEN "qty" THEN cVarValue = STRING(tt-rm-bin.qty,"->,>>>,>>9.999").
+                WHEN "qty" THEN cVarValue = STRING(tt-rm-bin.qty,"->>>,>>>,>>9.999").
                 WHEN "cVendPo" THEN cVarValue = STRING(tt-rm-bin.po-no,"->>>>>>>>"). /* task 02261404 */
                 WHEN "crtlot" THEN cVarValue = IF tt-rm-bin.tag2 NE "" THEN STRING(tt-rm-bin.tag2,"x(30)") ELSE "".
                 WHEN "cVendCode" THEN cVarValue = STRING(cVendor).
@@ -2059,7 +2059,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "tt-rm-bin.tag" THEN cVarValue =  "" .
                  WHEN "v-itemname" THEN cVarValue =  ITEM.i-name .
                  WHEN "v-cost" THEN cvarValue = "".
-                 WHEN "v-total" THEN cVarValue = STRING(v-cum-price,"->>>,>>9.99").
+                 WHEN "v-total" THEN cVarValue = STRING(v-cum-price,"->,>>>,>>9.99").
                  WHEN "v-MSF" THEN cVarValue = STRING(v-cum-MSF,"->>>,>>9.99").
                  WHEN "v-Tons" THEN cVarValue = STRING(v-cum-tons,"->>>,>>9.99").
                  WHEN "v-CostMSF" THEN cVarValue = "" .
@@ -2067,7 +2067,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "trans-date" THEN cVarValue = "".
                  WHEN "loc-bin" THEN cVarValue = "" .
                  WHEN "tag" THEN cVarValue = "" .
-                 WHEN "qty" THEN cVarValue = STRING(v-cum-qty,"->,>>>,>>9.999").
+                 WHEN "qty" THEN cVarValue = STRING(v-cum-qty,"->>>,>>>,>>9.999").
                  WHEN "cVendPo" THEN cVarValue = "".
                  WHEN "crtlot" THEN cVarValue = "".
                  WHEN "cVendCode" THEN cVarValue = "".
@@ -2110,7 +2110,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "tt-rm-bin.tag" THEN cVarValue =  "" .
                  WHEN "v-itemname" THEN cVarValue =  "" .
                  WHEN "v-cost" THEN cvarValue =  "" .
-                 WHEN "v-total" THEN cVarValue = STRING(v-cum-price,"->>>,>>9.99").
+                 WHEN "v-total" THEN cVarValue = STRING(v-cum-price,"->,>>>,>>9.99").
                  WHEN "v-MSF" THEN cVarValue = STRING(v-cum-MSF,"->>>,>>9.99").
                  WHEN "v-Tons" THEN cVarValue = STRING(v-cum-tons,"->>>,>>9.99").
                  WHEN "v-CostMSF" THEN cVarValue = "" .
@@ -2118,7 +2118,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "trans-date" THEN cVarValue = "".
                  WHEN "loc-bin" THEN cVarValue = "" .
                  WHEN "tag" THEN cVarValue = "" .
-                 WHEN "qty" THEN cVarValue = STRING(v-cum-qty,"->,>>>,>>9.999").
+                 WHEN "qty" THEN cVarValue = STRING(v-cum-qty,"->>>,>>>,>>9.999").
                  WHEN "cVendPo" THEN cVarValue = "".
                  WHEN "crtlot" THEN cVarValue = "".
                  WHEN "cVendCode" THEN cVarValue = "".
@@ -2180,7 +2180,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "tt-rm-bin.tag" THEN cVarValue =  "" .
                  WHEN "v-itemname" THEN cVarValue =  "" .
                  WHEN "v-cost" THEN cvarValue =  "" .
-                 WHEN "v-total" THEN cVarValue = STRING(v-cum-price2,"->>>,>>9.99").
+                 WHEN "v-total" THEN cVarValue = STRING(v-cum-price2,"->,>>>,>>9.99").
                  WHEN "v-MSF" THEN cVarValue = STRING(v-cum-MSF2,"->>>,>>9.99").
                  WHEN "v-Tons" THEN cVarValue = STRING(v-cum-tons2,"->>>,>>9.99").
                  WHEN "v-CostMSF" THEN cVarValue = "" .
@@ -2188,7 +2188,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "trans-date" THEN cVarValue = "".
                  WHEN "loc-bin" THEN cVarValue = "" .
                  WHEN "tag" THEN cVarValue = "" .
-                 WHEN "qty" THEN cVarValue = STRING(v-cum-qty2,"->,>>>,>>9.999").
+                 WHEN "qty" THEN cVarValue = STRING(v-cum-qty2,"->>>,>>>,>>9.999").
                  WHEN "cVendPo" THEN cVarValue = "".
                  WHEN "crtlot" THEN cVarValue = "".
                  WHEN "cVendCode" THEN cVarValue = "".
@@ -2231,7 +2231,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "tt-rm-bin.tag" THEN cVarValue =  "" .
                  WHEN "v-itemname" THEN cVarValue =  "" .
                  WHEN "v-cost" THEN cvarValue =  "" .
-                 WHEN "v-total" THEN cVarValue = STRING(v-cum-price2,"->>>,>>9.99").
+                 WHEN "v-total" THEN cVarValue = STRING(v-cum-price2,"->,>>>,>>9.99").
                  WHEN "v-MSF" THEN cVarValue = STRING(v-cum-MSF2,"->>>,>>9.99").
                  WHEN "v-Tons" THEN cVarValue = STRING(v-cum-tons2,"->>>,>>9.99").
                  WHEN "v-CostMSF" THEN cVarValue = "" .
@@ -2239,7 +2239,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "trans-date" THEN cVarValue = "".
                  WHEN "loc-bin" THEN cVarValue = "" .
                  WHEN "tag" THEN cVarValue = "" .
-                 WHEN "qty" THEN cVarValue = STRING(v-cum-qty2,"->,>>>,>>9.999").
+                 WHEN "qty" THEN cVarValue = STRING(v-cum-qty2,"->>>,>>>,>>9.999").
                  WHEN "cVendPo" THEN cVarValue = "".
                  WHEN "crtlot" THEN cVarValue = "".
                  WHEN "cVendCode" THEN cVarValue = "".
@@ -2301,7 +2301,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "tt-rm-bin.tag" THEN cVarValue =  "" .
                  WHEN "v-itemname" THEN cVarValue =  "" .
                  WHEN "v-cost" THEN cvarValue =  "" .
-                 WHEN "v-total" THEN cVarValue = STRING(v-tot-price,"->>>,>>9.99").
+                 WHEN "v-total" THEN cVarValue = STRING(v-tot-price,"->,>>>,>>9.99").
                  WHEN "v-MSF" THEN cVarValue = STRING(v-tot-MSF,"->>>,>>9.99").
                  WHEN "v-Tons" THEN cVarValue = STRING(v-tot-tons,"->>>,>>9.99").
                  WHEN "v-CostMSF" THEN cVarValue = "" .
@@ -2309,7 +2309,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "trans-date" THEN cVarValue = "".
                  WHEN "loc-bin" THEN cVarValue = "" .
                  WHEN "tag" THEN cVarValue = "" .
-                 WHEN "qty" THEN cVarValue = STRING(v-gt-qty2,"->,>>>,>>9.999").
+                 WHEN "qty" THEN cVarValue = STRING(v-gt-qty2,"->>>,>>>,>>9.999").
                  WHEN "cVendPo" THEN cVarValue = "".
                  WHEN "crtlot" THEN cVarValue = "".
                  WHEN "cVendCode" THEN cVarValue = "".
@@ -2354,7 +2354,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "tt-rm-bin.tag" THEN cVarValue =  "" .
                  WHEN "v-itemname" THEN cVarValue =  "" .
                  WHEN "v-cost" THEN cvarValue =  "" .
-                 WHEN "v-total" THEN cVarValue = STRING(v-tot-price,"->>>,>>9.99").
+                 WHEN "v-total" THEN cVarValue = STRING(v-tot-price,"->,>>>,>>9.99").
                  WHEN "v-MSF" THEN cVarValue = STRING(v-tot-MSF,"->>>,>>9.99").
                  WHEN "v-Tons" THEN cVarValue = STRING(v-tot-tons,"->>>,>>9.99").
                  WHEN "v-CostMSF" THEN cVarValue = "" .
@@ -2362,7 +2362,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "trans-date" THEN cVarValue = "".
                  WHEN "loc-bin" THEN cVarValue = "" .
                  WHEN "tag" THEN cVarValue = "" .
-                 WHEN "qty" THEN cVarValue = STRING(v-gt-qty2,"->,>>>,>>9.999").
+                 WHEN "qty" THEN cVarValue = STRING(v-gt-qty2,"->>>,>>>,>>9.999").
                  WHEN "cVendPo" THEN cVarValue = "".
                  WHEN "crtlot" THEN cVarValue = "".
                  WHEN "cVendCode" THEN cVarValue = "".
@@ -2732,7 +2732,7 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
               WHEN "rolls" THEN cVarValue =  "" .
                 WHEN "v-itemname" THEN cVarValue = ITEM.i-name.
                 WHEN "v-cost" THEN cvarValue = "".
-                WHEN "v-total" THEN cVarValue = STRING(v-cum-price2,"->>>,>>9.99").
+                WHEN "v-total" THEN cVarValue = STRING(v-cum-price2,"->,>>>,>>9.99").
                 WHEN "v-MSF" THEN cVarValue = STRING(v-cum-MSF,"->>>,>>9.99").   
                 WHEN "v-Tons" THEN cVarValue = STRING(v-cum-Ton,"->>>,>>9.99"). 
                 WHEN "v-CostMSF" THEN cVarValue = "".
@@ -2740,7 +2740,7 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
                 WHEN "trans-date" THEN cVarValue = "".
                 WHEN "loc-bin" THEN cVarValue = "".
                 WHEN "tag" THEN cVarValue = "".
-                WHEN "qty" THEN cVarValue = STRING(v-cum-qty2,"->,>>>,>>9.999").
+                WHEN "qty" THEN cVarValue = STRING(v-cum-qty2,"->>>,>>>,>>9.999").
                 WHEN "cVendPo" THEN cVarValue = STRING(tt-rm-bin.po-no,"->>>>>>>>").
                 WHEN "crtlot" THEN cVarValue = "".
                 WHEN "cVendCode" THEN cVarValue = STRING(cVendor).
@@ -2844,7 +2844,7 @@ END.
                  WHEN "tt-rm-bin.tag" THEN cVarValue =  "" .
                  WHEN "v-itemname" THEN cVarValue =  "" .
                  WHEN "v-cost" THEN cvarValue =  "" .
-                 WHEN "v-total" THEN cVarValue = STRING(v-cum-price2,"->>>,>>9.99").
+                 WHEN "v-total" THEN cVarValue = STRING(v-cum-price2,"->,>>>,>>9.99").
                  WHEN "v-MSF" THEN cVarValue = STRING(v-cum-MSF,"->>>,>>9.99").  
                  WHEN "v-Tons" THEN cVarValue = STRING(v-cum-Ton,"->>>,>>9.99").
                  WHEN "v-CostMSF" THEN cVarValue = "" .
@@ -2852,7 +2852,7 @@ END.
                  WHEN "trans-date" THEN cVarValue = "".
                  WHEN "loc-bin" THEN cVarValue = "" .
                  WHEN "tag" THEN cVarValue = "" .
-                 WHEN "qty" THEN cVarValue = STRING(v-cum-qty2,"->,>>>,>>9.999").
+                 WHEN "qty" THEN cVarValue = STRING(v-cum-qty2,"->>>,>>>,>>9.999").
                  WHEN "cVendPo" THEN cVarValue = "".
                  WHEN "crtlot" THEN cVarValue = "".
                  WHEN "cVendCode" THEN cVarValue = "".
@@ -2936,7 +2936,7 @@ END.
                  WHEN "tt-rm-bin.tag" THEN cVarValue =  "" .
                  WHEN "v-itemname" THEN cVarValue =  "" .
                  WHEN "v-cost" THEN cvarValue =  "" .
-                 WHEN "v-total" THEN cVarValue = STRING(v-tot-price,"->>>,>>9.99").
+                 WHEN "v-total" THEN cVarValue = STRING(v-tot-price,"->,>>>,>>9.99").
                  WHEN "v-MSF" THEN cVarValue = STRING(v-tot-MSF,"->>>,>>9.99").  
                  WHEN "v-Tons" THEN cVarValue = STRING(v-tot-Ton,"->>>,>>9.99").
                  WHEN "v-CostMSF" THEN cVarValue = "" .
@@ -2944,7 +2944,7 @@ END.
                  WHEN "trans-date" THEN cVarValue = "".
                  WHEN "loc-bin" THEN cVarValue = "" .
                  WHEN "tag" THEN cVarValue = "" .
-                 WHEN "qty" THEN cVarValue = STRING(v-gt-qty2,"->,>>>,>>9.999").
+                 WHEN "qty" THEN cVarValue = STRING(v-gt-qty2,"->>>,>>>,>>9.999").
                  WHEN "cVendPo" THEN cVarValue = "".
                  WHEN "crtlot" THEN cVarValue = "".
                  WHEN "cVendCode" THEN cVarValue = "".
