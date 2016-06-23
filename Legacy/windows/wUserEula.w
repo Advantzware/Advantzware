@@ -133,14 +133,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 146.2
          VIRTUAL-HEIGHT     = 28.81
          VIRTUAL-WIDTH      = 146.2
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = NO
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -164,7 +164,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME fMain
    FRAME-NAME                                                           */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
-THEN wWin:HIDDEN = yes.
+THEN wWin:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -229,7 +229,7 @@ DO:
  DEFINE VARIABLE lChoice AS LOGICAL NO-UNDO.
  
  MESSAGE "Are you sure you want to reject the agreement?"
- VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
+ VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "License Rejection Confirmation"
  UPDATE lChoice.
  IF lChoice EQ FALSE THEN 
    RETURN NO-APPLY.
