@@ -602,12 +602,12 @@ DEFINE FRAME F-Main
           LABEL "VCode" FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     oe-ord.approved-date AT ROW 8.86 COL 100 COLON-ALIGNED HELP
+     oe-ord.approved-date AT ROW 9 COL 96.4 COLON-ALIGNED HELP
           "Enter the date this order was approved" WIDGET-ID 10
           LABEL "Hold/Appr Date"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     oe-ord.ack-prnt-date AT ROW 2.67 COL 99 COLON-ALIGNED WIDGET-ID 12
+     oe-ord.ack-prnt-date AT ROW 9 COL 128.4 COLON-ALIGNED WIDGET-ID 12
           LABEL "Ack. Date" FORMAT "99/99/99"
           VIEW-AS FILL-IN 
           SIZE 14.4 BY 1
