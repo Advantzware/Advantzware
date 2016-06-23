@@ -26,13 +26,13 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var li-cur-page as int no-undo.
-def var li-cur-across as int no-undo.
+DEF VAR li-cur-page AS INT NO-UNDO.
+DEF VAR li-cur-across AS INT NO-UNDO.
 
 {custom/persist.i}
 {custom/gcompany.i}
 {custom/gloc.i}
-assign gcompany = g_company
+ASSIGN gcompany = g_company
        gloc = g_loc.
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,9 +298,9 @@ PROCEDURE get-recid :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- def output param lv-recid as recid.
+ DEF OUTPUT PARAM lv-recid AS RECID.
  
- lv-recid = recid(mstd).
+ lv-recid = RECID(mstd).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -313,32 +313,32 @@ PROCEDURE proc-down :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   def buffer bf-mmtx for mmtx .
-   def buffer bf2-mmtx for mmtx.
-   def var i as int no-undo.
+   DEF BUFFER bf-mmtx FOR mmtx .
+   DEF BUFFER bf2-mmtx FOR mmtx.
+   DEF VAR i AS INT NO-UNDO.
    
-   assign li-cur-page = mmtx.page-no
+   ASSIGN li-cur-page = mmtx.page-no
           li-cur-across = mmtx.across-no.
           
     /*get next {&query-name}.
     run dispatch ('row-available').
     */
    
-    find first bf-mmtx of mstd where bf-mmtx.page-no > mmtx.page-no and
+    FIND FIRST bf-mmtx OF mstd WHERE bf-mmtx.page-no > mmtx.page-no AND
                                    bf-mmtx.across-no = mmtx.across-no AND
                                    bf-mmtx.mr-run = FALSE
-                                   no-lock no-error.
+                                   NO-LOCK NO-ERROR.
              
-    if /*num-results("{&query-name}") = (mmtx.page-no + 1)   not working */
-       not avail bf-mmtx 
-       and mmtx.row-value[15] <> 0 then do:
+    IF /*num-results("{&query-name}") = (mmtx.page-no + 1)   not working */
+       NOT AVAIL bf-mmtx 
+       AND mmtx.row-value[15] <> 0 THEN DO:
 
-       def var li-mmtx-no as int no-undo.
-       find last bf2-mmtx use-index mmtx-no no-lock no-error.
-       li-mmtx-no = if avail bf2-mmtx then bf2-mmtx.mmtx-no + 1 else 1.
+       DEF VAR li-mmtx-no AS INT NO-UNDO.
+       FIND LAST bf2-mmtx USE-INDEX mmtx-no NO-LOCK NO-ERROR.
+       li-mmtx-no = IF AVAIL bf2-mmtx THEN bf2-mmtx.mmtx-no + 1 ELSE 1.
 
-       create bf-mmtx.
-       assign bf-mmtx.company = mstd.company
+       CREATE bf-mmtx.
+       ASSIGN bf-mmtx.company = mstd.company
               bf-mmtx.loc = mstd.loc
               bf-mmtx.m-code = mstd.m-code
               bf-mmtx.dept = mstd.dept
@@ -350,27 +350,27 @@ PROCEDURE proc-down :
               bf-mmtx.mmtx-no = li-mmtx-no
               bf-mmtx.mr-run = FALSE
               .
-       do i = 1 to 16:
+       DO i = 1 TO 16:
               bf-mmtx.rtit[i] = mmtx.rtit[i].
-       end.       
-       do i = 1 to 10:
+       END.       
+       DO i = 1 TO 10:
            bf-mmtx.col-value[i] = mmtx.col-value[i].
-       end.       
-       if bf-mmtx.across-no <> 0 then do:
-          find first bf2-mmtx of mstd where bf2-mmtx.page-no = mmtx.page-no
-                                        and bf2-mmtx.across-no = 0
+       END.       
+       IF bf-mmtx.across-no <> 0 THEN DO:
+          FIND FIRST bf2-mmtx OF mstd WHERE bf2-mmtx.page-no = mmtx.page-no
+                                        AND bf2-mmtx.across-no = 0
                                         AND bf2-mmtx.mr-run = FALSE
-                                        no-lock no-error.
-          do i = 1 to 15:
+                                        NO-LOCK NO-ERROR.
+          DO i = 1 TO 15:
              bf-mmtx.row-value[i] = bf2-mmtx.row-value[i].
-          end.                               
-       end.       
-    end.
-if mmtx.row-value[15] <> 0 then do:
+          END.                               
+       END.       
+    END.
+IF mmtx.row-value[15] <> 0 THEN DO:
     &scoped-define key-phrase mmtx.page-no > li-cur-page and mmtx.across-no = li-cur-across AND mmtx.mr-run = FALSE
 /*    run dispatch ('open-query'). */
-    OPEN QUERY {&query-name} FOR EACH mmtx OF mstd NO-LOCK where /*{&key-phrase}*/
-             mmtx.page-no > li-cur-page and mmtx.across-no = li-cur-across AND
+    OPEN QUERY {&query-name} FOR EACH mmtx OF mstd NO-LOCK WHERE /*{&key-phrase}*/
+             mmtx.page-no > li-cur-page AND mmtx.across-no = li-cur-across AND
              mmtx.mr-run = FALSE .
 
     /*~{&SORTBY-PHRASE}.  */
@@ -381,7 +381,7 @@ if mmtx.row-value[15] <> 0 then do:
       .
 */      
 
-end.
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -394,7 +394,7 @@ PROCEDURE proc-first :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run dispatch ('get-first').
+  RUN dispatch ('get-first').
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -407,7 +407,7 @@ PROCEDURE proc-last :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run dispatch ('get-last').
+  RUN dispatch ('get-last').
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -420,13 +420,13 @@ PROCEDURE proc-left :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  assign li-cur-page = mmtx.page-no
+  ASSIGN li-cur-page = mmtx.page-no
          li-cur-across = mmtx.across-no.
 
   
-  &global-define key-phrase mmtx.page-no = li-cur-page and mmtx.across-no < li-cur-across AND mmtx.mr-run = FALSE
-  run dispatch ('open-query').
-  run dispatch ('get-prev').
+  &scoped-define key-phrase mmtx.page-no = li-cur-page and mmtx.across-no < li-cur-across AND mmtx.mr-run = FALSE
+  RUN dispatch ('open-query').
+  RUN dispatch ('get-prev').
   
 END PROCEDURE.
 
@@ -440,24 +440,24 @@ PROCEDURE proc-right :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def buffer bf-mmtx for mmtx.
-  def buffer bf2-mmtx for mmtx.
-  def var i as int no-undo.
+  DEF BUFFER bf-mmtx FOR mmtx.
+  DEF BUFFER bf2-mmtx FOR mmtx.
+  DEF VAR i AS INT NO-UNDO.
 
-  assign li-cur-page = mmtx.page-no
+  ASSIGN li-cur-page = mmtx.page-no
          li-cur-across = mmtx.across-no.
 
-  find first bf-mmtx of mstd where bf-mmtx.page-no = mmtx.page-no and
+  FIND FIRST bf-mmtx OF mstd WHERE bf-mmtx.page-no = mmtx.page-no AND
                                    bf-mmtx.across-no > mmtx.across-no AND
                                    bf-mmtx.mr-run = FALSE
-                                   no-lock no-error.
-  if not avail bf-mmtx and mmtx.col-val[10] <> 0 then do:
-       def var li-mmtx-no as int no-undo.
-       find last bf2-mmtx use-index mmtx-no no-lock no-error.
-       li-mmtx-no = if avail bf2-mmtx then bf2-mmtx.mmtx-no + 1 else 1.
+                                   NO-LOCK NO-ERROR.
+  IF NOT AVAIL bf-mmtx AND mmtx.col-val[10] <> 0 THEN DO:
+       DEF VAR li-mmtx-no AS INT NO-UNDO.
+       FIND LAST bf2-mmtx USE-INDEX mmtx-no NO-LOCK NO-ERROR.
+       li-mmtx-no = IF AVAIL bf2-mmtx THEN bf2-mmtx.mmtx-no + 1 ELSE 1.
        
-       create bf-mmtx.
-       assign bf-mmtx.company = mstd.company
+       CREATE bf-mmtx.
+       ASSIGN bf-mmtx.company = mstd.company
               bf-mmtx.loc = mstd.loc
               bf-mmtx.m-code = mstd.m-code
               bf-mmtx.dept = mstd.dept
@@ -468,43 +468,43 @@ PROCEDURE proc-right :
               bf-mmtx.across-no = mmtx.across-no + 1
               bf-mmtx.mmtx-no = li-mmtx-no
               bf-mmtx.mr-run = FALSE.
-       do i = 1 to 16:
+       DO i = 1 TO 16:
               bf-mmtx.rtit[i] = mmtx.rtit[i].
-       end.       
-       do i = 1 to 10:
+       END.       
+       DO i = 1 TO 10:
            bf-mmtx.col-value[i] = mmtx.col-value[i].
-       end.       
-       if bf-mmtx.across-no <> 0 then do:
-          find first bf2-mmtx of mstd where bf2-mmtx.page-no = mmtx.page-no
-                                        and bf2-mmtx.across-no = 0
+       END.       
+       IF bf-mmtx.across-no <> 0 THEN DO:
+          FIND FIRST bf2-mmtx OF mstd WHERE bf2-mmtx.page-no = mmtx.page-no
+                                        AND bf2-mmtx.across-no = 0
                                         AND bf2-mmtx.mr-run = FALSE 
-                                        no-lock no-error.
-          do i = 1 to 15:
+                                        NO-LOCK NO-ERROR.
+          DO i = 1 TO 15:
              bf-mmtx.row-value[i] = bf2-mmtx.row-value[i].
-          end.                               
-       end.       
-       if bf-mmtx.page-no <> 0 then do:
-          find first bf2-mmtx of mstd where bf2-mmtx.page-no = 0
-                                        and bf2-mmtx.across-no = mmtx.across-no
+          END.                               
+       END.       
+       IF bf-mmtx.page-no <> 0 THEN DO:
+          FIND FIRST bf2-mmtx OF mstd WHERE bf2-mmtx.page-no = 0
+                                        AND bf2-mmtx.across-no = mmtx.across-no
                                         AND bf2-mmtx.mr-run = FALSE
-                                        no-lock no-error.
-          do i = 1 to 10:
+                                        NO-LOCK NO-ERROR.
+          DO i = 1 TO 10:
              bf-mmtx.col-value[i] = bf2-mmtx.col-value[i].
-          end.       
-       end.
-  end.                                 
+          END.       
+       END.
+  END.                                 
 
-if  mmtx.col-val[10] <> 0 then do:
+IF  mmtx.col-val[10] <> 0 THEN DO:
   &scoped-define key-phrase mmtx.page-no = li-cur-page and mmtx.across-no > li-cur-across AND mmtx.mr-run = FALSE
-  run dispatch ('open-query').
-  run dispatch ('get-next').
+  RUN dispatch ('open-query').
+  RUN dispatch ('get-next').
 
 /*      message "down" mmtx.page-no mmtx.across-no
               "{&FIRST-TABLE-IN-QUERY-{&QUERY-NAME}}"  num-results("{&query-name}") skip
               "key:   {&key-phrase}"
       .
 */
-end.
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -517,12 +517,12 @@ PROCEDURE proc-up :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  assign li-cur-page = mmtx.page-no
+  ASSIGN li-cur-page = mmtx.page-no
          li-cur-across = mmtx.across-no.
 
   
-  &global-define key-phrase mmtx.page-no < li-cur-page and mmtx.across-no = li-cur-across mmtx.mr-run = FALSE
-  run dispatch ('open-query').
+  &scoped-define key-phrase mmtx.page-no < li-cur-page and mmtx.across-no = li-cur-across mmtx.mr-run = FALSE
+  RUN dispatch ('open-query').
 
   RUN dispatch('get-prev':U). 
 END PROCEDURE.
