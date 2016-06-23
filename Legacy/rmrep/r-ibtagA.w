@@ -1140,11 +1140,11 @@ PROCEDURE run-report :
 DEFINE VARIABLE save_id AS RECID.
 DEFINE VARIABLE v-price AS DECIMAL FORMAT "->>>>9.99".
 DEFINE VARIABLE v-tot-price AS DECIMAL FORMAT "$->>,>>>,>>9.99".
-DEFINE VARIABLE v-cum-qty AS DECIMAL FORMAT "->>>>>9.999".
-DEFINE VARIABLE v-cum-price AS DECIMAL FORMAT "->>>,>>9.99".
-DEFINE VARIABLE v-cum-qty2   AS DECIMAL FORMAT "->>>>>9.999".  /* item totals */
+DEFINE VARIABLE v-cum-qty AS DECIMAL FORMAT "->>>>>>9.999".
+DEFINE VARIABLE v-cum-price AS DECIMAL FORMAT "->,>>>,>>9.99".
+DEFINE VARIABLE v-cum-qty2   AS DECIMAL FORMAT "->>>>>>9.999".  /* item totals */
 DEFINE VARIABLE v-gt-qty2 AS DECIMAL FORMAT "->>>,>>>,>>9.999".
-DEFINE VARIABLE v-cum-price2 AS DECIMAL FORMAT "->>>,>>9.99".  /* item totals */
+DEFINE VARIABLE v-cum-price2 AS DECIMAL FORMAT "->,>>>,>>9.99".  /* item totals */
 DEFINE VARIABLE v-cum-rolls AS INTEGER FORMAT ">>>>>9" NO-UNDO.
 DEFINE VARIABLE v-item-rolls AS INTEGER FORMAT ">>>>>9" NO-UNDO.
 DEFINE VARIABLE v-tot-rolls AS INTEGER FORMAT ">>>>>9" NO-UNDO.
@@ -1328,11 +1328,11 @@ SESSION:SET-WAIT-STATE ("general").
             tt-rm-bin.tag          LABEL "Tag" FORMAT "x(22)"
             tt-rm-bin.trans-date   FORMAT "99/99/99"
                                    LABEL "Rct Date"
-            tt-rm-bin.qty          FORMAT "->>>>>9.999"
+            tt-rm-bin.qty          FORMAT "->>>,>>>,>>9.999"
                                    LABEL "Quantity"
-            v-cost                 FORMAT ">>>,>>9.99<<<<"
+            v-cost                 FORMAT ">,>>>,>>9.99<<<<"
                                    LABEL "Unit Cost"
-            tt-rm-bin.qty * v-cost FORMAT  "->>>,>>9.99"
+            tt-rm-bin.qty * v-cost FORMAT  "->,>>>,>>9.99"
                                    COLUMN-LABEL "Total!Cost Value"     SKIP 
 
          WITH FRAME itemx NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 132.
@@ -1397,20 +1397,20 @@ SESSION:SET-WAIT-STATE ("general").
       IF NOT FIRST-OF(tt-rm-bin.loc-bin) AND psubtot THEN
          DO:
            IF NOT(tb_total-rolls AND item.r-wid > 0) THEN
-             PUT "-----------"          TO 100
-                 "-----------"          TO 123 SKIP 
+             PUT "----------------"          TO 105
+                 "--------------"          TO 132 SKIP 
                  "Bin Sub-total"        AT 61
-                 v-cum-qty              TO 100
-                 v-cum-price            TO 123.
+                 v-cum-qty              TO 105
+                 v-cum-price            TO 132.
            ELSE
            DO:
-              PUT "-----------"         TO 100
-                 "-----------"          TO 123 skip
+              PUT "----------------"         TO 105
+                 "--------------"          TO 132 skip
                  "Total Rolls"          AT 41
                  v-cum-rolls            TO 58
                  "Bin Sub-total"        AT 61
-                 v-cum-qty              TO 100
-                 v-cum-price            TO 123.
+                 v-cum-qty              TO 105
+                 v-cum-price            TO 132.
            END.
          END.
       
@@ -1429,22 +1429,22 @@ SESSION:SET-WAIT-STATE ("general").
       DO:
         IF NOT FIRST-OF(tt-rm-bin.i-no) AND
            NOT(tb_total-rolls AND ITEM.r-wid > 0) THEN
-           PUT "-----------"          TO 100
-               "-----------"          TO 123 skip
+           PUT "----------------"     TO 105
+               "--------------"       TO 132 skip
                "Item Total"           AT 63
-               v-cum-qty2             TO 100
-               v-cum-price2           TO 123.
+               v-cum-qty2             TO 105
+               v-cum-price2           TO 132.
         ELSE
         IF tb_total-rolls AND ITEM.r-wid GT 0 THEN
         DO:
            PUT "------"               TO 58
-               "-----------"          TO 100
-               "-----------"          TO 123 skip
+               "----------------"     TO 105
+               "--------------"       TO 132 skip
                "Item Total Rolls"     AT 36
                v-item-rolls           TO 58
                "Item Total"           AT 63
-               v-cum-qty2             TO 100
-               v-cum-price2           TO 123.
+               v-cum-qty2             TO 105
+               v-cum-price2           TO 132.
         END.
       END.
 
@@ -1465,24 +1465,24 @@ SESSION:SET-WAIT-STATE ("general").
         IF tb_total-rolls THEN
            PUT SKIP(1)
                "------"                    TO 58
-               "---------------"           TO 100
-               "--------------"            TO  123
+               "--------------------"      TO 105
+               "-----------------"         TO  132
                "Grand Totals"              AT 40
                v-tot-rolls                 TO 58
-               v-gt-qty2                   TO 100
-               v-tot-price                 TO 123
+               v-gt-qty2                   TO 105
+               v-tot-price                 TO 132
                "------"                    TO 58
-               "---------------"           TO 100
-               "--------------"            TO 123.
+               "--------------------"      TO 105
+               "-----------------"         TO 132.
         ELSE
            PUT SKIP(1)
-               "---------------"           TO 100
-               "--------------"            TO 123
-               "Grand Totals"              AT 40
-               v-gt-qty2                   TO 100
-               v-tot-price                 TO 123
-               "---------------"           TO 100
-               "--------------"            TO 123.
+               "--------------------"         TO 105
+               "-----------------"            TO 132
+               "Grand Totals"                 AT 40
+               v-gt-qty2                      TO 105
+               v-tot-price                    TO 132
+               "--------------------"         TO 105
+               "-----------------"            TO 132.
       END.
 
       ASSIGN
