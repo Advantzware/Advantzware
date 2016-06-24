@@ -67,10 +67,10 @@ define var vHeaderValue as cha no-undo.
 emailcod.description CheckNotice() @ vlShipNotice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} ~
-      AND can-do(emailcod.emailTo,vHeaderValue) or vHeaderValue = "" NO-LOCK ~
+      AND can-do(emailcod.emailTo,vHeaderValue) or emailcod.emailTo = "" NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} ~
-      AND can-do(emailcod.emailTo,vHeaderValue) or vHeaderValue = "" NO-LOCK ~
+      AND can-do(emailcod.emailTo,vHeaderValue) or emailcod.emailTo = "" NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table emailcod
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table emailcod
@@ -255,7 +255,7 @@ ASSIGN
      _TblList          = "ASI.emailcod"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _Where[1]         = "can-do(emailcod.emailTo,vHeaderValue) or vHeaderValue = """""
+     _Where[1]         = "can-do(emailcod.emailTo,vHeaderValue) or emailcod.emailTo = """""
      _FldNameList[1]   > ASI.emailcod.emailcod
 "emailcod.emailcod" ? "X(10)" "character" 3 15 ? 3 15 ? no ? no no ? yes no no "U" "" "C5" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.emailcod.description

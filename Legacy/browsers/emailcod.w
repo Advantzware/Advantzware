@@ -289,17 +289,20 @@ DO:
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", OUTPUT char-hdl).
   RUN get-link-handle IN adm-broker-hdl(WIDGET-HANDLE(char-hdl), "page-source", OUTPUT char-hdl).
   
-  IF can-do(emailcod.emailTo,"Customer") THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 2) NO-ERROR.
-  ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 2) NO-ERROR.
-  IF can-do(emailcod.emailTo,"Vendor") THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 3) NO-ERROR.
-  ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 3) NO-ERROR.
-  IF can-do(emailcod.emailTo,"ShipTo") THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 4) NO-ERROR.
-  ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 4) NO-ERROR.
-  IF can-do(emailcod.emailTo,"Employee") THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 5) NO-ERROR.
-  ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 5) NO-ERROR.
-  IF can-do(emailcod.emailTo,"SoldTo") THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6) NO-ERROR.
-  ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6) NO-ERROR.
-  
+  if emailcod.emailTo <> "" then do:
+    IF can-do(emailcod.emailTo,"Customer") or can-do(emailcod.emailTo,"Cust") 
+       THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 2) NO-ERROR.
+       ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 2) NO-ERROR.
+    IF can-do(emailcod.emailTo,"Vendor") or can-do(emailcod.emailTo,"Vend")  
+       then RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 3) NO-ERROR.
+       ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 3) NO-ERROR.
+    IF can-do(emailcod.emailTo,"ShipTo") THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 4) NO-ERROR.
+    ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 4) NO-ERROR.
+    IF can-do(emailcod.emailTo,"Employee") THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 5) NO-ERROR.
+    ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 5) NO-ERROR.
+    IF can-do(emailcod.emailTo,"SoldTo") THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6) NO-ERROR.
+    ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6) NO-ERROR.
+  end.
   
 END.
 
