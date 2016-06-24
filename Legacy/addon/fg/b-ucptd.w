@@ -216,7 +216,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U
-      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 7
+      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U WIDTH 7
       fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U WIDTH 9
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT "->>>,>>9":U
@@ -706,15 +706,8 @@ DO:
                            AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
                            USE-INDEX co-ino NO-LOCK NO-ERROR.
           IF NOT AVAIL fg-bin THEN DO:
-           FIND FIRST rm-bin WHERE rm-bin.company = g_company 
-                           AND rm-bin.i-no = ""
-                           AND rm-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                           AND rm-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                           /*USE-INDEX co-ino*/ NO-LOCK NO-ERROR.
-             IF NOT AVAIL rm-bin THEN DO:
                MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
                RETURN NO-APPLY.
-             END.
           END.
           
 
@@ -755,15 +748,8 @@ DO:
                            USE-INDEX co-ino NO-LOCK NO-ERROR.
 
        IF NOT AVAIL fg-bin THEN DO: 
-           FIND FIRST rm-bin WHERE rm-bin.company = g_company 
-                           AND rm-bin.i-no = ""
-                           AND rm-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                           AND rm-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                           /*USE-INDEX co-ino*/ NO-LOCK NO-ERROR.
-           IF NOT AVAIL rm-bin THEN DO:
                MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
                RETURN NO-APPLY.
-           END.
        END.
   END.
 
@@ -1622,15 +1608,8 @@ PROCEDURE validate-record :
                       AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
                       USE-INDEX co-ino NO-LOCK NO-ERROR.
   IF NOT AVAIL fg-bin THEN DO: 
-          FIND FIRST rm-bin WHERE rm-bin.company = g_company 
-                           AND rm-bin.i-no = ""
-                           AND rm-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                           AND rm-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                           /*USE-INDEX co-ino*/ NO-LOCK NO-ERROR.
-           IF NOT AVAIL rm-bin THEN DO:
-               MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
-               RETURN NO-APPLY.
-           END.
+      MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
+      RETURN NO-APPLY.
   END.
 
   IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = "" AND 
