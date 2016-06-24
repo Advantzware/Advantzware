@@ -681,7 +681,7 @@ DO WITH FRAME Panel-Frame:
 
   END. /* panel-state = action-chosen */
       
-  {custom/secpanel.i}
+  /*{custom/secpanel.i}*/
 
 END. /* DO WITH FRAME */
 
