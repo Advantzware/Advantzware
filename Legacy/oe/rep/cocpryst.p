@@ -8,6 +8,7 @@
 DEFINE BUFFER xoe-bolh     FOR oe-bolh.
 DEFINE BUFFER xoe-boll     FOR oe-boll.
 DEFINE BUFFER xitemfg      FOR itemfg.
+DEFINE BUFFER bf-oe-boll   FOR oe-boll .
 
 {oe/rep/oe-lad.i}
 
@@ -257,6 +258,7 @@ FOR EACH report   NO-LOCK WHERE report.term-id EQ v-term-id,
   END.
   
   v-bol-qty = v-bol-qty + oe-boll.qty.
+  
   ASSIGN
      cases      = oe-boll.cases  
      qty-cases  = oe-boll.qty-case 
@@ -264,7 +266,17 @@ FOR EACH report   NO-LOCK WHERE report.term-id EQ v-term-id,
 
   
   IF FIRST-OF(report.key-06) THEN DO:
+    
+    ASSIGN v-bol-qty = 0 .
+    FOR EACH bf-oe-boll WHERE bf-oe-boll.bol-no EQ oe-boll.bol-no 
+                        AND bf-oe-boll.i-no EQ report.key-06 
+                        AND bf-oe-boll.po-no EQ string(report.key-05)
+                        AND bf-oe-boll.ord-no EQ INTEGER(report.key-04) NO-LOCK:
+      
+        v-bol-qty = v-bol-qty + bf-oe-boll.qty .      
+    END.
     v-qty-alf = TRIM(STRING(v-bol-qty,">>>>>>>>>9")).
+    
     FIND FIRST oe-ordl NO-LOCK
         WHERE oe-ordl.company EQ cocode
           AND oe-ordl.ord-no  EQ oe-boll.ord-no
