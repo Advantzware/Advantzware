@@ -130,6 +130,7 @@ DEFINE VARIABLE h_emailcod AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-crm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_phone AS HANDLE NO-UNDO.
@@ -344,6 +345,14 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
+        RUN init-object IN THIS-PROCEDURE (
+              INPUT  'panels/p-crm.w':U ,
+              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+              INPUT  'Layout = ':U ,
+              OUTPUT h_p-crm ).
+        RUN set-position IN h_p-crm ( 1.00 , 51.00 ) NO-ERROR.
+        /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
@@ -377,18 +386,24 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 17.14 , 125.00 ) NO-ERROR.
 
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartViewer h_p-crm. */
+       RUN add-link IN adm-broker-hdl ( h_phone , 'CRM':U , h_p-crm ).
+
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
     END. /* Page 0 */
 
     WHEN 1 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
+        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/phone.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_phone ).
-       RUN set-position IN h_phone ( 5.52 , 6.00 ) NO-ERROR.
+       RUN set-position IN h_phone ( 4.80 , 4.10 ) NO-ERROR.
        RUN set-size IN h_phone ( 13.76 , 117.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
