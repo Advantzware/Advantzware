@@ -598,7 +598,7 @@ PROCEDURE calcQtyPerTrans :
       END. /* each machtran */
     END. /* first-of job */
 
-    IF lvVorneRunQty LE ttblVorne.vorneTranRunQty THEN
+    IF lvVorneRunQty LE ttblVorne.vorneRunQty THEN
     ASSIGN
       ttblVorne.vorneTranRunQty = ttblVorne.vorneRunQty - lvVorneRunQty
       ttblVorne.vorneTranRejectQty = ttblVorne.vorneRejectQty - lvVorneRejectQty
@@ -1068,7 +1068,16 @@ PROCEDURE postVorne :
   END. /* repeat */
   INPUT CLOSE.
 
+  /* be sure voren file exists in case another import run */
+  /* without file, the hold file is not processed         */
+  IF SEARCH(lvFile) EQ ? THEN DO:
+    OUTPUT TO VALUE(lvFile).
+    OUTPUT CLOSE.
+  END. /* if search ? */
+
   RELEASE machtran.
+
+  OS-COMMAND NO-WAIT notepad.exe VALUE(lvErrorFile).
 
 END PROCEDURE.
 
@@ -1238,6 +1247,7 @@ PROCEDURE vorneSummary :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE empLoginRowID AS ROWID NO-UNDO.
   DEFINE VARIABLE lvState AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lvTime AS INTEGER NO-UNDO.
 
   /* Pass 1: consolidate vorne transactions */
   FOR EACH ttblVorne
@@ -1423,17 +1433,18 @@ PROCEDURE vorneSummary :
   /* Pass 8: create machtran records */
   FOR EACH ttblVorne
       BREAK BY ttblVorne.vorneResource
-              BY ttblVorne.vorneJob
-              BY ttblVorne.vorneItem
-              BY ttblVorne.vorneEmployee
-              BY ttblVorne.vorneShift
-              BY ttblVorne.vorneStartDate
-              BY ttblVorne.vorneSeq
-              BY ttblVorne.vorneState
+            BY ttblVorne.vorneJob
+            BY ttblVorne.vorneItem
+            BY ttblVorne.vorneEmployee
+            BY ttblVorne.vorneShift
+            BY ttblVorne.vorneStartDate
+            BY ttblVorne.vorneSeq
+            BY ttblVorne.vorneState
       :
     IF ttblVorne.deleteFlag THEN NEXT.
 
     IF FIRST-OF(ttblVorne.vorneJob) THEN DO:
+      lvTime = ttblVorne.vorneStartTime.
       FIND FIRST ttblJob
            WHERE ttblJob.resource EQ ttblVorne.vorneResource
              AND ttblJob.job EQ ttblVorne.vorneJob NO-ERROR.
@@ -1449,10 +1460,16 @@ PROCEDURE vorneSummary :
       FIND job-mch NO-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
       IF NOT AVAILABLE job-mch THEN NEXT.
     END. /* first-of job */
+
+    ASSIGN
+      ttblVorne.vorneDuration = ttblVorne.vorneEndTime - ttblVorne.vorneStartTime
+      ttblVorne.vorneStartTime = lvTime
+      ttblVorne.vorneEndTime = ttblVorne.vorneStartTime + ttblVorne.vorneDuration
+      lvTime = ttblVorne.vorneEndTime
+      .
     
     CREATE machtran.
     ASSIGN
-      ttblVorne.vorneDuration = ttblVorne.vorneEndTime - ttblVorne.vorneStartTime
       machtran.company = job-mch.company
       machtran.machine = ttblVorne.vorneResource
       machtran.job_number = job-mch.job-no

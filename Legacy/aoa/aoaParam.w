@@ -33,6 +33,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcParamStr AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
@@ -62,8 +63,11 @@ DEFINE TEMP-TABLE ttParamValue NO-UNDO
         INDEX paramOrder IS PRIMARY paramOrder
     .
 
-IF aoaColumns THEN
-RUN VALUE("aoaAppSrv/" + ENTRY(1,aoaParam,"/") + ".p") PERSISTENT SET hAppSrv.
+IF aoaColumns THEN DO:
+    RUN aoaAppSrv\aoaBin.p PERSISTENT SET hAppSrv.
+    SESSION:ADD-SUPER-PROCEDURE (hAppSrv).
+    RUN VALUE("aoaAppSrv/" + ENTRY(1,aoaParam,"/") + ".p") PERSISTENT SET hAppSrv.
+END.
 
 DEFINE BUFFER bUserPrint FOR user-print.
 
@@ -120,8 +124,8 @@ DEFINE BUFFER bUserPrint FOR user-print.
 &Scoped-define showFields svShowAll svShowReportHeader svShowParameters ~
 svShowPageHeader svShowGroupHeader svShowGroupFooter svShowPageFooter ~
 svShowReportFooter 
-&Scoped-define batchObjects btnDelete btnApply btnSave browseUserPrint ~
-browseParamValue btnShowBatch 
+&Scoped-define batchObjects btnShowBatch btnExcel btnDelete btnApply ~
+btnSave browseUserPrint browseParamValue 
 &Scoped-define batchShowHide btnDelete btnApply btnSave browseUserPrint ~
 browseParamValue 
 
@@ -146,6 +150,12 @@ FUNCTION fGenerateInclude RETURNS LOGICAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetCompany W-Win 
 FUNCTION fGetCompany RETURNS CHARACTER FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetLocation W-Win 
+FUNCTION fGetLocation RETURNS CHARACTER FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -177,7 +187,7 @@ DEFINE VARIABLE h_aoaParam AS HANDLE NO-UNDO.
 DEFINE BUTTON btnAdd 
      IMAGE-UP FILE "aoa/images/aoaadd.jpg":U
      LABEL "&Add" 
-     SIZE 4.4 BY 1 TOOLTIP "Add Available Column to Selected Columns".
+     SIZE 4.4 BY 1 TOOLTIP "Add Available Column(s) to Selected Columns".
 
 DEFINE BUTTON btnDefault 
      IMAGE-UP FILE "aoa/images/aoadefault.jpg":U
@@ -194,25 +204,35 @@ DEFINE BUTTON btnMoveUp
      LABEL "Move Up" 
      SIZE 4.4 BY 1 TOOLTIP "Move Selected Column Up".
 
-DEFINE BUTTON btnRemove 
-     IMAGE-UP FILE "aoa/images/aoacancel.jpg":U
-     LABEL "<< &Remove" 
-     SIZE 4.4 BY 1 TOOLTIP "Remove Selected Column".
+DEFINE BUTTON btnRemoveColumn 
+     IMAGE-UP FILE "aoa/images/aoaremove.jpg":U
+     LABEL "&Remove" 
+     SIZE 4.4 BY 1 TOOLTIP "Remove Selected Column(s)".
 
 DEFINE VARIABLE svAvailableColumns AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      LIST-ITEM-PAIRS "empty","empty" 
-     SIZE 30 BY 6.91 NO-UNDO.
+     SIZE 30 BY 8.57 NO-UNDO.
 
 DEFINE VARIABLE svSelectedColumns AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      LIST-ITEM-PAIRS "empty","empty" 
-     SIZE 30 BY 6.91 NO-UNDO.
+     SIZE 30 BY 8.57 NO-UNDO.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     SIZE 38 BY 1.19
+     FGCOLOR 2 .
+
+DEFINE VARIABLE svExcelTable AS LOGICAL INITIAL no 
+     LABEL "Format Data as Table (Excel Only)" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 36 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowAll AS LOGICAL INITIAL no 
      LABEL "Show ALL" 
      VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
+     SIZE 37 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowGroupFooter AS LOGICAL INITIAL no 
      LABEL "Group Footer (SubTotals)" 
@@ -260,9 +280,14 @@ DEFINE BUTTON btnCancel AUTO-END-KEY
      SIZE 4.4 BY 1 TOOLTIP "Close".
 
 DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "aoa/images/aoacancel.jpg":U
+     IMAGE-UP FILE "aoa/images/aoadelete.jpg":U
      LABEL "&Delete" 
      SIZE 4.4 BY 1 TOOLTIP "Delete Batch ID".
+
+DEFINE BUTTON btnExcel 
+     IMAGE-UP FILE "aoa/images/aoaexcel.jpg":U
+     LABEL "&Excel" 
+     SIZE 4.4 BY 1 TOOLTIP "Export to Excel".
 
 DEFINE BUTTON btnSave 
      IMAGE-UP FILE "aoa/images/aoasave.jpg":U
@@ -300,7 +325,7 @@ DEFINE BROWSE browseParamValue
     ttParamValue.paramValue
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 67 BY 6.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 67 BY 7.14
          TITLE "Batch Parameter Values".
 
 DEFINE BROWSE browseUserPrint
@@ -311,55 +336,57 @@ DEFINE BROWSE browseUserPrint
       STRING(ttUserPrint.last-time,"hh:mm:ss am") LABEL "Time" FORMAT "x(12)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 6.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 7.14
          TITLE "Batch Parameter".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME paramFrame
-     btnCancel AT ROW 2.43 COL 2 HELP
-          "Close" WIDGET-ID 12
-     btnView AT ROW 2.43 COL 7 HELP
-          "View" WIDGET-ID 14
-     btnDelete AT ROW 2.43 COL 26 HELP
-          "Delete Batch ID" WIDGET-ID 4
-     btnApply AT ROW 2.43 COL 31 HELP
-          "Apply Batch Values to Parameter Values" WIDGET-ID 16
-     btnSave AT ROW 2.43 COL 36 HELP
-          "Save Parameter Values to Batch ID" WIDGET-ID 18
-     browseUserPrint AT ROW 10.05 COL 41 WIDGET-ID 500
-     browseParamValue AT ROW 10.05 COL 82 WIDGET-ID 600
-     btnScheduler AT ROW 15.29 COL 2 HELP
+     btnScheduler AT ROW 2.43 COL 2 HELP
           "Assign Batch ID to Parameter Values" WIDGET-ID 10
-     btnShowBatch AT ROW 15.29 COL 30 HELP
+     btnShowBatch AT ROW 2.43 COL 30 HELP
           "Show Batch Parameter Values" WIDGET-ID 20
+     btnExcel AT ROW 2.43 COL 35 HELP
+          "Export to Excel" WIDGET-ID 22
+     btnCancel AT ROW 3.62 COL 2 HELP
+          "Close" WIDGET-ID 12
+     btnView AT ROW 3.62 COL 7 HELP
+          "View" WIDGET-ID 14
+     btnDelete AT ROW 3.62 COL 25 HELP
+          "Delete Batch ID" WIDGET-ID 4
+     btnApply AT ROW 3.62 COL 30 HELP
+          "Apply Batch Values to Parameter Values" WIDGET-ID 16
+     btnSave AT ROW 3.62 COL 35 HELP
+          "Save Parameter Values to Batch ID" WIDGET-ID 18
+     browseUserPrint AT ROW 11.71 COL 41 WIDGET-ID 500
+     browseParamValue AT ROW 11.71 COL 82 WIDGET-ID 600
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 149 BY 15.5.
+         SIZE 149 BY 18.05.
 
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
      btnDefault AT ROW 1.71 COL 32 HELP
           "Reset Selected Columns to Default" WIDGET-ID 76
      svSelectedColumns AT ROW 1.71 COL 37 NO-LABEL WIDGET-ID 70
-     btnAdd AT ROW 2.91 COL 32 HELP
-          "Add Available Column to Selected Columns" WIDGET-ID 58
-     btnMoveUp AT ROW 5.29 COL 32 HELP
+     btnAdd AT ROW 4.33 COL 32 HELP
+          "Add Available Column(s) to Selected Columns" WIDGET-ID 58
+     btnRemoveColumn AT ROW 5.52 COL 32 HELP
+          "Remove Selected Column(s)" WIDGET-ID 78
+     btnMoveUp AT ROW 8.14 COL 32 HELP
           "Move Selected Column Up" WIDGET-ID 66
-     btnRemove AT ROW 6.48 COL 32 HELP
-          "Remove Selected Column" WIDGET-ID 64
-     btnMoveDown AT ROW 7.67 COL 32 HELP
+     btnMoveDown AT ROW 9.33 COL 32 HELP
           "Move Selected Column Down" WIDGET-ID 62
-     "Selected Columns (In Order)" VIEW-AS TEXT
-          SIZE 28 BY .62 AT ROW 1 COL 37 WIDGET-ID 72
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 1 COL 2 WIDGET-ID 74
+     "Selected Columns (In Order)" VIEW-AS TEXT
+          SIZE 28 BY .62 AT ROW 1 COL 37 WIDGET-ID 72
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 82 ROW 1
-         SIZE 67 BY 8.81
+         SIZE 67 BY 10.48
          TITLE "Report Columns" WIDGET-ID 200.
 
 DEFINE FRAME frameShow
@@ -371,10 +398,12 @@ DEFINE FRAME frameShow
      svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
      svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
      svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
+     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 41 ROW 1
-         SIZE 40 BY 8.81
+         SIZE 40 BY 10.48
          TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 
@@ -395,13 +424,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "AdvantzwareOA"
-         HEIGHT             = 15.52
+         HEIGHT             = 18.05
          WIDTH              = 149
-         MAX-HEIGHT         = 15.52
+         MAX-HEIGHT         = 18.05
          MAX-WIDTH          = 149
-         VIRTUAL-HEIGHT     = 15.52
+         VIRTUAL-HEIGHT     = 18.05
          VIRTUAL-WIDTH      = 149
-         SHOW-IN-TASKBAR    = no
          MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
@@ -446,11 +474,17 @@ ASSIGN FRAME frameColumns:FRAME = FRAME paramFrame:HANDLE
 ASSIGN 
        FRAME frameColumns:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnMoveDown IN FRAME frameColumns
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnMoveUp IN FRAME frameColumns
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME frameShow
    NOT-VISIBLE                                                          */
 ASSIGN 
        FRAME frameShow:HIDDEN           = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME frameShow
+   NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX svShowAll IN FRAME frameShow
    2                                                                    */
 /* SETTINGS FOR TOGGLE-BOX svShowGroupFooter IN FRAME frameShow
@@ -484,7 +518,9 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnApply IN FRAME paramFrame
    NO-ENABLE 3 4                                                        */
 ASSIGN 
-       btnApply:HIDDEN IN FRAME paramFrame           = TRUE.
+       btnApply:HIDDEN IN FRAME paramFrame           = TRUE
+       btnApply:PRIVATE-DATA IN FRAME paramFrame     = 
+                "WinKitRibbon".
 
 ASSIGN 
        btnCancel:PRIVATE-DATA IN FRAME paramFrame     = 
@@ -493,12 +529,23 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnDelete IN FRAME paramFrame
    NO-ENABLE 3 4                                                        */
 ASSIGN 
-       btnDelete:HIDDEN IN FRAME paramFrame           = TRUE.
+       btnDelete:HIDDEN IN FRAME paramFrame           = TRUE
+       btnDelete:PRIVATE-DATA IN FRAME paramFrame     = 
+                "WinKitRibbon".
+
+/* SETTINGS FOR BUTTON btnExcel IN FRAME paramFrame
+   NO-ENABLE 3                                                          */
+ASSIGN 
+       btnExcel:HIDDEN IN FRAME paramFrame           = TRUE
+       btnExcel:PRIVATE-DATA IN FRAME paramFrame     = 
+                "WinKitRibbon".
 
 /* SETTINGS FOR BUTTON btnSave IN FRAME paramFrame
    NO-ENABLE 3 4                                                        */
 ASSIGN 
-       btnSave:HIDDEN IN FRAME paramFrame           = TRUE.
+       btnSave:HIDDEN IN FRAME paramFrame           = TRUE
+       btnSave:PRIVATE-DATA IN FRAME paramFrame     = 
+                "WinKitRibbon".
 
 /* SETTINGS FOR BUTTON btnScheduler IN FRAME paramFrame
    NO-ENABLE                                                            */
@@ -669,7 +716,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDefault W-Win
 ON CHOOSE OF btnDefault IN FRAME frameColumns /* Default */
 DO:
-  svSelectedColumns:LIST-ITEM-PAIRS = ?.
+    ASSIGN
+        cSelectedColumns = ""
+        svSelectedColumns:LIST-ITEM-PAIRS = ?
+        .
   RUN pGetColumns.
 END.
 
@@ -700,6 +750,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnExcel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExcel W-Win
+ON CHOOSE OF btnExcel IN FRAME paramFrame /* Excel */
+DO:
+    DO WITH FRAME frameShow:
+        ASSIGN svExcelTable.
+    END.
+    RUN pExcel (BUFFER user-print).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME frameColumns
 &Scoped-define SELF-NAME btnMoveDown
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveDown W-Win
@@ -723,11 +787,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnRemove
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemove W-Win
-ON CHOOSE OF btnRemove IN FRAME frameColumns /* << Remove */
+&Scoped-define SELF-NAME btnRemoveColumn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemoveColumn W-Win
+ON CHOOSE OF btnRemoveColumn IN FRAME frameColumns /* Remove */
 DO:
-  RUN pDeleteColumn.
+  RUN pRemoveColumn.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -742,6 +806,7 @@ DO:
     IF AVAILABLE ttUserPrint THEN DO:
         FIND user-print WHERE ROWID(user-print) EQ ttUserPrint.UserPrintRowID.
         RUN pSaveParamValues (?, BUFFER user-print).
+        RUN pUpdateBatchValues.
         MESSAGE "Batch" ttUserPrint.batch-seq "Saved"
             VIEW-AS ALERT-BOX
             TITLE "Batch Record Saved"
@@ -781,7 +846,6 @@ ON CHOOSE OF btnView IN FRAME paramFrame /* View */
 DO:
     RUN pSaveParamValues (NO, BUFFER user-print).
     {aoa/aoaURL.i}
-    APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -804,7 +868,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svSelectedColumns W-Win
 ON DEFAULT-ACTION OF svSelectedColumns IN FRAME frameColumns
 DO:
-    RUN pDeleteColumn.
+    RUN pRemoveColumn.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svSelectedColumns W-Win
+ON VALUE-CHANGED OF svSelectedColumns IN FRAME frameColumns
+DO:
+  IF NUM-ENTRIES({&SELF-NAME}:SCREEN-VALUE) EQ 1 THEN
+  ENABLE btnMoveUp btnMoveDown WITH FRAME frameColumns.
+  ELSE
+  DISABLE btnMoveUp btnMoveDown WITH FRAME frameColumns.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1012,17 +1089,16 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   DISPLAY svShowAll svShowReportHeader svShowParameters svShowPageHeader 
           svShowGroupHeader svShowGroupFooter svShowPageFooter 
-          svShowReportFooter 
+          svShowReportFooter svExcelTable 
       WITH FRAME frameShow IN WINDOW W-Win.
   ENABLE svShowAll svShowReportHeader svShowParameters svShowPageHeader 
          svShowGroupHeader svShowGroupFooter svShowPageFooter 
-         svShowReportFooter 
+         svShowReportFooter svExcelTable 
       WITH FRAME frameShow IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-frameShow}
   DISPLAY svAvailableColumns svSelectedColumns 
       WITH FRAME frameColumns IN WINDOW W-Win.
-  ENABLE svAvailableColumns btnDefault svSelectedColumns btnAdd btnMoveUp 
-         btnRemove btnMoveDown 
+  ENABLE svAvailableColumns btnDefault svSelectedColumns btnAdd btnRemoveColumn 
       WITH FRAME frameColumns IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-frameColumns}
   VIEW W-Win.
@@ -1093,31 +1169,269 @@ PROCEDURE pAddColumn :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+
     IF svAvailableColumns:SCREEN-VALUE IN FRAME frameColumns EQ ? THEN RETURN.
 
-    svSelectedColumns:ADD-LAST(ENTRY((svAvailableColumns:LOOKUP(svAvailableColumns:SCREEN-VALUE) * 2) - 1,
-                                      svAvailableColumns:LIST-ITEM-PAIRS),
-                                      svAvailableColumns:SCREEN-VALUE).
-    svAvailableColumns:DELETE(svAvailableColumns:SCREEN-VALUE).
+    DO idx = 1 TO svAvailableColumns:NUM-ITEMS:
+        IF svAvailableColumns:IS-SELECTED(idx) THEN
+        svSelectedColumns:ADD-LAST(ENTRY((svAvailableColumns:LOOKUP(svAvailableColumns:ENTRY(idx)) * 2) - 1,
+                                          svAvailableColumns:LIST-ITEM-PAIRS),
+                                          svAvailableColumns:ENTRY(idx)).
+    END. /* do idx */
+    DO idx = svAvailableColumns:NUM-ITEMS TO 1 BY -1:
+        IF svAvailableColumns:IS-SELECTED(idx) THEN
+        svAvailableColumns:DELETE(idx).
+    END. /* do idx */
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteColumn W-Win 
-PROCEDURE pDeleteColumn :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExcel W-Win 
+PROCEDURE pExcel :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF svSelectedColumns:SCREEN-VALUE IN FRAME frameColumns EQ ? THEN RETURN.
+    DEFINE PARAMETER BUFFER user-print FOR user-print.
 
-    svAvailableColumns:ADD-LAST(ENTRY((svSelectedColumns:LOOKUP(svSelectedColumns:SCREEN-VALUE) * 2) - 1,
-                                       svSelectedColumns:LIST-ITEM-PAIRS),
-                                       svSelectedColumns:SCREEN-VALUE).
-    svSelectedColumns:DELETE(svSelectedColumns:SCREEN-VALUE).
+    DEFINE VARIABLE hTable      AS HANDLE     NO-UNDO.
+    DEFINE VARIABLE cColumns    AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE fieldName   AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE iColumn     AS INTEGER    NO-UNDO.
+    DEFINE VARIABLE iRow        AS INTEGER    NO-UNDO INITIAL 1.
+    DEFINE VARIABLE iStatusRow  AS INTEGER    NO-UNDO INITIAL 3.
+    DEFINE VARIABLE hQuery      AS HANDLE     NO-UNDO.
+    DEFINE VARIABLE hQueryBuf   AS HANDLE     NO-UNDO.
+    DEFINE VARIABLE cDynFunc    AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cExcelFile  AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cDataType   AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cFormat     AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE chExcel     AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE chWorksheet AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE chWorkBook  AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE chRangeRow  AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE chRangeCol  AS COM-HANDLE NO-UNDO.
+    
+    RUN pSaveParamValues (NO, BUFFER user-print).
+
+    IF VALID-HANDLE(hAppSrv) THEN DO WITH FRAME frameColumns:
+        hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
+        IF NOT VALID-HANDLE(hTable) THEN RETURN.
+        
+        ASSIGN
+            cExcelFile = "aoaExcel\.keep"
+            FILE-INFO:FILE-NAME = cExcelFile
+            cExcelFile = FILE-INFO:FULL-PATHNAME
+            cExcelFile = REPLACE(cExcelFile,".keep",aoaTitle + " (")
+                       + USERID("NoSweat") + ").xls"
+            .
+
+        IF SEARCH(cExcelFile) NE ? THEN
+        OS-DELETE VALUE(SEARCH(cExcelFile)).
+
+        /* Connect to the running Excel session. */
+        CREATE "Excel.Application" chExcel CONNECT NO-ERROR.
+        /* Start a new session of Excel. */
+        IF NOT VALID-HANDLE(chExcel) THEN
+        CREATE "Excel.Application" chExcel NO-ERROR.
+        /* Check if Excel got initialized. */
+        IF NOT VALID-HANDLE(chExcel) THEN DO:
+            MESSAGE "Unable to Start Excel" VIEW-AS ALERT-BOX ERROR.
+            RETURN ERROR.
+        END.
+        /* Open our Excel Template. */
+        chWorkbook = chExcel:Workbooks:Open(cExcelFile) NO-ERROR.
+        chExcel:Visible = TRUE.
+        /* Do not display Excel error messages. */
+        chExcel:DisplayAlerts = FALSE NO-ERROR.
+        ASSIGN
+            chExcel:SheetsInNewWorkbook = 1
+            chWorkbook  = chExcel:Workbooks:Add()
+            chWorksheet = chWorkbook:Worksheets(1)
+            .
+        chWorkbook:Worksheets:Add(,chWorksheet).
+        RELEASE OBJECT chWorksheet.
+
+        /* Select a worksheet */
+        chWorkbook:Worksheets(1):Activate.
+        ASSIGN
+            chWorksheet = chWorkbook:Worksheets(1)
+            /* Rename the worksheet */
+            chWorkSheet:Name = aoaTitle
+            /* Disable screen updating so it will go faster */
+            chExcel:ScreenUpdating = TRUE
+            .
+        /* remove spare worksheet */
+        chWorkbook:WorkSheets(2):DELETE NO-ERROR.
+
+        IF svShowReportHeader THEN DO:
+            ASSIGN
+                chWorkSheet:Range("A1"):Value = aoaTitle
+                chWorkSheet:Range("A1"):Font:Bold = TRUE
+                chWorkSheet:Range("A2"):Value = "Created " + STRING(TODAY,"99/99/9999")
+                                              + " @ " + STRING(TIME,"hh:mm:ss am")
+                iRow = iRow + 2
+                iStatusRow = iStatusRow + 2
+                .
+        END. /* show report title */
+        
+        IF svShowParameters THEN DO:
+            ASSIGN
+                chWorkSheet:Cells(iRow,1):Value = "Parameter: Value"
+                chWorkSheet:Cells(iRow,1):Font:Bold = TRUE
+                chWorkSheet:Cells(iRow,1):Font:Underline = TRUE
+                iRow = iRow + 1
+                iStatusRow = iStatusRow + 1
+                .
+            PUT UNFORMATTED "Parameter: Value" SKIP.
+            DO iColumn = 1 TO EXTENT(user-print.field-name):
+                IF user-print.field-name[iColumn] EQ "" THEN LEAVE.
+                IF user-print.field-name[iColumn] EQ "svTitle" THEN LEAVE.
+                IF INDEX(user-print.field-name[iColumn],"DateOption") EQ 0 THEN
+                ASSIGN
+                    chWorkSheet:Cells(iRow,1):Value = (IF user-print.field-label[iColumn] NE ? THEN
+                                                          user-print.field-label[iColumn] ELSE
+                                                          user-print.field-name[iColumn])
+                                                    + ": " + user-print.field-value[iColumn]
+                    iRow = iRow + 1
+                    iStatusRow = iStatusRow + 1
+                    .
+                ELSE
+                chWorkSheet:Cells(iRow - 1,1):Value = chWorkSheet:Cells(iRow - 1,1):Value
+                                                    + " (" + user-print.field-value[iColumn] + ")".
+            END. /* do icolumn */
+        END. /* show parameters */
+
+        ASSIGN
+            chWorkSheet:Cells(iStatusRow,2):Value = "Running Query..."
+            cDynFunc = "f" + REPLACE(aoaTitle," ","")
+            hTable = DYNAMIC-FUNCTION(cDynFunc IN hAppSrv, aoaCompany,0,USERID("NoSweat")).
+        IF NOT VALID-HANDLE(hTable) THEN RETURN.
+
+        hTable = hTable:DEFAULT-BUFFER-HANDLE.
+
+        /* build header row column labels */
+        DO iColumn = 1 TO svSelectedColumns:NUM-ITEMS:
+            ASSIGN
+                chWorkSheet:Cells(iStatusRow,2):Value = "Running Query...Done"
+                chWorkSheet:Cells(iStatusRow + 2,2):Value = "Formatting Cells..."
+                fieldName = svSelectedColumns:ENTRY(iColumn)
+                cDataType = hTable:BUFFER-FIELD(fieldName):DATA-TYPE
+                /* align left (-4131) or right (-4152) */
+                chWorkSheet:Cells(iRow,iColumn):HorizontalAlignment = IF cDataType EQ "Character" THEN -4131
+                                                                                                  ELSE -4152
+                chRangeRow = chWorkSheet:Cells(iRow,iColumn)
+                chRangeCol = chWorkSheet:Cells(65536,iColumn)
+                .
+            /* column label */
+            IF svShowPageHeader THEN
+            chWorkSheet:Cells(iRow,iColumn):Value = hTable:BUFFER-FIELD(fieldName):LABEL.
+            IF svShowPageHeader THEN
+            PUT UNFORMATTED hTable:BUFFER-FIELD(fieldName):LABEL "|".
+            /* apply column format based on data type */
+            CASE cDataType:
+                WHEN "Character" THEN
+                ASSIGN
+                    chWorkSheet:Range(chRangeRow,chRangeCol):HorizontalAlignment = -4131
+                    chWorkSheet:Range(chRangeRow,chRangeCol):NumberFormat = "General"
+                    .
+                WHEN "Date" THEN
+                chWorkSheet:Range(chRangeRow,chRangeCol):NumberFormat = "mm/dd/yyyy".
+                WHEN "Integer" OR WHEN "Decimal" THEN DO:
+                    ASSIGN
+                        cFormat = hTable:BUFFER-FIELD(fieldName):FORMAT
+                        cFormat = REPLACE(cFormat,">","#")
+                        cFormat = REPLACE(cFormat,"9","0")
+                        .
+                    IF INDEX(cFormat,"-") NE 0 THEN
+                    ASSIGN
+                        cFormat = REPLACE(cFormat,"-","")
+                        cFormat = cFormat + "_);[Red](" + cFormat + ")"
+                        .
+                    chWorkSheet:Range(chRangeRow,chRangeCol):NumberFormat = cFormat.
+                END. /* integer/decimal */
+            END CASE.
+        END. /* do iColumn */
+        IF svShowPageHeader THEN DO:
+            /* bold and underline header row */
+            ASSIGN
+                chRangeRow = chWorkSheet:Cells(iRow,1)
+                chRangeCol = chWorkSheet:Cells(iRow,svSelectedColumns:NUM-ITEMS)
+                chWorkSheet:Range(chRangeRow,chRangeCol):Font:Bold = TRUE
+                chWorkSheet:Range(chRangeRow,chRangeCol):Font:Underline = TRUE
+                .
+            chWorkSheet:Range(chRangeRow,chRangeCol):Select.
+            /* auto size the columns */
+            chExcel:Selection:Columns:AutoFit.
+            chWorksheet:Cells(iRow + 1,1):Select.
+        END.
+        ELSE
+        iRow = iRow - 1.
+        
+        ASSIGN
+            chWorkSheet:Cells(iStatusRow + 2,2):Value = "Formatting Cells...Done"
+            chWorkSheet:Cells(iStatusRow + 4,2):Value = "Building Wooksheet..."
+            .
+        /* pause to let excel display catch up */
+        PAUSE 1 NO-MESSAGE.
+
+        /* turn off display to run faster and clear status messages */
+        ASSIGN
+            chExcel:ScreenUpdating = FALSE
+            chWorkSheet:Cells(iStatusRow,2):Value     = ""
+            chWorkSheet:Cells(iStatusRow + 2,2):Value = ""
+            chWorkSheet:Cells(iStatusRow + 4,2):Value = ""
+            .
+        
+        /* scroll returned temp-table records */
+        CREATE QUERY hQuery.
+        hQuery:SET-BUFFERS(hTable:HANDLE).
+        hQuery:QUERY-PREPARE("FOR EACH " + hTable:NAME).
+        hQuery:QUERY-OPEN.
+        hQueryBuf = hQuery:GET-BUFFER-HANDLE(hTable:NAME).
+        REPEAT:
+            hQuery:GET-NEXT().
+            IF hQuery:QUERY-OFF-END THEN LEAVE.
+            IF hQueryBuf:BUFFER-FIELD("RowType"):BUFFER-VALUE() NE "Data" THEN NEXT.
+            iRow = iRow + 1.
+            DO iColumn = 1 TO svSelectedColumns:NUM-ITEMS:
+                ASSIGN
+                    fieldName = svSelectedColumns:ENTRY(iColumn)
+                    chWorkSheet:Cells(iRow,iColumn):Value = hTable:BUFFER-FIELD(fieldName):BUFFER-VALUE()
+                    .
+            END. /* do iColumn */
+        END. /* repeat */
+        hQuery:QUERY-CLOSE().
+        DELETE OBJECT hQuery.
+
+        /* calc header and data */
+        ASSIGN
+            chRangeRow = chWorkSheet:Cells(iStatusRow - 2,1)
+            chRangeCol = chWorkSheet:Cells(iRow,svSelectedColumns:NUM-ITEMS)
+            .
+        /* put data into a table */
+        IF svExcelTable THEN
+        chWorkSheet:ListObjects:Add(,chWorkSheet:Range(chRangeRow,chRangeCol),,NOT svShowPageHeader):Name = "TableAOA".
+        /* select header and data */
+        chWorkSheet:Range(chRangeRow,chRangeCol):Select.
+        /* auto size the columns */
+        chExcel:Selection:Columns:AutoFit.
+        /* select first none header cell */
+        chWorksheet:Cells(iStatusRow - 1,1):Select.
+        /* enable screen updating */
+        chExcel:ScreenUpdating = TRUE.
+        /* auto save excel file */
+        chExcel:ActiveSheet:SaveAs(cExcelFile).
+        
+        /* Release created objects. */
+        RELEASE OBJECT chWorkbook  NO-ERROR.
+        RELEASE OBJECT chWorkSheet NO-ERROR.
+        RELEASE OBJECT chExcel     NO-ERROR.
+    END. /* valid happsrv */
 
 END PROCEDURE.
 
@@ -1219,10 +1533,16 @@ PROCEDURE pGetColumns :
             svAvailableColumns:ADD-LAST(hTable:BUFFER-FIELD(idx):LABEL,
                                         hTable:BUFFER-FIELD(idx):NAME).
         END.
+        IF cSelectedColumns NE "" THEN
         DO idx = 1 TO NUM-ENTRIES(cSelectedColumns):
             svAvailableColumns:SCREEN-VALUE = ENTRY(idx,cSelectedColumns) NO-ERROR.
             APPLY "CHOOSE":U TO btnAdd.
         END. /* do idx */
+        ELSE
+        ASSIGN
+            svSelectedColumns:LIST-ITEM-PAIRS  = svAvailableColumns:LIST-ITEM-PAIRS
+            svAvailableColumns:LIST-ITEM-PAIRS = ?
+            .
     END. /* valid happsrv */
 
 END PROCEDURE.
@@ -1371,8 +1691,11 @@ PROCEDURE pMoveColumn :
 
     IF svSelectedColumns:SCREEN-VALUE IN FRAME frameColumns EQ ? THEN RETURN.
 
+    idx = svSelectedColumns:LOOKUP(svSelectedColumns:SCREEN-VALUE).
+    IF ipcMove EQ "Down" AND idx EQ svSelectedColumns:NUM-ITEMS THEN RETURN.
+    IF ipcMove EQ "Up"   AND idx EQ 1 THEN RETURN.
+
     ASSIGN
-        idx    = svSelectedColumns:LOOKUP(svSelectedColumns:SCREEN-VALUE)
         pos    = IF ipcMove EQ "Down" THEN idx + 1 ELSE idx - 1
         ldummy = IF ipcMove EQ "Down" THEN svSelectedColumns:INSERT(
             ENTRY((svSelectedColumns:LOOKUP(svSelectedColumns:SCREEN-VALUE) * 2) - 1,
@@ -1386,6 +1709,33 @@ PROCEDURE pMoveColumn :
                                       ELSE svSelectedColumns:DELETE(idx + 1)
         svSelectedColumns:SCREEN-VALUE = svSelectedColumns:ENTRY(pos)
         .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRemoveColumn W-Win 
+PROCEDURE pRemoveColumn :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+
+    IF svSelectedColumns:SCREEN-VALUE IN FRAME frameColumns EQ ? THEN RETURN.
+
+    DO idx = 1 TO svSelectedColumns:NUM-ITEMS:
+        IF svSelectedColumns:IS-SELECTED(idx) THEN
+        svAvailableColumns:ADD-LAST(ENTRY((svSelectedColumns:LOOKUP(svSelectedColumns:ENTRY(idx)) * 2) - 1,
+                                           svSelectedColumns:LIST-ITEM-PAIRS),
+                                           svSelectedColumns:ENTRY(idx)).
+    END. /* do idx */
+    DO idx = svSelectedColumns:NUM-ITEMS TO 1 BY -1:
+        IF svSelectedColumns:IS-SELECTED(idx) THEN
+        svSelectedColumns:DELETE(idx).
+    END. /* do idx */
 
 END PROCEDURE.
 
@@ -1447,8 +1797,8 @@ PROCEDURE pSaveParamValues :
         hChild = hChild:FIRST-CHILD
         .
     DO WHILE VALID-HANDLE(hChild):
-        IF hChild:NAME NE ? AND
-           hChild:SENSITIVE AND
+        IF hChild:NAME NE ?        AND
+           hChild:SENSITIVE        AND
            hChild:TYPE NE "Button" THEN
         ASSIGN
             idx = idx + 1
@@ -1494,6 +1844,7 @@ PROCEDURE pSaveParamValues :
         hChild = hChild:FIRST-CHILD
         .
     DO WHILE VALID-HANDLE(hChild):
+        IF hChild:TYPE NE "Rectangle" THEN
         ASSIGN
             idx = idx + 1
             user-print.field-name[idx]  = hChild:NAME
@@ -1594,11 +1945,15 @@ PROCEDURE pSetWinSize :
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
             btnScheduler:Y                            = hParamFrame:HEIGHT-PIXELS + 5
             btnShowBatch:Y                            = hParamFrame:HEIGHT-PIXELS + 5
+            btnExcel:Y                                = hParamFrame:HEIGHT-PIXELS + 5
             btnCancel:Y                               = hParamFrame:HEIGHT-PIXELS + 5
             btnView:Y                                 = hParamFrame:HEIGHT-PIXELS + 5
             btnShowBatch:X                            = btnScheduler:X + btnScheduler:WIDTH-PIXELS + 2
             btnView:X                                 = hParamFrame:WIDTH-PIXELS - btnView:WIDTH-PIXELS
             btnCancel:X                               = btnView:X - btnCancel:WIDTH-PIXELS - 2
+            btnExcel:X                                = btnCancel:X - ((btnCancel:X
+                                                      - (btnShowBatch:X + btnShowBatch:WIDTH-PIXELS)) / 2)
+                                                      - btnExcel:WIDTH-PIXELS / 2
             .
 
         IF aoaColumns THEN DO:
@@ -1621,13 +1976,11 @@ PROCEDURE pSetWinSize :
                                                          - FRAME frameColumns:HEIGHT-PIXELS
                                                          + btnSave:HEIGHT-PIXELS
                 BROWSE browseParamValue:HIDDEN           = FALSE
-                
                 BROWSE browseUserPrint:X                 = FRAME frameShow:X
                 BROWSE browseUserPrint:Y                 = BROWSE browseParamValue:Y
                 BROWSE browseUserPrint:HEIGHT-PIXELS     = BROWSE browseParamValue:HEIGHT-PIXELS
                                                          - btnSave:HEIGHT-PIXELS - 5
                 BROWSE browseUserPrint:HIDDEN            = FALSE
-                
                 btnSave:Y                                = btnView:Y
                 btnApply:Y                               = btnView:Y
                 btnDelete:Y                              = btnView:Y
@@ -1668,6 +2021,30 @@ PROCEDURE pShowBatchObjs :
                 .
         END. /* else */
     END. /* do with frame */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateBatchValues W-Win 
+PROCEDURE pUpdateBatchValues :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+
+    FIND FIRST bUserPrint WHERE ROWID(bUserPrint) EQ ttUserPrint.UserPrintRowID.
+    DO idx = 1 TO EXTENT(bUserPrint.field-name):
+        IF bUserPrint.field-name[idx] EQ "" THEN LEAVE.
+        FIND FIRST ttParamValue
+             WHERE ttParamValue.paramOrder EQ idx
+               AND ttParamValue.batch-seq  EQ bUserPrint.batch-seq.
+        ttParamValue.paramValue = bUserPrint.field-value[idx].
+    END. /* do idx */
+    BROWSE browseParamValue:REFRESH().
 
 END PROCEDURE.
 
@@ -1908,6 +2285,19 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetLocation W-Win 
+FUNCTION fGetLocation RETURNS CHARACTER:
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  RETURN aoaLocation.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetDescription W-Win 
 FUNCTION fSetDescription RETURNS CHARACTER
   ( ipObject AS HANDLE ) :
@@ -1932,8 +2322,7 @@ FUNCTION fSetDescription RETURNS CHARACTER
         WHEN "svStartDept" OR WHEN "svEndDept" THEN DO:
             cRange = REPLACE(cRange,"Dept","").
             FIND FIRST dept NO-LOCK
-                 WHERE dept.company EQ aoaCompany
-                   AND dept.code EQ ipObject:SCREEN-VALUE
+                 WHERE dept.code EQ ipObject:SCREEN-VALUE
                  NO-ERROR.
             IF AVAILABLE dept THEN cDescription = dept.dscr.
         END.

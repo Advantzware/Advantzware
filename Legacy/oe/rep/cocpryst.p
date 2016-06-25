@@ -2,44 +2,51 @@
 /* Print Xprint COC (Certificate of Compliance)                                */
 /* -------------------------------------------------------------------------- */
 
-{sys/inc/var.i shared}
+{sys/inc/var.i SHARED}
 {sys/form/s-top.f}
 
-def buffer xoe-bolh     for oe-bolh.
-def buffer xoe-boll     for oe-boll.
-def buffer xitemfg      for itemfg.
+DEFINE BUFFER xoe-bolh     FOR oe-bolh.
+DEFINE BUFFER xoe-boll     FOR oe-boll.
+DEFINE BUFFER xitemfg      FOR itemfg.
+DEFINE BUFFER bf-oe-boll   FOR oe-boll .
 
 {oe/rep/oe-lad.i}
 
-def var v-fob               as   char format "x(7)".
-def var v-terms              as   char format "x(12)".
-def var v-name              as   char format "x(30)".
-def var v-price              as   INT format ">>>>>>>>".
-def var v-tot-price              as   INT format ">>>>>>>>>>".
-def var v-dscr              as   char format "x(30)".
-def var v-ord-bol           as   char format "x(15)".
-def var v-ord-date          like oe-ord.ord-date.
-def var v-part-qty          as   dec.
-def var v-po-no             like oe-bolh.po-no extent 2.
-def var v-bol-qty           like oe-boll.qty.
-def var v-qty-alf           as   char format "x(10)".
-def var v-bin               as   char format "x(22)" extent 4.
-def var v-ship-i            as   char extent 2 format "x(60)".
+DEFINE VARIABLE v-fob               AS   CHARACTER FORMAT "x(7)".
+DEFINE VARIABLE v-terms             AS   CHARACTER FORMAT "x(12)".
+DEFINE VARIABLE v-name              AS   CHARACTER FORMAT "x(30)".
+DEFINE VARIABLE v-price             AS   INTEGER FORMAT ">>>>>>>>".
+DEFINE VARIABLE v-tot-price         AS   INTEGER FORMAT ">>>>>>>>>>".
+DEFINE VARIABLE v-dscr              AS   CHARACTER FORMAT "x(30)".
+DEFINE VARIABLE v-ord-bol           AS   CHARACTER FORMAT "x(15)".
+DEFINE VARIABLE v-ord-no            AS   INTEGER  FORMAT ">>>>>>>".
+DEFINE VARIABLE v-ord-date          LIKE oe-ord.ord-date.
+DEFINE VARIABLE v-part-qty          AS   DECIMAL.
+DEFINE VARIABLE v-po-no             LIKE oe-bolh.po-no EXTENT 2.
+DEFINE VARIABLE v-bol-qty           LIKE oe-boll.qty.
+DEFINE VARIABLE v-qty-alf           AS   CHARACTER FORMAT "x(10)".
+DEFINE VARIABLE v-bin               AS   CHARACTER FORMAT "x(22)" EXTENT 4.
+DEFINE VARIABLE v-ship-i            AS   CHARACTER EXTENT 2 FORMAT "x(60)".
+DEFINE VARIABLE cases               AS   INTEGER NO-UNDO.
+DEFINE VARIABLE qty-cases           AS   INTEGER NO-UNDO.
+DEFINE VARIABLE pallet              AS   INTEGER NO-UNDO.
+DEFINE VARIABLE v-line-count        AS   INTEGER NO-UNDO.
 
-def var v-ship-name  like shipto.ship-name.
-def var v-ship-addr  like shipto.ship-addr.
-def var v-ship-city  like shipto.ship-city.
-def var v-ship-state like shipto.ship-state.
-def var v-ship-zip   like shipto.ship-zip.
-def var v-ship-addr3 as   char format "x(30)".
-def var v-cust-addr3 as   char format "x(30)".
+
+DEFINE VARIABLE v-ship-name  LIKE shipto.ship-name.
+DEFINE VARIABLE v-ship-addr  LIKE shipto.ship-addr.
+DEFINE VARIABLE v-ship-city  LIKE shipto.ship-city.
+DEFINE VARIABLE v-ship-state LIKE shipto.ship-state.
+DEFINE VARIABLE v-ship-zip   LIKE shipto.ship-zip.
+DEFINE VARIABLE v-ship-addr3 AS   CHARACTER FORMAT "x(30)".
+DEFINE VARIABLE v-cust-addr3 AS   CHARACTER FORMAT "x(30)".
 /* === with xprint ====*/
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
-DEF VAR v-printline AS INT NO-UNDO.
-DEF VAR v-carrier-dscr LIKE carrier.dscr NO-UNDO.
+DEFINE VARIABLE ls-image1      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-image2      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-full-img1   AS CHARACTER FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE ls-full-img2   AS CHARACTER FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE v-printline    AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-carrier-dscr LIKE carrier.dscr NO-UNDO.
 
 ASSIGN ls-image1 = "images\prystup.bmp".
 
@@ -48,15 +55,14 @@ ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 FILE-INFO:FILE-NAME = ls-image2.
 ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".
 
+DEFINE WORKFILE w1
+  FIELD part-no LIKE fg-set.part-no
+  FIELD rec-id  AS   RECID.
 
-def workfile w1
-  field part-no like fg-set.part-no
-  field rec-id  as   recid.
-
-find first oe-bolh no-lock no-error.
-find first carrier no-lock no-error.
-find first cust no-lock no-error.
-find first report no-lock no-error.
+FIND FIRST oe-bolh NO-LOCK NO-ERROR.
+FIND FIRST carrier NO-LOCK NO-ERROR.
+FIND FIRST cust    NO-LOCK NO-ERROR.
+FIND FIRST report  NO-LOCK  NO-ERROR.
 /*
 form header
      skip(9)
@@ -80,113 +86,113 @@ form header
      skip(4)
     with frame coc-top page-top no-box no-underline width 102.
 */
-form v-qty-alf                    at 7
-     space(4)
+FORM v-qty-alf                    AT 7
+     SPACE(4)
      itemfg.i-name
-     skip(1)
+     SKIP(1)
      
-    with frame coc-mid no-box no-underline no-labels down width 102.
+    WITH FRAME coc-mid NO-BOX NO-UNDERLINE NO-LABELS DOWN WIDTH 102.
 
-form header
-     skip(5)
-     v-ship-i[1]                  at 19 
-     v-ship-i[2]                  at 8     
-    with frame coc-tot page-bottom no-box no-underline no-labels down width 102.
+FORM HEADER
+     SKIP(5)
+     v-ship-i[1]                  AT 19 
+     v-ship-i[2]                  AT 8     
+    WITH FRAME coc-tot PAGE-BOTTOM NO-BOX NO-UNDERLINE NO-LABELS DOWN WIDTH 102.
 
 /*view frame coc-top.*/
 
-find first company where company.company eq cocode no-lock no-error.
-find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
+FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
+FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
 {sa/sa-sls01.i}
 
-for each report   where report.term-id eq v-term-id,
-    first oe-bolh where recid(oe-bolh) eq report.rec-id no-lock:
+FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
+    FIRST oe-bolh WHERE RECID(oe-bolh) EQ report.rec-id:
 
-  for each oe-boll
-      where oe-boll.company eq cocode
-        and oe-boll.b-no    eq oe-bolh.b-no
-      no-lock:
+  FOR EACH oe-boll NO-LOCK
+      WHERE oe-boll.company EQ cocode
+      AND oe-boll.b-no    EQ oe-bolh.b-no:
+    RELEASE oe-rel.
 
-    release oe-rel.
-
-    find first oe-rell
-        where oe-rell.company eq cocode
-          and oe-rell.r-no    eq oe-boll.r-no
+    FIND FIRST oe-rell NO-LOCK
+        WHERE oe-rell.company EQ cocode
+          AND oe-rell.r-no    EQ oe-boll.r-no
           AND oe-rell.ord-no  EQ oe-boll.ord-no
-          and oe-rell.i-no    eq oe-boll.i-no
-          and oe-rell.line    eq oe-boll.line
-         no-lock no-error.
-    if avail oe-rell then do:
-      find first oe-relh of oe-rell no-lock.
-      find first oe-rel
-          where oe-rel.company eq cocode
-            and oe-rel.ord-no  eq oe-relh.ord-no
-            and oe-rel.line    eq oe-rell.line
-            and oe-rel.link-no eq oe-rell.r-no
-            and oe-rel.ship-no eq oe-relh.ship-no
-            and oe-rel.i-no    eq oe-rell.i-no
-          no-lock no-error.
-      if not avail oe-rel then
-      find first oe-rel
-          where oe-rel.company  eq cocode
-            and oe-rel.ord-no   eq oe-relh.ord-no
-            and oe-rel.line     eq oe-rell.line
-            and oe-rel.rel-date eq oe-relh.rel-date
-            and oe-rel.ship-no  eq oe-relh.ship-no
-            and oe-rel.i-no     eq oe-rell.i-no
-          no-lock no-error.
-    end.
+          AND oe-rell.i-no    EQ oe-boll.i-no
+          AND oe-rell.line    EQ oe-boll.line
+          NO-ERROR.
+    IF AVAIL oe-rell THEN DO:
+      FIND FIRST oe-relh OF oe-rell NO-LOCK.
+      FIND FIRST oe-rel NO-LOCK
+          WHERE oe-rel.company EQ cocode
+            AND oe-rel.ord-no  EQ oe-relh.ord-no
+            AND oe-rel.line    EQ oe-rell.line
+            AND oe-rel.link-no EQ oe-rell.r-no
+            AND oe-rel.ship-no EQ oe-relh.ship-no
+            AND oe-rel.i-no    EQ oe-rell.i-no
+            NO-ERROR.
+      IF NOT AVAIL oe-rel THEN
+      FIND FIRST oe-rel NO-LOCK
+          WHERE oe-rel.company  EQ cocode
+            AND oe-rel.ord-no   EQ oe-relh.ord-no
+            AND oe-rel.line     EQ oe-rell.line
+            AND oe-rel.rel-date EQ oe-relh.rel-date
+            AND oe-rel.ship-no  EQ oe-relh.ship-no
+            AND oe-rel.i-no     EQ oe-rell.i-no
+            NO-ERROR.
+    END.
 
-    create xreport.
-    assign
+    CREATE xreport.
+    ASSIGN
      xreport.term-id = v-term-id
      xreport.key-01  = report.key-01
      xreport.key-02  = report.key-02
      xreport.key-03  = report.key-03
-     xreport.key-04  = report.key-04
-     xreport.key-05  = if avail oe-rel then oe-rel.po-no else ""
+     xreport.key-04  = /*report.key-04*/ STRING(oe-boll.ord-no )
+     xreport.key-05  = /*IF AVAIL oe-rel THEN oe-rel.po-no ELSE "" */ oe-boll.po-no  /* ticket 16064 */ 
      xreport.key-06  = oe-boll.i-no
-     xreport.rec-id  = recid(oe-boll).
-  end.
+     xreport.key-07  = STRING(oe-boll.cases)
+     xreport.key-08  = STRING(oe-boll.qty-case)
+     xreport.rec-id  = RECID(oe-boll).
+  END.
 
-  delete report.
-end.
+  DELETE report.
+END.
 
-for each report   where report.term-id eq v-term-id no-lock,
-    first oe-boll where recid(oe-boll) eq report.rec-id no-lock,
-    first itemfg
-    where itemfg.company eq cocode
-      and itemfg.i-no    eq oe-boll.i-no
-    no-lock,
-    first oe-bolh where oe-bolh.b-no   eq oe-boll.b-no no-lock,
-    first cust    where cust.cust-no   eq oe-bolh.cust-no no-lock
+FOR EACH report   NO-LOCK WHERE report.term-id EQ v-term-id,
+    FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ report.rec-id,
+    FIRST itemfg NO-LOCK
+    WHERE itemfg.company EQ cocode
+      AND itemfg.i-no    EQ oe-boll.i-no,
+    FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no   EQ oe-boll.b-no,
+    FIRST cust    NO-LOCK WHERE cust.cust-no   EQ oe-bolh.cust-no
 
-    break by report.key-01
-          by report.key-02
-          by report.key-03
-          by report.key-04
-          by report.key-05
-          by report.key-06
+    BREAK BY report.key-01
+          BY report.key-02
+          BY report.key-03
+          BY report.key-04
+          BY report.key-05
+          BY report.key-06
+          BY report.key-07
+          BY report.key-08
+    WITH FRAME coc-mid:
 
-    with frame coc-mid:
-
-  assign
+  ASSIGN
    v-po-no[1] = report.key-04
    v-po-no[2] = report.key-05.
 
-  if first-of(report.key-05) then do:
-    find first carrier
-        where carrier.company eq cocode
-          and carrier.carrier eq oe-bolh.carrier
-        no-lock no-error.
+  IF FIRST-OF(report.key-06) THEN DO:
+    FIND FIRST carrier NO-LOCK
+        WHERE carrier.company EQ cocode
+          AND carrier.carrier EQ oe-bolh.carrier
+        NO-ERROR.
 
     RUN oe/custxship.p (oe-bolh.company,
                         oe-bolh.cust-no,
                         oe-bolh.ship-id,
                         BUFFER shipto).
 
-    assign
+    ASSIGN
      v-ship-name    = shipto.ship-name
      v-ship-addr[1] = shipto.ship-addr[1]
      v-ship-addr[2] = shipto.ship-addr[2]
@@ -197,65 +203,93 @@ for each report   where report.term-id eq v-term-id no-lock,
                       cust.state + "  " +
                       cust.zip.
 
-    if trim(v-ship-addr3) eq "," then v-ship-addr3 = "".
-    if trim(v-cust-addr3) eq "," then v-cust-addr3 = "".
+    IF TRIM(v-ship-addr3) EQ "," THEN v-ship-addr3 = "".
+    IF TRIM(v-cust-addr3) EQ "," THEN v-cust-addr3 = "".
 
-    assign
+    ASSIGN
      v-fob      = ""
      v-dscr     = ""
      v-name     = ""
      v-terms    = ""
      v-price    = 0
      v-tot-price  = 0 
-     v-ord-bol  = trim(string(oe-bolh.ord-no,">>>>>9")) + " / " +
-                  trim(string(oe-bolh.bol-no,">>>>>9"))
-     v-ord-date = oe-bolh.bol-date.
+     v-ord-bol  = TRIM(STRING(oe-bolh.ord-no,">>>>>9")) + " / " +
+                  TRIM(STRING(oe-bolh.bol-no,">>>>>9"))
+     v-ord-date = oe-bolh.bol-date
+     cases      = 0   
+     qty-cases  = 0
+     pallet     = 0 
+     v-line-count = 0
+        .
 
-    find first oe-ord
-        where oe-ord.company eq cocode
-          and oe-ord.ord-no  eq oe-boll.ord-no
-        no-lock no-error.
+    FIND FIRST oe-ord NO-LOCK
+        WHERE oe-ord.company EQ cocode
+          AND oe-ord.ord-no  EQ oe-boll.ord-no
+         NO-ERROR.
 
-    if avail oe-ord then do:
-      if not avail carrier then
-      find first carrier
-          where carrier.company eq cocode
-            and carrier.carrier eq oe-ord.carrier
-          no-lock no-error.
+    IF AVAIL oe-ord THEN DO:
+      IF NOT AVAIL carrier THEN
+      FIND FIRST carrier NO-LOCK
+          WHERE carrier.company EQ cocode
+            AND carrier.carrier EQ oe-ord.carrier
+          NO-ERROR.
 
-      assign
-       v-fob      = if oe-ord.fob-code begins "ORIG" then "ORIG"
-                                                     else "DEST"
+      ASSIGN
+       v-fob      = IF oe-ord.fob-code BEGINS "ORIG" THEN "ORIG"
+                                                     ELSE "DEST"
        v-ord-date = oe-ord.ord-date
-       v-terms    = oe-ord.terms               .
+       v-terms    = oe-ord.terms     
+       v-ord-no   = oe-ord.ord-no          .
 
-    end.
-    {oe/rep/cocpryst.i}
+    END.
+    IF FIRST-OF (report.key-06) THEN DO:
+        IF NOT FIRST(report.key-06) THEN
+            PAGE.
+        {oe/rep/cocpryst.i}
+    END.
     /*page.
       hide frame coc-bot no-pause.
     */
-    assign
+    ASSIGN
      v-ship-i[1] = oe-bolh.ship-i[3] 
      v-ship-i[2] = oe-bolh.ship-i[4].
      
-    view frame coc-bot.
-  end.
+    VIEW FRAME coc-bot.
+  END.
   
   v-bol-qty = v-bol-qty + oe-boll.qty.
   
-  if last-of(report.key-06) then do:
-    v-qty-alf = trim(string(v-bol-qty,">>>>>>>>>9")).
-    find first oe-ordl
-        where oe-ordl.company eq cocode
-          and oe-ordl.ord-no  eq oe-boll.ord-no
-          and oe-ordl.i-no    eq oe-boll.i-no
-          and oe-ordl.line    eq oe-boll.line
-        no-lock no-error.
+  ASSIGN
+     cases      = oe-boll.cases  
+     qty-cases  = oe-boll.qty-case 
+     pallet     = pallet +  oe-boll.tot-pallets  .
+
+  
+  IF FIRST-OF(report.key-06) THEN DO:
+    
+    ASSIGN v-bol-qty = 0 .
+    FOR EACH bf-oe-boll WHERE bf-oe-boll.bol-no EQ oe-boll.bol-no 
+                        AND bf-oe-boll.i-no EQ report.key-06 
+                        AND bf-oe-boll.po-no EQ string(report.key-05)
+                        AND bf-oe-boll.ord-no EQ INTEGER(report.key-04) NO-LOCK:
+      
+        v-bol-qty = v-bol-qty + bf-oe-boll.qty .      
+    END.
+    v-qty-alf = TRIM(STRING(v-bol-qty,">>>>>>>>>9")).
+    
+    FIND FIRST oe-ordl NO-LOCK
+        WHERE oe-ordl.company EQ cocode
+          AND oe-ordl.ord-no  EQ oe-boll.ord-no
+          AND oe-ordl.i-no    EQ oe-boll.i-no
+          AND oe-ordl.line    EQ oe-boll.line
+        NO-ERROR.
     ASSIGN
-        v-name = IF AVAIL oe-ordl AND oe-ordl.i-name <> "" THEN oe-ordl.i-name ELSE itemfg.i-name 
-        v-dscr = IF AVAIL oe-ordl AND oe-ordl.part-dscr1 <> "" THEN oe-ordl.part-dscr1 ELSE itemfg.part-dscr1
+        v-name = IF AVAIL oe-ordl AND oe-ordl.i-name NE "" THEN oe-ordl.i-name ELSE itemfg.i-name 
+        v-dscr = IF AVAIL oe-ordl AND oe-ordl.part-dscr1 NE "" THEN oe-ordl.part-dscr1 ELSE itemfg.part-dscr1
         v-price = IF AVAIL oe-ordl  THEN oe-ordl.price ELSE 0
-        v-tot-price = IF AVAIL oe-ordl  THEN oe-ordl.t-price ELSE 0 .
+        v-tot-price = IF AVAIL oe-ordl  THEN oe-ordl.t-price ELSE 0
+        v-ord-no   = IF AVAIL oe-ordl THEN oe-ordl.ord-no ELSE oe-boll.ord-no  .
+
 
     PUT  "<R30></b>    " v-qty-alf  SPACE(5)
             /*" <C59>" v-price 
@@ -266,82 +300,101 @@ for each report   where report.term-id eq v-term-id no-lock,
               oe-ordl.i-name when avail oe-ordl and oe-ordl.i-name ne ""
               @ itemfg.i-name */ .
                                  
-    assign
+    ASSIGN
      i     = 0
      j     = 0
-     v-bin = "".
+     v-bin = ""
+     v-line-count = 33.
 
-    find first fg-set
-        where fg-set.company eq cocode
-          and fg-set.set-no  eq itemfg.i-no
-        no-lock no-error.
+    FIND FIRST fg-set
+        WHERE fg-set.company EQ cocode
+          AND fg-set.set-no  EQ itemfg.i-no
+         NO-ERROR.
 
-    if itemfg.isaset then do while avail fg-set:
+    IF itemfg.isaset THEN DO WHILE AVAIL fg-set:
       i = i + 1.
      
-      if i gt 8 then do:
-        put skip(3).
+      IF i GT 8 THEN DO:
+        PUT SKIP(3).
 
-        assign
+        ASSIGN
          i     = 1
          j     = 0
-         v-bin = "".
-      end.
+         v-bin = ""
+         v-line-count = v-line-count + 3.
+      END.
 
       {sys/inc/part-qty.i v-part-qty fg-set}
 
-      if i modulo 4 eq 1 or i eq 1 then put space(6).
+      IF i MODULO 4 EQ 1 OR i EQ 1 THEN PUT SPACE(6).
 
-      put trim(string(v-bol-qty * v-part-qty,">>>>>9")) format "x(6)"
-          space(1)
+      PUT TRIM(STRING(v-bol-qty * v-part-qty,">>>>>9")) FORMAT "x(6)"
+          SPACE(1)
           fg-set.part-no
-          space(1).
+          SPACE(1).
 
-      find first fg-bin
-          where fg-bin.company eq cocode
-            and fg-bin.i-no    eq fg-set.part-no
-          no-lock no-error.
+      FIND FIRST fg-bin NO-LOCK
+          WHERE fg-bin.company EQ cocode
+            AND fg-bin.i-no    EQ fg-set.part-no
+           NO-ERROR.
 
-      if avail fg-bin then
-        v-bin[if i modulo 4 eq 0 then 4 else (i modulo 4)] = fg-bin.loc-bin.
+      IF AVAIL fg-bin THEN
+        v-bin[IF i MODULO 4 EQ 0 THEN 4 ELSE (i MODULO 4)] = fg-bin.loc-bin.
 
-      if i modulo 4 eq 0 then do:
-        put skip
-            space(6)
+      IF i MODULO 4 EQ 0 THEN DO:
+        PUT SKIP
+            SPACE(6)
             v-bin
-            skip.
+            SKIP.
 
         j = j + 2.
-      end.
+         v-line-count = v-line-count + 1.
+      END.
     
-      find next fg-set
-          where fg-set.company eq cocode
-            and fg-set.set-no  eq itemfg.i-no
-          no-lock no-error.
-    end.
+      FIND NEXT fg-set NO-LOCK
+          WHERE fg-set.company EQ cocode
+            AND fg-set.set-no  EQ itemfg.i-no
+          NO-ERROR.
+    END.
 
-    if i modulo 4 ne 0 then do:
-      put skip
-          space(6)
+    IF i MODULO 4 NE 0 THEN DO:
+      PUT SKIP
+          SPACE(6)
           v-bin
-          skip.
+          SKIP.
 
       j = j + 2.
-    end.
+      v-line-count = v-line-count + 1.
+    END.
 
-    do j = (j + 1) to 5:
-      put skip(1).
-    end.
-    IF NOT last(report.key-06)  THEN DO:
+    DO j = (j + 1) TO 5:
+      PUT SKIP(1).
+    END.
+     v-line-count = v-line-count + 5.
+   /* IF NOT last(report.key-06)  THEN DO:
         PAGE.
         {oe/rep/cocpryst.i}
-    END.
+    END.*/
     v-bol-qty = 0.
-  end.
-end. /* for each report */
+  END.
+  
+   IF LAST-OF(report.key-08) THEN DO:
+      PUT "<R" v-line-count ">" SPACE(30) pallet " Pallet(s) @ " cases FORMAT ">>>>>"  " cases  @" qty-cases "/case " SKIP 
+        .
+      ASSIGN 
+          pallet = 0 
+          cases  = 0
+          qty-cases = 0
+          v-line-count = v-line-count + 2. 
 
-hide frame coc-top no-pause.
-page.
+   END.
+ 
+END. /* for each report */
+
+/*hide frame coc-top no-pause.*/
+PAGE.
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
+
+
 

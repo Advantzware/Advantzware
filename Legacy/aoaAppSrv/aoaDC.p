@@ -70,6 +70,7 @@ DEFINE TEMP-TABLE ttProductionAnalysis NO-UNDO
     FIELD startTime   AS CHARACTER LABEL "Start Time"    FORMAT "x(11)"
     FIELD xxSort      AS CHARACTER LABEL "Sort"          FORMAT "x(100)"
     .
+{sys/ref/CustList.i NEW}
 /* Production Analysis.rpa */
 
 /* _UIB-CODE-BLOCK-END */
@@ -152,6 +153,50 @@ FUNCTION fProductionAnalysis RETURNS HANDLE
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-pBuildCustList) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildCustList Procedure 
+PROCEDURE pBuildCustList :
+/*------------------------------------------------------------------------------
+  Purpose:     Production Analysis.rpa
+  Parameters:  Company, Use List?, Start Cust, End Cust, ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplList      AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcStartCust AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEndCust   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcID        AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bCust FOR cust.
+    
+    DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttCustList.
+
+    IF iplList THEN
+    RUN sys/ref/CustList.p (ipcCompany, ipcID, YES, OUTPUT lActive).
+    ELSE DO:
+        FOR EACH bCust NO-LOCK
+            WHERE bCust.company EQ ipcCompany
+              AND bCust.cust-no GE ipcStartCust
+              AND bCust.cust-no LE ipcEndCust
+            :
+            CREATE ttCustList.
+            ASSIGN 
+                ttCustList.cust-no = bCust.cust-no
+                ttCustList.log-fld = YES
+                .
+        END. /* each bcust */
+    END. /* else */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-pProductionAnalysis) = 0 &THEN
 
@@ -414,7 +459,7 @@ PROCEDURE pProductionAnalysis :
             IF ttProductionAnalysis.qtyProd NE 0 THEN DO:
                 IF CAN-FIND(FIRST mach
                             WHERE mach.company EQ ipcCompany
-                              AND mach.loc     EQ "" /*locode*/
+                              AND mach.loc     EQ cLocation
                               AND mach.m-code  EQ job-mch.m-code
                               AND mach.therm   EQ YES
                               AND (mach.p-type EQ "R" OR mach.dept[1] EQ "LM")) THEN

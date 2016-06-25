@@ -11,6 +11,7 @@ DEFINE VARIABLE aoaPort         AS INTEGER   NO-UNDO.
 DEFINE VARIABLE aoaParam        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaURL          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaCompany      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE aoaLocation     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaUserID       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID      AS CHARACTER NO-UNDO.
 
@@ -43,6 +44,7 @@ ASSIGN
     aoaParam        = REPLACE(PROGRAM-NAME(2),aoaProgramID,"Param/" + aoaProgramID)
     aoaParam        = REPLACE(aoaParam,".p",".w")
     aoaCompany      = ipcCompany
+    aoaLocation     = ipcLocation
     aoaUserID       = USERID("NoSweat")
     .
 

@@ -1,4 +1,4 @@
-/* dept.p - Generated 11/16/2001 - 12:00 pm by nosweat
+/* dept.p - Generated 06/14/2016 -  3:42 pm by NoSweat
 "dept. " ~
 "ASI " ~
 "dept " ~
@@ -12,8 +12,8 @@
 "no " ~
 "code,dscr,fc " ~
 "Departments Lookup " ~
-"{sys/inc/varasgn.i} " ~
-"{sys/inc/var.i new shared} " ~
+"{custom/getcmpny.i} ~{custom/getloc.i} ~{sys/inc/varasgn.i} " ~
+"{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i NEW SHARED} " ~
 " " ~
 "dept. " ~
 */
@@ -26,9 +26,10 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 53
 &Scoped-define show-fields dept.code dept.dscr dept.fc
+&Scoped-define show-fields-yellow dept.code LABEL-BGCOLOR 14 dept.dscr LABEL-BGCOLOR 14 dept.fc LABEL-BGCOLOR 14
 &Scoped-define frame-title Departments Lookup
-&Scoped-define top-include ~{sys/inc/varasgn.i}
-&Scoped-define def-include ~{sys/inc/var.i new shared}
+&Scoped-define top-include ~{custom/getcmpny.i} ~{custom/getloc.i} ~{sys/inc/varasgn.i}
+&Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i NEW SHARED}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname dept.
 &Scoped-define window-size 23

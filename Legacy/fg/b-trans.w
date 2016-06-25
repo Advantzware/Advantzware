@@ -180,11 +180,11 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       fg-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
-      fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U LABEL-BGCOLOR 14
+      fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U LABEL-BGCOLOR 14 WIDTH 8
       fg-rctd.job-no2 FORMAT "99":U
-      fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14
+      fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14 WIDTH 6
       fg-rctd.loc-bin COLUMN-LABEL "From!Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      fg-rctd.tag COLUMN-LABEL "From!Tag" FORMAT "x(20)":U LABEL-BGCOLOR 14
+      fg-rctd.tag COLUMN-LABEL "From!Tag" FORMAT "x(20)":U LABEL-BGCOLOR 14 WIDTH 25
       fg-rctd.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 12 LABEL-BGCOLOR 14
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT ">>>,>>9":U LABEL-BGCOLOR 14
@@ -192,9 +192,9 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       fg-rctd.partial COLUMN-LABEL "Partial" FORMAT ">>>,>>9":U
             LABEL-BGCOLOR 14
-      fg-rctd.loc2 COLUMN-LABEL "To!Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14
+      fg-rctd.loc2 COLUMN-LABEL "To!Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14 WIDTH 6
       fg-rctd.loc-bin2 COLUMN-LABEL "To!Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      fg-rctd.tag2 COLUMN-LABEL "To!Tag" FORMAT "x(20)":U LABEL-BGCOLOR 14
+      fg-rctd.tag2 COLUMN-LABEL "To!Tag" FORMAT "x(20)":U LABEL-BGCOLOR 14 WIDTH 25
       fg-rctd.created-by COLUMN-LABEL "Created By" FORMAT "x(8)":U
             WIDTH 15 LABEL-BGCOLOR 14
       fg-rctd.updated-by COLUMN-LABEL "Last Updated By" FORMAT "x(8)":U
@@ -332,15 +332,15 @@ fg-rctd.rita-code = ""T"""
      _FldNameList[5]   > asi.fg-rctd.i-name
 "i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.fg-rctd.job-no
-"job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.fg-rctd.job-no2
 "job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.fg-rctd.loc
-"loc" "From!Whse" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc" "From!Whse" ? "character" ? ? ? 14 ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.fg-rctd.loc-bin
 "loc-bin" "From!Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.fg-rctd.tag
-"tag" "From!Tag" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tag" "From!Tag" "x(20)" "character" ? ? ? 14 ? ? yes ? no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.fg-rctd.cust-no
 "cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.fg-rctd.cases
@@ -350,11 +350,11 @@ fg-rctd.rita-code = ""T"""
      _FldNameList[14]   > asi.fg-rctd.partial
 "partial" "Partial" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > asi.fg-rctd.loc2
-"loc2" "To!Whse" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc2" "To!Whse" ? "character" ? ? ? 14 ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > asi.fg-rctd.loc-bin2
 "loc-bin2" "To!Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > asi.fg-rctd.tag2
-"tag2" "To!Tag" "x(20)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tag2" "To!Tag" "x(20)" "character" ? ? ? 14 ? ? no ? no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > asi.fg-rctd.created-by
 "created-by" "Created By" ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > asi.fg-rctd.updated-by

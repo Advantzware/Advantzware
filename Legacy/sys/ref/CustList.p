@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS PROCEDURE 
 /*------------------------------------------------------------------------
     File        : sys/ref/CustList.p
     Purpose     :  Builds a Customer List based on the values in an NK1
@@ -34,7 +34,7 @@ DEFINE VARIABLE gcNK1Master AS CHARACTER INITIAL "CustomerList"  NO-UNDO.
 DEFINE VARIABLE gcMsgReport AS CHARACTER INITIAL "NK1 CustList - Report Specific List"   NO-UNDO.
 DEFINE VARIABLE gcMsgGlobal AS CHARACTER INITIAL "NK1 CustList - Global List"  NO-UNDO.
 DEFINE VARIABLE gcMsgUser AS CHARACTER INITIAL "User Specific List"  NO-UNDO.
-DEFINE VARIABLE gcMsgdisplay AS CHARACTER INITIAL "JQ1,JU1,OU1,OQ1,EQ,EC,EF,IF1,AF1,IL3"   NO-UNDO.
+DEFINE VARIABLE gcMsgdisplay AS CHARACTER INITIAL "JQ1,JU1,OU1,OQ1,EQ,EC,EF,IF1,AF1,IL3,JC"   NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -44,8 +44,8 @@ DEFINE VARIABLE gcMsgdisplay AS CHARACTER INITIAL "JQ1,JU1,OU1,OQ1,EQ,EC,EF,IF1,
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Procedure
-&Scoped-define DB-AWARE no
+&SCOPED-DEFINE PROCEDURE-TYPE PROCEDURE
+&SCOPED-DEFINE DB-AWARE NO
 
 
 
@@ -57,7 +57,7 @@ DEFINE VARIABLE gcMsgdisplay AS CHARACTER INITIAL "JQ1,JU1,OU1,OQ1,EQ,EC,EF,IF1,
 
 &IF DEFINED(EXCLUDE-GetCustListActive) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GetCustListActive Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GetCustListActive PROCEDURE 
 FUNCTION GetCustListActive RETURNS LOGICAL
   ( ipcCompany AS CHARACTER, ipcNK1 AS CHARACTER )  FORWARD.
 
@@ -93,7 +93,7 @@ FUNCTION GetCustListActive RETURNS LOGICAL
  
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK PROCEDURE 
 
 
 /* ***************************  Main Block  *************************** */
@@ -134,7 +134,7 @@ END.
 
 &IF DEFINED(EXCLUDE-BuildCustList) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildCustList Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildCustList PROCEDURE 
 PROCEDURE BuildCustList :
 /*------------------------------------------------------------------------------
   Purpose:    Builds the customer list temp-table for given NK1 
@@ -197,7 +197,7 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-BuildUserCustList) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildUserCustList Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildUserCustList PROCEDURE 
 PROCEDURE BuildUserCustList :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -224,7 +224,7 @@ FOR EACH bf-usercust
         ASSIGN 
             ttCustList.cust-no = bf-usercust.cust-no      
             .
-        custcount = custcount +  "," + bf-usercust.cust-no .
+            custcount = custcount +  "," + bf-usercust.cust-no .
     END.
     ASSIGN 
         ttCustList.log-fld = YES
@@ -249,10 +249,9 @@ FUNCTION GetCustListActive RETURNS LOGICAL
   Purpose:  Returns the logical of an NK1
     Notes:  Will also build NK1 if it doesn't exist
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
-    
-    DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
-    DEFINE VARIABLE cReturn AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
 
     RUN sys/ref/nk1look.p (INPUT ipcCompany, 
                            INPUT ipcNK1,

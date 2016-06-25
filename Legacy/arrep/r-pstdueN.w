@@ -76,6 +76,7 @@ def var t1         as dec format "->,>>>,>>>,>>9.99".
 def var v-hdr       as   char init
 "Customer,Name,Contact,SalesRep,Terms,Address1,Address2,City,State,Zip,Credit Limit,Phone,Fax,Check/Memo,DaysOld,Type,Invoice#,InvoiceDate,InvoiceAmt,Current," no-undo.
 DEF NEW SHARED VAR det-rpt2 AS LOG NO-UNDO. 
+DEF NEW SHARED VAR lSelected AS LOG INIT YES NO-UNDO.
 def new shared frame r-top.
 form header "" with frame r-top.
  
@@ -1639,7 +1640,6 @@ DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 {sys/form/r-top5DL2.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 /*
 format header
   skip(1)

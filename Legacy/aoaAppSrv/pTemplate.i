@@ -1,10 +1,11 @@
-/* pTemplate.i - auto generated 05.25.2016 @  3:27:07 pm from aoa/aoaParam.w */
+/* pTemplate.i - auto generated 05.31.2016 @  8:42:34 pm from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
 
     /* parameter values loaded into these variables */
+    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCustList AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lAllCustNo AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dtStartTranDate AS DATE NO-UNDO.
@@ -78,6 +79,7 @@
 
     /* load parameter values from above record into variables */
     ASSIGN
+        cLocation = DYNAMIC-FUNCTION("fGetParamValue","svLocation")
         lCustList = DYNAMIC-FUNCTION("fGetParamValue","svCustList") EQ "yes"
         lAllCustNo = DYNAMIC-FUNCTION("fGetParamValue","svAllCustNo") EQ "yes"
         dtStartTranDate = DATE(DYNAMIC-FUNCTION("fGetParamValue","svStartTranDate"))

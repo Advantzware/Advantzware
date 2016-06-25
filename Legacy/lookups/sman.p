@@ -1,36 +1,37 @@
-/* sman.p - Generated 08/07/2003 - 11:22 am by nosweat
+/* sman.p - Generated 06/14/2016 -  3:36 pm by NoSweat
 "sman. " ~
 "ASI " ~
 "sman " ~
-"sman.company = gcompany " ~
+"sman.company EQ gcompany " ~
 "sman " ~
 "4 " ~
 "19 " ~
 "35 " ~
 "sman,sname " ~
-"SalesRep,Number " ~
-"yes " ~
-"sman,sman-no " ~
+"SalesRep,Name " ~
+"no " ~
+"sman,sname " ~
 "SalesRep Lookup " ~
 "{custom/getcmpny.i} ~{sys/inc/varasgn.i} " ~
 "{custom/gcompany.i} ~{sys/inc/var.i new shared} " ~
 " " ~
-" " ~
+"sman. " ~
 */
 
 &Scoped-define lookup-db ASI.
 &Scoped-define lookup-file sman
-&Scoped-define where-statement sman.company = gcompany
+&Scoped-define where-statement sman.company EQ gcompany
 &Scoped-define return-field sman
 &Scoped-define font 4
 &Scoped-define height-size 19
 &Scoped-define width-size 35
-&Scoped-define show-fields sman.sman LABEL "Sales Rep" sman.sname LABEL "Sales Rep Name"
-&Scoped-define frame-title Sales Rep Lookup
+&Scoped-define show-fields sman.sman sman.sname
+&Scoped-define show-fields-yellow sman.sman LABEL-BGCOLOR 14 sman.sname LABEL-BGCOLOR 14
+&Scoped-define frame-title SalesRep Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
-&Scoped-define ui-prgmname 
+&Scoped-define ui-prgmname sman.
 &Scoped-define window-size 23
 &Scoped-define window-col 57.5
 &Scoped-define rect-1-row 20.15
@@ -46,10 +47,9 @@
 &Scoped-define FLDNAME1 sman.sman
 &Scoped-define SORTBY-1 BY {&FLDNAME1}
 &Scoped-define DESCRIP1 SalesRep
-&Global-define DATATYP2 INTEGER
-&Global-define FORMAT-2 >>9
-&Scoped-define FLDNAME2 sman.sman-no
+&Global-define FORMAT-2 x(20)
+&Scoped-define FLDNAME2 sman.sname
 &Scoped-define SORTBY-2 BY {&FLDNAME2} {&SORTBY-1}
-&Scoped-define DESCRIP2 Number
+&Scoped-define DESCRIP2 Name
 
 {methods/lookup.i}

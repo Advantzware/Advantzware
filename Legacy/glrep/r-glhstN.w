@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME C-Win
+&SCOPED-DEFINE WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -34,30 +34,30 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/getcmpny.i}
 {custom/getloc.i}
 
-{sys/inc/var.i new shared}
+{sys/inc/var.i NEW SHARED}
 
-assign
+ASSIGN 
  cocode = gcompany
  locode = gloc.
 
-DEF NEW SHARED VAR udate AS DATE NO-UNDO.
-DEF NEW SHARED VAR uperiod AS INT NO-UNDO.
-DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
-DEF VAR is-xprint-form AS LOGICAL.
-DEF VAR ls-fax-file AS CHAR NO-UNDO.
-DEF STREAM excel.
+DEFINE NEW SHARED VARIABLE udate AS DATE NO-UNDO.
+DEFINE NEW SHARED VARIABLE uperiod AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-print-fmt AS CHARACTER NO-UNDO.
+DEFINE VARIABLE is-xprint-form AS LOGICAL.
+DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
+DEFINE STREAM excel.
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF VAR cFieldType AS cha NO-UNDO.
-DEF VAR v-costM AS DEC FORMAT ">>>,>>9.99<<" NO-UNDO.
-DEF VAR v-sellValue LIKE itemfg.sell-price NO-UNDO.
-DEF VAR v-counted-date AS DATE NO-UNDO.
-DEF VAR v-cust-no LIKE itemfg.cust-no NO-UNDO.
-DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldLength AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEFINE VARIABLE cFieldType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-costM AS DECIMAL FORMAT ">>>,>>9.99<<" NO-UNDO.
+DEFINE VARIABLE v-sellValue LIKE itemfg.sell-price NO-UNDO.
+DEFINE VARIABLE v-counted-date AS DATE NO-UNDO.
+DEFINE VARIABLE v-cust-no LIKE itemfg.cust-no NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
 ASSIGN cTextListToSelect = "Account Number,Account Description,Run #,Journal," +
                            "Reference,AP Description,Date,Amount,Balance"
@@ -78,18 +78,18 @@ ASSIGN cTextListToDefault  = "Account Number,Account Description,Run #,Journal,"
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Window
-&Scoped-define DB-AWARE no
+&SCOPED-DEFINE PROCEDURE-TYPE WINDOW 
+&SCOPED-DEFINE DB-AWARE NO 
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME FRAME-A
+&SCOPED-DEFINE FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_date end_date begin_acct ~
+&SCOPED-DEFINE ENABLED-OBJECTS RECT-6 RECT-7 begin_date end_date begin_acct ~
 end_acct tb_exc-auto tb_detailed sl_avail Btn_Def sl_selected Btn_Add ~
 Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no ~
 td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_acct end_acct ~
+&SCOPED-DEFINE DISPLAYED-OBJECTS begin_date end_date begin_acct end_acct ~
 tb_exc-auto tb_detailed sl_avail sl_selected rd-dest lv-ornt lines-per-page ~
 lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
 
@@ -218,29 +218,29 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 34 BY 5 NO-UNDO.
 
-DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL YES  
      LABEL "Detailed?" 
      VIEW-AS TOGGLE-BOX
      SIZE 19 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_exc-auto AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_exc-auto AS LOGICAL INITIAL YES  
      LABEL "Exclude Auto Distributions?" 
      VIEW-AS TOGGLE-BOX
      SIZE 31 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES  
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO  
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO  
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -249,52 +249,52 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_date AT ROW 2.52 COL 19 COLON-ALIGNED
-     end_date AT ROW 2.52 COL 63 COLON-ALIGNED HELP
+     begin_date AT ROW 2.52 COLUMN 19 COLON-ALIGNED
+     end_date AT ROW 2.52 COLUMN 63 COLON-ALIGNED HELP
           "Enter Ending Due Date"
-     begin_acct AT ROW 3.71 COL 19 COLON-ALIGNED HELP
+     begin_acct AT ROW 3.71 COLUMN 19 COLON-ALIGNED HELP
           "Enter Beginning Account Number"
-     end_acct AT ROW 3.71 COL 63 COLON-ALIGNED HELP
+     end_acct AT ROW 3.71 COLUMN 63 COLON-ALIGNED HELP
           "Enter Ending Account Number"
-     tb_exc-auto AT ROW 5.14 COL 38
-     tb_detailed AT ROW 6.33 COL 38
-     sl_avail AT ROW 9.19 COL 3 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 9.19 COL 40.8 HELP
+     tb_exc-auto AT ROW 5.14 COLUMN 38
+     tb_detailed AT ROW 6.33 COLUMN 38
+     sl_avail AT ROW 9.19 COLUMN 3 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 9.19 COLUMN 40.8 HELP
           "Default Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 9.19 COL 61.2 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 10.19 COL 40.8 HELP
+     sl_selected AT ROW 9.19 COLUMN 61.2 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 10.19 COLUMN 40.8 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 11.19 COL 40.8 HELP
+     Btn_Remove AT ROW 11.19 COLUMN 40.8 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 12.19 COL 40.8 WIDGET-ID 40
-     btn_down AT ROW 13.19 COL 40.8 WIDGET-ID 42
-     rd-dest AT ROW 15.67 COL 6 NO-LABEL
-     lv-ornt AT ROW 15.91 COL 31 NO-LABEL
-     lines-per-page AT ROW 15.91 COL 85 COLON-ALIGNED
-     lv-font-no AT ROW 17.57 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 18.76 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 19.95 COL 31
-     tb_excel AT ROW 21.38 COL 51 RIGHT-ALIGNED
-     tb_runExcel AT ROW 21.38 COL 72 RIGHT-ALIGNED
-     fi_file AT ROW 22.19 COL 29 COLON-ALIGNED HELP
+     btn_Up AT ROW 12.19 COLUMN 40.8 WIDGET-ID 40
+     btn_down AT ROW 13.19 COLUMN 40.8 WIDGET-ID 42
+     rd-dest AT ROW 15.67 COLUMN 6 NO-LABEL
+     lv-ornt AT ROW 15.91 COLUMN 31 NO-LABEL
+     lines-per-page AT ROW 15.91 COLUMN 85 COLON-ALIGNED
+     lv-font-no AT ROW 17.57 COLUMN 35 COLON-ALIGNED
+     lv-font-name AT ROW 18.76 COLUMN 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 19.95 COLUMN 31
+     tb_excel AT ROW 21.38 COLUMN 51 RIGHT-ALIGNED
+     tb_runExcel AT ROW 21.38 COLUMN 72 RIGHT-ALIGNED
+     fi_file AT ROW 22.19 COLUMN 29 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 24.48 COL 19
-     btn-cancel AT ROW 24.48 COL 58
+     btn-ok AT ROW 24.48 COLUMN 19
+     btn-cancel AT ROW 24.48 COLUMN 58
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 14.95 COL 3
+          SIZE 18 BY .62 AT ROW 14.95 COLUMN 3
           FGCOLOR 9 
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
+          SIZE 21 BY .71 AT ROW 1.24 COLUMN 5
           BGCOLOR 2 
      "Available Columns" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 8.43 COL 3.4 WIDGET-ID 38
+          SIZE 22 BY .62 AT ROW 8.43 COLUMN 3.4 WIDGET-ID 38
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 8.43 COL 61.2 WIDGET-ID 44
-     RECT-6 AT ROW 14.67 COL 1
-     RECT-7 AT ROW 1 COL 1
+          SIZE 34 BY .62 AT ROW 8.43 COLUMN 61.2 WIDGET-ID 44
+     RECT-6 AT ROW 14.67 COLUMN 1
+     RECT-7 AT ROW 1 COLUMN 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
+         AT COLUMN 1 ROW 1
          SIZE 96.6 BY 25.
 
 
@@ -321,15 +321,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES 
+         SCROLL-BARS        = NO 
+         STATUS-AREA        = YES 
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES 
+         THREE-D            = YES 
+         MESSAGE-AREA       = NO 
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -392,7 +392,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -403,7 +403,7 @@ THEN C-Win:HIDDEN = no.
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME C-Win
+&SCOPED-DEFINE SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* G L  Account History */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
@@ -429,40 +429,40 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_acct
+&SCOPED-DEFINE SELF-NAME begin_acct
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_acct C-Win
 ON LEAVE OF begin_acct IN FRAME FRAME-A /* Beginning Acct# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_date
+&SCOPED-DEFINE SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-cancel
+&SCOPED-DEFINE SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-ok
+&SCOPED-DEFINE SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
@@ -470,54 +470,54 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
  RUN GetSelectionList.
-  run run-report.
+  RUN run-report.
   STATUS DEFAULT "Processing Complete".
 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-       when 4 then do:
+  CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
+       WHEN 3 THEN RUN output-to-file.
+       WHEN 4 THEN DO:
            /*run output-to-fax.*/
-           {custom/asifax.i &type= " "
+           {custom/asifax.i &TYPE= " "
                             &begin_cust= "begin_acct"
                             &END_cust= "begin_acct" 
-                            &fax-subject=c-win:title
-                            &fax-body=c-win:title
+                            &fax-subject=c-win:TITLE 
+                            &fax-body=c-win:TITLE 
                             &fax-file=list-name }
        END. 
-       when 5 then do:
+       when 5 THEN DO:
            IF is-xprint-form THEN DO:
               {custom/asimail.i &TYPE = " "
                              &begin_cust= "begin_acct"
                              &END_cust= "begin_acct"
-                             &mail-subject=c-win:title
-                             &mail-body=c-win:title
+                             &mail-subject=c-win:TITLE 
+                             &mail-body=c-win:TITLE 
                              &mail-file=list-name }
            END.
            ELSE DO:
                {custom/asimailr.i &TYPE = " "
                                   &begin_cust="begin_acct"
                                   &END_cust="begin_acct"
-                                  &mail-subject=c-win:title
-                                  &mail-body=c-win:title
+                                  &mail-subject=c-win:TITLE 
+                                  &mail-body=c-win:TITLE 
                                   &mail-file=list-name }
 
            END.
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
-  end case.
+  END CASE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Add
+&SCOPED-DEFINE SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -539,11 +539,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Def
+&SCOPED-DEFINE SELF-NAME Btn_Def
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
   RUN DisplaySelectionDefault.  /* task 04141407 */ 
   RUN DisplaySelectionList2 .
@@ -554,7 +554,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_down
+&SCOPED-DEFINE SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down C-Win
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
@@ -565,7 +565,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Remove
+&SCOPED-DEFINE SELF-NAME Btn_Remove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove C-Win
 ON CHOOSE OF Btn_Remove IN FRAME FRAME-A /* << Remove */
 DO:
@@ -581,7 +581,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_Up
+&SCOPED-DEFINE SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up C-Win
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
@@ -592,55 +592,55 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_acct
+&SCOPED-DEFINE SELF-NAME end_acct
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_acct C-Win
 ON LEAVE OF end_acct IN FRAME FRAME-A /* Ending Acct# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_date
+&SCOPED-DEFINE SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Date */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_file
+&SCOPED-DEFINE SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME lines-per-page
+&SCOPED-DEFINE SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME lv-font-no
+&SCOPED-DEFINE SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
@@ -662,7 +662,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME lv-ornt
+&SCOPED-DEFINE SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
 DO:
@@ -683,18 +683,18 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rd-dest
+&SCOPED-DEFINE SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME sl_avail
+&SCOPED-DEFINE SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
@@ -708,7 +708,7 @@ DO:
 
   
 /* for pairs
-    DEF VAR cSelectedList AS cha NO-UNDO.
+    DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
     DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
     IF sl_avail:IS-SELECTED(i) AND
@@ -733,7 +733,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME sl_selected
+&SCOPED-DEFINE SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected C-Win
 ON DEFAULT-ACTION OF sl_selected IN FRAME FRAME-A
 DO:
@@ -757,7 +757,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_detailed
+&SCOPED-DEFINE SELF-NAME tb_detailed
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_detailed C-Win
 ON VALUE-CHANGED OF tb_detailed IN FRAME FRAME-A /* Detailed? */
 DO:
@@ -768,7 +768,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_exc-auto
+&SCOPED-DEFINE SELF-NAME tb_exc-auto
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_exc-auto C-Win
 ON VALUE-CHANGED OF tb_exc-auto IN FRAME FRAME-A /* Exclude Auto Distributions? */
 DO:
@@ -779,33 +779,33 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_excel
+&SCOPED-DEFINE SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
+&SCOPED-DEFINE SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME td-show-parm
+&SCOPED-DEFINE SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -843,9 +843,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
-  assign
-   begin_date = date(1,1,year(today))
-   end_date   = today.
+  ASSIGN 
+   begin_date = DATE(1,1,YEAR(TODAY))
+   end_date   = TODAY.
  RUN DisplaySelectionList.
   RUN enable_UI.
   
@@ -893,8 +893,8 @@ PROCEDURE DisplaySelectionDefault :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
@@ -916,10 +916,10 @@ PROCEDURE DisplaySelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+ DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
-  IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:   
+  IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:   
      RETURN.
   END.
 
@@ -949,11 +949,11 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
+  DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
 
-  IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
+  IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
         
@@ -962,7 +962,7 @@ PROCEDURE DisplaySelectionList2 :
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
 
      cListContents = cListContents +
-                    (IF cListContents = "" THEN ""  ELSE ",") +
+                    (IF cListContents EQ "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
     ASSIGN ttRptList.TextList = ENTRY(iCount,cTextListToSelect)
@@ -1021,9 +1021,9 @@ PROCEDURE excel-acct-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-open-amt AS DEC NO-UNDO.
+  DEFINE INPUT PARAMETER ip-open-amt AS DECIMAL NO-UNDO.
   
-  DEF VAR i AS INT NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
   
   PUT STREAM excel UNFORMATTED
       '"' account.actnum                         '",'
@@ -1050,16 +1050,16 @@ PROCEDURE excel-det-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ip-tmp-dscr AS CHAR NO-UNDO.
-   DEFINE INPUT PARAMETER ip-tr-num AS INT NO-UNDO.
-   DEFINE INPUT PARAMETER ip-jrnl AS CHAR NO-UNDO.
+   DEFINE INPUT PARAMETER ip-tmp-dscr AS CHARACTER NO-UNDO.
+   DEFINE INPUT PARAMETER ip-tr-num AS INTEGER NO-UNDO.
+   DEFINE INPUT PARAMETER ip-jrnl AS CHARACTER NO-UNDO.
    DEFINE INPUT PARAMETER ip-date AS DATE NO-UNDO.
-   DEFINE INPUT PARAMETER ip-amt AS DEC NO-UNDO.
+   DEFINE INPUT PARAMETER ip-amt AS DECIMAL NO-UNDO.
    
-   DEF VAR v-ref1 AS CHAR NO-UNDO.
-   DEF VAR v-ref2 AS CHAR NO-UNDO.
-   DEF VAR v-ref3 AS CHAR NO-UNDO.
-   DEF VAR inv-index AS INT NO-UNDO.
+   DEFINE VARIABLE v-ref1 AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE v-ref2 AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE v-ref3 AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE inv-index AS INTEGER NO-UNDO.
 
    ASSIGN
      v-ref1 = ip-tmp-dscr
@@ -1100,11 +1100,11 @@ PROCEDURE excel-total-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-text     AS CHAR NO-UNDO.
-  DEFINE INPUT PARAMETER ip-tot-act  AS DEC NO-UNDO.
-  DEFINE INPUT PARAMETER ip-open-amt AS DEC NO-UNDO.
+  DEFINE INPUT PARAMETER ip-text     AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ip-tot-act  AS DECIMAL NO-UNDO.
+  DEFINE INPUT PARAMETER ip-open-amt AS DECIMAL NO-UNDO.
   
-  DEF VAR i AS INT NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   DO i = 1 TO 8:
      PUT STREAM excel UNFORMATTED
@@ -1134,21 +1134,21 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
  iColumnLength = 0.
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
-    FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
+    FIND FIRST ttRptList NO-LOCK WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-ERROR.     
   
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
            ttRptSelected.DisplayOrder = i
-           ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
+           ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
            
@@ -1169,10 +1169,10 @@ DEFINE INPUT PARAMETER ipcDesc AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdAmt AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcDesc AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE cVendor AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE cVendNo AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE cDate AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE iLen AS INTEGER     NO-UNDO.
+DEFINE VARIABLE cVendor AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDate AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iLen AS INTEGER NO-UNDO.
 
 DEFINE BUFFER bf-ap-inv FOR ap-inv.
 DEFINE BUFFER bf-ap-invl FOR ap-invl.
@@ -1185,20 +1185,20 @@ IF ipcDesc NE "" THEN DO:
     cDate = TRIM(SUBSTRING(cVendor,iLen - 8 , 9)).
     cVendor = TRIM(SUBSTRING(cVendor,1,INDEX(cVendor,cDate) - 1)).
     
-    FIND FIRST bf-vend 
+    FIND FIRST bf-vend NO-LOCK 
         WHERE bf-vend.company EQ cocode
-          AND bf-vend.NAME = cVendor 
-        NO-LOCK NO-ERROR.
-    IF AVAIL bf-vend THEN cVendNo = bf-vend.vend-no.
+          AND bf-vend.NAME EQ cVendor 
+         NO-ERROR.
+    IF AVAILABLE bf-vend THEN cVendNo = bf-vend.vend-no.
     
-    FOR EACH bf-ap-inv 
+    FOR EACH bf-ap-inv NO-LOCK 
         WHERE bf-ap-inv.company EQ cocode
-          AND bf-ap-inv.vend-no = cVendNo
-          AND bf-ap-inv.inv-date = DATE(cDate) NO-LOCK:
-        FIND FIRST bf-ap-invl WHERE bf-ap-invl.i-no EQ bf-ap-inv.i-no
-            AND bf-ap-invl.amt = ipdAmt
-            NO-LOCK NO-ERROR.
-        IF AVAIL bf-ap-invl THEN DO:
+          AND bf-ap-inv.vend-no EQ cVendNo
+          AND bf-ap-inv.inv-date EQ DATE(cDate) :
+        FIND FIRST bf-ap-invl NO-LOCK WHERE bf-ap-invl.i-no EQ bf-ap-inv.i-no
+            AND bf-ap-invl.amt EQ ipdAmt
+             NO-ERROR.
+        IF AVAILABLE bf-ap-invl THEN DO:
             opcDesc = bf-ap-invl.dscr.
             LEAVE.
         END.
@@ -1277,7 +1277,7 @@ PROCEDURE output-to-printer :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
+  RUN custom/prntproc.p (list-name,INTEGER(lv-font-no),lv-ornt).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1290,7 +1290,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+  RUN scr-rpt.w (list-name,c-win:TITLE,INTEGER(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1304,68 +1304,68 @@ PROCEDURE run-report :
 
 /*{sys/form/r-top3lw.f}*/
 
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
+DEFINE VARIABLE cDisplay AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVarValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
 DEF BUFFER bitemfg FOR itemfg.
-DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE str-tit4 AS CHARACTER FORMAT "x(200)" NO-UNDO.
+DEFINE VARIABLE str-tit5 AS CHARACTER FORMAT "x(200)" NO-UNDO.
 
 {sys/form/r-top5L3.f} 
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
-def var save_id as recid.
-def var time_stamp as ch NO-UNDO.
-def var tot-all  as dec format "->>>,>>>,>>>,>>9.99" NO-UNDO.
-def var tot-tx   like tot-all NO-UNDO.
-def var tot-act  like tot-all NO-UNDO.
-def var open-amt like tot-all NO-UNDO.
-def var pri-amt  like tot-all NO-UNDO.
-def var net-inc  as DEC NO-UNDO.
-def var tmp-amt like gltrans.tr-amt NO-UNDO.
-def var tmp-dscr AS CHAR FORMAT "X(54)" NO-UNDO.
-def var ap-dscr AS CHAR FORMAT "X(30)" NO-UNDO.
-def buffer xgltrans for gltrans.
-def buffer xglhist for glhist.
-def buffer xperiod for period.
-/*def var str-tit4 as char no-undo.
-def var str-tit5 as char no-undo.*/
-def var v-s-date as date format "99/99/9999" init 01/01/01 NO-UNDO.
-def var v-e-date as date format "99/99/9999" init today NO-UNDO.
-def var v-s-yr like period.yr NO-UNDO.
-def var v-e-yr like period.yr NO-UNDO.
-def var v-sumdet as LOG NO-UNDO.
-def var v-answer as LOG NO-UNDO.
-DEF VAR li-dscr AS INT NO-UNDO.
-DEF VAR ld-per-start AS DATE NO-UNDO.
+DEFINE VARIABLE save_id AS RECID.
+DEFINE VARIABLE time_stamp AS CHARACTER NO-UNDO.
+DEFINE VARIABLE tot-all  as DECIMAL format "->>>,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE tot-tx LIKE tot-all NO-UNDO.
+DEFINE VARIABLE tot-act LIKE tot-all NO-UNDO.
+DEFINE VARIABLE open-amt LIKE tot-all NO-UNDO.
+DEFINE VARIABLE pri-amt LIKE tot-all NO-UNDO.
+DEFINE VARIABLE net-inc  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE tmp-amt LIKE gltrans.tr-amt NO-UNDO.
+DEFINE VARIABLE tmp-dscr AS CHARACTER FORMAT "X(54)" NO-UNDO.
+DEFINE VARIABLE ap-dscr AS CHARACTER FORMAT "X(30)" NO-UNDO.
+DEFINE BUFFER xgltrans FOR gltrans.
+DEFINE BUFFER xglhist FOR glhist.
+DEFINE BUFFER xperiod FOR period.
+/*DEFINE VARIABLE str-tit4 as char no-undo.
+DEFINE VARIABLE str-tit5 as char no-undo.*/
+DEFINE VARIABLE v-s-date AS DATE FORMAT "99/99/9999" INITIAL 01/01/01 NO-UNDO.
+DEFINE VARIABLE v-e-date AS DATE FORMAT "99/99/9999" INITIAL TODAY NO-UNDO.
+DEFINE VARIABLE v-s-yr LIKE period.yr NO-UNDO.
+DEFINE VARIABLE v-e-yr LIKE period.yr NO-UNDO.
+DEFINE VARIABLE v-sumdet AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-answer AS LOGICAL NO-UNDO.
+DEFINE VARIABLE li-dscr AS INTEGER NO-UNDO.
+DEFINE VARIABLE ld-per-start AS DATE NO-UNDO.
 
-DEF VAR tacct LIKE gltrans.actnum  LABEL "    To Account Number" NO-UNDO.
-DEF VAR facct LIKE gltrans.actnum  LABEL "  From Account Number" NO-UNDO.
-DEF VAR op AS CHAR FORMAT "x" INITIAL "S" LABEL "  S)ummary or D)etail?" NO-UNDO.
-DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR acct-hdr-printed AS LOG NO-UNDO.
+DEFINE VARIABLE tacct LIKE gltrans.actnum  LABEL "    To Account Number" NO-UNDO.
+DEFINE VARIABLE facct LIKE gltrans.actnum  LABEL "  From Account Number" NO-UNDO.
+DEFINE VARIABLE op AS CHARACTER FORMAT "x" INITIAL "S" LABEL "  S)ummary or D)etail?" NO-UNDO.
+DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
+DEFINE VARIABLE acct-hdr-printed AS LOGICAL NO-UNDO.
 
-form  account.actnum format "x(75)" open-amt to 131
-      with frame r-cmon down stream-io width 132 no-labels no-box no-underline.
-form  account.actnum format "x(230)" 
-      with frame r-cmon2 down stream-io width 230 no-labels no-box no-underline.
+FORM  account.actnum FORMAT "x(75)" open-amt to 131
+      WITH FRAME r-cmon DOWN STREAM-IO WIDTH 132 NO-LABELS NO-BOX NO-UNDERLINE.
+FORM  account.actnum FORMAT "x(230)" 
+      WITH FRAME r-cmon2 DOWN STREAM-IO WIDTH 230 NO-LABELS NO-BOX NO-UNDERLINE.
 
 
-assign
- str-tit2 = c-win:title 
+ASSIGN 
+ str-tit2 = c-win:TITLE  
  {sys/inc/ctrtext.i str-tit2 126}
 
  facct    = begin_acct
  tacct    = end_acct
  v-s-date = begin_date
  v-e-date = end_date
- v-sumdet = not tb_detailed
+ v-sumdet = NOT tb_detailed
     
  str-tit3 = "Date Range: " + STRING(v-s-date,"99/99/9999") + "-" +
                              STRING(v-e-date,"99/99/9999")
@@ -1374,7 +1374,7 @@ assign
  hdr-tit2 = "                   Run #"
  hdr-tit3 = fill("-",146)*/
  uperiod = period
- udate   = today.
+ udate   = TODAY.
 
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
@@ -1397,21 +1397,21 @@ assign
        
 {sys/inc/print1.i}
 
-find first period where period.company = cocode and
-                        period.pst <= v-s-date and
-                        period.pend >= v-s-date no-lock no-error.
-if avail period then
-  assign uperiod = period.pnum
+FIND FIRST period NO-LOCK WHERE period.company EQ cocode AND
+                        period.pst LE v-s-date AND
+                        period.pend GE v-s-date  NO-ERROR.
+if AVAILABLE period THEN
+  ASSIGN uperiod = period.pnum
          v-s-yr = period.yr
          ld-per-start = period.pst.
 
-find first period where period.company = cocode and
-                        period.pst <= v-e-date and
-                        period.pend >= v-e-date no-lock no-error.
-if avail period then
+FIND FIRST period NO-LOCK WHERE period.company EQ cocode AND
+                        period.pst LE v-e-date AND
+                        period.pend GE v-e-date  NO-ERROR.
+IF AVAILABLE period THEN
    v-e-yr = period.yr.
          
-{sys/inc/outprint.i value(lines-per-page)}
+{sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
@@ -1420,39 +1420,39 @@ IF tb_excel THEN DO:
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
-if td-show-parm then run show-param.
+IF td-show-parm THEN RUN show-param.
 
 SESSION:SET-WAIT-STATE ("general").
 
    DISPLAY "" WITH FRAME r-top.
 
-   for each account where account.company = cocode and
-                          account.actnum ge facct and
-                          account.actnum le tacct no-lock:
+   FOR EACH account NO-LOCK WHERE account.company EQ cocode AND
+                                   account.actnum GE facct AND
+                                   account.actnum LE tacct :
 
        {custom/statusMsg.i " 'Processing Account #  '  + string(account.actnum) "}
 
-      if line-counter > page-size - 2 then page.
+      IF LINE-COUNTER GT PAGE-SIZE - 2 THEN PAGE.
 
       acct-hdr-printed = NO.
 
-      run gl/gl-open1.p (recid(account), v-s-yr, v-s-date, uperiod,
-                         output open-amt).
+      RUN gl/gl-open1.p (RECID(account), v-s-yr, v-s-date, uperiod,
+                         OUTPUT open-amt).
 
-      FOR EACH glhist fields(tr-amt) NO-LOCK
+      FOR EACH glhist FIELDS(tr-amt) NO-LOCK
           WHERE glhist.company EQ account.company
             AND glhist.actnum  EQ account.actnum
-            AND glhist.tr-date >= ld-per-start
-            AND glhist.tr-date < v-s-date
+            AND glhist.tr-date GE ld-per-start
+            AND glhist.tr-date LT v-s-date
             AND (glhist.jrnl   NE "AUTODIST" OR NOT tb_exc-auto):
         open-amt = open-amt + glhist.tr-amt.
       END.
 
-      FOR EACH gltrans fields(tr-amt) NO-LOCK
+      FOR EACH gltrans FIELDS(tr-amt) NO-LOCK
           WHERE gltrans.company EQ account.company
             AND gltrans.actnum  EQ account.actnum
-            AND gltrans.tr-date >= ld-per-start
-            AND gltrans.tr-date < v-s-date
+            AND gltrans.tr-date GE ld-per-start
+            AND gltrans.tr-date LT v-s-date
             AND (gltrans.jrnl   NE "AUTODIST" OR NOT tb_exc-auto):
         open-amt = open-amt + gltrans.tr-amt.
       END.
@@ -1473,27 +1473,27 @@ SESSION:SET-WAIT-STATE ("general").
        cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
        
             CASE cTmpField:               
-                 WHEN "actnum" THEN cVarValue = string(account.actnum) . 
-                 WHEN "actdesc" THEN cVarValue =  string(account.dscr) .
+                 WHEN "actnum"  THEN cVarValue = STRING(account.actnum) . 
+                 WHEN "actdesc" THEN cVarValue = STRING(account.dscr) .
                  WHEN "ap-desc" THEN cVarValue =  "" .
-                 WHEN "run" THEN cVarValue = /*STRING(v-cust-no)*/ "".
-                 WHEN "jour" THEN cVarValue = /*IF AVAIL cust THEN STRING(cust.name) ELSE*/ "".
-                 WHEN "ref" THEN cVarValue = /*STRING(w-data.inv-no)*/ "".
-                 WHEN "date" THEN cVarValue = /* string(w-data.i-no)*/ "" .
-                 WHEN "amt" THEN cVarValue = /*IF AVAIL itemfg THEN STRING(itemfg.procat) ELSE*/ "".
-                 WHEN "bal" THEN cVarValue =  STRING(open-amt,"->>,>>>,>>>,>>>.99") .
+                 WHEN "run"     THEN cVarValue = /*STRING(v-cust-no)*/ "".
+                 WHEN "jour"    THEN cVarValue = /*IF AVAIL cust THEN STRING(cust.name) ELSE*/ "".
+                 WHEN "ref"     THEN cVarValue = /*STRING(w-data.inv-no)*/ "".
+                 WHEN "date"    THEN cVarValue = /* string(w-data.i-no)*/ "" .
+                 WHEN "amt"     THEN cVarValue = /*IF AVAIL itemfg THEN STRING(itemfg.procat) ELSE*/ "".
+                 WHEN "bal"      THEN cVarValue = STRING(open-amt,"->>,>>>,>>>,>>>.99") .
                      
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
-                       FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
+            cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
        
    END.
    /*PUT UNFORMATTED cDisplay SKIP.*/
-   display string(cDisplay) format "x(230)" @
+   DISPLAY STRING(cDisplay) FORMAT "x(230)" @
               account.actnum
-               with frame r-cmon2.
+               WITH FRAME r-cmon2.
    DOWN.
   
    IF tb_excel THEN DO:
@@ -1504,35 +1504,35 @@ SESSION:SET-WAIT-STATE ("general").
  
       tot-all = tot-all + open-amt.
 
-    if not v-sumdet then do:
+    IF NOT v-sumdet THEN DO:
         
       FOR EACH glhist NO-LOCK
           WHERE glhist.company EQ account.company
-            AND glhist.actnum  EQ account.actnum and
-                                        glhist.tr-date >= v-s-date and
-                                        glhist.tr-date <= v-e-date and
-                                        (glhist.jrnl NE "AUTODIST" or
+            AND glhist.actnum  EQ account.actnum AND 
+                                        glhist.tr-date GE v-s-date AND 
+                                        glhist.tr-date LE v-e-date AND 
+                                        (glhist.jrnl NE "AUTODIST" OR 
                                          NOT tb_exc-auto)
-      break by glhist.tr-date by glhist.jrnl by glhist.tr-num:
+      BREAK BY glhist.tr-date BY glhist.jrnl BY glhist.tr-num:
 
            {custom/statusMsg.i " 'Processing Run #  '  + string(glhist.tr-num) "}
 
          tmp-dscr = "".
          ap-dscr = "".
-         /*IF glhist.jrnl = "ACPAY" AND tb_desc THEN DO:*/
+         IF glhist.jrnl EQ "ACPAY" /*AND tb_desc*/ THEN DO:
             RUN GetTransDesc(INPUT glhist.tr-dscr,
                              INPUT glhist.tr-amt,
                              OUTPUT ap-dscr).  
-        /*END.
-        IF tmp-dscr EQ "" THEN*/
-            assign tmp-dscr = trim(glhist.tr-dscr).
+        END.
+        /*IF tmp-dscr EQ "" THEN*/
+            ASSIGN tmp-dscr = TRIM(glhist.tr-dscr).
 
          IF glhist.jrnl EQ "MCSHREC" THEN DO:
            RELEASE ar-mcash.
-           li-dscr = INT(tmp-dscr) NO-ERROR.
+           li-dscr = INTEGER(tmp-dscr) NO-ERROR.
            IF NOT ERROR-STATUS:ERROR THEN
-           FIND FIRST ar-mcash WHERE ar-mcash.m-no EQ li-dscr NO-LOCK NO-ERROR.
-           IF AVAIL ar-mcash THEN tmp-dscr = ar-mcash.payer + " Rec# " + tmp-dscr.
+           FIND FIRST ar-mcash NO-LOCK WHERE ar-mcash.m-no EQ li-dscr NO-ERROR.
+           IF AVAILABLE ar-mcash THEN tmp-dscr = ar-mcash.payer + " Rec# " + tmp-dscr.
          END.
 
          /*put space(19)
@@ -1549,24 +1549,24 @@ SESSION:SET-WAIT-STATE ("general").
           .
 
        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-       cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+       cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
        
             CASE cTmpField:               
-                 WHEN "actnum" THEN cVarValue = "" . 
+                 WHEN "actnum"  THEN cVarValue = "" . 
                  WHEN "actdesc" THEN cVarValue =  "" .
-                 WHEN "ap-desc" THEN cVarValue =  STRING(ap-dscr,"x(30)") .
-                 WHEN "run" THEN cVarValue = STRING(glhist.tr-num,"99999999") .
-                 WHEN "jour" THEN cVarValue = STRING(glhist.jrnl) .
-                 WHEN "ref" THEN cVarValue = STRING(tmp-dscr,"x(52)").
-                 WHEN "date" THEN cVarValue = string(glhist.tr-date,"99/99/99") .
-                 WHEN "amt" THEN cVarValue = STRING(glhist.tr-amt,"(>>,>>>,>>9.99)") .
-                 WHEN "bal" THEN cVarValue =  "" .
+                 WHEN "ap-desc" THEN cVarValue = STRING(ap-dscr,"x(30)") .
+                 WHEN "run"     THEN cVarValue = STRING(glhist.tr-num,"99999999") .
+                 WHEN "jour"    THEN cVarValue = STRING(glhist.jrnl) .
+                 WHEN "ref"     THEN cVarValue = STRING(tmp-dscr,"x(52)").
+                 WHEN "date"    THEN cVarValue = STRING(glhist.tr-date,"99/99/99") .
+                 WHEN "amt"     THEN cVarValue = STRING(glhist.tr-amt,"(>>,>>>,>>9.99)") .
+                 WHEN "bal"     THEN cVarValue =  "" .
                     
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
-                       FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
+            cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
        
    END.
    PUT UNFORMATTED cDisplay SKIP.
@@ -1594,34 +1594,34 @@ SESSION:SET-WAIT-STATE ("general").
             tot-all  = tot-all  + glhist.tr-amt
             tot-tx   = tot-tx   + glhist.tr-amt
             tot-act  = tot-act  + glhist.tr-amt.
-      end.
+      END.
       FOR EACH gltrans NO-LOCK
           WHERE gltrans.company EQ account.company
-            AND gltrans.actnum  EQ account.actnum and
-                                        gltrans.tr-date >= v-s-date and
-                                        gltrans.tr-date <= v-e-date and
-                                        (gltrans.jrnl NE "AUTODIST" or
+            AND gltrans.actnum  EQ account.actnum AND 
+                                        gltrans.tr-date GE v-s-date AND 
+                                        gltrans.tr-date LE v-e-date AND 
+                                        (gltrans.jrnl NE "AUTODIST" OR 
                                          NOT tb_exc-auto)
-        break by gltrans.tr-date by gltrans.jrnl by gltrans.trnum:
+        BREAK BY gltrans.tr-date BY gltrans.jrnl BY gltrans.trnum:
 
           {custom/statusMsg.i " 'Processing Run #  '  + string(gltrans.trnum) "}
 
         tmp-dscr = "".
         ap-dscr = "".
-        /*IF gltrans.jrnl = "ACPAY" AND tb_desc THEN DO:*/
+        IF gltrans.jrnl = "ACPAY" /*AND tb_desc*/ THEN DO:
             RUN GetTransDesc(INPUT gltrans.tr-dscr,
                              INPUT gltrans.tr-amt,
                              OUTPUT ap-dscr). 
-       /* END.
-        IF tmp-dscr EQ "" THEN*/
-            assign tmp-dscr = trim(gltrans.tr-dscr).
+        END.
+        /*IF tmp-dscr EQ "" THEN*/
+            ASSIGN tmp-dscr = TRIM(gltrans.tr-dscr).
 
          IF gltrans.jrnl EQ "MCSHREC" THEN DO:
            RELEASE ar-mcash.
-           li-dscr = INT(tmp-dscr) NO-ERROR.
+           li-dscr = INTEGER(tmp-dscr) NO-ERROR.
            IF NOT ERROR-STATUS:ERROR THEN
-           FIND FIRST ar-mcash WHERE ar-mcash.m-no EQ li-dscr NO-LOCK NO-ERROR.
-           IF AVAIL ar-mcash THEN tmp-dscr = ar-mcash.payer + " Rec# " + tmp-dscr.
+           FIND FIRST ar-mcash NO-LOCK WHERE ar-mcash.m-no EQ li-dscr NO-ERROR.
+           IF AVAILABLE ar-mcash THEN tmp-dscr = ar-mcash.payer + " Rec# " + tmp-dscr.
          END.
 
          /*put space(19)
@@ -1639,24 +1639,24 @@ SESSION:SET-WAIT-STATE ("general").
           .
 
        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-       cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+       cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
        
             CASE cTmpField:               
-                 WHEN "actnum" THEN cVarValue = "" . 
+                 WHEN "actnum"  THEN cVarValue = "" . 
                  WHEN "actdesc" THEN cVarValue =  "" .
-                 WHEN "ap-desc" THEN cVarValue =  STRING(ap-dscr,"x(30)") .
-                 WHEN "run" THEN cVarValue = STRING(gltrans.trnum,"99999999") .
-                 WHEN "jour" THEN cVarValue = STRING(gltrans.jrnl) .
-                 WHEN "ref" THEN cVarValue = STRING(tmp-dscr,"x(52)").
-                 WHEN "date" THEN cVarValue = string(gltrans.tr-date,"99/99/99") .
-                 WHEN "amt" THEN cVarValue = STRING(gltrans.tr-amt,"(>>,>>>,>>9.99)") .
-                 WHEN "bal" THEN cVarValue =  "" .
+                 WHEN "ap-desc" THEN cVarValue = STRING(ap-dscr,"x(30)") .
+                 WHEN "run"     THEN cVarValue = STRING(gltrans.trnum,"99999999") .
+                 WHEN "jour"    THEN cVarValue = STRING(gltrans.jrnl) .
+                 WHEN "ref"     THEN cVarValue = STRING(tmp-dscr,"x(52)").
+                 WHEN "date"    THEN cVarValue = STRING(gltrans.tr-date,"99/99/99") .
+                 WHEN "amt"     THEN cVarValue = STRING(gltrans.tr-amt,"(>>,>>>,>>9.99)") .
+                 WHEN "bal"     THEN cVarValue =  "" .
                  
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
-                       FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
+            cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
        
    END.
    PUT UNFORMATTED cDisplay SKIP.
@@ -1684,71 +1684,73 @@ SESSION:SET-WAIT-STATE ("general").
             tot-all  = tot-all  + gltrans.tr-amt
             tot-tx   = tot-tx   + gltrans.tr-amt
             tot-act  = tot-act  + gltrans.tr-amt.
-      end.
-    end.
-    else
-    do:
+      END.
+    END.
+    ELSE
+    DO:
         
       FOR EACH glhist NO-LOCK
           WHERE glhist.company EQ account.company
-            AND glhist.actnum  EQ account.actnum and
-                                        glhist.tr-date >= v-s-date and
-                                        glhist.tr-date <= v-e-date and
-                                        (glhist.jrnl NE "AUTODIST" or
+            AND glhist.actnum  EQ account.actnum AND 
+                                        glhist.tr-date GE v-s-date AND 
+                                        glhist.tr-date LE v-e-date AND 
+                                        (glhist.jrnl NE "AUTODIST" OR 
                                          NOT tb_exc-auto)
-        break by glhist.tr-date by glhist.jrnl by glhist.tr-num:
+        BREAK BY glhist.tr-date BY glhist.jrnl BY glhist.tr-num:
 
            {custom/statusMsg.i " 'Processing Run #  '  + string(glhist.tr-num) "}
 
-        if line-counter > page-size - 2 then page.
-        if last-of(glhist.tr-num) then
-        do:
-        assign tmp-amt = 0.
-        for each xglhist FIELDS(tr-amt) WHERE
-            xglhist.company = glhist.company and
-            xglhist.actnum = glhist.actnum and
-            xglhist.period = glhist.period and
-            xglhist.tr-date = glhist.tr-date and
-            xglhist.tr-num = glhist.tr-num and
-            xglhist.jrnl = glhist.jrnl no-lock:
+        IF LINE-COUNTER > PAGE-SIZE - 2 THEN PAGE.
+        IF LAST-OF(glhist.tr-num) THEN
+        DO:
+        ASSIGN tmp-amt = 0.
+        FOR EACH xglhist FIELDS(tr-amt) NO-LOCK WHERE
+            xglhist.company EQ glhist.company AND
+            xglhist.actnum  EQ glhist.actnum AND
+            xglhist.period  EQ glhist.period AND
+            xglhist.tr-date EQ glhist.tr-date AND
+            xglhist.tr-num  EQ glhist.tr-num AND
+            xglhist.jrnl    EQ glhist.jrnl:
 
-            assign tmp-amt = tmp-amt + xglhist.tr-amt.
-        end.
+            ASSIGN tmp-amt = tmp-amt + xglhist.tr-amt.
+        END.
 
-        if glhist.jrnl = "CASHR" then
-          assign tmp-dscr = "CASH RECEIPTS                           ".
-        else if glhist.jrnl = "APCKR" then
-          assign tmp-dscr = "ACCOUNTS PAYABLE CHECK REGISTER         ".
-        else if glhist.jrnl = "GENERAL" then
-          assign tmp-dscr = "GENERAL                                 ".
-        else if glhist.jrnl = "OEINV" then
-          assign tmp-dscr = "ORDER ENTRY INVOICE                     ".
-        else if glhist.jrnl = "ARINV" then
-          assign tmp-dscr = "ACCOUNTS RECEIVABLE INVOICE             ".
-        else if glhist.jrnl = "MCSHREC" then
-          assign tmp-dscr = "MISC CASH RECEIPTS                      ".
-        else if glhist.jrnl = "CDISB" then
-          assign tmp-dscr = "CASH DISBURSEMENT                       ".
-        else if glhist.jrnl = "APMEM" then
-          assign tmp-dscr = "ACCOUNTS PAYABLE MEMO                   ".
-        else if glhist.jrnl = "CRMEM" then
-          assign tmp-dscr = "CREDIT MEMO                             ".
-        else if glhist.jrnl = "ACPAY" THEN DO:
+        IF glhist.jrnl EQ "CASHR" THEN
+          ASSIGN tmp-dscr = "CASH RECEIPTS                           ".
+        ELSE IF glhist.jrnl EQ "APCKR" THEN
+          ASSIGN tmp-dscr = "ACCOUNTS PAYABLE CHECK REGISTER         ".
+        ELSE IF glhist.jrnl EQ "GENERAL" THEN
+          ASSIGN tmp-dscr = "GENERAL                                 ".
+        ELSE IF glhist.jrnl EQ "OEINV" THEN
+          ASSIGN tmp-dscr = "ORDER ENTRY INVOICE                     ".
+        ELSE IF glhist.jrnl EQ "ARINV" THEN
+          ASSIGN tmp-dscr = "ACCOUNTS RECEIVABLE INVOICE             ".
+        ELSE IF glhist.jrnl EQ "MCSHREC" THEN
+          ASSIGN tmp-dscr = "MISC CASH RECEIPTS                      ".
+        ELSE IF glhist.jrnl EQ "CDISB" THEN
+          ASSIGN tmp-dscr = "CASH DISBURSEMENT                       ".
+        ELSE IF glhist.jrnl EQ "APMEM" THEN
+          ASSIGN tmp-dscr = "ACCOUNTS PAYABLE MEMO                   ".
+        ELSE IF glhist.jrnl EQ "CRMEM" THEN
+          ASSIGN tmp-dscr = "CREDIT MEMO                             ".
+        ELSE IF glhist.jrnl EQ "ACPAY" THEN DO:
             RUN GetTransDesc(INPUT glhist.tr-dscr,
                              INPUT glhist.tr-amt,
                              OUTPUT tmp-dscr). 
             IF tmp-dscr EQ "" THEN
-                assign tmp-dscr = "ACCOUNTS PAYABLE                        ".
+                ASSIGN tmp-dscr = "ACCOUNTS PAYABLE                        ".
         END.
-        else if glhist.jrnl = "APVOIDCK" then
-          assign tmp-dscr = "ACCOUNTS PAYABLE VOID CHECK             ".
-        else if glhist.jrnl = "ADJUST" then
-          assign tmp-dscr = "ADJUSTMENT                              ".
-        else if glhist.jrnl = "AUTODIST" then
-          assign tmp-dscr = "AUTOMATIC DISTRIBUTION                  ".
-        else
-          assign tmp-dscr = "                                        ".
+        ELSE IF glhist.jrnl EQ "APVOIDCK" THEN
+          ASSIGN tmp-dscr = "ACCOUNTS PAYABLE VOID CHECK             ".
+        ELSE IF glhist.jrnl EQ "ADJUST" THEN
+          ASSIGN tmp-dscr = "ADJUSTMENT                              ".
+        ELSE IF glhist.jrnl EQ "AUTODIST" THEN
+          ASSIGN tmp-dscr = "AUTOMATIC DISTRIBUTION                  ".
+        ELSE 
+          ASSIGN tmp-dscr = "                                        ".
           ap-dscr = "" .
+
+          IF glhist.jrnl EQ "ACPAY" THEN
           RUN GetTransDesc(INPUT glhist.tr-dscr,
                              INPUT glhist.tr-amt,
                              OUTPUT ap-dscr). 
@@ -1770,20 +1772,20 @@ SESSION:SET-WAIT-STATE ("general").
        cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
        
             CASE cTmpField:               
-                 WHEN "actnum" THEN cVarValue = "" . 
+                 WHEN "actnum"  THEN cVarValue = "" . 
                  WHEN "actdesc" THEN cVarValue =  "" .
-                 WHEN "ap-desc" THEN cVarValue =  STRING(ap-dscr,"x(30)") .
-                 WHEN "run" THEN cVarValue = STRING(glhist.tr-num,"99999999") .
-                 WHEN "jour" THEN cVarValue = STRING(glhist.jrnl) .
-                 WHEN "ref" THEN cVarValue = STRING(tmp-dscr,"x(52)").
-                 WHEN "date" THEN cVarValue = string(glhist.tr-date,"99/99/99") .
-                 WHEN "amt" THEN cVarValue = STRING(tmp-amt,"(>>,>>>,>>9.99)") .
-                 WHEN "bal" THEN cVarValue =  "" .
+                 WHEN "ap-desc" THEN cVarValue = STRING(ap-dscr,"x(30)") .
+                 WHEN "run"     THEN cVarValue = STRING(glhist.tr-num,"99999999") .
+                 WHEN "jour"    THEN cVarValue = STRING(glhist.jrnl) .
+                 WHEN "ref"     THEN cVarValue = STRING(tmp-dscr,"x(52)").
+                 WHEN "date"    THEN cVarValue = STRING(glhist.tr-date,"99/99/99") .
+                 WHEN "amt"     THEN cVarValue = STRING(tmp-amt,"(>>,>>>,>>9.99)") .
+                 WHEN "bal"     THEN cVarValue =  "" .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
-                       FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
+            cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
        
    END.
    PUT UNFORMATTED cDisplay SKIP.
@@ -1806,75 +1808,76 @@ SESSION:SET-WAIT-STATE ("general").
                                INPUT glhist.tr-date,
                                INPUT tmp-amt).
          END.*/
-        end.
+        END.
         
         ASSIGN
            tot-all  = tot-all  + glhist.tr-amt
            tot-tx   = tot-tx   + glhist.tr-amt
            tot-act  = tot-act  + glhist.tr-amt.
-      end. /* each glhist */
+      END. /* each glhist */
 
       FOR EACH gltrans NO-LOCK
           WHERE gltrans.company EQ account.company
-            AND gltrans.actnum  EQ account.actnum and
-                                        gltrans.tr-date >= v-s-date and
-                                        gltrans.tr-date <= v-e-date and
-                                        (gltrans.jrnl NE "AUTODIST" or
+            AND gltrans.actnum  EQ account.actnum AND
+                                        gltrans.tr-date GE v-s-date AND
+                                        gltrans.tr-date LE v-e-date AND
+                                        (gltrans.jrnl NE "AUTODIST" OR 
                                          NOT tb_exc-auto)
-      break by gltrans.tr-date by gltrans.jrnl by gltrans.trnum:
+      BREAK BY gltrans.tr-date BY gltrans.jrnl BY gltrans.trnum:
 
           {custom/statusMsg.i " 'Processing Run #  '  + string(gltrans.trnum) "}
 
-        if line-counter > page-size - 2 then page.
-        if last-of(gltrans.trnum) then
-        do:
-        assign tmp-amt = 0.
-        for each xgltrans FIELDS(tr-amt)
-            where xgltrans.company = cocode and
-                                xgltrans.actnum = gltrans.actnum and
-                                xgltrans.period = gltrans.period and
-                                xgltrans.tr-date = gltrans.tr-date and
-                                xgltrans.trnum = gltrans.trnum and
-                                xgltrans.jrnl = gltrans.jrnl no-lock:
+        IF LINE-COUNTER GT PAGE-SIZE - 2 THEN PAGE.
+        IF LAST-OF(gltrans.trnum) THEN 
+        DO:
+        ASSIGN tmp-amt = 0.
+        FOR EACH xgltrans FIELDS(tr-amt) NO-LOCK
+            WHERE xgltrans.company EQ cocode AND
+                                xgltrans.actnum  EQ gltrans.actnum  AND
+                                xgltrans.period  EQ gltrans.period  AND
+                                xgltrans.tr-date EQ gltrans.tr-date AND
+                                xgltrans.trnum   EQ gltrans.trnum   AND
+                                xgltrans.jrnl    EQ gltrans.jrnl:
 
-          assign tmp-amt = tmp-amt + xgltrans.tr-amt.
-        end.
+          ASSIGN tmp-amt = tmp-amt + xgltrans.tr-amt.
+        END.
 
-        if gltrans.jrnl = "CASHR" then
-          assign tmp-dscr = "CASH RECEIPTS                           ".
-        else if gltrans.jrnl = "APCKR" then
-          assign tmp-dscr = "ACCOUNTS PAYABLE CHECK REGISTER         ".
-        else if gltrans.jrnl = "GENERAL" then
-          assign tmp-dscr = "GENERAL                                 ".
-        else if gltrans.jrnl = "OEINV" then
-          assign tmp-dscr = "ORDER ENTRY INVOICE                     ".
-        else if gltrans.jrnl = "ARINV" then
-          assign tmp-dscr = "ACCOUNTS RECEIVABLE INVOICE             ".
-        else if gltrans.jrnl = "MCSHREC" then
-          assign tmp-dscr = "MISC CASH RECEIPTS                      ".
-        else if gltrans.jrnl = "CDISB" then
-          assign tmp-dscr = "CASH DISBURSEMENT                       ".
-        else if gltrans.jrnl = "APMEM" then
-          assign tmp-dscr = "ACCOUNTS PAYABLE MEMO                   ".
-        else if gltrans.jrnl = "CRMEM" then
-          assign tmp-dscr = "CREDIT MEMO                             ".
-        else if gltrans.jrnl = "ACPAY" THEN DO:
+        IF gltrans.jrnl EQ "CASHR" THEN
+          ASSIGN tmp-dscr = "CASH RECEIPTS                           ".
+        ELSE IF gltrans.jrnl EQ "APCKR" THEN
+          ASSIGN tmp-dscr = "ACCOUNTS PAYABLE CHECK REGISTER         ".
+        ELSE IF gltrans.jrnl EQ "GENERAL" THEN
+          ASSIGN tmp-dscr = "GENERAL                                 ".
+        ELSE IF gltrans.jrnl EQ "OEINV" THEN
+          ASSIGN tmp-dscr = "ORDER ENTRY INVOICE                     ".
+        ELSE IF gltrans.jrnl EQ "ARINV" THEN
+          ASSIGN tmp-dscr = "ACCOUNTS RECEIVABLE INVOICE             ".
+        ELSE IF gltrans.jrnl EQ "MCSHREC" THEN
+          ASSIGN tmp-dscr = "MISC CASH RECEIPTS                      ".
+        ELSE IF gltrans.jrnl EQ "CDISB" THEN
+          ASSIGN tmp-dscr = "CASH DISBURSEMENT                       ".
+        ELSE IF gltrans.jrnl EQ "APMEM" THEN
+          ASSIGN tmp-dscr = "ACCOUNTS PAYABLE MEMO                   ".
+        ELSE IF gltrans.jrnl EQ "CRMEM" THEN
+          ASSIGN tmp-dscr = "CREDIT MEMO                             ".
+        ELSE IF gltrans.jrnl EQ "ACPAY" THEN DO:
             RUN GetTransDesc(INPUT gltrans.tr-dscr,
                              INPUT gltrans.tr-amt,
                              OUTPUT tmp-dscr).
             IF tmp-dscr EQ "" THEN
-                assign tmp-dscr = "ACCOUNTS PAYABLE                        ".
+                ASSIGN tmp-dscr = "ACCOUNTS PAYABLE                        ".
         END.
-        else if gltrans.jrnl = "APVOIDCK" then
-          assign tmp-dscr = "ACCOUNTS PAYABLE VOID CHECK             ".
-        else if gltrans.jrnl = "ADJUST" then
-          assign tmp-dscr = "ADJUSTMENT                              ".
-        else if gltrans.jrnl = "AUTODIST" then
-          assign tmp-dscr = "AUTOMATIC DISTRIBUTION                  ".
-        else
-          assign tmp-dscr = "                                        ".
+        ELSE IF gltrans.jrnl EQ "APVOIDCK" THEN 
+          ASSIGN tmp-dscr = "ACCOUNTS PAYABLE VOID CHECK             ".
+        ELSE IF gltrans.jrnl EQ "ADJUST" THEN 
+          ASSIGN tmp-dscr = "ADJUSTMENT                              ".
+        ELSE IF gltrans.jrnl EQ "AUTODIST" THEN 
+          ASSIGN tmp-dscr = "AUTOMATIC DISTRIBUTION                  ".
+        ELSE 
+          ASSIGN tmp-dscr = "                                        ".
 
           ap-dscr = "".
+           IF gltrans.jrnl EQ "ACPAY" THEN
            RUN GetTransDesc(INPUT gltrans.tr-dscr,
                              INPUT gltrans.tr-amt,
                              OUTPUT ap-dscr).
@@ -1897,20 +1900,20 @@ SESSION:SET-WAIT-STATE ("general").
        cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
        
             CASE cTmpField:               
-                 WHEN "actnum" THEN cVarValue = "" . 
+                 WHEN "actnum"  THEN cVarValue = "" . 
                  WHEN "actdesc" THEN cVarValue =  "" .
-                 WHEN "ap-desc" THEN cVarValue =  STRING(ap-dscr,"x(30)") .
-                 WHEN "run" THEN cVarValue = STRING(gltrans.trnum,"99999999") .
-                 WHEN "jour" THEN cVarValue = STRING(gltrans.jrnl) .
-                 WHEN "ref" THEN cVarValue = STRING(tmp-dscr,"x(52)").
-                 WHEN "date" THEN cVarValue = string(gltrans.tr-date,"99/99/99") .
-                 WHEN "amt" THEN cVarValue = STRING(tmp-amt,"(>>,>>>,>>9.99)") .
-                 WHEN "bal" THEN cVarValue =  "" .
+                 WHEN "ap-desc" THEN cVarValue = STRING(ap-dscr,"x(30)") .
+                 WHEN "run"     THEN cVarValue = STRING(gltrans.trnum,"99999999") .
+                 WHEN "jour"    THEN cVarValue = STRING(gltrans.jrnl) .
+                 WHEN "ref"     THEN cVarValue = STRING(tmp-dscr,"x(52)").
+                 WHEN "date"    THEN cVarValue = STRING(gltrans.tr-date,"99/99/99") .
+                 WHEN "amt"     THEN cVarValue = STRING(tmp-amt,"(>>,>>>,>>9.99)") .
+                 WHEN "bal"     THEN cVarValue =  "" .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
-                       FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
+            cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
        
    END.
    PUT UNFORMATTED cDisplay SKIP.
@@ -1933,19 +1936,19 @@ SESSION:SET-WAIT-STATE ("general").
                               INPUT gltrans.tr-date,
                               INPUT tmp-amt).
         END.*/
-        end.
+        END.
 
          ASSIGN
             tot-all  = tot-all  + gltrans.tr-amt
             tot-tx   = tot-tx   + gltrans.tr-amt
             tot-act  = tot-act  + gltrans.tr-amt.
-      end. /* each gltrans */
-    end.
+      END. /* each gltrans */
+    END.
 
   /*  IF tb_excel AND NOT acct-hdr-printed AND open-amt NE 0 THEN
        RUN excel-acct-proc(INPUT open-amt). */
 
-    if tot-act ne 0 then
+    IF tot-act NE 0 THEN 
     DO:
     /*  put tot-act to 111
           tot-act + open-amt format "->>>,>>>,>>>,>>9.99" to 131 " *" skip(1).
@@ -1960,23 +1963,23 @@ SESSION:SET-WAIT-STATE ("general").
           .
 
        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-       cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+       cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
        
             CASE cTmpField:               
-                 WHEN "actnum" THEN cVarValue = "" . 
+                 WHEN "actnum"  THEN cVarValue = "" . 
                  WHEN "actdesc" THEN cVarValue =  "" .
                  WHEN "ap-desc" THEN cVarValue =  "" .
-                 WHEN "run" THEN cVarValue = "" .
-                 WHEN "jour" THEN cVarValue = "" .
-                 WHEN "ref" THEN cVarValue = "" .
-                 WHEN "date" THEN cVarValue = "" .
-                 WHEN "amt" THEN cVarValue = STRING(tot-act,"->>,>>>,>>9.99") .
-                 WHEN "bal" THEN cVarValue =  STRING(tot-act + open-amt,"->>,>>>,>>>,>>9.99") + "*" .
+                 WHEN "run"     THEN cVarValue = "" .
+                 WHEN "jour"    THEN cVarValue = "" .
+                 WHEN "ref"     THEN cVarValue = "" .
+                 WHEN "date"    THEN cVarValue = "" .
+                 WHEN "amt"     THEN cVarValue = STRING(tot-act,"->>,>>>,>>9.99") .
+                 WHEN "bal"     THEN cVarValue = STRING(tot-act + open-amt,"->>,>>>,>>>,>>9.99") + "*" .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
-                       FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
+            cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
        
    END.
    PUT UNFORMATTED cDisplay SKIP.
@@ -1985,13 +1988,13 @@ SESSION:SET-WAIT-STATE ("general").
                cExcelDisplay SKIP.
    END.
     END.
-    else
-    if open-amt ne 0 THEN
-       put skip(1).
+    ELSE 
+    IF open-amt NE 0 THEN
+       PUT SKIP(1).
 
-    down.
+    DOWN.
     tot-act = 0.
-   end. /* each account */
+   END. /* each account */
 
 
   /* display "TOTAL" to 95
@@ -2007,29 +2010,29 @@ SESSION:SET-WAIT-STATE ("general").
           .
 
        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-       cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+       cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
        
             CASE cTmpField:               
-                 WHEN "actnum" THEN cVarValue = "" . 
+                 WHEN "actnum"  THEN cVarValue = "" . 
                  WHEN "actdesc" THEN cVarValue =  "" .
                  WHEN "ap-desc" THEN cVarValue =  "" .
-                 WHEN "run" THEN cVarValue = "" .
-                 WHEN "jour" THEN cVarValue = "" .
-                 WHEN "ref" THEN cVarValue = "" .
-                 WHEN "date" THEN cVarValue = "" .
-                 WHEN "amt" THEN cVarValue = "" .
-                 WHEN "bal" THEN cVarValue =  STRING(tot-all,"->>,>>>,>>>,>>9.99") + "*" .
+                 WHEN "run"     THEN cVarValue = "" .
+                 WHEN "jour"    THEN cVarValue = "" .
+                 WHEN "ref"     THEN cVarValue = "" .
+                 WHEN "date"    THEN cVarValue = "" .
+                 WHEN "amt"     THEN cVarValue = "" .
+                 WHEN "bal"     THEN cVarValue = STRING(tot-all,"->>,>>>,>>>,>>9.99") + "*" .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
-                       FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
+            cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
        
    END.
-   PUT UNFORMATTED "    Total  " substring(cDisplay,12,300) SKIP.
+   PUT UNFORMATTED "    Total  " SUBSTRING(cDisplay,12,300) SKIP.
    IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
-               "TOTALS" + substring(cExcelDisplay,3,300) SKIP.
+               "TOTALS" + SUBSTRING(cExcelDisplay,3,300) SKIP.
    END.
 
 IF tb_excel THEN DO:
@@ -2047,7 +2050,7 @@ SESSION:SET-WAIT-STATE ("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
-end procedure.
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2059,62 +2062,62 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label AS CHARACTER.
   
-  lv-frame-hdl = frame {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:first-child.
-  lv-field-hdl = lv-group-hdl:first-child .
+  lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE.
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
   
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") GT 0
+        THEN DO:
+           IF lv-field-hdl:label NE ? THEN 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
                      .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
                      .
-              lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
 
-  put space(28)
+  PUT SPACE(28)
       "< Selection Parameters >"
-      skip(1).
+      SKIP(1).
   
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR 
+       ENTRY(i,parm-lbl-list) NE "" THEN DO:
        
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
                  
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+      PUT lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
  
-  put fill("-",80) format "x(80)" skip.
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.
   
 END PROCEDURE.
 
@@ -2131,7 +2134,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN string(hipField:BUFFER-VALUE).
+  RETURN STRING(hipField:BUFFER-VALUE).
 
 END FUNCTION.
 

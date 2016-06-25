@@ -112,6 +112,7 @@ DEFINE VARIABLE glPaperless AS LOGICAL     NO-UNDO.
 {XMLOutput/XMLOutput.i &NEW=NEW &cXMLSysCtrl=cXMLInvoice &Company=cocode &c=c} /* rstark 05291402 */
 
 DEF VAR vSoldToNo AS char NO-UNDO.  /* to hold soldto# for email */
+DEF VAR vShipToNo AS char NO-UNDO.  /* to hold shipto# for email */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1708,12 +1709,14 @@ PROCEDURE BatchMail :
                 vcEndCustNo = b1-ar-inv.cust-no.
         FIND FIRST ar-invl WHERE ar-invl.x-no = b1-ar-inv.x-no
                                        NO-LOCK NO-ERROR.
-        vSoldToNo = "". 
+        assign vSoldToNo = ""
+               vShipToNo = "". 
         IF AVAIL ar-invl THEN do:
            FIND oe-ord WHERE oe-ord.company = b1-ar-inv.company
                      AND oe-ord.ord-no = ar-invl.ord-no
                      NO-LOCK NO-ERROR.
            vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
+           vShipToNo = b1-ar-inv.ship-id.
         END.
         RUN output-to-mail (b1-ar-inv.cust-no).
       END.
@@ -1755,6 +1758,7 @@ PROCEDURE BatchMail :
                      AND oe-ord.ord-no = inv-line.ord-no
                      NO-LOCK NO-ERROR.
            vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
+           vShipToNo = b1-inv-head.sold-no.
         END.
       
         RUN output-to-mail (b1-inv-head.cust-no).
@@ -1799,6 +1803,7 @@ PROCEDURE BatchMail :
                        AND oe-ord.ord-no = inv-line.ord-no
                        NO-LOCK NO-ERROR.
              vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
+             vShipToNo = b1-inv-head.sold-no.
           END.
 /*           MESSAGE "3 batchMail:  " AVAIL inv-line "   soldTo:"  vSoldToNo "," inv-line.ord-no      */
 /*               "," AVAIL oe-ord "," oe-ord.sold-no RECID(oe-ord) SKIP                               */
@@ -2128,6 +2133,7 @@ PROCEDURE output-to-mail :
                                    NO-LOCK NO-ERROR.
                          vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
                   END.
+                  vShipToNo = ar-inv.ship-id.
                   RUN GenerateEmail(b-ar-inv.cust-no).
                END.
            END.
@@ -2145,8 +2151,7 @@ PROCEDURE output-to-mail :
         END.
      END.
      ELSE /*not posted*/
-     DO:
-         
+     DO:         
         IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
            sys-ctrl-shipto.company = cocode AND
            sys-ctrl-shipto.NAME = "INVPRINT") THEN
@@ -2206,9 +2211,17 @@ PROCEDURE output-to-mail :
                      vcInvNums = ""
                      lv-pdf-file = init-dir + "\Inv".
                    RUN run-report(buf-inv-head.cust-no,"", TRUE).
-                   vSoldToNo = "".
-                   
-                   RUN GenerateEmail(buf-inv-head.cust-no).
+                   assign vSoldToNo = ""
+                          vShipToNo = "".  
+                   FIND FIRST inv-line of buf-inv-head NO-LOCK NO-ERROR.
+                   IF AVAIL inv-line THEN do:
+                     FIND oe-ord WHERE oe-ord.company = buf-inv-head.company
+                                   AND oe-ord.ord-no = inv-line.ord-no
+                                   NO-LOCK NO-ERROR.
+                         vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
+                  END.
+                  vShipToNo = buf-inv-head.sold-no.
+                  RUN GenerateEmail(buf-inv-head.cust-no).
                 END.
            END.
         
@@ -2881,10 +2894,10 @@ PROCEDURE SendMail-1 :
   IF tb_attachBOL THEN
       list-name = list-name + "," + TRIM(vcBOLfiles, ",").
   
- IF vSoldToNo <> "" THEN
-     ASSIGN icRecType = "SoldTo"
-            icIdxKey = icIdxKey + "|" + (vSoldToNo).
-
+  IF vSoldToNo <> "" THEN 
+     ASSIGN icRecType = "SoldTo"     
+            icIdxKey = icIdxKey + "|" + (vSoldToNo) +
+                       if vShipToNo <> "" then "|" + vShipToNo else "".
  RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-INVPRT.',
                           input   list-name,

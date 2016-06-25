@@ -1,7 +1,4 @@
-FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-    each itemfg
+FOR each itemfg
     where itemfg.company eq cocode
       and itemfg.cust-no ge fcus
       and itemfg.cust-no le tcus
