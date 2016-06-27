@@ -33,6 +33,18 @@ CREATE WIDGET-POOL.
 
 /* gdm - 09210908 */
 DEF VAR v-ldpalwt LIKE loadtag.misc-dec[2] NO-UNDO.
+DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cSSScanVendor AS CHAR NO-UNDO .
+
+RUN sys/ref/nk1look.p (INPUT g_company,
+                       INPUT "SSScanVendor",
+                       INPUT "C",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT cSSScanVendor,
+                       OUTPUT lFound).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -691,6 +703,11 @@ PROCEDURE local-display-fields :
      ASSIGN
         loadtag.sts:SCREEN-VALUE IN FRAME {&FRAME-NAME} = loadtag.sts
         v-tagtime:SCREEN-VALUE = STRING(loadtag.tag-time,"hh:mm:ss").
+  
+  IF AVAILABLE loadtag AND ( cSSScanVendor EQ "RMLot" OR cSSScanVendor EQ "RM Lot") THEN DO:
+      ASSIGN loadtag.misc-char[2]:LABEL IN FRAME {&FRAME-NAME} = "RM Lot#" .
+      DISPLAY loadtag.misc-char[2] WITH FRAM F-Main . 
+  END.
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"loadtag-source",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
