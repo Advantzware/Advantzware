@@ -505,7 +505,7 @@ DO:
            IF is-xprint-form THEN DO:
               RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
               {custom/asimail2.i &TYPE="CUSTOMER"
-                             &group-title=v-prgmname
+                             &group-title="r-cusinv"
                              &begin_cust=begin_cust
                              &END_cust=end_cust
                              &mail-subject="Customer Inventory Report"
@@ -514,7 +514,7 @@ DO:
            END.
            ELSE DO:
                {custom/asimailr2.i &TYPE = "CUSTOMER"
-                                  &group-title=v-prgmname
+                                  &group-title="r-cusinv"
                                   &begin_cust= begin_cust
                                   &END_cust=end_cust
                                   &mail-subject= "Customer Inventory Report" 
