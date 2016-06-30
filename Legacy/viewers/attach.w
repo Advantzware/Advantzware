@@ -255,6 +255,16 @@ ON HELP OF attach.attach-file IN FRAME F-Main /* Attached File */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
+   DEF VAR cInitDir AS CHARACTER NO-UNDO.
+   DEF VAR llInitDir AS CHARACTER NO-UNDO.
+
+   RUN sys/ref/nk1look.p (g_company, "DefaultDir", "C", no, no, "", "", 
+                          Output cInitDir, output llInitDir).
+   IF cInitDir NE "" THEN
+       ASSIGN
+       FILE-INFO:FILE-NAME = cInitDir
+      cInitDir = FILE-INFO:FULL-PATHNAME .
+   IF cInitDir = ? THEN cInitDir = "" .
    
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
@@ -270,7 +280,7 @@ DO:
                          "MS Excel Files  (*.xls)" "*.xls",
                          "MS Excel 2007 Files  (*.xlsx)" "*.xlsx",
                          "Adobe PDF Files (*.pdf)" "*.pdf"                         
-                 initial-dir "boximage\"
+                 initial-dir cInitDir 
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
@@ -425,7 +435,7 @@ END.
 ON LEAVE OF attach.run-program IN FRAME F-Main /* Program to excute */
 DO:
   DO WITH FRAME {&FRAME-NAME}:
-
+   IF ATTACH.run-program:SCREEN-VALUE <> "" THEN
     IF SUBSTRING(TRIM(ATTACH.run-program:SCREEN-VALUE),1,1) NE CHR(34) AND
       SUBSTRING(TRIM(ATTACH.run-program:SCREEN-VALUE),LENGTH(TRIM(ATTACH.run-program:SCREEN-VALUE)),1) NE CHR(34) THEN DO:
       ATTACH.run-program:SCREEN-VALUE = CHR(34) + ATTACH.run-program:SCREEN-VALUE + CHR(34).

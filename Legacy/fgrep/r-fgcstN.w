@@ -138,7 +138,7 @@ fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -626,7 +626,7 @@ DO:
 SESSION:SET-WAIT-STATE("general").
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1470,7 +1470,7 @@ DEF VAR excelheader AS CHAR NO-UNDO.*/
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 def var as-of-day_str like day_str format "x(15)" init "As of: " no-undo.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 ASSIGN
  str-tit2 = c-win:TITLE
@@ -1497,7 +1497,8 @@ ASSIGN
  str-tit4       = "" 
  str-tit5       = "" 
  cSlist         = ""
- str-line       = "" .
+ str-line       = "" 
+ lSelected      = tb_cust-list.
 
 /*IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).*/
 
@@ -1547,6 +1548,12 @@ IF td-show-parm THEN DO:
   RUN show-param.
   PAGE.
 END.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  fcus = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  tcus = ttCustList.cust-no .
+ END.
 
 /*VIEW FRAME r-top.*/
 DISPLAY "" WITH FRAME r-top.
@@ -1556,13 +1563,12 @@ STATUS DEFAULT "Processing...".
     EMPTY TEMP-TABLE tt-fg-bin.
     EMPTY TEMP-TABLE tt-itemfg.
 
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-        EACH itemfg
+    FOR EACH itemfg
         WHERE itemfg.company EQ cocode
-          AND itemfg.cust-no EQ ttCustList.cust-no /*fcus
-          AND itemfg.cust-no LE tcus*/
+          AND itemfg.cust-no GE fcus
+          AND itemfg.cust-no LE tcus
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+          AND ttCustList.log-fld no-lock) else true)
           AND itemfg.i-no    GE fino
           AND itemfg.i-no    LE tino
           AND itemfg.procat  GE fcat

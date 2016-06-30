@@ -130,6 +130,7 @@ DEFINE VARIABLE h_emailcod AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-crm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_phone AS HANDLE NO-UNDO.
@@ -151,21 +152,21 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 126 BY 20.91
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 78 BY 1.43
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 122 BY 1.91
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -339,6 +340,14 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
+        RUN init-object IN THIS-PROCEDURE (
+              INPUT  'panels/p-crm.w':U ,
+              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+              INPUT  'Layout = ':U ,
+              OUTPUT h_p-crm ).
+        RUN set-position IN h_p-crm ( 1.00 , 51.00 ) NO-ERROR.
+        /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
@@ -372,18 +381,24 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 17.14 , 125.00 ) NO-ERROR.
 
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartViewer h_p-crm. */
+       RUN add-link IN adm-broker-hdl ( h_phone , 'CRM':U , h_p-crm ).
+
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
     END. /* Page 0 */
 
     WHEN 1 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
+        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/phone.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_phone ).
-       RUN set-position IN h_phone ( 5.52 , 6.00 ) NO-ERROR.
+       RUN set-position IN h_phone ( 4.80 , 4.10 ) NO-ERROR.
        RUN set-size IN h_phone ( 13.76 , 117.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -565,6 +580,26 @@ PROCEDURE enable_UI :
   VIEW FRAME message-frame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-message-frame}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-IP-Header W-Win 
+PROCEDURE Get-IP-Header :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER op-Header AS CHARACTER NO-UNDO.
+
+  find rec_key where rec_key.rec_key = ip-rec_key no-lock no-error.
+  if avail rec_key then op-header = rec_key.table_name.
+  else op-header = "".
+    
+  /*op-Header = ip-Header.*/
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

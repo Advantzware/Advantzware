@@ -121,7 +121,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -619,6 +619,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   
   RUN GetSelectionList.
   run run-report. 
@@ -1443,6 +1444,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form cust.name            column-label "Customer"
      w-data.inv-no
@@ -1483,7 +1485,8 @@ assign
  fdate          = begin_inv-date
  tdate          = end_inv-date
  v-cost1        = SUBSTR(rd_cost,1,1)      
- v-inc-fc       = tb_fin-chg.
+ v-inc-fc       = tb_fin-chg
+ lSelected      = tb_cust-list.
 
 /* security check for cost and margin */ 
  v-cost2 = index("BO",v-cost1) gt 0.
@@ -1523,6 +1526,12 @@ DEF VAR cslist AS cha NO-UNDO.
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " .
+ END.
+ IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
  END.
 
 {sys/inc/print1.i}

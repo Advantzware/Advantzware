@@ -1234,7 +1234,7 @@ PROCEDURE openQuery:
 /* btr - 02/15/2011  */
 &ELSEIF '{&yellowColumnsName}' EQ 'b-wipmach' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
-     IF sortColumn EQ 'Machine Department'            THEN dept.fc                    ELSE ~
+     IF sortColumn EQ 'Machine Department'            THEN STRING(dept.fc)                    ELSE ~
         STRING(dept.seq) ~{&SORTED}
 
 

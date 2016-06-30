@@ -18,12 +18,6 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE TEMP-TABLE ttTemplate NO-UNDO
-    FIELD rowType    AS CHARACTER LABEL "RowType"    FORMAT "x(500)" INITIAL "Data"
-    FIELD parameters AS CHARACTER LABEL "Parameters" FORMAT "x(500)"
-        INDEX ttTemplage IS PRIMARY rowType
-        .
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -71,17 +65,6 @@ FUNCTION fGetParamValue RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fParameters Procedure 
 FUNCTION fParameters RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fTemplate) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTemplate Procedure 
-FUNCTION fTemplate RETURNS HANDLE
-    ( )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -242,25 +225,49 @@ FUNCTION fDateOptionDate RETURNS DATE
     DEFINE VARIABLE dtDate AS DATE NO-UNDO.
 
     CASE ipcDateOption:
-        WHEN "Fixed date" THEN
+        WHEN "Fixed Date" THEN
             dtDate = ipdtDate.
-        WHEN "Current date" THEN
+        WHEN "Current Date" THEN
             dtDate = TODAY.
-        WHEN "Start of this month" THEN
+        WHEN "Current Date -1" THEN
+            dtDate = TODAY - 1.
+        WHEN "Current Date +1" THEN
+            dtDate = TODAY + 1.
+        WHEN "Current Date -2" THEN
+            dtDate = TODAY - 2.
+        WHEN "Current Date +2" THEN
+            dtDate = TODAY + 2.
+        WHEN "Current Date -3" THEN
+            dtDate = TODAY - 3.
+        WHEN "Current Date +3" THEN
+            dtDate = TODAY + 3.
+        WHEN "Current Date -4" THEN
+            dtDate = TODAY - 4.
+        WHEN "Current Date +4" THEN
+            dtDate = TODAY + 4.
+        WHEN "Current Date -5" THEN
+            dtDate = TODAY - 5.
+        WHEN "Current Date +5" THEN
+            dtDate = TODAY + 5.
+        WHEN "Current Date -6" THEN
+            dtDate = TODAY - 6.
+        WHEN "Current Date +6" THEN
+            dtDate = TODAY + 6.
+        WHEN "Start of this Month" THEN
             dtDate = DATE(MONTH(TODAY),1,YEAR(TODAY)).
-        WHEN "End of this month" THEN
+        WHEN "End of this Month" THEN
             dtDate = DATE(MONTH(TODAY) + 1,1,YEAR(TODAY)) - 1.
-        WHEN "First day of last month" THEN
+        WHEN "First Day of last Month" THEN
             dtDate = DATE(MONTH(TODAY) - 1,1,YEAR(TODAY)).
-        WHEN "Last day of last month" THEN
+        WHEN "Last Day of last Month" THEN
             dtDate = DATE(MONTH(TODAY),1,YEAR(TODAY)) - 1.
-        WHEN "Start of this year" THEN
+        WHEN "Start of this Year" THEN
             dtDate = DATE(1,1,YEAR(TODAY)).
-        WHEN "End of this year" THEN
+        WHEN "End of this Year" THEN
             dtDate = DATE(12,31,YEAR(TODAY)).
-        WHEN "First day of last year" THEN
+        WHEN "First Day of Last Year" THEN
             dtDate = DATE(1,1,YEAR(TODAY) - 1).
-        WHEN "Last day of last year" THEN
+        WHEN "Last Day of Last Year" THEN
             dtDate = DATE(12,31,YEAR(TODAY) - 1).
         WHEN "Last Sunday" THEN
             dtDate = TODAY - 7 * (IF WEEKDAY(TODAY) - 1 LE 0 THEN 1 ELSE 0) - WEEKDAY(TODAY) + 1.
@@ -339,6 +346,7 @@ FUNCTION fParameters RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cShow        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParameter   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
@@ -346,37 +354,42 @@ FUNCTION fParameters RETURNS CHARACTER
     cParameter = "Parameters".
     IF AVAILABLE user-print THEN
     DO idx = 1 TO EXTENT(user-print.field-name):
-        IF user-print.field-name[idx]  EQ "" THEN LEAVE.
-        IF user-print.field-name[idx]  EQ "svShowParameters" AND
-           user-print.field-value[idx] EQ "no" THEN
-        cParameter = "NoParameters".
-        IF CAN-DO("svTitle,svAvailableColumns,svSelectedColumns,svShowParameters",user-print.field-name[idx]) THEN NEXT.
-        cReturnValue = cReturnValue
-                     + "|" + TRIM(user-print.field-name[idx])
-                     + "^" + user-print.field-value[idx]
-                     .
+        IF user-print.field-name[idx] EQ "" THEN LEAVE.
+        IF CAN-DO("svTitle,svAvailableColumns,svSelectedColumns",user-print.field-name[idx]) THEN NEXT.
+        CASE user-print.field-name[idx]:
+            WHEN "svShowParameters"   THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cParameter = "NoParameters".
+            WHEN "svShowReportHeader" THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cShow = cShow + "0^".
+            WHEN "svShowPageHeader"   THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cShow = cShow + "2^".
+            WHEN "svShowGroupHeader"  THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cShow = cShow + "4^".
+            WHEN "svShowGroupFooter"  THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cShow = cShow + "5^".
+            WHEN "svShowPageFooter"   THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cShow = cShow + "3^".
+            WHEN "svShowReportFooter" THEN
+            IF user-print.field-value[idx] EQ "no" THEN
+            cShow = cShow + "1^".
+            OTHERWISE
+            cReturnValue = cReturnValue
+                         + "|" + TRIM(user-print.field-name[idx])
+                         + "^" + user-print.field-value[idx]
+                         .
+        END CASE.
     END. /* do idx */
-    cReturnValue = cParameter + cReturnValue.
-
+    ASSIGN
+        cShow        = TRIM(cShow,"^") + "|"
+        cReturnValue = cShow + cParameter + cReturnValue
+        .
     RETURN cReturnValue.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fTemplate) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTemplate Procedure 
-FUNCTION fTemplate RETURNS HANDLE
-    ( ) :
-  /*------------------------------------------------------------------------------
-    Purpose:  Template.rpa
-      Notes:  
-  ------------------------------------------------------------------------------*/
-    RETURN TEMP-TABLE ttTemplate:HANDLE .
 
 END FUNCTION.
 

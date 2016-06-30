@@ -454,6 +454,29 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ROW-DISPLAY OF br_table IN FRAME F-Main
+DO:   
+   DEFINE VARIABLE bl-qty AS INTEGER NO-UNDO .
+   DEFINE VARIABLE yld-qty AS INTEGER NO-UNDO .
+  IF AVAIL eb THEN DO:
+      ASSIGN
+          bl-qty  = display-bl-qty ()
+          yld-qty = display-yld-qty () .
+      
+      IF bl-qty NE yld-qty THEN
+          ASSIGN 
+          eb.bl-qty:BGCOLOR IN BROWSE {&BROWSE-NAME}       = 12
+          eb.yld-qty:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 12 
+              .
+  END. /* avail eb */
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */

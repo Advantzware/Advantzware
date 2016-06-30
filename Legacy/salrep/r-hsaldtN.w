@@ -127,7 +127,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -626,6 +626,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   RUN GetSelectionList.
   run run-report. 
   STATUS DEFAULT "Processing Complete".
@@ -1426,7 +1427,8 @@ def var fdate     as   date format "99/99/9999" extent 4 NO-UNDO.
 def var tdate     like fdate NO-UNDO.
 def var fsman     like cust.sman            init "" NO-UNDO.
 def var tsman     like fsman                init "zzz" NO-UNDO.
-
+def var fcus     like cust.cust-no          init "" NO-UNDO.
+def var tcus     like cust.cust-no          init "zzzzzzzz" NO-UNDO.
 def var v-col     as   int                  format ">9" NO-UNDO.
 def var v-custs   as   int                  format ">>,>>9" NO-UNDO.
 def var v-sort    as   log      init yes    format "Customer/Salesrep" NO-UNDO.
@@ -1463,6 +1465,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 FORM HEADER
      "Salesrep:"
@@ -1505,7 +1508,10 @@ assign
  v-col      = srt-col
  v-custs    = cust
  v-sort     = rd_print EQ "Customer"
- v-inc      = tb_zer-col. 
+ v-inc      = tb_zer-col
+ lSelected  = tb_cust-list
+ fcus       = begin_cust
+ tcus       = END_cust. 
 
 do li = 1 to 4:
   v-label[li] = string(fdate[li],"99/99/99") + "-" + string(tdate[li],"99/99/99").
@@ -1562,14 +1568,13 @@ DEF VAR cslist AS cha NO-UNDO.
     
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
-  /*excelheader = "Salesrep,Customer,Name," + v-label[1] + "," + v-label[2] + ","
-              + v-label[3] + "," + v-label[4] + ",Total Amt,"
-              + "Salesrep " + v-label[1] + " Total,"
-              + "Salesrep " + v-label[2] + " Total,"
-              + "Salesrep " + v-label[3] + " Total,"
-              + "Salesrep " + v-label[4] + " Total,"
-              + "Salesrep Total Amt,".*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+END.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcus = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcus = ttCustList.cust-no .
 END.
 
 {sys/inc/print1.i}
@@ -1582,9 +1587,12 @@ EMPTY TEMP-TABLE tt-report.
 EMPTY TEMP-TABLE tt-report2.
 
 SESSION:SET-WAIT-STATE ("general").
-
       FOR EACH ar-inv
           WHERE ar-inv.company  EQ cocode
+            AND ar-inv.cust-no  GE fcus
+            AND ar-inv.cust-no  LE tcus
+            AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
+            AND ttCustList.log-fld no-lock) else true)
             AND ar-inv.inv-date GE lo-date
             AND ar-inv.inv-date LE hi-date
             AND ar-inv.posted   EQ YES
@@ -1638,7 +1646,11 @@ SESSION:SET-WAIT-STATE ("general").
         end.
       END.
 
-      for each cust where cust.company eq cocode no-lock,
+     FOR each cust where cust.company eq cocode
+          AND cust.cust-no GE fcus
+          AND cust.cust-no LE tcus
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+          AND ttCustList.log-fld no-lock) else true) no-lock,
        
           each ar-cash
           where ar-cash.company    eq cocode

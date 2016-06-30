@@ -78,14 +78,14 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 129.8 BY 13.05
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME FRAME-A
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          THREE-D 
          AT COL 31 ROW 1
          SIZE 99 BY 1.19
-         BGCOLOR 4  WIDGET-ID 100.
+         BGCOLOR 15  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */

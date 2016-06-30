@@ -652,7 +652,8 @@ PROCEDURE local-display-fields :
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
-
+      DEF VAR check-all-update AS LOG NO-UNDO.
+      DEF BUFFER bf-sys-ctrl-shipto FOR sys-ctrl-shipto .
       /* Code placed here will execute PRIOR to standard behavior. */
       DO WITH FRAME {&FRAME-NAME}:
         IF sys-ctrl-shipto.cust-vend-no NE '' THEN
@@ -673,6 +674,22 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"}  
+  
+  IF opName = "Reports" AND sys-ctrl-shipto.log-fld  THEN do:
+
+    MESSAGE " Would you like to set all reports to yes? "  
+        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO 
+        UPDATE check-all-update . 
+    
+    IF check-all-update  THEN do:
+        FOR EACH bf-sys-ctrl-shipto WHERE bf-sys-ctrl-shipto.company = cocode AND 
+             bf-sys-ctrl-shipto.NAME = "Reports" EXCLUSIVE-LOCK:
+
+            ASSIGN bf-sys-ctrl-shipto.log-fld = YES .
+        END. /* for each */
+    END.  /* check-all-update */
+  END. /* opName = "Reports" */
 
 END PROCEDURE.
 

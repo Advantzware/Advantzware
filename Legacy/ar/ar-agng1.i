@@ -28,7 +28,7 @@ DEF {1} SHARED VAR v-print-cust-po AS LOG NO-UNDO.
 DEF {1} SHARED VAR v-inactive-custs AS LOG NO-UNDO.
 def {1} shared var v-s-terms     AS CHAR NO-UNDO.
 def {1} shared var v-e-terms     AS CHAR init "zzzzz" NO-UNDO .
-
+/* def {1} shared var lSelected     AS LOG NO-UNDO. */
 def {1} shared var grand-t  as dec extent 6 format "->,>>>,>>>,>>9.99".
 def {1} shared var grand-t-pri as dec extent 6 format "->,>>>,>>>,>>9.99".
 def {1} shared var grand-t-fc  as dec extent 6 format "->,>>>,>>>,>>9.99".

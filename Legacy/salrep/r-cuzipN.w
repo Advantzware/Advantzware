@@ -137,7 +137,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -583,7 +583,7 @@ DO:
   END.
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1494,6 +1494,7 @@ DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF BUFFER bcust FOR cust .
 DEF VAR v-carrier AS CHAR NO-UNDO.
 DEF VAR v-sstate AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
  ASSIGN
   str-tit2 = c-win:title
@@ -1507,7 +1508,8 @@ DEF VAR v-sstate AS CHAR NO-UNDO.
   tdate      = end_inv-date 
   fsstate    = begin_sstate 
   tsstate    = end_sstate
-  v-inc-fc   = tb_fin-chg.
+  v-inc-fc   = tb_fin-chg
+  lSelected  = tb_cust-list .
   
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -1538,7 +1540,12 @@ IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
-
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
 {sys/inc/print1.i}
        
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1554,13 +1561,12 @@ SESSION:SET-WAIT-STATE ("general").
   END.
 
 
-  FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-    each cust
+  FOR each cust
       where cust.company eq cocode
-        and cust.cust-no EQ ttCustList.cust-no /*fcust*/
-   /*    and cust.cust-no le tcust*/
+        AND cust.cust-no GE fcust
+        AND cust.cust-no LE tcust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         AND cust.zip GE begin_zip
         AND cust.zip LE END_zip
       no-lock:

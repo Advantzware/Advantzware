@@ -158,7 +158,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -668,6 +668,7 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
   RUN GetSelectionList.
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
   IF tb_excel AND tb_runExcel THEN
@@ -1548,7 +1549,7 @@ DEF VAR v-bolwhs AS CHAR NO-UNDO .
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 FORM cust.cust-no       COLUMN-LABEL "!Customer!    #"
      v-year[1]          COLUMN-LABEL "! !Year"
                         FORMAT "9999"
@@ -1600,7 +1601,8 @@ ASSIGN
  v-sort1    = SUBSTR(rd_sort,1,1) 
  v-disc-p   = tb_disprice              
  v-freight  = NO
- v-inc-fc   = tb_fin-chg.
+ v-inc-fc   = tb_fin-chg
+ lSelected  = tb_cust-list.
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1625,7 +1627,12 @@ DEF VAR cslist AS cha NO-UNDO.
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
- 
+ IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+ END.
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i VALUE(lines-per-page)}
@@ -1653,9 +1660,12 @@ FOR EACH xreport:
   DELETE xreport.
 END.
 
+FOR each cust
       where cust.company eq cocode
-        and cust.cust-no ge fcust
-        and cust.cust-no le tcust
+        AND cust.cust-no GE fcust
+        AND cust.cust-no LE tcust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         and cust.type    ge begin_cust-type
         and cust.type    le end_cust-type
       use-index cust no-lock:

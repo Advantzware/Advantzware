@@ -619,7 +619,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                      by w-bin.w-qty[1] desc:          
 
              assign
-                v-bin = w-bin.w-tag + "/" +
+                v-bin = SUBSTRING(w-bin.w-tag,16,20) + "/" +
                         trim(w-bin.w-loc) + "/" +
                         trim(w-bin.w-bin).
              

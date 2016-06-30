@@ -682,7 +682,7 @@ ELSE lv-comp-color = "BLACK".
             /* UM */
             ASSIGN v-cell = "R" + STRING(inrowcount) + "C41".
             chExcelApplication:Goto(v-cell) NO-ERROR.
-            ASSIGN chExcelApplication:ActiveCell:Value = ar-invl.ship-qty /*v-price-head*/.
+            ASSIGN chExcelApplication:ActiveCell:Value = ar-invl.inv-qty /*ar-invl.ship-qty*/ .
 
 
             /* Price */

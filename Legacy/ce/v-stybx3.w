@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
+{custom/globdefs.i}
 def var li-cnt as int no-undo.
 def var li-line-no as int extent 99 no-undo.
 
@@ -258,6 +258,16 @@ ON HELP OF box-design-hdr.box-3d-image IN FRAME F-Main /* 3D Image File */
 DO:
   def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
+   DEF VAR cInitDir AS CHARACTER NO-UNDO.
+   DEF VAR llInitDir AS CHARACTER NO-UNDO.
+
+   RUN sys/ref/nk1look.p (g_company, "DefaultDir", "C", no, no, "", "", 
+                          Output cInitDir, output llInitDir).
+   IF cInitDir NE "" THEN
+       ASSIGN
+       FILE-INFO:FILE-NAME = cInitDir
+      cInitDir = FILE-INFO:FULL-PATHNAME .
+   IF cInitDir = ? THEN cInitDir = "" .
    
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
@@ -266,7 +276,7 @@ DO:
                          "JPEG Files   (*.jpeg)" "*.jpeg",
                          "TIF Files    (*.tif)" "*.tif",
                          "All Files    (*.*) " "*.*"
-                 initial-dir "boximage\"
+                 initial-dir cInitDir
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.

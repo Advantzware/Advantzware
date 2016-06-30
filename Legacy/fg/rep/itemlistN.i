@@ -6,8 +6,10 @@
 	where itemfg.company eq cocode
 	  and itemfg.i-no    ge v-ino[1]
 	  and itemfg.i-no    le v-ino[2]
-	  and itemfg.cust-no EQ ttCustList.cust-no /*v-cust[1]
-	  and itemfg.cust-no le v-cust[2]*/
+	  and itemfg.cust-no ge v-cust[1]
+	  and itemfg.cust-no le v-cust[2]
+          and (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+             AND ttCustList.log-fld no-lock) else true)
 	  and itemfg.procat  ge v-cat[1]
 	  and itemfg.procat  le v-cat[2]
 	no-lock:

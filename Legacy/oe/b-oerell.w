@@ -213,7 +213,7 @@ DEFINE BROWSE br_table
       oe-rell.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 22
       oe-rell.po-no FORMAT "x(15)":U WIDTH 22
       oe-rell.qty COLUMN-LABEL "Qty" FORMAT "->>,>>>,>>>":U WIDTH 12
-      oe-rell.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U WIDTH 25
+      oe-rell.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U WIDTH 28
       oe-rell.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 7
       oe-rell.loc-bin COLUMN-LABEL "Bin Loc." FORMAT "x(8)":U WIDTH 10
       oe-rell.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 9
@@ -249,7 +249,7 @@ DEFINE BROWSE br_table
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 140 BY 6.91
-         FONT 1.
+         FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -349,7 +349,7 @@ oe-ordl.line eq oe-rell.line"
      _FldNameList[4]   > ASI.oe-rell.qty
 "oe-rell.qty" "Qty" "->>,>>>,>>>" "integer" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-rell.tag
-"oe-rell.tag" "Tag" "x(20)" "character" ? ? ? ? ? ? yes ? no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.tag" "Tag" "x(20)" "character" ? ? ? ? ? ? yes ? no no "28" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-rell.loc
 "oe-rell.loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.oe-rell.loc-bin

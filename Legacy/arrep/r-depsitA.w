@@ -98,7 +98,7 @@ lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -449,7 +449,7 @@ DO:
   END.
   
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
       EMPTY TEMP-TABLE ttCustList.
       RUN BuildCustList(INPUT cocode,
                         INPUT tb_cust-list AND glCustListActive,
@@ -1050,7 +1050,9 @@ def var v-date as date no-undo.
 DEF VAR v-tr-num AS CHAR FORMAT "x(26)" NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR v-void AS LOG NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEF VAR fcust AS CHAR NO-UNDO.
+DEF VAR tcust AS CHAR NO-UNDO.
 FORM
     bank.bank-code AT 1 COLUMN-LABEL "BANK"
     bank.actnum AT 10 FORMAT "x(20)" COLUMN-LABEL "ACCOUNT NUMBER"
@@ -1068,7 +1070,10 @@ assign
  v-s-date = begin_date
  v-e-date = end_date
  v-s-bank = begin_bank
- v-e-bank = end_bank.
+ v-e-bank = end_bank
+ fcust    = begin_cust
+ tcust    = END_cust
+ lSelected = tb_cust-list.
 
 {sys/inc/print1.i}
 
@@ -1078,6 +1083,13 @@ IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(fi_file).
    excelheader = "BANK,ACCT/CUST NUMBER,DATE,TRANSACTION#,DAILY TOTAL".
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+END.
+
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
 END.
 
 if td-show-parm then run show-param.
@@ -1093,15 +1105,15 @@ SESSION:SET-WAIT-STATE ("general").
 
 EMPTY TEMP-TABLE tt-gltrans.
 
-FOR EACH ttCustList
-       WHERE ttCustList.log-fld
-       NO-LOCK,
-   EACH ar-cash NO-LOCK
+FOR EACH ar-cash NO-LOCK
     WHERE ar-cash.company   EQ cocode
       AND ar-cash.posted    EQ YES
       AND ar-cash.bank-code GE v-s-bank
       AND ar-cash.bank-code LE v-e-bank
-      AND ar-cash.cust-no  EQ ttCustList.cust-no /*begin_cust*/
+      AND ar-cash.cust-no GE fcust
+      AND ar-cash.cust-no LE tcust
+      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-cash.cust-no
+      AND ttCustList.log-fld no-lock) else true)
     /*  AND ar-cash.cust-no   LE end_cust*/ ,
     EACH ar-cashl NO-LOCK WHERE ar-cashl.c-no EQ ar-cash.c-no:
     {custom/statusMsg.i " 'Processing Bank#  '  + ar-cash.bank-code "}
@@ -1147,7 +1159,7 @@ FOR EACH ttCustList
 END.
 
 IF TRIM(begin_cust) EQ "" AND
-   end_cust EQ "zzzzzzzz" THEN
+   end_cust EQ "zzzzzzzz" AND NOT lselected THEN
    FOR EACH ar-mcash
       WHERE ar-mcash.company   EQ cocode
          AND ar-mcash.posted    EQ YES

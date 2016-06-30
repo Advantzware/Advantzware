@@ -47,6 +47,9 @@ DEFINE VARIABLE dataLine AS CHARACTER NO-UNDO.
 
 DEFINE STREAM monitorStrm.
 
+IF INDEX(PROPATH,".\custom") EQ 0 THEN
+PROPATH = ".\custom," + PROPATH.
+
 &IF '{1}' NE '' &THEN
 {{1}/{1}Defs.i}
 &ENDIF

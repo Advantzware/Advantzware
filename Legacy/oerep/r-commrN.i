@@ -1,13 +1,13 @@
 
     FIND FIRST oe-ctrl NO-LOCK WHERE oe-ctrl.company EQ cocode.
 
-   FOR EACH ttCustList
-       WHERE ttCustList.log-fld
-       NO-LOCK,
-     EACH ar-inv NO-LOCK
+   for EACH ar-inv NO-LOCK
         WHERE ar-inv.company  EQ cocode
           AND ar-inv.posted   EQ YES
-          AND ar-inv.cust-no  EQ ttCustList.cust-no /*v-cust[1]*/
+          AND ar-inv.cust-no  GE v-cust[1]
+          AND ar-inv.cust-no  LE v-cust[2]
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
+          AND ttCustList.log-fld no-lock) else true)
           /*AND ar-inv.cust-no  LE v-cust[2]*/
           AND ar-inv.inv-date GE v-date[1]
           AND ar-inv.inv-date LE v-date[2],

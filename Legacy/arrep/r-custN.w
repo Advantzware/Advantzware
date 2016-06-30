@@ -172,7 +172,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -697,7 +697,7 @@ DO:
 
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
       EMPTY TEMP-TABLE ttCustList.
       RUN BuildCustList(INPUT cocode,
                         INPUT tb_cust-list AND glCustListActive,
@@ -1675,7 +1675,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 form skip(1)
      cust.cust-no
      cust.name at 12
@@ -1721,6 +1721,7 @@ assign
  tsman    = end_slsmn
  v-level  = price-level
  v-sort   = rd_sort eq "N"
+ lSelected  = tb_cust-list
  /*detailed = tb_detailed*/ .
 
 
@@ -1771,7 +1772,12 @@ IF tb_excel THEN DO:
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
-
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
 if tb_show-parm then run show-param.
 
 display str-tit with frame r-top.
@@ -1827,6 +1833,13 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+def var fcust as ch init "".
+   def var tcust like fcust init "zzzzzzzz".
+ ASSIGN  
+   lSelected  = tb_cust-list
+   fcust    = begin_cust-no
+   tcust    = end_cust-no .
 
    form tt-contact.attention LABEL "Contact"
        with frame contact-top stream-io down.
@@ -1836,7 +1849,8 @@ DEF VAR excelheader AS CHAR NO-UNDO.
    assign
       str-tit2 = c-win:title
       {sys/inc/ctrtext.i str-tit2 112}
-      v-sort   = rd_sort eq "N".
+      v-sort   = rd_sort eq "N"
+      lSelected = tb_cust-list.
 
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -1864,7 +1878,12 @@ DEF VAR cslist AS cha NO-UNDO.
             str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
       
  END.
-
+ IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+ END.
    {sys/inc/print1.i}
 
    {sys/inc/outprint.i value(lines-per-page)}
@@ -1918,6 +1937,13 @@ PROCEDURE run-report-invoice :
 ------------------------------------------------------------------------------*/
    DEF VAR v-sort AS LOG NO-UNDO.
    DEF VAR excelheader AS CHAR NO-UNDO.
+   DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+   def var fcust as ch init "".
+   def var tcust like fcust init "zzzzzzzz".
+ ASSIGN  
+   lSelected  = tb_cust-list
+   fcust    = begin_cust-no
+   tcust    = end_cust-no .
 
    {sys/form/r-top.f}
 

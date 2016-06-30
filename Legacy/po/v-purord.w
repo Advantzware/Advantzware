@@ -506,8 +506,8 @@ DO:
                    WHERE vend.company EQ po-ord.company
                    AND vend.vend-no EQ lw-focus:SCREEN-VALUE
                    NO-LOCK NO-ERROR.
-               IF AVAIL vend THEN do:
-                   ASSIGN po-ord.due-date:SCREEN-VALUE = string(date(po-ord.po-date:SCREEN-VALUE) + vend.disc-days) .
+               IF AVAIL vend THEN DO:
+                   ASSIGN po-ord.due-date:SCREEN-VALUE = STRING(DATE(po-ord.po-date:SCREEN-VALUE) + vend.disc-days) .
                END.
                RUN new-vend-no.
             END.
@@ -602,8 +602,8 @@ DO:
       AND vend.vend-no EQ po-ord.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
       NO-LOCK NO-ERROR.
 
-  IF AVAIL vend THEN do:
-      ASSIGN po-ord.due-date:SCREEN-VALUE = string(date(po-ord.po-date:SCREEN-VALUE) + vend.disc-days /*+
+  IF AVAIL vend THEN DO:
+      ASSIGN po-ord.due-date:SCREEN-VALUE = STRING(DATE(po-ord.po-date:SCREEN-VALUE) + vend.disc-days /*+
                                                                                         IF WEEKDAY(po-ord.po-date) EQ 6 THEN 3 ELSE 1*/ ) .
   END.
  
@@ -1551,17 +1551,20 @@ PROCEDURE local-create-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-po-ordl FOR po-ordl.
+  DEFINE VARIABLE iNextPo LIKE po-ctrl.next-po-no NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  FIND FIRST po-ctrl WHERE po-ctrl.company EQ cocode
-      EXCLUSIVE-LOCK NO-ERROR.
+  
+  
+  RUN sys/ref/asiseq.p (cocode,'po_seq',OUTPUT iNextPO) NO-ERROR.
+
   ASSIGN po-ord.company        = cocode
-         po-ord.po-no          = po-ctrl.next-po-no
-         po-ctrl.next-po-no    = po-ord.po-no + 1
+         po-ord.po-no          = inextPO         
          po-ord.po-date        = TODAY
          po-ord.loc            = locode
          po-ord.buyer          = USERID("NOSWEAT")  /*global-uid*/

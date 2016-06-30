@@ -2,6 +2,8 @@
         where cust.company eq cocode
           and cust.cust-no ge fcst
           and cust.cust-no le tcst
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+          AND ttCustList.log-fld no-lock) else true)
           and cust.sman    ge fslm
           and cust.sman    le tslm
         no-lock
