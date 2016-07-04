@@ -438,8 +438,8 @@ ON HELP OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -505,7 +505,7 @@ DO:
            IF is-xprint-form THEN DO:
               RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
               {custom/asimail2.i &TYPE="CUSTOMER"
-                             &group-title="r-cusinv"
+                             &group-title= 'r-cusinv.'
                              &begin_cust=begin_cust
                              &END_cust=end_cust
                              &mail-subject="Customer Inventory Report"
@@ -514,7 +514,7 @@ DO:
            END.
            ELSE DO:
                {custom/asimailr2.i &TYPE = "CUSTOMER"
-                                  &group-title="r-cusinv"
+                                  &group-title= 'r-cusinv.'
                                   &begin_cust= begin_cust
                                   &END_cust=end_cust
                                   &mail-subject= "Customer Inventory Report" 
@@ -628,8 +628,8 @@ ON HELP OF end_cust IN FRAME FRAME-A /* Ending Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
