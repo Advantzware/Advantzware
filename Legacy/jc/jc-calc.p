@@ -1419,6 +1419,9 @@ DO:
        job-mch.mr-waste = op.mr-waste
        job-mch.pass     = op.pass
        job-mch.run-hr   = op.run-hr
+       job-mch.run-fixoh = op.run-fixoh
+       job-mch.run-rate  = op.run-rate
+       job-mch.run-varoh = op.run-varoh
        job-mch.speed    = op.speed
        job-mch.wst-prct = op.wst-prct
        job-mch.lag-time = mach.daily-prod-hours
