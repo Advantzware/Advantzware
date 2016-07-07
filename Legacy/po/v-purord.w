@@ -1144,7 +1144,7 @@ PROCEDURE hold-release :
         FIND bf-po-ord EXCLUSIVE-LOCK WHERE RECID(bf-po-ord) EQ recid(po-ord) NO-ERROR.
         bf-po-ord.stat = IF bf-po-ord.stat EQ "H" THEN "O" ELSE "H".    
      END.
-     FIND CURRENT bf-po-ord NO-LOCK.
+     FIND CURRENT bf-po-ord NO-LOCK NO-ERROR.
      FIND CURRENT po-ord NO-LOCK NO-ERROR.
      IF AVAILABLE po-ord THEN DISPLAY po-ord.stat WITH FRAME {&FRAME-NAME}.
  END.
@@ -1477,7 +1477,7 @@ PROCEDURE local-assign-record :
              NO-ERROR.
         IF AVAILABLE bx-poline THEN DELETE bx-poline.
      END.
-     FIND CURRENT po-ordl NO-LOCK.
+     FIND CURRENT po-ordl NO-LOCK NO-ERROR.
   END.
 
   IF adm-new-record OR lv-prev-vend-no <> po-ord.vend-no THEN DO:
@@ -1524,7 +1524,7 @@ PROCEDURE local-assign-record :
 
          END.
   END.
-  FIND CURRENT po-ord NO-LOCK.
+  FIND CURRENT po-ord NO-LOCK NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1618,10 +1618,10 @@ PROCEDURE local-create-record :
                                    po-ord.ship-zip     = company.zip.
 
  RELEASE po-ctrl.
- FIND CURRENT po-ord NO-LOCK.
- FIND CURRENT po-ordl NO-LOCK.
- FIND CURRENT b-po-ordl NO-LOCK.
- FIND CURRENT reftable NO-LOCK.
+ FIND CURRENT po-ord NO-LOCK NO-ERROR.
+ FIND CURRENT po-ordl NO-LOCK NO-ERROR.
+ FIND CURRENT b-po-ordl NO-LOCK NO-ERROR.
+ FIND CURRENT reftable NO-LOCK NO-ERROR.
  
 END PROCEDURE.
 
@@ -1917,7 +1917,7 @@ PROCEDURE new-vend-no :
       RUN display-vend.
     END.
   END.
-  FIND CURRENT po-ord NO-LOCK.
+  FIND CURRENT po-ord NO-LOCK NO-ERROR.
   ll-got-vendor = YES.
 END PROCEDURE.
 

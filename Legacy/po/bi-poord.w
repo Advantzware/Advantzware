@@ -583,7 +583,7 @@ PROCEDURE delete_item :
       RUN dispatch ('row-changed').
     END.
   END.
-  FIND CURRENT po-ordl NO-LOCK.
+  FIND CURRENT po-ordl NO-LOCK NO-ERROR.
   
   SESSION:SET-WAIT-STATE("").
 
@@ -672,7 +672,7 @@ FOR EACH tt-po-ordl-renum:
         bf-po-ordl.LINE = tt-po-ordl-renum.po-line-num.
     END.
     DELETE tt-po-ordl-renum.
-    FIND CURRENT bf-po-ordl NO-LOCK.
+    FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.
 
 END.
 

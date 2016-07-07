@@ -1380,7 +1380,7 @@ PROCEDURE calcLenWid :
     ELSE
         IF AVAILABLE job-hdr THEN job-hdr.cust-no
         ELSE "".
-    FIND CURRENT bf-po-ordl NO-LOCK.
+    FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.
     RELEASE bf-po-ordl.
     RELEASE bf-po-ord.
     RELEASE b-item.
@@ -1456,7 +1456,7 @@ PROCEDURE calcOrdQty :
     FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl EXCLUSIVE-LOCK NO-ERROR.  
     IF NOT AVAILABLE bf-w-job-mat OR NOT AVAILABLE bf-po-ordl THEN 
     DO:
-        FIND CURRENT bf-po-ordl NO-LOCK.
+        FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.
         RETURN ERROR.
     END.
 
@@ -1689,7 +1689,7 @@ PROCEDURE createPoOrd :
                 po-ord.ship-zip     = company.zip.
 
     oprPoOrd = ROWID(po-ord).
-    FIND CURRENT po-ord NO-LOCK.
+    FIND CURRENT po-ord NO-LOCK NO-ERROR.
     RELEASE po-ord.
 END PROCEDURE.
 
@@ -1818,7 +1818,7 @@ PROCEDURE createPoOrdl :
 
     IF AVAILABLE po-ordl THEN
         gvrPoOrdl = ROWID(po-ordl).
-    FIND CURRENT po-ordl NO-LOCK.
+    FIND CURRENT po-ordl NO-LOCK NO-ERROR.
     RELEASE po-ordl.
 
 END PROCEDURE.
@@ -2973,7 +2973,7 @@ PROCEDURE PoOrdlFinal :
         END. /* not ll */
 
     END. /* AVail tt-ref1 */
-    FIND CURRENT bf-po-ordl NO-LOCK.
+    FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.
 
 END PROCEDURE.
 
@@ -3026,8 +3026,8 @@ PROCEDURE processAdders :
         v-op-type                                          AND
         nufile                                             THEN
         {po/po-vendc.i}
-    FIND CURRENT po-ordl NO-LOCK.
-    FIND CURRENT po-ord NO-LOCK.
+    FIND CURRENT po-ordl NO-LOCK NO-ERROR.
+    FIND CURRENT po-ord NO-LOCK NO-ERROR.
     RELEASE po-ordl.
     RELEASE po-ord.
 
@@ -3882,7 +3882,7 @@ PROCEDURE setPoOrdlFg :
             ASSIGN bf-po-ordl.actnum = reftable.dscr.
     END. /* avail bf-itemfg */
 
-    FIND CURRENT bf-po-ordl NO-LOCK.
+    FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.
     RELEASE bf-po-ordl.
 
 END PROCEDURE.
@@ -4042,7 +4042,7 @@ PROCEDURE setPoValues :
         RETURN ERROR.
     END.
     b-orderpo.val[1] = bf-po-ord.po-no.
-    FIND CURRENT b-orderpo NO-LOCK.
+    FIND CURRENT b-orderpo NO-LOCK NO-ERROR.
    
     IF AVAILABLE bf-ordl AND iplFirstOfFrm THEN
         FOR EACH b-oe-ordl
@@ -4098,7 +4098,7 @@ PROCEDURE setPoValues :
         ASSIGN bf-po-ord.frt-pay  = bf-ord.frt-pay
             bf-po-ord.fob-code = bf-ord.fob-code.
             
-    FIND CURRENT bf-po-ord NO-LOCK.
+    FIND CURRENT bf-po-ord NO-LOCK NO-ERROR.
     RELEASE bf-po-ord.
     RELEASE bf-ordl.
     RELEASE bf-w-job-mat.

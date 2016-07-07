@@ -1059,14 +1059,14 @@ DO:
   lv-save-ord-no = po-ordl.ord-no.
 
   DO WITH FRAME {&FRAME-NAME}:
-    FIND CURRENT po-ordl EXCLUSIVE-LOCK.
+    FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
 
     IF (po-ordl.vend-i-no:MODIFIED OR po-ordl.ord-qty:MODIFIED OR
         po-ordl.cost:MODIFIED OR po-ordl.pr-uom:MODIFIED OR
         po-ordl.i-name:MODIFIED OR po-ordl.disc:MODIFIED OR
         po-ordl.tax:MODIFIED OR po-ordl.due-date:MODIFIED )
         AND ip-type = "update" THEN DO:
-      FIND CURRENT po-ord EXCLUSIVE-LOCK.
+      FIND CURRENT po-ord EXCLUSIVE-LOCK NO-ERROR.
       ASSIGN
        /*po-ord.printed        = no*/
        po-ord.po-change-date = TODAY.
@@ -1104,10 +1104,10 @@ DO:
      /* wfk - to make sure cons-qty was being updated */
     FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
     {po/podisdet.i}
-    FIND CURRENT po-ordl NO-LOCK NO-ERROR.
+    
     
 IF TRIM(po-ordl.job-no) EQ "" THEN po-ordl.job-no2 = 0.
-
+FIND CURRENT po-ordl NO-LOCK NO-ERROR.
 FIND FIRST reftable WHERE
     reftable.reftable EQ "POORDLDEPTH" AND
     reftable.company  EQ cocode AND
@@ -1126,11 +1126,11 @@ DO:
 END.
 
 reftable.code2 = STRING(v-dep).
-FIND CURRENT reftable NO-LOCK.
+FIND CURRENT reftable NO-LOCK NO-ERROR.
 RELEASE reftable.
 END.
-FIND CURRENT po-ord NO-LOCK.
-FIND CURRENT po-ordl NO-LOCK.
+FIND CURRENT po-ord NO-LOCK NO-ERROR.
+FIND CURRENT po-ordl NO-LOCK NO-ERROR.
       
 ll = NO.
 
@@ -1166,11 +1166,11 @@ IF po-ord.type EQ "D"               AND
 
 IF ll THEN 
 DO :
-    FIND CURRENT po-ord EXCLUSIVE-LOCK.
+    FIND CURRENT po-ord EXCLUSIVE-LOCK NO-ERROR.
     ASSIGN
         po-ord.frt-pay = IF oe-ord.frt-pay EQ "T" THEN "B" ELSE oe-ord.frt-pay
         po-ord.carrier = oe-rel.carrier.
-    FIND CURRENT po-ord NO-LOCK.
+    FIND CURRENT po-ord NO-LOCK NO-ERROR.
 END.
 
 FOR EACH tt-job-mat:
@@ -1193,7 +1193,7 @@ FOR EACH tt-job-mat:
             job-mat.j-no     = 1
             job-mat.qty-all  = job-mat.qty.
         IF po-ordl.s-num NE ? THEN job-mat.frm = po-ordl.s-num.
-        FIND CURRENT job-mat NO-LOCK.
+        FIND CURRENT job-mat NO-LOCK NO-ERROR.
     END.
     DELETE tt-job-mat.
 END.
@@ -1270,7 +1270,7 @@ ON VALUE-CHANGED OF po-ordl.cost IN FRAME Dialog-Frame /* Cost */
   {po/podisdet.i} 
 IF NOT ll-new-record THEN
     ll-cost-changed = YES.
-  FIND CURRENT po-ordl NO-LOCK.
+  FIND CURRENT po-ordl NO-LOCK NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1333,7 +1333,7 @@ ON VALUE-CHANGED OF po-ordl.disc IN FRAME Dialog-Frame /* Discount */
     DO:
   FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
   {po/podisdet.i}
-  FIND CURRENT po-ordl NO-LOCK.
+  FIND CURRENT po-ordl NO-LOCK NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2520,7 +2520,7 @@ PROCEDURE create-item :
         END.
 
         IF po-ord.printed OR po-ord.stat NE "N" THEN po-ordl.stat = "A".
-        FIND CURRENT po-ordl NO-LOCK.
+        FIND CURRENT po-ordl NO-LOCK NO-ERROR.
     END. /* avail po-ord */
 
 END PROCEDURE.
@@ -2821,8 +2821,8 @@ PROCEDURE create-multi-line :
                     END.
 
                     ELSE ll-multi = NO.
-                    FIND CURRENT b-ref1 NO-LOCK.
-                    FIND CURRENT b-ref2 NO-LOCK.
+                    FIND CURRENT b-ref1 NO-LOCK NO-ERROR.
+                    FIND CURRENT b-ref2 NO-LOCK NO-ERROR.
                     IF NOT ll-multi THEN LEAVE.
                 END.
 
@@ -3140,7 +3140,7 @@ PROCEDURE display-item :
     IF AVAILABLE po-ordl THEN 
         FIND CURRENT po-ordl EXCLUSIVE-LOCK.
   {po/podisdet.i}
-FIND CURRENT po-ordl NO-LOCK.
+FIND CURRENT po-ordl NO-LOCK NO-ERROR.
 
 fi_pb-qty:HIDDEN IN FRAME Dialog-Frame = NOT poqty-log.
 
@@ -4724,7 +4724,7 @@ PROCEDURE po-adder3 :
             IF ip-cost GT po-ordl-add.cost 
                 THEN ASSIGN po-ordl-add.cost = ip-cost.
         END.
-    FIND CURRENT po-ordl-add.
+    FIND CURRENT po-ordl-add NO-ERROR.
     RELEASE po-ordl-add.
 
 END PROCEDURE.
@@ -5644,7 +5644,7 @@ PROCEDURE valid-max-po-cost :
                     VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
                 FIND CURRENT xpo-ord.
                 xpo-ord.stat = "H".
-                FIND CURRENT xpo-ord NO-LOCK.
+                FIND CURRENT xpo-ord NO-LOCK NO-ERROR.
             END.
         END.
         FIND CURRENT xpo-ord.
