@@ -364,7 +364,7 @@ FOR EACH report
             gchWorkSheet:Range("B10"):VALUE = IF AVAIL shipto THEN shipto.ship-state ELSE cust.state
             gchWorkSheet:Range("B11"):VALUE = IF AVAIL shipto THEN shipto.ship-zip ELSE cust.zip
             gchWorkSheet:Range("B12"):VALUE = IF AVAIL fgcat THEN fgcat.dscr ELSE ""
-            gchWorkSheet:Range("B13"):VALUE = itemfg.i-no
+            gchWorkSheet:Range("B13"):VALUE = itemfg.part-no
             gchWorkSheet:Range("B14"):VALUE = IF AVAIL eb THEN eb.spc-no ELSE ""
             gchWorkSheet:Range("B15"):VALUE = IF AVAIL style THEN style.dscr ELSE ""
             gchWorkSheet:Range("B16"):VALUE = cCoating
