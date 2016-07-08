@@ -383,14 +383,23 @@ PUT
     "<R52.8><C1>in all or any of said property, that every service be performed hereunder shall be subject to all the terms and conditions of the Uniform Domestic Straight Bill of Lading set forth (1) in Uniform Freight Classification" SKIP
     "<R53.4><C1>in effect of the date hereof, if this is rail or water shipment or (2) in the applicable motor carrier classification or tariff if this is a motor shipment. Shipper/Receiver hereby certifies the he/she is familiar" SKIP
     "<R54.0><C1>with all the terms and conditions of the said bill of lading, set forth in the classification or tariff which governs the transportation of this shipment, and the said terms and conditions are herby agreed to" SKIP
-    "<R54.6><C1>by the shipper/receiver and accepted for himself/herself and his assigns." 
-    "<R56><C60><P9> 3C Packaging Truck Inspection "     SKIP
-    "<R57><C63> No odors present_____        "    SKIP
-    "<R58><C63> No debris present_____       "    SKIP
-    "<R59><C63> No visible leaks_______      "    SKIP
-    "<R60><C63> No infestation_________      "    SKIP
-                                                  
-    "<R61.5><C62>Initial ___________________   "    SKIP
+    "<R54.6><C1>by the shipper/receiver and accepted for himself/herself and his assigns."  .
+
+PUT "</B><P10><R56><C48><#9><FROM><R65><C80><RECT><||3>" SKIP.
+PUT "<R57><C48><FROM><R57><C80><LINE><||3>" SKIP
+    "<R58><C48><FROM><R58><C80><LINE><||3>" SKIP
+    "<R57><C65><FROM><R58><C65><LINE><||3>" SKIP
+
+    "<R63><C48><FROM><R63><C80><LINE><||3>" SKIP.
+    
+  PUT  "<R56><C58><P9><b> Shipment Inspection  </b>"     SKIP
+    "<R57><C49>               Truck                                   <C70> Shipment  "    SKIP
+    "<R58><C49> No Odors Present <C59.5> _______    All Qtys Match <C74> _______   "    SKIP
+    "<R59><C49> No Debris Present <C59.5> _______  All Items Match <C74> _______   "    SKIP
+    "<R60><C49> No Visible Leaks <C59.5> _______         No Damage <C74> _______   "    SKIP
+    "<R61><C49> No Infestation <C59.5> _______       Cases Sealed <C74> _______   "    SKIP
+                                            
+    "<R63.5><C49>Sign: _______________             Date: _______________   "    SKIP
     .
 
     PUT "<FGCOLOR=RED><BGCOLOR=RED><LINECOLOR=RED>"
