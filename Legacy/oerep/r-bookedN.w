@@ -111,13 +111,13 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER NAME,COMM %,PROD CODE," +
                             "FG ITEM NAME,QTY ORDERED/EA,SQ FT,TOTAL Sq Ft/M," +
                             "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON," +
-                            "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#"  
+                            "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE"  
        cFieldListToSelect = "oe-ord.due-date,w-data.ord-no,cust.name,w-data.comm,w-data.procat," +
                             "w-data.item-n,w-data.qty,w-data.sqft,t-sqft," +
                             "v-price-per-m,w-data.price,v-revenue,v-profit,t-tons,v-price-per-t," +
-                            "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no" 
+                            "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no,oe-ord.ord-date" 
                             
-       cFieldLength = "8,14,13,6,9," + "16,14,10,13," + "10,10,13,9,10,10," + "15,8,15,15,15"
+       cFieldLength = "8,14,13,6,9," + "16,14,10,13," + "10,10,13,9,10,10," + "15,8,15,15,15,10"
        .
 
 {sys/inc/ttRptSel.i}

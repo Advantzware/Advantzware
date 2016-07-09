@@ -712,6 +712,7 @@ FORMAT wkrecap.procat
                    WHEN "w-data.sqft" THEN cVarValue = "" .
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
+                   WHEN "oe-ordl.ord-date" THEN cVarValue = "" .
                    WHEN "cust-po" THEN cVarValue = "" . /* ticket 14966*/
                    WHEN "die-no" THEN cVarValue =  "" . /* ticket 16188*/
                    WHEN "t-sqft" THEN cVarValue = STRING(tot-sqft,"->,>>>.999").
@@ -776,6 +777,7 @@ FORMAT wkrecap.procat
                    WHEN "w-data.sqft" THEN cVarValue = "" .
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
+                   WHEN "oe-ordl.ord-date" THEN cVarValue = "" .
                    WHEN "cust-po" THEN cVarValue = "" . /* ticket 14966*/
                    WHEN "die-no" THEN cVarValue =  "" . /* ticket 16188*/
                    WHEN "t-sqft" THEN cVarValue = STRING((ACCUM TOTAL w-data.t-sqft),"->,>>>.999"). 
@@ -943,6 +945,7 @@ FORMAT wkrecap.procat
                    WHEN "w-data.sqft" THEN cVarValue = "" .
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
+                   WHEN "oe-ordl.ord-date" THEN cVarValue = "" .
                    WHEN "cust-po" THEN cVarValue = "". /* ticket 14966*/
                    WHEN "t-sqft" THEN cVarValue = STRING(tot-sqft,"->,>>>.999").
                    WHEN "v-price-per-m" THEN cVarValue = STRING(v-price-per-m,"->>,>>9.99").
@@ -1039,6 +1042,7 @@ FORMAT wkrecap.procat
                    WHEN "w-data.sqft" THEN cVarValue = "" .
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
+                   WHEN "oe-ordl.ord-date" THEN cVarValue = "" .
                    WHEN "cust-po" THEN cVarValue = "". /* ticket 14966*/
                    WHEN "t-sqft" THEN cVarValue = STRING(tot-sqft,"->,>>>.999"). 
                    WHEN "v-price-per-m" THEN cVarValue = STRING(v-price-per-m,"->>,>>9.99"). 
