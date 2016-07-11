@@ -251,8 +251,8 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 25
-      fg-rctd.loc COLUMN-LABEL "Whs" FORMAT "x(13)":U WIDTH 7
+      fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 29
+      fg-rctd.loc COLUMN-LABEL "Whs" FORMAT "x(13)":U WIDTH 8
       fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U 
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U WIDTH 9
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT "->>>,>>9":U
@@ -264,10 +264,10 @@ DEFINE BROWSE Browser-Table
       fg-rctd.t-qty COLUMN-LABEL "Total!Qty" FORMAT "->>>,>>>,>>9.99":U
       fg-rctd.stack-code COLUMN-LABEL "FG Lot#" FORMAT "x(20)":U
             WIDTH 21.8
-      fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 8
+      fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 10
       fg-rctd.job-no2 FORMAT "99":U
       fg-rctd.po-no FORMAT "x(9)":U WIDTH 14
-      fg-rctd.i-no COLUMN-LABEL "Item#" FORMAT "X(15)":U WIDTH 18
+      fg-rctd.i-no COLUMN-LABEL "Item#" FORMAT "X(15)":U WIDTH 22
       fg-rctd.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       fg-rctd.std-cost COLUMN-LABEL "Cost/UOM" FORMAT ">,>>>,>>9.99<<":U
             WIDTH 18
@@ -394,9 +394,9 @@ use-index fg-rctd"
 reftable.company  EQ fg-rctd.company AND
 reftable.loc      EQ STRING(fg-rctd.r-no,""9999999999"") AND ( NOT reftable.dscr begins ""fg-rctd: "")"
      _FldNameList[1]   > ASI.fg-rctd.tag
-"fg-rctd.tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "29" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-rctd.loc
-"fg-rctd.loc" "Whs" "x(13)" "character" ? ? ? ? ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc" "Whs" "x(13)" "character" ? ? ? ? ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-rctd.loc-bin
 "fg-rctd.loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rctd.cases
@@ -412,12 +412,12 @@ reftable.loc      EQ STRING(fg-rctd.r-no,""9999999999"") AND ( NOT reftable.dscr
      _FldNameList[9]   > ASI.fg-rctd.stack-code
 "fg-rctd.stack-code" "FG Lot#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.fg-rctd.job-no
-"fg-rctd.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   = ASI.fg-rctd.job-no2
      _FldNameList[12]   > ASI.fg-rctd.po-no
 "fg-rctd.po-no" ? ? "character" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.fg-rctd.i-no
-"fg-rctd.i-no" "Item#" "X(15)" "character" ? ? ? ? ? ? no "FG Item Number" no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.i-no" "Item#" "X(15)" "character" ? ? ? ? ? ? no "FG Item Number" no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.fg-rctd.i-name
 "fg-rctd.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.fg-rctd.std-cost
