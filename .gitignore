@@ -242,3 +242,4 @@ Resources/srta*
 *.project
 *.propath
 .settings/org.eclipse.wst.common.project.facet.core.xml
+Legacy/vpx.ini
