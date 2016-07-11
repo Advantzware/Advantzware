@@ -563,10 +563,10 @@ DO:
       end.
       when "style" then do:
      
-           ls-cur-val = lw-focus:screen-value.
+           ls-cur-val = eb.style:SCREEN-VALUE in browse {&browse-name}.
            run windows/l-stylef.w (gcompany,ls-cur-val, output char-val).
            if char-val <> "" then do:
-              lw-focus:screen-value = entry(1,char-val).
+              eb.style:SCREEN-VALUE in browse {&browse-name} = entry(1,char-val).
               find style where style.company = gcompany and
                                style.style = eb.style:screen-value in browse {&browse-name}
                          no-lock no-error.             
@@ -578,16 +578,16 @@ DO:
            return no-apply.
       end.
       when "procat" then do:
-           ls-cur-val = lw-focus:screen-value.
+           ls-cur-val = eb.procat:SCREEN-VALUE IN BROWSE {&browse-name}.
            run windows/l-fgcat.w (gcompany,ls-cur-val,output char-val).
            if char-val <> "" then
-              lw-focus:screen-value = entry(1,char-val).
+              eb.procat:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val).
            return no-apply.
 
        end.
        when "Board" then do:
            def var lv-ind like style.industry no-undo.
-           ls-cur-val = lw-focus:screen-value.
+           ls-cur-val = ef.board:SCREEN-VALUE IN BROWSE {&browse-name}.
            find style where style.company = gcompany and
                             style.style = eb.style:screen-value in browse {&browse-name}
                             no-lock no-error.   
@@ -595,39 +595,39 @@ DO:
            else lv-ind = "".  
            if avail style and style.type = "f" then  /* foam */
                  run windows/l-boardf.w (gcompany,lv-ind,ls-cur-val,output char-val).
-           else run windows/l-board1.w (eb.company,lv-ind,lw-focus:screen-value, output lv-rowid).
+           else run windows/l-board1.w (eb.company,lv-ind,ef.board:SCREEN-VALUE IN BROWSE {&browse-name}, output lv-rowid).
            FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
-           IF AVAIL ITEM AND ITEM.i-no NE lw-focus:SCREEN-VALUE THEN DO:
-             lw-focus:SCREEN-VALUE = item.i-no.
+           IF AVAIL ITEM AND ITEM.i-no NE ef.board:SCREEN-VALUE in browse {&browse-name} THEN DO:
+             ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = item.i-no.
              RUN new-board.
            END.
 
            return no-apply.   
        end.
        WHEN "medium" THEN DO:
-         RUN windows/l-paper.w (gcompany, "1",lw-focus:SCREEN-VALUE, OUTPUT char-val).
-         IF char-val NE "" AND char-val NE lw-focus:SCREEN-VALUE THEN 
-           lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+         RUN windows/l-paper.w (gcompany, "1",ef.medium:SCREEN-VALUE in browse {&browse-name}, OUTPUT char-val).
+         IF char-val NE "" AND char-val NE ef.medium:SCREEN-VALUE in browse {&browse-name} THEN 
+           ef.medium:SCREEN-VALUE in browse {&browse-name} = ENTRY(1,char-val).
        END.
        WHEN "flute" THEN DO:
-         RUN windows/l-paper.w (gcompany, "1",lw-focus:SCREEN-VALUE, OUTPUT char-val).
-         IF char-val NE "" AND char-val NE lw-focus:SCREEN-VALUE THEN 
-           lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+         RUN windows/l-paper.w (gcompany, "1",ef.flute:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}, OUTPUT char-val).
+         IF char-val NE "" AND char-val NE ef.flute:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} THEN 
+           ef.flute:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = ENTRY(1,char-val).
        END.
        WHEN "cust-no" THEN DO:
-           ls-cur-val = lw-focus:SCREEN-VALUE.
+           ls-cur-val = eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}.
            RUN windows/l-custact.w (gcompany,ls-cur-val, OUTPUT char-val, OUTPUT look-recid).
            IF char-val NE "" AND ls-cur-val NE ENTRY(1,char-val) THEN DO:
-              lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+              eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
               APPLY "value-changed" TO lw-focus.
            END.
            RETURN NO-APPLY.
        END.  /* cust-no */
        WHEN "ship-id" THEN DO:
-           ls-cur-val = lw-focus:SCREEN-VALUE.
+           ls-cur-val = eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name}.
            RUN windows/l-shipto.w (gcompany,gloc,eb.cust-no:SCREEN-VALUE,ls-cur-val, OUTPUT char-val).
            IF char-val NE "" AND ls-cur-val NE ENTRY(1,char-val) THEN DO:
-              lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+              eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
               APPLY "value-changed" TO lw-focus.
            END.
            RETURN NO-APPLY.
@@ -638,7 +638,7 @@ DO:
              lv-estqty-recid = if avail est-qty then recid(est-qty) else ?.
              run est/estqtyd.w (lv-estqty-recid, recid(eb),eb.bl-qty:screen-value in browse {&browse-name}, output char-val, output char-val2, output date-val, output date-val2) .
              if char-val <> "?" 
-                then assign lw-focus:screen-value = entry(1,char-val)
+                then assign eb.bl-qty:screen-value in browse {&browse-name} = entry(1,char-val)
                             lv-copy-qty[2] = integer(entry(2,char-val))
                             lv-copy-qty[3] = integer(entry(3,char-val))
                             lv-copy-qty[4] = integer(entry(4,char-val))
