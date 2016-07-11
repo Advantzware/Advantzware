@@ -1529,8 +1529,6 @@ END.
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
-  excelheader = "PRODUCT,DESCRIPTION,SHIP TO,NAME,CITY,ST,INV DATE,QTY SHIP,"
-              + "UNIT PRICE,TOTAL SALE".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
