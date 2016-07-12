@@ -38,6 +38,9 @@ CREATE WIDGET-POOL.
 {methods/defines/globdefs.i}
 
 DEF VAR lv-timer AS INT NO-UNDO. /* clock timer */
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE vTsampmWarn AS CHAR NO-UNDO .
+
 
 {sys/inc/var.i NEW SHARED}
 
@@ -55,6 +58,10 @@ DO TRANSACTION:
    {sys/inc/tsendwash.i}
    {sys/inc/tskey.i}
 END.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "TSAMPMWarn", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT vTsampmWarn, OUTPUT lRecFound).
 
 DEF VAR v-time-clock-off AS LOG  NO-UNDO.
 
@@ -616,12 +623,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_AMPM s-object
 ON CHOOSE OF Btn_AMPM IN FRAME F-Main /* AM */
 DO:
-    
-
-  ASSIGN
-    v-time-clock-off = YES
-    timerStatus:SCREEN-VALUE = setTimerStatus(v-time-clock-off)
-    SELF:LABEL = IF SELF:LABEL = 'AM' THEN 'PM' ELSE 'AM'.
+    IF  vTsampmWarn EQ "YES" THEN DO:
+        MESSAGE "Are you sure you want to change the AM/PM value?"
+                     VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+        IF ll-ans THEN DO:
+            ASSIGN
+                v-time-clock-off = YES
+                timerStatus:SCREEN-VALUE = setTimerStatus(v-time-clock-off)
+                SELF:LABEL = IF SELF:LABEL = 'AM' THEN 'PM' ELSE 'AM'.
+        END.
+    END.
+    ELSE DO:
+        ASSIGN
+            v-time-clock-off = YES
+            timerStatus:SCREEN-VALUE = setTimerStatus(v-time-clock-off)
+            SELF:LABEL = IF SELF:LABEL = 'AM' THEN 'PM' ELSE 'AM'.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
