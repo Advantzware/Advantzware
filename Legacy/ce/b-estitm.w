@@ -3879,8 +3879,13 @@ PROCEDURE local-create-record :
   DEF BUFFER b-ef FOR ef.
   DEF BUFFER b-est-flm FOR est-flm.
   DEF BUFFER est-misc FOR reftable.
-  IF AVAIL eb THEN
-      v-rowid-eb  = ROWID(eb).
+
+  IF AVAIL eb THEN DO:
+    v-rowid-eb  = ROWID(eb).
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'record-source':U,OUTPUT char-hdl).
+    RUN setEstNoSearch  IN WIDGET-HANDLE(char-hdl) (INPUT eb.est-no).  /* to have save button */  
+  END.
+      
   /* Code placed here will execute PRIOR to standard behavior. */
   if avail est then li-form# = est.form-qty. /* for set creation on crt-new-set */
     
