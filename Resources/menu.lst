@@ -236,7 +236,6 @@ r-invmh.  eq
 r-boomh.  eq
 r-salrmh. eq
 r-prodmh. eq
-dbinvmh. eq
 er e
 r-hisatk. er
 r-hsaldt. er
@@ -327,12 +326,13 @@ jc-ctrl. hf est
 prod. hf est
 loc. hf est
 w-wipmt. hf est
-rejctcdj. hf est
 q file est
 w-jobsch. q
+sbBasic. q
 sbView. q
 sbPro. q
 sbStatus. q
+sbHTML. q
 sbReport. q
 i file est
 i1 i
@@ -549,8 +549,6 @@ s8 s est
 sys-ctrl. s8 est
 w-head. s8 est
 utlookmn. s8 est
-wNewLic. s8 est
-wUserCtrl. s8 est
 custproc. s est
 u-fntclr. s est
 s11 s est

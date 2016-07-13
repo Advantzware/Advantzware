@@ -606,14 +606,14 @@ DO:
   DO:
   FOR EACH ttCustList NO-LOCK  :
    
-          /* find first ar-inv where ar-inv.company eq cocode    and
+           find first ar-inv where ar-inv.company eq cocode    and
                             ar-inv.cust-no eq ttCustList.cust-no and
                             ar-inv.posted                and
                             ar-inv.due ne 0              and
                             ar-inv.inv-date le stmt-date and
                             ar-inv.due-date le stmt-date no-lock no-error.
            
-           if not avail ar-inv THEN next.*/
+           if not avail ar-inv THEN next.
 
       
      IF v-stmt-char EQ "ASIExcel" THEN

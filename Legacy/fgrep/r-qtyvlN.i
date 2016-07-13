@@ -3,9 +3,7 @@ EMPTY TEMP-TABLE tt-cust.
 FOR EACH cust
     WHERE cust.company EQ cocode
     AND cust.cust-no GE fcst
-    AND cust.cust-no LE tcst
-    AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-    AND ttCustList.log-fld no-lock) else true),
+    AND cust.cust-no LE tcst,
     EACH itemfg WHERE itemfg.company = cocode
                        AND itemfg.cust-no = cust.cust-no
                        AND itemfg.cust-po-no >= fpo#

@@ -6,77 +6,76 @@
     
 {sys/FORM/r-top.i}
 
-DEFINE VARIABLE v-units-hdr AS CHARACTER FORMAT "x(5)" EXTENT 2 NO-UNDO.
-DEFINE VARIABLE v-zone-hdr AS CHARACTER FORMAT "x(10)" NO-UNDO.
-DEFINE VARIABLE v-zone LIKE shipto.dest-code NO-UNDO.
-DEFINE VARIABLE v-part-dscr LIKE oe-ordl.i-name NO-UNDO.
-DEFINE VARIABLE v-qty LIKE oe-rell.qty NO-UNDO.
-DEFINE VARIABLE v-frt-pay-dscr AS CHARACTER FORMAT "x(11)" NO-UNDO.
+def var v-units-hdr as char format "x(5)" extent 2 NO-UNDO.
+def var v-zone-hdr as char format "x(10)" NO-UNDO.
+def var v-zone like shipto.dest-code NO-UNDO.
+def var v-part-dscr like oe-ordl.i-name NO-UNDO.
+def var v-qty like oe-rell.qty NO-UNDO.
+def var v-frt-pay-dscr as char format "x(11)" no-undo.
 /* === with xprint ====*/
-DEFINE VARIABLE v-term AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ls-image1 AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ls-full-img1 AS CHARACTER FORMAT "x(150)" NO-UNDO.
-DEFINE SHARED VARIABLE s-print-pricing AS LOGICAL NO-UNDO.
+DEF VAR v-term AS cha NO-UNDO.
+DEF VAR ls-image1 AS cha NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF SHARED VAR s-print-pricing AS LOG NO-UNDO.
 
 ASSIGN ls-image1 = "images\icc.jpg".
 
 FILE-INFO:FILE-NAME = ls-image1.
 ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
-DEFINE VARIABLE v-tel AS CHARACTER FORMAT "x(30)" NO-UNDO.
-DEFINE VARIABLE v-fax AS CHARACTER FORMAT "x(30)" NO-UNDO.
-DEFINE VARIABLE v-contact AS CHARACTER FORMAT "x(20)" NO-UNDO .
+DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-contact AS cha FORM "x(20)" NO-UNDO .
 
-DEFINE VARIABLE v-comp-add1 AS CHARACTER FORMAT "x(30)" NO-UNDO.
-DEFINE VARIABLE v-comp-add2 AS CHARACTER FORMAT "x(30)" NO-UNDO.
-DEFINE VARIABLE v-comp-add3 AS CHARACTER FORMAT "x(30)" NO-UNDO.
-DEFINE VARIABLE v-comp-add4 AS CHARACTER FORMAT "x(30)" NO-UNDO.
-DEFINE VARIABLE v-comp-add5 AS CHARACTER FORMAT "x(30)" NO-UNDO.
-DEFINE VARIABLE v-line-total AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-quo-total AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-t-tax      AS   DECIMAL EXTENT 3 NO-UNDO.
-DEFINE VARIABLE v-bot-lab    AS   CHARACTER FORMAT "x(63)" EXTENT 3 NO-UNDO.
-DEFINE VARIABLE v-q-no LIKE oe-ord.q-no NO-UNDO.
-DEFINE VARIABLE v-printline AS INTEGER NO-UNDO.
-DEFINE VARIABLE v-ship-i AS CHARACTER FORMAT "x(60)" EXTENT 4 NO-UNDO.
+DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-comp-add5 AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-line-total AS DEC NO-UNDO.
+DEF VAR v-quo-total AS DEC NO-UNDO.
+def var v-t-tax      as   dec extent 3 NO-UNDO.
+def var v-bot-lab    as   char format "x(63)" extent 3 NO-UNDO.
+DEF VAR v-q-no LIKE oe-ord.q-no NO-UNDO.
+DEF VAR v-printline AS INT NO-UNDO.
+DEF VAR v-ship-i AS cha FORM "x(60)" EXTENT 4 NO-UNDO.
 
-DEFINE VARIABLE ll-display-comp AS LOGICAL NO-UNDO.  /* display company address */
-DEFINE VARIABLE ll-consol-rells AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lv-comp-name AS CHARACTER FORMAT "x(30)" NO-UNDO.
-DEFINE VARIABLE lv-email AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEF VAR ll-display-comp AS LOG NO-UNDO.  /* display company address */
+DEF VAR ll-consol-rells AS LOG NO-UNDO.
+DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
+DEF VAR lv-email AS cha FORM "x(30)" NO-UNDO.
 
-DEFINE VARIABLE lv-comp-color AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-other-color AS CHARACTER INITIAL "BLACK" NO-UNDO.
-DEFINE BUFFER xitemfg FOR itemfg.
-DEFINE VARIABLE lv-comp-unit AS INTEGER NO-UNDO.
-DEFINE SHARED VARIABLE v-print-components AS LOGICAL NO-UNDO.
-DEFINE SHARED VARIABLE s-print-part-no AS LOGICAL NO-UNDO.
+DEF VAR lv-comp-color AS cha NO-UNDO.
+DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
+DEF BUFFER xitemfg FOR itemfg.
+DEF VAR lv-comp-unit AS INT NO-UNDO.
+DEF SHARED VAR v-print-components AS LOG NO-UNDO.
+DEF SHARED VAR s-print-part-no AS LOG NO-UNDO.
 
-DEFINE VARIABLE lv-qty-case AS INTEGER NO-UNDO.
-DEFINE VARIABLE lv-cases AS INTEGER NO-UNDO.
-DEFINE VARIABLE lv-partial AS INTEGER NO-UNDO.
-DEFINE VARIABLE lv-tot-cases LIKE v-pallets NO-UNDO.
-DEFINE VARIABLE v-tag AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-price AS DECIMAL DECIMALS 4 NO-UNDO.
-DEFINE VARIABLE lv-ext-price AS DECIMAL NO-UNDO.
-DEFINE VARIABLE lv-price-string AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-total AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-job-no AS CHARACTER NO-UNDO .
+DEF VAR lv-qty-case AS INT NO-UNDO.
+DEF VAR lv-cases AS INT NO-UNDO.
+DEF VAR lv-partial AS INT NO-UNDO.
+DEF VAR lv-tot-cases LIKE v-pallets NO-UNDO.
+DEF VAR v-tag AS cha NO-UNDO.
+DEF VAR lv-price AS DEC DECIMALS 4 NO-UNDO.
+DEF VAR lv-ext-price AS DEC NO-UNDO.
+DEF VAR lv-price-string AS CHAR NO-UNDO.
+DEF VAR v-total AS DEC NO-UNDO.
 
-ASSIGN tmpstore = FILL("-",130).
+ASSIGN tmpstore = fill("-",130).
 
-FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
-                      AND sys-ctrl.name    EQ "RELPRINT"  NO-ERROR.
+find first sys-ctrl where sys-ctrl.company eq cocode
+                      and sys-ctrl.name    eq "RELPRINT" no-lock no-error.
 ASSIGN
- ll-display-comp = AVAILABLE sys-ctrl AND sys-ctrl.log-fld
- ll-consol-rells = AVAILABLE sys-ctrl AND sys-ctrl.int-fld NE 0.
+ ll-display-comp = AVAIL sys-ctrl AND sys-ctrl.log-fld
+ ll-consol-rells = AVAIL sys-ctrl AND sys-ctrl.int-fld NE 0.
 
-FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
-                      AND sys-ctrl.name    EQ "LOGOCOLR"  NO-ERROR.
-IF AVAILABLE sys-ctrl THEN lv-comp-color = sys-ctrl.char-fld.
+FIND first sys-ctrl where sys-ctrl.company eq cocode
+                      and sys-ctrl.name    eq "LOGOCOLR" no-lock no-error.
+IF AVAIL sys-ctrl THEN lv-comp-color = sys-ctrl.char-fld.
 ELSE lv-comp-color = "BLACK".
 
-FIND FIRST company NO-LOCK WHERE company.company EQ cocode  NO-ERROR.
+find first company where company.company = cocode no-lock no-error.
 ASSIGN v-comp-add1 = ""
        v-comp-add2 = ""
        v-comp-add3 = ""
@@ -86,88 +85,91 @@ ASSIGN v-comp-add1 = ""
        lv-comp-name = "".
 
 IF ll-display-comp THEN DO:
-   FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode AND
-                         cust.active EQ "X"  NO-ERROR.
+   FIND FIRST cust WHERE cust.company = cocode AND
+                         cust.active = "X" NO-LOCK NO-ERROR.
  
-  IF AVAILABLE cust THEN
+  IF AVAIL cust THEN
      ASSIGN v-comp-add1 = cust.addr[1]
             v-comp-add2 = cust.addr[2]
             v-comp-add3 = cust.city + ", " + cust.state + "  " + cust.zip
-            v-comp-add4 = "Phone:  " + STRING(cust.area-code,"(999)") + STRING(cust.phone,"999-9999") 
-            v-comp-add5 = "Fax     :  " + STRING(cust.fax,"(999)999-9999") 
+            v-comp-add4 = "Phone:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999") 
+            v-comp-add5 = "Fax     :  " + string(cust.fax,"(999)999-9999") 
             lv-email    = "Email:  " + cust.email 
             lv-comp-name = cust.NAME   
             .
 
  END.
 
-FORMAT
+format
   tt-rell.ord-no
-  tt-rell.po-no AT 12
+  tt-rell.po-no at 9
   /*tt-rell.loc-bin  AT 23  FORM "x(5)"*/
-  tt-rell.i-no AT 29  oe-ordl.i-name AT 44
-  oe-ordl.qty FORMAT "->>>>>>>9" TO 83
-  tt-rell.qty FORMAT "->>>>>>>9" SKIP
-  WITH DOWN FRAME relprint NO-BOX NO-LABEL STREAM-IO WIDTH 110.
+  tt-rell.i-no at 29  oe-ordl.i-name at 44
+  oe-ordl.qty format "->>>>>>>9" to 83
+  tt-rell.qty format "->>>>>>>9" SKIP
+  with down frame relprint no-box no-label STREAM-IO width 110.
 
 FORMAT
-  tt-rell.loc-bin  AT 12  FORMAT "x(9)"
-  v-tag AT 29 FORMAT "x(15)"
-  oe-ordl.part-dscr1 at 44 FORMAT "x(30)" 
+  tt-rell.loc-bin  AT 9  FORM "x(9)"
+  v-tag AT 29 FORM "x(15)"
+  oe-ordl.part-dscr1 at 44 format "x(30)" 
   tt-rell.partial  TO 83 
-  lv-partial FORMAT ">>>" TO 93  skip
+  lv-partial FORM ">>>" TO 93  skip
     oe-ordl.part-no AT 29
-    oe-ordl.part-dscr2 AT 44 FORMAT "x(30)"
+    oe-ordl.part-dscr2 at 44 format "x(30)"
   
-  WITH DOWN FRAME relprint-2 NO-BOX NO-LABEL STREAM-IO WIDTH 110.
+  with down frame relprint-2 no-box no-label STREAM-IO width 110.
 
-FIND FIRST oe-ctrl NO-LOCK WHERE oe-ctrl.company EQ cocode  NO-ERROR.
+find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
 v-printline = 0.
 
-IF v-zone-p THEN v-zone-hdr = "Route No.:".
+if v-zone-p then v-zone-hdr = "Route No.:".
 
     {oe/rep/foreachr.i},
 
-        FIRST cust NO-LOCK
-        WHERE cust.company EQ cocode
-          AND cust.cust-no EQ oe-relh.cust-no
-        BREAK BY {1} BY oe-relh.release#:
+        first cust
+        where cust.company eq cocode
+          and cust.cust-no eq oe-relh.cust-no
+        no-lock
+
+        break by {1} by oe-relh.release#:
 
       RUN oe/custxship.p (oe-relh.company,
                           oe-relh.cust-no,
                           oe-relh.ship-id,
                           BUFFER shipto).
 
-      ASSIGN
+      assign
        v-tot-qty = 0
        v-weight  = 0
        v-pallets = 0
        v-total   = 0
-       v-zone    = IF v-zone-p THEN shipto.dest-code ELSE "".
+       v-zone    = if v-zone-p then shipto.dest-code else "".
 
-      FIND FIRST carrier NO-LOCK
-          WHERE carrier.company EQ cocode
-            AND carrier.carrier EQ oe-relh.carrier
-           NO-ERROR.
+      find first carrier
+          where carrier.company eq cocode
+            and carrier.carrier eq oe-relh.carrier
+          no-lock no-error.
       
       assign
-       v-carrier   = IF AVAILABLE carrier THEN carrier.dscr ELSE ""
+       v-carrier   = if avail carrier then carrier.dscr else ""
        v-frt-terms = "".
 
-      FOR EACH xoe-rell NO-LOCK
-          WHERE xoe-rell.company EQ oe-relh.company
-            AND xoe-rell.r-no    EQ oe-relh.r-no
-          USE-INDEX r-no ,
-          FIRST oe-ord NO-LOCK
-          WHERE oe-ord.company EQ xoe-rell.company
-            AND oe-ord.ord-no  EQ xoe-rell.ord-no:
+      FOR EACH xoe-rell
+          where xoe-rell.company eq oe-relh.company
+            and xoe-rell.r-no    eq oe-relh.r-no
+          USE-INDEX r-no NO-LOCK,
+          FIRST oe-ord
+          where oe-ord.company eq xoe-rell.company
+            and oe-ord.ord-no  eq xoe-rell.ord-no
+          no-lock:
 
-        CASE oe-ord.frt-pay:
-             WHEN "P" THEN v-frt-terms = "Prepaid".
-             WHEN "C" THEN v-frt-terms = "Collect".
-             WHEN "B" THEN v-frt-terms = "Bill".
-             WHEN "T" THEN v-frt-terms = "Third Party".
-        END CASE.
+        case oe-ord.frt-pay:
+             when "P" THEN v-frt-terms = "Prepaid".
+             when "C" THEN v-frt-terms = "Collect".
+             when "B" THEN v-frt-terms = "Bill".
+             when "T" THEN v-frt-terms = "Third Party".
+        end case.
 
         LEAVE.
       END.
@@ -177,19 +179,19 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
       END.
 
       /** Calculate the total weight of the released items. **/
-      FOR EACH xoe-rell
-          WHERE xoe-rell.company EQ cocode
-            AND xoe-rell.r-no    EQ oe-relh.r-no:
-        FIND FIRST xoe-ordl NO-LOCK
-            WHERE xoe-ordl.company EQ cocode
-              AND xoe-ordl.ord-no  EQ xoe-rell.ord-no
-              AND xoe-ordl.line    EQ xoe-rell.line
-              AND xoe-ordl.i-no    EQ xoe-rell.i-no
-            USE-INDEX ord-no  NO-ERROR.
-        IF AVAILABLE xoe-ordl THEN DO:
-           FIND itemfg NO-LOCK WHERE itemfg.company EQ cocode
-                         AND itemfg.i-no EQ xoe-ordl.i-no  NO-ERROR.
-          ASSIGN
+      for each xoe-rell
+          where xoe-rell.company eq cocode
+            and xoe-rell.r-no    eq oe-relh.r-no:
+        find first xoe-ordl
+            where xoe-ordl.company eq cocode
+              and xoe-ordl.ord-no  eq xoe-rell.ord-no
+              and xoe-ordl.line    eq xoe-rell.line
+              and xoe-ordl.i-no    eq xoe-rell.i-no
+            use-index ord-no no-lock no-error.
+        if avail xoe-ordl THEN DO:
+           FIND itemfg WHERE itemfg.company = cocode
+                         AND itemfg.i-no = xoe-ordl.i-no NO-LOCK NO-ERROR.
+          assign
            v-tot-qty = v-tot-qty + xoe-rell.qty
            v-weight = v-weight + /*(if xoe-ordl.t-weight ne ? then
                                   /*(round(xoe-ordl.t-weight /
@@ -197,62 +199,64 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                                  ((xoe-ordl.t-weight / xoe-ordl.qty) * xoe-rell.qty) else 0)*/
                                 (xoe-rell.qty / 100) * itemfg.weight-100.
         END.
-        IF AVAILABLE xoe-ordl AND xoe-ordl.est-no NE "" THEN DO:
-          FIND FIRST eb NO-LOCK
-              WHERE eb.company  EQ xoe-ordl.company
-                AND eb.est-no   EQ xoe-ordl.est-no
-                AND eb.form-no  EQ xoe-ordl.form-no
-                AND eb.blank-no EQ xoe-ordl.blank-no
-               NO-ERROR.
+        if avail xoe-ordl and xoe-ordl.est-no ne "" then do:
+          find first eb
+              where eb.company  eq xoe-ordl.company
+                and eb.est-no   eq xoe-ordl.est-no
+                and eb.form-no  eq xoe-ordl.form-no
+                and eb.blank-no eq xoe-ordl.blank-no
+              no-lock no-error.
 
-          IF xoe-ordl.form-no EQ 0                             AND
-             (xoe-ordl.est-type EQ 2 or xoe-ordl.est-type EQ 6) THEN DO:
-            FOR EACH fg-set NO-LOCK
-                WHERE fg-set.company EQ xoe-ordl.company
-                  AND fg-set.set-no  EQ xoe-ordl.i-no:
+          if xoe-ordl.form-no eq 0                             and
+             (xoe-ordl.est-type eq 2 or xoe-ordl.est-type eq 6) then do:
+            for each fg-set
+                where fg-set.company eq xoe-ordl.company
+                  and fg-set.set-no  eq xoe-ordl.i-no
+                no-lock:
               v-set-qty = v-set-qty + fg-set.part-qty.
-            END.
-            IF v-set-qty EQ 0 THEN v-set-qty = 1.
-            FOR EACH eb NO-LOCK
-                WHERE eb.company EQ xoe-ordl.company
-                  AND eb.est-no  EQ xoe-ordl.est-no
-                  AND eb.form-no NE 0:
-              FIND fg-set NO-LOCK
-                  WHERE fg-set.company EQ xoe-ordl.company
-                    AND fg-set.set-no  EQ xoe-ordl.i-no
-                    AND fg-set.part-no EQ eb.stock-no
-                   NO-ERROR.
+            end.
+            if v-set-qty eq 0 then v-set-qty = 1.
+            for each eb
+                where eb.company eq xoe-ordl.company
+                  and eb.est-no  eq xoe-ordl.est-no
+                  and eb.form-no ne 0
+                no-lock:
+              find fg-set
+                  where fg-set.company eq xoe-ordl.company
+                    and fg-set.set-no  eq xoe-ordl.i-no
+                    and fg-set.part-no eq eb.stock-no
+                  no-lock no-error.
 
-              ASSIGN
-               v-part-qty = (IF AVAILABLE fg-set AND fg-set.part-qty NE 0 THEN
-                             fg-set.part-qty ELSE 1) / v-set-qty
+              assign
+               v-part-qty = (if avail fg-set and fg-set.part-qty ne 0 then
+                             fg-set.part-qty else 1) / v-set-qty
                v-pallets = v-pallets +
-                           (IF xoe-rell.qty-case NE 0 THEN
-                              ROUND((xoe-rell.qty-case / eb.cas-pal) + .49, 0)
-                            ELSE
-                            IF eb.cas-cnt NE 0 THEN
-                              ROUND((ROUND((v-tot-qty * v-part-qty) /
+                           (if xoe-rell.qty-case ne 0 then
+                              round((xoe-rell.qty-case / eb.cas-pal) + .49, 0)
+                            else
+                            if eb.cas-cnt ne 0 then
+                              round((round((v-tot-qty * v-part-qty) /
                                          eb.cas-cnt, 2) / eb.cas-pal) + .49, 0)
-                            ELSE
-                              ROUND((ROUND((v-weight * v-part-qty) /
+                            else
+                              round((round((v-weight * v-part-qty) /
                                          eb.cas-wt, 2) / eb.cas-pal) + .49, 0)).
-            END. /* each eb */
-          END. /* do */
-          ELSE
-          IF AVAILABLE eb THEN DO:
-            ASSIGN
+            end. /* each eb */
+          end. /* do */
+          else
+          if avail eb then do:
+            assign
              v-pallets = v-pallets +
-                         (IF xoe-rell.qty-case NE 0 THEN
-                            ROUND((xoe-rell.qty-case / eb.cas-pal) + .49, 0)
-                          ELSE
-                          IF eb.cas-cnt NE 0 THEN
-                            ROUND((ROUND(v-tot-qty / eb.cas-cnt, 2) /
+                         (if xoe-rell.qty-case ne 0 then
+                            round((xoe-rell.qty-case / eb.cas-pal) + .49, 0)
+                          else
+                          if eb.cas-cnt ne 0 then
+                            round((round(v-tot-qty / eb.cas-cnt, 2) /
                                                        eb.cas-pal) + .49, 0)
-                          ELSE
-                            ROUND((ROUND(v-weight / eb.cas-wt, 2) /
+                          else
+                            round((round(v-weight / eb.cas-wt, 2) /
                                                        eb.cas-pal) + .49, 0)).
-          END. /* do */
-        END. /* est-no ne "" */
+          end. /* do */
+        end. /* est-no ne "" */
 
         IF ll-consol-rells THEN DO:
           IF (xoe-rell.qty-case * xoe-rell.cases) NE 0 THEN
@@ -266,9 +270,9 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
           CREATE tt-rell.
           BUFFER-COPY xoe-rell TO tt-rell.
 
-          FIND FIRST xitemfg OF tt-rell NO-LOCK NO-ERROR.
+          FIND FIRST xitemfg of tt-rell no-lock no-error.
 
-          IF AVAILABLE xitemfg THEN
+          IF AVAIL xitemfg THEN
           DO:
             IF xitemfg.q-onh EQ 0 THEN
                tt-rell.loc-bin = "FLOOR".
@@ -277,79 +281,78 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
         END.
 
         lv-tot-cases = lv-tot-cases + xoe-rell.cases.
-        IF xoe-rell.partial GT 0 THEN lv-tot-cases = lv-tot-cases + 1.
+        IF xoe-rell.partial > 0 THEN lv-tot-cases = lv-tot-cases + 1.
         xoe-rell.printed = YES.
-      END. /* each xoe-rell */
+      end. /* each xoe-rell */
 
       {oe/rep/relindc2.i}
          
-      FOR EACH tt-rell
+      for each tt-rell
           BY tt-rell.i-no
           BY tt-rell.po-no
           BY tt-rell.ord-no
           BY tt-rell.line
-          BY tt-rell.cases DESCENDING:
+          BY tt-rell.cases DESC:
 
-	    FIND FIRST oe-rel NO-LOCK
-	        WHERE oe-rel.company  EQ tt-rell.company
-	          AND oe-rel.ord-no   EQ tt-rell.ord-no
-	          AND oe-rel.line     EQ tt-rell.line
-	          AND oe-rel.link-no  EQ tt-rell.r-no
-	          AND oe-rel.ship-id  EQ oe-relh.ship-id
-	          AND oe-rel.po-no    EQ tt-rell.po-no
-	          AND oe-rel.i-no     EQ tt-rell.i-no
-	         NO-ERROR.
+	    find first oe-rel
+	        where oe-rel.company  eq tt-rell.company
+	          and oe-rel.ord-no   eq tt-rell.ord-no
+	          and oe-rel.line     eq tt-rell.line
+	          and oe-rel.link-no  eq tt-rell.r-no
+	          and oe-rel.ship-id  eq oe-relh.ship-id
+	          and oe-rel.po-no    eq tt-rell.po-no
+	          and oe-rel.i-no     eq tt-rell.i-no
+	        no-lock no-error.
 
-	    IF NOT AVAILABLE oe-rel THEN
-	      FIND FIRST oe-rel NO-LOCK
-    	      WHERE oe-rel.company  EQ tt-rell.company
-	    	    AND oe-rel.ord-no   EQ tt-rell.ord-no
-		        AND oe-rel.line     EQ tt-rell.line
-	   	        AND oe-rel.rel-date EQ oe-relh.rel-date
-    		    AND oe-rel.ship-id  EQ oe-relh.ship-id
-		        AND oe-rel.po-no    EQ tt-rell.po-no
-		        AND oe-rel.i-no     EQ tt-rell.i-no
-	           NO-ERROR.
+	    if not avail oe-rel then
+	      find first oe-rel
+    	      where oe-rel.company  eq tt-rell.company
+	    	    and oe-rel.ord-no   eq tt-rell.ord-no
+		        and oe-rel.line     eq tt-rell.line
+	   	        and oe-rel.rel-date eq oe-relh.rel-date
+    		    and oe-rel.ship-id  eq oe-relh.ship-id
+		        and oe-rel.po-no    eq tt-rell.po-no
+		        and oe-rel.i-no     eq tt-rell.i-no
+	          no-lock no-error.
 
-        FIND FIRST oe-ordl NO-LOCK
-            WHERE oe-ordl.company EQ cocode
-              AND oe-ordl.ord-no  EQ tt-rell.ord-no
-              AND oe-ordl.i-no    EQ tt-rell.i-no
-              AND oe-ordl.line    EQ tt-rell.line
-             NO-ERROR.
+        find first oe-ordl
+            where oe-ordl.company eq cocode
+              and oe-ordl.ord-no  eq tt-rell.ord-no
+              and oe-ordl.i-no    eq tt-rell.i-no
+              and oe-ordl.line    eq tt-rell.line
+            no-lock no-error.
    
-        IF v-headers THEN DO:
-          FIND itemfg OF tt-rell NO-LOCK NO-ERROR.
+        if v-headers then do:
+          find itemfg of tt-rell no-lock no-error.
           locbin = "".
           v-tag = oe-ordl.part-no /*tt-rell.tag */.
-          IF v-p-bin THEN DO:
-             IF AVAILABLE itemfg THEN DO:
+          if v-p-bin then do:
+             if avail itemfg then do:
                 xx = 0.
-                FOR EACH fg-bin NO-LOCK
-                    WHERE fg-bin.company  EQ cocode
-                      AND fg-bin.i-no     EQ itemfg.i-no
-                      AND fg-bin.qty      GT 0 
-                    
-                    BREAK BY fg-bin.loc-bin:
-                   IF FIRST-of(fg-bin.loc-bin) THEN DO:
+                for each fg-bin
+                    where fg-bin.company  eq cocode
+                      and fg-bin.i-no     eq itemfg.i-no
+                      and fg-bin.qty      gt 0 
+                    no-lock
+                    break by fg-bin.loc-bin:
+                   if first-of(fg-bin.loc-bin) then do:
                       xx = xx + 1.
                       IF xx LE EXTENT(locbin) THEN locbin[xx] = fg-bin.loc-bin.
-                   END.
-                END.
-             END.
-             lv-partial = IF tt-rell.partial GT 0 THEN 1 ELSE 0.
+                   end.
+                end.
+             end.
+             lv-partial = IF tt-rell.partial > 0 THEN 1 ELSE 0.
 
-             DISPLAY
+             display
               tt-rell.ord-no
               tt-rell.po-no
               tt-rell.i-no
               tt-rell.qty-case @ oe-ordl.qty
               tt-rell.cases @ tt-rell.qty
-              oe-ordl.i-name   WHEN AVAILABLE oe-ordl  SKIP
-              WITH FRAME relprint STREAM-IO NO-BOX NO-LABELS WIDTH 120.
-              DOWN WITH FRAME relprint.
-              
-              v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(INTEGER(oe-ordl.job-no2), "99" ) .
+              oe-ordl.i-name   when avail oe-ordl  SKIP
+              with frame relprint STREAM-IO NO-BOX NO-LABELS WIDTH 120.
+              down with frame relprint.
+
               IF s-print-pricing THEN
               DO:
                  RUN calc-ext-cost(OUTPUT lv-price, OUTPUT lv-ext-price).
@@ -357,39 +360,33 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                  lv-price-string = TRIM(STRING(lv-price,"-ZZ,ZZZ,ZZ9.9999") + "/" + oe-ordl.pr-uom)
                  v-total = v-total + lv-ext-price
                  v-printline = v-printline + 1.
-                 PUT v-job-no FORMAT "X(11)" lv-price-string AT 44 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
+                 PUT lv-price-string AT 44 FORM "X(20)" lv-ext-price FORM "->>,>>>,>>9.99" TO 93.
               END.
-              ELSE
-                PUT v-job-no FORMAT "X(11)"  .
 
               DISPLAY
                tt-rell.loc-bin  
                v-tag
                oe-ordl.part-no WHEN s-print-part-no
-               oe-ordl.part-dscr1 WHEN AVAILABLE oe-ordl   /* CTS */
-               oe-ordl.part-dscr2 WHEN AVAILABLE oe-ordl /*bsm*/    
-               tt-rell.partial WHEN tt-rell.partial GT 0
-               lv-partial WHEN lv-partial NE 0
-               WITH FRAME relprint-2 STREAM-IO NO-BOX NO-LABELS WIDTH 120.
-               DOWN WITH FRAME relprint-2.
+               oe-ordl.part-dscr1 when avail oe-ordl   /* CTS */
+               oe-ordl.part-dscr2 when avail oe-ordl /*bsm*/    
+               tt-rell.partial WHEN tt-rell.partial > 0
+               lv-partial WHEN lv-partial <> 0
+               with frame relprint-2 STREAM-IO NO-BOX NO-LABELS WIDTH 120.
+               down with frame relprint-2.
 
-              v-printline = v-printline + 4 + IF xx GE 4 THEN 1 ELSE 0 .
-          END.
-          ELSE DO:
+              v-printline = v-printline + 4 + IF xx >= 4 THEN 1 ELSE 0 .
+          end.
+          else do:
 
-            DISPLAY
+            display
               tt-rell.ord-no
-              tt-rell.po-no  AT 12
+              tt-rell.po-no  AT 9
               tt-rell.i-no   AT 29
               tt-rell.qty-case @ oe-ordl.qty TO 83
               tt-rell.cases @ tt-rell.qty 
-              WITH FRAME ln-s-comp STREAM-IO NO-BOX NO-LABELS WIDTH 120.
+              with frame ln-s-comp STREAM-IO NO-BOX NO-LABELS WIDTH 120.
              v-printline = v-printline + 2.
-            DOWN WITH FRAME ln-s-comp.
-
-             v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(INTEGER(oe-ordl.job-no2), "99" ) .
-
-              PUT v-job-no FORMAT "X(11)"  .
+            down with frame ln-s-comp.
                                            
             IF s-print-pricing THEN
                DO:
@@ -398,75 +395,71 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                   lv-price-string = TRIM(STRING(lv-price,"-ZZ,ZZZ,ZZ9.9999") + "/" + oe-ordl.pr-uom)
                   v-total = v-total + lv-ext-price
                   v-printline = v-printline + 1.
-                  PUT lv-price-string AT 44 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
+                  PUT lv-price-string AT 44 FORM "X(20)" lv-ext-price FORM "->>,>>>,>>9.99" TO 93.
                END.
 
-            IF AVAILABLE oe-ordl THEN
-            DO i = 1 to 3:
-              lv-partial = IF i EQ 1 AND tt-rell.partial GT 0 THEN 1 ELSE 0.
-              v-part-dscr = IF i EQ 1 THEN oe-ordl.i-name
-                            ELSE IF i EQ 2 THEN oe-ordl.part-dscr1
-                            ELSE   oe-ordl.part-dscr2.
-              IF i EQ 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 29.              
-              IF v-part-dscr NE "" THEN PUT v-part-dscr AT 44 FORMAT "x(25)" .
-              IF lv-partial GT 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
-              IF s-print-part-no OR lv-partial GT 0 OR v-part-dscr NE "" THEN DO: 
+            if avail oe-ordl then
+            do i = 1 to 3:
+              lv-partial = IF i = 1 AND tt-rell.partial > 0 THEN 1 ELSE 0.
+              v-part-dscr = if i eq 1 then oe-ordl.i-name
+                            else if i eq 2 then oe-ordl.part-dscr1
+                            else   oe-ordl.part-dscr2.
+              IF i = 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 29.              
+              if v-part-dscr ne "" then put v-part-dscr at 44 FORM "x(25)" .
+              IF lv-partial > 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
+              IF s-print-part-no OR lv-partial > 0 OR v-part-dscr <> "" THEN DO: 
                  PUT SKIP.
                  v-printline = v-printline + 1.
               END.
               
-            END.
-          END.
-        END.  /* v-header */
-        ELSE DO:
+            end.
+          end.
+        end.  /* v-header */
+        else do:
 
-          DISPLAY
+          display
             tt-rell.ord-no
-            tt-rell.po-no       AT 12
+            tt-rell.po-no       AT 9
             /*tt-rell.loc-bin     AT 23   FORMAT "x(5)"   WHEN v-p-bin*/
             tt-rell.i-no        AT 29
             tt-rell.qty-case @ oe-ordl.qty TO 83
             tt-rell.cases @ tt-rell.qty
-            WITH FRAME ln-s.
-          DOWN WITH FRAME ln-s STREAM-IO NO-BOX NO-LABELS WIDTH 120.
+            with frame ln-s.
+          down with frame ln-s STREAM-IO NO-BOX NO-LABELS WIDTH 120.
           v-printline = v-printline + 1.
 
-           v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(int(oe-ordl.job-no2), "99" ) .
-
-              PUT v-job-no FORMAT "X(11)"  .
-
-          IF s-print-pricing AND AVAILABLE oe-ordl THEN
+          IF s-print-pricing AND AVAIL oe-ordl THEN
           DO:
              RUN calc-ext-cost(OUTPUT lv-price, OUTPUT lv-ext-price).
              ASSIGN
              lv-price-string = TRIM(STRING(lv-price,"-ZZ,ZZZ,ZZ9.9999") + "/" + oe-ordl.pr-uom)
              v-total = v-total + lv-ext-price
              v-printline = v-printline + 1.
-             PUT lv-price-string AT 44 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
+             PUT lv-price-string AT 44 FORM "X(20)" lv-ext-price FORM "->>,>>>,>>9.99" TO 93.
           END.
 
-          IF AVAILABLE oe-ordl THEN
+          if avail oe-ordl then
           DO:
-             DO i = 1 to 3:
-                 lv-partial = IF i EQ 1 AND tt-rell.partial GT 0 THEN 1 ELSE 0.
-                 v-part-dscr = IF i EQ 1 THEN oe-ordl.i-name
-                               ELSE IF i EQ 2 THEN oe-ordl.part-dscr1
-                               ELSE   oe-ordl.part-dscr2.
-                 IF i EQ 1 AND v-p-bin THEN PUT tt-rell.loc-bin     AT 9   FORMAT "x(9)" .
-                 IF i EQ 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 29.              
-                 IF v-part-dscr NE "" THEN PUT v-part-dscr AT 44 FORMAT "x(25)" .
-                 IF lv-partial GT 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
-                 IF s-print-part-no OR lv-partial GT 0 OR v-part-dscr NE "" THEN DO: 
+             do i = 1 to 3:
+                 lv-partial = IF i = 1 AND tt-rell.partial > 0 THEN 1 ELSE 0.
+                 v-part-dscr = if i eq 1 then oe-ordl.i-name
+                               else if i eq 2 then oe-ordl.part-dscr1
+                               else   oe-ordl.part-dscr2.
+                 IF i = 1 AND v-p-bin THEN PUT tt-rell.loc-bin     AT 9   FORMAT "x(9)" .
+                 IF i = 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 29.              
+                 if v-part-dscr ne "" then put v-part-dscr at 44 FORM "x(25)" .
+                 IF lv-partial > 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
+                 IF s-print-part-no OR lv-partial > 0 OR v-part-dscr <> "" THEN DO: 
                     PUT SKIP.
                     v-printline = v-printline + 1.
                  END.
-             END.
+             end.
           END.
-        END.
+        end.
 
         /*put skip(1).
         v-printline = v-printline + 1.*/
-        IF LINE-COUNTER GT 55 THEN DO:
+        IF LINE-COUNTER > 55 THEN DO:
                PAGE .
                v-printline = 0.
                {oe/rep/relindc2.i}.
@@ -474,61 +467,61 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
 
         IF v-print-components THEN DO: /* display componets of set */
 
-          IF NOT AVAILABLE itemfg THEN FIND itemfg of tt-rell NO-LOCK NO-ERROR.
-          IF AVAILABLE itemfg AND itemfg.isaset THEN
-          FOR EACH fg-set NO-LOCK WHERE fg-set.company EQ cocode
-	                    AND fg-set.set-no  EQ itemfg.i-no :
+          IF NOT AVAIL itemfg THEN find itemfg of tt-rell no-lock no-error.
+          if AVAIL itemfg AND itemfg.isaset then
+          for each fg-set where fg-set.company eq cocode
+	                    and fg-set.set-no  eq itemfg.i-no   no-lock:
 
-            FIND FIRST xitemfg NO-LOCK WHERE xitemfg.company EQ cocode
-	                           AND xitemfg.i-no    EQ fg-set.part-no  NO-ERROR.
-            FIND FIRST fg-bin NO-LOCK WHERE fg-bin.company EQ cocode
-                              AND fg-bin.i-no    EQ xitemfg.i-no
-                              AND fg-bin.job-no EQ tt-rell.job-no
-                              AND fg-bin.job-no2 EQ tt-rell.job-no2  NO-ERROR.
-            IF AVAILABLE fg-bin THEN
-               ASSIGN lv-comp-unit = TRUNCATE((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) 
+            find first xitemfg where xitemfg.company eq cocode
+	                           and xitemfg.i-no    eq fg-set.part-no no-lock no-error.
+            FIND FIRST fg-bin where fg-bin.company eq cocode
+                              and fg-bin.i-no    eq xitemfg.i-no
+                              and fg-bin.job-no = tt-rell.job-no
+                              AND fg-bin.job-no2 = tt-rell.job-no2 NO-LOCK NO-ERROR.
+            IF AVAIL fg-bin THEN
+               ASSIGN lv-comp-unit = trunc((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) 
                  /*lv-comp-partial = fg-bin.qty - (lv-comp-unit * fg-bin.case-count)*/
                  .
             ELSE lv-comp-unit = 0.
-            v-part-dscr = STRING(fg-set.part-no,"x(16)") +
-		                  (IF AVAILABLE xitemfg THEN xitemfg.i-name ELSE "").
+            v-part-dscr = string(fg-set.part-no,"x(16)") +
+		                  (if avail xitemfg then xitemfg.i-name else "").
 
             {sys/inc/part-qty.i v-part-qty fg-set}
-            IF AVAILABLE fg-bin THEN DO:
-               PUT lv-comp-unit AT 15  FORMAT "->>9" " "
-                   fg-bin.case-count FORMAT ">>>>9"
-                   v-part-dscr              AT 40 FORMAT "x(40)"
+            IF AVAIL fg-bin THEN DO:
+               put lv-comp-unit AT 15  FORM "->>9" " "
+                   fg-bin.case-count FORM ">>>>9"
+                   v-part-dscr              at 40 format "x(40)"
                    /*lv-relqty /*tt-rell.qty*/ * v-part-qty*/
-                   fg-bin.qty TO 94 FORMAT "->>>>>>>9"
-	               SKIP.
+                   fg-bin.qty TO 94 format "->>>>>>>9"
+	               skip.
                v-printline = v-printline + 1.
-               IF fg-bin.partial-count NE 0 THEN DO:
-                  PUT "  1" AT 16 "@" fg-bin.partial-count FORMAT ">>>>9" SKIP.          
+               IF fg-bin.partial-count <> 0 THEN DO:
+                  PUT "  1" AT 16 "@" fg-bin.partial-count FORM ">>>>9" SKIP.          
                   v-printline = v-printline + 1.
                END.
             END.
-            ELSE DO:
-                PUT v-part-dscr AT 40 FORMAT "x(40)" SKIP.
+            ELSE do:
+                PUT v-part-dscr AT 40 FORM "x(40)" SKIP.
                 v-printline = v-printline + 1.
             END.
-            IF LINE-COUNTER GT 55 THEN DO:
+            IF LINE-COUNTER > 55 THEN DO:
                PAGE .
                v-printline = 0.
                {oe/rep/relindc2.i}.
             END.
-          END. /* FOR EACH fg-set */
-       END.  /* END of components display */
+          end. /* for each fg-set */
+       END.  /* end of components display */
 
-        tt-rell.printed = TRUE.        
-      END. /* FOR EACH tt-rell */
+        tt-rell.printed = true.        
+      end. /* for each tt-rell */
 
 IF s-print-pricing THEN
-   PUT "Total:" AT 73 v-total FORMAT "->>,>>>,>>9.99" TO 93.
+   PUT "Total:" AT 73 v-total FORM "->>,>>>,>>9.99" TO 93.
 
-ASSIGN v-ship-i[1] = IF AVAILABLE oe-rel THEN oe-rel.ship-i[1] ELSE ""
-       v-ship-i[2] = IF AVAILABLE oe-rel THEN oe-rel.ship-i[2] ELSE ""
-       v-ship-i[3] = IF AVAILABLE oe-rel THEN oe-rel.ship-i[3] ELSE ""
-       v-ship-i[4] = IF AVAILABLE oe-rel THEN oe-rel.ship-i[4] ELSE "".
+ASSIGN v-ship-i[1] = IF AVAIL oe-rel THEN oe-rel.ship-i[1] ELSE ""
+       v-ship-i[2] = IF AVAIL oe-rel THEN oe-rel.ship-i[2] ELSE ""
+       v-ship-i[3] = IF AVAIL oe-rel THEN oe-rel.ship-i[3] ELSE ""
+       v-ship-i[4] = IF AVAIL oe-rel THEN oe-rel.ship-i[4] ELSE "".
 
 PUT "<FArial><R50><C1><P12><B>     Shipping Instructions: </B> <P9> "SKIP(1)
     "<R51><C1>" v-ship-i[1] AT 7 
@@ -551,14 +544,14 @@ PUT "<FArial><R50><C1><P12><B>     Shipping Instructions: </B> <P9> "SKIP(1)
       v-printline = 0.
       RUN oe/setRelPrinted.p (INPUT ROWID(oe-relh),YES).
     
-    END. /* FOR EACH oe-relh */
+    end. /* for each oe-relh */
 
 RETURN.
 
 PROCEDURE create-tt-rell.
-  DEFINE INPUT PARAM ip-qty-case LIKE oe-rell.qty-case NO-UNDO.
-  DEFINE INPUT PARAM ip-cases    LIKE oe-rell.cases NO-UNDO.
-  DEFINE INPUT PARAM ip-qty      LIKE oe-rell.qty NO-UNDO.
+  DEF INPUT PARAM ip-qty-case LIKE oe-rell.qty-case NO-UNDO.
+  DEF INPUT PARAM ip-cases    LIKE oe-rell.cases NO-UNDO.
+  DEF INPUT PARAM ip-qty      LIKE oe-rell.qty NO-UNDO.
 
   IF ip-qty-case LT 0 THEN
     ASSIGN
@@ -566,15 +559,15 @@ PROCEDURE create-tt-rell.
      ip-cases    = ip-cases * -1
      ip-qty      = ip-qty * -1.
 
-  FIND FIRST tt-rell NO-LOCK
+  FIND FIRST tt-rell
       WHERE tt-rell.i-no     EQ xoe-rell.i-no
         AND tt-rell.po-no    EQ xoe-rell.po-no
         AND tt-rell.ord-no   EQ xoe-rell.ord-no
         AND tt-rell.line     EQ xoe-rell.line
         AND tt-rell.qty-case EQ ip-qty-case
-       NO-ERROR.
+      NO-LOCK NO-ERROR.
 
-  IF NOT AVAILABLE tt-rell THEN DO:
+  IF NOT AVAIL tt-rell THEN DO:
     
     CREATE tt-rell.
     BUFFER-COPY xoe-rell TO tt-rell
@@ -584,9 +577,9 @@ PROCEDURE create-tt-rell.
      tt-rell.qty      = 0
      tt-rell.partial  = 0.
 
-    FIND FIRST xitemfg of tt-rell NO-LOCK NO-ERROR.
+    FIND FIRST xitemfg of tt-rell no-lock no-error.
 
-    IF AVAILABLE xitemfg THEN
+    IF AVAIL xitemfg THEN
     DO:
        IF xitemfg.q-onh EQ 0 THEN
           tt-rell.loc-bin = "FLOOR".
@@ -604,53 +597,53 @@ END PROCEDURE.
 
 PROCEDURE calc-ext-cost:
 
-   DEFINE OUTPUT PARAMETER op-tmp-price AS DECIMAL DECIMALS 4 NO-UNDO.
-   DEFINE OUTPUT PARAMETER op-t-price AS DECIMAL NO-UNDO.
+   DEF OUTPUT PARAMETER op-tmp-price AS DEC DECIMALS 4 NO-UNDO.
+   DEF OUTPUT PARAMETER op-t-price AS DEC NO-UNDO.
 
-   DEFINE VARIABLE lv-tmp-price AS DECIMAL DECIMALS 4 NO-UNDO.
-   DEFINE VARIABLE lv-price LIKE oe-ordl.price NO-UNDO.
+   DEF VAR lv-tmp-price AS DEC DECIMALS 4 NO-UNDO.
+   DEF VAR lv-price LIKE oe-ordl.price NO-UNDO.
 
-   IF (tt-rell.qty NE 0 AND oe-ordl.pr-uom NE "") THEN
-   DO:
-      FIND FIRST itemfg
+   if (tt-rell.qty ne 0 and oe-ordl.pr-uom ne "") then
+   do:
+      find first itemfg
            {sys/look/itemfgrlW.i} AND
-           itemfg.i-no EQ oe-ordl.i-no
-           NO-LOCK NO-ERROR.
+           itemfg.i-no eq oe-ordl.i-no
+           no-lock no-error.
            
-      FIND FIRST reftable NO-LOCK WHERE
+      FIND FIRST reftable WHERE
            reftable.reftable EQ "oe-rell.sell-price" AND
            reftable.rec_key  EQ tt-rell.rec_key
            USE-INDEX rec_key
-            NO-ERROR.
+           NO-LOCK NO-ERROR.
 
-      IF AVAILABLE reftable AND reftable.val[1] NE 0 THEN
+      IF AVAIL reftable AND reftable.val[1] NE 0 THEN
          lv-price = reftable.val[1].
       ELSE
          lv-price = oe-ordl.price.
 
       RELEASE reftable.
 
-      ASSIGN
-       lv-tmp-price = IF oe-ordl.pr-uom BEGINS "L" AND oe-ordl.pr-uom NE "LB" THEN
-                       IF tt-rell.qty LT 0 THEN -1 ELSE 1
-                       ELSE
-                       IF oe-ordl.pr-uom EQ "CS" THEN
-                          tt-rell.qty / (IF oe-ordl.cas-cnt NE 0 THEN oe-ordl.cas-cnt ELSE
-                                         IF AVAILABLE itemfg AND itemfg.case-count NE 0
-                                                         THEN itemfg.case-count ELSE
+      assign
+       lv-tmp-price = if oe-ordl.pr-uom begins "L" AND oe-ordl.pr-uom NE "LB" then
+                       if tt-rell.qty lt 0 then -1 else 1
+                       else
+                       if oe-ordl.pr-uom eq "CS" then
+                          tt-rell.qty / (if oe-ordl.cas-cnt ne 0 then oe-ordl.cas-cnt else
+                                         if avail itemfg and itemfg.case-count ne 0
+                                                         then itemfg.case-count else
                                                               1)
-                     ELSE
-                     IF oe-ordl.pr-uom EQ "C" THEN
+                     else
+                     if oe-ordl.pr-uom eq "C" then
                        tt-rell.qty / 100
-                     ELSE
-                     IF oe-ordl.pr-uom EQ "M" THEN
+                     else
+                     if oe-ordl.pr-uom eq "M" then
                        tt-rell.qty / 1000
-                     ELSE
+                     else
                        tt-rell.qty
                                 
         op-t-price = lv-tmp-price * lv-price
         op-tmp-price = lv-price
         op-t-price = ROUND(op-t-price * (1 - (oe-ordl.disc / 100)),2).
 
-   END.
+   end.
 END PROCEDURE.

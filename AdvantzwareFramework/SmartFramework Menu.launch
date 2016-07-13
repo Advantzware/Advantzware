@@ -16,9 +16,9 @@
 </listAttribute>
 <booleanAttribute key="abl.databases.USE_PROJECT" value="false"/>
 <stringAttribute key="abl.debug.ABL_PROGRAM" value="${workspace_loc:/AdvantzwareFramework/Advantzware/Windows/SmartFramework/Menu/nosweat.p}"/>
-<stringAttribute key="abl.debug.ATTR_ABL_PROJECT_NAME" value="Legacy"/>
+<stringAttribute key="abl.debug.ATTR_ABL_PROJECT_NAME" value="LegacyNet"/>
 <booleanAttribute key="abl.debug.GENERATE_LAUNCHER_PROGRAM" value="true"/>
-<stringAttribute key="abl.debug.PROPATH" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;propath version=&quot;11.6&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:noNamespaceSchemaLocation=&quot;schema/propath.xsd&quot;&gt;&#13;&#10;&lt;propathentry env=&quot;all&quot; kind=&quot;proj&quot; name=&quot;Legacy&quot; path=&quot;Legacy&quot; platform=&quot;All&quot;/&gt;&#13;&#10;&lt;propathentry env=&quot;all&quot; kind=&quot;dir&quot; path=&quot;@{WORK}&quot; platform=&quot;All&quot;/&gt;&#13;&#10;&lt;propathentry env=&quot;all&quot; kind=&quot;folder&quot; path=&quot;\SmartComponentLibrary\src&quot; platform=&quot;All&quot;/&gt;&#13;&#10;&lt;/propath&gt;&#13;&#10;"/>
+<stringAttribute key="abl.debug.PROPATH" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;propath version=&quot;11.6&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:noNamespaceSchemaLocation=&quot;schema/propath.xsd&quot;&gt;&#13;&#10;&lt;propathentry env=&quot;all&quot; kind=&quot;proj&quot; name=&quot;LegacyNet&quot; path=&quot;LegacyNet&quot; platform=&quot;All&quot;/&gt;&#13;&#10;&lt;propathentry env=&quot;all&quot; kind=&quot;dir&quot; path=&quot;@{WORK}&quot; platform=&quot;All&quot;/&gt;&#13;&#10;&lt;propathentry env=&quot;all&quot; kind=&quot;folder&quot; path=&quot;\SmartComponentLibrary\src&quot; platform=&quot;All&quot;/&gt;&#13;&#10;&lt;/propath&gt;&#13;&#10;"/>
 <booleanAttribute key="abl.debug.PROPATH_USE_DEFAULT" value="false"/>
 <stringAttribute key="abl.i18n.CASE_TABLE" value="Basic"/>
 <stringAttribute key="abl.i18n.COLLATION_TABLE" value="German-Library"/>
@@ -41,13 +41,13 @@
 <stringAttribute key="abl.profiling.PROFILER_DESCRIPTION" value=""/>
 <stringAttribute key="abl.profiling.PROFILER_DIRECTORY" value=""/>
 <booleanAttribute key="abl.startup.ERROR_STACK_TRACE" value="true"/>
-<stringAttribute key="abl.startup.WORKING_DIRECTORY" value="${workspace_loc:/Legacy}"/>
+<stringAttribute key="abl.startup.WORKING_DIRECTORY" value="${workspace_loc:/LegacyNet}"/>
 <listAttribute key="logging.LOGGING_ENABLED_TYPES">
 <listEntry value="4GLMessages:4:true"/>
 <listEntry value="4GLTrace:4:true"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/Legacy"/>
+<listEntry value="/LegacyNet"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>

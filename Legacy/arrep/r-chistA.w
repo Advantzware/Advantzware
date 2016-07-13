@@ -136,7 +136,7 @@ lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -458,9 +458,9 @@ DO:
   END.
   
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
-      EMPTY TEMP-TABLE ttCustList.
-      RUN BuildCustList(INPUT cocode,
+  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
+  EMPTY TEMP-TABLE ttCustList.
+  RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive,
                     INPUT begin_cust,
                     INPUT END_cust).
@@ -1070,9 +1070,6 @@ def var archk as dec format ">>>>>>>>>>".
 DEF VAR iline-count AS INT .
 def var sort-by-cust as log init yes format "Customer/Sequence" no-UNDO.
 DEF VAR is-print-posted AS LOG.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
-DEF VAR fcust AS CHAR NO-UNDO .
-DEF VAR tcust AS CHAR NO-UNDO .
 /*
 DEF VAR tmp-dir AS cha NO-UNDO. 
 DEF VAR str-tit AS cha FORM "x(50)" NO-UNDO.
@@ -1087,9 +1084,6 @@ assign sort-by-cust = rd_sort = "customer"
        v-from-date  = begin_date
        v-to-date    = END_date
        is-print-posted = YES
-       fcust        = begin_cust
-       tcust        = END_cust
-       lSelected    = tb_cust-list
        /* is-print-report = tPosted:CHECKED IN FRAME frame-a */
        .
 
@@ -1109,12 +1103,6 @@ IF tb_excel THEN DO:
      = "CUSTOMER,Name,CHECK #,DATE,CASH RECVD,INVOICE NUM,ORIGINAL AMOUNT,AMOUNT APPLIED,DISCOUNT,ON ACCT PAYMENTS".
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-END.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
 END.
 
 IF td-show-parm THEN RUN show-param.

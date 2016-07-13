@@ -258,23 +258,23 @@ DEFINE FRAME DEFAULT-FRAME
      "Menu" VIEW-AS TEXT
           SIZE 6 BY .76 AT ROW 7.43 COL 136
           BGCOLOR 5 FGCOLOR 15 FONT 4
-     "De&fault Menu" VIEW-AS TEXT
-          SIZE 14 BY .76 AT ROW 11.57 COL 132
-          BGCOLOR 5 FGCOLOR 15 FONT 4
-     "User ID" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.71 COL 135
-          BGCOLOR 5 FGCOLOR 15 
-     "&Build Top Bar" VIEW-AS TEXT
-          SIZE 14 BY .76 AT ROW 6.67 COL 132
-          BGCOLOR 5 FGCOLOR 15 FONT 4
-     "&Save Menu" VIEW-AS TEXT
-          SIZE 11.2 BY .76 AT ROW 20.86 COL 133
+     "Rese&t Menu" VIEW-AS TEXT
+          SIZE 12.6 BY .76 AT ROW 16.57 COL 133
           BGCOLOR 5 FGCOLOR 15 FONT 4
      "(auto save)" VIEW-AS TEXT
           SIZE 11 BY .76 AT ROW 12.43 COL 133
           BGCOLOR 5 FGCOLOR 15 FONT 4
-     "Rese&t Menu" VIEW-AS TEXT
-          SIZE 12.6 BY .76 AT ROW 16.57 COL 133
+     "&Save Menu" VIEW-AS TEXT
+          SIZE 11.2 BY .76 AT ROW 20.86 COL 133
+          BGCOLOR 5 FGCOLOR 15 FONT 4
+     "&Build Top Bar" VIEW-AS TEXT
+          SIZE 14 BY .76 AT ROW 6.67 COL 132
+          BGCOLOR 5 FGCOLOR 15 FONT 4
+     "User ID" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.71 COL 135
+          BGCOLOR 5 FGCOLOR 15 
+     "De&fault Menu" VIEW-AS TEXT
+          SIZE 14 BY .76 AT ROW 11.57 COL 132
           BGCOLOR 5 FGCOLOR 15 FONT 4
      RECT-1 AT ROW 22.19 COL 2
      RECT-2 AT ROW 7.38 COL 79.4
@@ -818,20 +818,23 @@ PROCEDURE Build_Menu_Items :
   DO WITH FRAME {&FRAME-NAME}:
     REPEAT:
       IMPORT m_item1 m_item2.
-      IF INDEX(m_item1,".") = 0 AND NOT CAN-DO("rule,skip",m_item1) THEN DO:
+      IF INDEX(m_item1,".") = 0 AND NOT CAN-DO("rule,skip",m_item1) THEN
+      DO:
         CREATE wk-items.
         wk-items.item-name = m_item1.
-        IF m_item1 NE m_item2 THEN DO:
-          FIND FIRST b-items WHERE b-items.item-name EQ m_item2 NO-ERROR.
+        IF m_item1 NE m_item2 THEN
+        DO:
+          FIND FIRST b-items WHERE b-items.item-name = m_item2 NO-ERROR.
           ASSIGN wk-items.item-level = b-items.item-level + 1 WHEN AVAIL b-items.
         END.
       END.
-      IF m_item1 EQ m_item2 THEN NEXT.
-      FIND FIRST wk-items WHERE wk-items.item-name EQ m_item2 NO-ERROR.
+      IF m_item1 = m_item2 THEN
+      NEXT.
+      FIND FIRST wk-items WHERE wk-items.item-name = m_item2 NO-ERROR.
       IF AVAIL wk-items THEN
-        m_level = IF wk-items.item-level EQ 0 THEN ""
+        m_level = IF wk-items.item-level = 0  THEN ""
                                               ELSE FILL("- ",wk-items.item-level).
-      FIND prgrms NO-LOCK WHERE prgrms.prgmname EQ m_item1 NO-ERROR.
+      FIND prgrms WHERE prgrms.prgmname = m_item1 NO-LOCK NO-ERROR.
       IF AVAILABLE prgrms THEN
         ldummy = menu-items:ADD-LAST(m_level + prgrms.prgtitle).
       ELSE
@@ -858,26 +861,40 @@ PROCEDURE Check_Menu :
   {methods/wait.i}
 
   m_item2 = "mainmenu".
+
   DO i = 1 TO menu-items:NUM-ITEMS IN FRAME {&FRAME-NAME} WITH FRAME {&FRAME-NAME}:
+
     ASSIGN
-      j       = IF R-INDEX(ENTRY(i,menu-items:LIST-ITEMS),"- ") EQ 0 THEN 1
-                ELSE (R-INDEX(ENTRY(i,menu-items:LIST-ITEMS),"- ") + 1) / 2 + 1
+      j       = IF R-INDEX(ENTRY(i,menu-items:LIST-ITEMS),"- ") = 0 
+                  THEN 1
+                  ELSE (R-INDEX(ENTRY(i,menu-items:LIST-ITEMS),"- ") + 1) / 2 + 1
       m_item1 = REPLACE(ENTRY(i,menu-items:LIST-ITEMS),"- ","").
 
     IF j GT NUM-ENTRIES(m_item2) THEN DO:
+
       menu-items:SCREEN-VALUE = menu-items:ENTRY(i).
+
       {methods/nowait.i}
+
       APPLY "VALUE-CHANGED" TO menu-items.
+
       MESSAGE "An ERROR Exists with the Highlighted Menu Item" VIEW-AS ALERT-BOX.
+
       RETURN "ERROR".
     END.
+
     IF CAN-DO("RULE,SKIP",m_item1) THEN NEXT.
-    FIND FIRST prgrms NO-LOCK WHERE prgrms.prgtitle EQ m_item1 NO-ERROR.
+
+    FIND FIRST prgrms WHERE prgrms.prgtitle = m_item1 NO-LOCK NO-ERROR.
+
     IF INDEX(prgrms.prgmname,".") = 0 THEN
-      IF j LT NUM-ENTRIES(m_item2) THEN ENTRY(j + 1,m_item2) = prgrms.prgmname.
-                                   ELSE m_item2 = m_item2 + "," + prgrms.prgmname.
+      IF j LT NUM-ENTRIES(m_item2) 
+        THEN ENTRY(j + 1,m_item2) = prgrms.prgmname.
+        ELSE m_item2 = m_item2 + "," + prgrms.prgmname.
   END.
+
   {methods/nowait.i}
+
   RETURN.
 
 END PROCEDURE.
@@ -965,7 +982,7 @@ PROCEDURE Move_Item :
       IF menu-items:IS-SELECTED(i) THEN
       LEAVE.
     END.
-    IF move EQ "Down" THEN
+    IF move = "Down" THEN
     ASSIGN
       ldummy = menu-items:INSERT(menu-items:SCREEN-VALUE,i + 2)
       ldummy = menu-items:DELETE(i)
@@ -1003,16 +1020,16 @@ PROCEDURE Save_Menu :
           ELSE (R-INDEX(menu-items:ENTRY(i),"- ") + 1) / 2 + 1
       m_item1 = REPLACE(menu-items:ENTRY(i),"- ","").
 
-    IF CAN-DO("RULE,SKIP",m_item1) THEN DO:
+    IF CAN-DO("RULE,SKIP",m_item1) THEN
+    DO:
       PUT UNFORMATTED m_item1 " " ENTRY(j,m_item2) SKIP.
       NEXT.
     END.
-    FIND FIRST prgrms NO-LOCK
-         WHERE prgrms.prgtitle EQ m_item1
-           AND prgrms.menu_item EQ YES
-         NO-ERROR.
-    IF NOT AVAILABLE prgrms THEN NEXT.
-    IF m_item1 EQ "Machine File" THEN DO:
+
+    FIND FIRST prgrms WHERE prgrms.prgtitle = m_item1 NO-LOCK.
+
+    IF m_item1 EQ "Machine File" THEN
+    DO:
        IF ENTRY(j,m_item2) EQ "ar" THEN
           PUT UNFORMATTED "r-mach." " " ENTRY(j,m_item2) SKIP.
        ELSE IF ENTRY(j,m_item2) EQ "af" THEN
@@ -1020,22 +1037,30 @@ PROCEDURE Save_Menu :
        ELSE
           PUT UNFORMATTED prgrms.prgmname " " ENTRY(j,m_item2) SKIP.
     END.
-    ELSE DO: 
+    ELSE DO:
+
       IF prgrms.prgmname EQ ENTRY(j,m_item2) THEN DO:
         /* Handle case where menu name is same as item name */
-        FIND FIRST b-prgrms NO-LOCK
-             WHERE b-prgrms.prgtitle EQ m_item1 
-               AND INDEX(b-prgrms.prgmname,".") NE 0.
-        IF AVAILABLE b-prgrms THEN
-        FIND prgrms NO-LOCK WHERE ROWID(prgrms) EQ ROWID(b-prgrms).
+        FIND FIRST b-prgrms WHERE b-prgrms.prgtitle = m_item1 
+          AND INDEX(b-prgrms.prgmname,".") NE 0 NO-LOCK. 
+
+        IF AVAIL b-prgrms THEN
+          FIND prgrms WHERE ROWID(prgrms) EQ ROWID(b-prgrms)
+            NO-LOCK.
       END.
       PUT UNFORMATTED prgrms.prgmname " " ENTRY(j,m_item2) SKIP.
+
     END.
+       
+    
     IF INDEX(prgrms.prgmname,".") = 0 THEN
       IF j LT NUM-ENTRIES(m_item2) THEN
         ENTRY(j + 1,m_item2) = prgrms.prgmname.
       ELSE
         m_item2 = m_item2 + "," + prgrms.prgmname.
+      
+ 
+
   END.
   {methods/nowait.i}
 
@@ -1055,7 +1080,7 @@ PROCEDURE Select_Item :
 
   DO WHILE TRUE WITH FRAME {&FRAME-NAME}:
     j = menu-items:LOOKUP(item-name).
-    IF j EQ i THEN
+    IF j = i THEN
     LEAVE.
     ldummy = menu-items:REPLACE("*" + item-name,j).
   END.
@@ -1102,10 +1127,10 @@ PROCEDURE Shift_Item :
       LEAVE.
     END.
     new-item = menu-items:ENTRY(i).
-    IF move EQ "Right" THEN
+    IF move = "Right" THEN
     new-item = "- " + menu-items:ENTRY(i).
     ELSE
-    IF SUBSTR(menu-items:ENTRY(i),1,2) EQ "- " THEN
+    IF SUBSTR(menu-items:ENTRY(i),1,2) = "- " THEN
     new-item = SUBSTR(menu-items:ENTRY(i),3).
     ldummy = menu-items:REPLACE(new-item,i).
     RUN Select_Item (new-item).

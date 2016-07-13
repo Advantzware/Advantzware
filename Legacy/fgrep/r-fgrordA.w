@@ -101,7 +101,7 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file tb_reord-by-whse
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY*/
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -839,7 +839,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1611,7 +1611,7 @@ DEF VAR ld-fr AS DATE NO-UNDO.
 DEF VAR ld-to AS DATE NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR li1 AS INT NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 
 FORMAT HEADER "               "
@@ -1709,8 +1709,7 @@ assign
  v-lot-reo   = SUBSTR(rd_lot-reo,1,1)
  v-prt-cpn   = tb_part
  v-prt-qty   = rd_qav-ven BEGINS "Qty"
- v-prt-prc   = SUBSTR(rd_pri-ven-max,1,1)
- lSelected      = tb_cust-list .
+ v-prt-prc   = SUBSTR(rd_pri-ven-max,1,1).
 
 {sys/inc/print1.i}
 
@@ -1772,13 +1771,6 @@ excelheader = "ITEM #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,QTY ALLOC," +
  END.
  excelheader = excelheader + ", CUSTOMER #, SALES REP, COST, UOM". /*Premier Mod*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-END.
-
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
 END.
 
 display with frame r-top.
@@ -1841,7 +1833,7 @@ DEF VAR ld-fr AS DATE NO-UNDO.
 DEF VAR ld-to AS DATE NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR li1 AS INT NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 
 FORMAT HEADER "               "
@@ -1939,8 +1931,7 @@ assign
  v-lot-reo   = SUBSTR(rd_lot-reo,1,1)
  v-prt-cpn   = tb_part
  v-prt-qty   = rd_qav-ven BEGINS "Qty"
- v-prt-prc   = SUBSTR(rd_pri-ven-max,1,1)
- lSelected      = tb_cust-list.
+ v-prt-prc   = SUBSTR(rd_pri-ven-max,1,1).
 
 {sys/inc/print1.i}
 
@@ -2002,12 +1993,6 @@ excelheader = "ITEM #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,QTY ALLOC," +
  END.
  excelheader = excelheader + ", CUSTOMER #, SALES REP, COST, UOM". /*Premier Mod*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-END.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
 END.
 
 display with frame r-top.

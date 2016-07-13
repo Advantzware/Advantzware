@@ -152,7 +152,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -646,7 +646,7 @@ DO:
   SESSION:SET-WAIT-STATE("general").
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1518,7 +1518,7 @@ PROCEDURE run-report :
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 def var as-of-day_str like day_str format "x(15)" init "As of: " no-undo.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 form header
      "        "
      "               "
@@ -1670,8 +1670,7 @@ assign
  str-tit4       = "" 
  str-tit5       = "" 
  cSlist         = ""
- str-line       = ""
- lSelected      = tb_cust-list.
+ str-line       = "".
 
 IF v-prt-c THEN DO: 
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
@@ -1747,12 +1746,6 @@ ELSE
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
- IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN  fcus = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN  tcus = ttCustList.cust-no .
- END.
 
 if td-show-parm then do:
   run show-param.
@@ -1760,18 +1753,60 @@ if td-show-parm then do:
 END.
 
 VIEW FRAME r-top.
+/*
+if v-prt-cpn then VIEW frame r-top2.
+             else VIEW frame r-top1. */
+
+/* rdb 02/05/07  01090713 */
+/*
+excelheader = "".
+IF tb_excel THEN DO:
+
+  IF v-prt-cpn THEN  /* frame r-top1 */
+    excelheader = "CUSTOMER,ITEM#,CUST PART#,DESC,WHSE,BIN,TAG#,JOB#,".
+  ELSE /* frame r-top2 */
+    excelheader = "CUSTOMER,ITEM#,DESC,WHSE,BIN,TAG#,JOB#,".
+
+  excelheader = IF v-label1[4] NE "" 
+                THEN excelheader + TRIM(v-label1[4]) + " ON HAND,"
+                ELSE excelheader + "ON HAND,".
+
+  excelheader =  excelheader + "COST UOM,".
+
+  IF TRIM(v-label1[1]) + TRIM(v-label1[2]) NE "" THEN
+    excelheader = excelheader + 
+                  TRIM(v-label1[1]) + " " + TRIM(v-label1[2]) + ",".
+  ELSE
+    excelheader = excelheader + ",".
+
+  IF TRIM(v-label2[1]) + TRIM(v-label2[3]) NE "" THEN
+    excelheader = excelheader + 
+                  TRIM(v-label2[1]) + " " + TRIM(v-label2[3]) + ",".
+  ELSE
+    excelheader = excelheader + ",".      
+
+  IF TRIM(v-label2[2]) + TRIM(v-label2[4]) NE "" THEN
+    excelheader = excelheader + 
+                  TRIM(v-label2[2]) + " " + TRIM(v-label2[4]) + ",".
+  ELSE
+    excelheader = excelheader + ",".
+  
+  excelheader = excelheader + "GS&A LABOR CST,GS&A MAT'L,TOTAL COST".
+
+END. */
 
     STATUS DEFAULT "Processing...".
 
     EMPTY TEMP-TABLE tt-fg-bin.
     EMPTY TEMP-TABLE tt-itemfg.
 
-    FOR EACH itemfg
+    FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+        EACH itemfg
         WHERE itemfg.company EQ cocode
-          AND itemfg.cust-no GE fcus
-          AND itemfg.cust-no LE tcus
-          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
-          AND ttCustList.log-fld no-lock) else true)
+          AND itemfg.cust-no EQ ttCustList.cust-no /*fcus
+          AND itemfg.cust-no LE tcus*/
           AND itemfg.i-no    GE fino
           AND itemfg.i-no    LE tino
           AND itemfg.procat  GE fcat

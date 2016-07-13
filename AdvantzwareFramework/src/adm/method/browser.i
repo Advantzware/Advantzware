@@ -24,9 +24,14 @@
 
 /* ***************************  Definitions  ************************** */
 
+&GLOBAL-DEFINE ADM-DISPATCH-QUALIFIER winkit
+
+DEFINE VARIABLE oRenderedBrowseControl AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseControl NO-UNDO . 
+
+
 DEFINE VARIABLE adm-sts           AS LOGICAL NO-UNDO.
-DEFINE VARIABLE adm-brs-in-update AS LOGICAL NO-UNDO INIT NO.
-DEFINE VARIABLE adm-brs-initted   AS LOGICAL NO-UNDO INIT NO.
+DEFINE VARIABLE adm-brs-in-update AS LOGICAL NO-UNDO INIT no.
+DEFINE VARIABLE adm-brs-initted   AS LOGICAL NO-UNDO INIT no.
 
 &IF DEFINED(adm-browser) = 0 &THEN
 &GLOBAL adm-browser yes
@@ -190,6 +195,7 @@ END PROCEDURE.
 
 
 &ENDIF
+
 
 &IF DEFINED(EXCLUDE-set-size) = 0 &THEN
 

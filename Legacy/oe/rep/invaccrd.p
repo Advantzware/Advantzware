@@ -72,7 +72,6 @@ def var v-i-dscr-2 as char format "x(18)" no-undo.
 def var v-price as dec format ">>>>9.9999" no-undo.
 def var v-t-price as dec format ">>>>>>9.99" no-undo.
 def var v-po-no like inv-line.po-no no-undo.
-def var v-po-ord like inv-line.po-no no-undo.
 def var v-bill-i as char format "x(25)" no-undo.
 def var v-ord-no like oe-ord.ord-no no-undo.
 def var v-ord-date like oe-ord.ord-date no-undo.
@@ -95,8 +94,8 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(50)" NO-UNDO.
 ASSIGN ls-image1 = "images\accord.jpg"
        ls-image2 = "images\accord.jpg".
 
@@ -174,8 +173,7 @@ ELSE lv-comp-color = "BLACK".
               v-shipto-state = xinv-head.sold-state
               v-shipto-zip = xinv-head.sold-zip.
 
-      v-del-no  = 0.
-      v-po-ord  = "" .
+      v-del-no = 0.
 
       find first oe-bolh where oe-bolh.company = xinv-head.company and
           oe-bolh.bol-no = xinv-head.bol-no use-index bol-no no-lock no-error.
@@ -349,8 +347,7 @@ ELSE lv-comp-color = "BLACK".
         end. /* each xinv-line */
     
                         /** Build Salesman Id String **/
-                v-salesman = "" .
-               
+        v-salesman = "".
         for each w-sman break by w-sman.sman:
           if first-of(w-sman.sman) then
             assign v-salesman = v-salesman + w-sman.sman.
@@ -377,8 +374,6 @@ ELSE lv-comp-color = "BLACK".
                    v-bill-i = oe-ord.bill-i[1]
                    v-ord-no = oe-ord.ord-no
                    v-ord-date = oe-ord.ord-date.
-            IF oe-ord.po-no <> "" THEN
-                 v-po-ord = oe-ord.po-no .
           end.
           else
             assign v-price-head = inv-line.pr-uom.

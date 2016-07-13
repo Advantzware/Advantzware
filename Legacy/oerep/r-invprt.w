@@ -33,7 +33,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cActualPdf AS CHARACTER NO-UNDO.
+
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
@@ -112,7 +112,6 @@ DEFINE VARIABLE glPaperless AS LOGICAL     NO-UNDO.
 {XMLOutput/XMLOutput.i &NEW=NEW &cXMLSysCtrl=cXMLInvoice &Company=cocode &c=c} /* rstark 05291402 */
 
 DEF VAR vSoldToNo AS char NO-UNDO.  /* to hold soldto# for email */
-DEF VAR vShipToNo AS char NO-UNDO.  /* to hold shipto# for email */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1001,19 +1000,19 @@ DO:
              VIEW-AS ALERT-BOX INFO BUTTONS OK.
            APPLY 'ENTRY':U TO end_cust.
            RETURN NO-APPLY.
-/* These statements will not run due to the return no-apply           */
-/*          END. */       
-/*         FIND FIRST b1-cust NO-LOCK                                 */
-/*              WHERE b1-cust.company = cocode                        */
-/*                AND b1-cust.active  = 'X' NO-ERROR.                 */
-/*                                                                    */
-/*         IF AVAIL b1-cust THEN RUN output-to-mail (b1-cust.cust-no).*/
-/*                                                                    */
-/*         ELSE DO:                                                   */
-/*           MESSAGE 'In-House Customer not defined.'                 */
-/*             VIEW-AS ALERT-BOX INFO BUTTONS OK.                     */
-/*           RETURN.                                                  */
-/*         END.                                                       */
+/*          END. */
+       
+         FIND FIRST b1-cust NO-LOCK
+              WHERE b1-cust.company = cocode
+                AND b1-cust.active  = 'X' NO-ERROR.
+          
+         IF AVAIL b1-cust THEN RUN output-to-mail (b1-cust.cust-no).
+         
+         ELSE DO:
+           MESSAGE 'In-House Customer not defined.'
+             VIEW-AS ALERT-BOX INFO BUTTONS OK.
+           RETURN.
+         END.
        END.
 
        ELSE RUN BatchMail (begin_cust, begin_cust).
@@ -1709,14 +1708,12 @@ PROCEDURE BatchMail :
                 vcEndCustNo = b1-ar-inv.cust-no.
         FIND FIRST ar-invl WHERE ar-invl.x-no = b1-ar-inv.x-no
                                        NO-LOCK NO-ERROR.
-        assign vSoldToNo = ""
-               vShipToNo = "". 
+        vSoldToNo = "". 
         IF AVAIL ar-invl THEN do:
            FIND oe-ord WHERE oe-ord.company = b1-ar-inv.company
                      AND oe-ord.ord-no = ar-invl.ord-no
                      NO-LOCK NO-ERROR.
            vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
-           vShipToNo = b1-ar-inv.ship-id.
         END.
         RUN output-to-mail (b1-ar-inv.cust-no).
       END.
@@ -1759,7 +1756,6 @@ PROCEDURE BatchMail :
                      AND oe-ord.ord-no = inv-line.ord-no
                      NO-LOCK NO-ERROR.
            vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
-           vShipToNo = b1-inv-head.sold-no.
         END.
       
         RUN output-to-mail (b1-inv-head.cust-no).
@@ -1805,7 +1801,6 @@ PROCEDURE BatchMail :
                        AND oe-ord.ord-no = inv-line.ord-no
                        NO-LOCK NO-ERROR.
              vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
-             vShipToNo = b1-inv-head.sold-no.
           END.
          /* MESSAGE "2 batchMail:  " AVAIL inv-line "   soldTo:"  vSoldToNo "," inv-line.ord-no
               "," AVAIL oe-ord "," oe-ord.sold-no RECID(oe-ord) SKIP
@@ -1953,11 +1948,7 @@ PROCEDURE GenerateEmail :
       IF is-xprint-form THEN DO:
          IF v-print-fmt NE "Southpak-xl" AND v-print-fmt NE "PrystupExcel" THEN
             RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-                 
-            IF cActualPDF ne lv-pdf-file AND SEARCH(cActualPDF) NE ? THEN DO:
-              OS-COPY VALUE(cActualPDF) VALUE(lv-pdf-file).
-              OS-DELETE VALUE(cActualPDF).           
-            END.
+      
          IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (icCustNo, 'Customer1').
                                   ELSE RUN SendMail-1 (icCustNo, 'Customer').
       END.
@@ -2135,7 +2126,6 @@ PROCEDURE output-to-mail :
                                    NO-LOCK NO-ERROR.
                          vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
                   END.
-                  vShipToNo = ar-inv.ship-id.
                   RUN GenerateEmail(b-ar-inv.cust-no).
                END.
            END.
@@ -2153,7 +2143,7 @@ PROCEDURE output-to-mail :
         END.
      END.
      ELSE /*not posted*/
-     DO:         
+     DO:
         IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
            sys-ctrl-shipto.company = cocode AND
            sys-ctrl-shipto.NAME = "INVPRINT") THEN
@@ -2213,17 +2203,8 @@ PROCEDURE output-to-mail :
                      vcInvNums = ""
                      lv-pdf-file = init-dir + "\Inv".
                    RUN run-report(buf-inv-head.cust-no,"", TRUE).
-                   assign vSoldToNo = ""
-                          vShipToNo = "".  
-                   FIND FIRST inv-line of buf-inv-head NO-LOCK NO-ERROR.
-                   IF AVAIL inv-line THEN do:
-                     FIND oe-ord WHERE oe-ord.company = buf-inv-head.company
-                                   AND oe-ord.ord-no = inv-line.ord-no
-                                   NO-LOCK NO-ERROR.
-                         vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
-                  END.
-                  vShipToNo = buf-inv-head.sold-no.
-                  RUN GenerateEmail(buf-inv-head.cust-no).
+                   vSoldToNo = "".
+                   RUN GenerateEmail(buf-inv-head.cust-no).
                 END.
            END.
         
@@ -2426,11 +2407,10 @@ for each inv-head
       
   vlSkipRec = NO.
 
-/* WFK - 15063 - Removed this change since it was causing lots of problems */
-/*  IF  NOT v-reprint OR inv-head.inv-no EQ 0 THEN do:*/
-/*        RUN oe/get-inv#.p (ROWID(inv-head)).        */
-/*        v-reprint = YES  .                          */
-/*  END.                                              */
+  IF  NOT v-reprint OR inv-head.inv-no EQ 0 THEN do:
+        RUN oe/get-inv#.p (ROWID(inv-head)).
+        v-reprint = YES  .
+  END.
 
   create report.
   assign
@@ -2533,32 +2513,20 @@ IF is-xprint-form THEN DO:
       WHEN 1 THEN PUT "<COPIES=" + string(lv-copy#) + "><PRINTER?>" FORM "x(30)".
       WHEN 2 THEN PUT "<COPIES=" + string(lv-copy#) + "><PREVIEW>" FORM "x(30)".
       WHEN 5 THEN DO:
-          if vcInvNums = "0" or vcInvNums = "0-0" THEN 
-            vcInvNums = STRING(RANDOM(1, 1000)).
           IF v-print-fmt EQ "CentBox" THEN
           DO:
              IF NOT tb_BatchMail:CHECKED THEN
                 PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(120)".
              ELSE 
                 PUT "<PREVIEW=PDF><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(120)".
-             cActualPDF = lv-pdf-file + vcInvNums  + ".pdf".
           END.
-          ELSE IF v-print-fmt EQ "Southpak-XL" OR v-print-fmt EQ "PrystupExcel" THEN do:
+          ELSE IF v-print-fmt EQ "Southpak-XL" OR v-print-fmt EQ "PrystupExcel" THEN
                PUT "<PDF=DIRECT><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(60)".
-               cActualPDF = list-name + ".pdf".
-          END.
-          ELSE IF v-print-fmt EQ "Protagon" OR v-print-fmt = "Protagon2" THEN do:
+          ELSE IF v-print-fmt EQ "Protagon" OR v-print-fmt = "Protagon2" THEN
               PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=0.5mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(120)".
-              cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
-          END.
-          ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN DO:
+          ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN
               PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(120)".
-              cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
-          END.
-          ELSE DO: 
-            PUT "<PDF=DIRECT><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(60)".
-            cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
-          END.  
+          ELSE PUT "<PDF=DIRECT><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(60)".  
       END.
             
    END CASE.
@@ -2608,22 +2576,6 @@ ELSE IF lookup(v-print-fmt,"PremierS") > 0 THEN do:
     IF tb_sman-copy  THEN RUN value(v-program) ("Salesman Copy",YES).
 END.
 ELSE RUN value(v-program). 
-
-vcInvNums = "".
-for each report where report.term-id eq v-term-id no-lock,        
-    first inv-head where recid(inv-head) eq report.rec-id no-lock
-    break by inv-head.inv-no:
-              
-      assign 
-          vcInvNums      = vcInvNums + '-' + STRING (inv-head.inv-no)
-          vcInvNums      = LEFT-TRIM (vcInvNums, '-').
-          
-      /* Extract first and last inv# with '-' in between */
-      IF vcInvNums MATCHES '*-*' THEN
-         vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') +     
-                     SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
-        
-end.
 
 FOR EACH save-line WHERE save-line.reftable EQ "save-line" + v-term-id:
   RUN undo-save-line.
@@ -2895,10 +2847,10 @@ PROCEDURE SendMail-1 :
   IF tb_attachBOL THEN
       list-name = list-name + "," + TRIM(vcBOLfiles, ",").
   
-  IF vSoldToNo <> "" THEN 
-     ASSIGN icRecType = "SoldTo"     
-            icIdxKey = icIdxKey + "|" + (vSoldToNo) +
-                       if vShipToNo <> "" then "|" + vShipToNo else "".
+  IF vSoldToNo <> "" THEN
+     ASSIGN icRecType = "SoldTo"
+            icIdxKey = icIdxKey + "|" + (vSoldToNo).
+ 
   RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-INVPRT.',
                           input   list-name,

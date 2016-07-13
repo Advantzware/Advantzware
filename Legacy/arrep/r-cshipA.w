@@ -87,7 +87,7 @@ fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -361,7 +361,7 @@ DO:
    END.
   /*EMPTY TEMP-TABLE ttCustList.*/
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
       EMPTY TEMP-TABLE ttCustList.
       RUN BuildCustList(INPUT cocode,
                         INPUT tb_cust-list AND glCustListActive,
@@ -856,7 +856,6 @@ PROCEDURE run-report :
 
 def var v-cust-no like cust.cust-no extent 2 initial [" ", "ZZZZZZZZ"].
 DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form shipto.ship-id
      shipto.ship-name format "x(20)"
@@ -875,8 +874,7 @@ assign
  {sys/inc/ctrtext.i str-tit2 112}
    
  v-cust-no[1] = begin_cust-no
- v-cust-no[2] = end_cust-no
- lSelected    = tb_cust-list.
+ v-cust-no[2] = end_cust-no.
  
 {sys/inc/print1.i}
 
@@ -887,12 +885,6 @@ IF tb_excel THEN DO:
   excelheader = "Customer,Customer Name,Ship To ID,Name,Bill,Address Line 1,Address Line 2,City,ST,Zip".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN v-cust-no[1] = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN v-cust-no[2] = ttCustList.cust-no .
-END.
 
 if td-show-parm then run show-param.
 
@@ -901,12 +893,14 @@ display str-tit with frame r-top.
 view frame cust.
 
 SESSION:SET-WAIT-STATE ("general").
-FOR each cust
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+  each cust
     where cust.company eq cocode
-      AND cust.cust-no GE v-cust-no[1]
-      AND cust.cust-no LE v-cust-no[2]
-      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-      AND ttCustList.log-fld no-lock) else true)
+      /*and cust.cust-no ge v-cust-no[1]
+      and cust.cust-no le v-cust-no[2]*/
+      AND cust.cust-no EQ ttCustList.cust-no 
     no-lock,
     
     each shipto

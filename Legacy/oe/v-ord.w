@@ -247,7 +247,7 @@ oe-ord.sname[1] oe-ord.s-pct[1] oe-ord.s-comm[1] oe-ord.sman[2] ~
 oe-ord.sname[2] oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] ~
 oe-ord.sname[3] oe-ord.s-pct[3] oe-ord.s-comm[3] oe-ord.cc-type ~
 oe-ord.cc-expiration oe-ord.cc-num oe-ord.cc-auth oe-ord.spare-char-1 ~
-oe-ord.approved-date oe-ord.ack-prnt-date 
+oe-ord.approved-date 
 &Scoped-define DISPLAYED-TABLES oe-ord
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ord
 &Scoped-Define DISPLAYED-OBJECTS fi_type fi_prev_order tb_whs-order ~
@@ -364,7 +364,7 @@ DEFINE RECTANGLE RECT-30
 
 DEFINE RECTANGLE RECT-33
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 75.4 BY 3.43
+     SIZE 75.4 BY 5
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-35
@@ -423,7 +423,7 @@ DEFINE FRAME F-Main
           LABEL "Sold To"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     oe-ord.ord-date AT ROW 2.67 COL 128.2 COLON-ALIGNED
+     oe-ord.ord-date AT ROW 2.67 COL 125.4 COLON-ALIGNED
           LABEL "Date"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -434,11 +434,11 @@ DEFINE FRAME F-Main
      oe-ord.sold-name AT ROW 3.86 COL 59.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 36 BY 1
-     oe-ord.due-code AT ROW 3.86 COL 117.2 COLON-ALIGNED
+     oe-ord.due-code AT ROW 3.86 COL 114.4 COLON-ALIGNED
           LABEL "Due Date" FORMAT "XXXXX"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     oe-ord.due-date AT ROW 3.86 COL 128.2 COLON-ALIGNED NO-LABEL
+     oe-ord.due-date AT ROW 3.86 COL 125.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      oe-ord.addr[1] AT ROW 5.05 COL 10 COLON-ALIGNED NO-LABEL
@@ -448,7 +448,7 @@ DEFINE FRAME F-Main
           LABEL ""
           VIEW-AS FILL-IN 
           SIZE 36 BY 1
-     oe-ord.last-date AT ROW 5.05 COL 128.2 COLON-ALIGNED
+     oe-ord.last-date AT ROW 5.05 COL 125.4 COLON-ALIGNED
           LABEL "Last Ship"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -458,7 +458,7 @@ DEFINE FRAME F-Main
      oe-ord.sold-addr[2] AT ROW 6.24 COL 59.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 36 BY 1
-     oe-ord.prod-date AT ROW 6.24 COL 128.2 COLON-ALIGNED
+     oe-ord.prod-date AT ROW 6.24 COL 125.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      oe-ord.city AT ROW 7.43 COL 10 COLON-ALIGNED NO-LABEL
@@ -486,10 +486,10 @@ DEFINE FRAME F-Main
      oe-ord.sold-zip AT ROW 7.43 COL 88.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     oe-ord.po-no AT ROW 7.43 COL 128.2 COLON-ALIGNED
+     oe-ord.po-no AT ROW 7.43 COL 125.4 COLON-ALIGNED
           LABEL "Cust PO#"
           VIEW-AS FILL-IN 
-          SIZE 21.6 BY 1
+          SIZE 23 BY 1
      oe-ord.contact AT ROW 8.91 COL 10.6 COLON-ALIGNED
           LABEL "Contact"
           VIEW-AS FILL-IN 
@@ -513,7 +513,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      tb_whs-order AT ROW 11.29 COL 50
-     oe-ord.frt-pay AT ROW 11.1 COL 100 NO-LABEL
+     oe-ord.frt-pay AT ROW 10.05 COL 89 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Prepaid", "P":U,
@@ -521,10 +521,10 @@ DEFINE FRAME F-Main
 "Bill", "B":U,
 "3rd Party", "T":U
           SIZE 50 BY .95
-     oe-ord.carrier AT ROW 12.38 COL 88 COLON-ALIGNED
+     oe-ord.carrier AT ROW 12.19 COL 88 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     oe-ord.fob-code AT ROW 12.38 COL 120 NO-LABEL
+     oe-ord.fob-code AT ROW 12.19 COL 120 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "DEST", "DEST":U,
@@ -593,31 +593,27 @@ DEFINE FRAME F-Main
      fi_s-pct-lbl AT ROW 13.95 COL 48.2 COLON-ALIGNED NO-LABEL
      fi_s-comm-lbl AT ROW 13.95 COL 63.2 COLON-ALIGNED NO-LABEL
      fi_sman-lbl AT ROW 13.95 COL 2.8 NO-LABEL
-     btnCalendar-1 AT ROW 2.67 COL 147.2
-     btnCalendar-2 AT ROW 3.86 COL 147.2
-     btnCalendar-3 AT ROW 5.05 COL 147.2
-     btnCalendar-4 AT ROW 6.24 COL 147.2
+     btnCalendar-1 AT ROW 2.67 COL 144.4
+     btnCalendar-2 AT ROW 3.86 COL 144.4
+     btnCalendar-3 AT ROW 5.05 COL 144.4
+     btnCalendar-4 AT ROW 6.24 COL 144.4
      btnCalendar-5 AT ROW 14.33 COL 138
      oe-ord.spare-char-1 AT ROW 15.52 COL 133.6 COLON-ALIGNED WIDGET-ID 4
           LABEL "VCode" FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     oe-ord.approved-date AT ROW 9 COL 96.4 COLON-ALIGNED HELP
+     oe-ord.approved-date AT ROW 2.67 COL 99 COLON-ALIGNED HELP
           "Enter the date this order was approved" WIDGET-ID 10
           LABEL "Hold/Appr Date"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     oe-ord.ack-prnt-date AT ROW 9 COL 128.4 COLON-ALIGNED WIDGET-ID 12
-          LABEL "Ack. Date" FORMAT "99/99/99"
-          VIEW-AS FILL-IN 
-          SIZE 14.4 BY 1
+          SIZE 14 BY 1
      "Freight Charge" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 11.05 COL 81
+          SIZE 18 BY .62 AT ROW 9.1 COL 81
           FGCOLOR 9 
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .86 AT ROW 12.19 COL 113
      RECT-30 AT ROW 8.71 COL 1.6
-     RECT-33 AT ROW 10.29 COL 78
+     RECT-33 AT ROW 8.71 COL 78
      RECT-35 AT ROW 13.71 COL 78
      RECT-36 AT ROW 13.71 COL 1.6
      RECT-37 AT ROW 2.52 COL 1.4
@@ -682,8 +678,6 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN oe-ord.ack-prnt-date IN FRAME F-Main
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN oe-ord.addr[1] IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN oe-ord.addr[2] IN FRAME F-Main

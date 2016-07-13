@@ -117,7 +117,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -442,7 +442,7 @@ DO:
   RUN GetSelectionList.
     
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
       EMPTY TEMP-TABLE ttCustList.
       RUN BuildCustList(INPUT cocode,
                         INPUT tb_cust-list AND glCustListActive,
@@ -1362,7 +1362,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 form shipto.ship-id
      shipto.ship-name format "x(20)"
      shipto.bill label
@@ -1380,8 +1380,7 @@ assign
  {sys/inc/ctrtext.i str-tit2 112}
    
  v-cust-no[1] = begin_cust-no
- v-cust-no[2] = end_cust-no
- lSelected    = tb_cust-list.
+ v-cust-no[2] = end_cust-no.
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1406,12 +1405,7 @@ DEF VAR cslist AS cha NO-UNDO.
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
- IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN v-cust-no[1] = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN v-cust-no[2] = ttCustList.cust-no .
- END.
+
  
 {sys/inc/print1.i}
 
@@ -1430,12 +1424,14 @@ display str-tit with frame r-top.
 
 SESSION:SET-WAIT-STATE ("general").
 
-FOR each cust
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+   each cust
     where cust.company eq cocode
-      AND cust.cust-no GE v-cust-no[1]
-      AND cust.cust-no LE v-cust-no[2]
-      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-      AND ttCustList.log-fld no-lock) else true) 
+      AND cust.cust-no EQ ttCustList.cust-no 
+      /*and cust.cust-no ge v-cust-no[1]
+      and cust.cust-no le v-cust-no[2]*/
     no-lock,
     
     each shipto
@@ -1527,7 +1523,7 @@ PROCEDURE run-report2 :
     DEF VAR frst-name AS CHAR NO-UNDO.
     DEF VAR lst-name AS CHAR NO-UNDO .
     DEF VAR v-dbu AS INT INIT 1  NO-UNDO .
-    DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
     FORM 
      v-dbu LABEL "DBU"
      shipto.dest-code LABEL "ZONE"
@@ -1565,8 +1561,7 @@ PROCEDURE run-report2 :
      {sys/inc/ctrtext.i str-tit2 112}
 
      v-cust-no[1] = begin_cust-no
-     v-cust-no[2] = end_cust-no
-     lSelected    = tb_cust-list.
+     v-cust-no[2] = end_cust-no.
 
     {sys/inc/print1.i}
 
@@ -1586,12 +1581,7 @@ PROCEDURE run-report2 :
                 PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
             END.
         END.
-    IF lselected THEN DO:
-        FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-        IF AVAIL ttCustList THEN ASSIGN v-cust-no[1] = ttCustList.cust-no .
-        FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-        IF AVAIL ttCustList THEN ASSIGN v-cust-no[2] = ttCustList.cust-no .
-    END.
+
     if td-show-parm then run show-param.
 
     display str-tit with frame r-top.
@@ -1609,10 +1599,8 @@ PROCEDURE run-report2 :
 
     for each cust
         where cust.company eq cocode
-          AND cust.cust-no GE v-cust-no[1]
-          AND cust.cust-no LE v-cust-no[2]
-          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-          AND ttCustList.log-fld no-lock) else true)
+          and cust.cust-no ge v-cust-no[1]
+          and cust.cust-no le v-cust-no[2]
         no-lock,
 
         each shipto

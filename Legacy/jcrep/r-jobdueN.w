@@ -53,11 +53,11 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
     
 ASSIGN cTextListToSelect = "CUSTOMER,JOB#,S,B,DIE#,Plate#,DUE DATE,COMPLETION DATE,STYLE," +
-                                               "QTY GLUING,SHEETED,PRINTED,DIE CUT,GLUED,GLUE HRS,ORD MFG DATE,RELEASE DATE" 
+                                               "QTY GLUING,SHEETED,PRINTED,DIE CUT,GLUED,GLUE HRS,ORD MFG DATE" 
        cFieldListToSelect = "cust,job,frm,blnk,die,palt,due-dt,comp-dt,styl," +
-                                        "qty-glu,sht,prntd,die-cut,glue,glu-hrs,mfg-date,rel-date"
-       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12" 
-       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,c"
+                                        "qty-glu,sht,prntd,die-cut,glue,glu-hrs,mfg-date"
+       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11" 
+       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c"
     .
 
 {sys/inc/ttRptSel.i}
@@ -1242,9 +1242,6 @@ def var v-rs      as   char format "x(7)" NO-UNDO.
 def var v-dc      as   char format "x(7)" NO-UNDO.
 def var v-pr      as   char format "x(7)" NO-UNDO.
 DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
-DEF VAR v-rel-date AS DATE NO-UNDO .
-DEF VAR lv-stat AS CHAR NO-UNDO.
-def var v-stat  as   char format "!" init "A".
 
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
@@ -1360,6 +1357,29 @@ DEF VAR cslist AS cha NO-UNDO.
 
 IF tb_excel THEN DO:
           OUTPUT STREAM excel TO VALUE(fi_file).
+      /*    excelheader = "CUSTOMER,JOB#,S,B,DIE#" .
+          IF tb_plate THEN
+              excelheader = excelheader + ",Plate#".
+
+          excelheader = excelheader + ",DUE DATE".
+
+          IF tb_comdate THEN
+              excelheader = excelheader + ",COMPLETION DATE".
+          IF  tb_style THEN
+              excelheader = excelheader + ",STYLE".
+          IF  tb_qty THEN
+              excelheader = excelheader + ",QTY GLUING".
+          IF  tb_sheet THEN
+              excelheader = excelheader + ",SHEETED".
+          IF  tb_print THEN
+              excelheader = excelheader + ",PRINTED".
+          IF  tb_die THEN
+              excelheader = excelheader + ",DIE CUT".
+          IF tb_glue THEN
+              excelheader = excelheader + ",GLUED".
+          IF  tb_glhr THEN
+              excelheader = excelheader + ",GLUE HRS".  */
+                       
           PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
 END. 
 
@@ -1601,20 +1621,6 @@ SESSION:SET-WAIT-STATE ("general").
           END.
           ELSE
              v-run-end-date = ?.
-          ASSIGN v-rel-date = ? .
-         
-             IF AVAIL oe-ordl THEN
-                 FOR EACH oe-rel NO-LOCK
-                 WHERE oe-rel.company EQ oe-ordl.company
-                 AND oe-rel.ord-no  EQ oe-ordl.ord-no
-                 AND oe-rel.i-no    EQ oe-ordl.i-no
-                 AND oe-rel.line    EQ oe-ordl.line
-                 BY oe-rel.rel-date DESC:
-                 {oe/rel-stat.i v-stat}
-                 
-                     v-rel-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
-                        LEAVE.
-                 END.
           
 
          /*    PUT
@@ -1726,7 +1732,6 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "glue"        THEN cVarValue =  STRING(v-gl).
                          WHEN "glu-hrs"     THEN cVarValue =  IF job-mch.dept = "GL" THEN STRING(job-mch.run-hr,"->>>>>,>>9.99") ELSE ""      .
                          WHEN "mfg-date"     THEN cVarValue =  IF AVAIL oe-ordl THEN STRING(oe-ordl.prom-date,"99/99/9999") ELSE ""      .
-                         WHEN "rel-date"     THEN cVarValue =  IF v-rel-date <> ? THEN STRING(v-rel-date,"99/99/9999") ELSE ""      .
                                   
                     END CASE.  
                       

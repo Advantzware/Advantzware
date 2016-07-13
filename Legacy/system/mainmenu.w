@@ -32,17 +32,6 @@ ON F1 HELP.
 ON CTRL-F HELP.
 ON CTRL-P HELP.
  
-ON 'CTRL-ALT-D':U ANYWHERE
-    DO:
-        RUN aoa/aoaLauncher.w ("Dashboard").
-        RETURN.
-    END.
-
-ON 'CTRL-ALT-R':U ANYWHERE
-    DO:
-        RUN aoa/aoaLauncher.w ("Report").
-        RETURN.
-    END.
 /* ***************************  Definitions  ************************** */
  
 /* Parameters Definitions ---                                           */
@@ -62,43 +51,41 @@ ON 'CTRL-ALT-R':U ANYWHERE
 {methods/defines/mainmenu.i}
 
 DEFINE TEMP-TABLE ttbl NO-UNDO
-    FIELD menu-order AS INTEGER
-    FIELD menu1      AS CHARACTER
-    FIELD menu2      AS CHARACTER
+  FIELD menu-order AS INTEGER
+  FIELD menu1 AS CHARACTER
+  FIELD menu2 AS CHARACTER
     INDEX ttbl IS PRIMARY UNIQUE menu-order
-    INDEX menu2                  menu2      menu-order.
+    INDEX menu2 menu2 menu-order.
 
 DEFINE TEMP-TABLE ttbl-menu NO-UNDO
-    FIELD menu-name  AS CHARACTER
-    FIELD menu-count AS INTEGER
+  FIELD menu-name AS CHARACTER
+  FIELD menu-count AS INTEGER
     INDEX ttbl-menu IS PRIMARY UNIQUE menu-name
-    INDEX menu-count                  menu-count.
+    INDEX menu-count menu-count.
 
-DEFINE VARIABLE closeMenu        AS LOGICAL       NO-UNDO.
-DEFINE VARIABLE button-widget    AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE button-row       AS DECIMAL       NO-UNDO.
-DEFINE VARIABLE button-col       AS DECIMAL       NO-UNDO INITIAL {&start-button-col}.
-DEFINE VARIABLE button-count     AS INTEGER       NO-UNDO.
-DEFINE VARIABLE button-mneumonic AS CHARACTER     NO-UNDO INITIAL
-    /*'A,B,C,D,E,N,G,H,O,J,K,L,M,S,X,1,2,3,4,5,6,7,8,9,P,Q,S,T,U,V,W,X,Y,Z'.*/
+DEFINE VARIABLE closeMenu AS LOGICAL NO-UNDO.
+DEFINE VARIABLE button-widget AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE button-row AS DECIMAL NO-UNDO.
+DEFINE VARIABLE button-col AS DECIMAL NO-UNDO INITIAL {&start-button-col}.
+DEFINE VARIABLE button-count AS INTEGER NO-UNDO.
+DEFINE VARIABLE button-mneumonic AS CHARACTER NO-UNDO INITIAL
+  /*'A,B,C,D,E,N,G,H,O,J,K,L,M,S,X,1,2,3,4,5,6,7,8,9,P,Q,S,T,U,V,W,X,Y,Z'.*/
     'A,B,C,D,E,G,H,I,J,K,L,M,O,S,X,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P'.
 
-DEFINE VARIABLE cEulaFile        AS CHARACTER     NO-UNDO.
-DEFINE VARIABLE lEulaAccepted    AS LOGICAL       NO-UNDO.
-DEFINE VARIABLE cEulaVersion     AS CHARACTER     NO-UNDO.
+
 DELETE WIDGET-POOL "dyn-buttons" NO-ERROR.
 
 ASSIGN
-    g_company = ""
-    g_loc     = "".
-RUN Get_Procedure IN Persistent-Handle ("comp_loc.",OUTPUT run-proc,YES).
+  g_company = ""
+  g_loc = "".
+RUN Get_Procedure IN Persistent-Handle ("comp_loc.",OUTPUT run-proc,yes).
 IF g_company = "" OR g_loc = "" THEN
 DO:
-    MESSAGE "No Company and/or Location found for your login ID." SKIP
-        "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.
-    RETURN.
+  MESSAGE "No Company and/or Location found for your login ID." SKIP
+      "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.
+  RETURN.
 END.
-cEulaFile = SEARCH("{&EulaFile}").
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -129,36 +116,36 @@ loc_loc
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE MAINMENU      AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR MAINMENU AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE company_name  AS CHARACTER     FORMAT "X(256)":U 
-    VIEW-AS TEXT 
-    SIZE 43 BY .71
-    BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
+DEFINE VARIABLE company_name AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 43 BY .71
+     BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE loc_loc       AS CHARACTER     FORMAT "X(256)":U 
-    VIEW-AS TEXT 
-    SIZE 9 BY .62
-    BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
+DEFINE VARIABLE loc_loc AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 9 BY .62
+     BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE users_user_id AS CHARACTER     FORMAT "X(256)":U 
-    VIEW-AS TEXT 
-    SIZE 13 BY .62
-    BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
+DEFINE VARIABLE users_user_id AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 13 BY .62
+     BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
 
 DEFINE IMAGE boxes
-    FILENAME "images/advantzware_logo.jpg":U
-    SIZE 79 BY 17.38.
+     FILENAME "images\bigboxes":U
+     SIZE 79 BY 17.38.
 
 DEFINE IMAGE menu-image
-    FILENAME "images/logo1.bmp":U CONVERT-3D-COLORS
-    SIZE 79 BY 4.52.
+     FILENAME "images\logo1":U CONVERT-3D-COLORS
+     SIZE 79 BY 4.52.
 
 DEFINE RECTANGLE RECT-2
-    EDGE-PIXELS 8    
-    SIZE 120 BY 1.91
-    BGCOLOR 0 .
+     EDGE-PIXELS 8  
+     SIZE 120 BY 1.91
+     BGCOLOR 4 .
 
 DEFINE VARIABLE Use-Buttons AS LOGICAL INITIAL yes 
      LABEL "" 
@@ -170,26 +157,27 @@ DEFINE VARIABLE Use-Buttons AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-USER
-    users_user_id AT ROW 1.95 COL 14 COLON-ALIGNED NO-LABELS
-    company_name AT ROW 1.95 COL 41 COLON-ALIGNED NO-LABELS
-    loc_loc AT ROW 1.95 COL 97 COLON-ALIGNED NO-LABELS
-    "Company:" VIEW-AS TEXT
-    SIZE 11 BY .62 AT ROW 1.95 COL 31
-    BGCOLOR 0 FGCOLOR 15 FONT 6
-    " User ID:" VIEW-AS TEXT
-    SIZE 11 BY .62 AT ROW 1.95 COL 5
-    BGCOLOR 0 FGCOLOR 15 FONT 6
-    "Location:" VIEW-AS TEXT
-    SIZE 11 BY .62 AT ROW 1.95 COL 87
-    BGCOLOR 0 FGCOLOR 15 FONT 6
-    boxes AT ROW 8.14 COL 43
-    menu-image AT ROW 3.38 COL 43
-    RECT-2 AT ROW 1.24 COL 2
+     Use-Buttons AT ROW 1.95 COL 116
+     users_user_id AT ROW 1.95 COL 14 COLON-ALIGNED NO-LABEL
+     company_name AT ROW 1.95 COL 41 COLON-ALIGNED NO-LABEL
+     loc_loc AT ROW 1.95 COL 97 COLON-ALIGNED NO-LABEL
+     "Company:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.95 COL 31
+          BGCOLOR 4 FGCOLOR 15 FONT 6
+     " User ID:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.95 COL 5
+          BGCOLOR 4 FGCOLOR 15 FONT 6
+     "Location:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.95 COL 87
+          BGCOLOR 4 FGCOLOR 15 FONT 6
+     boxes AT ROW 8.14 COL 43
+     menu-image AT ROW 3.38 COL 43
+     RECT-2 AT ROW 1.24 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 200 BY 40
-    BGCOLOR 7 FGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 200 BY 40
+         BGCOLOR 7 FGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -205,29 +193,29 @@ DEFINE FRAME FRAME-USER
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW MAINMENU ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Main Menu - Advantzware version {&awversion}"
-        HEIGHT             = 24.52
-        WIDTH              = 122.6
-        MAX-HEIGHT         = 40
-        MAX-WIDTH          = 235.6
-        VIRTUAL-HEIGHT     = 40
-        VIRTUAL-WIDTH      = 235.6
-        RESIZE             = NO
-        SCROLL-BARS        = NO
-        STATUS-AREA        = NO
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW MAINMENU ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Main Menu"
+         HEIGHT             = 19
+         WIDTH              = 122
+         MAX-HEIGHT         = 40
+         MAX-WIDTH          = 200
+         VIRTUAL-HEIGHT     = 40
+         VIRTUAL-WIDTH      = 200
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT MAINMENU:LOAD-ICON("adeicon/progress.ico":U) THEN
     MESSAGE "Unable to load icon: adeicon/progress.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -248,7 +236,7 @@ IF NOT MAINMENU:LOAD-ICON("adeicon/progress.ico":U) THEN
 /* SETTINGS FOR FILL-IN users_user_id IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(MAINMENU)
-    THEN MAINMENU:HIDDEN = NO.
+THEN MAINMENU:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -271,10 +259,10 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(MAINMENU)
 &Scoped-define SELF-NAME FRAME-USER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-USER MAINMENU
 ON END-ERROR OF FRAME FRAME-USER
-    ANYWHERE
-    DO:
-        RETURN NO-APPLY.
-    END.
+anywhere
+DO:
+    return no-apply.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -282,9 +270,9 @@ ON END-ERROR OF FRAME FRAME-USER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-USER MAINMENU
 ON HELP OF FRAME FRAME-USER
-    DO:
-        RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,YES).
-    END.
+DO:
+  RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,yes).
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -327,52 +315,31 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
  
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
-    DO:
+ON CLOSE OF THIS-PROCEDURE DO:
+    /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
        Application:Exit will terminate the .NET WAIT-FOR in the 
        Main Block */
     System.Windows.Forms.Application:Exit ().
-        RUN disable_UI.
-    END.    
+    RUN disable_UI.
+END.    
 
 /* These events will close the window and terminate the procedure.      */
 /* (NOTE: this will override any user-defined triggers previously       */
 /*  defined on the window.)                                             */
-ON WINDOW-CLOSE OF {&WINDOW-NAME} 
-    DO:  
-        closeMenu = YES.
-        IF USERID('nosweat') NE "Nosweat" THEN
-            MESSAGE 'Exit AdvantzWare?' VIEW-AS ALERT-BOX
-                QUESTION BUTTONS YES-NO UPDATE closeMenu.
-        IF NOT closeMenu THEN RETURN NO-APPLY.
-        
-        FIND FIRST asi._myconnection NO-LOCK.  
+ON WINDOW-CLOSE OF {&WINDOW-NAME} DO:
+  closeMenu = YES.
+  IF USERID('nosweat') NE "Nosweat" THEN
+  MESSAGE 'Exit AdvantzWare?' VIEW-AS ALERT-BOX
+      QUESTION BUTTONS YES-NO UPDATE closeMenu.
+  IF NOT closeMenu THEN RETURN NO-APPLY.
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
+  RETURN NO-APPLY.
+END.
 
-        FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-id = _myconnection._myconn-id
-            NO-ERROR. 
-  
-        FIND FIRST userLog NO-LOCK 
-            WHERE userLog.user_id       = USERID("NOSWEAT")       
-            AND userLog.sessionID     = asi._connect._connect-pid
-            NO-ERROR.
-        
-  
-        IF AVAILABLE  userLog THEN DO:
-            FIND CURRENT userLog EXCLUSIVE-LOCK.  
-            ASSIGN userLog.logoutDateTime = DATETIME(TODAY, MTIME)
-                   userLog.userStatus = "User Logged Out".
-            FIND CURRENT userLog NO-LOCK.
-        END.
-        
-        APPLY "CLOSE":U TO THIS-PROCEDURE.
-        RETURN NO-APPLY.
-    END.
-
-ON ENDKEY, END-ERROR OF {&WINDOW-NAME} ANYWHERE 
-    DO:
-        APPLY "CLOSE":U TO THIS-PROCEDURE.
-        RETURN NO-APPLY.
-    END.
+ON ENDKEY, END-ERROR OF {&WINDOW-NAME} ANYWHERE DO:
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
+  RETURN NO-APPLY.
+END.
 
 {sys/inc/f3helpm.i} /* ASI F3 key include */
 
@@ -383,58 +350,34 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-    FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
-        sys-ctrl.NAME = "bitmap" NO-LOCK NO-ERROR.
+  FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
+     sys-ctrl.NAME = "bitmap" NO-LOCK NO-ERROR.
 
-    IF NOT AVAILABLE sys-ctrl THEN
-    DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company = g_company
-            sys-ctrl.name    = "bitmap"
-            sys-ctrl.descrip = "images\bigboxes".
-    END.
-    IF AVAILABLE sys-ctrl AND sys-ctrl.DESCrip <> "" THEN
+  IF NOT AVAIL sys-ctrl THEN
+   DO TRANSACTION:
+      CREATE sys-ctrl.
+      ASSIGN
+         sys-ctrl.company  = g_company
+         sys-ctrl.name     = "bitmap"
+         sys-ctrl.descrip  = "images\bigboxes".
+   END.
+  IF AVAIL sys-ctrl AND sys-ctrl.DESCrip <> "" THEN
         boxes:LOAD-IMAGE(sys-ctrl.DESCrip).
-        
-    /* Track users */
-    FIND FIRST asi._myconnection NO-LOCK.  
-
-    FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-usr = _myconnection._myconn-userid
-        NO-ERROR. 
-    RUN system/checkEula.p (INPUT cEulaFile, OUTPUT lEulaAccepted, OUTPUT cEulaVersion).
-
-    DO TRANSACTION:
-        CREATE userLog.
-        ASSIGN 
-            userLog.user_id       = USERID("NOSWEAT")       
-            userLog.sessionID     = asi._myconnection._myconn-pid 
-            userLog.userName      = asi._connect._connect-name
-            userLog.IpAddress     = asi._connect._connect-ip
-            userLog.deviceName    = asi._connect._connect-device    
-            userLog.EulaVersion   = DECIMAL(cEulaVersion)
-            userLog.userStatus    = "Logged In"
-            userLog.loginDateTime = DATETIME(TODAY, MTIME).
-    END.  
-    FIND CURRENT userLog NO-LOCK.
-     
-    {methods/mainmenu.i}
-    
-    RUN Read_Menus.
+  {methods/mainmenu.i}
+  RUN Read_Menus.
   
   /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
      Initialize the WinKit framework settings */
-  
-    /*run Consultingwerk/WindowIntegrationKit/Samples/start.p */
+/*  RUN Advantzware/WinKit/start.p . */
 
-    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+  IF NOT THIS-PROCEDURE:PERSISTENT THEN
    /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
       For WinKit purposes, we need to use a GUI for .NET 
       enabled WAIT-FOR in the main application */
-        WAIT-FOR CLOSE OF THIS-PROCEDURE.
-/*WAIT-FOR System.Windows.Forms.Application:Run() . */
+WAIT-FOR CLOSE OF THIS-PROCEDURE.
+/*   WAIT-FOR System.Windows.Forms.Application:Run() */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -445,44 +388,44 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Create_Buttons MAINMENU 
 PROCEDURE Create_Buttons :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER menu-item AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE button-label AS CHARACTER NO-UNDO.
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER menu-item AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE button-label AS CHARACTER NO-UNDO.
 
-    button-row = {&start-button-row}.
-    FOR EACH ttbl NO-LOCK WHERE ttbl.menu2 = menu-item:
-        FIND prgrms WHERE prgrms.prgmname = ttbl.menu1 NO-LOCK NO-ERROR.
-        IF NOT AVAILABLE prgrms AND ttbl.menu1 NE 'Exit' THEN
-            NEXT.
-        button-label = (IF AVAILABLE prgrms THEN prgrms.prgtitle ELSE ttbl.menu1) +
-            (IF INDEX(ttbl.menu1,'.') NE 0 OR ttbl.menu1 = 'Exit' THEN ''
-            ELSE ' >').
+  button-row = {&start-button-row}.
+  FOR EACH ttbl NO-LOCK WHERE ttbl.menu2 = menu-item:
+    FIND prgrms WHERE prgrms.prgmname = ttbl.menu1 NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE prgrms AND ttbl.menu1 NE 'Exit' THEN
+    NEXT.
+    button-label = (IF AVAILABLE prgrms THEN prgrms.prgtitle ELSE ttbl.menu1) +
+                   (IF INDEX(ttbl.menu1,'.') NE 0 OR ttbl.menu1 = 'Exit' THEN ''
+                    ELSE ' >').
 
-        RUN Mneumonic (INPUT-OUTPUT button-label).
+    RUN Mneumonic (INPUT-OUTPUT button-label).
 
-        CREATE BUTTON button-widget IN WIDGET-POOL "dyn-buttons"
-            ASSIGN
-            FRAME = FRAME {&FRAME-NAME}:HANDLE
-            NAME = ttbl.menu1
-            SENSITIVE = TRUE
-            LABEL = button-label
-            COLUMN = button-col
-            ROW = button-row
-            HEIGHT-CHARS = {&button-height}
-            WIDTH-CHARS = {&button-width}
-            HIDDEN = NO
-            MANUAL-HIGHLIGHT = TRUE
-            TRIGGERS:
-                ON CHOOSE
-                    PERSISTENT RUN Run_Button IN THIS-PROCEDURE (button-widget:HANDLE).
-            END TRIGGERS.
+    CREATE BUTTON button-widget IN WIDGET-POOL "dyn-buttons"
+      ASSIGN
+        FRAME = FRAME {&FRAME-NAME}:HANDLE
+        NAME = ttbl.menu1
+        SENSITIVE = TRUE
+        LABEL = button-label
+        COLUMN = button-col
+        ROW = button-row
+        HEIGHT-CHARS = {&button-height}
+        WIDTH-CHARS = {&button-width}
+        HIDDEN = NO
+        MANUAL-HIGHLIGHT = TRUE
+      TRIGGERS:
+        ON CHOOSE
+          PERSISTENT RUN Run_Button IN THIS-PROCEDURE (button-widget:HANDLE).
+      END TRIGGERS.
     
-        button-row = button-row + {&button-height} + {&button-gap}.       
-    END.
+    button-row = button-row + {&button-height} + {&button-gap}.       
+  END.
 
 END PROCEDURE.
 
@@ -491,18 +434,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI MAINMENU  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(MAINMENU)
-        THEN DELETE WIDGET MAINMENU.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(MAINMENU)
+  THEN DELETE WIDGET MAINMENU.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -510,22 +453,22 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI MAINMENU  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY users_user_id company_name loc_loc 
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+   
    DISPLAY Use-Buttons users_user_id company_name loc_loc 
-        WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-    ENABLE boxes menu-image RECT-2 
-        WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
-    VIEW MAINMENU.
+      WITH FRAME FRAME-USER IN WINDOW MAINMENU.
+  ENABLE boxes menu-image RECT-2 Use-Buttons 
+      WITH FRAME FRAME-USER IN WINDOW MAINMENU.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
+  VIEW MAINMENU.
   
 END PROCEDURE.
 
@@ -534,22 +477,22 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Mneumonic MAINMENU 
 PROCEDURE Mneumonic :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT-OUTPUT PARAMETER iop-label AS CHARACTER NO-UNDO.
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT-OUTPUT PARAMETER iop-label AS CHAR NO-UNDO.
 
-    IF iop-label = "Exit" THEN iop-label = "E&xit".
-    ELSE IF button-col > 80 THEN  /* third column */
-            ASSIGN
-                button-count = button-count + 1
-                iop-label    = '&' + string(button-count) + ' ' + iop-label. 
-        ELSE
-            ASSIGN
-                iop-label    = '&' + iop-label
-                button-count = 0.
+  if iop-label = "Exit" then iop-label = "E&xit".
+  else if button-col > 80 then  /* third column */
+     ASSIGN
+        button-count = button-count + 1
+        iop-label = '&' + string(button-count) + ' ' + iop-label. 
+  else
+     assign
+        iop-label = '&' + iop-label
+        button-count = 0.
 
 END PROCEDURE.
 
@@ -558,70 +501,67 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Read_Menus MAINMENU 
 PROCEDURE Read_Menus :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE m           AS CHARACTER EXTENT 3 NO-UNDO.
-    DEFINE VARIABLE i           AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE ls-menu-lst AS cha       EXTENT 2 NO-UNDO.
-    DEFINE VARIABLE ll-est-only AS LOG       NO-UNDO.
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR m AS CHAR EXTENT 3 NO-UNDO.
+  DEF VAR i AS INT NO-UNDO.
+  DEF VAR ls-menu-lst AS cha EXTENT 2 NO-UNDO.
+  DEF VAR ll-est-only AS LOG NO-UNDO.
 
   
-    FOR EACH ttbl EXCLUSIVE-LOCK:
-        DELETE ttbl.
-    END.
-    FOR EACH ttbl-menu EXCLUSIVE-LOCK:
-        DELETE ttbl-menu.
-    END.
+  FOR EACH ttbl EXCLUSIVE-LOCK:
+    DELETE ttbl.
+  END.
+  FOR EACH ttbl-menu EXCLUSIVE-LOCK:
+    DELETE ttbl-menu.
+  END.
 
-    CREATE WIDGET-POOL "dyn-buttons" PERSISTENT.
+  CREATE WIDGET-POOL "dyn-buttons" PERSISTENT.
 
-    /* ============= dynamic menu for foldware/corrware ============*/
-    ASSIGN
-        ll-est-only    = SEARCH("menuest.r") NE ?
-        ls-menu-lst[1] = "menu"
-        ls-menu-lst[2] = "lst".
+  /* ============= dynamic menu for foldware/corrware ============*/
+  ASSIGN
+   ll-est-only    = SEARCH("menuest.r") NE ?
+   ls-menu-lst[1] = "menu"
+   ls-menu-lst[2] = "lst".
 
-    FIND FIRST sys-ctrl
-        WHERE sys-ctrl.company EQ g_company
+  FIND FIRST sys-ctrl
+      WHERE sys-ctrl.company EQ g_company
         AND sys-ctrl.name    EQ "cemenu"
-        NO-LOCK NO-ERROR.
-    IF AVAILABLE sys-ctrl THEN
-        IF sys-ctrl.char-fld EQ "Corrware" THEN ls-menu-lst[2] = "cor".
-        ELSE
-            IF sys-ctrl.char-fld EQ "Foldware" THEN ls-menu-lst[2] = "fol".
+      NO-LOCK NO-ERROR.
+  IF AVAIL sys-ctrl THEN
+    IF sys-ctrl.char-fld EQ "Corrware" THEN ls-menu-lst[2] = "cor".
+    ELSE
+    IF sys-ctrl.char-fld EQ "Foldware" THEN ls-menu-lst[2] = "fol".
 
-    ls-menu-lst[1] = TRIM(ls-menu-lst[1]) + "." + TRIM(ls-menu-lst[2]).
-    /* ========== end of mods =========================*/
-    IF SEARCH(ls-menu-lst[1]) <> ? THEN
-        ls-menu-lst[1] = SEARCH(ls-menu-lst[1]) .
+  ls-menu-lst[1] = TRIM(ls-menu-lst[1]) + "." + TRIM(ls-menu-lst[2]).
+  /* ========== end of mods =========================*/
+  IF SEARCH("usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1]) <> ? THEN
+      ls-menu-lst[1] = "usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1].
 
-    IF SEARCH("usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1]) <> ? THEN
-        ls-menu-lst[1] = SEARCH("usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1]).
-
-    INPUT FROM VALUE(ls-menu-lst[1]) NO-ECHO.
-    REPEAT:
-        m = "".
-        IMPORT m[1] m[2] m[3].
-        IF CAN-DO('RULE,SKIP',m[1]) OR
-            (ll-est-only AND m[3] NE "est") THEN NEXT.
-        CREATE ttbl.
-        ASSIGN
-            i               = i + 1
-            ttbl.menu-order = i
-            ttbl.menu1      = m[1]
-            ttbl.menu2      = m[2].
-        FIND ttbl-menu WHERE ttbl-menu.menu-name = m[2] EXCLUSIVE-LOCK NO-ERROR.
-        IF NOT AVAILABLE ttbl-menu THEN
-        DO:
-            CREATE ttbl-menu.
-            ttbl-menu.menu-name = m[2].
-            IF m[2] = 'file' THEN
-                ttbl-menu.menu-count = 1.      
-        END.
-        ttbl-menu.menu-count = ttbl-menu.menu-count + 1.
+  INPUT FROM VALUE(ls-menu-lst[1]) NO-ECHO.
+  REPEAT:
+    m = "".
+    IMPORT m[1] m[2] m[3].
+    IF CAN-DO('RULE,SKIP',m[1]) OR
+       (ll-est-only AND m[3] NE "est") THEN NEXT.
+    CREATE ttbl.
+    ASSIGN
+      i = i + 1
+      ttbl.menu-order = i
+      ttbl.menu1 = m[1]
+      ttbl.menu2 = m[2].
+    FIND ttbl-menu WHERE ttbl-menu.menu-name = m[2] EXCLUSIVE-LOCK NO-ERROR.
+    IF NOT AVAILABLE ttbl-menu THEN
+    DO:
+      CREATE ttbl-menu.
+      ttbl-menu.menu-name = m[2].
+      IF m[2] = 'file' THEN
+      ttbl-menu.menu-count = 1.      
+    END.
+    ttbl-menu.menu-count = ttbl-menu.menu-count + 1.
     /*===== make this program slower a little bit  : run util/loadmod.p instead
     /* build modules for liscense */
     FIND FIRST asi.module WHERE asi.module.module = ttbl.menu1 NO-LOCK NO-ERROR.
@@ -634,26 +574,26 @@ PROCEDURE Read_Menus :
               asi.module.is-used = YES.
     END.
     =============*/
-    END.
-    INPUT CLOSE.
-    CREATE ttbl.
-    ASSIGN
-        i               = i + 1
-        ttbl.menu-order = i
-        ttbl.menu1      = 'Exit'
-        ttbl.menu2      = 'file'
-        button-col      = {&start-button-col}.
+  END.
+  INPUT CLOSE.
+  CREATE ttbl.
+  ASSIGN
+    i = i + 1
+    ttbl.menu-order = i
+    ttbl.menu1 = 'Exit'
+    ttbl.menu2 = 'file'
+    button-col = {&start-button-col}.
 
-    FIND LAST ttbl-menu NO-LOCK USE-INDEX menu-count.
-    ASSIGN
-        {&WINDOW-NAME}:ROW          = 1
-        {&WINDOW-NAME}:HEIGHT-CHARS = {&max-window}
+  FIND LAST ttbl-menu NO-LOCK USE-INDEX menu-count.
+  ASSIGN
+    {&WINDOW-NAME}:ROW = 1
+    {&WINDOW-NAME}:HEIGHT-CHARS = {&max-window}
     {&WINDOW-NAME}:VIRTUAL-HEIGHT-CHARS = {&max-window}
     {&WINDOW-NAME}:MAX-HEIGHT-CHARS = {&max-window}
     button-count = 0.
   
 
-    RUN Create_Buttons('file').
+  RUN Create_Buttons('file').
   
 
 END PROCEDURE.
@@ -663,56 +603,56 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Run_Button MAINMENU 
 PROCEDURE Run_Button :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER button-handle AS WIDGET-HANDLE NO-UNDO.
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER button-handle AS WIDGET-HANDLE NO-UNDO.
 
-    DEFINE VARIABLE current-widget AS WIDGET-HANDLE NO-UNDO.
-    DEFINE VARIABLE save-widget    AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE current-widget AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE save-widget AS WIDGET-HANDLE NO-UNDO.
 
-    IF button-handle:NAME = 'Exit' THEN APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
+  IF button-handle:NAME = 'Exit' THEN APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
 
-    ASSIGN
-        current-widget = FRAME {&FRAME-NAME}:HANDLE
-        current-widget = current-widget:FIRST-CHILD
-        current-widget = current-widget:FIRST-CHILD.
-    DO WHILE current-widget NE ?:
-        IF current-widget:TYPE = 'BUTTON' THEN
-        DO:
-            IF current-widget:COLUMN GT button-handle:COLUMN AND
-                current-widget:DYNAMIC THEN
-            DO:
-                IF NOT CAN-DO('&F File Maintenance >,&I Inquiries >,&R Reports >',
-                    current-widget:LABEL) AND
-           INDEX(current-widget:LABEL,'&') NE 0 THEN button-count = button-count - 1.
-                save-widget = current-widget:NEXT-SIBLING.
-                DELETE WIDGET current-widget.
-                current-widget = save-widget.
-            END.
-            ELSE
-                ASSIGN
-                    current-widget:FONT = IF current-widget:COLUMN = button-handle:COLUMN THEN ?
-            ELSE current-widget:FONT
-                    current-widget      = current-widget:NEXT-SIBLING.
-        END.
-        ELSE
-            current-widget = current-widget:NEXT-SIBLING.
-    END.
-    ASSIGN
-        button-handle:FONT = 6
-        button-col         = button-handle:COLUMN + {&button-width} + {&button-gap}.
-    IF INDEX(button-handle:NAME,'.') = 0 THEN RUN Create_Buttons(button-handle:NAME).
-    ELSE 
+  ASSIGN
+    current-widget = FRAME {&FRAME-NAME}:HANDLE
+    current-widget = current-widget:FIRST-CHILD
+    current-widget = current-widget:FIRST-CHILD.
+  DO WHILE current-widget NE ?:
+    IF current-widget:TYPE = 'BUTTON' THEN
     DO:
-      
-        /* check module liscense first before run it YSK 08/24/04 TASK# 08060406 */
-        RUN util/chk-mod.p ("ASI", button-handle:NAME) NO-ERROR.
-        IF NOT ERROR-STATUS:ERROR THEN 
-            RUN Get_Procedure IN Persistent-Handle(button-handle:NAME,OUTPUT run-proc,YES).
+      IF current-widget:COLUMN GT button-handle:COLUMN AND
+         current-widget:DYNAMIC THEN
+      DO:
+        IF NOT CAN-DO('&F File Maintenance >,&I Inquiries >,&R Reports >',
+                       current-widget:LABEL) AND
+           INDEX(current-widget:LABEL,'&') NE 0 THEN button-count = button-count - 1.
+        save-widget = current-widget:NEXT-SIBLING.
+        DELETE WIDGET current-widget.
+        current-widget = save-widget.
+      END.
+      ELSE
+      ASSIGN
+        current-widget:FONT =
+            IF current-widget:COLUMN = button-handle:COLUMN THEN ?
+            ELSE current-widget:FONT
+        current-widget = current-widget:NEXT-SIBLING.
     END.
+    ELSE
+    current-widget = current-widget:NEXT-SIBLING.
+  END.
+  ASSIGN
+    button-handle:FONT = 6
+    button-col = button-handle:COLUMN + {&button-width} + {&button-gap}.
+  IF INDEX(button-handle:NAME,'.') = 0 THEN RUN Create_Buttons(button-handle:NAME).
+  ELSE do:
+      
+      /* check module liscense first before run it YSK 08/24/04 TASK# 08060406 */
+      RUN util/chk-mod.p ("ASI", button-handle:name) NO-ERROR.
+      IF NOT ERROR-STATUS:ERROR THEN 
+         RUN Get_Procedure IN Persistent-Handle(button-handle:NAME,OUTPUT run-proc,yes).
+  END.
 
 END PROCEDURE.
 
@@ -721,41 +661,41 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-comp_loc MAINMENU 
 PROCEDURE Set-comp_loc :
-    /*------------------------------------------------------------------------------
-      Purpose:     Set Global and Screen Company/Location Values.
-      Parameters:  INPUT company & location values
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-company AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ip-company_name AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ip-loc AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ip-loc_dscr AS CHARACTER NO-UNDO.
+/*------------------------------------------------------------------------------
+  Purpose:     Set Global and Screen Company/Location Values.
+  Parameters:  INPUT company & location values
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-company AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ip-company_name AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ip-loc AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ip-loc_dscr AS CHARACTER NO-UNDO.
 
-    DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN
-            /*company_company:SCREEN-VALUE = ip-company  */
-            company_name:SCREEN-VALUE = ip-company_name
-            loc_loc:SCREEN-VALUE      = ip-loc
-            /*      loc_dscr:SCREEN-VALUE = ip-loc_dscr  */
-            /* company_company */
-            company_name
-            loc_loc
-            /*  loc_dscr */
-            g_company                 = ip-company
-            g_loc                     = ip-loc.
-    END.
-    FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
-        sys-ctrl.NAME = "bitmap" NO-LOCK NO-ERROR.
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+      /*company_company:SCREEN-VALUE = ip-company  */
+      company_name:SCREEN-VALUE = ip-company_name
+      loc_loc:SCREEN-VALUE = ip-loc
+/*      loc_dscr:SCREEN-VALUE = ip-loc_dscr  */
+     /* company_company */
+      company_name
+      loc_loc
+    /*  loc_dscr */
+      g_company = ip-company
+      g_loc = ip-loc.
+  END.
+  FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
+     sys-ctrl.NAME = "bitmap" NO-LOCK NO-ERROR.
 
-    IF NOT AVAILABLE sys-ctrl THEN
-    DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company = g_company
-            sys-ctrl.name    = "bitmap"
-            sys-ctrl.descrip = "images\bigboxes".
-    END.
-    IF AVAILABLE sys-ctrl AND sys-ctrl.DESCrip <> "" THEN
+  IF NOT AVAIL sys-ctrl THEN
+   DO TRANSACTION:
+      CREATE sys-ctrl.
+      ASSIGN
+         sys-ctrl.company  = g_company
+         sys-ctrl.name     = "bitmap"
+         sys-ctrl.descrip  = "images\bigboxes".
+   END.
+  IF AVAIL sys-ctrl AND sys-ctrl.DESCrip <> "" THEN
         boxes:LOAD-IMAGE(sys-ctrl.DESCrip).
 
 

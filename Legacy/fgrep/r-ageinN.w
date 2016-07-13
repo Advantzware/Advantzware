@@ -1157,7 +1157,7 @@ DO:
        END.
        when 5 then do:
           {custom/asimailr2.i &TYPE = "CUSTOMER"
-                             &group-title= "r-Ageinv"
+                             &group-title=v-prgmname
                              &begin_cust= begin_cust-no
                              &END_cust=end_cust-no
                              &mail-subject= "Aged Inventory Report"

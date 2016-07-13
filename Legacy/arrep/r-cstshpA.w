@@ -105,7 +105,7 @@ tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -540,7 +540,7 @@ DO:
   END.
   
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive,
@@ -1113,7 +1113,7 @@ PROCEDURE run-report :
 DEFINE VARIABLE phoneField AS CHARACTER NO-UNDO FORMAT '(999) 999-9999'.
 DEFINE VARIABLE recType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 def var fco as ch.
 def var tco like fco.
 def var floc as ch.
@@ -1155,15 +1155,7 @@ ASSIGN
   ttype    = end_cust-type
   fsman    = begin_slsmn
   tsman    = end_slsmn
-  v-level  = price-level
-  lSelected  = tb_cust-list.
-
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
-END.
+  v-level  = price-level.
 
 {sys/inc/print1.i}
 

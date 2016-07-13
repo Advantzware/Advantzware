@@ -39,7 +39,8 @@ DEFINE TEMP-TABLE ttCashReceiptBySalesRepName NO-UNDO
     FIELD xxSort    AS CHARACTER LABEL "Sort"          FORMAT "x(50)"
     FIELD rec-id    AS RECID
     FIELD row-id    AS ROWID
-    .
+        INDEX sortBy IS PRIMARY rowType xxSort
+        .
 
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD inv-no   AS INTEGER
@@ -86,7 +87,8 @@ DEFINE TEMP-TABLE ttCommissionCashReceipt NO-UNDO
     FIELD xxCommPct   AS DECIMAL
     FIELD rec-id      AS RECID
     FIELD row-id      AS ROWID
-    .
+        INDEX sortBy IS PRIMARY rowType salesRep custNo invoiceNo invDate
+        .
 {sys/ref/CustList.i NEW}
 /* Commision Cash Receipt.rpa */
 

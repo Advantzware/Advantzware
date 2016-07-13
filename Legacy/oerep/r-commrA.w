@@ -111,7 +111,7 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -495,15 +495,11 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
 
-  FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
-      EMPTY TEMP-TABLE ttCustList.
-      RUN BuildCustList(INPUT cocode,
+  EMPTY TEMP-TABLE ttCustList.
+  RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive,
                     INPUT begin_cust-no,
                     INPUT END_cust-no).
-  END.
-
   run run-report. 
   STATUS DEFAULT "Processing Complete".
   case rd-dest:
@@ -757,16 +753,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'AR15',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i ""AR15""}
 
- IF ou-log THEN DO:
+ IF glCustListActive THEN DO:
       ASSIGN 
-        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = YES
-        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "yes"
-        tb_cust-list = YES 
         .
-      RUN SetCustRange(INPUT tb_cust-list).
+      RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
   END.
   ELSE
       ASSIGN
@@ -774,15 +767,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-  IF ou-log AND ou-cust-int = 0 THEN do:
-       ASSIGN 
-        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
-        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No"
-        tb_cust-list = NO
-        .
-      RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
-   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1026,7 +1010,7 @@ DEF VAR v-tot-pamt  AS   DEC FORMAT "->>>>>>>9.99" EXTENT 3.
 DEF VAR v-tot-damt  AS   DEC FORMAT "->>>>>>>9.99" EXTENT 3.
 DEF VAR v-tot-camt  AS   DEC FORMAT "->>>>>>>9.99" EXTENT 3.
 DEF VAR v-tot-cost  AS   DEC FORMAT "->>>>>>>9.99" EXTENT 3.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 DEF VAR excelheader AS CHAR NO-UNDO.
                                  
 
@@ -1041,15 +1025,7 @@ ASSIGN
  v-sman[1]   = begin_slsmn
  v-sman[2]   = end_slsmn
  v-cust[1]   = begin_cust-no
- v-cust[2]   = end_cust-no
- lSelected   = tb_cust-list
-.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN v-cust[1] = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN v-cust[2] = ttCustList.cust-no .
-END.
+ v-cust[2]   = end_cust-no.
 
 SESSION:SET-WAIT-STATE ("general").
 

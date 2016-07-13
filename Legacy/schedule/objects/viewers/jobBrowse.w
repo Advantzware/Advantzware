@@ -1,6 +1,7 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
@@ -87,8 +88,8 @@ DEFINE VARIABLE popupHandle AS HANDLE NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnFilter btnPrint btnDataCollection ~
-btnRefresh resources RECT-1 jobPhrase btnSort btnGoTo browseJob 
-&Scoped-Define DISPLAYED-OBJECTS resources jobPhrase sortableColumns 
+btnRefresh RECT-1 jobPhrase btnSort btnGoTo resources browseJob 
+&Scoped-Define DISPLAYED-OBJECTS jobPhrase resources sortableColumns 
 
 /* Custom List Definitions                                              */
 /* ttblResourceFields,phraseFields,List-3,List-4,List-5,List-6          */
@@ -151,7 +152,7 @@ DEFINE VARIABLE sortableColumns AS CHARACTER FORMAT "X(256)":U INITIAL " Sortabl
      BGCOLOR 14  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
      SIZE 149.6 BY 1.19.
 
 /* Query definitions                                                    */
@@ -185,11 +186,11 @@ DEFINE FRAME F-Main
           "Click to Access Data Collection"
      btnRefresh AT ROW 1.05 COL 100 HELP
           "Click to Refresh Resource Browser"
-     resources AT ROW 1.05 COL 107.4 HELP
-          "Select Resource"
      jobPhrase AT ROW 1.1 COL 5 COLON-ALIGNED
      btnSort AT ROW 1.1 COL 55
      btnGoTo AT ROW 1.1 COL 75
+     resources AT ROW 1.1 COL 104.6 HELP
+          "Select Resource"
      browseJob AT ROW 2.19 COL 1
      sortableColumns AT ROW 1.1 COL 35 COLON-ALIGNED NO-LABEL
      RECT-1 AT ROW 1 COL 1
@@ -249,7 +250,7 @@ END.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE                                                          */
-/* BROWSE-TAB browseJob btnGoTo F-Main */
+/* BROWSE-TAB browseJob resources F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 9.67

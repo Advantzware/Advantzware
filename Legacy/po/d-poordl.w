@@ -165,7 +165,6 @@ DO TRANSACTION:
   {sys/inc/poqty.i}
   {sys/inc/pouom.i}
   {sys/inc/aptax.i}
-  {sys/inc/poscreen.i} /* Tab Order*/
 END.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
@@ -1331,7 +1330,6 @@ END.
 ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
 DO:
   IF LASTKEY NE -1 THEN DO:
-     RUN check-job-bnum . 
      RUN check-workfile.
      RUN validate-i-no NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1348,8 +1346,6 @@ DO:
      /* gdm - 06040918 */     
 
      APPLY "leave" TO po-ordl.ord-qty IN FRAME {&FRAME-NAME}.
-     IF ip-type EQ "add" AND (v-poscreen-char = "Job-Item" ) THEN do:
-         APPLY "entry" TO po-ordl.s-num /* po-ordl.due-date*/ .                         
   END.
 END.
 
@@ -1575,7 +1571,6 @@ DO:
       END. /* If a finished good */
     END.
     APPLY "LEAVE" TO po-ordl.s-num.  
-    IF ip-type EQ "add" AND ( v-poscreen-char = "Job-Item") THEN do:
   END.
 END.
 
@@ -1589,7 +1584,6 @@ DO:
   ASSIGN
    ll-poord-warned = NO
    ll-pojob-warned = NO.
-  ASSIGN po-ordl.b-num:SCREEN-VALUE  =  ? .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2115,7 +2109,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-type EQ "update" THEN DISABLE po-ordl.item-type po-ordl.i-no.
 
-    IF ip-type EQ "add" AND (v-poscreen-char = "Job-Item" ) THEN
     find first account
         where account.company eq cocode
           and account.actnum  eq po-ordl.actnum:SCREEN-VALUE
@@ -6679,56 +6672,5 @@ ASSIGN
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME             
+&ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-job-bnum Dialog-Frame 
-PROCEDURE check-job-bnum :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR lv-job-no LIKE po-ordl.job-no NO-UNDO.
-    DO WITH FRAME {&FRAME-NAME}:
-
-    lv-job-no = FILL(" ", 6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-                TRIM(po-ordl.job-no:SCREEN-VALUE).
-
-    RELEASE job-mat.
-
-    FIND FIRST job
-        WHERE job.company EQ g_company
-          AND job.job-no  EQ lv-job-no
-          AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
-        NO-LOCK NO-ERROR.
-
-    IF lv-job-no NE "" AND AVAIL job THEN
-    FIND FIRST job-mat
-        WHERE job-mat.company  EQ g_company
-          AND job-mat.job      EQ job.job
-          AND job-mat.job-no   EQ job.job-no
-          AND (job-mat.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE) OR FOCUS:NAME EQ "job-no")
-          AND job-mat.rm-i-no  EQ po-ordl.i-no:SCREEN-VALUE
-        NO-LOCK NO-ERROR.
-    END.
-
-    IF AVAIL job-mat THEN DO WITH FRAME {&FRAME-NAME}:
-    IF job-mat.rm-i-no  NE po-ordl.i-no:SCREEN-VALUE            OR
-       job-mat.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
-       job-mat.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
-       (job-mat.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
-        po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
-       job-mat.blank-no NE INT(po-ordl.b-num:SCREEN-VALUE)      OR
-       ll-new-job-mat                                           THEN DO:
-     
-       ASSIGN po-ordl.s-num:SCREEN-VALUE = STRING(job-mat.frm)
-              po-ordl.b-num:SCREEN-VALUE = STRING(job-mat.blank-no)
-              ll-new-job-mat               = NO .
-     END.
-    END.
-
-
-
-END PROCEDURE.
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME    

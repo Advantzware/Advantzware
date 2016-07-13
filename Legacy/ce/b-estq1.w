@@ -2122,7 +2122,7 @@ PROCEDURE New_record :
 ------------------------------------------------------------------------------*/
  def input parameter ip-rowid as rowid no-undo.
   
-  /*lv-first-run = YES.*/
+  lv-first-run = YES.
   
   run local-open-query.
   

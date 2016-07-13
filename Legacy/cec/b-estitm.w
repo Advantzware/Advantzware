@@ -5626,10 +5626,6 @@ PROCEDURE local-copy-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE v-neweb-est AS CHARACTER NO-UNDO.
-   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-   DEFINE VARIABLE li AS INT NO-UNDO.
-   DEFINE VARIABLE ll-dumb AS LOG NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   {custom/checkuse.i}
@@ -5637,37 +5633,16 @@ PROCEDURE local-copy-record :
   RUN ce/d-cpwhat.w (OUTPUT lv-copy-what).
   IF lv-copy-what = "" THEN RETURN.
 
-  IF lv-copy-what EQ "copy" THEN do:
-      RUN ce/copyestN.w (lv-copy-what, est.est-no, OUTPUT v-neweb-est ) .
-      IF v-neweb-est NE "" THEN do:
-          FIND FIRST est WHERE est.company EQ cocode
-              AND est.est-no EQ FILL(" ",8 - LENGTH(TRIM(v-neweb-est))) + TRIM(v-neweb-est) NO-LOCK NO-ERROR .
-          
-          IF AVAIL est THEN do:
-              FIND FIRST eb WHERE eb.company = est.company
-                  AND eb.est-no = est.est-no NO-LOCK NO-ERROR .
+  ASSIGN lv-ef-copy-frid = recid(ef)
+         lv-eb-copy-frid = RECID(eb)
+         ll-is-copy-record = YES.
 
-              RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+  RUN set-or-combo.
 
-              /* refresh browser for new record */
-              RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
-              RUN New_Record IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
 
-              ll-dumb = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
-          END.
-      END.
-  END.
-  ELSE DO:
-      ASSIGN lv-ef-copy-frid = recid(ef)
-          lv-eb-copy-frid = RECID(eb)
-          ll-is-copy-record = YES.
-
-      RUN set-or-combo.
-
-      /* Dispatch standard ADM method.                             */
-      RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
-  END.
-      /* Code placed here will execute AFTER standard behavior.    */
+  /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 
@@ -7776,14 +7751,8 @@ PROCEDURE update-set :
              bf-eb-header.blank-no EQ 0
              NO-LOCK NO-ERROR.
 
-     IF NOT v-assem-partition OR (NOT AVAIL bf-eb-header) THEN do:
-
-         FIND xest WHERE RECID(xest) = RECID(est) NO-LOCK.
-         FIND xef WHERE RECID(xef) = RECID(ef) NO-LOCK.
-         FIND xeb WHERE RECID(xeb) = RECID(eb) NO-LOCK.
-
+     IF NOT v-assem-partition OR (NOT AVAIL bf-eb-header) THEN
         RUN cec/d-updset.w (RECID(eb),6).
-     END.
      ELSE
         RUN cec/d-updsetpart.w(INPUT ROWID(est),
                                INPUT ROWID(bf-eb-header)).

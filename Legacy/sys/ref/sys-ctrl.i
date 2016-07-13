@@ -222,7 +222,6 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[145] = "Order Item Counts,Pallet Counts"
        str-init[146] = ",TEAL"
        str-init[147] = ",PremierPkg,McElroy,Bell,Capitol,Rudd,Trepaper"
-       str-init[149] = ",Job-Item,Item-Job"
     .
 
 FOR EACH ASI.item-spec FIELDS(CODE) WHERE

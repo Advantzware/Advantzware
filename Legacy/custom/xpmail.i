@@ -114,25 +114,9 @@ ELSE IF ipType begins 'SoldTo' THEN DO:
             IF ls-to-list2 <> "" THEN
                 ls-to-list = ls-to-list2 + ";" + ls-to-list.
          END.
-         if num-entries (ipIdxKey,"|") >= 3 then do:  /* shipto */
-            FIND FIRST shipto NO-LOCK WHERE shipto.company EQ g_company
-                                        AND shipto.cust-no EQ ENTRY(1,ipIdxKey,"|")
-                                        AND shipto.ship-id EQ (entry(3,ipIdxKey,"|")) NO-ERROR.         
-            if AVAILABLE shipto THEN DO:
-              ls-to-list2 = "".  
-              vcRecordId = shipto.cust-no + ' ' + shipto.ship-id.              
-              RUN buildToList (input  shipto.rec_key, /* Rec_Key        */
-                             input  '',             /* Email Address  */
-                             input  ipGroupTitle,   /* Title          */
-                             output ls-to-list2).    /* Recepients     */
-              IF ls-to-list2 <> "" THEN ls-to-list = ls-to-list2 + "," + ls-to-list.                         
-           end.
-         end.
    END.
    ELSE ls-to-list = ''.
 
-     ELSE ls-to-list = ''.     
-  
 END.
 
 ELSE IF ipType begins 'SalesRep' THEN DO:

@@ -124,18 +124,18 @@ DEFINE FRAME F-Main
          SIZE 157.2 BY 26
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 35 ROW 1
-         SIZE 122 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 34 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 35 ROW 1
+         SIZE 122 BY 1.91
          BGCOLOR 15 .
 
 
@@ -146,7 +146,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: ASI.cust
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 4
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -418,7 +418,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_cust ).
        RUN set-position IN h_cust ( 4.38 , 5.00 ) NO-ERROR.
-       /* Size in UIB:  ( 22.19 , 151.40 ) */
+       RUN set-size IN h_cust ( 22.19 , 151.40 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,

@@ -23,6 +23,7 @@ DEFINE TEMP-TABLE ttMachineTransactions NO-UNDO
     {aoaAppSrv/ttFields.i}
     FIELD machine      LIKE machtran.machine       LABEL "Machine"
     FIELD custPartNo   AS CHARACTER                LABEL "Cust Part" FORMAT "x(15)"
+    FIELD custName     AS CHARACTER                LABEL "Customer"  FORMAT "x(30)"
     FIELD jobNumber    LIKE machtran.job_number    LABEL "Job"
     FIELD jobSub       LIKE machtran.job_sub       LABEL "Sub"
     FIELD formNumber   LIKE machtran.form_number   LABEL "Form"
@@ -40,7 +41,8 @@ DEFINE TEMP-TABLE ttMachineTransactions NO-UNDO
     FIELD xxRecKey     LIKE machtran.rec_key
     FIELD xxSort       AS CHARACTER                LABEL "Sort"      FORMAT "x(100)"
     FIELD xxTotalTime  AS INTEGER                  LABEL "TotTime"   FORMAT "99999"
-    .
+        INDEX sortBy IS PRIMARY rowType xxSort
+        .
 DEFINE TEMP-TABLE ttMachineEmployeeTransactions NO-UNDO
     FIELD employee      LIKE machemp.employee
     FIELD firstName     LIKE emptrack.employee.first_name
@@ -57,6 +59,29 @@ DEFINE TEMP-TABLE ttMachineEmployeeTransactions NO-UNDO
     FIELD xxTableRecKey LIKE machemp.table_rec_key
     .
 /* Machine Transactions.rpa */
+
+/* Machine Transaction Summary.rpa */
+DEFINE TEMP-TABLE ttMachineTransactionSummary NO-UNDO
+    {aoaAppSrv/ttFields.i}
+    FIELD machine          AS CHARACTER LABEL "Machine"       FORMAT "x(6)"
+    FIELD jobNumber        AS CHARACTER LABEL "Job"           FORMAT "x(10)"
+    FIELD mrHours          AS DECIMAL   LABEL "MR Hrs"        FORMAT ">>>9.99"
+    FIELD runHours         AS DECIMAL   LABEL "Run Hrs"       FORMAT ">>>9.99"
+    FIELD dtHours          AS DECIMAL   LABEL "DT Hrs"        FORMAT ">>>9.99"
+    FIELD totalHours       AS DECIMAL   LABEL "Tot Hrs"       FORMAT ">>>9.99"
+    FIELD laborHours       AS DECIMAL   LABEL "Lab Hrs"       FORMAT ">>>9.99"
+    FIELD netPieces        AS INTEGER   LABEL "Net Pieces"    FORMAT ">>>9"
+    FIELD piecesPerHour    AS INTEGER   LABEL "Pieces Hr"     FORMAT ">>>9"
+    FIELD numberOn         AS INTEGER   LABEL "Number On"     FORMAT ">>>9"
+    FIELD kicksPerHour     AS INTEGER   LABEL "Kicks Hr"      FORMAT ">>>9"
+    FIELD piecesPerManHour AS INTEGER   LABEL "Pieces Man Hr" FORMAT ">>>9"
+    FIELD mrWaste          AS INTEGER   LABEL "MR Waste"      FORMAT ">>>9"
+    FIELD runWaste         AS INTEGER   LABEL "Run Waste"     FORMAT ">>>9"
+    FIELD totalWaste       AS INTEGER   LABEL "Tot Waste"     FORMAT ">>>9"
+    FIELD wastePct         AS DECIMAL   LABEL "Waste Pct"     FORMAT ">>>9.99"
+        INDEX sortBy IS PRIMARY rowType machine jobNumber
+        .
+/* Machine Transaction Summary.rpa */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -103,6 +128,19 @@ FUNCTION fGetTableHandle RETURNS HANDLE
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMachineTransactions Procedure 
 FUNCTION fMachineTransactions RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fMachineTransactionSummary) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMachineTransactionSummary Procedure 
+FUNCTION fMachineTransactionSummary RETURNS HANDLE
   ( ipcCompany AS CHARACTER,
     ipiBatch   AS INTEGER,
     ipcUserID  AS CHARACTER )  FORWARD.
@@ -171,30 +209,37 @@ PROCEDURE pMachineTransactions :
         iStartTime = 0
         iEndTime   = 86400
         .
-    FIND FIRST shift NO-LOCK
-         WHERE shift.company EQ ipcCompany
-           AND shift.shift   EQ iStartShift
+    FIND FIRST shifts NO-LOCK
+         WHERE shifts.company EQ ipcCompany
+           AND shifts.shift   EQ STRING(iStartShift)
          NO-ERROR.
-    IF AVAILABLE shift THEN
-    iStartTime = shift.start-time.
+    IF AVAILABLE shifts THEN
+    ASSIGN
+        iStartTime = shifts.start_time
+        iEndTime = shifts.end_time
+        .
     
     IF iStartShift NE iEndShift THEN DO:
-        FIND FIRST shift NO-LOCK
-             WHERE shift.company EQ ipcCompany
-               AND shift.shift   EQ iEndShift
+        FIND FIRST shifts NO-LOCK
+             WHERE shifts.company EQ ipcCompany
+               AND shifts.shift   EQ STRING(iEndShift)
              NO-ERROR.
-        IF AVAILABLE shift THEN
-        iEndTime = shift.end-time.
+        IF AVAILABLE shifts THEN
+        iEndTime = shifts.end_time.
     END. /* different shifts */
+
+    IF dtStartMachTranDate EQ dtEndMachTranDate AND
+       iEndTime LT iStartTime THEN
+    iEndTime = 86400.
     
     FOR EACH machtran NO-LOCK
-        WHERE machtran.company      EQ ipcCompany
-          AND machtran.machine      GE cStartMachine
-          AND machtran.machine      LE cEndMachine
-          AND machtran.start_date   GE dtStartMachTranDate
-          AND machtran.start_date   LE dtEndMachTranDate
-          AND machtran.shift        GE STRING(iStartShift)
-          AND machtran.shift        LE STRING(iEndShift)
+        WHERE machtran.company    EQ ipcCompany
+          AND machtran.machine    GE cStartMachine
+          AND machtran.machine    LE cEndMachine
+          AND machtran.start_date GE dtStartMachTranDate
+          AND machtran.start_date LE dtEndMachTranDate
+          AND machtran.shift      GE STRING(iStartShift)
+          AND machtran.shift      LE STRING(iEndShift)
           AND DATETIME(machtran.start_date,machtran.start_time)
            GE DATETIME(dtStartMachTranDate,iStartTime)
           AND DATETIME(machtran.start_date,machtran.start_time)
@@ -224,76 +269,47 @@ PROCEDURE pMachineTransactions :
                 IF AVAILABLE itemfg THEN
                 cCustPartNo = itemfg.part-no.
             END. /* avail job-mch */
-            IF cCustPartNo EQ "" THEN DO:
-                FIND FIRST job-hdr NO-LOCK
-                     WHERE job-hdr.company  EQ machtran.company
-                       AND job-hdr.job-no   EQ machtran.job_number
-                       AND job-hdr.job-no2  EQ machtran.job_sub
-                       AND job-hdr.frm      EQ machtran.form_number
-                       AND job-hdr.blank-no EQ machtran.blank_number
+            RELEASE cust.
+            FIND FIRST job-hdr NO-LOCK
+                 WHERE job-hdr.company  EQ machtran.company
+                   AND job-hdr.job-no   EQ machtran.job_number
+                   AND job-hdr.job-no2  EQ machtran.job_sub
+                   AND job-hdr.frm      EQ machtran.form_number
+                   AND job-hdr.blank-no EQ machtran.blank_number
+                 NO-ERROR.
+            IF NOT AVAILABLE job-hdr THEN
+            FIND FIRST job-hdr NO-LOCK
+                 WHERE job-hdr.company  EQ machtran.company
+                   AND job-hdr.job-no   EQ machtran.job_number
+                   AND job-hdr.job-no2  EQ machtran.job_sub
+                   AND job-hdr.frm      EQ machtran.form_number
+                 NO-ERROR.
+            IF NOT AVAILABLE job-hdr THEN
+            FIND FIRST job-hdr NO-LOCK
+                 WHERE job-hdr.company  EQ machtran.company
+                   AND job-hdr.job-no   EQ machtran.job_number
+                   AND job-hdr.job-no2  EQ machtran.job_sub
+                 NO-ERROR.
+            IF AVAILABLE job-hdr THEN DO:
+                FIND FIRST cust NO-LOCK
+                     WHERE cust.company EQ job-hdr.company
+                       AND cust.cust-no EQ job-hdr.cust-no
                      NO-ERROR.
-                IF NOT AVAILABLE job-hdr THEN
-                FIND FIRST job-hdr NO-LOCK
-                     WHERE job-hdr.company  EQ machtran.company
-                       AND job-hdr.job-no   EQ machtran.job_number
-                       AND job-hdr.job-no2  EQ machtran.job_sub
-                       AND job-hdr.frm      EQ machtran.form_number
-                     NO-ERROR.
-                IF NOT AVAILABLE job-hdr THEN
-                FIND FIRST job-hdr NO-LOCK
-                     WHERE job-hdr.company  EQ machtran.company
-                       AND job-hdr.job-no   EQ machtran.job_number
-                       AND job-hdr.job-no2  EQ machtran.job_sub
-                     NO-ERROR.
-                IF AVAILABLE job-hdr THEN DO:
+                IF cCustPartNo EQ "" THEN DO:
                     FIND FIRST itemfg NO-LOCK
                          WHERE itemfg.company EQ machtran.company
                            AND itemfg.i-no    EQ job-hdr.i-no
                          NO-ERROR.
                     IF AVAILABLE itemfg THEN
                     cCustPartNo = itemfg.part-no.
-                END. /* avail job-mch */
-            END. /* else avail job-mch */
+                END. /* if cust part blank */
+            END. /* avail job-mch */
         END. /* if first-of */
-        /*
-        IF FIRST-OF(machtran.blank_number) THEN DO:
-            cCustPartNo = "".
-            FIND FIRST job-hdr NO-LOCK
-                 WHERE job-hdr.company EQ machtran.company
-                   AND job-hdr.job-no  EQ machtran.job_number
-                 NO-ERROR.
-            IF AVAILABLE job-hdr THEN DO:
-                FIND FIRST job NO-LOCK
-                     WHERE job.company EQ job-hdr.company
-                       AND job.job     EQ job-hdr.job
-                       AND job.job-no  EQ job-hdr.job-no
-                       AND job.job-no2 EQ job-hdr.job-no2
-                       AND job.stat    NE "H"
-                     NO-ERROR.
-                IF AVAILABLE job THEN DO:
-                    FIND FIRST ef NO-LOCK
-                         WHERE ef.form-no   EQ job-hdr.frm
-                            OR est.est-type NE 8
-                         NO-ERROR.
-                    IF AVAILABLE ef THEN DO:
-                        FIND FIRST eb NO-LOCK
-                             WHERE eb.company   EQ job-hdr.company
-                               AND eb.est-no    EQ job-hdr.est-no
-                               AND eb.form-no   EQ ef.form-no
-                               AND (eb.blank-no EQ job-hdr.blank-no
-                                OR est.est-type NE 8)
-                             NO-ERROR.
-                   IF AVAILABLE eb THEN
-                   cCustPartNo = eb.part-no.
-                    END. /* avail ef */
-                END. /* avail job */
-            END. /* avail job-hdr */
-        END. /* first-of blank */
-        */
         CREATE ttMachineTransactions.
         ASSIGN
             ttMachineTransactions.machine      = machtran.machine
             ttMachineTransactions.custPartNo   = cCustPartNo
+            ttMachineTransactions.custName     = IF AVAILABLE cust THEN cust.name ELSE ""
             ttMachineTransactions.jobNumber    = machtran.job_number
             ttMachineTransactions.jobSub       = machtran.job_sub
             ttMachineTransactions.formNumber   = machtran.form_number
@@ -311,17 +327,17 @@ PROCEDURE pMachineTransactions :
             ttMachineTransactions.wasteQty     = machtran.waste_qty
             ttMachineTransactions.xxRecKey     = machtran.rec_key
             ttMachineTransactions.xxSort       = IF cSort EQ "Start Date / Time" THEN
-                                                 STRING(machtran.start_date)
-                                               + STRING(machtran.start_time)
+                                                 STRING(machtran.start_date,"99/99/9999")
+                                               + STRING(machtran.start_time,"99999")
                                                + machtran.machine
                                             ELSE IF cSort EQ "Start Date / Job#" THEN
-                                                 STRING(machtran.start_date)
+                                                 STRING(machtran.start_date,"99/99/9999")
                                                + machtran.job_number
                                                + machtran.machine
-                                               + STRING(machtran.start_time)
-                                            ELSE machtran.machine
-                                               + STRING(machtran.start_date)
-                                               + STRING(machtran.start_time)              
+                                               + STRING(machtran.start_time,"99999")
+                                            ELSE STRING(machtran.machine,"x(6)")
+                                               + STRING(machtran.start_date,"99/99/9999")
+                                               + STRING(machtran.start_time,"99999")
             .
         IF lSubRpt_EmployeeTransactions THEN
         FOR EACH machemp NO-LOCK
@@ -350,6 +366,107 @@ PROCEDURE pMachineTransactions :
                 ttMachineEmployeeTransactions.lastName  = employee.last_name
                 .
         END. /* each machemp */
+    END. /* each machtran */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pMachineTransactionSummary) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMachineTransactionSummary Procedure 
+PROCEDURE pMachineTransactionSummary :
+/*------------------------------------------------------------------------------
+  Purpose:     Machine Transaction Summary.rpa
+  Parameters:  Company, Batch Seq, User ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/pMachineTransactionSummary.i}
+    
+    /* local variables */
+    DEFINE VARIABLE cJobNo     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iStartTime AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iEndTime   AS INTEGER   NO-UNDO.
+    
+    /* subject business logic */
+    ASSIGN
+        iStartTime = 0
+        iEndTime   = 86400
+        .
+    FIND FIRST shifts NO-LOCK
+         WHERE shifts.company EQ ipcCompany
+           AND shifts.shift   EQ STRING(iStartShift)
+         NO-ERROR.
+    IF AVAILABLE shifts THEN
+    iStartTime = shifts.start_time.
+    
+    IF iStartShift NE iEndShift THEN DO:
+        FIND FIRST shifts NO-LOCK
+             WHERE shifts.company EQ ipcCompany
+               AND shifts.shift   EQ STRING(iEndShift)
+             NO-ERROR.
+        IF AVAILABLE shifts THEN
+        iEndTime = shifts.end_time.
+    END. /* different shifts */
+    
+    FOR EACH machtran NO-LOCK
+        WHERE machtran.company    EQ ipcCompany
+          AND machtran.machine    GE cStartMachine
+          AND machtran.machine    LE cEndMachine
+          AND machtran.start_date GE dtStartMachTranDate
+          AND machtran.start_date LE dtEndMachTranDate
+          AND machtran.shift      GE STRING(iStartShift)
+          AND machtran.shift      LE STRING(iEndShift)
+          AND DATETIME(machtran.start_date,machtran.start_time)
+           GE DATETIME(dtStartMachTranDate,iStartTime)
+          AND DATETIME(machtran.start_date,machtran.start_time)
+           LE DATETIME(dtEndMachTranDate,iEndTime)
+        :
+        cJobNo = machtran.job_number + "-" + STRING(machtran.job_sub,"99").
+        FIND FIRST ttMachineTransactionSummary
+             WHERE ttMachineTransactionSummary.machine   EQ machtran.machine
+               AND ttMachineTransactionSummary.jobNumber EQ cJobNo
+             NO-ERROR.
+        IF NOT AVAILABLE ttMachineTransactionSummary THEN DO:
+            CREATE ttMachineTransactionSummary.
+            ASSIGN
+                ttMachineTransactionSummary.machine   = machtran.machine
+                ttMachineTransactionSummary.jobNumber = cJobNo
+                .
+        END. /* not avail */
+        ASSIGN
+            ttMachineTransactionSummary.mrHours          = ttMachineTransactionSummary.mrHours
+                                                         + 0
+            ttMachineTransactionSummary.runHours         = ttMachineTransactionSummary.runHours
+                                                         + 0
+            ttMachineTransactionSummary.dtHours          = ttMachineTransactionSummary.dtHours
+                                                         + 0
+            ttMachineTransactionSummary.totalHours       = ttMachineTransactionSummary.totalHours
+                                                         + 0
+            ttMachineTransactionSummary.laborHours       = ttMachineTransactionSummary.laborHours
+                                                         + 0
+            ttMachineTransactionSummary.netPieces        = ttMachineTransactionSummary.netPieces
+                                                         + 0
+            ttMachineTransactionSummary.piecesPerHour    = ttMachineTransactionSummary.piecesPerHour
+                                                         + 0
+            ttMachineTransactionSummary.numberOn         = ttMachineTransactionSummary.numberOn
+                                                         + 0
+            ttMachineTransactionSummary.kicksPerHour     = ttMachineTransactionSummary.kicksPerHour
+                                                         + 0
+            ttMachineTransactionSummary.piecesPerManHour = ttMachineTransactionSummary.piecesPerManHour
+                                                         + 0
+            ttMachineTransactionSummary.mrWaste          = ttMachineTransactionSummary.mrWaste
+                                                         + 0
+            ttMachineTransactionSummary.runWaste         = ttMachineTransactionSummary.runWaste
+                                                         + 0
+            ttMachineTransactionSummary.totalWaste       = ttMachineTransactionSummary.totalWaste
+                                                         + 0
+            ttMachineTransactionSummary.wastePct         = ttMachineTransactionSummary.wastePct
+                                                         + 0
+            .
     END. /* each machtran */
 
 END PROCEDURE.
@@ -396,6 +513,9 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Machine Transactions.rpa */
         WHEN "r-mchtrn." THEN
         RETURN TEMP-TABLE ttMachineTransactions:HANDLE.
+        /* Machine Transaction Summary.rpa */
+        WHEN "mtransum." THEN
+        RETURN TEMP-TABLE ttMachineTransactionSummary:HANDLE.
     END CASE.
 
 END FUNCTION.
@@ -421,6 +541,30 @@ FUNCTION fMachineTransactions RETURNS HANDLE
     RUN pMachineTransactions (ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttMachineTransactions:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fMachineTransactionSummary) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fMachineTransactionSummary Procedure 
+FUNCTION fMachineTransactionSummary RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Machine Transaction Summary.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttMachineTransactionSummary.
+
+    RUN pMachineTransactionSummary (ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttMachineTransactionSummary:HANDLE .
 
 END FUNCTION.
 

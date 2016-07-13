@@ -1,4 +1,4 @@
-/* pProductionAnalysis.i - auto generated 05.31.2016 @  8:42:17 pm from aoa/aoaParam.w */
+/* pProductionAnalysis.i - auto generated 07.06.2016 @ 10:28:31 am from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
@@ -25,7 +25,6 @@
     DEFINE VARIABLE cEndCustNo AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPrintByScheduledMachine AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lRoundDecimals AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lShotTotalJob AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cSort AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
@@ -57,7 +56,6 @@
         cEndCustNo = DYNAMIC-FUNCTION("fGetParamValue","svEndCustNo")
         lPrintByScheduledMachine = DYNAMIC-FUNCTION("fGetParamValue","svPrintByScheduledMachine") EQ "yes"
         lRoundDecimals = DYNAMIC-FUNCTION("fGetParamValue","svRoundDecimals") EQ "yes"
-        lShotTotalJob = DYNAMIC-FUNCTION("fGetParamValue","svShotTotalJob") EQ "yes"
         cSort = DYNAMIC-FUNCTION("fGetParamValue","svSort")
         cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
         cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")

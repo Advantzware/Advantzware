@@ -96,7 +96,7 @@ td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -571,7 +571,7 @@ DO:
   END.
   
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1165,7 +1165,6 @@ DEF VAR lv-r-no     LIKE oe-retl.r-no NO-UNDO.
 DEF VAR lv-type     AS   CHAR NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF VAR v-total-label AS CHAR NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form cust.name            column-label "Customer"
      w-data.inv-no
@@ -1210,7 +1209,6 @@ assign
  v-sort         = rs_sort 
  v-cost1        = SUBSTR(rd_cost,1,1)      
  v-inc-fc       = tb_fin-chg
- lSelected      = tb_cust-list
 
 /* security check for cost and margin */ 
  v-cost2 = index("BOI",v-cost1) gt 0.
@@ -1246,13 +1244,6 @@ EMPTY TEMP-TABLE tt-report.
 if td-show-parm then run show-param.
 
 VIEW FRAME r-top.
-
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
-END.
 
 {salrep/r-prfinv.i}
 

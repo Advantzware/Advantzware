@@ -203,7 +203,7 @@ get-act-rel-qty() @ li-act-rel-qty get-wip() @ li-wip ~
 get-pct(li-bal) @ li-pct get-fgitem() @ lc-fgitem oe-ordl.i-name ~
 oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
 get-act-bol-qty() @ li-act-bol-qty getTotalReturned() @ dTotQtyRet ~
-getReturnedInv() @ dTotRetInv oe-ordl.s-man[1] 
+getReturnedInv() @ dTotRetInv oe-ordl.s-man[1]
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.stat oe-ord.ord-date oe-ordl.req-date ~
 oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no ~
@@ -237,11 +237,11 @@ AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS fi_ord-no fi_cust-no fi_i-no fi_part-no ~
-fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman btn_go btn_prev ~
-Browser-Table fi_i-name RECT-1 
+fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no btn_go btn_prev ~
+Browser-Table fi_i-name RECT-1 fi_sman 
 &Scoped-Define DISPLAYED-OBJECTS fi_ord-no fi_cust-no fi_i-no fi_part-no ~
-fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman fi_sort-by ~
-FI_moveCol fi_i-name 
+fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sort-by FI_moveCol ~
+fi_i-name fi_sman 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -550,12 +550,6 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 107.4
           FGCOLOR 9 FONT 6
-     "Customer#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 17
-          FGCOLOR 9 FONT 6
-     "FG Item#/Name" VIEW-AS TEXT
-          SIZE 19 BY .71 AT ROW 1.24 COL 31.6
-          FGCOLOR 9 FONT 6
      "Cust Part#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 54
           FGCOLOR 9 FONT 6
@@ -579,6 +573,12 @@ DEFINE FRAME F-Main
           FONT 6
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 5
+          FGCOLOR 9 FONT 6
+     "Customer#" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 17
+          FGCOLOR 9 FONT 6
+     "FG Item#/Name" VIEW-AS TEXT
+          SIZE 19 BY .71 AT ROW 1.24 COL 31.6
           FGCOLOR 9 FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -739,7 +739,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "getTotalReturned() @ dTotQtyRet" "Tot Returned" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[33]   > "_<CALC>"
 "getReturnedInv() @ dTotRetInv" "Qty Returned Inv" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[34]   > ASI.oe-ordl.s-man[1]
+ _FldNameList[34]   > ASI.oe-ordl.s-man[1]
 "oe-ordl.s-man[1]" "Rep" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -1008,11 +1008,22 @@ END.
 
 &Scoped-define SELF-NAME fi_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
+ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
+DO:
+  IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON HELP OF fi_cust-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-cust2.w (INPUT g_company, INPUT {&SELF-NAME}:screen-value, "", OUTPUT char-val).
-          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
+   RUN windows/l-cust2.w (INPUT g_company, INPUT focus:screen-value, "", OUTPUT char-val).
+          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
           return no-apply.
 END.
 
@@ -1020,10 +1031,28 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
-ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
+&Scoped-define SELF-NAME fi_ord-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_ord-no B-table-Win
+ON HELP OF fi_ord-no IN FRAME F-Main
 DO:
-  IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+   DEF VAR char-val AS cha NO-UNDO.
+   RUN windows/l-ordno2.w (INPUT g_company,"", INPUT focus:screen-value, OUTPUT char-val).
+          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+          return no-apply.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
+ON HELP OF fi_i-no IN FRAME F-Main
+DO:
+   DEF VAR char-val AS cha NO-UNDO.
+   RUN windows/l-itemfg.w (INPUT g_company,"", INPUT focus:SCREEN-VALUE, OUTPUT char-val).
+          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+          return no-apply.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1036,11 +1065,26 @@ ON HELP OF fi_est-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
    DEF BUFFER buff-eb FOR eb.
-   RUN windows/l-est2.w (INPUT g_company,"", INPUT {&SELF-NAME}:screen-value,  OUTPUT char-val).
+   RUN windows/l-est2.w (INPUT g_company,"", INPUT focus:screen-value,  OUTPUT char-val).
           if char-val <> "" then
               FIND FIRST buff-eb where recid(buff-eb) eq int(entry(1,char-val)) no-lock no-error. 
           IF AVAIL buff-eb THEN
-              ASSIGN {&SELF-NAME}:SCREEN-VALUE = (buff-eb.est-no).
+              ASSIGN FOCUS:SCREEN-VALUE = (buff-eb.est-no).
+          return no-apply.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_job-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no B-table-Win
+ON HELP OF fi_job-no IN FRAME F-Main
+DO:
+   DEF VAR char-val AS cha NO-UNDO.
+    DEF VAR char-rec AS RECID NO-UNDO.
+   RUN windows/l-jobno3.w (INPUT g_company,"", INPUT focus:screen-value,  OUTPUT char-val , OUTPUT char-rec ).
+          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
           return no-apply.
 END.
 
@@ -1065,20 +1109,18 @@ END.
 
 &Scoped-define SELF-NAME fi_i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
-ON HELP OF fi_i-no IN FRAME F-Main
+ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
-   DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-itemfg.w (INPUT g_company,"", INPUT {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
-          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
-          return no-apply.
+  IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
-ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
+&Scoped-define SELF-NAME fi_sman
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_sman B-table-Win
+ON VALUE-CHANGED OF fi_sman IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
 END.
@@ -1089,37 +1131,9 @@ END.
 
 &Scoped-define SELF-NAME fi_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no B-table-Win
-ON HELP OF fi_job-no IN FRAME F-Main
-DO:
-   DEF VAR char-val AS cha NO-UNDO.
-    DEF VAR char-rec AS RECID NO-UNDO.
-   RUN windows/l-jobno3.w (INPUT g_company,"", INPUT {&SELF-NAME}:screen-value,  OUTPUT char-val , OUTPUT char-rec ).
-          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
-          return no-apply.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no B-table-Win
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_ord-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_ord-no B-table-Win
-ON HELP OF fi_ord-no IN FRAME F-Main
-DO:
-   DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-ordno2.w (INPUT g_company,"", INPUT {&SELF-NAME}:screen-value, OUTPUT char-val).
-          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
-          return no-apply.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1131,11 +1145,25 @@ END.
 ON HELP OF fi_part-no IN FRAME F-Main
 DO:
   DEF VAR char-rec AS RECID NO-UNDO.
-  RUN windows/l-cstprt.w (cocode,fi_cust-no:SCREEN-VALUE,{&SELF-NAME}:SCREEN-VALUE,
+  RUN windows/l-cstprt.w (cocode,fi_cust-no:SCREEN-VALUE,fi_part-no:SCREEN-VALUE,
                          fi_i-no:SCREEN-VALUE,  OUTPUT search-return, OUTPUT char-rec ) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  if search-return <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,search-return).
+  if search-return <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,search-return).
           return no-apply.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_sman
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_sman B-table-Win
+ON HELP OF fi_sman IN FRAME F-Main
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+    RUN windows/l-sman.w (g_company, OUTPUT char-val).
+    IF char-val NE "" THEN 
+        fi_sman:screen-value = ENTRY(1,char-val).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1155,30 +1183,6 @@ END.
 &Scoped-define SELF-NAME fi_po-no1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_po-no1 B-table-Win
 ON VALUE-CHANGED OF fi_po-no1 IN FRAME F-Main
-DO:
-  IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_sman
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_sman B-table-Win
-ON HELP OF fi_sman IN FRAME F-Main
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-    RUN windows/l-sman.w (g_company, OUTPUT char-val).
-    IF char-val NE "" THEN 
-        {&SELF-NAME}:screen-value = ENTRY(1,char-val).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_sman B-table-Win
-ON VALUE-CHANGED OF fi_sman IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
 END.

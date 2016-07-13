@@ -45,26 +45,13 @@ when expanding userExtent, changes need to be made in the following:
 &GLOBAL-DEFINE version v3.001
 
 &IF DEFINED(installDir) EQ 0 &THEN
-DEFINE VARIABLE clientDat AS CHARACTER NO-UNDO.
-DEFINE VARIABLE codeDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE staticDat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE installDir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE sbUser AS CHARACTER NO-UNDO.
 
 ASSIGN
-  clientDat = SEARCH('{&data}\validID.dat')
-  clientDat = REPLACE(clientDat,REPLACE('{&data}\validID.dat','/','\') ,'')
-  codeDir = SEARCH('{&startDir}\sbPro.r')
-  codeDir = REPLACE(codeDir,'{&startDir}\sbPro.r','')
-  staticDat = SEARCH('{&startDir}\about.txt')
-  staticDat = REPLACE(staticDat,'{&startDir}\about.txt','')
-  sbUser = USERID('{&sbDB}')
-  .
-
-IF codeDir EQ ? THEN
-ASSIGN
-  codeDir = SEARCH('{&startDir}\sbPro.p')
-  codeDir = REPLACE(codeDir,'{&startDir}\sbPro.p','')
-  .
+  installDir = SEARCH('{&startDir}\about.txt')
+  installDir = REPLACE(installDir,'{&startDir}\about.txt','')
+  sbUser = USERID('{&sbDB}').
 
 &GLOBAL-DEFINE installDir
 &ENDIF

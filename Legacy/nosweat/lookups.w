@@ -25,9 +25,9 @@
 /* Parameters Definitions ---                                           */
 
 &IF DEFINED(UIB_is_Running) = 0 &THEN
-DEFINE INPUT PARAMETER mLookupPrgm AS CHARACTER.
+DEFINE INPUT PARAMETER m_lookup_prgm AS CHARACTER.
 &ELSE
-DEFINE VARIABLE mLookupPrgm AS CHARACTER INITIAL "prgrms.".
+DEFINE VARIABLE m_lookup_prgm AS CHARACTER INITIAL "prgrms.".
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -35,14 +35,14 @@ DEFINE VARIABLE mLookupPrgm AS CHARACTER INITIAL "prgrms.".
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
-DEFINE VARIABLE sHandle           AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cShowFields       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cShowFieldsYellow AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cOrderFields      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lDummy            AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE i                 AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cDataType         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cDataFormat       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE shandle AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE m-show-fields AS CHARACTER NO-UNDO.
+DEFINE VARIABLE m-show-fields-yellow AS CHARACTER NO-UNDO.
+DEFINE VARIABLE m-order-fields AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
+DEFINE VARIABLE i AS INTEGER NO-UNDO.
+DEFINE VARIABLE data-type AS CHARACTER NO-UNDO.
+DEFINE VARIABLE data-format AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -55,20 +55,21 @@ DEFINE VARIABLE cDataFormat       AS CHARACTER NO-UNDO.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-3 RECT-1 RECT-2 btnGetField ~
-svWhereStatement svOrderValues svAutoSet svSelectedSet btnUP svShowFields ~
-svOrderFields svAvailableSelections btnDown btnAdd btnRemove svFrameTitle ~
-svTopInclude svDefInclude svEndInclude svUIPrgmname svFont svHeightSize ~
-svWidthSize btnReset btnSave btnDelete btnCancel btnOK btnDescription 
-&Scoped-Define DISPLAYED-OBJECTS svLookupPrgm svLookupDB svLookupFile ~
-svReturnField svWhereStatement svOrderValues svAutoSet svSelectedSet ~
-svShowFields svOrderFields svAvailableSelections svFrameTitle svTopInclude ~
-svDefInclude svEndInclude svUIPrgmname svStatus svFont svHeightSize ~
-svWidthSize F1 
+&Scoped-Define ENABLED-OBJECTS RECT-3 RECT-1 RECT-2 Btn_Get_Field ~
+m-where-statement m-order-values auto_set selected-set Btn_UP show-fields ~
+order-fields select-list Btn_Add Btn_Remove Btn_Down m-frame-title ~
+m-top-include m-def-include m-end-include m-ui-prgmname m-font ~
+m-height-size m-width-size Btn_Reset Btn_Save Btn_Delete Btn_Cancel Btn_OK ~
+Btn_Description 
+&Scoped-Define DISPLAYED-OBJECTS m-lookup-prgm m-lookup-db m-lookup-file ~
+m-return-field m-where-statement m-order-values auto_set selected-set ~
+show-fields order-fields select-list m-frame-title m-top-include ~
+m-def-include m-end-include m-ui-prgmname m_status m-font m-height-size ~
+m-width-size F1 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -85,73 +86,73 @@ svWidthSize F1
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnAdd 
-     IMAGE-UP FILE "images/pvback.bmp":U
+DEFINE BUTTON Btn_Add 
+     IMAGE-UP FILE "adeicon/left":U
      LABEL "&Add" 
-     SIZE 6.6 BY 1.33
+     SIZE 8.2 BY 2
      FONT 4.
 
-DEFINE BUTTON btnCancel AUTO-END-KEY DEFAULT 
+DEFINE BUTTON Btn_Cancel AUTO-END-KEY DEFAULT 
      LABEL "&Cancel" 
      SIZE 14 BY 1.24
      BGCOLOR 8 FONT 4.
 
-DEFINE BUTTON btnDelete 
+DEFINE BUTTON Btn_Delete 
      LABEL "&Delete" 
      SIZE 14 BY 1.24
      FONT 4.
 
-DEFINE BUTTON btnDescription 
+DEFINE BUTTON Btn_Description 
      LABEL "Descriptio&n" 
      SIZE 14 BY 1.24
      FONT 4.
 
-DEFINE BUTTON btnDown 
-     IMAGE-UP FILE "images/down.bmp":U
+DEFINE BUTTON Btn_Down 
+     IMAGE-UP FILE "adeicon/vcrfwd":U
      LABEL "Move Do&wn" 
-     SIZE 6.6 BY 1.33
+     SIZE 8.2 BY 2
      FONT 4.
 
-DEFINE BUTTON btnGetField 
+DEFINE BUTTON Btn_Get_Field 
      IMAGE-UP FILE "adeicon/fields-u":U
      LABEL "Get Field" 
      SIZE 8.2 BY 2.
 
-DEFINE BUTTON btnOK AUTO-GO 
+DEFINE BUTTON Btn_OK AUTO-GO 
      LABEL "&OK" 
      SIZE 14 BY 1.24
      FONT 4.
 
-DEFINE BUTTON btnRemove 
-     IMAGE-UP FILE "images/pvforw.bmp":U
+DEFINE BUTTON Btn_Remove 
+     IMAGE-UP FILE "adeicon/right":U
      LABEL "Re&move" 
-     SIZE 7.2 BY 1.33
+     SIZE 8.2 BY 2
      FONT 4.
 
-DEFINE BUTTON btnReset 
+DEFINE BUTTON Btn_Reset 
      LABEL "&Reset" 
      SIZE 14 BY 1.24
      FONT 4.
 
-DEFINE BUTTON btnSave 
+DEFINE BUTTON Btn_Save 
      LABEL "&Save" 
      SIZE 14 BY 1.24
      BGCOLOR 8 FONT 4.
 
-DEFINE BUTTON btnUP 
-     IMAGE-UP FILE "images/up.bmp":U
+DEFINE BUTTON Btn_UP 
+     IMAGE-UP FILE "adeicon/vcrrew":U
      LABEL "Move &Up" 
-     SIZE 6.6 BY 1.33
+     SIZE 8.2 BY 2
      FONT 4.
 
-DEFINE VARIABLE svFont AS INTEGER FORMAT "9":U INITIAL 4 
+DEFINE VARIABLE m-font AS INTEGER FORMAT "9":U INITIAL 4 
      LABEL "Font" 
      VIEW-AS COMBO-BOX INNER-LINES 8
      LIST-ITEMS "0","1","2","3","4","5","6","7" 
      DROP-DOWN-LIST
      SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svWhereStatement AS CHARACTER 
+DEFINE VARIABLE m-where-statement AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
      SIZE 128.8 BY 4.67 NO-UNDO.
 
@@ -160,72 +161,72 @@ DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
      SIZE 2.2 BY .52
      BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE svDefInclude AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE m-def-include AS CHARACTER FORMAT "X(256)":U 
      LABEL "Def. Include" 
      VIEW-AS FILL-IN 
      SIZE 95.2 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svEndInclude AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE m-end-include AS CHARACTER FORMAT "X(256)":U 
      LABEL "End Include" 
      VIEW-AS FILL-IN 
      SIZE 95.2 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svFrameTitle AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE m-frame-title AS CHARACTER FORMAT "X(256)":U 
      LABEL "Frame Title" 
      VIEW-AS FILL-IN 
      SIZE 95.2 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svHeightSize AS CHARACTER FORMAT "X(02)":U INITIAL "19" 
+DEFINE VARIABLE m-height-size AS CHARACTER FORMAT "X(02)":U INITIAL "19" 
      LABEL "Height" 
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svLookupDB AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE m-lookup-db AS CHARACTER FORMAT "X(256)":U 
      LABEL "DB" 
      VIEW-AS FILL-IN 
      SIZE 19.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svLookupFile AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE m-lookup-file AS CHARACTER FORMAT "X(256)":U 
      LABEL "Table" 
      VIEW-AS FILL-IN 
      SIZE 19.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svLookupPrgm AS CHARACTER FORMAT "X(12)":U 
+DEFINE VARIABLE m-lookup-prgm AS CHARACTER FORMAT "X(12)":U 
      LABEL "Program" 
      VIEW-AS FILL-IN 
      SIZE 18.2 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svOrderValues AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE m-order-values AS CHARACTER FORMAT "X(256)":U 
      LABEL "Order Values" 
      VIEW-AS FILL-IN 
      SIZE 102.8 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE svReturnField AS CHARACTER FORMAT "X(30)":U 
+DEFINE VARIABLE m-return-field AS CHARACTER FORMAT "X(30)":U 
      LABEL "Return Field" 
      VIEW-AS FILL-IN 
      SIZE 26.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svStatus AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 37 BY 1 NO-UNDO.
-
-DEFINE VARIABLE svTopInclude AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE m-top-include AS CHARACTER FORMAT "X(256)":U 
      LABEL "Top Include" 
      VIEW-AS FILL-IN 
      SIZE 95.2 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svUIPrgmname AS CHARACTER FORMAT "X(12)":U 
+DEFINE VARIABLE m-ui-prgmname AS CHARACTER FORMAT "X(12)":U 
      LABEL "UI Program" 
      VIEW-AS FILL-IN 
      SIZE 12.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svWidthSize AS CHARACTER FORMAT "X(03)":U INITIAL "46" 
+DEFINE VARIABLE m-width-size AS CHARACTER FORMAT "X(03)":U INITIAL "46" 
      LABEL "Width" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svSelectedSet AS INTEGER INITIAL 1 
+DEFINE VARIABLE m_status AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 37 BY 1 NO-UNDO.
+
+DEFINE VARIABLE selected-set AS INTEGER INITIAL 1 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Show Database Fields", 1,
@@ -233,30 +234,30 @@ DEFINE VARIABLE svSelectedSet AS INTEGER INITIAL 1
      SIZE 64.8 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 47.6 BY 2.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 32.2 BY 2.
 
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 16 BY 2.
 
-DEFINE VARIABLE svAvailableSelections AS CHARACTER 
+DEFINE VARIABLE order-fields AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     SIZE 32.2 BY 5.67 NO-UNDO.
+
+DEFINE VARIABLE select-list AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SORT SCROLLBAR-VERTICAL 
      SIZE 32.2 BY 14.95 NO-UNDO.
 
-DEFINE VARIABLE svOrderFields AS CHARACTER 
+DEFINE VARIABLE show-fields AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
      SIZE 32.2 BY 5.67 NO-UNDO.
 
-DEFINE VARIABLE svShowFields AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 32.2 BY 5.67 NO-UNDO.
-
-DEFINE VARIABLE svAutoSet AS LOGICAL INITIAL yes 
+DEFINE VARIABLE auto_set AS LOGICAL INITIAL yes 
      LABEL "Auto Set Order Values" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY 1 NO-UNDO.
@@ -265,62 +266,62 @@ DEFINE VARIABLE svAutoSet AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnGetField AT ROW 1 COL 34.2 HELP
+     Btn_Get_Field AT ROW 1 COL 34.2 HELP
           "Get Database, Table, & Return Field"
-     svLookupPrgm AT ROW 1.38 COL 12.6 COLON-ALIGNED
-     svLookupDB AT ROW 1.38 COL 47.6 COLON-ALIGNED
-     svLookupFile AT ROW 1.38 COL 77 COLON-ALIGNED
-     svReturnField AT ROW 1.38 COL 114.8 COLON-ALIGNED HELP
+     m-lookup-prgm AT ROW 1.38 COL 12.6 COLON-ALIGNED
+     m-lookup-db AT ROW 1.38 COL 47.6 COLON-ALIGNED
+     m-lookup-file AT ROW 1.38 COL 77 COLON-ALIGNED
+     m-return-field AT ROW 1.38 COL 114.8 COLON-ALIGNED HELP
           "Enter Field Name for Lookup Browser to Return to Calling Frame"
-     svWhereStatement AT ROW 3 COL 14.6 HELP
+     m-where-statement AT ROW 3 COL 14.6 HELP
           "Enter Lookup Table's Key Phrase" NO-LABEL
-     svOrderValues AT ROW 7.91 COL 12.6 COLON-ALIGNED HELP
+     m-order-values AT ROW 7.91 COL 12.6 COLON-ALIGNED HELP
           "Enter List of Browse Order Values (Comma Delimited)"
-     svAutoSet AT ROW 7.91 COL 118.4 HELP
+     auto_set AT ROW 7.91 COL 118.4 HELP
           "Auto Set Order Values Indicator"
-     svSelectedSet AT ROW 9.24 COL 14.6 HELP
+     selected-set AT ROW 9.24 COL 14.6 HELP
           "Make Selection List Active" NO-LABEL
-     btnUP AT ROW 10.52 COL 80 HELP
+     Btn_UP AT ROW 10.29 COL 91.6 HELP
           "Move Selected Item Up"
-     svShowFields AT ROW 10.57 COL 14.6 HELP
+     show-fields AT ROW 10.57 COL 14.6 HELP
           "Select Show Field" NO-LABEL
-     svOrderFields AT ROW 10.57 COL 46.8 HELP
+     order-fields AT ROW 10.57 COL 46.8 HELP
           "Select Browser Order Field" NO-LABEL
-     svAvailableSelections AT ROW 10.57 COL 111.2 HELP
+     select-list AT ROW 10.57 COL 111.2 HELP
           "Select Item to Add to Select List" NO-LABEL
-     btnDown AT ROW 11.95 COL 80 HELP
-          "Move Selected Item Down"
-     btnAdd AT ROW 13.62 COL 80 HELP
+     Btn_Add AT ROW 12.29 COL 87.4 HELP
           "Add Selected Item"
-     btnRemove AT ROW 15.05 COL 80 HELP
+     Btn_Remove AT ROW 12.29 COL 95.8 HELP
           "Remove Selected Item"
-     svFrameTitle AT ROW 16.57 COL 12.6 COLON-ALIGNED HELP
+     Btn_Down AT ROW 14.29 COL 91.6 HELP
+          "Move Selected Item Down"
+     m-frame-title AT ROW 16.57 COL 12.6 COLON-ALIGNED HELP
           "Enter Lookup Browser's Title (will also appear in prgrms)"
-     svTopInclude AT ROW 18.24 COL 12.6 COLON-ALIGNED HELP
+     m-top-include AT ROW 18.24 COL 12.6 COLON-ALIGNED HELP
           "Enter Include File Name to Execute at Beginning of Lookup"
-     svDefInclude AT ROW 19.48 COL 12.6 COLON-ALIGNED HELP
+     m-def-include AT ROW 19.48 COL 12.6 COLON-ALIGNED HELP
           "Enter Definition Include File Name to Declare Local Variables"
-     svEndInclude AT ROW 20.71 COL 12.6 COLON-ALIGNED HELP
+     m-end-include AT ROW 20.71 COL 12.6 COLON-ALIGNED HELP
           "Enter Include File Name to Execute at End of Lookup"
-     svUIPrgmname AT ROW 22.19 COL 12.4 COLON-ALIGNED HELP
+     m-ui-prgmname AT ROW 22.19 COL 12.4 COLON-ALIGNED HELP
           "Enter UI Program to Run from within Lookup Browser"
-     svStatus AT ROW 22.19 COL 30 NO-LABEL
-     svFont AT ROW 22.19 COL 71 COLON-ALIGNED HELP
+     m_status AT ROW 22.19 COL 30 NO-LABEL
+     m-font AT ROW 22.19 COL 71 COLON-ALIGNED HELP
           "Select Font"
-     svHeightSize AT ROW 22.19 COL 86.4 COLON-ALIGNED HELP
+     m-height-size AT ROW 22.19 COL 86.4 COLON-ALIGNED HELP
           "Enter Height of Lookup Browser"
-     svWidthSize AT ROW 22.19 COL 99.4 COLON-ALIGNED HELP
+     m-width-size AT ROW 22.19 COL 99.4 COLON-ALIGNED HELP
           "Enter Width of Lookup Browser"
-     btnReset AT ROW 24.05 COL 31.8 HELP
+     Btn_Reset AT ROW 24.05 COL 31.8 HELP
           "Use this function to RESET this Lookup Browser"
-     btnSave AT ROW 24.05 COL 47.2 HELP
+     Btn_Save AT ROW 24.05 COL 47.2 HELP
           "Use this function to SAVE this Lookup Browser"
-     btnDelete AT ROW 24.05 COL 62.6 HELP
+     Btn_Delete AT ROW 24.05 COL 62.6 HELP
           "Use this function to DELETE this Lookup Browser"
-     btnCancel AT ROW 24.05 COL 79.4 HELP
+     Btn_Cancel AT ROW 24.05 COL 79.4 HELP
           "Use this function to CANCEL Update/Create Lookup Browser"
-     btnOK AT ROW 24.05 COL 94.8
-     btnDescription AT ROW 24.1 COL 15.4 HELP
+     Btn_OK AT ROW 24.05 COL 94.8
+     Btn_Description AT ROW 24.1 COL 15.4 HELP
           "Use this function to CREATE DESCRIPTION Lookup Browser"
      F1 AT ROW 22.19 COL 27 NO-LABEL
      "Available Selections" VIEW-AS TEXT
@@ -369,6 +370,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("images\help":U) THEN
+    MESSAGE "Unable to load icon: images\help"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -380,18 +387,18 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-   FRAME-NAME                                                           */
+                                                                        */
 /* SETTINGS FOR FILL-IN F1 IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L 6                                                  */
-/* SETTINGS FOR FILL-IN svLookupDB IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN m-lookup-db IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN svLookupFile IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN m-lookup-file IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN svLookupPrgm IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN m-lookup-prgm IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN svReturnField IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN m-return-field IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN svStatus IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN m_status IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -431,18 +438,32 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnAdd
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAdd C-Win
-ON CHOOSE OF btnAdd IN FRAME DEFAULT-FRAME /* Add */
+&Scoped-define SELF-NAME auto_set
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL auto_set C-Win
+ON VALUE-CHANGED OF auto_set IN FRAME DEFAULT-FRAME /* Auto Set Order Values */
 DO:
-  DO i = 1 TO svAvailableSelections:NUM-ITEMS:
-    IF svAvailableSelections:IS-SELECTED(i) THEN
-      IF sHandle:LOOKUP(svAvailableSelections:ENTRY(i)) = 0 THEN
-      lDummy = sHandle:ADD-LAST(svAvailableSelections:ENTRY(i)).
+  ASSIGN
+    {&SELF-NAME}
+    m-order-values:SENSITIVE = NOT {&SELF-NAME}.
+  RUN Auto_Set_Order_Values.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Add
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
+ON CHOOSE OF Btn_Add IN FRAME DEFAULT-FRAME /* Add */
+DO:
+  DO i = 1 TO select-list:NUM-ITEMS:
+    IF select-list:IS-SELECTED(i) THEN
+      IF shandle:LOOKUP(select-list:ENTRY(i)) = 0 THEN
+      ldummy = shandle:ADD-LAST(select-list:ENTRY(i)).
   END.
-  DO i = 1 TO svAvailableSelections:NUM-ITEMS:
-    IF svAvailableSelections:IS-SELECTED(i) THEN
-    svAvailableSelections:SCREEN-VALUE = "".
+  DO i = 1 TO select-list:NUM-ITEMS:
+    IF select-list:IS-SELECTED(i) THEN
+    select-list:SCREEN-VALUE = "".
   END.
 END.
 
@@ -450,9 +471,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnCancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel C-Win
-ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME /* Cancel */
+&Scoped-define SELF-NAME Btn_Cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel C-Win
+ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
@@ -461,29 +482,30 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnDelete
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDelete C-Win
-ON CHOOSE OF btnDelete IN FRAME DEFAULT-FRAME /* Delete */
+&Scoped-define SELF-NAME Btn_Delete
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Delete C-Win
+ON CHOOSE OF Btn_Delete IN FRAME DEFAULT-FRAME /* Delete */
 DO:
-  svStatus:SCREEN-VALUE = "DELETE Lookup?".
+  m_status:SCREEN-VALUE = "DELETE Lookup?".
   MESSAGE "Delete This Lookup Browser?"
       VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
           UPDATE m_response AS LOGICAL.
   CASE m_response:
-    WHEN YES THEN DO:
-      FIND prgrms WHERE prgrms.prgmname = mLookupPrgm NO-ERROR.
+    WHEN yes THEN
+    DO:
+      FIND prgrms WHERE prgrms.prgmname = m_lookup_prgm NO-ERROR.
       IF AVAILABLE prgrms THEN
       DELETE prgrms.
-      IF SEARCH("lookups/" + mLookupPrgm + "p") NE ? THEN
-      OS-DELETE VALUE("lookups/" + mLookupPrgm + "p").
-      IF SEARCH("lookups/" + mLookupPrgm + "r") NE ? THEN
-      OS-DELETE VALUE("lookups/" + mLookupPrgm + "r").
+      IF SEARCH("lookups/" + m_lookup_prgm + "p") NE ? THEN
+      OS-DELETE VALUE("lookups/" + m_lookup_prgm + "p").
+      IF SEARCH("lookups/" + m_lookup_prgm + "r") NE ? THEN
+      OS-DELETE VALUE("lookups/" + m_lookup_prgm + "r").
       APPLY "GO" TO FRAME {&FRAME-NAME}.
     END.
-    WHEN NO THEN
-    svStatus:SCREEN-VALUE = "".
+    WHEN no THEN
+    m_status:SCREEN-VALUE = "".
     OTHERWISE
-    svStatus:SCREEN-VALUE = "DELETE Cancelled".
+    m_status:SCREEN-VALUE = "DELETE Cancelled".
   END CASE.
 END.
 
@@ -491,46 +513,45 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnDescription
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDescription C-Win
-ON CHOOSE OF btnDescription IN FRAME DEFAULT-FRAME /* Description */
+&Scoped-define SELF-NAME Btn_Description
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Description C-Win
+ON CHOOSE OF Btn_Description IN FRAME DEFAULT-FRAME /* Description */
 DO:
-  DEFINE VARIABLE cDescripLookup AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cDummy         AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE descrip_lookup AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cdummy AS CHARACTER NO-UNDO.
 
-  cDescripLookup = TRIM(REPLACE(mLookupPrgm,".","_.")).
-  IF LENGTH(cDescripLookup) GE 10 THEN
-  SUBSTR(cDescripLookup,8,1) = "".
-  IF SEARCH("lookups/" + cDescripLookup + "p") NE ? THEN DO:
-    MESSAGE "Lookup" cDescripLookup "already Exists, Open it?"
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lDummy.
-    IF NOT lDummy THEN
+  descrip_lookup = TRIM(REPLACE(m_lookup_prgm,".","_.")).
+  IF LENGTH(descrip_lookup) GE 10 THEN
+  SUBSTR(descrip_lookup,8,1) = "".
+  IF SEARCH("lookups/" + descrip_lookup + "p") NE ? THEN
+  DO:
+    MESSAGE "Lookup" descrip_lookup "already Exists, Open it?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE ldummy.
+    IF NOT ldummy THEN
     RETURN NO-APPLY.
-    mLookupPrgm = cDescripLookup.
-    APPLY "CHOOSE" TO btnReset.
+    m_lookup_prgm = descrip_lookup.
+    APPLY "CHOOSE" TO Btn_Reset.
     RETURN NO-APPLY.
   END.
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-      mLookupPrgm = cDescripLookup
-      svLookupPrgm:SCREEN-VALUE = cDescripLookup
-      svFrameTitle:SCREEN-VALUE =
-          REPLACE(svFrameTitle:SCREEN-VALUE,"Lookup","Description Lookup")
-      svReturnField:SCREEN-VALUE = svOrderFields:ENTRY(2)
-      cDummy = svShowFields:ENTRY(2)
-      lDummy = svShowFields:DELETE(2)
-      lDummy = svShowFields:ADD-FIRST(cDummy)
-      cDummy = svOrderFields:ENTRY(2)
-      lDummy = svOrderFields:DELETE(2)
-      lDummy = svOrderFields:ADD-FIRST(cDummy)
-      .
+      m_lookup_prgm = descrip_lookup
+      m-lookup-prgm:SCREEN-VALUE = descrip_lookup
+      m-frame-title:SCREEN-VALUE =
+          REPLACE(m-frame-title:SCREEN-VALUE,"Lookup","Description Lookup")
+      m-return-field:SCREEN-VALUE = order-fields:ENTRY(2)
+      cdummy = show-fields:ENTRY(2)
+      ldummy = show-fields:DELETE(2)
+      ldummy = show-fields:ADD-FIRST(cdummy)
+      cdummy = order-fields:ENTRY(2)
+      ldummy = order-fields:DELETE(2)
+      ldummy = order-fields:ADD-FIRST(cdummy).
     /*RUN Enable_UI.*/
-    APPLY "VALUE-CHANGED" TO svSelectedSet.
-    RUN pAutoSetOrderValues.
+    APPLY "VALUE-CHANGED" TO selected-set.
+    RUN Auto_Set_Order_Values.
     ASSIGN
-      svOrderValues:SENSITIVE = NOT svAutoSet
-      svStatus:SCREEN-VALUE = "DESCRIPTION Lookup Created"
-      .
+      m-order-values:SENSITIVE = NOT auto_set
+      m_status:SCREEN-VALUE = "DESCRIPTION Lookup Created".
   END.
 END.
 
@@ -538,18 +559,18 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnDown
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDown C-Win
-ON CHOOSE OF btnDown IN FRAME DEFAULT-FRAME /* Move Down */
+&Scoped-define SELF-NAME Btn_Down
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Down C-Win
+ON CHOOSE OF Btn_Down IN FRAME DEFAULT-FRAME /* Move Down */
 DO:
-  IF sHandle:SCREEN-VALUE NE "" THEN
-  DO i = 1 TO sHandle:NUM-ITEMS - 1:
-    IF NOT sHandle:IS-SELECTED(i) THEN NEXT.
+  IF shandle:SCREEN-VALUE NE "" THEN
+  DO i = 1 TO shandle:NUM-ITEMS - 1:
+    IF NOT shandle:IS-SELECTED(i) THEN
+    NEXT.
     ASSIGN
-      lDummy = sHandle:INSERT(sHandle:SCREEN-VALUE,i + 2)
-      lDummy = sHandle:DELETE(i)
-      sHandle:SCREEN-VALUE = sHandle:ENTRY(i + 1)
-      .
+      ldummy = shandle:INSERT(shandle:SCREEN-VALUE,i + 2)
+      ldummy = shandle:DELETE(i)
+      shandle:SCREEN-VALUE = shandle:ENTRY(i + 1).
     LEAVE.
   END.
 END.
@@ -558,36 +579,34 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnGetField
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGetField C-Win
-ON CHOOSE OF btnGetField IN FRAME DEFAULT-FRAME /* Get Field */
+&Scoped-define SELF-NAME Btn_Get_Field
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Get_Field C-Win
+ON CHOOSE OF Btn_Get_Field IN FRAME DEFAULT-FRAME /* Get Field */
 DO:
-  DEFINE VARIABLE cGetField AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE get_field AS CHARACTER NO-UNDO.
 
-  IF svLookupDB EQ "" THEN
-  svLookupDB = "NOSWEAT".
-  CREATE ALIAS dictdb FOR DATABASE VALUE(svLookupDB).
-  cGetField = svLookupDB:SCREEN-VALUE + "."
-            + svLookupFile:SCREEN-VALUE + "."
-            + svReturnField:SCREEN-VALUE
-            .
+  IF m-lookup-db = "" THEN
+  m-lookup-db = "NOSWEAT".
+  CREATE ALIAS dictdb FOR DATABASE VALUE(m-lookup-db).
+  get_field = m-lookup-db:SCREEN-VALUE + "." +
+        m-lookup-file:SCREEN-VALUE + "." + 
+        m-return-field:SCREEN-VALUE.
   RUN Get_Procedure IN Persistent-Handle ("getfield.",OUTPUT run-proc,no).
   IF run-proc NE "" THEN
-  RUN VALUE(run-proc) (INPUT-OUTPUT cGetField).
+  RUN VALUE(run-proc) (INPUT-OUTPUT get_field).
   ASSIGN
-    svLookupDB:SCREEN-VALUE    = SUBSTR(cGetField,1,INDEX(cGetField,".") - 1)
-    svLookupFile:SCREEN-VALUE  = SUBSTR(cGetField,INDEX(cGetField,".") + 1,
-                                 R-INDEX(cGetField,".") - INDEX(cGetField,".") - 1)
-    svReturnField:SCREEN-VALUE = SUBSTR(cGetField,R-INDEX(cGetField,".") + 1)
-    .
-  FIND FIRST prgmxref NO-LOCK
-       WHERE prgmxref.table_name EQ svLookupFile:SCREEN-VALUE
-       NO-ERROR.
-  IF AVAILABLE prgmxref THEN DO:
-    svUIPrgmname:SCREEN-VALUE = prgmxref.prgmname.
+    m-lookup-db:SCREEN-VALUE = SUBSTR(get_field,1,INDEX(get_field,".") - 1)
+    m-lookup-file:SCREEN-VALUE = SUBSTR(get_field,INDEX(get_field,".") + 1,
+                                 R-INDEX(get_field,".") - INDEX(get_field,".") - 1)
+    m-return-field:SCREEN-VALUE = SUBSTR(get_field,R-INDEX(get_field,".") + 1).
+  FIND prgmxref
+      WHERE prgmxref.table_name = m-lookup-file:SCREEN-VALUE NO-LOCK NO-ERROR.
+  IF AVAILABLE prgmxref THEN
+  DO:
+    m-ui-prgmname:SCREEN-VALUE = prgmxref.prgmname.
     FIND prgrms OF prgmxref NO-LOCK NO-ERROR.
     IF AVAILABLE prgrms THEN
-    svFrameTitle:SCREEN-VALUE = prgrms.prgtitle + " Lookup".
+    m-frame-title:SCREEN-VALUE = prgrms.prgtitle + " Lookup".
   END.
 END.
 
@@ -595,11 +614,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnOK
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK C-Win
-ON CHOOSE OF btnOK IN FRAME DEFAULT-FRAME /* OK */
+&Scoped-define SELF-NAME Btn_OK
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK C-Win
+ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
-  APPLY "CHOOSE" TO btnSave.
+  APPLY "CHOOSE" TO Btn_Save.
   APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
@@ -607,186 +626,185 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnRemove
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemove C-Win
-ON CHOOSE OF btnRemove IN FRAME DEFAULT-FRAME /* Remove */
+&Scoped-define SELF-NAME Btn_Remove
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove C-Win
+ON CHOOSE OF Btn_Remove IN FRAME DEFAULT-FRAME /* Remove */
 DO:
-  IF sHandle:SCREEN-VALUE NE "" THEN
-  APPLY "DEFAULT-ACTION" TO sHandle.
+  IF shandle:SCREEN-VALUE NE "" THEN
+  APPLY "DEFAULT-ACTION" TO shandle.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnReset
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset C-Win
-ON CHOOSE OF btnReset IN FRAME DEFAULT-FRAME /* Reset */
+&Scoped-define SELF-NAME Btn_Reset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Reset C-Win
+ON CHOOSE OF Btn_Reset IN FRAME DEFAULT-FRAME /* Reset */
 DO:
-  RUN pGetLookup.
+  RUN Get_Lookup.
   RUN Enable_UI.
-  APPLY "VALUE-CHANGED" TO svSelectedSet.
+  APPLY "VALUE-CHANGED" TO selected-set.
   ASSIGN
-    svOrderValues:SENSITIVE = NOT svAutoSet
-    svStatus:SCREEN-VALUE = "Lookup Record RESET"
-    .
+    m-order-values:SENSITIVE = NOT auto_set
+    m_status:SCREEN-VALUE = "Lookup Record RESET".
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSave
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave C-Win
-ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME /* Save */
+&Scoped-define SELF-NAME Btn_Save
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Save C-Win
+ON CHOOSE OF Btn_Save IN FRAME DEFAULT-FRAME /* Save */
 DO:
-  DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cnt AS INTEGER NO-UNDO.
 
   ASSIGN
-    svLookupDB
-    svLookupFile
-    svWhereStatement
-    svOrderValues
-    svFont
-    svHeightSize
-    svWidthSize
-    svFrameTitle
-    svReturnField
-    svUIPrgmname
-    svDefInclude
-    svTopInclude
-    svEndInclude
-    svWhereStatement = TRIM(svWhereStatement)
-    svAutoSet.
+    m-lookup-db
+    m-lookup-file
+    m-where-statement
+    m-order-values
+    m-font
+    m-height-size
+    m-width-size
+    m-frame-title
+    m-return-field
+    m-ui-prgmname
+    m-def-include
+    m-top-include
+    m-end-include
+    m-where-statement = TRIM(m-where-statement)
+    auto_set.
 
-  RUN pAutoSetOrderValues.
+  RUN Auto_Set_Order_Values.
 
-  IF INT(svHeightSize) GT 19 THEN
+  IF INT(m-height-size) GT 19 THEN
   ASSIGN
-    svHeightSize:SCREEN-VALUE = "19"
-    svHeightSize = "19".
+    m-height-size:SCREEN-VALUE = "19"
+    m-height-size = "19".
 
-  IF INT(svWidthSize) LT 32 THEN
+  IF INT(m-width-size) LT 32 THEN
   ASSIGN
-    svWidthSize:SCREEN-VALUE = "32"
-    svWidthSize = "32".
+    m-width-size:SCREEN-VALUE = "32"
+    m-width-size = "32".
 
-  IF INT(svWidthSize) GT 150 THEN
+  IF INT(m-width-size) GT 150 THEN
   ASSIGN
-    svWidthSize:SCREEN-VALUE = "150"
-    svWidthSize = "150".
+    m-width-size:SCREEN-VALUE = "150"
+    m-width-size = "150".
 
-  OUTPUT TO VALUE("lookups/" + mLookupPrgm + "p").
+  OUTPUT TO VALUE("lookups/" + m_lookup_prgm + "p").
 
-  IF INDEX(svWhereStatement,'"') NE 0 THEN
-  ASSIGN svWhereStatement = REPLACE(svWhereStatement,'"','""').
+  IF INDEX(m-where-statement,'"') NE 0 THEN
+  ASSIGN m-where-statement = REPLACE(m-where-statement,'"','""').
 
-  IF INDEX(svDefInclude,'"') NE 0 THEN
-  ASSIGN svDefInclude = REPLACE(svDefInclude,'"','""').
+  IF INDEX(m-def-include,'"') NE 0 THEN
+  ASSIGN m-def-include = REPLACE(m-def-include,'"','""').
 
-  IF INDEX(svTopInclude,'"') NE 0 THEN
-  ASSIGN svTopInclude = REPLACE(svTopInclude,'"','""').
+  IF INDEX(m-top-include,'"') NE 0 THEN
+  ASSIGN m-top-include = REPLACE(m-top-include,'"','""').
 
-  IF INDEX(svEndInclude,'"') NE 0 THEN
-  ASSIGN svEndInclude = REPLACE(svEndInclude,'"','""').
+  IF INDEX(m-end-include,'"') NE 0 THEN
+  ASSIGN m-end-include = REPLACE(m-end-include,'"','""').
 
-  PUT UNFORMATTED "/* " mLookupPrgm "p - Generated " TODAY FORMAT "99/99/9999"
+  PUT UNFORMATTED "/* " m_lookup_prgm "p - Generated " TODAY FORMAT "99/99/9999"
     " - " STRING(TIME,"HH:MM am") " by " USERID("NOSWEAT") SKIP
-    "~"" mLookupPrgm " ~" ~~" SKIP
-    "~"" svLookupDB " ~" ~~" SKIP
-    "~"" svLookupFile " ~" ~~" SKIP         
-    "~"" svWhereStatement " ~" ~~" SKIP
-    "~"" svReturnField " ~" ~~" SKIP
-    "~"" svFont " ~" ~~" SKIP
-    "~"" svHeightSize " ~" ~~" SKIP
-    "~"" svWidthSize " ~" ~~" SKIP
-    "~"" svShowFields:LIST-ITEMS " ~" ~~" SKIP
-    "~"" svOrderValues " ~" ~~" SKIP
-    "~"" svAutoSet " ~" ~~" SKIP
-    "~"" svOrderFields:LIST-ITEMS " ~" ~~" SKIP
-    "~"" svFrameTitle " ~" ~~" SKIP
-    "~"" svTopInclude " ~" ~~" SKIP
-    "~"" svDefInclude " ~" ~~" SKIP
-    "~"" svEndInclude " ~" ~~" SKIP
-    "~"" svUIPrgmname " ~" ~~" SKIP
+    "~"" m_lookup_prgm " ~" ~~" SKIP
+    "~"" m-lookup-db " ~" ~~" SKIP
+    "~"" m-lookup-file " ~" ~~" SKIP         
+    "~"" m-where-statement " ~" ~~" SKIP
+    "~"" m-return-field " ~" ~~" SKIP
+    "~"" m-font " ~" ~~" SKIP
+    "~"" m-height-size " ~" ~~" SKIP
+    "~"" m-width-size " ~" ~~" SKIP
+    "~"" show-fields:LIST-ITEMS " ~" ~~" SKIP
+    "~"" m-order-values " ~" ~~" SKIP
+    "~"" auto_set " ~" ~~" SKIP
+    "~"" order-fields:LIST-ITEMS " ~" ~~" SKIP
+    "~"" m-frame-title " ~" ~~" SKIP
+    "~"" m-top-include " ~" ~~" SKIP
+    "~"" m-def-include " ~" ~~" SKIP
+    "~"" m-end-include " ~" ~~" SKIP
+    "~"" m-ui-prgmname " ~" ~~" SKIP
     "*/" SKIP(1).
 
-  IF svLookupDB EQ "dictdb" OR svLookupDB = "" THEN
+  IF m-lookup-db = "dictdb" OR m-lookup-db = "" THEN
   PUT UNFORMATTED
     "DEFINE INPUT-OUTPUT PARAMETER m-lookup-var AS CHARACTER." SKIP(1).
 
-  ASSIGN svLookupDB = IF svLookupDB NE "" THEN svLookupDB + "." ELSE " ".
+  ASSIGN m-lookup-db = IF m-lookup-db NE "" THEN m-lookup-db + "." ELSE " ".
 
-  IF svShowFields:NUM-ITEMS NE 0 THEN
-  ASSIGN cShowFields = "," + svShowFields:LIST-ITEMS
-    cShowFields = REPLACE(cShowFields,","," " + svLookupFile + ".")
-    cShowFields = REPLACE(cShowFields,"  "," ")
-    cShowFields = LEFT-TRIM(cShowFields)
-    cShowFieldsYellow = REPLACE(cShowFields," "," LABEL-BGCOLOR 14 ") +
+  IF show-fields:NUM-ITEMS NE 0 THEN
+  ASSIGN m-show-fields = "," + show-fields:LIST-ITEMS
+    m-show-fields = REPLACE(m-show-fields,","," " + m-lookup-file + ".")
+    m-show-fields = REPLACE(m-show-fields,"  "," ")
+    m-show-fields = LEFT-TRIM(m-show-fields)
+    m-show-fields-yellow = REPLACE(m-show-fields," "," LABEL-BGCOLOR 14 ") +
                            " LABEL-BGCOLOR 14".
 
   PUT UNFORMATTED
-    "~&Scoped-define lookup-db " svLookupDB SKIP
-    "~&Scoped-define lookup-file " svLookupFile SKIP
+    "~&Scoped-define lookup-db " m-lookup-db SKIP
+    "~&Scoped-define lookup-file " m-lookup-file SKIP
     "~&Scoped-define where-statement ".
 
-  IF svWhereStatement NE "" THEN
-  PUT UNFORMATTED svWhereStatement.
+  IF m-where-statement NE "" THEN
+  PUT UNFORMATTED m-where-statement.
   ELSE
   PUT UNFORMATTED "TRUE".
 
   PUT UNFORMATTED SKIP
-    "~&Scoped-define return-field " svReturnField SKIP
-    "~&Scoped-define font " svFont SKIP
-    "~&Scoped-define height-size " svHeightSize SKIP
-    "~&Scoped-define width-size " svWidthSize SKIP
-    "~&Scoped-define show-fields " cShowFields SKIP
-    "~&Scoped-define show-fields-yellow " cShowFieldsYellow SKIP
-    "~&Scoped-define frame-title " svFrameTitle SKIP
+    "~&Scoped-define return-field " m-return-field SKIP
+    "~&Scoped-define font " m-font SKIP
+    "~&Scoped-define height-size " m-height-size SKIP
+    "~&Scoped-define width-size " m-width-size SKIP
+    "~&Scoped-define show-fields " m-show-fields SKIP
+    "~&Scoped-define show-fields-yellow " m-show-fields-yellow SKIP
+    "~&Scoped-define frame-title " m-frame-title SKIP
     "~&Scoped-define top-include ".
-  IF svTopInclude NE "" THEN
-  PUT UNFORMATTED "~~" svTopInclude.
+  IF m-top-include NE "" THEN
+  PUT UNFORMATTED "~~" m-top-include.
   PUT UNFORMATTED SKIP "~&Scoped-define def-include ".
-  IF svDefInclude NE "" THEN
-  PUT UNFORMATTED "~~" svDefInclude.
+  IF m-def-include NE "" THEN
+  PUT UNFORMATTED "~~" m-def-include.
   PUT UNFORMATTED SKIP "~&Scoped-define end-include ".
-  IF svEndInclude NE "" THEN
-  PUT UNFORMATTED "~~" svEndInclude.
+  IF m-end-include NE "" THEN
+  PUT UNFORMATTED "~~" m-end-include.
   PUT UNFORMATTED SKIP
-    "~&Scoped-define ui-prgmname " svUIPrgmname SKIP
-    "~&Scoped-define window-size " INTEGER(svHeightSize) + 4 SKIP
-    "~&Scoped-define window-col " (150 - INTEGER(svWidthSize)) / 2 SKIP
-    "~&Scoped-define rect-1-row " INTEGER(svHeightSize) + 1.15 SKIP
-    "~&Scoped-define by-row " INTEGER(svHeightSize) + 1.42 SKIP
-    "~&Scoped-define browse-order-width " INTEGER(svWidthSize) - 6 SKIP
-    "~&Scoped-define browse-order-row " INTEGER(svHeightSize) + 1.42 SKIP
-    "~&Scoped-define btn-row " INTEGER(svHeightSize) + 2.77 SKIP
-    "~&Scoped-define btn-ok-col " INTEGER(svWidthSize) - 9 SKIP
-    "~&Scoped-define btn-cancel-col " INTEGER(svWidthSize) - 20 SKIP
-    "~&Scoped-define auto-find-row " INTEGER(svHeightSize) + 3.85 SKIP(1).
+    "~&Scoped-define ui-prgmname " m-ui-prgmname SKIP
+    "~&Scoped-define window-size " INTEGER(m-height-size) + 4 SKIP
+    "~&Scoped-define window-col " (150 - INTEGER(m-width-size)) / 2 SKIP
+    "~&Scoped-define rect-1-row " INTEGER(m-height-size) + 1.15 SKIP
+    "~&Scoped-define by-row " INTEGER(m-height-size) + 1.42 SKIP
+    "~&Scoped-define browse-order-width " INTEGER(m-width-size) - 6 SKIP
+    "~&Scoped-define browse-order-row " INTEGER(m-height-size) + 1.42 SKIP
+    "~&Scoped-define btn-row " INTEGER(m-height-size) + 2.77 SKIP
+    "~&Scoped-define btn-ok-col " INTEGER(m-width-size) - 9 SKIP
+    "~&Scoped-define btn-cancel-col " INTEGER(m-width-size) - 20 SKIP
+    "~&Scoped-define auto-find-row " INTEGER(m-height-size) + 3.85 SKIP(1).
 
-  DO i = 1 TO NUM-ENTRIES(svOrderValues):
-    cDataType = "STRING".
-    IF svLookupDB NE "" THEN
+  DO i = 1 TO NUM-ENTRIES(m-order-values):
+    data-type = "STRING".
+    IF m-lookup-db NE "" THEN
     DO:
-      CREATE ALIAS dictdb FOR DATABASE VALUE(svLookupDB:SCREEN-VALUE).
+      CREATE ALIAS dictdb FOR DATABASE VALUE(m-lookup-db:SCREEN-VALUE).
       RUN Get_Procedure IN Persistent-Handle ("get_type.",OUTPUT run-proc,no).
       IF run-proc NE "" THEN
-      RUN VALUE(run-proc) (svLookupFile,svOrderFields:ENTRY(i),OUTPUT cDataType).
-      IF cDataType NE "STRING" THEN
-      PUT UNFORMATTED "~&Global-define DATATYP" i " " CAPS(cDataType) SKIP.
+      RUN VALUE(run-proc) (m-lookup-file,order-fields:ENTRY(i),OUTPUT data-type).
+      IF data-type NE "STRING" THEN
+      PUT UNFORMATTED "~&Global-define DATATYP" i " " CAPS(data-type) SKIP.
       RUN Get_Procedure IN Persistent-Handle ("get_frmt.",OUTPUT run-proc,no).
       IF run-proc NE "" THEN
-      RUN VALUE(run-proc) (svLookupFile,svOrderFields:ENTRY(i),OUTPUT cDataFormat).
-      PUT UNFORMATTED "~&Global-define FORMAT-" i " " cDataFormat SKIP.
+      RUN VALUE(run-proc) (m-lookup-file,order-fields:ENTRY(i),OUTPUT data-format).
+      PUT UNFORMATTED "~&Global-define FORMAT-" i " " data-format SKIP.
     END.
     PUT UNFORMATTED
-      "~&Scoped-define FLDNAME" i " " svLookupFile "." svOrderFields:ENTRY(i) SKIP
+      "~&Scoped-define FLDNAME" i " " m-lookup-file "." order-fields:ENTRY(i) SKIP
       "~&Scoped-define SORTBY-" i " BY ~{&FLDNAME" i "}".
     IF i GT 1 THEN
     PUT UNFORMATTED " ~{&SORTBY-" i - 1 "}".
     PUT UNFORMATTED SKIP
-      "~&Scoped-define DESCRIP" i " " ENTRY(i,svOrderValues) SKIP.
+      "~&Scoped-define DESCRIP" i " " ENTRY(i,m-order-values) SKIP.
   END.
 
   PUT UNFORMATTED SKIP(1)
@@ -797,30 +815,29 @@ DO:
   MESSAGE "Compile Lookup?" VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
       UPDATE compile-lookup AS LOGICAL.
   IF compile-lookup THEN
-  COMPILE VALUE("lookups\" + mLookupPrgm + "p") SAVE.
+  COMPILE VALUE("lookups\" + m_lookup_prgm + "p") SAVE.
 
   ASSIGN
-    btnCancel:LABEL = "&Close"
-    svStatus:SCREEN-VALUE = "Lookup SAVEd"
-    .
+    Btn_Cancel:LABEL = "&Close"
+    m_status:SCREEN-VALUE = "Lookup SAVEd".
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnUP
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUP C-Win
-ON CHOOSE OF btnUP IN FRAME DEFAULT-FRAME /* Move Up */
+&Scoped-define SELF-NAME Btn_UP
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_UP C-Win
+ON CHOOSE OF Btn_UP IN FRAME DEFAULT-FRAME /* Move Up */
 DO:
-  IF sHandle:SCREEN-VALUE NE "" THEN
-  DO i = 2 TO sHandle:NUM-ITEMS:
-    IF NOT sHandle:IS-SELECTED(i) THEN NEXT.
+  IF shandle:SCREEN-VALUE NE "" THEN
+  DO i = 2 TO shandle:NUM-ITEMS:
+    IF NOT shandle:IS-SELECTED(i) THEN
+    NEXT.
     ASSIGN
-      lDummy = sHandle:INSERT(sHandle:SCREEN-VALUE,i - 1)
-      lDummy = sHandle:DELETE(i + 1)
-      sHandle:SCREEN-VALUE = sHandle:ENTRY(i - 1)
-      .
+      ldummy = shandle:INSERT(shandle:SCREEN-VALUE,i - 1)
+      ldummy = shandle:DELETE(i + 1)
+      shandle:SCREEN-VALUE = shandle:ENTRY(i - 1).
     LEAVE.
   END.
 END.
@@ -829,81 +846,83 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svAutoSet
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAutoSet C-Win
-ON VALUE-CHANGED OF svAutoSet IN FRAME DEFAULT-FRAME /* Auto Set Order Values */
+&Scoped-define SELF-NAME m-ui-prgmname
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m-ui-prgmname C-Win
+ON HELP OF m-ui-prgmname IN FRAME DEFAULT-FRAME /* UI Program */
 DO:
+  CREATE ALIAS dictdb FOR DATABASE NOSWEAT.
+  RUN "lookups/ui_lkup.p".
   ASSIGN
-    {&SELF-NAME}
-    svOrderValues:SENSITIVE = NOT {&SELF-NAME}
-    .
-  RUN pAutoSetOrderValues.
+    {&SELF-NAME}:SCREEN-VALUE = g_lookup-var
+    {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svAvailableSelections
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAvailableSelections C-Win
-ON DEFAULT-ACTION OF svAvailableSelections IN FRAME DEFAULT-FRAME
-DO:
-  IF sHandle:LOOKUP(svAvailableSelections:SCREEN-VALUE) EQ 0 THEN
-  lDummy = sHandle:ADD-LAST(svAvailableSelections:SCREEN-VALUE).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME svOrderFields
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svOrderFields C-Win
-ON DEFAULT-ACTION OF svOrderFields IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME order-fields
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL order-fields C-Win
+ON DEFAULT-ACTION OF order-fields IN FRAME DEFAULT-FRAME
 DO:
   IF {&SELF-NAME}:SCREEN-VALUE NE "" THEN
-  lDummy = {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE).
+  ldummy = {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svOrderFields C-Win
-ON ENTRY OF svOrderFields IN FRAME DEFAULT-FRAME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL order-fields C-Win
+ON ENTRY OF order-fields IN FRAME DEFAULT-FRAME
 DO:
-  svSelectedSet:SCREEN-VALUE = "2".
-  APPLY "VALUE-CHANGED" TO svSelectedSet.
+  selected-set:SCREEN-VALUE = "2".
+  APPLY "VALUE-CHANGED" TO selected-set.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svSelectedSet
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svSelectedSet C-Win
-ON VALUE-CHANGED OF svSelectedSet IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME select-list
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL select-list C-Win
+ON DEFAULT-ACTION OF select-list IN FRAME DEFAULT-FRAME
+DO:
+  IF shandle:LOOKUP(select-list:SCREEN-VALUE) = 0 THEN
+  ldummy = shandle:ADD-LAST(select-list:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME selected-set
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL selected-set C-Win
+ON VALUE-CHANGED OF selected-set IN FRAME DEFAULT-FRAME
 DO:
   DEFINE VARIABLE item_list AS CHARACTER NO-UNDO.
 
-  IF svLookupDB:SCREEN-VALUE = "" THEN
+  IF m-lookup-db:SCREEN-VALUE = "" THEN
   RETURN NO-APPLY.
-  CASE svSelectedSet:SCREEN-VALUE:
-    WHEN "1" THEN DO:
-      sHandle = svShowFields:HANDLE.
-      CREATE ALIAS dictdb FOR DATABASE VALUE(svLookupDB:SCREEN-VALUE).
+  CASE selected-set:SCREEN-VALUE:
+    WHEN "1" THEN
+    DO:
+      shandle = show-fields:HANDLE.
+      CREATE ALIAS dictdb FOR DATABASE VALUE(m-lookup-db:SCREEN-VALUE).
       RUN Get_Procedure IN Persistent-Handle (INPUT "fld_list.",OUTPUT run-proc,no).
       IF run-proc NE "" THEN
-      RUN VALUE(run-proc) (svLookupFile:SCREEN-VALUE,OUTPUT item_list).
-      svAvailableSelections:LIST-ITEMS = item_list.
+      RUN VALUE(run-proc) (m-lookup-file:SCREEN-VALUE,OUTPUT item_list).
+      select-list:LIST-ITEMS = item_list.
     END.
-    WHEN "2" THEN DO:
-      sHandle = svOrderFields:HANDLE.
-      CREATE ALIAS dictdb FOR DATABASE VALUE(svLookupDB:SCREEN-VALUE).
+    WHEN "2" THEN
+    DO:
+      shandle = order-fields:HANDLE.
+      CREATE ALIAS dictdb FOR DATABASE VALUE(m-lookup-db:SCREEN-VALUE).
       RUN Get_Procedure IN Persistent-Handle (INPUT "fld_list.",OUTPUT run-proc,no).
       IF run-proc NE "" THEN
-      RUN VALUE(run-proc) (svLookupFile:SCREEN-VALUE,OUTPUT item_list).
-      svAvailableSelections:LIST-ITEMS = item_list.
-      RUN pAutoSetOrderValues.
+      RUN VALUE(run-proc) (m-lookup-file:SCREEN-VALUE,OUTPUT item_list).
+      select-list:LIST-ITEMS = item_list.
+      RUN Auto_Set_Order_Values.
     END.
   END CASE.
 END.
@@ -912,38 +931,23 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svShowFields
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowFields C-Win
-ON DEFAULT-ACTION OF svShowFields IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME show-fields
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL show-fields C-Win
+ON DEFAULT-ACTION OF show-fields IN FRAME DEFAULT-FRAME
 DO:
   IF {&SELF-NAME}:SCREEN-VALUE NE "" THEN
-  lDummy = {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE).
+  ldummy = {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowFields C-Win
-ON ENTRY OF svShowFields IN FRAME DEFAULT-FRAME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL show-fields C-Win
+ON ENTRY OF show-fields IN FRAME DEFAULT-FRAME
 DO:
-  svSelectedSet:SCREEN-VALUE = "1".
-  APPLY "VALUE-CHANGED" TO svSelectedSet.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME svUIPrgmname
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svUIPrgmname C-Win
-ON HELP OF svUIPrgmname IN FRAME DEFAULT-FRAME /* UI Program */
-DO:
-  CREATE ALIAS dictdb FOR DATABASE NOSWEAT.
-  RUN "lookups/ui_lkup.p".
-  ASSIGN
-    {&SELF-NAME}:SCREEN-VALUE = g_lookup-var
-    {&SELF-NAME}.
+  selected-set:SCREEN-VALUE = "1".
+  APPLY "VALUE-CHANGED" TO selected-set.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -974,10 +978,10 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN pGetLookup.
+  RUN Get_Lookup.
   RUN enable_UI.
-  svOrderValues:SENSITIVE = NOT svAutoSet.
-  APPLY "VALUE-CHANGED" TO svSelectedSet.
+  m-order-values:SENSITIVE = NOT auto_set.
+  APPLY "VALUE-CHANGED" TO selected-set.
   {methods/enhance.i}
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -989,6 +993,32 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Auto_Set_Order_Values C-Win 
+PROCEDURE Auto_Set_Order_Values :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE item_list AS CHARACTER NO-UNDO.
+
+  IF NOT auto_set THEN
+  RETURN.
+  RUN Get_Procedure IN Persistent-Handle (INPUT "fld_lbls.",OUTPUT run-proc,no).
+  IF run-proc NE "" THEN
+  DO WITH FRAME {&FRAME-NAME}:
+    RUN VALUE(run-proc)
+        (m-lookup-file:SCREEN-VALUE,order-fields:LIST-ITEMS,OUTPUT item_list).
+    ASSIGN
+      m-order-values:SCREEN-VALUE = item_list
+      m-order-values.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -1020,17 +1050,17 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY svLookupPrgm svLookupDB svLookupFile svReturnField svWhereStatement 
-          svOrderValues svAutoSet svSelectedSet svShowFields svOrderFields 
-          svAvailableSelections svFrameTitle svTopInclude svDefInclude 
-          svEndInclude svUIPrgmname svStatus svFont svHeightSize svWidthSize F1 
+  DISPLAY m-lookup-prgm m-lookup-db m-lookup-file m-return-field 
+          m-where-statement m-order-values auto_set selected-set show-fields 
+          order-fields select-list m-frame-title m-top-include m-def-include 
+          m-end-include m-ui-prgmname m_status m-font m-height-size m-width-size 
+          F1 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-3 RECT-1 RECT-2 btnGetField svWhereStatement svOrderValues 
-         svAutoSet svSelectedSet btnUP svShowFields svOrderFields 
-         svAvailableSelections btnDown btnAdd btnRemove svFrameTitle 
-         svTopInclude svDefInclude svEndInclude svUIPrgmname svFont 
-         svHeightSize svWidthSize btnReset btnSave btnDelete btnCancel btnOK 
-         btnDescription 
+  ENABLE RECT-3 RECT-1 RECT-2 Btn_Get_Field m-where-statement m-order-values 
+         auto_set selected-set Btn_UP show-fields order-fields select-list 
+         Btn_Add Btn_Remove Btn_Down m-frame-title m-top-include m-def-include 
+         m-end-include m-ui-prgmname m-font m-height-size m-width-size 
+         Btn_Reset Btn_Save Btn_Delete Btn_Cancel Btn_OK Btn_Description 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1039,68 +1069,41 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAutoSetOrderValues C-Win 
-PROCEDURE pAutoSetOrderValues :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE item_list AS CHARACTER NO-UNDO.
-
-  IF NOT svAutoSet THEN RETURN.
-  RUN Get_Procedure IN Persistent-Handle (INPUT "fld_lbls.",OUTPUT run-proc,no).
-  IF run-proc NE "" THEN
-  DO WITH FRAME {&FRAME-NAME}:
-    RUN VALUE(run-proc)
-        (svLookupFile:SCREEN-VALUE,svOrderFields:LIST-ITEMS,OUTPUT item_list).
-    ASSIGN
-      svOrderValues:SCREEN-VALUE = item_list
-      svOrderValues
-      .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetLookup C-Win 
-PROCEDURE pGetLookup :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get_Lookup C-Win 
+PROCEDURE Get_Lookup :
 /* -----------------------------------------------------------
   Purpose:Find and Read Lookup Browser
   Parameters:  <none>
   Notes:       
 -------------------------------------------------------------*/
-  IF SEARCH("lookups/" + mLookupPrgm + "p") NE ? THEN
+  IF SEARCH("lookups/" + m_lookup_prgm + "p") NE ? THEN
   DO WITH FRAME {&FRAME-NAME}:
-    INPUT FROM VALUE("lookups/" + mLookupPrgm + "p") NO-ECHO.
+    INPUT FROM VALUE("lookups/" + m_lookup_prgm + "p") NO-ECHO.
     IMPORT ^.
-    IMPORT svLookupPrgm
-      svLookupDB
-      svLookupFile
-      svWhereStatement
-      svReturnField
-      svFont
-      svHeightSize
-      svWidthSize
-      cShowFields
-      svOrderValues
-      svAutoSet
-      cOrderFields
-      svFrameTitle
-      svTopInclude
-      svDefInclude
-      svEndInclude
-      svUIPrgmname.
+    IMPORT m-lookup-prgm
+      m-lookup-db
+      m-lookup-file
+      m-where-statement
+      m-return-field
+      m-font
+      m-height-size
+      m-width-size
+      m-show-fields
+      m-order-values
+      auto_set
+      m-order-fields
+      m-frame-title
+      m-top-include
+      m-def-include
+      m-end-include
+      m-ui-prgmname.
     INPUT CLOSE.
     ASSIGN
-      svShowFields:LIST-ITEMS  = TRIM(cShowFields)
-      svOrderFields:LIST-ITEMS = TRIM(cOrderFields)
-      .
+      show-fields:LIST-ITEMS = TRIM(m-show-fields)
+      order-fields:LIST-ITEMS = TRIM(m-order-fields).
   END.
   ELSE
-  svLookupPrgm = mLookupPrgm.
+  m-lookup-prgm = m_lookup_prgm.
   
 END PROCEDURE.
 

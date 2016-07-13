@@ -76,16 +76,16 @@ DO:
   {methods/setdevid.i}
   RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
   RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
-  RUN Get_Procedure IN Persistent-HANDLE ("user_dir.",OUTPUT run-proc,yes).
+  RUN Get_Procedure IN Persistent-HANDLE ("user_dir.",OUTPUT run-proc,YES).
   g_groups = "". /* YSK need to reset */
   FOR EACH usergrps NO-LOCK:
     IF CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN
     g_groups = g_groups + usergrps.usergrps + ",".  /* YSK "," added  */
   END.
   
-  init_menu = yes.
+  init_menu = YES.
   DO WHILE init_menu:
-    init_menu = no.
+    init_menu = NO.
 
 
 /*    RUN Advantzware/Windows/SmartFramework/Menu/mainmenu_stub.p PERSISTENT .*/
@@ -103,9 +103,6 @@ DO:
 /*      "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.*/
 /*  RETURN.                                                                    */
 /*END.                                                                         */
-
-
-
 
     RUN Advantzware/Windows/SmartFramework/Menu/start.p . 
 
