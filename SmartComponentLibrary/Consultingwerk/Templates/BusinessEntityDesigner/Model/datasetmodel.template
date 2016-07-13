@@ -1,0 +1,68 @@
+/**********************************************************************
+ * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * www.consultingwerk.de and other contributors as listed             *
+ * below.  All Rights Reserved.                                       *
+ *                                                                    *
+ *  Software is distributed on an "AS IS", WITHOUT WARRANTY OF ANY    *
+ *   KIND, either express or implied.                                 *
+ *                                                                    *
+ *  Contributors:                                                     *
+ *                                                                    *
+ **********************************************************************/
+/*------------------------------------------------------------------------
+    File        : &1
+    Purpose     : 
+    Syntax      : 
+    Description : 
+    Author(s)   : @USER@ / Consultingwerk Ltd.
+    Created     : @DATE@
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.OERA.* FROM PROPATH .
+USING &2.* FROM PROPATH .  
+USING Progress.Lang.* FROM PROPATH .
+
+@FILEANNOTATION@
+
+CLASS &2.&1DatasetModel
+    INHERITS &1DatasetModel_Generated: 
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &1DatasetModel class
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC &1DatasetModel ():
+        SUPER ().
+
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &1DatasetModel class
+        Notes:   Retrieves data based on a named query   
+        @param pcTables The comma delimited list of the Table Names to retrieve
+        @param poNamedQuery The INamedQueryParameter that defines a named query
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC &1DatasetModel (pcTables AS CHARACTER,
+                                       poNamedQuery AS INamedQueryParameter):
+        SUPER ().
+
+        THIS-OBJECT:RetrieveData (pcTables, poNamedQuery) .
+
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &1DatasetModel class
+        Notes:   Retrieves data based on a named query   
+        @param poNamedQuery The INamedQueryParameter that defines a named query
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC &1DatasetModel (poNamedQuery AS INamedQueryParameter):
+        SUPER ().
+
+        THIS-OBJECT:RetrieveData (poNamedQuery) .
+
+    END CONSTRUCTOR.
+
+&3END CLASS.

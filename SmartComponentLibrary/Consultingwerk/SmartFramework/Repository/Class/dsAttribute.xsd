@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsAttribute" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartAttribute" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartAttributeBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="AttributeGuid" type="xsd:string" nillable="true" prodata:fieldName="AttributeGuid" prodata:format="x(36)"/>
+              <xsd:element name="AttributeGroupGuid" type="xsd:string" nillable="true" prodata:fieldName="AttributeGroupGuid" prodata:format="x(36)"/>
+              <xsd:element name="AttributeLabel" type="xsd:string" nillable="true" prodata:fieldName="AttributeLabel" prodata:format="x(40)" prodata:label="Attribute Label"/>
+              <xsd:element name="TechnicalName" type="xsd:string" nillable="true" prodata:fieldName="TechnicalName" prodata:format="x(40)" prodata:label="Technical Name"/>
+              <xsd:element name="AttributeDesription" type="xsd:string" nillable="true" prodata:fieldName="AttributeDesription" prodata:format="x(400)" prodata:label="Description"/>
+              <xsd:element name="RuntimeOnly" type="xsd:boolean" nillable="true" prodata:fieldName="RuntimeOnly" prodata:label="Runtime Only"/>
+              <xsd:element name="VirtualProperty" type="xsd:boolean" nillable="true" prodata:fieldName="VirtualProperty" prodata:label="Virtual"/>
+              <xsd:element name="ConstantLevel" type="xsd:string" nillable="true" prodata:fieldName="ConstantLevel" prodata:format="x(10)" prodata:label="Constant Level"/>
+              <xsd:element name="LookupType" type="xsd:string" nillable="true" prodata:fieldName="LookupType" prodata:format="x(12)" prodata:label="Lookup Type"/>
+              <xsd:element name="LookupValues" type="xsd:string" nillable="true" prodata:fieldName="LookupValues" prodata:format="x(400)" prodata:label="Lookup Values"/>
+              <xsd:element name="PropertyType" type="xsd:string" nillable="true" prodata:fieldName="PropertyType" prodata:format="x(80)" prodata:label="Property Type"/>
+              <xsd:element name="RepositoryType" type="xsd:string" nillable="true" prodata:fieldName="RepositoryType" prodata:format="x(12)" prodata:label="Repository Type"/>
+              <xsd:element name="SetServiceType" type="xsd:string" nillable="true" prodata:fieldName="SetServiceType" prodata:format="x(80)" prodata:label="SET Service Type Name"/>
+              <xsd:element name="PropertyOrEvent" type="xsd:boolean" nillable="true" default="true" prodata:fieldName="PropertyOrEvent" prodata:format="Property/Event"/>
+              <xsd:element name="AttributeGroupName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Attribute Group"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="AttributeGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartAttribute"/>
+      <xsd:field xpath="AttributeGuid"/>
+    </xsd:unique>
+    <xsd:unique name="AttributeLabel">
+      <xsd:selector xpath=".//eSmartAttribute"/>
+      <xsd:field xpath="AttributeLabel"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="AttributeGroup">
+        <prodata:table name="eSmartAttribute"/>
+        <prodata:field name="AttributeGroupGuid"/>
+        <prodata:field name="AttributeLabel"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

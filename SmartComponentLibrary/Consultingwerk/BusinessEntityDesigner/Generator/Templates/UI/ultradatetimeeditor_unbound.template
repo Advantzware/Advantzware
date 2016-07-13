@@ -1,0 +1,8 @@
+        /*  */
+        /* &1 */
+        /*  */
+        THIS-OBJECT:&1:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
+        THIS-OBJECT:&1:Location = NEW System.Drawing.Point(&4, &5).
+        THIS-OBJECT:&1:Name = "&1":U.
+        THIS-OBJECT:&1:Size = NEW System.Drawing.Size(@Width@, @Height@).
+        THIS-OBJECT:&1:TabIndex = &6.                

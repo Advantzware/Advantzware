@@ -1,0 +1,134 @@
+/*------------------------------------------------------------------------
+    File        : @INTERFACE_NAME@.p
+    Purpose     : DataDirect OpenAccess Interface procedure
+
+    Syntax      :
+
+    Description : 
+
+    Author(s)   : @USER@
+    Created     : @DATE@
+    Notes       :
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW . 
+
+&SCOPED-DEFINE EntityName @BUSINESS_ENTITY_NAME@
+&SCOPED-DEFINE EntityTable @ENTITY_TABLE@
+&SCOPED-DEFINE EntityView @ENTITY_VIEW@
+
+&SCOPED-DEFINE DatasetInclude @DATASET_INCLUDE_FILE@
+
+&SCOPED-DEFINE BatchSize @BATCH_SIZE@
+&SCOPED-DEFINE StopAfter @STOP_AFTER@
+&SCOPED-DEFINE OuterJoin @OUTER_JOIN@
+
+/* ***************************  Definitions  ************************** */
+
+USING Consultingwerk.*                 FROM PROPATH .
+USING Consultingwerk.OERA.*            FROM PROPATH .
+USING Consultingwerk.OERA.OpenAccess.* FROM PROPATH .
+USING Consultingwerk.Util.*            FROM PROPATH .
+
+{{&DatasetInclude}}
+
+/* ***************************  Main Block  *************************** */
+
+PROCEDURE ReadRecords:
+    DEFINE INPUT  PARAMETER filter AS CHARACTER.
+    
+&IF "{&EntityView}" = "" &THEN    
+    DEFINE OUTPUT PARAMETER TABLE FOR {&EntityTable} .
+    
+    DEFINE VARIABLE hBuffer AS HANDLE NO-UNDO .
+    
+    ASSIGN hBuffer = BUFFER {&EntityTable}:HANDLE . 
+&ELSE
+    DEFINE OUTPUT PARAMETER TABLE-HANDLE hTable  .
+
+    DEFINE VARIABLE oTableFactory AS ResultsetTempTableFactory NO-UNDO . 
+
+    DEFINE VARIABLE hBuffer       AS HANDLE                    NO-UNDO .
+    
+    oTableFactory = NEW ResultsetTempTableFactory () . 
+    
+    hTable = oTableFactory:BuildResultsetTempTable (DATASET {&DATASET-NAME}:HANDLE,
+                                                    "{&EntityTable}":U,
+                                                    "{&EntityView}":U) . 
+
+    
+    ASSIGN hBuffer = hTable:DEFAULT-BUFFER-HANDLE . 
+&ENDIF       
+
+    DEFINE VARIABLE hQuery        AS HANDLE                NO-UNDO .
+    DEFINE VARIABLE oQueryBuilder AS ResultsetQueryBuilder NO-UNDO .
+    
+    DEFINE VARIABLE oRequest      AS FetchDataRequest      NO-UNDO . 
+    DEFINE VARIABLE cQueryString  AS CHARACTER             NO-UNDO .
+    DEFINE VARIABLE oFilter       AS FilterParameter       NO-UNDO .
+    DEFINE VARIABLE oQueryParser  AS QueryParser           NO-UNDO .  
+    
+    DEFINE VARIABLE i             AS INTEGER               NO-UNDO .
+    DEFINE VARIABLE iCount        AS INTEGER               NO-UNDO .
+    DEFINE VARIABLE hSourceBuffer AS HANDLE                NO-UNDO .
+       
+
+    oFilter = NEW FilterParameter (filter) .
+        
+    IF oFilter:ablFilter > "":U THEN DO:
+         oQueryParser = NEW QueryParser () . 
+         oQueryParser:BufferName = "{&EntityTable}":U .
+            
+         ASSIGN cQueryString = oQueryParser:ParseQueryString (oFilter:ablFilter):GetExpression() .       
+    END.
+           
+    oRequest = NEW FetchDataRequest (TRIM ("{&EntityTable},{&EntityView}":U, ",":U),
+                                     cQueryString,
+                                     {&BatchSize}) . 
+        
+    oRequest:StopAfter = {&StopAfter} .
+                
+    ServiceInterface:FetchData ("{&EntityName}":U,
+                                oRequest,
+                                OUTPUT DATASET {&DATASET-NAME}) .
+    
+    oQueryBuilder = NEW ResultsetQueryBuilder () . 
+    hQuery = oQueryBuilder:PrepareResultsetQuery (DATASET {&DATASET-NAME}:HANDLE,
+                                                  "{&EntityTable}":U,
+                                                  "{&EntityView}":U,
+                                                  {&OuterJoin}) .
+    
+    &IF "{&EntityView}":U NE "":U &THEN
+    hQuery:QUERY-OPEN () . 
+    hQuery:GET-FIRST () . 
+        
+    ASSIGN iCount = NUM-ENTRIES ("{&EntityView}":U) .
+        
+    DO WHILE NOT hQuery:QUERY-OFF-END ON ERROR UNDO, THROW:
+            
+        hBuffer:BUFFER-CREATE ()  . 
+            
+        DO i = 1 TO iCount:
+            hSourceBuffer = DATASET {&DATASET-NAME}:GET-BUFFER-HANDLE (ENTRY (i, "{&EntityView}":U)) . 
+                
+            IF hSourceBuffer:AVAILABLE THEN 
+                hBuffer:BUFFER-COPY (hSourceBuffer) .
+        END.
+            
+        hBuffer:BUFFER-COPY (BUFFER {&EntityTable}:HANDLE) .
+           
+        hQuery:GET-NEXT () . 		
+    END.        
+    &ENDIF            
+    
+    FINALLY:
+        GarbageCollectorHelper:DeleteObject (hQuery) .		
+        
+        &IF "{&EntityView}" NE "" &THEN
+        IF VALID-HANDLE (hTable) THEN 
+            DELETE OBJECT hTable .
+        &ENDIF 
+    END FINALLY.                                
+                           
+END PROCEDURE . 
+                                                

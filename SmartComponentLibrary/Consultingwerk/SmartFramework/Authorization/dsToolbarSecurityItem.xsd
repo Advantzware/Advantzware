@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsToolbarSecurityItem" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartToolbarSecurityItem" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartToolbarSecurityItemBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="ToolbarSecurityItemGuid" type="xsd:string" nillable="true" prodata:fieldName="ToolbarSecurityItemGuid" prodata:format="x(36)"/>
+              <xsd:element name="ObjectName" type="xsd:string" nillable="true" prodata:fieldName="ObjectName" prodata:format="x(80)" prodata:label="Container / Object Name"/>
+              <xsd:element name="ToolbarItemKey" type="xsd:string" nillable="true" prodata:fieldName="ToolbarItemKey" prodata:format="x(80)" prodata:label="Toolbar Item"/>
+              <xsd:element name="Description" type="xsd:string" nillable="true" prodata:fieldName="Description" prodata:format="x(80)"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="ObjectNameToolbarItem">
+      <xsd:selector xpath=".//eSmartToolbarSecurityItem"/>
+      <xsd:field xpath="ObjectName"/>
+      <xsd:field xpath="ToolbarItemKey"/>
+    </xsd:unique>
+    <xsd:unique name="ToolbarItemObjectName">
+      <xsd:selector xpath=".//eSmartToolbarSecurityItem"/>
+      <xsd:field xpath="ToolbarItemKey"/>
+      <xsd:field xpath="ObjectName"/>
+    </xsd:unique>
+    <xsd:unique name="ToolbarSecurityItemGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartToolbarSecurityItem"/>
+      <xsd:field xpath="ToolbarSecurityItemGuid"/>
+    </xsd:unique>
+  </xsd:element>
+</xsd:schema>

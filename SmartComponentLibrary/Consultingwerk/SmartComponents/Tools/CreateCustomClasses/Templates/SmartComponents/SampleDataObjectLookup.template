@@ -1,0 +1,29 @@
+/*------------------------------------------------------------------------
+    File        : &2DataObjectLookup
+    Purpose     : 
+    Syntax      : 
+    Description : 
+    Author(s)   : &3
+    Created     : Sun Aug 07 20:50:56 CEST 2011
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
+USING Progress.Lang.*                                 FROM PROPATH .
+
+CLASS &1.&2DataObjectLookup 
+    INHERITS SmartDataObjectLookup 
+    USE-WIDGET-POOL: 
+		
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &2DataObjectLookup class
+        Notes:   
+    ------------------------------------------------------------------------------*/
+	CONSTRUCTOR PUBLIC &2DataObjectLookup ():
+		SUPER ().
+		
+	END CONSTRUCTOR.
+
+END CLASS.
