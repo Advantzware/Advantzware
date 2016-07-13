@@ -179,7 +179,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       iLineCnt COLUMN-LABEL "#" FORMAT "99":U LABEL-BGCOLOR 14
       fg-rctd.tag COLUMN-LABEL "From!Tag" FORMAT "x(23)":U LABEL-BGCOLOR 14
-      fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(13)":U WIDTH 7
+      fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(13)":U WIDTH 8
             LABEL-BGCOLOR 14
       fg-rctd.loc-bin COLUMN-LABEL "From!Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT ">>>,>>9":U WIDTH 9
@@ -196,7 +196,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 12
       fg-rctd.job-no FORMAT "x(6)":U WIDTH 10.4
       fg-rctd.job-no2 FORMAT "99":U WIDTH 3.2
-      fg-rctd.i-no FORMAT "x(15)":U WIDTH 20.4
+      fg-rctd.i-no FORMAT "x(15)":U WIDTH 22
       fg-rctd.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       fg-rctd.created-by COLUMN-LABEL "User!Created" FORMAT "x(8)":U
       fg-rctd.updated-by COLUMN-LABEL "User!Updated" FORMAT "x(8)":U
@@ -344,7 +344,7 @@ fg-rctd.created-by = USERID(""NOSWEAT"")"
      _FldNameList[13]   > asi.fg-rctd.job-no2
 "fg-rctd.job-no2" ? ? "integer" ? ? ? ? ? ? no ? no no "3.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > asi.fg-rctd.i-no
-"fg-rctd.i-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "20.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.i-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > asi.fg-rctd.i-name
 "fg-rctd.i-name" "Item Name" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > asi.fg-rctd.created-by

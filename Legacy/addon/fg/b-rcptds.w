@@ -279,8 +279,8 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(23)":U LABEL-BGCOLOR 14 WIDTH 25
-      fg-rctd.loc COLUMN-LABEL "Whs" FORMAT "x(13)":U WIDTH 7
+      fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(23)":U LABEL-BGCOLOR 14 WIDTH 29
+      fg-rctd.loc COLUMN-LABEL "Whs" FORMAT "x(13)":U WIDTH 8
       fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U WIDTH 9
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT "->>>,>>9":U
@@ -293,7 +293,7 @@ DEFINE BROWSE br_table
       fg-rctd.stack-code COLUMN-LABEL "FG Lot#" FORMAT "x(20)":U
             WIDTH 21.8
       fg-rctd.po-no FORMAT "x(9)":U
-      fg-rctd.i-no COLUMN-LABEL "Item #" FORMAT "x(15)":U WIDTH 18
+      fg-rctd.i-no COLUMN-LABEL "Item #" FORMAT "x(15)":U WIDTH 22
       fg-rctd.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       fg-rctd.job-no FORMAT "x(6)":U WIDTH 8
       fg-rctd.job-no2 FORMAT "99":U
@@ -409,9 +409,9 @@ or
 reftable.company  EQ fg-rctd.company AND
 reftable.loc      EQ STRING(fg-rctd.r-no,""9999999999"") AND ( NOT reftable.dscr begins ""fg-rctd: "")"
      _FldNameList[1]   > ASI.fg-rctd.tag
-"fg-rctd.tag" "Tag#" "x(23)" "character" ? ? ? 14 ? ? yes ? no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.tag" "Tag#" "x(23)" "character" ? ? ? 14 ? ? yes ? no no "29" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-rctd.loc
-"fg-rctd.loc" "Whs" "x(13)" "character" ? ? ? ? ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc" "Whs" "x(13)" "character" ? ? ? ? ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-rctd.loc-bin
 "fg-rctd.loc-bin" "Bin" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rctd.cases
@@ -428,7 +428,7 @@ reftable.loc      EQ STRING(fg-rctd.r-no,""9999999999"") AND ( NOT reftable.dscr
 "fg-rctd.stack-code" "FG Lot#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   = ASI.fg-rctd.po-no
      _FldNameList[11]   > ASI.fg-rctd.i-no
-"fg-rctd.i-no" "Item #" "x(15)" "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.i-no" "Item #" "x(15)" "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.fg-rctd.i-name
 "fg-rctd.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   = ASI.fg-rctd.job-no

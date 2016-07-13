@@ -188,8 +188,12 @@ DEFINE FRAME Dialog-Frame
           "Save Selected Actions" WIDGET-ID 18
      btnCancel AT ROW 7.19 COL 110 HELP
           "Cancel" WIDGET-ID 4
-     svStatus AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 78
-     SPACE(155.00) SKIP(6.56)
+     svStatus AT ROW 7.19 COL 2 NO-LABEL WIDGET-ID 78
+     "CRM Contacts" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 1.24 COL 41 WIDGET-ID 80
+     "Customer Contacts" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 1.24 COL 149 WIDGET-ID 82
+     SPACE(39.00) SKIP(6.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "ZOHO CRM" WIDGET-ID 100.
@@ -343,7 +347,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pGetCRM.
   IF RETURN-VALUE NE "" THEN DO:
       MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-      APPLY "END-ERROR":U TO FRAME {&FRAME-NAME}.
+      RETURN.
   END.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -548,6 +552,8 @@ PROCEDURE pGetCRM :
 
     FOR EACH ttContacts:
         iRows = iRows + 1.
+        IF ttContacts.crmEmail NE "" THEN
+        ttContacts.applyAction = YES.
     END.
     
     FOR EACH phone NO-LOCK
@@ -565,7 +571,10 @@ PROCEDURE pGetCRM :
                 iRows = iRows + 1
                 .
         END.
-        ELSE ttContacts.action = "Update".
+        ELSE
+        ASSIGN
+            ttContacts.action = "Update"
+            ttContacts.applyAction = YES.
         ASSIGN
             ttContacts.phoneAttention = phone.attention
             ttContacts.phoneCityCode  = phone.fax_city_code
@@ -585,6 +594,7 @@ PROCEDURE pGetCRM :
                 btnReset:Y  = btnApply:Y
                 btnSave:Y   = btnApply:Y
                 btnCancel:Y = btnApply:Y
+                svStatus:Y  = btnApply:Y
                 .
             BROWSE crmContacts:HEIGHT-PIXELS = iHeight.
         END.

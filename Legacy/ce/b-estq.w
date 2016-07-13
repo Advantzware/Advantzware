@@ -521,38 +521,38 @@ DEFINE FRAME F-Main
      "Style" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.24 COL 73
           FGCOLOR 9 FONT 6
-     "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 1.95 COL 101
      "Customer Part#" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 1.24 COL 31
           FGCOLOR 9 FONT 6
-     "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 3.86 COL 101
-     "Match" VIEW-AS TEXT
-          SIZE 6.8 BY .62 AT ROW 2.71 COL 143.6 WIDGET-ID 10
-     "Browser Col. Mode:" VIEW-AS TEXT
-          SIZE 22.6 BY .62 AT ROW 5.33 COL 114.2 WIDGET-ID 6
+     "Sort By:" VIEW-AS TEXT
+          SIZE 9.8 BY .62 AT ROW 5.29 COL 73
           FONT 6
-     "Customer" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 17
-          FGCOLOR 9 FONT 6
-     "Die # / Cad # / Plate #" VIEW-AS TEXT
-          SIZE 28 BY .62 AT ROW 1.24 COL 118
-          FGCOLOR 9 FONT 6
-     "L x W x D" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 96
+     "to" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 2.91 COL 101
+     "Estimate" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 3
           FGCOLOR 9 FONT 6
      "FG Item# / Name" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 1.24 COL 51
           FGCOLOR 9 FONT 6
-     "Estimate" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 3
+     "L x W x D" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 96
           FGCOLOR 9 FONT 6
-     "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 2.91 COL 101
-     "Sort By:" VIEW-AS TEXT
-          SIZE 9.8 BY .62 AT ROW 5.29 COL 73
+     "Die # / Cad # / Plate #" VIEW-AS TEXT
+          SIZE 28 BY .62 AT ROW 1.24 COL 118
+          FGCOLOR 9 FONT 6
+     "Customer" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 17
+          FGCOLOR 9 FONT 6
+     "Browser Col. Mode:" VIEW-AS TEXT
+          SIZE 22.6 BY .62 AT ROW 5.33 COL 114.2 WIDGET-ID 6
           FONT 6
+     "Match" VIEW-AS TEXT
+          SIZE 6.8 BY .62 AT ROW 2.71 COL 143.6 WIDGET-ID 10
+     "to" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 3.86 COL 101
+     "to" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 1.95 COL 101
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -725,6 +725,19 @@ eb.est-no = lv-last-est-no"
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME begin_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
+ON HELP OF begin_cust-no IN FRAME F-Main
+DO:
+   DEF VAR char-val AS cha NO-UNDO.
+   RUN windows/l-cust2.w (INPUT g_company, INPUT focus:screen-value,"", OUTPUT char-val).
+          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+          return no-apply.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON LEAVE OF begin_cust-no IN FRAME F-Main
 DO:
@@ -1187,33 +1200,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME vi_stock-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_stock-no B-table-Win
-ON HELP OF vi_stock-no IN FRAME F-Main
-DO:
-   DEF VAR char-val AS cha NO-UNDO.
-
-    run windows/l-itemfg.w (g_company,"","", output char-val).
-    if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-    return no-apply.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME begin_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
-ON HELP OF begin_cust-no IN FRAME F-Main
-DO:
-   DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-cust2.w (INPUT g_company, INPUT focus:screen-value,"", OUTPUT char-val).
-          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-          return no-apply.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_est-no B-table-Win
 ON LEAVE OF vi_est-no IN FRAME F-Main
@@ -1316,6 +1302,20 @@ END.
 
 
 &Scoped-define SELF-NAME vi_stock-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_stock-no B-table-Win
+ON HELP OF vi_stock-no IN FRAME F-Main
+DO:
+   DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-itemfg.w (g_company,"","", output char-val).
+    if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    return no-apply.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_stock-no B-table-Win
 ON LEAVE OF vi_stock-no IN FRAME F-Main
 DO:
@@ -2112,7 +2112,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE New_record-user B-table-Win 
 PROCEDURE New_record-user :
 /*------------------------------------------------------------------------------
@@ -2144,8 +2143,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE paper-clip-image-proc B-table-Win 
 PROCEDURE paper-clip-image-proc :
@@ -2273,6 +2270,21 @@ PROCEDURE set-focus :
 ------------------------------------------------------------------------------*/
 /*{methods/setfocus.i {&browse-name} } */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setEstNoSearch B-table-Win 
+PROCEDURE setEstNoSearch :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF INPUT PARAM ipiEstNo LIKE eb.est-no NO-UNDO.
+
+ASSIGN vi_est-no = ipiEstNo.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

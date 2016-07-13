@@ -1108,7 +1108,7 @@ DO:
           AND job-mch.job-no2 EQ job.job-no2:
       CREATE tt-job-mch.
       BUFFER-COPY job-mch EXCEPT rec_key TO tt-job-mch.
-      RELEASE tt-job-mat.
+      RELEASE tt-job-mch.
     END.
 
     RUN jc/delkids.p (ROWID(job), NO).
@@ -1340,14 +1340,15 @@ DO:
         WHERE op.m-code NE ""
           AND NOT CAN-FIND(FIRST job-mch
                            WHERE job-mch.company   EQ job.company
+                             AND job-mch.m-code    EQ op.m-code
                              AND job-mch.job       EQ job.job
                              AND job-mch.job-no    EQ job.job-no
                              AND job-mch.job-no2   EQ job.job-no2
                              AND job-mch.frm       EQ op.form-no
                              AND (job-mch.blank-no EQ op.blank-no OR
                                   job-mch.blank-no EQ 0)
-                             AND job-mch.dept      EQ op.dept
-                             AND job-mch.pass      EQ op.pass)
+                             AND job-mch.pass      EQ op.pass
+                             AND job-mch.dept      EQ op.dept)
         :
       RUN sys/inc/numup.p (job.company, job.est-no, op.form-no, OUTPUT v-up).
       v-out = 1.
@@ -1419,10 +1420,13 @@ DO:
        job-mch.mr-waste = op.mr-waste
        job-mch.pass     = op.pass
        job-mch.run-hr   = op.run-hr
+       job-mch.run-fixoh = op.run-fixoh
+       job-mch.run-rate  = op.run-rate
+       job-mch.run-varoh = op.run-varoh
        job-mch.speed    = op.speed
        job-mch.wst-prct = op.wst-prct
        job-mch.lag-time = mach.daily-prod-hours
-       job-mch.start-date = job.start-date
+    /* job-mch.start-date = job.start-date */
        job-mch.run-qty  = op.run-qty
        job-mch.n-out    = IF AVAIL est-op AND est-op.n-out NE 0 THEN est-op.n-out ELSE 1
        job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
@@ -1430,20 +1434,25 @@ DO:
       
        FIND FIRST tt-job-mch
           WHERE tt-job-mch.company  EQ job-mch.company
+            AND tt-job-mch.m-code   EQ job-mch.m-code
             AND tt-job-mch.job      EQ job-mch.job
             AND tt-job-mch.job-no   EQ job-mch.job-no
             AND tt-job-mch.job-no2  EQ job-mch.job-no2
             AND tt-job-mch.frm      EQ job-mch.frm
             AND tt-job-mch.blank-no EQ job-mch.blank-no
-            AND tt-job-mch.m-code   EQ job-mch.m-code
             AND tt-job-mch.pass     EQ job-mch.pass
-          NO-LOCK NO-ERROR.
+            AND tt-job-mch.dept     EQ job-mch.dept
+          NO-ERROR.
       IF AVAIL tt-job-mch THEN
-        ASSIGN
+      ASSIGN
          job-mch.start-date    = tt-job-mch.start-date
          job-mch.start-date-su = tt-job-mch.start-date-su
+         job-mch.start-time    = tt-job-mch.start-time
+         job-mch.start-time-su = tt-job-mch.start-time-su
          job-mch.end-date      = tt-job-mch.end-date
          job-mch.end-date-su   = tt-job-mch.end-date-su
+         job-mch.end-time      = tt-job-mch.end-time
+         job-mch.end-time-su   = tt-job-mch.end-time-su
          job-mch.mr-complete   = tt-job-mch.mr-complete
          job-mch.run-complete  = tt-job-mch.run-complete.
     END. /* each op */

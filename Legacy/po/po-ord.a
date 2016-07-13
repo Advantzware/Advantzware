@@ -20,16 +20,17 @@ do x = 1 to v-exp-limit:
   end.
 end. /* x = 1 to v-exp-limit */
 
+  RUN sys/ref/asiseq.p (cocode,'po_seq',OUTPUT x) NO-ERROR.
 create po-ord.
 assign
  po-ord.company        = cocode
- po-ord.po-no          = po-ctrl.next-po-no
+ po-ord.po-no          = x
  po-ord.po-date        = today
  po-ord.loc            = locode
  po-ord.buyer          = USERID("NOSWEAT")  /*global-uid*/
  po-ord.under-pct      = 10
  po-ord.over-pct       = 10
- po-ctrl.next-po-no    = po-ctrl.next-po-no + 1
+ /* po-ctrl.next-po-no    = po-ctrl.next-po-no + 1 */
  po-ord.due-date       = po-ord.po-date + 
                          if weekday(po-ord.po-date) eq 6 then 3 else 1
  po-ord.last-ship-date = po-ord.due-date
