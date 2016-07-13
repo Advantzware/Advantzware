@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsValueList" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartValueList" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartValueListBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="ValueListGuid" type="xsd:string" nillable="true" prodata:fieldName="ValueListGuid" prodata:format="x(36)" prodata:label="GUID"/>
+              <xsd:element name="ModuleGuid" type="xsd:string" nillable="true" prodata:fieldName="ModuleGuid" prodata:format="x(36)"/>
+              <xsd:element name="ValueListKey" type="xsd:string" nillable="true" prodata:fieldName="ValueListKey" prodata:format="x(15)" prodata:label="Value List Key"/>
+              <xsd:element name="ValueListDescription" type="xsd:string" nillable="true" prodata:fieldName="ValueListDescription" prodata:format="x(80)" prodata:label="Description"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eSmartValueListEntry" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartValueListEntryBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="ValueListEntryGuid" type="xsd:string" nillable="true" prodata:fieldName="ValueListEntryGuid" prodata:format="x(36)" prodata:label="GUID"/>
+              <xsd:element name="ValueListGuid" type="xsd:string" nillable="true" prodata:fieldName="ValueListGuid" prodata:format="x(36)" prodata:label="GUID"/>
+              <xsd:element name="ValueListEntryKey" type="xsd:string" nillable="true" prodata:fieldName="ValueListEntryKey" prodata:format="x(15)" prodata:label="Entry Key"/>
+              <xsd:element name="ValueListEntryDescription" type="xsd:string" nillable="true" prodata:fieldName="ValueListEntryDescription" prodata:format="x(80)" prodata:label="Description"/>
+              <xsd:element name="ValueListEntryImageKey" type="xsd:string" nillable="true" prodata:fieldName="ValueListEntryImageKey" prodata:format="x(80)" prodata:label="Image Key"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="ValueListKey" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartValueList"/>
+      <xsd:field xpath="ValueListKey"/>
+    </xsd:unique>
+    <xsd:unique name="ValueList">
+      <xsd:selector xpath=".//eSmartValueListEntry"/>
+      <xsd:field xpath="ValueListGuid"/>
+      <xsd:field xpath="ValueListEntryDescription"/>
+    </xsd:unique>
+    <xsd:unique name="ValueListEntryGuid">
+      <xsd:selector xpath=".//eSmartValueListEntry"/>
+      <xsd:field xpath="ValueListEntryGuid"/>
+    </xsd:unique>
+    <xsd:unique name="ValueListEntryKey" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartValueListEntry"/>
+      <xsd:field xpath="ValueListGuid"/>
+      <xsd:field xpath="ValueListEntryGuid"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="ModuleGuid">
+        <prodata:table name="eSmartValueList"/>
+        <prodata:field name="ModuleGuid"/>
+      </prodata:index>
+      <prodata:index name="ValueListDescription">
+        <prodata:table name="eSmartValueList"/>
+        <prodata:field name="ValueListDescription"/>
+      </prodata:index>
+      <prodata:index name="ValueListGuid">
+        <prodata:table name="eSmartValueList"/>
+        <prodata:field name="ValueListGuid"/>
+      </prodata:index>
+      <prodata:relation name="eSmartValueListeSmartValueListEn" prodata:parent="eSmartValueList" prodata:child="eSmartValueListEntry" prodata:relationFields="ValueListGuid,ValueListGuid"/>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

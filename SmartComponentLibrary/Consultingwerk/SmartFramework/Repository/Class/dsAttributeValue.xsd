@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsAttributeValue" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartAttributeValue" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartAttributeValueBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="AttributeValueGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ObjectTypeGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ObjectMasterGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ContainerObjectMasterGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ObjectInstanceGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ConstantValue" type="xsd:boolean" nillable="true" prodata:label="Constant Value"/>
+              <xsd:element name="AttributeLabel" type="xsd:string" nillable="true" prodata:format="x(40)" prodata:label="Attribute Label"/>
+              <xsd:element name="CharacterValue" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Character Value"/>
+              <xsd:element name="IntegerValue" type="xsd:int" nillable="true" prodata:label="Integer Value"/>
+              <xsd:element name="Int64Value" type="xsd:long" nillable="true" prodata:label="Int64 value"/>
+              <xsd:element name="DateValue" type="xsd:date" nillable="true" prodata:format="99/99/9999" prodata:label="Date Value"/>
+              <xsd:element name="DateTimeValue" type="xsd:dateTime" nillable="true" prodata:dataType="prodata:dateTime" prodata:label="DateTime Value"/>
+              <xsd:element name="DateTimeTzValue" type="xsd:dateTime" nillable="true" prodata:label="DateTime-TZ Value"/>
+              <xsd:element name="DecimalValue" type="xsd:decimal" nillable="true" prodata:label="Decimal Value"/>
+              <xsd:element name="LogicalValue" type="xsd:boolean" nillable="true" prodata:label="Logical Value"/>
+              <xsd:element name="RawValue" type="xsd:base64Binary" nillable="true"/>
+              <xsd:element name="AppliesAtRuntime" type="xsd:boolean" nillable="true" default="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eSmartAttribute" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartAttributeBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="AttributeGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="AttributeGroupGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="AttributeLabel" type="xsd:string" nillable="true" prodata:format="x(40)" prodata:label="Attribute Label"/>
+              <xsd:element name="TechnicalName" type="xsd:string" nillable="true" prodata:format="x(40)" prodata:label="Technical Name"/>
+              <xsd:element name="AttributeDesription" type="xsd:string" nillable="true" prodata:format="x(400)" prodata:label="Description"/>
+              <xsd:element name="RuntimeOnly" type="xsd:boolean" nillable="true" prodata:label="Runtime Only"/>
+              <xsd:element name="VirtualProperty" type="xsd:boolean" nillable="true" prodata:label="Virtual"/>
+              <xsd:element name="ConstantLevel" type="xsd:string" nillable="true" prodata:format="x(10)" prodata:label="Constant Level"/>
+              <xsd:element name="LookupType" type="xsd:string" nillable="true" prodata:format="x(12)" prodata:label="Lookup Type"/>
+              <xsd:element name="LookupValues" type="xsd:string" nillable="true" prodata:format="x(400)" prodata:label="Lookup Values"/>
+              <xsd:element name="PropertyType" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Property Type"/>
+              <xsd:element name="RepositoryType" type="xsd:string" nillable="true" prodata:format="x(12)" prodata:label="Repository Type"/>
+              <xsd:element name="SetServiceType" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="SET Service Type Name"/>
+              <xsd:element name="PropertyOrEvent" type="xsd:boolean" nillable="true" default="true" prodata:format="Property/Event"/>
+              <xsd:element name="AttributeGroupName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Attribute Group"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="AttributeValueGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartAttributeValue"/>
+      <xsd:field xpath="AttributeValueGuid"/>
+    </xsd:unique>
+    <xsd:unique name="ObjectTypeMasterInstanceLabel">
+      <xsd:selector xpath=".//eSmartAttributeValue"/>
+      <xsd:field xpath="ObjectTypeGuid"/>
+      <xsd:field xpath="ObjectMasterGuid"/>
+      <xsd:field xpath="ObjectInstanceGuid"/>
+      <xsd:field xpath="AttributeLabel"/>
+    </xsd:unique>
+    <xsd:unique name="AttributeGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartAttribute"/>
+      <xsd:field xpath="AttributeGuid"/>
+    </xsd:unique>
+    <xsd:unique name="AttributeLabel">
+      <xsd:selector xpath=".//eSmartAttribute"/>
+      <xsd:field xpath="AttributeLabel"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="AttributeLabelObjectType">
+        <prodata:table name="eSmartAttributeValue"/>
+        <prodata:field name="AttributeLabel"/>
+        <prodata:field name="ObjectTypeGuid"/>
+      </prodata:index>
+      <prodata:index name="ContainerInstanceApplies">
+        <prodata:table name="eSmartAttributeValue"/>
+        <prodata:field name="ContainerObjectMasterGuid"/>
+        <prodata:field name="ObjectInstanceGuid"/>
+        <prodata:field name="AppliesAtRuntime"/>
+      </prodata:index>
+      <prodata:index name="ContainerObjectMasterGuid">
+        <prodata:table name="eSmartAttributeValue"/>
+        <prodata:field name="ContainerObjectMasterGuid"/>
+      </prodata:index>
+      <prodata:index name="ObjectInstanceLabel">
+        <prodata:table name="eSmartAttributeValue"/>
+        <prodata:field name="ObjectInstanceGuid"/>
+        <prodata:field name="AttributeLabel"/>
+      </prodata:index>
+      <prodata:index name="ObjectMasterGuid">
+        <prodata:table name="eSmartAttributeValue"/>
+        <prodata:field name="ObjectMasterGuid"/>
+      </prodata:index>
+      <prodata:index name="AttributeGroup">
+        <prodata:table name="eSmartAttribute"/>
+        <prodata:field name="AttributeGroupGuid"/>
+        <prodata:field name="AttributeLabel"/>
+      </prodata:index>
+      <prodata:relation name="eSmartAttributeValueeSmartAttributeRelation" prodata:parent="eSmartAttributeValue" prodata:child="eSmartAttribute" prodata:relationFields="AttributeLabel,AttributeLabel"/>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

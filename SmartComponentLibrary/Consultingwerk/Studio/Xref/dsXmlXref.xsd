@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsXmlXref" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="Source" minOccurs="0" maxOccurs="unbounded" prodata:tableName="eSource">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="Source-guid" type="xsd:string" nillable="true" prodata:fieldName="SourceGuid" prodata:userOrder="2"/>
+              <xsd:element name="File-num" type="xsd:int" nillable="true" prodata:fieldName="FileNum" prodata:userOrder="3" prodata:format=">>>,>>>,>>9"/>
+              <xsd:element name="Reference" minOccurs="0" maxOccurs="unbounded" prodata:tableName="eReference">
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="Source-guid" type="xsd:string" nillable="true" prodata:fieldName="SourceGuid" prodata:userOrder="3"/>
+                    <xsd:element name="File-num" type="xsd:int" nillable="true" prodata:fieldName="FileNum" prodata:userOrder="4" prodata:format=">>>,>>>,>>9"/>
+                    <xsd:element name="Ref-seq" type="xsd:int" nillable="true" prodata:fieldName="RefSeq" prodata:userOrder="5" prodata:format=">>>,>>>,>>9"/>
+                    <xsd:element name="Line-num" type="xsd:int" nillable="true" prodata:fieldName="LineNum" prodata:userOrder="6" prodata:format=">>>,>>>,>>9"/>
+                    <xsd:element name="Object-context" type="xsd:string" nillable="true" prodata:fieldName="ObjectContext" prodata:userOrder="7" prodata:format="x(60)"/>
+                    <xsd:element name="Access-mode" type="xsd:string" nillable="true" prodata:fieldName="AccessMode" prodata:userOrder="8"/>
+                    <xsd:element name="Data-member-ref" type="xsd:string" nillable="true" prodata:fieldName="DataMemberRef" prodata:userOrder="9" prodata:format="X(60)"/>
+                    <xsd:element name="Temp-ref" type="xsd:string" nillable="true" prodata:fieldName="TempRef" prodata:userOrder="10" prodata:format="X(60)"/>
+                    <xsd:element name="Detail" type="xsd:string" nillable="true" prodata:fieldName="Detail" prodata:userOrder="11" prodata:format="X(60)"/>
+                    <xsd:element name="Is-static" type="xsd:boolean" nillable="true" prodata:fieldName="IsStatic" prodata:userOrder="12"/>
+                    <xsd:element name="Is-abstract" type="xsd:boolean" nillable="true" prodata:fieldName="IsAbstract" prodata:userOrder="13"/>
+                    <xsd:element name="Class-ref" minOccurs="0" maxOccurs="unbounded" prodata:tableName="eClassRef">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Source-guid" type="xsd:string" nillable="true" prodata:fieldName="SourceGuid"/>
+                          <xsd:element name="Ref-seq" type="xsd:int" nillable="true" prodata:fieldName="RefSeq" prodata:format=">>>,>>>,>>9"/>
+                          <xsd:element name="Inherited-list" type="xsd:string" nillable="true" prodata:fieldName="InheritedList" prodata:format="X(60)"/>
+                          <xsd:element name="Implements-list" type="xsd:string" nillable="true" prodata:fieldName="ImplementsList" prodata:format="X(60)"/>
+                          <xsd:element name="Has-use-pool" type="xsd:boolean" nillable="true" prodata:fieldName="HasUsePool"/>
+                          <xsd:element name="Is-final" type="xsd:boolean" nillable="true" prodata:fieldName="IsFinal"/>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="Parameter-ref" minOccurs="0" maxOccurs="unbounded" prodata:tableName="eParameterRef" prodata:beforeTable="eParameterRefBefore">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Source-guid" type="xsd:string" nillable="true" prodata:fieldName="SourceGuid" prodata:userOrder="5"/>
+                          <xsd:element name="Ref-seq" type="xsd:int" nillable="true" prodata:fieldName="RefSeq" prodata:userOrder="6" prodata:format=">>>,>>>,>>9"/>
+                          <xsd:element name="Dimension" type="xsd:int" nillable="true" prodata:fieldName="Dimension" prodata:userOrder="7" prodata:format=">>>,>>>,>>9"/>
+                          <xsd:element name="Is-append" type="xsd:boolean" nillable="true" prodata:fieldName="IsAppend" prodata:userOrder="8"/>
+                          <xsd:element name="DatasetGuid" type="xsd:string" nillable="true" prodata:fieldName="DatasetGuid" prodata:userOrder="9" prodata:format="x(60)"/>
+                        </xsd:sequence>
+                        <xsd:attribute name="Order" type="xsd:int" prodata:fieldName="Order" prodata:userOrder="1" prodata:format=">>>,>>>,>>9"/>
+                        <xsd:attribute name="Parameter-mode" type="xsd:string" prodata:fieldName="ParameterMode" prodata:userOrder="2" prodata:format="X(60)"/>
+                        <xsd:attribute name="Parameter-name" type="xsd:string" prodata:fieldName="ParameterName" prodata:userOrder="3" prodata:format="X(60)"/>
+                        <xsd:attribute name="Parameter-type" type="xsd:string" prodata:fieldName="ParameterType" prodata:userOrder="4" prodata:format="X(60)"/>
+                      </xsd:complexType>
+                    </xsd:element>
+                  </xsd:sequence>
+                  <xsd:attribute name="Reference-type" type="xsd:string" prodata:fieldName="ReferenceType" prodata:userOrder="1" prodata:format="X(20)"/>
+                  <xsd:attribute name="Object-identifier" type="xsd:string" prodata:fieldName="ObjectIdentifier" prodata:userOrder="2" prodata:format="X(60)"/>
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name="File-name" type="xsd:string" prodata:fieldName="FileName" prodata:userOrder="1" prodata:format="X(60)"/>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="SourceGUID" prodata:primaryIndex="true">
+        <prodata:table name="eSource"/>
+        <prodata:field name="SourceGuid"/>
+      </prodata:index>
+      <prodata:index name="FileName">
+        <prodata:table name="eSource"/>
+        <prodata:field name="FileName"/>
+      </prodata:index>
+      <prodata:index name="Reference">
+        <prodata:table name="eReference"/>
+        <prodata:field name="SourceGuid"/>
+        <prodata:field name="FileNum"/>
+        <prodata:field name="RefSeq"/>
+      </prodata:index>
+      <prodata:index name="RefSeq" prodata:primaryIndex="true">
+        <prodata:table name="eReference"/>
+        <prodata:field name="RefSeq"/>
+      </prodata:index>
+      <prodata:index name="ClassRef" prodata:primaryIndex="true">
+        <prodata:table name="eClassRef"/>
+        <prodata:field name="SourceGuid"/>
+        <prodata:field name="RefSeq"/>
+      </prodata:index>
+      <prodata:index name="RefSeq" prodata:primaryIndex="true">
+        <prodata:table name="eParameterRef"/>
+        <prodata:field name="RefSeq"/>
+        <prodata:field name="Order"/>
+      </prodata:index>
+      <prodata:index name="Reference">
+        <prodata:table name="eParameterRef"/>
+        <prodata:field name="SourceGuid"/>
+        <prodata:field name="RefSeq"/>
+        <prodata:field name="Order"/>
+      </prodata:index>
+      <prodata:relation name="eReferenceeClassRefRelation" prodata:nested="true" prodata:parent="eReference" prodata:child="eClassRef" prodata:relationFields="SourceGuid,SourceGuid,RefSeq,RefSeq"/>
+      <prodata:relation name="eReferenceeParameterRefRelation" prodata:nested="true" prodata:parent="eReference" prodata:child="eParameterRef" prodata:relationFields="SourceGuid,SourceGuid,RefSeq,RefSeq"/>
+      <prodata:relation name="eSourceeReferenceRelation" prodata:nested="true" prodata:parent="eSource" prodata:child="eReference" prodata:relationFields="SourceGuid,SourceGuid"/>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

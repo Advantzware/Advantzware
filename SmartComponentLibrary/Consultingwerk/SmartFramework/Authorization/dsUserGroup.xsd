@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsUserGroup" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="ePossibleAssignments" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="ePossibleAssignmentsBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="UserGroupGuid" type="xsd:string" nillable="true" prodata:fieldName="UserGroupGuid" prodata:format="x(36)"/>
+              <xsd:element name="GroupGuid" type="xsd:string" nillable="true" prodata:fieldName="GroupGuid" prodata:format="x(36)"/>
+              <xsd:element name="UserGuid" type="xsd:string" nillable="true" prodata:fieldName="UserGuid" prodata:format="x(36)"/>
+              <xsd:element name="UserName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+              <xsd:element name="GroupName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eSmartUserGroup" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartUserGroupBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="UserGroupGuid" type="xsd:string" nillable="true" prodata:fieldName="UserGroupGuid" prodata:format="x(36)"/>
+              <xsd:element name="GroupGuid" type="xsd:string" nillable="true" prodata:fieldName="GroupGuid" prodata:format="x(36)"/>
+              <xsd:element name="UserGuid" type="xsd:string" nillable="true" prodata:fieldName="UserGuid" prodata:format="x(36)"/>
+              <xsd:element name="UserName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+              <xsd:element name="GroupName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+              <xsd:element name="ParentGroupGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="UserGroupGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//ePossibleAssignments"/>
+      <xsd:field xpath="UserGroupGuid"/>
+    </xsd:unique>
+    <xsd:unique name="eSmartUserGroup_UserGroupGuid" prodata:indexName="UserGroupGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartUserGroup"/>
+      <xsd:field xpath="UserGroupGuid"/>
+    </xsd:unique>
+  </xsd:element>
+</xsd:schema>
