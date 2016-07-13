@@ -1609,6 +1609,7 @@ ON LEAVE OF po-ordl.job-no2 IN FRAME Dialog-Frame /* Run # */
                 END. /* If a finished good */
             END.
             /* APPLY "LEAVE" TO po-ordl.s-num.*/ /* ticket 13022 */
+    
             IF ip-type EQ "add" AND ( v-poscreen-char = "Job-Item") THEN 
             DO:
                 APPLY "entry" TO po-ordl.i-no.
