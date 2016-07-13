@@ -1,4 +1,4 @@
-/* pTemplate.i - auto generated 05.31.2016 @  8:42:34 pm from aoa/aoaParam.w */
+/* pTemplate.i - auto generated 06.15.2016 @  8:23:02 pm from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
@@ -48,20 +48,27 @@
     DEFINE VARIABLE cEndShipDateOption AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAllUserID AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cStartUserID AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cSort AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtStartBOLDate AS DATE NO-UNDO.
+    DEFINE VARIABLE cStartBOLDateOption AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndUserID AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lSubRpt_SubReportName AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dtEndBOLDate AS DATE NO-UNDO.
+    DEFINE VARIABLE cEndBOLDateOption AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAllItemNo AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cSort AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cStartItemNo AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSubRpt_SubReportName AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cEndItemNo AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAllJobNo AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lAllOrderNo AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lAllBOL AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cStartJobNo AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iStartJobNo2 AS INTEGER NO-UNDO.
     DEFINE VARIABLE iStartOrderNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iStartBOL AS INTEGER NO-UNDO.
     DEFINE VARIABLE cEndJobNo AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iEndJobNo2 AS INTEGER NO-UNDO.
     DEFINE VARIABLE iEndOrderNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iEndBOL AS INTEGER NO-UNDO.
     DEFINE VARIABLE lAllProdCategory AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cStartProdCategory AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndProdCategory AS CHARACTER NO-UNDO.
@@ -134,20 +141,29 @@
         dtEndShipDate = DYNAMIC-FUNCTION("fDateOptionDate",cEndShipDateOption,dtEndShipDate)
         lAllUserID = DYNAMIC-FUNCTION("fGetParamValue","svAllUserID") EQ "yes"
         cStartUserID = DYNAMIC-FUNCTION("fGetParamValue","svStartUserID")
-        cSort = DYNAMIC-FUNCTION("fGetParamValue","svSort")
+        dtStartBOLDate = DATE(DYNAMIC-FUNCTION("fGetParamValue","svStartBOLDate"))
+        cStartBOLDateOption = DYNAMIC-FUNCTION("fGetParamValue","svStartBOLDateOption")
+        dtStartBOLDate = DYNAMIC-FUNCTION("fDateOptionDate",cStartBOLDateOption,dtStartBOLDate)
         cEndUserID = DYNAMIC-FUNCTION("fGetParamValue","svEndUserID")
-        lSubRpt_SubReportName = DYNAMIC-FUNCTION("fGetParamValue","svSubRpt_SubReportName") EQ "yes"
+        dtEndBOLDate = DATE(DYNAMIC-FUNCTION("fGetParamValue","svEndBOLDate"))
+        cEndBOLDateOption = DYNAMIC-FUNCTION("fGetParamValue","svEndBOLDateOption")
+        dtEndBOLDate = DYNAMIC-FUNCTION("fDateOptionDate",cEndBOLDateOption,dtEndBOLDate)
         lAllItemNo = DYNAMIC-FUNCTION("fGetParamValue","svAllItemNo") EQ "yes"
+        cSort = DYNAMIC-FUNCTION("fGetParamValue","svSort")
         cStartItemNo = DYNAMIC-FUNCTION("fGetParamValue","svStartItemNo")
+        lSubRpt_SubReportName = DYNAMIC-FUNCTION("fGetParamValue","svSubRpt_SubReportName") EQ "yes"
         cEndItemNo = DYNAMIC-FUNCTION("fGetParamValue","svEndItemNo")
         lAllJobNo = DYNAMIC-FUNCTION("fGetParamValue","svAllJobNo") EQ "yes"
         lAllOrderNo = DYNAMIC-FUNCTION("fGetParamValue","svAllOrderNo") EQ "yes"
+        lAllBOL = DYNAMIC-FUNCTION("fGetParamValue","svAllBOL") EQ "yes"
         cStartJobNo = DYNAMIC-FUNCTION("fGetParamValue","svStartJobNo")
         iStartJobNo2 = DYNAMIC-FUNCTION("fGetParamValue","svStartJobNo2")
         iStartOrderNo = DYNAMIC-FUNCTION("fGetParamValue","svStartOrderNo")
+        iStartBOL = DYNAMIC-FUNCTION("fGetParamValue","svStartBOL")
         cEndJobNo = DYNAMIC-FUNCTION("fGetParamValue","svEndJobNo")
         iEndJobNo2 = DYNAMIC-FUNCTION("fGetParamValue","svEndJobNo2")
         iEndOrderNo = DYNAMIC-FUNCTION("fGetParamValue","svEndOrderNo")
+        iEndBOL = DYNAMIC-FUNCTION("fGetParamValue","svEndBOL")
         lAllProdCategory = DYNAMIC-FUNCTION("fGetParamValue","svAllProdCategory") EQ "yes"
         cStartProdCategory = DYNAMIC-FUNCTION("fGetParamValue","svStartProdCategory")
         cEndProdCategory = DYNAMIC-FUNCTION("fGetParamValue","svEndProdCategory")
@@ -218,6 +234,12 @@
     ASSIGN
         iStartOrderNo = 0
         iEndOrderNo   = 99999999
+        .
+
+    IF lAllBOL THEN
+    ASSIGN
+        iStartBOL = 0
+        iEndBOL   = 99999999
         .
 
     IF lAllProdCategory THEN

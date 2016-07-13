@@ -115,12 +115,14 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnClose 
+     IMAGE-UP FILE "aoa/images/aoaclose.jpg":U
      LABEL "&Close" 
-     SIZE 15 BY 1.
+     SIZE 8 BY 1.67.
 
 DEFINE BUTTON btnLaunch 
+     IMAGE-UP FILE "aoa/images/aoaparam.jpg":U
      LABEL "&Launch" 
-     SIZE 15 BY 1.
+     SIZE 8 BY 1.67.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -161,11 +163,11 @@ DEFINE FRAME DEFAULT-FRAME
      browseModule AT ROW 1.24 COL 2 WIDGET-ID 200
      browseAOA AT ROW 1.24 COL 41 WIDGET-ID 300
      btnLaunch AT ROW 26.71 COL 41 WIDGET-ID 4
-     btnClose AT ROW 26.71 COL 99 WIDGET-ID 2
+     btnClose AT ROW 26.71 COL 106 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 114 BY 27.05 WIDGET-ID 100.
+         SIZE 114 BY 27.57 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -185,11 +187,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "AOA Launcher"
-         HEIGHT             = 27.05
+         HEIGHT             = 27.57
          WIDTH              = 114
-         MAX-HEIGHT         = 27.05
+         MAX-HEIGHT         = 27.57
          MAX-WIDTH          = 114
-         VIRTUAL-HEIGHT     = 27.05
+         VIRTUAL-HEIGHT     = 27.57
          VIRTUAL-WIDTH      = 114
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -215,6 +217,14 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    FRAME-NAME                                                           */
 /* BROWSE-TAB browseModule 1 DEFAULT-FRAME */
 /* BROWSE-TAB browseAOA browseModule DEFAULT-FRAME */
+ASSIGN 
+       btnClose:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "WinKitRibbon".
+
+ASSIGN 
+       btnLaunch:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "WinKitRibbon".
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
