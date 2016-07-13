@@ -29,9 +29,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
-
-{sys/ref/CustList.i NEW}
+&SCOPED-DEFINE useCustList
+{aoa/aoaParamVars.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -53,14 +52,14 @@ svEndDept svAllMachine svStartMachine svEndMachine svStartOpDate ~
 btnCalendar-1 svStartOpDateOption svEndOpDate btnCalendar-2 ~
 svEndOpDateOption svAllShift svStartShift svEndShift svCustList btnCustList ~
 svAllCustNo svStartCustNo svEndCustNo svPrintByScheduledMachine ~
-svRoundDecimals svShotTotalJob svSort 
+svRoundDecimals svSort 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svAllDept svStartDept ~
 startDeptName svEndDept endDeptName svAllMachine svStartMachine ~
 startMachineDescription svEndMachine endMachineDescription svStartOpDate ~
 svStartOpDateOption svEndOpDate svEndOpDateOption svAllShift svStartShift ~
 startShiftName svEndShift endShiftName svCustList svAllCustNo svStartCustNo ~
 startCustName svEndCustNo endCustName svPrintByScheduledMachine ~
-svRoundDecimals svShotTotalJob svSort 
+svRoundDecimals svSort 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -235,11 +234,6 @@ DEFINE VARIABLE svRoundDecimals AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svShotTotalJob AS LOGICAL INITIAL no 
-     LABEL "Show Total Job?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 33 BY 1 NO-UNDO.
-
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -300,15 +294,14 @@ DEFINE FRAME F-Main
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
      svPrintByScheduledMachine AT ROW 23.14 COL 25 WIDGET-ID 124
      svRoundDecimals AT ROW 24.33 COL 25 WIDGET-ID 126
-     svShotTotalJob AT ROW 25.52 COL 25 WIDGET-ID 128
-     svSort AT ROW 27.19 COL 24.6 HELP
+     svSort AT ROW 25.76 COL 24.6 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 84
      "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 27.19 COL 15 WIDGET-ID 90
+          SIZE 8 BY 1 AT ROW 25.76 COL 15 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 85.8 BY 28.91
+         SIZE 85.8 BY 27.1
          TITLE "Report Parameters".
 
 
@@ -338,7 +331,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 28.91
+         HEIGHT             = 27.1
          WIDTH              = 85.8.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -447,10 +440,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCustNo sObject
 ON VALUE-CHANGED OF svAllCustNo IN FRAME F-Main /* All Customers */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartCustNo:READ-ONLY = {&SELF-NAME}
-      svEndCustNo:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartCustNo svEndCustNo}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -461,10 +451,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllDept sObject
 ON VALUE-CHANGED OF svAllDept IN FRAME F-Main /* All Departments */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartDept:READ-ONLY = {&SELF-NAME}
-      svEndDept:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartDept svEndDept}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -475,10 +462,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllMachine sObject
 ON VALUE-CHANGED OF svAllMachine IN FRAME F-Main /* All Machines */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartMachine:READ-ONLY = {&SELF-NAME}
-      svEndMachine:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartMachine svEndMachine}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -489,10 +473,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllShift sObject
 ON VALUE-CHANGED OF svAllShift IN FRAME F-Main /* All Shifts */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartShift:READ-ONLY = {&SELF-NAME}
-      svEndShift:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartShift svEndShift}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -620,17 +601,6 @@ END.
 &Scoped-define SELF-NAME svRoundDecimals
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svRoundDecimals sObject
 ON VALUE-CHANGED OF svRoundDecimals IN FRAME F-Main /* Round Decimals */
-DO:
-   ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME svShotTotalJob
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShotTotalJob sObject
-ON VALUE-CHANGED OF svShotTotalJob IN FRAME F-Main /* Show Total Job? */
 DO:
    ASSIGN {&self-name}.
 END.

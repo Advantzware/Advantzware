@@ -29,13 +29,14 @@ DEFINE TEMP-TABLE ttCustomerInventory NO-UNDO
     FIELD itemName    LIKE itemfg.i-name    LABEL "Description"
     FIELD orderLevel  LIKE itemfg.ord-level LABEL "Order Level"
     FIELD releasePO   LIKE oe-rel.po-no     LABEL "Release PO"
-    FIELD qtyOnHand   LIKE itemfg.q-onh     LABEL "Qty On Hand"
+    FIELD qtyOnHand   AS INTEGER            LABEL "Qty On Hand"  FORMAT "->>>>,>>>,>>>"
     FIELD palletCount AS INTEGER            LABEL "Pallet Count" FORMAT "->>>,>>>,>>>"
     FIELD releaseQty  AS CHARACTER          LABEL "Release Qty"  FORMAT "x(11)" INITIAL "___________"
     FIELD requestDate AS DATE               LABEL "Date"         FORMAT "99/99/9999"
     FIELD xxSort1     AS CHARACTER          LABEL "Sort 1"       FORMAT "x(500)"
     FIELD xxSort2     AS CHARACTER          LABEL "Sort 2"       FORMAT "x(500)"
-    .
+        INDEX sortBy IS PRIMARY rowType xxSort1 xxSort2
+        .
 {sys/ref/CustList.i NEW}
 /* Customer Inventory.rpa */
 
@@ -203,11 +204,11 @@ PROCEDURE pCustomerInventory :
             USE-INDEX co-ino
             BREAK BY fg-bin.qty DESC:
             ASSIGN
-                iPalletCount = (IF fg-bin.case-count   EQ 0 THEN 1
+                iPalletCount = (IF fg-bin.case-count EQ 0 THEN 1
                            ELSE fg-bin.case-count) *
-                            (IF fg-bin.cases-unit   EQ 0 THEN 1
+                            (IF fg-bin.cases-unit    EQ 0 THEN 1
                            ELSE fg-bin.cases-unit) *
-                            (IF fg-bin.units-pallet EQ 0 THEN 1
+                            (IF fg-bin.units-pallet  EQ 0 THEN 1
                            ELSE fg-bin.units-pallet)
                 rRowID = ROWID(fg-bin)
                 .
@@ -277,6 +278,15 @@ FUNCTION fCustomerInventory RETURNS HANDLE
     Notes:  
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttCustomerInventory.
+
+    OUTPUT TO "aoaFG.log" APPEND.
+    PUT UNFORMATTED
+        "[" NOW "] fCustomerInventory" SKIP
+        "[" NOW "]" ipcCompany SKIP
+        "[" NOW "]" ipiBatch SKIP
+        "[" NOW "]" ipcUserID SKIP(1)
+        .
+    OUTPUT CLOSE.
 
     RUN pCustomerInventory (ipcCompany, ipiBatch, ipcUserID).
 

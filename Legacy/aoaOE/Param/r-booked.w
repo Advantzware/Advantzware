@@ -29,9 +29,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
-
-{sys/ref/CustList.i NEW}
+&SCOPED-DEFINE useCustList
+{aoa/aoaParamVars.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -429,10 +428,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCustNo sObject
 ON VALUE-CHANGED OF svAllCustNo IN FRAME F-Main /* All Customers */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartCustNo:READ-ONLY = {&SELF-NAME}
-      svEndCustNo:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartCustNo svEndCustNo}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -443,10 +439,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllProdCategory sObject
 ON VALUE-CHANGED OF svAllProdCategory IN FRAME F-Main /* All Product Categories */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartProdCategory:READ-ONLY = {&SELF-NAME}
-      svEndProdCategory:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartProdCategory svEndProdCategory}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -457,10 +450,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllSalesRep sObject
 ON VALUE-CHANGED OF svAllSalesRep IN FRAME F-Main /* All Sales Reps */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartSalesRep:READ-ONLY = {&SELF-NAME}
-      svEndSalesRep:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartSalesRep svEndSalesRep}
 END.
 
 /* _UIB-CODE-BLOCK-END */

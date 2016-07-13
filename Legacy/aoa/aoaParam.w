@@ -366,6 +366,23 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 149 BY 18.05.
 
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
+     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
+     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 40 BY 10.48
+         TITLE "Show/Hide Sections" WIDGET-ID 300.
+
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
      btnDefault AT ROW 1.71 COL 32 HELP
@@ -388,23 +405,6 @@ DEFINE FRAME frameColumns
          AT COL 82 ROW 1
          SIZE 67 BY 10.48
          TITLE "Report Columns" WIDGET-ID 200.
-
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
-     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
-     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
-     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 40 BY 10.48
-         TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -693,7 +693,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel W-Win
 ON CHOOSE OF btnCancel IN FRAME paramFrame /* Cancel */
 DO:
-    APPLY "CLOSE":U TO THIS-PROCEDURE .
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1270,6 +1271,18 @@ PROCEDURE pExcel :
 
         IF svShowReportHeader THEN DO:
             ASSIGN
+                chRangeRow = chWorkSheet:Cells(1,1)
+                chRangeCol = chWorkSheet:Cells(1,svSelectedColumns:NUM-ITEMS)
+                .
+            chWorkSheet:Range(chRangeRow,chRangeCol):Select.
+            chExcel:Selection:Columns:MergeCells = TRUE.
+            ASSIGN
+                chRangeRow = chWorkSheet:Cells(2,1)
+                chRangeCol = chWorkSheet:Cells(2,svSelectedColumns:NUM-ITEMS)
+                .
+            chWorkSheet:Range(chRangeRow,chRangeCol):Select.
+            chExcel:Selection:Columns:MergeCells = TRUE.
+            ASSIGN
                 chWorkSheet:Range("A1"):Value = aoaTitle
                 chWorkSheet:Range("A1"):Font:Bold = TRUE
                 chWorkSheet:Range("A2"):Value = "Created " + STRING(TODAY,"99/99/9999")
@@ -1281,25 +1294,37 @@ PROCEDURE pExcel :
         
         IF svShowParameters THEN DO:
             ASSIGN
+                chRangeRow = chWorkSheet:Cells(iRow,1)
+                chRangeCol = chWorkSheet:Cells(iRow,svSelectedColumns:NUM-ITEMS)
+                .
+            chWorkSheet:Range(chRangeRow,chRangeCol):Select.
+            chExcel:Selection:Columns:MergeCells = TRUE.
+            ASSIGN
                 chWorkSheet:Cells(iRow,1):Value = "Parameter: Value"
                 chWorkSheet:Cells(iRow,1):Font:Bold = TRUE
                 chWorkSheet:Cells(iRow,1):Font:Underline = TRUE
                 iRow = iRow + 1
                 iStatusRow = iStatusRow + 1
                 .
-            PUT UNFORMATTED "Parameter: Value" SKIP.
             DO iColumn = 1 TO EXTENT(user-print.field-name):
                 IF user-print.field-name[iColumn] EQ "" THEN LEAVE.
                 IF user-print.field-name[iColumn] EQ "svTitle" THEN LEAVE.
-                IF INDEX(user-print.field-name[iColumn],"DateOption") EQ 0 THEN
-                ASSIGN
-                    chWorkSheet:Cells(iRow,1):Value = (IF user-print.field-label[iColumn] NE ? THEN
-                                                          user-print.field-label[iColumn] ELSE
-                                                          user-print.field-name[iColumn])
-                                                    + ": " + user-print.field-value[iColumn]
-                    iRow = iRow + 1
-                    iStatusRow = iStatusRow + 1
-                    .
+                IF INDEX(user-print.field-name[iColumn],"DateOption") EQ 0 THEN DO:
+                    ASSIGN
+                        chRangeRow = chWorkSheet:Cells(iRow,1)
+                        chRangeCol = chWorkSheet:Cells(iRow,svSelectedColumns:NUM-ITEMS)
+                        .
+                    chWorkSheet:Range(chRangeRow,chRangeCol):Select.
+                    chExcel:Selection:Columns:MergeCells = TRUE.
+                    ASSIGN
+                        chWorkSheet:Cells(iRow,1):Value = (IF user-print.field-label[iColumn] NE ? THEN
+                                                              user-print.field-label[iColumn] ELSE
+                                                              user-print.field-name[iColumn])
+                                                        + ": " + user-print.field-value[iColumn]
+                        iRow = iRow + 1
+                        iStatusRow = iStatusRow + 1
+                        .
+                END. /* not a date option parameter */
                 ELSE
                 chWorkSheet:Cells(iRow - 1,1):Value = chWorkSheet:Cells(iRow - 1,1):Value
                                                     + " (" + user-print.field-value[iColumn] + ")".
@@ -1763,96 +1788,101 @@ PROCEDURE pSaveParamValues :
 
     IF NOT VALID-HANDLE(hFrame) THEN RETURN.
 
-    IF iplBatch THEN DO:
-        CREATE user-print.
-        ASSIGN
-            user-print.company    = aoaCompany
-            user-print.program-id = aoaProgramID
-            user-print.user-id    = aoaUserID
-            user-print.batch      = "Batch"
-            .
-    END. /* not avail user-print */
-    ELSE IF NOT iplBatch THEN DO:
-        FIND FIRST user-print EXCLUSIVE-LOCK
-             WHERE user-print.company    EQ aoaCompany
-               AND user-print.program-id EQ aoaProgramID
-               AND user-print.user-id    EQ aoaUserID
-               AND user-print.batch      EQ ""
-             NO-ERROR.
-        IF NOT AVAILABLE user-print THEN DO:
+    DO TRANSACTION:
+        IF iplBatch THEN DO:
             CREATE user-print.
             ASSIGN
                 user-print.company    = aoaCompany
                 user-print.program-id = aoaProgramID
                 user-print.user-id    = aoaUserID
+                user-print.batch      = "Batch"
                 .
-        END. /* not avail */
-    END. /* not batch, view now request */
+        END. /* not avail user-print */
+        ELSE IF NOT iplBatch THEN DO:
+            FIND FIRST user-print EXCLUSIVE-LOCK
+                 WHERE user-print.company    EQ aoaCompany
+                   AND user-print.program-id EQ aoaProgramID
+                   AND user-print.user-id    EQ aoaUserID
+                   AND user-print.batch      EQ ""
+                 NO-ERROR.
+            IF NOT AVAILABLE user-print THEN DO:
+                CREATE user-print.
+                ASSIGN
+                    user-print.company    = aoaCompany
+                    user-print.program-id = aoaProgramID
+                    user-print.user-id    = aoaUserID
+                    .
+            END. /* not avail */
+        END. /* not batch, view now request */
 
-    ASSIGN
-        user-print.field-name  = ""
-        user-print.field-value = ""
-        user-print.field-label = ""
-        hChild = hFrame:FIRST-CHILD
-        hChild = hChild:FIRST-CHILD
-        .
-    DO WHILE VALID-HANDLE(hChild):
-        IF hChild:NAME NE ?        AND
-           hChild:SENSITIVE        AND
-           hChild:TYPE NE "Button" THEN
+        ASSIGN
+            user-print.field-name  = ""
+            user-print.field-value = ""
+            user-print.field-label = ""
+            hChild = hFrame:FIRST-CHILD
+            hChild = hChild:FIRST-CHILD
+            .
+        DO WHILE VALID-HANDLE(hChild):
+            IF hChild:NAME NE ?        AND
+               hChild:SENSITIVE        AND
+               hChild:TYPE NE "Button" THEN
+            ASSIGN
+                idx = idx + 1
+                user-print.field-name[idx]  = hChild:NAME
+                user-print.field-label[idx] = hChild:LABEL
+                user-print.field-value[idx] = hChild:SCREEN-VALUE
+                .
+            hChild = hChild:NEXT-SIBLING.
+        END. /* do while */
+    
         ASSIGN
             idx = idx + 1
-            user-print.field-name[idx]  = hChild:NAME
-            user-print.field-label[idx] = hChild:LABEL
-            user-print.field-value[idx] = hChild:SCREEN-VALUE
+            user-print.field-name[idx]  = "svTitle"
+            user-print.field-label[idx] = "Title"
+            user-print.field-value[idx] = aoaTitle
             .
-        hChild = hChild:NEXT-SIBLING.
-    END. /* do while */
+        
+        IF aoaColumns THEN DO WITH FRAME frameColumns:
+            DO cnt = 1 TO svAvailableColumns:NUM-ITEMS:
+                cColumns = cColumns + svAvailableColumns:ENTRY(cnt) + ",".
+            END. /* do cnt */
+            ASSIGN
+                idx = idx + 1
+                user-print.field-name[idx]  = svAvailableColumns:NAME
+                user-print.field-label[idx] = svAvailableColumns:LABEL
+                user-print.field-value[idx] = TRIM(cColumns,",")
+                cColumns = ""
+                .
+            DO cnt = 1 TO svSelectedColumns:NUM-ITEMS:
+                cColumns = cColumns + svSelectedColumns:ENTRY(cnt) + ",".
+            END. /* do cnt */
+            ASSIGN
+                idx = idx + 1
+                user-print.field-name[idx]  = svSelectedColumns:NAME
+                user-print.field-label[idx] = svSelectedColumns:LABEL
+                user-print.field-value[idx] = TRIM(cColumns,",")
+                .
+        END. /* aoacolumns */
+        
+        ASSIGN
+            hChild = FRAME frameShow:HANDLE
+            hChild = hChild:FIRST-CHILD
+            hChild = hChild:FIRST-CHILD
+            .
+        DO WHILE VALID-HANDLE(hChild):
+            IF hChild:TYPE NE "Rectangle" THEN
+            ASSIGN
+                idx = idx + 1
+                user-print.field-name[idx]  = hChild:NAME
+                user-print.field-label[idx] = hChild:LABEL
+                user-print.field-value[idx] = hChild:SCREEN-VALUE
+                .
+            hChild = hChild:NEXT-SIBLING.
+        END. /* do while */
+    END. /* do trans */
 
-    ASSIGN
-        idx = idx + 1
-        user-print.field-name[idx]  = "svTitle"
-        user-print.field-label[idx] = "Title"
-        user-print.field-value[idx] = aoaTitle
-        .
-    
-    IF aoaColumns THEN DO WITH FRAME frameColumns:
-        DO cnt = 1 TO svAvailableColumns:NUM-ITEMS:
-            cColumns = cColumns + svAvailableColumns:ENTRY(cnt) + ",".
-        END. /* do cnt */
-        ASSIGN
-            idx = idx + 1
-            user-print.field-name[idx]  = svAvailableColumns:NAME
-            user-print.field-label[idx] = svAvailableColumns:LABEL
-            user-print.field-value[idx] = TRIM(cColumns,",")
-            cColumns = ""
-            .
-        DO cnt = 1 TO svSelectedColumns:NUM-ITEMS:
-            cColumns = cColumns + svSelectedColumns:ENTRY(cnt) + ",".
-        END. /* do cnt */
-        ASSIGN
-            idx = idx + 1
-            user-print.field-name[idx]  = svSelectedColumns:NAME
-            user-print.field-label[idx] = svSelectedColumns:LABEL
-            user-print.field-value[idx] = TRIM(cColumns,",")
-            .
-    END. /* aoacolumns */
-    
-    ASSIGN
-        hChild = FRAME frameShow:HANDLE
-        hChild = hChild:FIRST-CHILD
-        hChild = hChild:FIRST-CHILD
-        .
-    DO WHILE VALID-HANDLE(hChild):
-        IF hChild:TYPE NE "Rectangle" THEN
-        ASSIGN
-            idx = idx + 1
-            user-print.field-name[idx]  = hChild:NAME
-            user-print.field-label[idx] = hChild:LABEL
-            user-print.field-value[idx] = hChild:SCREEN-VALUE
-            .
-        hChild = hChild:NEXT-SIBLING.
-    END. /* do while */
+    IF AVAILABLE user-print THEN
+    FIND CURRENT user-print NO-LOCK.
     
 END PROCEDURE.
 
@@ -1877,6 +1907,7 @@ PROCEDURE pSchedule :
 
     RUN pSaveParamValues (YES, BUFFER user-print).
 
+    FIND CURRENT user-print EXCLUSIVE-LOCK.
     ASSIGN
         user-print.batch-seq    = iBatchSeq + 1
         user-print.prog-title   = aoaTitle
@@ -1886,6 +1917,7 @@ PROCEDURE pSchedule :
         user-print.last-date    = TODAY
         user-print.last-time    = TIME
         .
+    FIND CURRENT user-print NO-LOCK.
 
     FIND FIRST reftable
          WHERE reftable.reftable EQ "aoaReport"

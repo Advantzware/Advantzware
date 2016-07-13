@@ -1,2 +1,0 @@
-<?xml version="1.0" ?>
-<InvokeServiceMethodCallParameter SerializedType="Consultingwerk.SmartFramework.InvokeServiceMethodCallParameter"><CharacterParameterValue>Office2010Blue</CharacterParameterValue><ClassName>Consultingwerk.Windows.AppStylistService</ClassName><InterfaceName>Consultingwerk.Windows.IAppStylistService</InterfaceName><MethodName>LoadStyleLibrary</MethodName><UseCharacterParameterValue>yes</UseCharacterParameterValue></InvokeServiceMethodCallParameter>

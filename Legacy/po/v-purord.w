@@ -31,38 +31,39 @@ CREATE WIDGET-POOL.
 
 {custom/globdefs.i}
 {sys/inc/VAR.i "new shared"}
-DEF VAR v-exp-limit AS INT NO-UNDO INIT 10.
-DEF VAR nufile AS LOG NO-UNDO.
-DEF VAR fil_id AS RECID NO-UNDO.
-DEF VAR ls-drop-custno AS cha NO-UNDO.
-DEF VAR ls-ship-choice AS cha NO-UNDO.
-DEF VAR lv-ship-no LIKE shipto.ship-no NO-UNDO.
-DEF VAR ll-got-vendor AS LOG NO-UNDO.
-DEF VAR lv-type LIKE po-ord.type NO-UNDO.
-DEF VAR lv-prev-val AS CHAR NO-UNDO.
-DEF VAR lv-copy-from-po-num AS INT NO-UNDO.
-DEF VAR ip-company AS CHAR NO-UNDO.
-DEF VAR ip-po-no   AS INT NO-UNDO.
-DEF VAR v-order-list AS CHAR NO-UNDO.
-DEF VAR v-copied-from AS INT NO-UNDO.
-DEF VAR ll-ord-no-override AS LOG NO-UNDO.
+DEFINE            VARIABLE v-exp-limit         AS INTEGER   NO-UNDO INIT 10.
+DEFINE            VARIABLE nufile              AS LOG       NO-UNDO.
+DEFINE            VARIABLE fil_id              AS RECID     NO-UNDO.
+DEFINE            VARIABLE ls-drop-custno      AS cha       NO-UNDO.
+DEFINE            VARIABLE ls-ship-choice      AS cha       NO-UNDO.
+DEFINE            VARIABLE lv-ship-no          LIKE shipto.ship-no NO-UNDO.
+DEFINE            VARIABLE ll-got-vendor       AS LOG       NO-UNDO.
+DEFINE            VARIABLE lv-type             LIKE po-ord.type NO-UNDO.
+DEFINE            VARIABLE lv-prev-val         AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE lv-copy-from-po-num AS INTEGER   NO-UNDO.
+DEFINE            VARIABLE ip-company          AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE ip-po-no            AS INTEGER   NO-UNDO.
+DEFINE            VARIABLE v-order-list        AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE v-copied-from       AS INTEGER   NO-UNDO.
+DEFINE            VARIABLE ll-ord-no-override  AS LOG       NO-UNDO.
 
-DEF NEW SHARED VAR factor# AS DECIMAL NO-UNDO.
-DEF NEW SHARED VAR v-default-gl-log AS LOG NO-UNDO.
-DEF NEW SHARED VAR v-default-gl-cha AS cha NO-UNDO.
-DEF NEW SHARED VAR v-po-qty AS LOG INITIAL TRUE NO-UNDO.
-DEF NEW SHARED VAR v-po-msf LIKE sys-ctrl.int-fld NO-UNDO.
+DEFINE NEW SHARED VARIABLE factor#             AS DECIMAL   NO-UNDO.
+DEFINE NEW SHARED VARIABLE v-default-gl-log    AS LOG       NO-UNDO.
+DEFINE NEW SHARED VARIABLE v-default-gl-cha    AS cha       NO-UNDO.
+DEFINE NEW SHARED VARIABLE v-po-qty            AS LOG       INITIAL TRUE NO-UNDO.
+DEFINE NEW SHARED VARIABLE v-po-msf            LIKE sys-ctrl.int-fld NO-UNDO.
 
-DEF TEMP-TABLE tt-ord-no 
-    FIELD LINE AS INT
-    FIELD ord-no AS INT .
+DEFINE TEMP-TABLE tt-ord-no 
+    FIELD LINE   AS INTEGER
+    FIELD ord-no AS INTEGER .
 
 DO TRANSACTION:
-  {sys/inc/aptax.i}
+    {sys/inc/aptax.i}
 END.
 
-ASSIGN cocode = g_company
-       locode = g_loc.
+ASSIGN 
+    cocode = g_company
+    locode = g_loc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -149,193 +150,193 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCalendar-1 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+    IMAGE-UP FILE "schedule/images/calendar.bmp":U
+    LABEL "" 
+    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-2 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+    IMAGE-UP FILE "schedule/images/calendar.bmp":U
+    LABEL "" 
+    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-3 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+    IMAGE-UP FILE "schedule/images/calendar.bmp":U
+    LABEL "" 
+    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
-DEFINE VARIABLE lv_vend-add1 AS CHARACTER FORMAT "x(30)" 
-     VIEW-AS FILL-IN 
-     SIZE 42 BY 1 NO-UNDO.
+DEFINE VARIABLE lv_vend-add1      AS CHARACTER FORMAT "x(30)" 
+    VIEW-AS FILL-IN 
+    SIZE 42 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv_vend-add2 AS CHARACTER FORMAT "x(30)" 
-     VIEW-AS FILL-IN 
-     SIZE 42 BY 1.
+DEFINE VARIABLE lv_vend-add2      AS CHARACTER FORMAT "x(30)" 
+    VIEW-AS FILL-IN 
+    SIZE 42 BY 1.
 
 DEFINE VARIABLE lv_vend-area-code AS CHARACTER FORMAT "(999)" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1.
+    VIEW-AS FILL-IN 
+    SIZE 7 BY 1.
 
-DEFINE VARIABLE lv_vend-city AS CHARACTER FORMAT "x(16)" 
-     VIEW-AS FILL-IN 
-     SIZE 21.2 BY 1.
+DEFINE VARIABLE lv_vend-city      AS CHARACTER FORMAT "x(16)" 
+    VIEW-AS FILL-IN 
+    SIZE 21.2 BY 1.
 
-DEFINE VARIABLE lv_vend-name AS CHARACTER FORMAT "x(30)" 
-     VIEW-AS FILL-IN 
-     SIZE 42 BY 1 NO-UNDO.
+DEFINE VARIABLE lv_vend-name      AS CHARACTER FORMAT "x(30)" 
+    VIEW-AS FILL-IN 
+    SIZE 42 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv_vend-phone AS CHARACTER FORMAT "999-9999" 
-     VIEW-AS FILL-IN 
-     SIZE 13 BY 1.
+DEFINE VARIABLE lv_vend-phone     AS CHARACTER FORMAT "999-9999" 
+    VIEW-AS FILL-IN 
+    SIZE 13 BY 1.
 
-DEFINE VARIABLE lv_vend-state AS CHARACTER FORMAT "x(2)" 
-     VIEW-AS FILL-IN 
-     SIZE 4.4 BY 1.
+DEFINE VARIABLE lv_vend-state     AS CHARACTER FORMAT "x(2)" 
+    VIEW-AS FILL-IN 
+    SIZE 4.4 BY 1.
 
-DEFINE VARIABLE lv_vend-zip AS CHARACTER FORMAT "xxxxx-xxxx" INITIAL "00000-0000" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+DEFINE VARIABLE lv_vend-zip       AS CHARACTER FORMAT "xxxxx-xxxx" INITIAL "00000-0000" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1.
 
-DEFINE VARIABLE shipAreaCode AS CHARACTER FORMAT "(999)" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1.
+DEFINE VARIABLE shipAreaCode      AS CHARACTER FORMAT "(999)" 
+    VIEW-AS FILL-IN 
+    SIZE 7 BY 1.
 
-DEFINE VARIABLE shipPhone AS CHARACTER FORMAT "999-9999" 
-     VIEW-AS FILL-IN 
-     SIZE 13 BY 1.
+DEFINE VARIABLE shipPhone         AS CHARACTER FORMAT "999-9999" 
+    VIEW-AS FILL-IN 
+    SIZE 13 BY 1.
 
-DEFINE VARIABLE typeDescr AS CHARACTER FORMAT "X(256)":U INITIAL "Type Description" 
-      VIEW-AS TEXT 
-     SIZE 20 BY 1 NO-UNDO.
+DEFINE VARIABLE typeDescr         AS CHARACTER FORMAT "X(256)":U INITIAL "Type Description" 
+    VIEW-AS TEXT 
+    SIZE 20 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 144 BY 15.48.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 144 BY 15.48.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     po-ord.po-no AT ROW 1.24 COL 23 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     po-ord.po-date AT ROW 1.24 COL 50 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     btnCalendar-1 AT ROW 1.24 COL 68.40
-     po-ord.type AT ROW 1.24 COL 83 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 4 BY 1
-     po-ord.stat AT ROW 1.24 COL 119 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
-     po-ord.vend-no AT ROW 2.43 COL 23 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     po-ord.ship-id AT ROW 2.43 COL 83 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     lv_vend-name AT ROW 3.38 COL 23 COLON-ALIGNED HELP
-          "Enter Vendor name." NO-LABEL
-     po-ord.ship-name AT ROW 3.38 COL 83 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 42 BY 1
-     po-ord.ship-addr[1] AT ROW 4.33 COL 83 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 42 BY 1
-     lv_vend-add1 AT ROW 4.38 COL 23 COLON-ALIGNED NO-LABEL
-     po-ord.ship-addr[2] AT ROW 5.29 COL 83 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
-          VIEW-AS FILL-IN 
-          SIZE 42 BY 1
-     lv_vend-add2 AT ROW 5.38 COL 23 COLON-ALIGNED NO-LABEL
-     po-ord.ship-city AT ROW 6.24 COL 83 COLON-ALIGNED NO-LABEL FORMAT "x(16)"
-          VIEW-AS FILL-IN 
-          SIZE 21.2 BY 1
-     po-ord.ship-state AT ROW 6.24 COL 105 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     po-ord.ship-zip AT ROW 6.24 COL 110 COLON-ALIGNED NO-LABEL FORMAT "xxxxx-xxxx"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     lv_vend-city AT ROW 6.38 COL 23 COLON-ALIGNED NO-LABEL
-     lv_vend-state AT ROW 6.38 COL 45 COLON-ALIGNED HELP
-          "Enter the vendor's state." NO-LABEL
-     lv_vend-zip AT ROW 6.38 COL 50 COLON-ALIGNED NO-LABEL
-     shipAreaCode AT ROW 7.19 COL 83 COLON-ALIGNED NO-LABEL
-     shipPhone AT ROW 7.19 COL 90 COLON-ALIGNED HELP
-          "Enter the Vendor's telephone number." NO-LABEL
-     lv_vend-area-code AT ROW 7.43 COL 23 COLON-ALIGNED NO-LABEL
-     lv_vend-phone AT ROW 7.43 COL 30 COLON-ALIGNED HELP
-          "Enter the Vendor's telephone number." NO-LABEL
-     po-ord.buyer AT ROW 9.1 COL 23 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     po-ord.contact AT ROW 10.29 COL 23 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 32 BY 1
-     po-ord.due-date AT ROW 11.48 COL 23 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     po-ord.last-ship-date AT ROW 12.67 COL 23 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     btnCalendar-2 AT ROW 11.43 COL 43.40
-     btnCalendar-3 AT ROW 12.62 COL 43.40
-     po-ord.under-pct AT ROW 13.86 COL 23 COLON-ALIGNED
-          LABEL "Under / Overrun %"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-     po-ord.over-pct AT ROW 13.86 COL 36 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-     po-ord.carrier AT ROW 9.1 COL 83 COLON-ALIGNED FORMAT "x(5)"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     po-ord.tax-gr AT ROW 10.29 COL 83 COLON-ALIGNED
-          LABEL "Tax Code"
-          VIEW-AS FILL-IN 
-          SIZE 9 BY 1
-     po-ord.terms AT ROW 11.48 COL 83 COLON-ALIGNED FORMAT "x(5)"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     po-ord.frt-pay AT ROW 13.86 COL 85 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Prepaid", "P":U,
-"Collect", "C":U,
-"Bill", "B":U
-          SIZE 46 BY 1
+    po-ord.po-no AT ROW 1.24 COL 23 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 14 BY 1
+    po-ord.po-date AT ROW 1.24 COL 50 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1
+    btnCalendar-1 AT ROW 1.24 COL 68.40
+    po-ord.type AT ROW 1.24 COL 83 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 4 BY 1
+    po-ord.stat AT ROW 1.24 COL 119 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 3.2 BY 1
+    po-ord.vend-no AT ROW 2.43 COL 23 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 14 BY 1
+    po-ord.ship-id AT ROW 2.43 COL 83 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 14 BY 1
+    lv_vend-name AT ROW 3.38 COL 23 COLON-ALIGNED HELP
+    "Enter Vendor name." NO-LABELS
+    po-ord.ship-name AT ROW 3.38 COL 83 COLON-ALIGNED NO-LABELS
+    VIEW-AS FILL-IN 
+    SIZE 42 BY 1
+    po-ord.ship-addr[1] AT ROW 4.33 COL 83 COLON-ALIGNED NO-LABELS
+    VIEW-AS FILL-IN 
+    SIZE 42 BY 1
+    lv_vend-add1 AT ROW 4.38 COL 23 COLON-ALIGNED NO-LABELS
+    po-ord.ship-addr[2] AT ROW 5.29 COL 83 COLON-ALIGNED NO-LABELS FORMAT "x(30)"
+    VIEW-AS FILL-IN 
+    SIZE 42 BY 1
+    lv_vend-add2 AT ROW 5.38 COL 23 COLON-ALIGNED NO-LABELS
+    po-ord.ship-city AT ROW 6.24 COL 83 COLON-ALIGNED NO-LABELS FORMAT "x(16)"
+    VIEW-AS FILL-IN 
+    SIZE 21.2 BY 1
+    po-ord.ship-state AT ROW 6.24 COL 105 COLON-ALIGNED NO-LABELS
+    VIEW-AS FILL-IN 
+    SIZE 4.4 BY 1
+    po-ord.ship-zip AT ROW 6.24 COL 110 COLON-ALIGNED NO-LABELS FORMAT "xxxxx-xxxx"
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1
+    lv_vend-city AT ROW 6.38 COL 23 COLON-ALIGNED NO-LABELS
+    lv_vend-state AT ROW 6.38 COL 45 COLON-ALIGNED HELP
+    "Enter the vendor's state." NO-LABELS
+    lv_vend-zip AT ROW 6.38 COL 50 COLON-ALIGNED NO-LABELS
+    shipAreaCode AT ROW 7.19 COL 83 COLON-ALIGNED NO-LABELS
+    shipPhone AT ROW 7.19 COL 90 COLON-ALIGNED HELP
+    "Enter the Vendor's telephone number." NO-LABELS
+    lv_vend-area-code AT ROW 7.43 COL 23 COLON-ALIGNED NO-LABELS
+    lv_vend-phone AT ROW 7.43 COL 30 COLON-ALIGNED HELP
+    "Enter the Vendor's telephone number." NO-LABELS
+    po-ord.buyer AT ROW 9.1 COL 23 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 14 BY 1
+    po-ord.contact AT ROW 10.29 COL 23 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 32 BY 1
+    po-ord.due-date AT ROW 11.48 COL 23 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 18 BY 1
+    po-ord.last-ship-date AT ROW 12.67 COL 23 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 18 BY 1
+    btnCalendar-2 AT ROW 11.43 COL 43.40
+    btnCalendar-3 AT ROW 12.62 COL 43.40
+    po-ord.under-pct AT ROW 13.86 COL 23 COLON-ALIGNED
+    LABEL "Under / Overrun %"
+    VIEW-AS FILL-IN 
+    SIZE 10.4 BY 1
+    po-ord.over-pct AT ROW 13.86 COL 36 COLON-ALIGNED NO-LABELS
+    VIEW-AS FILL-IN 
+    SIZE 10.4 BY 1
+    po-ord.carrier AT ROW 9.1 COL 83 COLON-ALIGNED FORMAT "x(5)"
+    VIEW-AS FILL-IN 
+    SIZE 14 BY 1
+    po-ord.tax-gr AT ROW 10.29 COL 83 COLON-ALIGNED
+    LABEL "Tax Code"
+    VIEW-AS FILL-IN 
+    SIZE 9 BY 1
+    po-ord.terms AT ROW 11.48 COL 83 COLON-ALIGNED FORMAT "x(5)"
+    VIEW-AS FILL-IN 
+    SIZE 14 BY 1
+    po-ord.frt-pay AT ROW 13.86 COL 85 NO-LABELS
+    VIEW-AS RADIO-SET HORIZONTAL
+    RADIO-BUTTONS 
+    "Prepaid", "P":U,
+    "Collect", "C":U,
+    "Bill", "B":U
+    SIZE 46 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1 SCROLLABLE 
+    FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     po-ord.fob-code AT ROW 15.05 COL 85 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL EXPAND 
-          RADIO-BUTTONS 
-                    "Destination", "Dest":U,
-"Origination", "Orig":U
-          SIZE 35 BY 1
-     po-ord.t-freight AT ROW 9.1 COL 119 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     po-ord.tax AT ROW 10.29 COL 119 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 12.8 BY 1
-     po-ord.t-cost AT ROW 11.48 COL 119 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 17.6 BY 1
-     typeDescr AT ROW 1.24 COL 88 COLON-ALIGNED NO-LABEL
-     "FOB:" VIEW-AS TEXT
-          SIZE 6 BY .81 AT ROW 15.05 COL 78
-     "Freight Payment:" VIEW-AS TEXT
-          SIZE 19 BY .81 AT ROW 13.86 COL 65
-     RECT-1 AT ROW 1 COL 1
+    po-ord.fob-code AT ROW 15.05 COL 85 NO-LABELS
+    VIEW-AS RADIO-SET HORIZONTAL EXPAND 
+    RADIO-BUTTONS 
+    "Destination", "Dest":U,
+    "Origination", "Orig":U
+    SIZE 35 BY 1
+    po-ord.t-freight AT ROW 9.1 COL 119 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 14 BY 1
+    po-ord.tax AT ROW 10.29 COL 119 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 12.8 BY 1
+    po-ord.t-cost AT ROW 11.48 COL 119 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 17.6 BY 1
+    typeDescr AT ROW 1.24 COL 88 COLON-ALIGNED NO-LABELS
+    "FOB:" VIEW-AS TEXT
+    SIZE 6 BY .81 AT ROW 15.05 COL 78
+    "Freight Payment:" VIEW-AS TEXT
+    SIZE 19 BY .81 AT ROW 13.86 COL 65
+    RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1 SCROLLABLE 
+    FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -352,10 +353,11 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-  RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN 
+DO:
+    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+    RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -391,8 +393,8 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
 ASSIGN 
-       FRAME F-Main:SCROLLABLE       = FALSE
-       FRAME F-Main:HIDDEN           = TRUE.
+       FRAME F-Main:SCROLLABLE = FALSE
+       FRAME F-Main:HIDDEN     = TRUE.
 
 /* SETTINGS FOR FILL-IN po-ord.carrier IN FRAME F-Main
    EXP-FORMAT                                                           */
@@ -474,7 +476,7 @@ ASSIGN
 ON CTRL-O OF FRAME F-Main
 OR ctrl-o OF btnCalendar-1 ANYWHERE
 DO:
-  DEF VAR char-hdl AS CHAR.
+  DEFINE VARIABLE char-hdl AS CHARACTER.
 
   ll-ord-no-override = TRUE.
   /* Add with ctrl-o allows user to specify an order number */
@@ -490,9 +492,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
-    DEF VAR rec-val AS RECID NO-UNDO.
-    DEF VAR lw-focus AS HANDLE NO-UNDO.
+    DEFINE VARIABLE char-val AS cha    NO-UNDO.
+    DEFINE VARIABLE rec-val  AS RECID  NO-UNDO.
+    DEFINE VARIABLE lw-focus AS HANDLE NO-UNDO.
 
 
     lw-focus = FOCUS.
@@ -506,7 +508,7 @@ DO:
                    WHERE vend.company EQ po-ord.company
                    AND vend.vend-no EQ lw-focus:SCREEN-VALUE
                    NO-LOCK NO-ERROR.
-               IF AVAIL vend THEN DO:
+               IF AVAILABLE vend THEN DO:
                    ASSIGN po-ord.due-date:SCREEN-VALUE = STRING(DATE(po-ord.po-date:SCREEN-VALUE) + vend.disc-days) .
                END.
                RUN new-vend-no.
@@ -602,7 +604,7 @@ DO:
       AND vend.vend-no EQ po-ord.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
       NO-LOCK NO-ERROR.
 
-  IF AVAIL vend THEN DO:
+  IF AVAILABLE vend THEN DO:
       ASSIGN po-ord.due-date:SCREEN-VALUE = STRING(DATE(po-ord.po-date:SCREEN-VALUE) + vend.disc-days /*+
                                                                                         IF WEEKDAY(po-ord.po-date) EQ 6 THEN 3 ELSE 1*/ ) .
   END.
@@ -643,7 +645,7 @@ DO:
        FIND FIRST carrier WHERE carrier.company = g_company AND
                                 carrier.carrier = SELF:SCREEN-VALUE
                    NO-LOCK NO-ERROR.
-       IF NOT AVAIL carrier THEN DO:
+       IF NOT AVAILABLE carrier THEN DO:
           MESSAGE "Invalid Carrier. Try Help. " VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
        END.
@@ -698,11 +700,11 @@ ON LEAVE OF po-ord.ship-id IN FRAME F-Main /* Ship To */
 DO:
   IF LASTKEY NE -1 THEN DO:     
     IF ls-drop-custno NE "" THEN DO:
-      FIND FIRST shipto WHERE shipto.company EQ cocode
+      FIND FIRST shipto NO-LOCK WHERE shipto.company EQ cocode
                           AND shipto.cust-no EQ ls-drop-custno
                           AND shipto.ship-id EQ INPUT po-ord.ship-id
-                          NO-LOCK NO-ERROR.
-         IF NOT AVAIL shipto THEN
+                          NO-ERROR.
+         IF NOT AVAILABLE shipto THEN
          DO:
             MESSAGE "Shipto " + INPUT po-ord.ship-id +
                    " Unavailable for Customer " + ls-drop-custno + ". Please Re-Enter."
@@ -712,26 +714,26 @@ DO:
          END.
          ELSE DO :
              FIND cust OF shipto NO-LOCK NO-ERROR.
-             ASSIGN po-ord.ship-id:SCREEN-VALUE       = shipto.ship-id
-                    po-ord.ship-name:SCREEN-VALUE     = shipto.ship-name
-                    po-ord.ship-addr[1]:SCREEN-VALUE  = shipto.ship-addr[1]
-                    po-ord.ship-addr[2]:SCREEN-VALUE  = shipto.ship-addr[2]
-                    po-ord.ship-city:SCREEN-VALUE     = shipto.ship-city
-                    po-ord.ship-state:SCREEN-VALUE    = shipto.ship-state
-                    po-ord.ship-zip:SCREEN-VALUE      = shipto.ship-zip
-                    lv-ship-no                        = shipto.ship-no
-                    shipAreaCode:SCREEN-VALUE         = IF AVAIL cust THEN cust.area-code ELSE ""
-                    shipPhone:SCREEN-VALUE            = IF AVAIL cust THEN cust.phone ELSE "".
+             ASSIGN po-ord.ship-id:SCREEN-VALUE      = shipto.ship-id
+                    po-ord.ship-name:SCREEN-VALUE    = shipto.ship-name
+                    po-ord.ship-addr[1]:SCREEN-VALUE = shipto.ship-addr[1]
+                    po-ord.ship-addr[2]:SCREEN-VALUE = shipto.ship-addr[2]
+                    po-ord.ship-city:SCREEN-VALUE    = shipto.ship-city
+                    po-ord.ship-state:SCREEN-VALUE   = shipto.ship-state
+                    po-ord.ship-zip:SCREEN-VALUE     = shipto.ship-zip
+                    lv-ship-no                       = shipto.ship-no
+                    shipAreaCode:SCREEN-VALUE        = IF AVAILABLE cust THEN cust.area-code ELSE ""
+                    shipPhone:SCREEN-VALUE           = IF AVAILABLE cust THEN cust.phone ELSE "".
              ASSIGN fil_id = RECID(shipto).
          END.
     END.
     ELSE DO:  /* vendor */
-        FIND FIRST vend WHERE vend.company EQ cocode
+        FIND FIRST vend NO-LOCK WHERE vend.company EQ cocode
                           AND vend.vend-no EQ INPUT po-ord.ship-id
-                        NO-LOCK NO-ERROR.
+                        NO-ERROR.
         IF AVAILABLE vend THEN DO:
             ASSIGN po-ord.ship-id:SCREEN-VALUE = vend.vend-no
-                   fil_id        = RECID(vend).
+                   fil_id                      = RECID(vend).
             ASSIGN po-ord.ship-name:SCREEN-VALUE    = vend.name
                    po-ord.ship-addr[1]:SCREEN-VALUE = vend.add1
                    po-ord.ship-addr[2]:SCREEN-VALUE = vend.add2
@@ -805,10 +807,10 @@ DO:
     IF LASTKEY = -1 THEN RETURN.
 
     IF SELF:MODIFIED THEN DO:
-       FIND FIRST terms WHERE terms.company = g_company AND
+       FIND FIRST terms NO-LOCK WHERE terms.company = g_company AND
                               terms.t-code = SELF:SCREEN-VALUE
-                   NO-LOCK NO-ERROR.
-       IF NOT AVAIL terms THEN DO:
+                   NO-ERROR.
+       IF NOT AVAILABLE terms THEN DO:
           MESSAGE "Invalid Terms. Try Help. " VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
        END.
@@ -966,7 +968,7 @@ PROCEDURE close-reopen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-rowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
 
   
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
@@ -1007,11 +1009,11 @@ PROCEDURE display-shipto :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-recid AS RECID NO-UNDO.
+  DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
   DO WITH FRAME {&FRAME-NAME} :
     FIND FIRST shipto WHERE RECID(shipto) = ip-recid
                           NO-LOCK NO-ERROR.
-  IF NOT AVAIL shipto THEN
+  IF NOT AVAILABLE shipto THEN
          DO:
             MESSAGE "Shipto " + INPUT po-ord.ship-id +
                    " Unavailable for Customer " + ls-drop-custno + ". Please Re-Enter."
@@ -1020,16 +1022,16 @@ PROCEDURE display-shipto :
   END.
   ELSE DO:
        FIND cust OF shipto NO-LOCK NO-ERROR.
-       ASSIGN po-ord.ship-id:SCREEN-VALUE       = shipto.ship-id
-              po-ord.ship-name:SCREEN-VALUE     = shipto.ship-name
-              po-ord.ship-addr[1]:SCREEN-VALUE  = shipto.ship-addr[1]
-              po-ord.ship-addr[2]:SCREEN-VALUE  = shipto.ship-addr[2]
-              po-ord.ship-city:SCREEN-VALUE     = shipto.ship-city
-              po-ord.ship-state:SCREEN-VALUE    = shipto.ship-state
-              po-ord.ship-zip:SCREEN-VALUE      = shipto.ship-zip
-              lv-ship-no                        = shipto.ship-no
-              shipAreaCode:SCREEN-VALUE         = IF AVAIL cust THEN cust.area-code ELSE ""
-              shipPhone:SCREEN-VALUE            = IF AVAIL cust THEN cust.phone ELSE "".
+       ASSIGN po-ord.ship-id:SCREEN-VALUE      = shipto.ship-id
+              po-ord.ship-name:SCREEN-VALUE    = shipto.ship-name
+              po-ord.ship-addr[1]:SCREEN-VALUE = shipto.ship-addr[1]
+              po-ord.ship-addr[2]:SCREEN-VALUE = shipto.ship-addr[2]
+              po-ord.ship-city:SCREEN-VALUE    = shipto.ship-city
+              po-ord.ship-state:SCREEN-VALUE   = shipto.ship-state
+              po-ord.ship-zip:SCREEN-VALUE     = shipto.ship-zip
+              lv-ship-no                       = shipto.ship-no
+              shipAreaCode:SCREEN-VALUE        = IF AVAILABLE cust THEN cust.area-code ELSE ""
+              shipPhone:SCREEN-VALUE           = IF AVAILABLE cust THEN cust.phone ELSE "".
     END.
   END.
 END PROCEDURE.
@@ -1046,11 +1048,11 @@ PROCEDURE display-vend :
 ------------------------------------------------------------------------------*/
   
   DO WITH FRAME {&frame-name}:
-    FIND FIRST vend
+    FIND FIRST vend NO-LOCK 
         WHERE vend.company EQ po-ord.company
           AND vend.vend-no EQ po-ord.vend-no:SCREEN-VALUE
-        USE-INDEX vend NO-LOCK NO-ERROR.
-    IF AVAIL vend THEN DO:
+        USE-INDEX vend NO-ERROR.
+    IF AVAILABLE vend THEN DO:
       ASSIGN
        lv_vend-name:SCREEN-VALUE  = vend.name
        lv_vend-add1:SCREEN-VALUE  = vend.add1
@@ -1083,20 +1085,20 @@ PROCEDURE display-vend-to :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&frame-name}:
-    FIND FIRST vend
+    FIND FIRST vend NO-LOCK 
         WHERE vend.company EQ po-ord.company
           AND vend.vend-no EQ po-ord.ship-id:SCREEN-VALUE
-        USE-INDEX vend NO-LOCK NO-ERROR.
-    IF AVAIL vend THEN
+        USE-INDEX vend NO-ERROR.
+    IF AVAILABLE vend THEN
       ASSIGN
-       po-ord.ship-name:SCREEN-VALUE   = IF AVAIL vend THEN vend.name ELSE ''
-       po-ord.ship-add[1]:SCREEN-VALUE = IF AVAIL vend THEN vend.add1 ELSE ''
-       po-ord.ship-add[2]:SCREEN-VALUE = IF AVAIL vend THEN vend.add2 ELSE ''
-       po-ord.ship-city:SCREEN-VALUE   = IF AVAIL vend THEN vend.city ELSE ''
-       po-ord.ship-state:SCREEN-VALUE  = IF AVAIL vend THEN vend.state ELSE ''
-       po-ord.ship-zip:SCREEN-VALUE    = IF AVAIL vend THEN vend.zip ELSE ''
-       shipAreaCode:SCREEN-VALUE       = IF AVAIL vend THEN vend.area-code ELSE ''
-       shipPhone:SCREEN-VALUE          = IF AVAIL vend THEN vend.phone ELSE ''.
+       po-ord.ship-name:SCREEN-VALUE   = IF AVAILABLE vend THEN vend.name ELSE ''
+       po-ord.ship-add[1]:SCREEN-VALUE = IF AVAILABLE vend THEN vend.add1 ELSE ''
+       po-ord.ship-add[2]:SCREEN-VALUE = IF AVAILABLE vend THEN vend.add2 ELSE ''
+       po-ord.ship-city:SCREEN-VALUE   = IF AVAILABLE vend THEN vend.city ELSE ''
+       po-ord.ship-state:SCREEN-VALUE  = IF AVAILABLE vend THEN vend.state ELSE ''
+       po-ord.ship-zip:SCREEN-VALUE    = IF AVAILABLE vend THEN vend.zip ELSE ''
+       shipAreaCode:SCREEN-VALUE       = IF AVAILABLE vend THEN vend.area-code ELSE ''
+       shipPhone:SCREEN-VALUE          = IF AVAILABLE vend THEN vend.phone ELSE ''.
   END.
 
 END PROCEDURE.
@@ -1111,8 +1113,8 @@ PROCEDURE get-parameters :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF OUTPUT PARAMETER op-company AS CHAR NO-UNDO.
-DEF OUTPUT PARAMETER op-po-no   AS INT NO-UNDO.
+DEFINE OUTPUT PARAMETER op-company AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER op-po-no   AS INTEGER NO-UNDO.
 op-company = ip-company.
 op-po-no   = ip-po-no.
 
@@ -1133,17 +1135,18 @@ PROCEDURE hold-release :
         ERROR.
     RETURN.
  END.
- IF AVAIL po-ord THEN DO:
+ IF AVAILABLE po-ord THEN DO:
      MESSAGE "Are you sure you wish to " +
           trim(STRING(po-ord.stat EQ "H","release/hold")) + " this PO?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice AS LOG.
      IF choice THEN DO:  
-        DEF BUFFER bf-po-ord FOR po-ord.
-        FIND bf-po-ord WHERE RECID(bf-po-ord) EQ recid(po-ord) NO-ERROR.
+        DEFINE BUFFER bf-po-ord FOR po-ord.
+        FIND bf-po-ord EXCLUSIVE-LOCK WHERE RECID(bf-po-ord) EQ recid(po-ord) NO-ERROR.
         bf-po-ord.stat = IF bf-po-ord.stat EQ "H" THEN "O" ELSE "H".    
      END.
+     FIND CURRENT bf-po-ord NO-LOCK NO-ERROR.
      FIND CURRENT po-ord NO-LOCK NO-ERROR.
-     IF AVAIL po-ord THEN DISP po-ord.stat WITH FRAME {&FRAME-NAME}.
+     IF AVAILABLE po-ord THEN DISPLAY po-ord.stat WITH FRAME {&FRAME-NAME}.
  END.
 
 END PROCEDURE.
@@ -1159,12 +1162,12 @@ PROCEDURE is-dropship :
   Notes:       
 ------------------------------------------------------------------------------*/
   
-  DEF VAR look-recid AS RECID NO-UNDO.
-  DEF VAR ll-choice AS LOG INIT NO NO-UNDO.
-  DEF VAR lv-stat AS CHAR NO-UNDO.
+  DEFINE VARIABLE look-recid  AS RECID     NO-UNDO.
+  DEFINE VARIABLE ll-choice   AS LOG       INIT NO NO-UNDO.
+  DEFINE VARIABLE lv-stat     AS CHARACTER NO-UNDO.
   
-  DEF VAR ship-custno AS CHAR LABEL "Enter Customer Number" NO-UNDO.
-  DEF VAR ship-choice AS LO LABEL "Ship To" VIEW-AS RADIO-SET HORIZONTAL
+  DEFINE VARIABLE ship-custno AS CHARACTER LABEL "Enter Customer Number" NO-UNDO.
+  DEFINE VARIABLE ship-choice AS LO        LABEL "Ship To" VIEW-AS RADIO-SET HORIZONTAL
        RADIO-BUTTONS "Vendor", YES,
                      "Customer", NO
        SIZE 44 BY 3 NO-UNDO.
@@ -1211,7 +1214,7 @@ PROCEDURE is-dropship :
   END.
   ON 'help':U OF ship-custno 
   DO:
-      DEF VAR char-val AS cha NO-UNDO.
+      DEFINE VARIABLE char-val AS cha NO-UNDO.
       RUN windows/l-custact.w (cocode, ship-custno:SCREEN-VALUE, OUTPUT char-val,OUTPUT look-recid).
       IF char-val NE "" THEN DO:
         ship-custno:SCREEN-VALUE = ENTRY(1,char-val).
@@ -1243,9 +1246,9 @@ PROCEDURE is-dropship :
              shipPhone:SCREEN-VALUE           = "".
           ELSE DO: /*Task 07181204 */
               EACHPOORDL:
-              FOR EACH po-ordl WHERE 
-                po-ordl.company = g_company AND
-                po-ordl.po-no = po-ord.po-no NO-LOCK:
+              FOR EACH po-ordl NO-LOCK WHERE 
+                po-ordl.company = g_company
+                AND po-ordl.po-no = po-ord.po-no:
                 FOR EACH oe-rel WHERE
                     oe-rel.company EQ g_company AND
                     oe-rel.ord-no = INT(po-ordl.ord-no) AND
@@ -1281,8 +1284,8 @@ PROCEDURE is-dropship :
                             po-ord.ship-state:SCREEN-VALUE   = shipto.ship-state
                             po-ord.ship-zip:SCREEN-VALUE     = shipto.ship-zip
                             lv-ship-no                       = shipto.ship-no
-                            shipAreaCode:SCREEN-VALUE        = IF AVAIL cust THEN cust.area-code ELSE ""
-                            shipPhone:SCREEN-VALUE           = IF AVAIL cust THEN cust.phone ELSE "".
+                            shipAreaCode:SCREEN-VALUE        = IF AVAILABLE cust THEN cust.area-code ELSE ""
+                            shipPhone:SCREEN-VALUE           = IF AVAILABLE cust THEN cust.phone ELSE "".
                      IF po-ord.frt-pay:SCREEN-VALUE NE "P" THEN
                          po-ord.carrier:SCREEN-VALUE = shipto.carrier.
               END. /*avail shipto */                                                                          
@@ -1339,26 +1342,26 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR iv-copy-from-rec AS RECID NO-UNDO.
-  DEF BUFFER bx-poord FOR po-ord.
-  DEF BUFFER bx-poline FOR po-ordl.
-  DEF VAR iv-poline-copied AS LOG NO-UNDO.
-  DEF VAR lv-prev-vend-no AS cha NO-UNDO.
-  DEF BUFFER bx-notes FOR notes.
-  DEF VAR lv-due-date AS DATE NO-UNDO.
-  DEF VAR v-new-orders AS CHAR NO-UNDO.
-  DEF VAR vi AS INT NO-UNDO.
+  DEFINE VARIABLE iv-copy-from-rec AS RECID NO-UNDO.
+  DEFINE BUFFER bx-poord  FOR po-ord.
+  DEFINE BUFFER bx-poline FOR po-ordl.
+  DEFINE VARIABLE iv-poline-copied AS LOG NO-UNDO.
+  DEFINE VARIABLE lv-prev-vend-no  AS cha NO-UNDO.
+  DEFINE BUFFER bx-notes FOR notes.
+  DEFINE VARIABLE lv-due-date  AS DATE      NO-UNDO.
+  DEFINE VARIABLE v-new-orders AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE vi           AS INTEGER   NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   EMPTY TEMP-TABLE tt-ord-no.
   ASSIGN
-  iv-copy-from-rec = IF AVAIL po-ord THEN RECID(po-ord) ELSE ?
-  lv-prev-vend-no = IF AVAIL po-ord THEN po-ord.vend-no ELSE ""
-  lv-due-date = po-ord.due-date.
+  iv-copy-from-rec = IF AVAILABLE po-ord THEN RECID(po-ord) ELSE ?
+  lv-prev-vend-no  = IF AVAILABLE po-ord THEN po-ord.vend-no ELSE ""
+  lv-due-date      = po-ord.due-date.
      FIND bx-poord WHERE RECID(bx-poord) = iv-copy-from-rec NO-LOCK NO-ERROR.
-     IF AVAIL bx-poord THEN DO:
-         ASSIGN ip-company = bx-poord.company
-            ip-po-no   = bx-poord.po-no
+     IF AVAILABLE bx-poord THEN DO:
+         ASSIGN ip-company    = bx-poord.company
+            ip-po-no      = bx-poord.po-no
             v-copied-from = bx-poord.po-no.
         RUN set-copy-from (INPUT bx-poord.po-no).
         FIND FIRST bx-poline WHERE bx-poline.company = bx-poord.company 
@@ -1368,7 +1371,7 @@ PROCEDURE local-assign-record :
         ip-company = bx-poord.company.
         ip-po-no   = bx-poord.po-no.
      END.
-  IF adm-new-record AND NOT adm-adding-record AND AVAIL bx-poline THEN DO:
+  IF adm-new-record AND NOT adm-adding-record AND AVAILABLE bx-poline THEN DO:
       RUN po/w-cppoln.w (INPUT ip-company, INPUT ip-po-no, OUTPUT v-new-orders).
       
       IF v-order-list GT "" THEN DO:
@@ -1392,7 +1395,7 @@ PROCEDURE local-assign-record :
                       AND shipto.cust-no EQ ls-drop-custno
                       AND shipto.ship-id EQ po-ord.ship-id
                       NO-LOCK NO-ERROR.
-     IF AVAIL shipto AND shipto.loc GT "" THEN
+     IF AVAILABLE shipto AND shipto.loc GT "" THEN
          po-ord.loc = shipto.loc.
 
   IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy*/
@@ -1415,44 +1418,48 @@ PROCEDURE local-assign-record :
            WHERE vend.company EQ po-ord.company
              AND vend.vend-no EQ po-ord.vend-no
            NO-ERROR.
-       IF AVAIL vend THEN po-ord.tax-gr = vend.tax-gr.
+       IF AVAILABLE vend THEN po-ord.tax-gr = vend.tax-gr.
      END.
      
 
-     FOR EACH bx-poline WHERE
+     FOR EACH bx-poline NO-LOCK WHERE
          bx-poline.company EQ bx-poord.company AND
-         bx-poline.po-no EQ bx-poord.po-no NO-LOCK:
+         bx-poline.po-no EQ bx-poord.po-no :
+             
          CREATE po-ordl.
          BUFFER-COPY bx-poline EXCEPT po-no rec_key rel-qty t-rel-qty 
                                       t-inv-qty deleted t-rec-qty opened
                                       job-no job-no2
                                TO po-ordl.
-         ASSIGN po-ordl.po-no = po-ord.po-no
-                po-ordl.vend-no = po-ord.vend-no
+         ASSIGN po-ordl.po-no    = po-ord.po-no
+                po-ordl.vend-no  = po-ord.vend-no
                 po-ordl.due-date = po-ord.due-date
-                po-ordl.stat = "O"
+                po-ordl.stat     = "O"
                 /*po-ordl.over-pct = po-ord.over-pct
                 po-ordl.under-pct = po-ord.under-pct*/.
 
          IF po-ord.vend-no NE bx-poord.vend-no THEN
            po-ordl.tax = po-ord.tax-gr NE "" AND aptax-chr EQ "Vendor".
-         IF AVAIL vend THEN DO:
+           
+         IF AVAILABLE vend THEN DO:
            po-ordl.disc = vend.disc-%.
            RUN po/po-sysct.p.
            IF v-default-gl-log AND v-default-gl-cha EQ "Vendor" THEN po-ordl.actnum = vend.actnum.
          END.
+                  
          FIND FIRST tt-ord-no WHERE tt-ord-no.LINE = po-ordl.LINE
                                 AND tt-ord-no.ord-no NE po-ordl.ord-no
                               NO-ERROR.
-         IF AVAIL tt-ord-no THEN
+         IF AVAILABLE tt-ord-no THEN
              po-ordl.ord-no = tt-ord-no.ord-no.
-         
+         IF po-ord.printed OR po-ord.stat <> "N" THEN po-ordl.stat = "A".
+                  
          ROWID(po-ordl). /* flush it */
 
-         IF po-ord.printed OR po-ord.stat <> "N" THEN po-ordl.stat = "A".
+
          iv-poline-copied = YES.
 
-         FOR EACH bx-notes WHERE bx-notes.rec_key EQ bx-poline.rec_key NO-LOCK:
+         FOR EACH bx-notes NO-LOCK WHERE bx-notes.rec_key EQ bx-poline.rec_key :
            CREATE notes.
            BUFFER-COPY bx-notes TO notes
            ASSIGN
@@ -1468,31 +1475,32 @@ PROCEDURE local-assign-record :
              bx-poline.po-no   EQ po-ord.po-no AND
              bx-poline.LINE = 0
              NO-ERROR.
-        IF AVAIL bx-poline THEN DELETE bx-poline.
+        IF AVAILABLE bx-poline THEN DELETE bx-poline.
      END.
+     FIND CURRENT po-ordl NO-LOCK NO-ERROR.
   END.
 
   IF adm-new-record OR lv-prev-vend-no <> po-ord.vend-no THEN DO:
      /* create po notes from vendor */
      IF po-ord.rec_key = "" THEN DO:
-        DEF VAR ls-key AS cha NO-UNDO.
+        DEFINE VARIABLE ls-key AS cha NO-UNDO.
         ASSIGN
-        ls-key = STRING(TODAY,"99999999") +
+        ls-key         = STRING(TODAY,"99999999") +
                   string(NEXT-VALUE(rec_key_seq,nosweat),"99999999")
         po-ord.rec_key = ls-key.               
         CREATE rec_key.
-        ASSIGN rec_key.rec_key = po-ord.rec_key
+        ASSIGN rec_key.rec_key    = po-ord.rec_key
                rec_key.table_name = "PO".
      END.
 
      FOR EACH bx-notes WHERE bx-notes.rec_key = vend.rec_key
                          AND bx-notes.note_type = "G"
                          AND bx-notes.note_group = "PO" NO-LOCK:
-         FIND FIRST notes WHERE notes.rec_key = po-ord.rec_key 
+         FIND FIRST notes EXCLUSIVE-LOCK WHERE notes.rec_key = po-ord.rec_key 
                             AND notes.note_title = bx-notes.note_title NO-ERROR.
-         IF NOT AVAIL notes THEN CREATE notes.
+         IF NOT AVAILABLE notes THEN CREATE notes.
           
-         ASSIGN notes.rec_key = po-ord.rec_key
+         ASSIGN notes.rec_key   = po-ord.rec_key
                 notes.note_date = TODAY .
          BUFFER-COPY bx-notes EXCEPT bx-notes.rec_key bx-notes.note_date TO notes.
    
@@ -1500,7 +1508,7 @@ PROCEDURE local-assign-record :
   END.
 
   IF NOT adm-new-record AND lv-prev-vend-no NE po-ord.vend-no THEN
-     FOR EACH po-ordl WHERE
+     FOR EACH po-ordl EXCLUSIVE-LOCK WHERE
          po-ordl.company = po-ord.company AND
          po-ordl.po-no = po-ord.po-no:
          po-ordl.vend-no = po-ord.vend-no.
@@ -1510,12 +1518,13 @@ PROCEDURE local-assign-record :
      MESSAGE "Do you want to update the due date for all line items?"
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
      IF ll-ans THEN 
-         FOR EACH po-ordl WHERE po-ordl.company = po-ord.company
+         FOR EACH po-ordl EXCLUSIVE-LOCK WHERE po-ordl.company = po-ord.company
                             AND po-ordl.po-no = po-ord.po-no:
              po-ordl.due-date = po-ord.due-date.
 
          END.
   END.
+  FIND CURRENT po-ord NO-LOCK NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1550,7 +1559,7 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER b-po-ordl FOR po-ordl.
+  DEFINE BUFFER b-po-ordl FOR po-ordl.
   DEFINE VARIABLE iNextPo LIKE po-ctrl.next-po-no NO-UNDO.
   
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -1587,29 +1596,33 @@ PROCEDURE local-create-record :
    b-po-ordl.line     = 0
    b-po-ordl.due-date = po-ord.due-date.
 
-  ASSIGN lv_vend-name = ""
-         lv_vend-add1 = ""
-         lv_vend-add2 = ""
-         lv_vend-city = ""
-         lv_vend-state = ""
-         lv_vend-zip = ""
+  ASSIGN lv_vend-name      = ""
+         lv_vend-add1      = ""
+         lv_vend-add2      = ""
+         lv_vend-city      = ""
+         lv_vend-state     = ""
+         lv_vend-zip       = ""
          lv_vend-area-code = ""
-         lv_vend-phone = "".
+         lv_vend-phone     = "".
   DISPLAY lv_vend-name lv_vend-add1 lv_vend-add2 lv_vend-city
           lv_vend-state lv_vend-zip lv_vend-area-code lv_vend-phone
     WITH FRAME {&FRAME-NAME}.
 
   FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
-  IF AVAILABLE company THEN ASSIGN po-ord.ship-id = company.company
-                                   po-ord.ship-name = company.NAME
+  IF AVAILABLE company THEN ASSIGN po-ord.ship-id      = company.company
+                                   po-ord.ship-name    = company.NAME
                                    po-ord.ship-addr[1] = company.addr[1]
                                    po-ord.ship-addr[2] = company.addr[2]
-                                   po-ord.ship-city = company.city
-                                   po-ord.ship-state = company.state
-                                   po-ord.ship-zip = company.zip.
+                                   po-ord.ship-city    = company.city
+                                   po-ord.ship-state   = company.state
+                                   po-ord.ship-zip     = company.zip.
 
  RELEASE po-ctrl.
-
+ FIND CURRENT po-ord NO-LOCK NO-ERROR.
+ FIND CURRENT po-ordl NO-LOCK NO-ERROR.
+ FIND CURRENT b-po-ordl NO-LOCK NO-ERROR.
+ FIND CURRENT reftable NO-LOCK NO-ERROR.
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1629,7 +1642,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN setTypeDescr.
-  IF AVAIL po-ord THEN RUN display-vend.
+  IF AVAILABLE po-ord THEN RUN display-vend.
   v-copied-from = INTEGER(po-ord.po-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 END PROCEDURE.
 
@@ -1642,11 +1655,11 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR ll-is-new-rec AS LOG NO-UNDO.
-  DEF VAR lv-rowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE ll-is-new-rec AS LOG   NO-UNDO.
+  DEFINE VARIABLE lv-rowid      AS ROWID NO-UNDO.
 
-  DEF BUFFER b-notes FOR notes.
-  DEF BUFFER b-po-ord FOR po-ord.
+  DEFINE BUFFER b-notes  FOR notes.
+  DEFINE BUFFER b-po-ord FOR po-ord.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   /* == validations ==== */
@@ -1664,7 +1677,7 @@ PROCEDURE local-update-record :
        FIND FIRST carrier WHERE carrier.company = g_company AND
                                 carrier.carrier = po-ord.carrier:SCREEN-VALUE
                    NO-LOCK NO-ERROR.
-       IF NOT AVAIL carrier THEN DO:
+       IF NOT AVAILABLE carrier THEN DO:
           MESSAGE "Invalid Carrier. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO po-ord.carrier.
           RETURN NO-APPLY.
@@ -1678,7 +1691,7 @@ PROCEDURE local-update-record :
        FIND FIRST terms WHERE terms.company = g_company AND
                               terms.t-code = po-ord.terms:SCREEN-VALUE
                NO-LOCK NO-ERROR.
-       IF NOT AVAIL terms THEN DO:
+       IF NOT AVAILABLE terms THEN DO:
           MESSAGE "Invalid Terms. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO po-ord.terms.
           RETURN NO-APPLY.
@@ -1718,12 +1731,12 @@ PROCEDURE local-update-record :
          DELETE b-notes.
      END.
 
-     FIND FIRST b-po-ord WHERE
+     FIND FIRST b-po-ord NO-LOCK WHERE
           b-po-ord.company EQ po-ord.company AND
           b-po-ord.po-no   EQ lv-copy-from-po-num
-          NO-LOCK NO-ERROR.
+          NO-ERROR.
 
-     IF AVAIL b-po-ord THEN
+     IF AVAILABLE b-po-ord THEN
      DO:
         FOR EACH b-notes WHERE
             b-notes.rec_key EQ b-po-ord.rec_key
@@ -1750,7 +1763,7 @@ PROCEDURE local-update-record :
      END.
 
      ASSIGN
-       copy-record = NO
+       copy-record         = NO
        lv-copy-from-po-num = 0.  /*clear variables for next operations*/
   END.
 
@@ -1779,7 +1792,7 @@ PROCEDURE new-fob-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR ld AS DEC NO-UNDO.
+  DEFINE VARIABLE ld AS DECIMAL NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1790,9 +1803,9 @@ PROCEDURE new-fob-code :
     END.
     ELSE 
       ASSIGN po-ord.t-freight:SCREEN-VALUE = STRING(0)
-             ld = DEC(po-ord.t-cost:SCREEN-VALUE) - dec(lv-prev-val)
-             po-ord.t-cost:SCREEN-VALUE = STRING(ld)
-             lv-prev-val = "".
+             ld                            = DEC(po-ord.t-cost:SCREEN-VALUE) - dec(lv-prev-val)
+             po-ord.t-cost:SCREEN-VALUE    = STRING(ld)
+             lv-prev-val                   = "".
   END.
 
 END PROCEDURE.
@@ -1807,7 +1820,7 @@ PROCEDURE new-t-freight :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR ld AS DEC EXTENT 3 NO-UNDO.
+  DEFINE VARIABLE ld AS DECIMAL EXTENT 3 NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1842,7 +1855,7 @@ PROCEDURE new-type :
 
     IF lv-type EQ "D" AND po-ord.type:SCREEN-VALUE NE "D" THEN DO:
       FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.
-      IF AVAIL company THEN
+      IF AVAILABLE company THEN
         ASSIGN
          po-ord.ship-id:SCREEN-VALUE      = company.company
          po-ord.ship-name:SCREEN-VALUE    = company.name
@@ -1888,7 +1901,8 @@ PROCEDURE new-vend-no :
           AND vend.vend-no BEGINS po-ord.vend-no:SCREEN-VALUE
           AND vend.active  EQ "A"
         NO-LOCK NO-ERROR.
-    IF AVAIL vend THEN DO:
+    FIND CURRENT po-ord EXCLUSIVE-LOCK.
+    IF AVAILABLE vend THEN DO:
       ASSIGN
        po-ord.vend-no:SCREEN-VALUE   = vend.vend-no
        po-ord.carrier:SCREEN-VALUE   = vend.carrier
@@ -1903,6 +1917,7 @@ PROCEDURE new-vend-no :
       RUN display-vend.
     END.
   END.
+  FIND CURRENT po-ord NO-LOCK NO-ERROR.
   ll-got-vendor = YES.
 END PROCEDURE.
 
@@ -1918,7 +1933,7 @@ PROCEDURE post-enable :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}: 
-    IF AVAIL po-ord THEN 
+    IF AVAILABLE po-ord THEN 
         ASSIGN
          ls-drop-custno = po-ord.cust-no
          lv-type        = po-ord.type.
@@ -1944,7 +1959,7 @@ PROCEDURE reopen-query1 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF INPUT PARAM ip-rowid AS ROWID.
+   DEFINE INPUT PARAMETER ip-rowid AS ROWID.
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
    RUN record-added IN WIDGET-HANDLE(char-hdl).
@@ -2007,7 +2022,7 @@ PROCEDURE set-copy-from :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER ipi-po-num AS INT NO-UNDO.
+DEFINE INPUT PARAMETER ipi-po-num AS INTEGER NO-UNDO.
 
     v-copied-from = ipi-po-num.
 END PROCEDURE.
@@ -2022,7 +2037,7 @@ PROCEDURE set-order-list :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER ip-order-list AS CHAR NO-UNDO.
+DEFINE INPUT PARAMETER ip-order-list AS CHARACTER NO-UNDO.
 v-order-list = ip-order-list. 
 END PROCEDURE.
 
@@ -2044,8 +2059,8 @@ PROCEDURE setTypeDescr :
     FIND cust NO-LOCK WHERE cust.company EQ cocode
                         AND cust.cust-no EQ po-ord.cust-no NO-ERROR.
     ASSIGN
-      shipAreaCode:SCREEN-VALUE = IF AVAIL cust THEN cust.area-code ELSE ''
-      shipPhone:SCREEN-VALUE = IF AVAIL cust THEN cust.phone ELSE ''.
+      shipAreaCode:SCREEN-VALUE = IF AVAILABLE cust THEN cust.area-code ELSE ''
+      shipPhone:SCREEN-VALUE    = IF AVAILABLE cust THEN cust.phone ELSE ''.
   END.
 
 END PROCEDURE.
@@ -2080,7 +2095,7 @@ PROCEDURE valid-tax-gr :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
+  DEFINE INPUT PARAMETER ip-focus AS HANDLE NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -2141,10 +2156,10 @@ PROCEDURE valid-vend-no :
         WHERE vend.company EQ po-ord.company
           AND vend.vend-no EQ po-ord.vend-no:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF NOT AVAIL vend                                                      OR
+    IF NOT AVAILABLE vend                                                      OR
        (vend.active NE "A" AND
         (po-ord.vend-no NE po-ord.vend-no:SCREEN-VALUE OR adm-new-record)) THEN DO:
-      IF AVAIL vend THEN
+      IF AVAILABLE vend THEN
         MESSAGE TRIM(po-ord.vend-no:LABEL) + " not active, try help..."
             VIEW-AS ALERT-BOX ERROR.
       ELSE 

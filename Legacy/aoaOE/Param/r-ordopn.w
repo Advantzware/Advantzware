@@ -29,9 +29,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
-
-{sys/ref/CustList.i NEW}
+&SCOPED-DEFINE useCustList
+{aoa/aoaParamVars.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -56,7 +55,7 @@ svStartJobNo2 svEndJobNo svEndJobNo2 svAllItemNo svStartItemNo svEndItemNo ~
 svAllCAD svStartCAD svEndCAD svStartDueDate btnCalendar-3 ~
 svStartDueDateOption svEndDueDate btnCalendar-4 svEndDueDateOption ~
 svAllUserID svStartUserID svEndUserID svAllSalesRep svStartSalesRep ~
-svEndSalesRep svPrimarySort svPrimarySort-2 svJobStatus svOrderStatus ~
+svEndSalesRep svPrimarySort svJobStatus svPrimarySort-2 svOrderStatus ~
 svWIPQty svSubRpt_PrintJobQtyDetails svDropOrderUnderrun ~
 svIncludeZeroOrderBalanceItems svIncludeZeroQtyActReleaseQty ~
 svIncludeJobsQOH svIncludeZeroQtyWIPItems svIncludeInactiveItems 
@@ -69,7 +68,7 @@ endItemName svAllCAD svStartCAD svEndCAD svStartDueDate ~
 svStartDueDateOption svEndDueDate svEndDueDateOption svAllUserID ~
 svStartUserID startUserIDName svEndUserID endUserIDName svAllSalesRep ~
 svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
-svPrimarySort svPrimarySort-2 svJobStatus svOrderStatus svWIPQty ~
+svPrimarySort svJobStatus svPrimarySort-2 svOrderStatus svWIPQty ~
 svSubRpt_PrintJobQtyDetails svDropOrderUnderrun ~
 svIncludeZeroOrderBalanceItems svIncludeZeroQtyActReleaseQty ~
 svIncludeJobsQOH svIncludeZeroQtyWIPItems svIncludeInactiveItems 
@@ -482,10 +481,10 @@ DEFINE FRAME F-Main
      endSalesRepName AT ROW 24.81 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 104
      svPrimarySort AT ROW 26 COL 22 HELP
           "Select Primary Sort Option" NO-LABEL WIDGET-ID 84
-     svPrimarySort-2 AT ROW 28.38 COL 22 HELP
-          "Select Secondary Sort Option" NO-LABEL WIDGET-ID 202
      svJobStatus AT ROW 28.38 COL 22 HELP
           "Select Job Status" NO-LABEL WIDGET-ID 210
+     svPrimarySort-2 AT ROW 28.38 COL 22 HELP
+          "Select Secondary Sort Option" NO-LABEL WIDGET-ID 202
      svOrderStatus AT ROW 29.57 COL 22 HELP
           "Select Order Status" NO-LABEL WIDGET-ID 214
      svWIPQty AT ROW 30.76 COL 22 HELP
@@ -504,16 +503,16 @@ DEFINE FRAME F-Main
           "Select to Include 0 Qty WIP Items" WIDGET-ID 226
      svIncludeInactiveItems AT ROW 35.52 COL 56 HELP
           "Select to Include Inactive Items" WIDGET-ID 228
-     "WIP Qty:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 30.76 COL 12 WIDGET-ID 246
-     "Order Status:" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 29.57 COL 9 WIDGET-ID 244
-     "Job Status:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 28.38 COL 10 WIDGET-ID 242
-     "Secondary Sort By:" VIEW-AS TEXT
-          SIZE 19 BY 1 AT ROW 27.19 COL 2 WIDGET-ID 208
      "Primary Sort By:" VIEW-AS TEXT
           SIZE 15 BY 1 AT ROW 26 COL 6 WIDGET-ID 90
+     "Secondary Sort By:" VIEW-AS TEXT
+          SIZE 19 BY 1 AT ROW 27.19 COL 2 WIDGET-ID 208
+     "Job Status:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 28.38 COL 10 WIDGET-ID 242
+     "Order Status:" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 29.57 COL 9 WIDGET-ID 244
+     "WIP Qty:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 30.76 COL 12 WIDGET-ID 246
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -679,10 +678,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCAD sObject
 ON VALUE-CHANGED OF svAllCAD IN FRAME F-Main /* All CAD */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartCAD:READ-ONLY = {&SELF-NAME}
-      svEndCAD:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartCAD svEndCAD}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -693,10 +689,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCustNo sObject
 ON VALUE-CHANGED OF svAllCustNo IN FRAME F-Main /* All Customers */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartCustNo:READ-ONLY = {&SELF-NAME}
-      svEndCustNo:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartCustNo svEndCustNo}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -707,10 +700,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllItemNo sObject
 ON VALUE-CHANGED OF svAllItemNo IN FRAME F-Main /* All Items */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartItemNo:READ-ONLY = {&SELF-NAME}
-      svEndItemNo:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartItemNo svEndItemNo}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -721,12 +711,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllJobNo sObject
 ON VALUE-CHANGED OF svAllJobNo IN FRAME F-Main /* All Jobs */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartJobNo:READ-ONLY  = {&SELF-NAME}
-      svStartJobNo2:READ-ONLY = {&SELF-NAME}
-      svEndJobNo:READ-ONLY    = {&SELF-NAME}
-      svEndJobNo2:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartJobNo svEndJobNo}
+    {aoa/svAllValueChanged.i svStartJobNo2 svEndJobNo2}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -737,10 +723,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllPONumber sObject
 ON VALUE-CHANGED OF svAllPONumber IN FRAME F-Main /* All PO Numbers */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartPONumber:READ-ONLY = {&SELF-NAME}
-      svEndPONumber:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartPONumber svEndPONumber}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -751,10 +734,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllSalesRep sObject
 ON VALUE-CHANGED OF svAllSalesRep IN FRAME F-Main /* All Sales Reps */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartSalesRep:READ-ONLY = {&SELF-NAME}
-      svEndSalesRep:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartSalesRep svEndSalesRep}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -765,10 +745,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllUserID sObject
 ON VALUE-CHANGED OF svAllUserID IN FRAME F-Main /* All User IDs */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartUserID:READ-ONLY = {&SELF-NAME}
-      svEndUserID:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartUserID svEndUserID}
 END.
 
 /* _UIB-CODE-BLOCK-END */

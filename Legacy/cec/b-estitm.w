@@ -370,7 +370,7 @@ DEFINE BROWSE br-estitm
       eb.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
             COLUMN-FONT 2
       eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U COLUMN-FONT 2
-      eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 19.2
+      eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 21
             COLUMN-FONT 2
       display-combo-qty () @ est-qty.eqty WIDTH 10.2
       eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 COLUMN-FONT 2
@@ -539,7 +539,7 @@ ASSIGN
      _FldNameList[5]   > ASI.eb.part-dscr1
 "eb.part-dscr1" "Item Name" ? "character" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.eb.stock-no
-"eb.stock-no" "FG Item#" ? "character" ? ? 2 ? ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.stock-no" "FG Item#" ? "character" ? ? 2 ? ? ? yes ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > "_<CALC>"
 "display-combo-qty () @ est-qty.eqty" ? ? ? ? ? ? ? ? ? no ? no no "10.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.eb.style
