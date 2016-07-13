@@ -388,7 +388,7 @@ END.
 
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
-    {methods/template/browser.i}
+{methods/template/browser.i}
 {custom/yellowColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -720,8 +720,8 @@ ON RETURN OF Browser-Table IN FRAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
     DO:
-  /* This code displays initial values for newly added or copied rows. */
-    {src/adm/template/brsentry.i}
+        /* This code displays initial values for newly added or copied rows. */
+        {src/adm/template/brsentry.i}
   
         ASSIGN
             ll-help-run  = NO
@@ -772,10 +772,10 @@ ON START-SEARCH OF Browser-Table IN FRAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
     DO:
-  /* This ADM trigger code must be preserved in order to notify other
-     objects when the browser's current row changes. */
-    {src/adm/template/brschnge.i}
-    {methods/template/local/setvalue.i}
+        /* This ADM trigger code must be preserved in order to notify other
+           objects when the browser's current row changes. */
+        {src/adm/template/brschnge.i}
+        {methods/template/local/setvalue.i}
 
         IF AVAILABLE rm-rctd                                                          AND
             CAN-FIND(FIRST tt-rm-rctd WHERE tt-rm-rctd.tt-rowid EQ ROWID(rm-rctd)) THEN
@@ -807,7 +807,7 @@ ON LEAVE OF rm-rctd.rct-date IN BROWSE Browser-Table /* Receipt Date */
     DO:
         IF LASTKEY NE -1 THEN 
         DO:
-        {custom/currentDatePrompt.i SELF:SCREEN-VALUE}
+            {custom/currentDatePrompt.i SELF:SCREEN-VALUE}
         END.
     END.
 
@@ -1520,19 +1520,19 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
-/*------------------------------------------------------------------------------
-  Purpose:     Dispatched to this procedure when the Record-
-               Source has a new row available.  This procedure
-               tries to get the new row (or foriegn keys) from
-               the Record-Source and process it.
-  Parameters:  <none>
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Dispatched to this procedure when the Record-
+                   Source has a new row available.  This procedure
+                   tries to get the new row (or foriegn keys) from
+                   the Record-Source and process it.
+      Parameters:  <none>
+    ------------------------------------------------------------------------------*/
 
-  /* Define variables needed by this internal procedure.             */
+    /* Define variables needed by this internal procedure.             */
     {src/adm/template/row-head.i}
 
-  /* Process the newly available records (i.e. display fields,
-     open queries, and/or pass records on to any RECORD-TARGETS).    */
+    /* Process the newly available records (i.e. display fields,
+       open queries, and/or pass records on to any RECORD-TARGETS).    */
     {src/adm/template/row-end.i}
 
 END PROCEDURE.
@@ -1829,7 +1829,7 @@ PROCEDURE display-item :
                 IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" OR
                     item.i-code EQ "R"                                         THEN 
                 DO:
-                {rm/avgcost.i}
+                    {rm/avgcost.i}
 
                     ASSIGN
                         /*rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom */
@@ -1962,8 +1962,10 @@ PROCEDURE display-po-info :
         END.
 
         IF ll-tag-meth AND adm-new-record THEN 
+        DO:
             RUN pGetTagSequence(cocode, po-ordl.po-no, OUTPUT cNewTag).
-        rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = cNewTag.
+            rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = cNewTag.
+        END.
     /*        DO:                                                                                                                  */
     /*            ASSIGN                                                                                                           */
     /*                li-tag-seq = 0                                                                                               */
@@ -2292,7 +2294,7 @@ PROCEDURE get-matrix :
                         v-po-cost = po-ordl.cost
                         v-po-cuom = po-ordl.pr-uom.
 
-     {rm/pol-dims.i}
+                    {rm/pol-dims.i}
                 END.
                 ELSE 
                 DO:
@@ -2954,7 +2956,7 @@ PROCEDURE po-cost :
             v-wid      = po-ordl.s-wid
             v-bwt      = 0.
 
-     {rm/pol-dims.i}
+        {rm/pol-dims.i}
 
         IF rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name} EQ lv-qty-uom THEN
             lv-out-qty = DEC(rm-rctd.qty:screen-value IN BROWSE {&browse-name}).
@@ -3027,20 +3029,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
-/*------------------------------------------------------------------------------
-  Purpose:     Send record ROWID's for all tables used by
-               this file.
-  Parameters:  see template/snd-head.i
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Send record ROWID's for all tables used by
+                   this file.
+      Parameters:  see template/snd-head.i
+    ------------------------------------------------------------------------------*/
 
-  /* Define variables needed by this internal procedure.               */
+    /* Define variables needed by this internal procedure.               */
     {src/adm/template/snd-head.i}
 
-  /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "rm-rctd"}
+    /* For each requested table, put it's ROWID in the output list.      */
+    {src/adm/template/snd-list.i "rm-rctd"}
 
-  /* Deal with any unexpected table requests before closing.           */
-  {src/adm/template/snd-end.i}
+    /* Deal with any unexpected table requests before closing.           */
+    {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 
@@ -3058,9 +3060,9 @@ PROCEDURE state-changed :
     DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
 
     CASE p-state:
-      /* Object instance CASEs can go here to replace standard behavior
-         or add new cases. */
-    {src/adm/template/bstates.i}
+        /* Object instance CASEs can go here to replace standard behavior
+           or add new cases. */
+        {src/adm/template/bstates.i}
     END CASE.
 END PROCEDURE.
 
@@ -3356,8 +3358,10 @@ PROCEDURE create-rcptd :
             rm-rctd.loc-bin = SUBSTR(v-bin,6).
 
         IF ll-tag-meth  THEN
+        DO:
             RUN pGetTagSequence(cocode, po-ordl.po-no, OUTPUT cNewTag). 
-        rm-rctd.tag = cNewTag.
+            rm-rctd.tag = cNewTag.
+        END.
         /*        DO:                                                                            */
         /*            ASSIGN                                                                     */
         /*                li-tag-seq = 0                                                         */
