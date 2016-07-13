@@ -256,7 +256,7 @@ FOR EACH ar-cash
                
                FOR EACH ar-invl NO-LOCK
                    WHERE ar-invl.x-no EQ ar-inv.x-no
-                   AND (IF AVAIL reftable THEN ar-invl.LINE eq INT(SUBSTRING(reftable.code2,11,10)) ELSE TRUE)  :              /*Task# 11221303*/
+                   AND (IF AVAIL reftable THEN ar-invl.LINE eq INT(SUBSTRING(reftable.code2,11,10)) ELSE ar-invl.LINE EQ ar-cashl.LINE)  :              /*Task# 11221303*/
 
                    ASSIGN v-po-no  = STRING(ar-invl.po-no)
                        v-ord-no = STRING(ar-invl.ord-no)
