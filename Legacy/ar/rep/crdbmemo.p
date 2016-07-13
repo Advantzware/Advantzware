@@ -212,11 +212,18 @@ FOR EACH ar-cash
                        v-po-no  = ""
                        v-bol-no = ""
                        v-s-man  = "".
+
+                     FIND FIRST reftable
+                         WHERE reftable.reftable EQ "ar-cashl.inv-line"
+                         AND reftable.code    EQ STRING(ar-cashl.c-no,"9999999999")  +
+                                                 STRING(ar-cashl.line,"9999999999")
+                         USE-INDEX CODE NO-ERROR.
              
                     FIND FIRST ar-invl WHERE
                          ar-invl.company EQ oe-reth.company AND
                          ar-invl.x-no EQ ar-inv.x-no AND
-                         ar-invl.i-no EQ oe-retl.i-no
+                         ar-invl.i-no EQ oe-retl.i-no AND 
+                         (IF AVAIL reftable THEN ar-invl.LINE eq INT(SUBSTRING(reftable.code2,11,10)) ELSE TRUE)
                          NO-LOCK NO-ERROR.
                    
                     IF AVAIL ar-invl THEN
@@ -240,20 +247,27 @@ FOR EACH ar-cash
               END.
            END.
 
-           ELSE
-           FOR EACH ar-invl NO-LOCK
-               WHERE ar-invl.x-no EQ ar-inv.x-no
-                AND ar-invl.LINE EQ ar-cashl.LINE:              /*Task# 11221303*/
+           ELSE do:
+               FIND FIRST reftable
+               WHERE reftable.reftable EQ "ar-cashl.inv-line"
+                  AND reftable.code    EQ STRING(ar-cashl.c-no,"9999999999")  +
+                                          STRING(ar-cashl.line,"9999999999")
+               USE-INDEX CODE NO-ERROR.
+               
+               FOR EACH ar-invl NO-LOCK
+                   WHERE ar-invl.x-no EQ ar-inv.x-no
+                   AND (IF AVAIL reftable THEN ar-invl.LINE eq INT(SUBSTRING(reftable.code2,11,10)) ELSE TRUE)  :              /*Task# 11221303*/
 
-             ASSIGN v-po-no  = STRING(ar-invl.po-no)
-                    v-ord-no = STRING(ar-invl.ord-no)
-                    v-bol-no = STRING(ar-invl.bol-no,">>>>>>>9")
-                    v-s-man  = IF ar-invl.sman[1] NE ""
-                                 THEN ar-invl.sman[1]
-                                 ELSE IF ar-invl.sman[2] NE ""
+                   ASSIGN v-po-no  = STRING(ar-invl.po-no)
+                       v-ord-no = STRING(ar-invl.ord-no)
+                       v-bol-no = STRING(ar-invl.bol-no,">>>>>>>9")
+                       v-s-man  = IF ar-invl.sman[1] NE ""
+                                        THEN ar-invl.sman[1]
+                                  ELSE IF ar-invl.sman[2] NE ""
                                         THEN ar-invl.sman[2]
                                         ELSE ar-invl.sman[3].
-           END.
+               END. /* for each ar-invl */
+           END.  /* else do */
         END.
 
         IF FIRST-OF(ar-cashl.check-no) THEN DO:
