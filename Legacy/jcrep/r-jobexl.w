@@ -84,14 +84,14 @@ DEF TEMP-TABLE tt-report NO-UNDO
 
 ASSIGN cTextListToSelect  = "Job#,FG Item#,Estimate#,Order#,Customer#,Start Date,Close Date," +
                             "Status,Customer Part,Job Qty,Ord Qty,Prod.Qty,On Hand Qty," +
-                            "Shipped Qty,Invoice Qty,WIP Qty,O/U%"
+                            "Shipped Qty,Invoice Qty,WIP Qty,O/U%,Cust Sales Rep,Job Hold Reason"
 
        cFieldListToSelect = "job,job-hdr.i-no,job-hdr.est-no,job-hdr.ord-no,job-hdr.cust-no,start-date,close-date," +
                             "job.stat,cust-part,job-qty,ord-qty,prod-qty,oh-qty," +
-                            "ship-qty,inv-qty,wip-qty,ou-pct"
+                            "ship-qty,inv-qty,wip-qty,ou-pct,sales-rep,job-hold"
                             
-        cFieldLength = "10,15,9,6,9,10,10," + "6,15,10,9,9,11," + "11,11,9,7"
-           cFieldType = "c,c,c,i,c,c,c," + "c,c,i,i,i,i," + "i,i,i,i"
+        cFieldLength = "10,15,9,6,9,10,10," + "6,15,10,9,9,11," + "11,11,9,7,14,15"
+           cFieldType = "c,c,c,i,c,c,c," + "c,c,i,i,i,i," + "i,i,i,i,c,c"
        .
 
 {sys/inc/ttRptSel.i}
@@ -983,7 +983,7 @@ DEF VAR v-oh-qty AS INT NO-UNDO.
 DEF VAR v-ou-pct AS INT NO-UNDO.
 DEF VAR v-closed AS LOGICAL NO-UNDO.
 DEF VAR v-open AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE vHoldReason AS CHARACTER NO-UNDO .
 ASSIGN
    v-fcust[1]   = begin_cust-no
    v-fcust[2]   = end_cust-no
@@ -1132,8 +1132,17 @@ IF tb_excel THEN
              IF v-ou-pct EQ 0 THEN v-ou-pct = 100.
              IF v-ou-pct EQ -100 THEN v-ou-pct = 0.
          END. /* avail oe-ordl */
+         ASSIGN vHoldReason = "" .
+         FIND FIRST cust WHERE cust.company EQ cocode 
+                           AND cust.cust-no EQ job-hdr.cust-no NO-LOCK NO-ERROR .
+         IF job.stat = "H" then do: 
+             find first rejct-cd WHERE rejct-cd.type = "JH" 
+                 and rejct-cd.code = job.reason NO-LOCK no-error.
+             if avail rejct-cd then
+                 assign 
+                 vHoldReason = rejct-cd.dscr.      
+         END.
 
-     
       ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -1180,6 +1189,8 @@ IF tb_excel THEN
                   WHEN "job-qty" THEN cVarValue = STRING(job-hdr.qty,"->>>,>>>,>>9") .
                   WHEN "start-date" THEN cVarValue = IF job.start-date NE ? THEN STRING(job.start-date) ELSE "" .
                   WHEN "close-date" THEN cVarValue = IF job.close-date NE ? THEN STRING(job.close-date) ELSE "" .
+                  WHEN "sales-rep" THEN cVarValue = IF AVAIL cust THEN string(cust.sman) ELSE "".
+                  WHEN "job-hold" THEN cVarValue = string(vHoldReason).
              END CASE.
 
              cExcelVarValue = cVarValue.
