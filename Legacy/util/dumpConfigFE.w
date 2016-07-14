@@ -17,7 +17,7 @@
 
 /* Local Variable Definitions ---                                       */
 
-DEF STREAM st-line .
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -134,35 +134,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
-    ASSIGN lv-file.
-    
-    DEF VAR lv-file2 AS cha NO-UNDO.
-
-    SESSION:SET-WAIT-STATE("general"). 
-    lv-file2 = lv-file.
-    SUBSTRING(lv-file2,LENGTH(lv-file2),1) = "2".
-
-    OUTPUT STREAM st-line TO VALUE(lv-file2).
-    OUTPUT TO VALUE(lv-file).
-    
-    /*need to export note as well, use lv-file2, do like previous program
-      did it*/
-
-    FOR EACH reftable WHERE
-        reftable.reftable EQ 'Utilities' AND
-        reftable.company EQ ''
-        NO-LOCK:
-
-        EXPORT reftable.
-
-        FOR EACH notes WHERE
-            notes.rec_key EQ reftable.rec_key
-            NO-LOCK:
-            
-            EXPORT STREAM st-line notes.
-       END.
+    ASSIGN lv-file fiPfFileLocation.
+    IF SEARCH(fiPFFileLocation + "\addon\" + "nosweat.pf") EQ ? THEN DO:
+        MESSAGE 'Please run from Advantzware.  addon\nosweat.pf is missing'
+        VIEW-AS ALERT-BOX.
+        RETURN.
+    END.    
+    IF NOT CONNECTED("nosweat-addon") THEN DO:
+        CONNECT -pf VALUE(fiPFFileLocation + "\addon\" + "nosweat.pf") -ld nosweat-addon.
     END.
 
+    RUN util/dumpConfig.p (INPUT fiPfFileLocation, INPUT lv-file).
+    IF CONNECTED("nosweat-addon") THEN
+      DISCONNECT "nosweat-addon".
     MESSAGE "Dump completed." VIEW-AS ALERT-BOX.
     APPLY "go" TO FRAME {&FRAME-NAME}.
 
@@ -229,7 +213,10 @@ END.
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
-
+IF CONNECTED("jobs") THEN DO:
+    MESSAGE "Please run this utility from Advantzware."
+    VIEW-AS ALERT-BOX.
+END.
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
