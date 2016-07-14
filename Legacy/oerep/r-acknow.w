@@ -2313,6 +2313,9 @@ PROCEDURE GenerateEmail:
   IF lv-mailattach MATCHES('*xpr*') AND SEARCH('viewer.exe') NE ? THEN
       ASSIGN  FILE-INFO:FILE-NAME = 'viewer.exe'
               lv-mailattach       = FILE-INFO:FULL-PATHNAME + ',' + lv-mailattach.
+
+   IF lv-attach-push NE "" AND TG_eml-push-att:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Yes" THEN
+            lv-mailattach = lv-mailattach + "," + lv-attach-push .
                          
   RUN mail (lv-mailto,        /* Mail Recepients  */
             lv-mailsubject,   /* Subject          */
