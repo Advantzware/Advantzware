@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME CURRENT-WINDOW
-&Scoped-define FRAME-NAME Dialog-Frame
+&SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
+&SCOPED-DEFINE FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
   /*Task# 08111405*/
@@ -29,7 +29,7 @@
 
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS CHARACTER no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
  
 {methods/defines/hndldefs.i}
@@ -54,32 +54,32 @@ ASSIGN
 {custom/getcmpny.i}
 {custom/getloc.i}
 
-{sys/inc/var.i new shared}
+{sys/inc/var.i NEW SHARED}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
 DEFINE STREAM excel.
 
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR cFieldType AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
+DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldLength AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
 
 
-DEF TEMP-TABLE tt-report NO-UNDO
-    FIELD i-no    AS CHAR
+DEFINE TEMP-TABLE tt-report NO-UNDO
+    FIELD i-no    AS CHARACTER
     FIELD ord-no  LIKE oe-rel.ord-no
     FIELD vdate   LIKE oe-rel.rel-date
-    FIELD carrier AS CHAR
-    FIELD shipid  AS CHAR
+    FIELD carrier AS CHARACTER
+    FIELD shipid  AS CHARACTER
     FIELD release# LIKE oe-relh.release#
     FIELD row-id AS ROWID
-    FIELD qty AS INT.
+    FIELD qty AS INTEGER.
 
 
 ASSIGN cTextListToSelect  = "Job#,FG Item#,Estimate#,Order#,Customer#,Start Date,Close Date," +
@@ -104,18 +104,18 @@ ASSIGN cTextListToSelect  = "Job#,FG Item#,Estimate#,Order#,Customer#,Start Date
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Dialog-Box
-&Scoped-define DB-AWARE no
+&SCOPED-DEFINE PROCEDURE-TYPE DIALOG-BOX
+&SCOPED-DEFINE DB-AWARE NO
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME Dialog-Frame
+&SCOPED-DEFINE FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 RS-open-closed ~
+&SCOPED-DEFINE ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 RS-open-closed ~
 begin_cust-no end_cust-no begin_job end_job begin_item end_item begin_est ~
 end_est sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down tb_excel ~
 tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS RS-open-closed begin_cust-no end_cust-no ~
+&SCOPED-DEFINE DISPLAYED-OBJECTS RS-open-closed begin_cust-no end_cust-no ~
 begin_job end_job begin_item end_item begin_est end_est sl_avail ~
 sl_selected tb_excel tb_runExcel fi_file 
 
@@ -254,45 +254,45 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     RS-open-closed AT ROW 2 COL 41.2 NO-LABEL WIDGET-ID 2
-     begin_cust-no AT ROW 3.43 COL 27.8 COLON-ALIGNED HELP
+     RS-open-closed AT ROW 2 COLUMN 41.2 NO-LABEL WIDGET-ID 2
+     begin_cust-no AT ROW 3.43 COLUMN 27.8 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 6
-     end_cust-no AT ROW 3.43 COL 70.8 COLON-ALIGNED HELP
+     end_cust-no AT ROW 3.43 COLUMN 70.8 COLON-ALIGNED HELP
           "Enter Ending Customer Number" WIDGET-ID 16
-     begin_job AT ROW 4.57 COL 27.8 COLON-ALIGNED HELP
+     begin_job AT ROW 4.57 COLUMN 27.8 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 104
-     end_job AT ROW 4.57 COL 70.8 COLON-ALIGNED HELP
+     end_job AT ROW 4.57 COLUMN 70.8 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 106
-     begin_item AT ROW 5.71 COL 27.8 COLON-ALIGNED HELP
+     begin_item AT ROW 5.71 COLUMN 27.8 COLON-ALIGNED HELP
           "Enter Beginning Item Number" WIDGET-ID 100
-     end_item AT ROW 5.71 COL 70.8 COLON-ALIGNED HELP
+     end_item AT ROW 5.71 COLUMN 70.8 COLON-ALIGNED HELP
           "Enter Beginning Item Number" WIDGET-ID 102
-     begin_est AT ROW 6.86 COL 27.8 COLON-ALIGNED HELP
+     begin_est AT ROW 6.86 COLUMN 27.8 COLON-ALIGNED HELP
           "Enter Beginning Item Number" WIDGET-ID 108
-     end_est AT ROW 6.86 COL 70.8 COLON-ALIGNED HELP
+     end_est AT ROW 6.86 COLUMN 70.8 COLON-ALIGNED HELP
           "Enter Beginning Item Number" WIDGET-ID 110
-     sl_avail AT ROW 10.19 COL 6.6 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 10.19 COL 62.6 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 10.67 COL 43.6 HELP
+     sl_avail AT ROW 10.19 COLUMN 6.6 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 10.19 COLUMN 62.6 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 10.67 COLUMN 43.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 11.86 COL 43.6 HELP
+     Btn_Remove AT ROW 11.86 COLUMN 43.6 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 13.05 COL 43.6 WIDGET-ID 40
-     btn_down AT ROW 14.24 COL 43.6 WIDGET-ID 42
-     tb_excel AT ROW 16.76 COL 36 WIDGET-ID 32
-     tb_runExcel AT ROW 16.76 COL 78 RIGHT-ALIGNED WIDGET-ID 34
-     fi_file AT ROW 17.71 COL 34 COLON-ALIGNED HELP
+     btn_Up AT ROW 13.05 COLUMN 43.6 WIDGET-ID 40
+     btn_down AT ROW 14.24 COLUMN 43.6 WIDGET-ID 42
+     tb_excel AT ROW 16.76 COLUMN 36 WIDGET-ID 32
+     tb_runExcel AT ROW 16.76 COLUMN 78 RIGHT-ALIGNED WIDGET-ID 34
+     fi_file AT ROW 17.71 COLUMN 34 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 22
-     btn-ok AT ROW 20.1 COL 30 WIDGET-ID 14
-     btn-cancel AT ROW 20.1 COL 60.2 WIDGET-ID 12
+     btn-ok AT ROW 20.1 COLUMN 30 WIDGET-ID 14
+     btn-cancel AT ROW 20.1 COLUMN 60.2 WIDGET-ID 12
      "Export Selection" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 9.33 COL 3 WIDGET-ID 86
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
+          SIZE 21 BY .71 AT ROW 1.24 COLUMN 5 WIDGET-ID 36
           BGCOLOR 2 
-     RECT-6 AT ROW 9.1 COL 2 WIDGET-ID 30
-     RECT-7 AT ROW 1 COL 2 WIDGET-ID 38
-     RECT-8 AT ROW 16 COL 2 WIDGET-ID 84
+     RECT-6 AT ROW 9.1 COLUMN 2 WIDGET-ID 30
+     RECT-7 AT ROW 1 COLUMN 2 WIDGET-ID 38
+     RECT-8 AT ROW 16 COLUMN 2 WIDGET-ID 84
      SPACE(0.79) SKIP(2.75)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -375,68 +375,68 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Dialog-Frame
+&SCOPED-DEFINE SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Job Costing Excel Export */
 DO:
-DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-DEF VAR ls-cur-val AS CHAR NO-UNDO.
-DEF VAR char-val AS CHAR NO-UNDO.
-DEF VAR char-val2 AS RECID NO-UNDO.
+DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE ls-cur-val AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-val2 AS RECID NO-UNDO.
 
 
    lw-focus = FOCUS.
 
-   case lw-focus:name :
+   CASE lw-focus:NAME :
 
-       when "begin_cust-no" then do:
-           ls-cur-val = lw-focus:screen-value.
-           run windows/l-cust.w (cocode,ls-cur-val, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* cust-no*/  
-       when "end_cust-no" then do:
-           ls-cur-val = lw-focus:screen-value.
-           run windows/l-cust.w (cocode,ls-cur-val, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* cust-no*/  
-       when "begin_job" then do:
-           ls-cur-val = lw-focus:screen-value.
-           run windows/l-jobno.w (cocode,ls-cur-val, output char-val, output char-val2).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* cust-no*/
-        when "end_job" then do:
-           ls-cur-val = lw-focus:screen-value.
-           run windows/l-jobno.w (cocode,ls-cur-val, output char-val, output char-val2).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* cust-no*/
-        when "begin_item" then do:
-           ls-cur-val = lw-focus:screen-value.
-           run windows/l-itemfg.w (cocode, "", ls-cur-val, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* cust-no*/
-       when "end_item" then do:
-           ls-cur-val = lw-focus:screen-value.
-           run windows/l-itemfg.w (cocode, "", ls-cur-val, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* cust-no*/
+       WHEN "begin_cust-no" THEN DO:
+           ls-cur-val = lw-focus:SCREEN-VALUE.
+           RUN windows/l-cust.w (cocode,ls-cur-val, OUTPUT char-val).
+           IF char-val <> "" THEN DO:
+              lw-focus:SCREEN-VALUE =  ENTRY(1,char-val).
+           END.
+           RETURN NO-APPLY.
+       END.  /* cust-no*/  
+       WHEN "end_cust-no" THEN DO:
+           ls-cur-val = lw-focus:SCREEN-VALUE.
+           RUN windows/l-cust.w (cocode,ls-cur-val, OUTPUT char-val).
+           IF char-val <> "" THEN DO:
+              lw-focus:SCREEN-VALUE =  ENTRY(1,char-val).
+           END.
+           RETURN NO-APPLY.
+       END.  /* cust-no*/  
+       WHEN "begin_job" THEN DO:
+           ls-cur-val = lw-focus:SCREEN-VALUE.
+           RUN windows/l-jobno.w (cocode,ls-cur-val, OUTPUT char-val, OUTPUT char-val2).
+           IF char-val <> "" THEN DO:
+              lw-focus:SCREEN-VALUE =  ENTRY(1,char-val).
+           END.
+           RETURN NO-APPLY.
+       END.  /* cust-no*/
+        WHEN "end_job" THEN DO:
+           ls-cur-val = lw-focus:SCREEN-VALUE.
+           RUN windows/l-jobno.w (cocode,ls-cur-val, OUTPUT char-val, OUTPUT char-val2).
+           if char-val <> "" THEN DO:
+              lw-focus:SCREEN-VALUE =  ENTRY(1,char-val).
+           END.
+           RETURN NO-APPLY.
+       END.  /* cust-no*/
+        WHEN "begin_item" THEN DO:
+           ls-cur-val = lw-focus:SCREEN-VALUE.
+           RUN windows/l-itemfg.w (cocode, "", ls-cur-val, OUTPUT char-val).
+           IF char-val <> "" THEN DO:
+              lw-focus:SCREEN-VALUE =  ENTRY(1,char-val).
+           END.
+           RETURN NO-APPLY.
+       END.  /* cust-no*/
+       WHEN "end_item" THEN DO:
+           ls-cur-val = lw-focus:SCREEN-VALUE.
+           RUN windows/l-itemfg.w (cocode, "", ls-cur-val, OUTPUT char-val).
+           IF char-val <> "" THEN DO:
+              lw-focus:SCREEN-VALUE =  ENTRY(1,char-val).
+           END.
+           RETURN NO-APPLY.
+       END.  /* cust-no*/
        
    END CASE.
 END.
@@ -455,51 +455,51 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_cust-no
+&SCOPED-DEFINE SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no Dialog-Frame
 ON LEAVE OF begin_cust-no IN FRAME Dialog-Frame /* From Customer# */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_est
+&SCOPED-DEFINE SELF-NAME begin_est
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_est Dialog-Frame
 ON LEAVE OF begin_est IN FRAME Dialog-Frame /* From Estimate # */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_item
+&SCOPED-DEFINE SELF-NAME begin_item
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_item Dialog-Frame
 ON LEAVE OF begin_item IN FRAME Dialog-Frame /* From FG Item */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-cancel
+&SCOPED-DEFINE SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel Dialog-Frame
 ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-ok
+&SCOPED-DEFINE SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok Dialog-Frame
 ON CHOOSE OF btn-ok IN FRAME Dialog-Frame /* OK */
 DO:
@@ -514,7 +514,7 @@ DO:
   END.
 
   RUN GetSelectionList. 
-  run run-report.
+  RUN run-report.
 
  END.
 
@@ -522,11 +522,11 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Add
+&SCOPED-DEFINE SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add Dialog-Frame
 ON CHOOSE OF Btn_Add IN FRAME Dialog-Frame /* Add >> */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -548,7 +548,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_down
+&SCOPED-DEFINE SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down Dialog-Frame
 ON CHOOSE OF btn_down IN FRAME Dialog-Frame /* Move Down */
 DO:
@@ -559,7 +559,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Remove
+&SCOPED-DEFINE SELF-NAME Btn_Remove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove Dialog-Frame
 ON CHOOSE OF Btn_Remove IN FRAME Dialog-Frame /* << Remove */
 DO:
@@ -575,7 +575,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_Up
+&SCOPED-DEFINE SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up Dialog-Frame
 ON CHOOSE OF btn_Up IN FRAME Dialog-Frame /* Move Up */
 DO:
@@ -586,51 +586,51 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_cust-no
+&SCOPED-DEFINE SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no Dialog-Frame
 ON LEAVE OF end_cust-no IN FRAME Dialog-Frame /* To Customer# */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_est
+&SCOPED-DEFINE SELF-NAME end_est
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_est Dialog-Frame
 ON LEAVE OF end_est IN FRAME Dialog-Frame /* To Estimate# */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_item
+&SCOPED-DEFINE SELF-NAME end_item
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_item Dialog-Frame
 ON LEAVE OF end_item IN FRAME Dialog-Frame /* To FG Item */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_file
+&SCOPED-DEFINE SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file Dialog-Frame
 ON LEAVE OF fi_file IN FRAME Dialog-Frame /* If Yes, File Name */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME sl_avail
+&SCOPED-DEFINE SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail Dialog-Frame
 ON DEFAULT-ACTION OF sl_avail IN FRAME Dialog-Frame
 DO:
@@ -644,7 +644,7 @@ DO:
 
   
 /* for pairs
-    DEF VAR cSelectedList AS cha NO-UNDO.
+    DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
     DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
     IF sl_avail:IS-SELECTED(i) AND
@@ -669,13 +669,13 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME sl_selected
+&SCOPED-DEFINE SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected Dialog-Frame
 ON DEFAULT-ACTION OF sl_selected IN FRAME Dialog-Frame
 DO:
    DO i = 1 TO {&SELF-NAME}:NUM-ITEMS:
     IF {&SELF-NAME}:IS-SELECTED(i) THEN DO:
-       ASSIGN ldummy = sl_Avail:add-last({&SELF-NAME}:SCREEN-VALUE)
+       ASSIGN ldummy = sl_Avail:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
               ldummy = /*{&SELF-NAME}:DELETE(i)*/
                        {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
               .
@@ -693,22 +693,22 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_excel
+&SCOPED-DEFINE SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel Dialog-Frame
 ON VALUE-CHANGED OF tb_excel IN FRAME Dialog-Frame /* Export To Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
+&SCOPED-DEFINE SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel Dialog-Frame
 ON VALUE-CHANGED OF tb_runExcel IN FRAME Dialog-Frame /* Auto Run Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -779,8 +779,8 @@ PROCEDURE DisplaySelectionList :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:   
      RETURN.
@@ -814,8 +814,8 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:     
      RETURN.
@@ -879,7 +879,7 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -947,42 +947,42 @@ PROCEDURE run-report :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR str-tit4 AS cha NO-UNDO.
-DEF VAR str-tit5 AS cha NO-UNDO.
-DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE str-tit5 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE str-line AS CHARACTER FORM "x(300)" NO-UNDO.
 
 {sys/form/r-top5DL.f}
 
 DEF BUFFER b-job-hdr FOR job-hdr.
 DEF BUFFER bjob FOR job.
 
-DEF VAR v-fcust LIKE oe-ord.cust-no EXTENT 2 INIT ["","zzzzzzzz"].
+DEFINE VARIABLE v-fcust LIKE oe-ord.cust-no EXTENT 2 INIT ["","zzzzzzzz"].
 
-DEF VAR lv-tmp-string AS CHAR NO-UNDO.
+DEFINE VARIABLE lv-tmp-string AS CHARACTER NO-UNDO.
 
-DEF VAR v-excelheader AS CHAR NO-UNDO.
-DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
+DEFINE VARIABLE v-excelheader AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-excel-detail-lines AS CHARACTER NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE cDisplay AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVarValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
-DEF VAR v-wip-qty AS INT NO-UNDO.
+DEFINE VARIABLE v-wip-qty AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-prod-qty AS INTEGER NO-UNDO.
-DEF VAR v-shp-qty AS INTEGER NO-UNDO.
-DEF VAR li-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
-DEF VAR li-ship-qty LIKE oe-ordl.ship-qty NO-UNDO.
-DEF VAR v-oh-qty AS INT NO-UNDO.
-DEF VAR v-ou-pct AS INT NO-UNDO.
-DEF VAR v-closed AS LOGICAL NO-UNDO.
-DEF VAR v-open AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-shp-qty AS INTEGER NO-UNDO.
+DEFINE VARIABLE li-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
+DEFINE VARIABLE li-ship-qty LIKE oe-ordl.ship-qty NO-UNDO.
+DEFINE VARIABLE v-oh-qty AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-ou-pct AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-closed AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-open AS LOGICAL NO-UNDO.
 DEFINE VARIABLE vHoldReason AS CHARACTER NO-UNDO .
 ASSIGN
    v-fcust[1]   = begin_cust-no
@@ -1003,7 +1003,7 @@ ELSE
 IF tb_excel THEN
    OUTPUT STREAM excel TO VALUE(fi_file).
     
-   DEF VAR cslist AS cha NO-UNDO.
+   DEFINE VARIABLE cslist AS CHARACTER NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
@@ -1032,10 +1032,10 @@ IF tb_excel THEN
    FOR EACH job-hdr WHERE job-hdr.company EQ cocode
     /*  AND job-hdr.job = 0 */
       AND ((job-hdr.opened EQ YES AND v-open) OR (job-hdr.opened EQ NO AND v-closed)) 
-      AND (job-hdr.cust-no >= begin_cust-no AND job-hdr.cust-no <= end_cust-no) 
-      AND (job-hdr.i-no >= begin_item AND job-hdr.i-no <= END_item) 
-      AND (TRIM(job-hdr.est-no) >= trim(begin_est) AND TRIM(job-hdr.est-no) <= trim(end_est))
-      AND (job-hdr.job-no >= begin_job AND job-hdr.job-no <= END_job) NO-LOCK, 
+      AND (job-hdr.cust-no GE begin_cust-no AND job-hdr.cust-no LE end_cust-no) 
+      AND (job-hdr.i-no GE begin_item AND job-hdr.i-no LE END_item) 
+      AND (TRIM(job-hdr.est-no) GE trim(begin_est) AND TRIM(job-hdr.est-no) LE trim(end_est))
+      AND (job-hdr.job-no GE begin_job AND job-hdr.job-no LE END_job) NO-LOCK, 
       EACH job OF job-hdr NO-LOCK BY job-hdr.job-no DESC
                                   BY job-hdr.job-no2 DESC:
 
@@ -1135,7 +1135,7 @@ IF tb_excel THEN
          ASSIGN vHoldReason = "" .
          FIND FIRST cust WHERE cust.company EQ cocode 
                            AND cust.cust-no EQ job-hdr.cust-no NO-LOCK NO-ERROR .
-         IF job.stat = "H" then do: 
+         IF job.stat = "H" THEN DO: 
              find first rejct-cd WHERE rejct-cd.type = "JH" 
                  and rejct-cd.code = job.reason NO-LOCK no-error.
              if avail rejct-cd then
@@ -1154,7 +1154,7 @@ IF tb_excel THEN
        BUFFER bjob:FIND-BY-ROWID(ROWID(job), NO-LOCK) .
 
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-       cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+       cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
 
        IF INDEX(cTmpField,".") > 0 THEN DO:
             cFieldName = cTmpField .
@@ -1163,40 +1163,40 @@ IF tb_excel THEN
            IF cFieldName BEGINS "job-hdr" THEN hField = BUFFER b-job-hdr:BUFFER-FIELD(cTmpField) .
            ELSE IF cFieldName BEGINS "job" THEN hField = BUFFER bjob:BUFFER-FIELD(cTmpField).
           IF hField <> ? THEN DO:                      
-           cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
+           cTmpField = SUBSTRING(GetFieldValue(hField),1,INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                cDisplay = cDisplay + cTmpField + 
-                   FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)).
+                   FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)).
 
-           cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".    
+           cExcelDisplay = cExcelDisplay + QUOTER(GetFieldValue(hField)) + ",".    
           END.
           ELSE DO:
-                    cTmpField = substring(cFieldName,1,int( entry( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
-                    cDisplay = cDisplay + FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
-                    cExcelDisplay = cExcelDisplay + quoter(" ")  /*GetFieldValue(hField))*/ + ",".
+                    cTmpField = SUBSTRING(cFieldName,1,INTEGER( ENTRY( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
+                    cDisplay = cDisplay + FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
+                    cExcelDisplay = cExcelDisplay + QUOTER(" ")  /*GetFieldValue(hField))*/ + ",".
                  END.
         END.
           ELSE DO:       
              CASE cTmpField:
-                  WHEN "cust-part" THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.part-no) ELSE "". 
-                  WHEN "ord-qty" THEN cVarValue = IF AVAIL oe-ordl THEN string(oe-ordl.qty,"->>,>>>,>>>") ELSE "". 
-                  WHEN "prod-qty" THEN cVarValue = string(v-prod-qty,"->>,>>>,>>>"). 
-                  WHEN "oh-qty" THEN cVarValue = string(v-oh-qty,"->>,>>>,>>>"). 
-                  WHEN "ship-qty" THEN cVarValue = string(v-shp-qty,"->>,>>>,>>>").
-                  WHEN "inv-qty" THEN cVarValue = IF AVAIL oe-ordl THEN string(oe-ordl.inv-qty,"->>,>>>,>>>") ELSE "".
+                  WHEN "cust-part" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.part-no) ELSE "". 
+                  WHEN "ord-qty" THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.qty,"->>,>>>,>>>") ELSE "". 
+                  WHEN "prod-qty" THEN cVarValue = STRING(v-prod-qty,"->>,>>>,>>>"). 
+                  WHEN "oh-qty" THEN cVarValue = STRING(v-oh-qty,"->>,>>>,>>>"). 
+                  WHEN "ship-qty" THEN cVarValue = STRING(v-shp-qty,"->>,>>>,>>>").
+                  WHEN "inv-qty" THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.inv-qty,"->>,>>>,>>>") ELSE "".
                   WHEN "job" THEN cVarValue = STRING(TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")).
-                  WHEN "wip-qty" THEN cVarValue = string(v-wip-qty,"->>,>>>,>>>").
-                  WHEN "ou-pct" THEN cVarValue = string(v-ou-pct,"->>>>>%").
+                  WHEN "wip-qty" THEN cVarValue = STRING(v-wip-qty,"->>,>>>,>>>").
+                  WHEN "ou-pct" THEN cVarValue = STRING(v-ou-pct,"->>>>>%").
                   WHEN "job-qty" THEN cVarValue = STRING(job-hdr.qty,"->>>,>>>,>>9") .
                   WHEN "start-date" THEN cVarValue = IF job.start-date NE ? THEN STRING(job.start-date) ELSE "" .
                   WHEN "close-date" THEN cVarValue = IF job.close-date NE ? THEN STRING(job.close-date) ELSE "" .
-                  WHEN "sales-rep" THEN cVarValue = IF AVAIL cust THEN string(cust.sman) ELSE "".
-                  WHEN "job-hold" THEN cVarValue = string(vHoldReason).
+                  WHEN "sales-rep" THEN cVarValue = IF AVAIL cust THEN STRING(cust.sman) ELSE "".
+                  WHEN "job-hold" THEN cVarValue = STRING(vHoldReason).
              END CASE.
 
              cExcelVarValue = cVarValue.
              cDisplay = cDisplay + cVarValue +
-                                   FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                       cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                                   FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                       cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
          END.
       END.
       
@@ -1269,7 +1269,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN string(hipField:BUFFER-VALUE).
+  RETURN STRING(hipField:BUFFER-VALUE).
 
 END FUNCTION.
 
