@@ -123,10 +123,10 @@ FOR EACH ar-cash
     BREAK BY ar-cash.cust-no
           BY ar-cash.check-no:
 
-    FIND FIRST reftable 
+    FIND FIRST reftable NO-LOCK
         WHERE reftable.reftable = "ARCASHHOLD" 
           AND reftable.rec_key = ar-cash.rec_key 
-        USE-INDEX rec_key NO-LOCK NO-ERROR.
+        USE-INDEX rec_key NO-ERROR.
     IF AVAIL reftable AND 
         reftable.CODE EQ "H" THEN DO:
         
@@ -213,7 +213,7 @@ FOR EACH ar-cash
                        v-bol-no = ""
                        v-s-man  = "".
 
-                     FIND FIRST reftable
+                     FIND FIRST reftable NO-LOCK
                          WHERE reftable.reftable EQ "ar-cashl.inv-line"
                          AND reftable.code    EQ STRING(ar-cashl.c-no,"9999999999")  +
                                                  STRING(ar-cashl.line,"9999999999")
@@ -248,7 +248,7 @@ FOR EACH ar-cash
            END.
 
            ELSE do:
-               FIND FIRST reftable
+               FIND FIRST reftable NO-LOCK
                WHERE reftable.reftable EQ "ar-cashl.inv-line"
                   AND reftable.code    EQ STRING(ar-cashl.c-no,"9999999999")  +
                                           STRING(ar-cashl.line,"9999999999")
@@ -413,7 +413,7 @@ FOR EACH ar-cash
           v-debamt = 0.
     END.     
 
-    FIND FIRST reftable
+    FIND FIRST reftable NO-LOCK
         WHERE reftable.reftable EQ "AR-CASH"
           AND reftable.code     EQ STRING(ar-cash.c-no,"9999999999")
         USE-INDEX CODE NO-ERROR.
