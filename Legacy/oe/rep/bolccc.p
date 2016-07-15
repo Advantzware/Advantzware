@@ -115,13 +115,14 @@ FIND FIRST carrier NO-LOCK NO-ERROR.
 FIND FIRST cust NO-LOCK NO-ERROR.
 {sa/sa-sls01.i}
 
-FIND FIRST sys-ctrl WHERE sys-ctrl.company = cocode
-                      AND sys-ctrl.NAME = "BOLFMT" NO-LOCK NO-ERROR.
+FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company = cocode
+    AND sys-ctrl.NAME = "BOLFMT" NO-ERROR.
+
 IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "CCCWPP" THEN lv-print-img = YES.
     ELSE lv-print-img = NO.
 
-FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
-FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK.
+FIND FIRST company NO-LOCK WHERE company.company EQ cocode .
+FIND FIRST oe-ctrl NO-LOCK WHERE oe-ctrl.company EQ cocode .
 ASSIGN v-comp-add1 = company.addr[1]
        v-comp-add2 = company.city + ", " + company.st + "  " + company.zip
        v-comp-add3 = "Phone: 604.533.2545" 
@@ -208,8 +209,8 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 	    NO-LOCK:
 
       IF NOT AVAILABLE carrier THEN
-      FIND FIRST carrier WHERE carrier.company = oe-ord.company
-        AND carrier.carrier = oe-ord.carrier NO-LOCK NO-ERROR.
+      FIND FIRST carrier NO-LOCK WHERE carrier.company = oe-ord.company
+        AND carrier.carrier = oe-ord.carrier NO-ERROR.
 
       DO i = 1 TO 3:
         IF oe-ord.sman[i] NE "" THEN
@@ -232,7 +233,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
              
       IF v-terms EQ "" THEN
       DO:
-        FIND FIRST terms WHERE terms.t-code EQ oe-ord.terms NO-LOCK NO-ERROR.
+        FIND FIRST terms NO-LOCK WHERE terms.t-code EQ oe-ord.terms  NO-ERROR.
         IF AVAIL terms THEN
           ASSIGN v-terms = terms.dscr.
       END.
@@ -316,22 +317,22 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 
           /*========*/
           ln-cnt = ln-cnt + 2.
-          FIND FIRST oe-ordl WHERE oe-ordl.company EQ cocode
+          FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ cocode
                           AND oe-ordl.ord-no  EQ oe-boll.ord-no
-                          AND oe-ordl.i-no    EQ oe-boll.i-no NO-LOCK NO-ERROR.
+                          AND oe-ordl.i-no    EQ oe-boll.i-no NO-ERROR.
 
           IF oe-ordl.part-dscr1 <> "" OR oe-boll.partial > 0 THEN ln-cnt = ln-cnt + 1.
           IF itemfg.isaset THEN
           FOR EACH fg-set WHERE fg-set.company EQ cocode
 	                       AND fg-set.set-no  EQ itemfg.i-no   NO-LOCK:
 
-             FIND FIRST xitemfg WHERE xitemfg.company EQ cocode
-	                           AND xitemfg.i-no    EQ fg-set.part-no NO-LOCK NO-ERROR.
+             FIND FIRST xitemfg NO-LOCK WHERE xitemfg.company EQ cocode
+	                           AND xitemfg.i-no    EQ fg-set.part-no NO-ERROR.
 
-             FIND FIRST fg-bin WHERE fg-bin.company EQ cocode
+             FIND FIRST fg-bin NO-LOCK WHERE fg-bin.company EQ cocode
                             AND fg-bin.i-no    EQ xitemfg.i-no
                             AND fg-bin.job-no = oe-boll.job-no
-                            AND fg-bin.job-no2 = oe-boll.job-no2 NO-LOCK NO-ERROR.
+                            AND fg-bin.job-no2 = oe-boll.job-no2  NO-ERROR.
              ln-cnt = ln-cnt + 1.
              IF AVAIL fg-bin AND fg-bin.partial-count <> 0 THEN ln-cnt = ln-cnt + 1.
           END.
@@ -434,7 +435,7 @@ PROCEDURE get-pallets-num:
      RETURN.
   END.
 
-  FIND FIRST fg-bin
+  FIND FIRST fg-bin NO-LOCK
       WHERE fg-bin.company EQ cocode
         AND fg-bin.i-no    EQ oe-boll.i-no
         AND fg-bin.job-no  EQ oe-boll.job-no
@@ -442,7 +443,7 @@ PROCEDURE get-pallets-num:
         AND fg-bin.loc     EQ oe-boll.loc
         AND fg-bin.loc-bin EQ oe-boll.loc-bin
         AND fg-bin.tag     EQ oe-boll.tag
-      NO-LOCK NO-ERROR.  
+      NO-ERROR.  
   v-qty-pal = 1.
   IF AVAIL fg-bin THEN
      v-qty-pal = v-qty-pal *
