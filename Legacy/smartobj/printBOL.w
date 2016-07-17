@@ -61,7 +61,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON printBOL 
-     IMAGE-UP FILE "images/printbol.bmp":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/printer_gearwheel.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Print BOL".
 

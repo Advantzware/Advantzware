@@ -60,14 +60,16 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Page10 
-     IMAGE-UP FILE "images\p-view":U NO-FOCUS
-     LABEL "Page10" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Tab 10 Viewer".
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Viewer" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Viewer".
 
 DEFINE BUTTON Select_Page_9 
-     IMAGE-UP FILE "images\p-browse":U NO-FOCUS
-     LABEL "Page_9" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Tab 9 Browser".
+     IMAGE-UP FILE "Graphics/32x32/window_split_ver.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Browser" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Browser".
 
 
 /* ************************  Frame Definitions  *********************** */

@@ -151,11 +151,11 @@ DEFINE VARIABLE users_user_id AS CHARACTER     FORMAT "X(256)":U
     BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
 
 DEFINE IMAGE boxes
-    FILENAME "images/advantzware_logo.jpg":U
+    FILENAME "Graphics/advantzware_logo.jpg":U
     SIZE 79 BY 17.38.
 
 DEFINE IMAGE menu-image
-    FILENAME "images/logo1.bmp":U CONVERT-3D-COLORS
+    FILENAME "Graphics/logo1.bmp":U CONVERT-3D-COLORS
     SIZE 79 BY 4.52.
 
 DEFINE RECTANGLE RECT-2
@@ -365,7 +365,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ASSIGN
             sys-ctrl.company = g_company
             sys-ctrl.name    = "bitmap"
-            sys-ctrl.descrip = "images\bigboxes".
+            sys-ctrl.descrip = "Graphics\bigboxes".
     END.
     IF AVAILABLE sys-ctrl AND sys-ctrl.DESCrip <> "" THEN
         boxes:LOAD-IMAGE(sys-ctrl.DESCrip).
@@ -723,7 +723,7 @@ PROCEDURE Set-comp_loc :
         ASSIGN
             sys-ctrl.company = g_company
             sys-ctrl.name    = "bitmap"
-            sys-ctrl.descrip = "images\bigboxes".
+            sys-ctrl.descrip = "Graphics\bigboxes".
     END.
     IF AVAILABLE sys-ctrl AND sys-ctrl.DESCrip <> "" THEN
         boxes:LOAD-IMAGE(sys-ctrl.DESCrip).

@@ -122,9 +122,10 @@ DEFINE BUTTON btCopyFromItem
      SIZE 27 BY 1.14.
 
 DEFINE BUTTON btnRun 
-     IMAGE-UP FILE "images/run.ico":U
-     LABEL "&Run" 
-     SIZE 7 BY 1.38.
+     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 7.8 BY 1.38 TOOLTIP "Run Program".
 
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 

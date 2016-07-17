@@ -247,7 +247,7 @@ DO:
   SYSTEM-DIALOG GET-FILE image-name
       TITLE      "Choose Image to SELECT ..."
       FILTERS    "Image Files (*.bmp)" "*.bmp"
-      INITIAL-DIR "images"
+      INITIAL-DIR "Graphics"
       MUST-EXIST
       USE-FILENAME
       UPDATE OKpressed.

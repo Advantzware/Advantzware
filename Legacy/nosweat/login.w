@@ -88,7 +88,7 @@ DEFINE VARIABLE m_password AS CHARACTER FORMAT "X(256)":U
      SIZE 44.8 BY 1 NO-UNDO.
 
 DEFINE IMAGE IMAGE-2
-     FILENAME "images/splashscreen.bmp":U
+     FILENAME "Graphics/splashscreen.bmp":U
      SIZE 82 BY 12.62.
 
 DEFINE RECTANGLE RECT-9

@@ -117,14 +117,16 @@ DEFINE BUTTON Btn_Clear_Find
      FONT 4.
 
 DEFINE BUTTON Btn_Run 
-     IMAGE-UP FILE "images\run":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Run Program".
 
 DEFINE BUTTON Btn_Search 
-     IMAGE-UP FILE "images\prospy":U NO-FOCUS
-     LABEL "" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Notes Text Search".
+     IMAGE-UP FILE "Graphics/32x32/document_view.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Search" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Search".
 
 DEFINE VARIABLE word_search AS CHARACTER 
      VIEW-AS EDITOR

@@ -42,13 +42,13 @@ CREATE WIDGET-POOL.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_appl Select_help Select_List ~
-Select_spec Select_Search Select_Notes Select_Misc_Fields Select_Browser ~
-Select_Viewer 
+&Scoped-Define ENABLED-OBJECTS Select_Browser Select_Misc_Fields ~
+Select_Search Select_spec Select_Viewer Select_appl Select_help Select_List ~
+Select_Notes 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -63,51 +63,56 @@ Select_Viewer
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_appl 
-     IMAGE-UP FILE "images/appl.bmp":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/window_gear.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Util_appl" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_Browser 
-     IMAGE-UP FILE "images\b-browse":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/window_split_ver.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Browser" 
      SIZE 7.8 BY 1.81 TOOLTIP "Browser".
 
 DEFINE BUTTON Select_help 
-     IMAGE-UP FILE "images/help.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/question.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
 DEFINE BUTTON Select_List 
-     IMAGE-UP FILE "images/print-u.bmp":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/printer.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
      SIZE 7.8 BY 1.81 TOOLTIP "List".
 
 DEFINE BUTTON Select_Misc_Fields 
-     IMAGE-UP FILE "images/flds-u":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/window_explorer.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Misc_Fields" 
      SIZE 7.8 BY 1.81 TOOLTIP "Misc. Fields".
 
 DEFINE BUTTON Select_Notes 
-     IMAGE-UP FILE "images/edit":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/edit.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_Search 
-     IMAGE-UP FILE "images/prospy":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/document_view.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Search" 
      SIZE 7.8 BY 1.81 TOOLTIP "Search".
 
 DEFINE BUTTON Select_spec 
-     IMAGE-UP FILE "images\dict":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "spec_note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
 
 DEFINE BUTTON Select_Viewer 
-     IMAGE-UP FILE "images\b-view":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Viewer" 
      SIZE 7.8 BY 1.81 TOOLTIP "Viewer".
 
@@ -115,15 +120,15 @@ DEFINE BUTTON Select_Viewer
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     Select_Browser AT ROW 1 COL 33
+     Select_Misc_Fields AT ROW 1 COL 25
+     Select_Search AT ROW 1 COL 1
+     Select_spec AT ROW 1 COL 49
+     Select_Viewer AT ROW 1 COL 41
      Select_appl AT ROW 1 COL 57
      Select_help AT ROW 1 COL 65
      Select_List AT ROW 1 COL 9
-     Select_spec AT ROW 1 COL 49
-     Select_Search AT ROW 1 COL 1
      Select_Notes AT ROW 1 COL 17
-     Select_Misc_Fields AT ROW 1 COL 25
-     Select_Browser AT ROW 1 COL 33
-     Select_Viewer AT ROW 1 COL 41
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -178,7 +183,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.

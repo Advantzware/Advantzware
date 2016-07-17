@@ -1,4 +1,4 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
           nosweat          PROGRESS
@@ -50,8 +50,9 @@ CREATE WIDGET-POOL.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartNavBrowser
+&Scoped-define DB-AWARE no
 
-&Scoped-define ADM-SUPPORTED-LINKS                       Record-Source,Record-Target,TableIO-Target,Navigation-Target
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
 /* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
@@ -68,7 +69,11 @@ CREATE WIDGET-POOL.
 address.address1 address.name1 address.address_type rec_key.table_name ~
 prgmxref.prgmname 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define FIELD-PAIRS-IN-QUERY-Browser-Table
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH address WHERE ~{&KEY-PHRASE} ~
+      AND address1 CONTAINS word_search OR word_search = '' NO-LOCK, ~
+      EACH rec_key OF address NO-LOCK, ~
+      EACH prgmxref OF rec_key NO-LOCK ~
+    ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH address WHERE ~{&KEY-PHRASE} ~
       AND address1 CONTAINS word_search OR word_search = '' NO-LOCK, ~
       EACH rec_key OF address NO-LOCK, ~
@@ -76,13 +81,15 @@ prgmxref.prgmname
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table address rec_key prgmxref
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table address
+&Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table rec_key
+&Scoped-define THIRD-TABLE-IN-QUERY-Browser-Table prgmxref
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find Btn_Search Btn_Run word_search 
+&Scoped-Define ENABLED-OBJECTS Btn_Run Btn_Search Browser-Table RECT-4 ~
+browse-order auto_find Btn_Clear_Find word_search 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find word_search 
 
 /* Custom List Definitions                                              */
@@ -103,12 +110,14 @@ DEFINE BUTTON Btn_Clear_Find
      FONT 4.
 
 DEFINE BUTTON Btn_Run 
-     IMAGE-UP FILE "images\run":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Run Program".
 
 DEFINE BUTTON Btn_Search 
-     IMAGE-UP FILE "images\prospy":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/spy.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes Text Search".
 
@@ -129,7 +138,7 @@ DEFINE VARIABLE browse-order AS INTEGER
      SIZE 54 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 144 BY 1.43.
 
 /* Query definitions                                                    */
@@ -148,12 +157,12 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      address.zipcode
-      address.address1
-      address.name1
-      address.address_type
-      rec_key.table_name
-      prgmxref.prgmname
+      address.zipcode FORMAT "X(10)":U
+      address.address1 FORMAT "X(30)":U
+      address.name1 FORMAT "X(30)":U
+      address.address_type FORMAT "X(8)":U
+      rec_key.table_name FORMAT "X(8)":U
+      prgmxref.prgmname FORMAT "X(10)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 16.43
@@ -163,6 +172,8 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     Btn_Run AT ROW 18.86 COL 137
+     Btn_Search AT ROW 18.86 COL 1
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 17.67 COL 6 HELP
@@ -171,13 +182,11 @@ DEFINE FRAME F-Main
           "Enter Auto Find Value"
      Btn_Clear_Find AT ROW 17.67 COL 131 HELP
           "CLEAR AUTO FIND Value"
-     Btn_Search AT ROW 18.86 COL 1
-     Btn_Run AT ROW 18.86 COL 137
      word_search AT ROW 19 COL 9 HELP
           "Enter Text to Search using '&' as 'AND' and/or '!' as 'OR'" NO-LABEL
-     RECT-4 AT ROW 17.43 COL 1
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 17.67 COL 2
+     RECT-4 AT ROW 17.43 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -198,7 +207,7 @@ DEFINE FRAME F-Main
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT."
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
 END.
@@ -216,21 +225,33 @@ END.
                                                                         */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{src/adm/method/browser.i}
+{src/adm/method/query.i}
+{methods/template/browser.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       Browser-Table:PRIVATE-DATA IN FRAME F-Main     = 
+       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2".
 
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -263,18 +284,6 @@ ASSIGN
 &ANALYZE-RESUME
 
  
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
-/* ************************* Included-Libraries *********************** */
-
-{src/adm/method/browser.i}
-{src/adm/method/query.i}
-{methods/template/browser.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -359,7 +368,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win _ADM-ROW-AVAILABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
   Purpose:     Dispatched to this procedure when the Record-
@@ -381,8 +390,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -400,7 +408,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Run_Program B-table-Win 
 PROCEDURE Run_Program :
 /*------------------------------------------------------------------------------
@@ -415,8 +422,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win _ADM-SEND-RECORDS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
   Purpose:     Send record ROWID's for all tables used by
@@ -440,7 +446,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -460,5 +465,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

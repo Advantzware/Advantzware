@@ -63,7 +63,8 @@ DEF VAR char-wp AS HANDLE.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON wipTag 
-     IMAGE-UP FILE "images/wiptag.bmp":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/receipt_printer.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Load Tag Creation".
 

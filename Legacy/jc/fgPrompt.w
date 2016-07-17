@@ -110,14 +110,14 @@ OR stock-no EQ '') NO-LOCK INDEXED-REPOSITION.
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-3 itemfg
 
 
-/* Definitions for Dialog-Box Dialog-Frame                              */
+/* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
     ~{&OPEN-QUERY-BROWSE-3}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn_itemfg stock-no btnOK btn_cancel ~
+&Scoped-Define ENABLED-OBJECTS btn_itemfg stock-no btnOK btn_cancel part-no ~
 BROWSE-3 
-&Scoped-Define DISPLAYED-OBJECTS stock-no part-no
+&Scoped-Define DISPLAYED-OBJECTS stock-no part-no 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -143,17 +143,17 @@ DEFINE BUTTON btn_cancel AUTO-END-KEY
      BGCOLOR 8 .
 
 DEFINE BUTTON btn_itemfg 
-     IMAGE-UP FILE "images/addItem.bmp":U
+     IMAGE-UP FILE "Graphics/32x32/plus.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Cancel" 
-     SIZE 11 BY 1.67.
+     SIZE 11 BY 1.8.
 
-DEFINE VARIABLE stock-no LIKE eb.stock-no
-     LABEL "Enter New &FG Item" 
+DEFINE VARIABLE part-no AS CHARACTER FORMAT "x(15)" 
+     LABEL "Cust Part#" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE part-no LIKE eb.part-no
-     LABEL "Cust Part#" 
+DEFINE VARIABLE stock-no LIKE eb.stock-no
+     LABEL "Enter New &FG Item" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1 NO-UNDO.
 
@@ -169,7 +169,7 @@ DEFINE BROWSE BROWSE-3
   QUERY BROWSE-3 NO-LOCK DISPLAY
       itemfg.i-no COLUMN-LABEL "Existing!FG Items" FORMAT "x(15)":U
       itemfg.i-name FORMAT "x(30)":U
-      itemfg.part-no FORMAT "x(15)":U
+      itemfg.part-no FORMAT "x(12)":U
       itemfg.est-no FORMAT "x(8)":U WIDTH 11
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -186,13 +186,13 @@ DEFINE FRAME Dialog-Frame
           LABEL "Enter New &FG Item"
      btnOK AT ROW 1.24 COL 65.6
      btn_cancel AT ROW 1.24 COL 79.4 WIDGET-ID 2
-     part-no AT ROW 2.10 COL 27 
-     BROWSE-3 AT ROW 3.10 COL 1.6
+     part-no AT ROW 2.1 COL 36.2 COLON-ALIGNED
+     BROWSE-3 AT ROW 3.1 COL 1.6
      SPACE(2.59) SKIP(0.13)
-    WITH VIEW-AS Dialog-Box KEEP-TAB-ORDER 
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "FG Item Not Defined"
-         DEFAULT-BUTTON btnOK CANCEL-BUTTON Btn_Cancel.
+         DEFAULT-BUTTON btnOK CANCEL-BUTTON btn_cancel.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -210,9 +210,9 @@ DEFINE FRAME Dialog-Frame
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR Dialog-Box Dialog-Frame
+/* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-3 btn_cancel Dialog-Frame */
+/* BROWSE-TAB BROWSE-3 part-no Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -243,11 +243,11 @@ OR stock-no EQ '')"
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _QUERY-BLOCK Dialog-Box Dialog-Frame
-/* Query rebuild information for Dialog-Box Dialog-Frame
+&ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
+/* Query rebuild information for DIALOG-BOX Dialog-Frame
      _Options          = "SHARE-LOCK KEEP-EMPTY"
      _Query            is NOT OPENED
-*/  /* Dialog-Box Dialog-Frame */
+*/  /* DIALOG-BOX Dialog-Frame */
 &ANALYZE-RESUME
 
  
@@ -565,9 +565,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY stock-no 
+  DISPLAY stock-no part-no 
       WITH FRAME Dialog-Frame.
-  ENABLE btn_itemfg stock-no btnOK btn_cancel BROWSE-3 
+  ENABLE btn_itemfg stock-no btnOK btn_cancel part-no BROWSE-3 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -575,8 +575,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-auto-add-item Dialog-Frame 
 PROCEDURE set-auto-add-item :

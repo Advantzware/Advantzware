@@ -136,14 +136,14 @@ DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCAD#Lookup 
-     IMAGE-UP FILE "images/find.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/find.bmp":U
      LABEL "" 
-     SIZE 4.33 BY 1.39.
+     SIZE 4.4 BY 1.05.
 
 DEFINE BUTTON btnCADPathLookup 
-     IMAGE-UP FILE "images/find.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/find.bmp":U
      LABEL "" 
-     SIZE 4.33 BY 1.39.
+     SIZE 4.4 BY 1.05.
 
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      LABEL "&Cancel" 
