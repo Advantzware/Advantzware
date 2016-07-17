@@ -79,8 +79,8 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add Btn-Copy ~
-Btn-Delete Btn-Cancel Btn-run 
+&Scoped-Define ENABLED-OBJECTS Btn-run Btn-Save Btn-Reset Btn-Add Btn-Copy ~
+Btn-Delete Btn-Cancel 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -121,8 +121,8 @@ DEFINE BUTTON Btn-Reset
      FONT 4.
 
 DEFINE BUTTON Btn-run 
-     IMAGE-UP FILE "images/run-u.bmp":U
-     IMAGE-DOWN FILE "images/badsmo.bmp":U
+     IMAGE-UP FILE "Graphics/32x32/media_play.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Excute" 
      SIZE 8 BY 1.29
      FONT 4.
@@ -140,13 +140,13 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
+     Btn-run AT ROW 1.48 COL 56
      Btn-Save AT ROW 1.29 COL 2
      Btn-Reset AT ROW 1.29 COL 11
      Btn-Add AT ROW 1.29 COL 20
      Btn-Copy AT ROW 1.29 COL 29
      Btn-Delete AT ROW 1.29 COL 38
      Btn-Cancel AT ROW 1.29 COL 47
-     Btn-run AT ROW 1.48 COL 56
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 

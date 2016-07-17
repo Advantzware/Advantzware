@@ -441,11 +441,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  IF ip-cur-val <> "" THEN
-      ASSIGN
-      rd-sort:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "1"
-      rd-sort = 1 .
-  
   RUN new-rd-sort.
   
   /* gdm - 05260910*/

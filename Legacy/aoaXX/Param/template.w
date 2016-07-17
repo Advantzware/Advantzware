@@ -106,72 +106,72 @@ btnCalendar-14
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCalendar-1 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-10 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-11 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-12 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-13 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-14 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-2 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-3 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-4 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-5 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-6 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-7 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-8 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-9 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 

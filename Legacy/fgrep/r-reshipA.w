@@ -102,7 +102,7 @@ tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY*/ 
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -356,8 +356,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -561,7 +561,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   APPLY "close" TO THIS-PROCEDURE.
+   apply "close" to this-procedure.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -577,7 +577,7 @@ DO:
   END.
   
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -890,12 +890,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   
   {methods/nowait.i}
-    DO WITH FRAME {&FRAME-NAME}:
-        {custom/usrprint.i}
-        APPLY "entry" TO begin_cust.
-    END.
 
-/*APPLY "entry" TO begin_cust IN FRAME {&FRAME-NAME}.*/
+APPLY "entry" TO begin_cust IN FRAME {&FRAME-NAME}.
 
   RUN sys/ref/CustList.p (INPUT cocode,
                           INPUT 'IL9',
@@ -1162,7 +1158,7 @@ DEFINE VARIABLE intAvailable AS INTEGER    NO-UNDO.
 DEFINE VARIABLE chrRecDate   AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE chrPolicy    AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE chrDummy     AS CHARACTER  NO-UNDO INIT "".
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 {sa/sa-sls01.i}
 
 assign
@@ -1181,8 +1177,7 @@ assign
  v-totrel     = rd_qoh EQ "Total Allocated"
  v-date       = as-of-date
  v-pur-man    = SUBSTR(rd_pur-man,1,1)
- v-lot-reo    = SUBSTR(rd_lot-reo,1,1)
- lSelected    = tb_cust-list.
+ v-lot-reo    = SUBSTR(rd_lot-reo,1,1).
  
 {sys/inc/print1.i}
     
@@ -1199,12 +1194,6 @@ DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
- END.
 
 display "" with frame r-top.
 
@@ -1248,7 +1237,10 @@ for each itemfg
     v-qty-avail = v-qty-avail - v-alloc-qty.
 
     if itemfg.ord-level gt v-qty-avail then
-    FOR each oe-ordl
+    FOR EACH ttCustList 
+        WHERE ttCustList.log-fld
+        NO-LOCK,
+       each oe-ordl
        where oe-ordl.company eq cocode
          and oe-ordl.i-no    eq itemfg.i-no
        no-lock,
@@ -1258,10 +1250,8 @@ for each itemfg
          and oe-rel.ord-no  eq oe-ordl.ord-no
          and oe-rel.i-no    eq oe-ordl.i-no
          and oe-rel.line    eq oe-ordl.line
-         AND oe-rel.cust-no GE v-cust[1]
-         AND oe-rel.cust-no le v-cust[2]
-         AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-rel.cust-no
-         AND ttCustList.log-fld no-lock) else true)
+         AND oe-rel.cust-no EQ ttCustList.cust-no /*v-cust[1]*/
+       /*  AND oe-rel.cust-no le v-cust[2]*/
         no-lock
          by oe-rel.rel-date desc
          by oe-rel.r-no     desc:
@@ -1450,8 +1440,6 @@ DO:
     IF tb_runExcel THEN
       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
 END.
-
-RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 

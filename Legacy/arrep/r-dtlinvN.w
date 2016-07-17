@@ -145,7 +145,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -372,8 +372,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -521,7 +521,7 @@ DO:
   RUN GetSelectionList.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1355,17 +1355,12 @@ DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
-DEF VAR fcust AS CHAR NO-UNDO .
-DEF VAR tcust AS CHAR NO-UNDO .
+
 {custom/statusMsg.i " 'Processing...  '"}
 
 {sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-ASSIGN
-    lSelected  = tb_cust-list
-    fcust      = begin_cust
-    tcust      = END_cust  .
+
 
 FORM tt-report.actnum      COLUMN-LABEL "GL Acct#"
      SPACE(5)
@@ -1430,13 +1425,6 @@ IF tb_excel THEN DO:
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
   END. /* if tb_excel */
 
-  IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
-  END.
-
 IF td-show-parm THEN RUN show-param.
 
 FOR EACH tt-report:
@@ -1444,14 +1432,14 @@ FOR EACH tt-report:
 END.
 
 DISPLAY "" WITH FRAME r-top.
-FOR EACH ar-ledger
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+   EACH ar-ledger
     WHERE ar-ledger.company EQ cocode
       /*AND ar-ledger.cust-no GE begin_cust
       AND ar-ledger.cust-no LE end_cust*/
-      AND ar-ledger.cust-no  GE fcust
-      AND ar-ledger.cust-no  LE tcust
-      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-ledger.cust-no
-      AND ttCustList.log-fld no-lock) else true)
+      AND ar-ledger.cust-no EQ ttCustList.cust-no
       AND ar-ledger.cust-no NE ""
       AND ar-ledger.tr-date GE begin_date
       AND ar-ledger.tr-date LE end_date

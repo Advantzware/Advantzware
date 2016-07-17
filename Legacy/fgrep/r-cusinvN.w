@@ -116,7 +116,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -338,8 +338,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -478,7 +478,7 @@ DO:
   END.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -505,7 +505,7 @@ DO:
            IF is-xprint-form THEN DO:
               RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
               {custom/asimail2.i &TYPE="CUSTOMER"
-                             &group-title="r-cusinv"
+                             &group-title=v-prgmname
                              &begin_cust=begin_cust
                              &END_cust=end_cust
                              &mail-subject="Customer Inventory Report"
@@ -514,7 +514,7 @@ DO:
            END.
            ELSE DO:
                {custom/asimailr2.i &TYPE = "CUSTOMER"
-                                  &group-title="r-cusinv"
+                                  &group-title=v-prgmname
                                   &begin_cust= begin_cust
                                   &END_cust=end_cust
                                   &mail-subject= "Customer Inventory Report" 
@@ -1319,8 +1319,7 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(150)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(150)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
-DEF VAR v-cust AS CHAR EXTENT 2 NO-UNDO .
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 /*{sys/form/r-top5DL3.f} */
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
@@ -1401,24 +1400,14 @@ IF tb_excel THEN DO:
               + "Date Required".*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
-ASSIGN
-    v-cust[1] = begin_cust
-    v-cust[2] = end_cust 
-    lSelected    = tb_cust-list .
 
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
- END.
-
-FOR each itemfg
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+    each itemfg
     where itemfg.company eq cocode
-      and itemfg.cust-no ge v-cust[1]
-      and itemfg.cust-no LE v-cust[2]
-      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
-      AND ttCustList.log-fld no-lock) else true)
+      /*and itemfg.cust-no ge begin_cust*/
+      and itemfg.cust-no EQ ttCustList.cust-no
       AND itemfg.cust-no NE ""
       AND LOOKUP(itemfg.class,v-class) GT 0
     NO-LOCK

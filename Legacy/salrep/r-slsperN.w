@@ -42,7 +42,7 @@ assign
  cocode = gcompany
  locode = gloc.
 
-{sys/inc/custlistform.i ""HR15"" }
+{sys/inc/custlistform.i ""HR3"" }
 
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
@@ -129,7 +129,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -350,8 +350,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -489,7 +489,7 @@ DO:
   SESSION:SET-WAIT-STATE("general").
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1585,7 +1585,7 @@ DEF VAR str-line AS cha FORM "x(200)" NO-UNDO.
 /*{sys/form/r-top5DL3.f} */
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 {custom/statusMsg.i "'Processing...'"} 
 
 FORM cust-string FORMAT "X(40)"
@@ -1603,8 +1603,7 @@ FORM ip-mode FORMAT "X(8)"
   str-tit2 = c-win:title
   {sys/inc/ctrtext.i str-tit2 112}
   fcust = begin_cust-no
-  tcust = end_cust-no
-  lSelected  = tb_cust-list.
+  tcust = end_cust-no.
 
  DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1629,12 +1628,7 @@ FORM ip-mode FORMAT "X(8)"
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
- IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
- END.
+
 
 {sys/inc/print1.i}
        
@@ -1758,13 +1752,14 @@ END.
 PUT SPACE(58) "Sales By Period" SKIP
     SPACE(58) "As of " as-of-date SKIP.
 
-FOR each cust FIELDS(NAME cust-no sman) WHERE
-    cust.company eq cocode 
-    AND cust.cust-no GE fcust
-    AND cust.cust-no LE tcust
-    AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-    AND ttCustList.log-fld no-lock) else true)
-    AND cust.active NE "I"
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+   each cust FIELDS(NAME cust-no sman) WHERE
+    cust.company eq cocode AND
+    cust.cust-no EQ ttCustList.cust-no /*begin_cust-no*/ AND
+  /*  cust.cust-no le end_cust-no AND*/
+    cust.active NE "I"
     no-lock:
 
     {custom/statusMsg.i "'Processing Customer # ' + string(cust.cust-no)"} 

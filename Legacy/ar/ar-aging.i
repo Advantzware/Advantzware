@@ -188,18 +188,17 @@ END.
  FOR EACH company WHERE
        company.company GE b-comp AND
        company.company LE e-comp
-       NO-LOCK,    
+       NO-LOCK,
+    EACH ttCustList 
+     WHERE ttCustList.log-fld,
     EACH cust 
       FIELDS(company cust-no sman curr-code name area-code
              phone terms fax cr-lim contact addr city state zip)
       NO-LOCK
       WHERE cust.company EQ company.company
-        AND cust.cust-no GE v-s-cust
-        AND cust.cust-no LE v-e-cust
-        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-        AND ttCustList.log-fld no-lock) else true)
-	/*         AND cust.cust-no GE v-s-cust */
-	/*         AND cust.cust-no LE v-e-cust */
+        AND cust.cust-no EQ ttCustList.cust-no
+/*         AND cust.cust-no GE v-s-cust */
+/*         AND cust.cust-no LE v-e-cust */
         AND cust.sman    GE v-s-sman
         AND cust.sman    LE v-e-sman
         AND (cust.ACTIVE NE "I" OR v-inactive-custs)

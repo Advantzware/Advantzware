@@ -61,8 +61,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_ONote 
-     IMAGE-UP FILE "images/press.jpg":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/gearwheels.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Operator Notes" 
      SIZE 8 BY 1.81 TOOLTIP "Notes".
 

@@ -105,7 +105,7 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -362,8 +362,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -555,7 +555,7 @@ DO:
   END.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1333,25 +1333,15 @@ DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR v-type AS CHAR NO-UNDO.
 DEF VAR v-date AS DATE NO-UNDO.
 EMPTY TEMP-TABLE tt-report.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
-DEF VAR v-cust AS CHAR EXTENT 2 NO-UNDO.
-ASSIGN
-    lSelected    = tb_cust-list
-    v-cust[1]    = begin_cust
-    v-cust[2]    = END_cust .
-
-IF lselected THEN DO:
-  FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-  IF AVAIL ttCustList THEN ASSIGN v-cust[1] = ttCustList.cust-no .
-  FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-  IF AVAIL ttCustList THEN ASSIGN v-cust[2] = ttCustList.cust-no .
-END.
 
 
 IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
   DO:
 
-    FOR EACH fg-rcpth
+    FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+       EACH fg-rcpth
         where fg-rcpth.company eq cocode
           AND fg-rcpth.i-no    GE begin_i-no
           AND fg-rcpth.i-no    LE end_i-no
@@ -1359,10 +1349,8 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
         FIRST itemfg WHERE
               itemfg.company EQ cocode AND
               itemfg.i-no    EQ fg-rcpth.i-no AND
-              itemfg.cust-no GE v-cust[1] AND
-              itemfg.cust-no LE v-cust[2] AND 
-              (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
-              AND ttCustList.log-fld no-lock) else true)
+              itemfg.cust-no EQ ttCustList.cust-no /*begin_cust AND
+              itemfg.cust-no LE END_cust*/
               NO-LOCK:
         LEAVE.
     END.
@@ -1407,7 +1395,10 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
         END.
       end.
       
-      FOR EACH fg-rcpth WHERE
+      FOR EACH ttCustList 
+       WHERE ttCustList.log-fld
+       NO-LOCK,
+         EACH fg-rcpth WHERE
           fg-rcpth.company eq cocode AND
           fg-rcpth.i-no    GT v-i-no AND
           fg-rcpth.i-no    GE begin_i-no AND
@@ -1416,10 +1407,8 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
           FIRST itemfg WHERE
                 itemfg.company EQ cocode AND
                 itemfg.i-no    EQ fg-rcpth.i-no AND
-                itemfg.cust-no GE v-cust[1] AND
-                itemfg.cust-no LE v-cust[2] AND 
-                (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
-                AND ttCustList.log-fld no-lock) else true)
+                itemfg.cust-no EQ ttCustList.cust-no /*begin_cust AND
+                itemfg.cust-no LE END_cust*/
                 NO-LOCK:
           LEAVE.
        END.
@@ -1435,17 +1424,18 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
            IF NOT(begin_cust EQ "" AND END_cust EQ "zzzzzzzz") THEN
            DO v-date = b-post-date TO e-post-date:
 
-               FOR each fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
+               FOR EACH ttCustList 
+                   WHERE ttCustList.log-fld
+                   NO-LOCK,
+                   each fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
                    where fg-rcpth.company                eq cocode
                     and fg-rcpth.rita-code              eq v-type
                     and fg-rcpth.post-date              EQ v-date
                     AND CAN-FIND(FIRST itemfg WHERE
                         itemfg.company EQ cocode AND
                         itemfg.i-no    EQ fg-rcpth.i-no AND
-                        itemfg.cust-no GE v-cust[1] AND
-                        itemfg.cust-no LE v-cust[2] AND 
-                        (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
-                        AND ttCustList.log-fld no-lock) else true))            
+                        itemfg.cust-no EQ ttCustList.cust-no /*begin_cust AND
+                        itemfg.cust-no LE END_cust*/)            
                   USE-INDEX post-date
                   no-lock,
                   each fg-rdtlh FIELDS(loc loc-bin tag)
@@ -1467,7 +1457,10 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                   RELEASE tt-report.
               end.
              
-              FOR each fg-rcpth FIELDS(r-no rita-code i-no trans-date)
+              FOR EACH ttCustList 
+                  WHERE ttCustList.log-fld
+                  NO-LOCK,
+                  each fg-rcpth FIELDS(r-no rita-code i-no trans-date)
                   where fg-rcpth.company                eq cocode AND
                         fg-rcpth.rita-code              eq v-type AND
                         fg-rcpth.post-date              eq ? AND
@@ -1477,10 +1470,8 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                         AND CAN-FIND(FIRST itemfg WHERE
                         itemfg.company EQ cocode AND
                         itemfg.i-no    EQ fg-rcpth.i-no AND
-                        itemfg.cust-no GE v-cust[1] AND
-                        itemfg.cust-no LE v-cust[2] AND 
-                        (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
-                        AND ttCustList.log-fld no-lock) else true))            
+                        itemfg.cust-no EQ ttCustList.cust-no /*begin_cust AND
+                        itemfg.cust-no LE END_cust*/)            
                         USE-INDEX post-date
                         NO-LOCK,
                    each fg-rdtlh FIELDS(loc loc-bin tag) WHERE

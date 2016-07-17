@@ -61,7 +61,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON xferJobData 
-     IMAGE-UP FILE "images/xferjobdata.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/documents_exchange.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Xfer Job Data" 
      SIZE 7.6 BY 1.81 TOOLTIP "Misc Fields"
      FONT 6.
@@ -73,8 +74,7 @@ DEFINE FRAME F-Main
      xferJobData AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 4 .
+         AT COL 1 ROW 1 SCROLLABLE .
 
 
 /* *********************** Procedure Settings ************************ */

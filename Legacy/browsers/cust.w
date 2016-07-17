@@ -109,7 +109,7 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
           AND cust.terr   BEGINS fi_terr  ~
           AND cust.sman   BEGINS fi_sman  ~
           AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "") ~
-          AND ((CAN-DO("A,X,S,E,",cust.active) AND tb_act) OR (cust.ACTIVE = "I" AND tb_in-act))
+          AND ((CAN-DO("A,X,S,E",cust.active) AND tb_act) OR (cust.ACTIVE = "I" AND tb_in-act))
 
 &SCOPED-DEFINE for-each2                          ~
     FOR EACH cust                               ~
@@ -130,13 +130,13 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
           AND (IF fi_sman BEGINS '*' THEN cust.sman    MATCHES fi_sman   ~
               ELSE cust.sman    BEGINS fi_sman) ~
           AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "") ~
-          AND ((CAN-DO("A,X,S,E,",cust.active) AND tb_act) OR (cust.ACTIVE = "I" AND tb_in-act))
+          AND ((CAN-DO("A,X,S,E",cust.active) AND tb_act) OR (cust.ACTIVE = "I" AND tb_in-act))
 
 &SCOPED-DEFINE for-eachblank                      ~
     FOR EACH cust                               ~
         WHERE {&key-phrase} ~
         AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "") ~
-        AND ((CAN-DO("A,X,S,E,",cust.active) AND tb_act) OR (cust.ACTIVE = "I" AND tb_in-act))
+        AND ((CAN-DO("A,X,S,E",cust.active) AND tb_act) OR (cust.ACTIVE = "I" AND tb_in-act))
 
 &SCOPED-DEFINE sortby-log                                                                                                                                  ~
     IF lv-sort-by EQ "cust-no"  THEN cust.cust-no ELSE ~
@@ -736,7 +736,7 @@ DO:
     GET FIRST Browser-Table .
     IF NOT AVAIL cust THEN DO: 
         FIND FIRST bf-cust WHERE bf-cust.company = cocode
-                 AND ((CAN-DO("A,X,S,E,",bf-cust.active) AND tb_act) OR (bf-cust.ACTIVE = "I" AND tb_in-act))
+                 AND ((CAN-DO("A,X,S,E",bf-cust.active) AND tb_act) OR (bf-cust.ACTIVE = "I" AND tb_in-act))
                  AND (bf-cust.cust-no EQ fi_cust-no OR fi_cust-no = "")
                  AND (bf-cust.NAME BEGINS fi_i-name OR fi_i-name = "")
                  AND (bf-cust.city BEGINS fi_city OR fi_city = "")

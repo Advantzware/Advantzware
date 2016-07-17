@@ -127,7 +127,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -357,8 +357,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -512,7 +512,7 @@ DO:
   RUN GetSelectionList.
  
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
        EMPTY TEMP-TABLE ttCustList.
       RUN BuildCustList(INPUT cocode,
                         INPUT tb_cust-list AND glCustListActive,
@@ -1442,8 +1442,6 @@ def var v-date as date no-undo.
 DEF VAR v-tr-num AS CHAR FORMAT "x(26)" NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR v-void AS LOG NO-UNDO.
-DEF VAR fcust AS CHAR NO-UNDO.
-DEF VAR tcust AS CHAR NO-UNDO.
 
 DEF VAR cSelectedList AS cha NO-UNDO.
 DEF VAR cDisplay AS cha NO-UNDO.
@@ -1455,7 +1453,7 @@ DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 {sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
@@ -1476,10 +1474,7 @@ assign
  v-s-date = begin_date
  v-e-date = end_date
  v-s-bank = begin_bank
- v-e-bank = end_bank
- lSelected  = tb_cust-list
- fcust      = begin_cust
- tcust      = END_cust .
+ v-e-bank = end_bank.
 
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -1507,12 +1502,6 @@ DEF VAR cslist AS cha NO-UNDO.
             str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
       
  END.
- IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
- END.     
 
 {sys/inc/print1.i}
 
@@ -1538,15 +1527,15 @@ SESSION:SET-WAIT-STATE ("general").
 
 EMPTY TEMP-TABLE tt-gltrans.
 
-FOR EACH ar-cash NO-LOCK
+FOR EACH ttCustList
+       WHERE ttCustList.log-fld
+       NO-LOCK,
+   EACH ar-cash NO-LOCK
     WHERE ar-cash.company   EQ cocode
       AND ar-cash.posted    EQ YES
       AND ar-cash.bank-code GE v-s-bank
       AND ar-cash.bank-code LE v-e-bank
-      AND ar-cash.cust-no GE fcust
-      AND ar-cash.cust-no LE tcust
-      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-cash.cust-no
-      AND ttCustList.log-fld no-lock) else true)
+      AND ar-cash.cust-no   EQ ttCustList.cust-no /*begin_cust*/
    /*   AND ar-cash.cust-no   LE end_cust*/,
     EACH ar-cashl NO-LOCK WHERE ar-cashl.c-no EQ ar-cash.c-no:
       {custom/statusMsg.i " 'Processing Bank#  '  + ar-cash.bank-code "}
@@ -1592,7 +1581,7 @@ FOR EACH ar-cash NO-LOCK
 END.
 
 IF TRIM(begin_cust) EQ "" AND
-   end_cust EQ "zzzzzzzz" AND NOT lselected THEN
+   end_cust EQ "zzzzzzzz" THEN
    FOR EACH ar-mcash
       WHERE ar-mcash.company   EQ cocode
          AND ar-mcash.posted    EQ YES

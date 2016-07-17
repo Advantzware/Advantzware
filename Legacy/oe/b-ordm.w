@@ -40,22 +40,22 @@ assign cocode = g_company
 {oe/d-selmis.i NEW}
 {sys/inc/ceprepprice.i}
 {sys/inc/OEPrepTaxCode.i}
- 
-DEFINE VARIABLE lv-new-recid AS RECID NO-UNDO.
-DEFINE VARIABLE lv-valid-charge AS LOGICAL NO-UNDO.
-DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
-DEFINE NEW SHARED VARIABLE v-misc AS LOGICAL INIT NO NO-UNDO.
-DEFINE NEW SHARED VARIABLE v-fr-tax LIKE oe-ctrl.f-tax NO-UNDO.
+DEF VAR lv-new-recid AS RECID NO-UNDO.
+DEF VAR lv-valid-charge AS LOG NO-UNDO.
+DEF VAR char-hdl AS CHAR NO-UNDO.
 
-DEFINE NEW SHARED BUFFER xoe-ord FOR oe-ord.
-DEFINE NEW SHARED BUFFER xest    FOR est.
-DEFINE NEW SHARED BUFFER xef     FOR ef.
-DEFINE NEW SHARED BUFFER xeb     FOR eb.
+def new shared var v-misc as log init no no-undo.
+def new shared var v-fr-tax like oe-ctrl.f-tax no-undo.
+
+def new shared buffer xoe-ord for oe-ord.
+def new shared buffer xest    for est.
+def new shared buffer xef     for ef.
+def new shared buffer xeb for eb.
 
 
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
-&SCOPED-DEFINE NEW NEW GLOBAL
+&Scoped-define NEW NEW GLOBAL
 &ENDIF
 DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
@@ -67,57 +67,57 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE SmartBrowser
-&SCOPED-DEFINE DB-AWARE NO
+&Scoped-define PROCEDURE-TYPE SmartBrowser
+&Scoped-define DB-AWARE no
 
-&SCOPED-DEFINE ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME F-Main
-&SCOPED-DEFINE BROWSE-NAME br_table
+&Scoped-define FRAME-NAME F-Main
+&Scoped-define BROWSE-NAME br_table
 
 /* External Tables                                                      */
-&SCOPED-DEFINE EXTERNAL-TABLES oe-ord
-&SCOPED-DEFINE FIRST-EXTERNAL-TABLE oe-ord
+&Scoped-define EXTERNAL-TABLES oe-ord
+&Scoped-define FIRST-EXTERNAL-TABLE oe-ord
 
 
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-ord.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&SCOPED-DEFINE INTERNAL-TABLES oe-ordm
+&Scoped-define INTERNAL-TABLES oe-ordm
 
 /* Define KEY-PHRASE in case it is used by any query. */
-&SCOPED-DEFINE KEY-PHRASE TRUE
+&Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&SCOPED-DEFINE FIELDS-IN-QUERY-br_table oe-ordm.charge oe-ordm.amt ~
+&Scoped-define FIELDS-IN-QUERY-br_table oe-ordm.charge oe-ordm.amt ~
 oe-ordm.actnum oe-ordm.dscr oe-ordm.po-no oe-ordm.cost oe-ordm.ord-i-no ~
 oe-ordm.ord-line oe-ordm.po-no-po oe-ordm.s-man[1] oe-ordm.s-pct[1] ~
 oe-ordm.s-comm[1] oe-ordm.s-man[2] oe-ordm.s-pct[2] oe-ordm.s-comm[2] ~
 oe-ordm.s-man[3] oe-ordm.s-pct[3] oe-ordm.s-comm[3] oe-ordm.tax ~
 oe-ordm.spare-char-1 oe-ordm.bill oe-ordm.spare-int-1 oe-ordm.spare-char-2 ~
 oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no 
-&SCOPED-DEFINE ENABLED-FIELDS-IN-QUERY-br_table oe-ordm.charge oe-ordm.amt ~
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table oe-ordm.charge oe-ordm.amt ~
 oe-ordm.actnum oe-ordm.dscr oe-ordm.po-no oe-ordm.cost oe-ordm.ord-i-no ~
 oe-ordm.ord-line oe-ordm.po-no-po oe-ordm.s-man[1] oe-ordm.s-pct[1] ~
 oe-ordm.s-comm[1] oe-ordm.s-man[2] oe-ordm.s-pct[2] oe-ordm.s-comm[2] ~
 oe-ordm.s-man[3] oe-ordm.s-pct[3] oe-ordm.s-comm[3] oe-ordm.tax ~
 oe-ordm.bill oe-ordm.spare-int-1 oe-ordm.spare-char-2 oe-ordm.est-no ~
 oe-ordm.form-no oe-ordm.blank-no 
-&SCOPED-DEFINE ENABLED-TABLES-IN-QUERY-br_table oe-ordm
-&SCOPED-DEFINE FIRST-ENABLED-TABLE-IN-QUERY-br_table oe-ordm
-&SCOPED-DEFINE QUERY-STRING-br_table FOR EACH oe-ordm OF oe-ord WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table oe-ordm
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table oe-ordm
+&Scoped-define QUERY-STRING-br_table FOR EACH oe-ordm OF oe-ord WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&SCOPED-DEFINE OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH oe-ordm OF oe-ord WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH oe-ordm OF oe-ord WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&SCOPED-DEFINE TABLES-IN-QUERY-br_table oe-ordm
-&SCOPED-DEFINE FIRST-TABLE-IN-QUERY-br_table oe-ordm
+&Scoped-define TABLES-IN-QUERY-br_table oe-ordm
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table oe-ordm
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS br_table 
+&Scoped-Define ENABLED-OBJECTS br_table 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -144,7 +144,7 @@ RUN set-attribute-list (
      Keys-Supplied = "company"':U).
 
 /* Tell the ADM to use the OPEN-QUERY-CASES. */
-&SCOPED-DEFINE OPEN-QUERY-CASES RUN dispatch ('open-query-cases':U).
+&Scoped-define OPEN-QUERY-CASES RUN dispatch ('open-query-cases':U).
 /**************************
 </EXECUTING-CODE> */
 /* _UIB-CODE-BLOCK-END */
@@ -187,7 +187,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       oe-ordm.charge FORMAT "x(20)":U WIDTH 35 COLUMN-FONT 0
-      oe-ordm.amt COLUMN-LABEL "Sell Price" FORMAT "->>,>>>,>>9.99":U
+      oe-ordm.amt COLUMN-LABEL "Sell Price" FORMAT "->>>,>>9.99":U
             COLUMN-FONT 0
       oe-ordm.actnum COLUMN-LABEL "Account#" FORMAT "x(25)":U COLUMN-FONT 0
       oe-ordm.dscr FORMAT "x(30)":U WIDTH 40 COLUMN-FONT 0
@@ -333,7 +333,7 @@ ASSIGN
      _FldNameList[1]   > ASI.oe-ordm.charge
 "oe-ordm.charge" ? ? "character" ? ? 0 ? ? ? yes ? no no "35" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.oe-ordm.amt
-"oe-ordm.amt" "Sell Price" "->>,>>>,>>9.99" "decimal" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordm.amt" "Sell Price" ? "decimal" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-ordm.actnum
 "oe-ordm.actnum" "Account#" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-ordm.dscr
@@ -399,66 +399,66 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE BROWSE-NAME br_table
-&SCOPED-DEFINE SELF-NAME br_table
+&Scoped-define BROWSE-NAME br_table
+&Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON HELP OF br_table IN FRAME F-Main
 DO:
-  DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE look-recid AS RECID NO-UNDO.
-  DEFINE VARIABLE v-li AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
-  DEFINE VARIABLE lv-handle AS HANDLE NO-UNDO.
+  def var char-val as cha no-undo.
+  def var look-recid as recid no-undo.
+  DEF VAR v-li AS INT NO-UNDO.
+  DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
+  def var lv-handle as handle no-undo.
 
   lw-focus = FOCUS.
 
-  CASE lw-focus:NAME :
-       WHEN "charge" THEN DO:
+  case lw-focus:name :
+       when "charge" then do:
             RUN windows/l-prep.w (oe-ord.company, oe-ordm.charge:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
             IF char-val NE "" AND ENTRY(1,char-val) NE oe-ordm.charge:SCREEN-VALUE IN BROWSE {&browse-name} THEN DO:
               oe-ordm.charge:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
               RUN new-charge.
             END.
-       END.
-       WHEN "actnum" THEN DO:
-            RUN windows/l-acct2.w (oe-ord.company, "", oe-ordm.actnum:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
-            if char-val <> "" THEN oe-ordm.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
-       END.
+       end.
+       when "actnum" then do:
+            run windows/l-acct2.w (oe-ord.company, "", oe-ordm.actnum:screen-value IN BROWSE {&browse-name}, output char-val).
+            if char-val <> "" then oe-ordm.actnum:screen-value IN BROWSE {&browse-name} = entry(1,char-val).
+       end.
        WHEN "ord-i-no" THEN RUN job-help.
        WHEN "ord-line" THEN RUN job-help.
-       WHEN "s-man" THEN DO:
-           v-li = FRAME-INDEX.
-           RUN windows/l-sman.w (oe-ord.company, OUTPUT char-val).
-           IF char-val NE "" THEN DO:
-             IF v-li EQ 1 AND oe-ordm.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} NE ENTRY(1,char-val) THEN 
-               oe-ordm.s-man[1]:SCREEN-VALUE = ENTRY(1,char-val).
-             ELSE
-             IF v-li EQ 2 AND oe-ordm.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name} NE ENTRY(1,char-val) THEN 
-               oe-ordm.s-man[2]:SCREEN-VALUE = ENTRY(1,char-val).
-             ELSE
-             IF v-li EQ 3 AND oe-ordm.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name} NE ENTRY(1,char-val) THEN 
-               oe-ordm.s-man[3]:SCREEN-VALUE = ENTRY(1,char-val).
-             ELSE v-li = 0.
-             IF v-li NE 0 THEN RUN new-s-man (v-li).
-           END.
-       END.
-       WHEN "po-no-po" THEN DO:
-           RUN windows/l-ponopo.w (oe-ord.company,yes,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-           IF char-val <> "" THEN ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val) .         
-      END.
+       when "s-man" then do:
+           v-li = frame-index.
+           run windows/l-sman.w (oe-ord.company, output char-val).
+           if char-val ne "" then do:
+             if v-li eq 1 and oe-ordm.s-man[1]:screen-value IN BROWSE {&browse-name} ne entry(1,char-val) then 
+               oe-ordm.s-man[1]:screen-value = entry(1,char-val).
+             else
+             if v-li eq 2 and oe-ordm.s-man[2]:screen-value IN BROWSE {&browse-name} ne entry(1,char-val) then 
+               oe-ordm.s-man[2]:screen-value = entry(1,char-val).
+             else
+             if v-li eq 3 and oe-ordm.s-man[3]:screen-value IN BROWSE {&browse-name} ne entry(1,char-val) then 
+               oe-ordm.s-man[3]:screen-value = entry(1,char-val).
+             else v-li = 0.
+             if v-li ne 0 then run new-s-man (v-li).
+           end.
+       end.
+       when "po-no-po" then do:
+           run windows/l-ponopo.w (oe-ord.company,yes,lw-focus:screen-value, output char-val).
+           if char-val <> "" then assign lw-focus:screen-value = entry(1,char-val) .         
+      end.
      /* when "est-no" then do:
            run windows/l-est3.w (oe-ord.company,"",oe-ordm.est-no:SCREEN-VALUE IN BROWSE {&browse-name}, output char-val).
            if char-val <> "" then assign oe-ordm.est-no:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val) .         
       end.*/
-      WHEN "spare-char-2" THEN DO:
-           RUN windows/l-itmfgo.w (oe-ord.company,"",oe-ord.ord-no,oe-ordm.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
-           IF char-val <> "" THEN ASSIGN oe-ordm.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val) .         
-      END. 
+      when "spare-char-2" then do:
+           run windows/l-itmfgo.w (oe-ord.company,"",oe-ord.ord-no,oe-ordm.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name}, output char-val).
+           if char-val <> "" then assign oe-ordm.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val) .         
+      end. 
 
-  END CASE.
+  end case.
 
   APPLY "entry" TO lw-focus.
-  RETURN NO-APPLY.
+  return no-apply.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -468,7 +468,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON MOUSE-SELECT-DBLCLICK OF br_table IN FRAME F-Main
 DO:
-   DEFINE VARIABLE confirm AS LOGICAL NO-UNDO.
+   DEF VAR confirm AS LOG NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
    
@@ -493,7 +493,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON RETURN OF br_table IN FRAME F-Main
+ON return OF br_table IN FRAME F-Main
 ANYWHERE
 DO:
    APPLY "tab" TO SELF.
@@ -541,7 +541,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.charge
+&Scoped-define SELF-NAME oe-ordm.charge
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.charge br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF oe-ordm.charge IN BROWSE br_table /* Charge */
 DO:
@@ -565,7 +565,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.actnum
+&Scoped-define SELF-NAME oe-ordm.actnum
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.actnum br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF oe-ordm.actnum IN BROWSE br_table /* Account# */
 DO:
@@ -579,7 +579,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.ord-i-no
+&Scoped-define SELF-NAME oe-ordm.ord-i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.ord-i-no br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF oe-ordm.ord-i-no IN BROWSE br_table /* Job# */
 DO:
@@ -593,7 +593,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.ord-line
+&Scoped-define SELF-NAME oe-ordm.ord-line
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.ord-line br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF oe-ordm.ord-line IN BROWSE br_table
 DO:
@@ -607,7 +607,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.po-no-po
+&Scoped-define SELF-NAME oe-ordm.po-no-po
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.po-no-po br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF oe-ordm.po-no-po IN BROWSE br_table /* Vendor PO# */
 DO:
@@ -621,7 +621,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-man[1]
+&Scoped-define SELF-NAME oe-ordm.s-man[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-man[1] br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF oe-ordm.s-man[1] IN BROWSE br_table /* Sls Rep */
 DO:
@@ -645,7 +645,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-pct[1]
+&Scoped-define SELF-NAME oe-ordm.s-pct[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-pct[1] br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF oe-ordm.s-pct[1] IN BROWSE br_table /* % of Sale */
 DO:
@@ -660,7 +660,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-comm[1]
+&Scoped-define SELF-NAME oe-ordm.s-comm[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-comm[1] br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF oe-ordm.s-comm[1] IN BROWSE br_table /* Comm% */
 DO:
@@ -675,7 +675,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-man[2]
+&Scoped-define SELF-NAME oe-ordm.s-man[2]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-man[2] br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF oe-ordm.s-man[2] IN BROWSE br_table /* Sls Rep */
 DO:
@@ -713,7 +713,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-pct[2]
+&Scoped-define SELF-NAME oe-ordm.s-pct[2]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-pct[2] br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF oe-ordm.s-pct[2] IN BROWSE br_table /* % of Sale */
 DO:
@@ -728,7 +728,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-comm[2]
+&Scoped-define SELF-NAME oe-ordm.s-comm[2]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-comm[2] br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF oe-ordm.s-comm[2] IN BROWSE br_table /* Comm% */
 DO:
@@ -743,7 +743,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-man[3]
+&Scoped-define SELF-NAME oe-ordm.s-man[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-man[3] br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF oe-ordm.s-man[3] IN BROWSE br_table /* Sls Rep */
 DO:
@@ -781,7 +781,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-pct[3]
+&Scoped-define SELF-NAME oe-ordm.s-pct[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-pct[3] br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF oe-ordm.s-pct[3] IN BROWSE br_table /* % of Sale */
 DO:
@@ -796,7 +796,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.s-comm[3]
+&Scoped-define SELF-NAME oe-ordm.s-comm[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.s-comm[3] br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF oe-ordm.s-comm[3] IN BROWSE br_table /* Comm% */
 DO:
@@ -811,7 +811,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.tax
+&Scoped-define SELF-NAME oe-ordm.tax
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.tax br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF oe-ordm.tax IN BROWSE br_table /* Tax */
 DO:
@@ -825,7 +825,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.bill
+&Scoped-define SELF-NAME oe-ordm.bill
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.bill br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF oe-ordm.bill IN BROWSE br_table /* Bill */
 DO:
@@ -839,7 +839,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-ordm.est-no
+&Scoped-define SELF-NAME oe-ordm.est-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.est-no br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF oe-ordm.est-no IN BROWSE br_table /* Estimate */
 DO:
@@ -987,14 +987,14 @@ PROCEDURE create-invoice :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lv-r-no LIKE inv-head.r-no NO-UNDO.
-  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
-  DEFINE VARIABLE ls AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE v-line-count AS INTEGER NO-UNDO.
-  DEFINE VARIABLE v-start-pos AS INTEGER INIT 1 NO-UNDO.
-  DEFINE VARIABLE v-li AS INTEGER NO-UNDO.
+  DEF VAR lv-r-no LIKE inv-head.r-no NO-UNDO.
+  DEF VAR lv-rowid AS ROWID NO-UNDO.
+  DEF VAR ls AS CHAR NO-UNDO.
+  DEF VAR v-line-count AS INT NO-UNDO.
+  DEF VAR v-start-pos AS INT INIT 1 NO-UNDO.
+  DEF VAR v-li AS INT NO-UNDO.
 
-  DEFINE BUFFER b-oe-ordm FOR oe-ordm.
+  DEF BUFFER b-oe-ordm FOR oe-ordm.
 
   IF AVAIL oe-ord THEN DO:
     IF AVAIL oe-ordm THEN lv-rowid = ROWID(oe-ordm).
@@ -1065,26 +1065,26 @@ PROCEDURE create-invoice :
          inv-head.state     = cust.state
          inv-head.zip       = cust.zip.
 
-        FIND FIRST usergrps NO-LOCK WHERE
+        FIND FIRST usergrps WHERE
              usergrps.usergrps = "IN"
-              NO-ERROR.
+             NO-LOCK NO-ERROR.
 
         IF AVAIL usergrps THEN
         DO:
            DO v-li = 1 TO LENGTH(usergrps.users):
-              ls = SUBSTRING(usergrps.users,v-li,1).
+              ls = SUBSTR(usergrps.users,v-li,1).
              
-              IF v-line-count LT 5 AND ls EQ CHR(10) OR ls EQ CHR(13) THEN
+              IF v-line-count < 5 AND ls EQ CHR(10) OR ls EQ CHR(13) THEN
                  ASSIGN
                     v-line-count = v-line-count + 1
-                    inv-head.bill-i[v-line-count] = SUBSTRING(usergrps.users,v-start-pos,v-li - v-start-pos)
+                    inv-head.bill-i[v-line-count] = SUBSTR(usergrps.users,v-start-pos,v-li - v-start-pos)
                     v-start-pos = v-li + 1.
            
-              IF v-line-count LT 5 AND v-li EQ LENGTH(usergrps.users) AND
+              IF v-line-count < 5 AND v-li = LENGTH(usergrps.users) AND
                  NOT(ls EQ CHR(10) OR ls EQ CHR(13)) THEN
                  ASSIGN
                     v-line-count = v-line-count + 1
-                    inv-head.bill-i[v-line-count] = SUBSTRING(usergrps.users,v-start-pos,v-li - v-start-pos + 1).
+                    inv-head.bill-i[v-line-count] = SUBSTR(usergrps.users,v-start-pos,v-li - v-start-pos + 1).
            END.
            
            RELEASE usergrps.
@@ -1127,15 +1127,15 @@ PROCEDURE create-reft4prep :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lv-prep-cnt AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lv-returnc AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lv-form# AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lv-line# AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lv-eqty AS INTEGER NO-UNDO.
+  DEF VAR lv-prep-cnt AS INT NO-UNDO.
+  DEF VAR lv-returnc AS cha NO-UNDO.
+  DEF VAR lv-form# AS INT NO-UNDO.
+  DEF VAR lv-line# AS INT NO-UNDO.
+  DEF VAR lv-eqty AS INT NO-UNDO.
 
   IF CAN-FIND(FIRST prep WHERE prep.company EQ oe-ord.company 
                    AND prep.code EQ oe-ordm.charge /*AND prep.mat-type = "P"*/) AND
-     NOT CAN-FIND(FIRST reftable
+     NOT can-find(FIRST reftable
                   WHERE reftable.reftable EQ "oe/ordlmisc.p"
                     AND reftable.company  EQ oe-ordm.company
                     AND reftable.loc      EQ STRING(oe-ordm.ord-no,"9999999999")
@@ -1144,34 +1144,34 @@ PROCEDURE create-reft4prep :
                     AND reftable.val[1] = 1)
   THEN DO:
       lv-prep-cnt = 0.
-      FOR EACH est-prep NO-LOCK WHERE est-prep.company EQ oe-ordm.company
-                          AND est-prep.est-no EQ oe-ordm.est-no 
-                          AND est-prep.CODE EQ oe-ordm.charge
-                          AND est-prep.simon   EQ "S" :
+      FOR EACH est-prep WHERE est-prep.company = oe-ordm.company
+                          AND est-prep.est-no = oe-ordm.est-no 
+                          AND est-prep.CODE = oe-ordm.charge
+                          AND est-prep.simon   EQ "S" NO-LOCK:
           lv-prep-cnt = lv-prep-cnt + 1.
       END.
       IF lv-prep-cnt > 1 THEN do:
          RUN oe/d-formno.w (INPUT oe-ordm.est-no, INPUT oe-ordm.charge, INPUT recid(oe-ordm), OUTPUT lv-returnc).
          IF lv-returnc = "" THEN RETURN ERROR.
 
-         ASSIGN lv-form# = INTEGER(ENTRY(2,lv-returnc))
-                lv-line# = INTEGER(ENTRY(4,lv-returnc))
-                lv-eqty = INTEGER(ENTRY(6,lv-returnc)).
-         FIND FIRST est-prep NO-LOCK WHERE est-prep.company EQ oe-ordm.company
+         ASSIGN lv-form# = INT(ENTRY(2,lv-returnc))
+                lv-line# = INT(ENTRY(4,lv-returnc))
+                lv-eqty = INT(ENTRY(6,lv-returnc)).
+         FIND FIRST est-prep WHERE est-prep.company EQ oe-ordm.company
                       AND est-prep.est-no  EQ oe-ordm.est-no
                       AND est-prep.eqty    EQ lv-eqty
                       AND est-prep.line    EQ lv-line#
                       AND est-prep.code    EQ oe-ordm.charge
                       AND est-prep.simon   EQ "S"
-                      AND est-prep.amtz    EQ 100  NO-ERROR.
+                      AND est-prep.amtz    EQ 100 NO-LOCK NO-ERROR.
       END.
-      ELSE FIND FIRST est-prep NO-LOCK WHERE est-prep.company EQ oe-ordm.company
+      ELSE FIND FIRST est-prep WHERE est-prep.company EQ oe-ordm.company
                       AND est-prep.est-no  EQ oe-ordm.est-no
                     /*  AND est-prep.eqty    EQ lv-eqty
                       AND est-prep.line    EQ lv-line#*/
                       AND est-prep.code    EQ oe-ordm.charge
                       AND est-prep.simon   EQ "S"
-                      AND est-prep.amtz    EQ 100  NO-ERROR.
+                      AND est-prep.amtz    EQ 100 NO-LOCK NO-ERROR.
       CREATE reftable.
       ASSIGN reftable.reftable = "oe/ordlmisc.p"
              reftable.company  = oe-ordm.company
@@ -1198,7 +1198,7 @@ PROCEDURE custom-panel-state :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT-OUTPUT PARAMETER io-panel-state AS CHARACTER NO-UNDO.
+  DEF INPUT-OUTPUT PARAM io-panel-state AS CHAR NO-UNDO.
 
 
   IF NOT AVAIL oe-ord AND AVAIL oe-ordl THEN
@@ -1237,8 +1237,8 @@ PROCEDURE job-help :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE look-recid AS RECID NO-UNDO.
+  DEF VAR char-val AS cha NO-UNDO.
+  DEF VAR look-recid AS RECID NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1263,7 +1263,7 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE ld-prev-amt LIKE oe-ordm.amt NO-UNDO.
+  DEF VAR ld-prev-amt LIKE oe-ordm.amt NO-UNDO.
 
 IF NOT AVAIL oe-ordm THEN DO:
     /* task 12161102 - for some reason, record not avail when validation
@@ -1275,7 +1275,7 @@ END.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
-      ld-prev-amt = DECIMAL(oe-ordm.amt:SCREEN-VALUE IN BROWSE {&browse-name}).
+      ld-prev-amt = decimal(oe-ordm.amt:SCREEN-VALUE IN BROWSE {&browse-name}).
   END.
   
  
@@ -1293,7 +1293,7 @@ END.
     oe-ord.stat = "U".  /* order updated */
   FIND CURRENT oe-ord NO-LOCK.
 
-  FIND xoe-ord WHERE ROWID(xoe-ord) EQ ROWID(oe-ord) EXCLUSIVE.
+  FIND xoe-ord WHERE rowid(xoe-ord) EQ ROWID(oe-ord) EXCLUSIVE.
 
   RUN oe/oe-comm.p.
 
@@ -1305,7 +1305,7 @@ END.
     RUN oe/creditck.p (ROWID(oe-ord), YES).
   
   /* create reftable for prep */
-  IF oe-ordm.est-no NE "" THEN DO:
+  IF oe-ordm.est-no <> "" THEN do:
        RUN create-reft4prep NO-ERROR.
        IF ERROR-STATUS:ERROR THEN RETURN ERROR.
   END. 
@@ -1344,11 +1344,11 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE BUFFER bf-ordm FOR oe-ordm.
-  DEFINE VARIABLE li-line AS INTEGER NO-UNDO.
-  DEFINE VARIABLE v-fgitem AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lv-error AS CHARACTER NO-UNDO.
-  DEFINE BUFFER bf-ordl  FOR oe-ordl.
+  def buffer bf-ordm for oe-ordm.
+  def var li-line as int no-undo.
+  DEF VAR v-fgitem AS CHAR NO-UNDO.
+  DEF VAR lv-error AS CHAR NO-UNDO.
+  DEF BUFFER bf-ordl  FOR oe-ordl.
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND LAST bf-ordm NO-LOCK
       WHERE bf-ordm.company EQ oe-ord.company
@@ -1362,7 +1362,7 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   lv-new-recid = RECID(oe-ordm).
   FIND CURRENT oe-ordm EXCLUSIVE-LOCK.
-  ASSIGN
+  assign
    oe-ordm.company   = oe-ord.company
    oe-ordm.ord-no    = oe-ord.ord-no
    oe-ordm.est-no    = oe-ord.est-no
@@ -1378,32 +1378,32 @@ PROCEDURE local-create-record :
    oe-ordm.s-pct[3]  = oe-ord.s-pct[3]
    oe-ordm.s-comm[3] = oe-ord.s-comm[3] .
 
-  IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ NO THEN DO:             /*Task# 11271302*/  
+  IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ NO THEN do:             /*Task# 11271302*/  
       ASSIGN
           oe-ordm.s-comm[1] = 0
           oe-ordm.s-comm[2] = 0     
           oe-ordm.s-comm[3] = 0.
   END.
 
-  FIND FIRST ar-ctrl WHERE ar-ctrl.company = oe-ord.company NO-LOCK NO-ERROR.
-  IF AVAIL ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
-  FIND FIRST cust OF oe-ord NO-LOCK.
-  oe-ordm.tax = cust.sort = "Y" AND oe-ord.tax-gr <> "".
+  find first ar-ctrl where ar-ctrl.company = oe-ord.company no-lock no-error.
+  if avail ar-ctrl then oe-ordm.actnum = ar-ctrl.sales.
+  find first cust of oe-ord no-lock.
+  oe-ordm.tax = cust.sort = "Y" and oe-ord.tax-gr <> "".
   
   i = 0 .
   FOR EACH bf-ordl OF oe-ord NO-LOCK:
   i = i + 1.
   END.
   
-  IF i = 1 THEN DO:
+  IF i = 1 THEN do:
       IF AVAIL oe-ord THEN
           FIND FIRST bf-ordl OF oe-ord NO-LOCK NO-ERROR.
       IF AVAIL bf-ordl THEN
           ASSIGN
           oe-ordm.spare-char-2 = bf-ordl.i-no .
   END.
-  ELSE DO:
-      RUN cec/mis-ordfg.p (RECID(oe-ord),OUTPUT v-fgitem,OUTPUT lv-error ) NO-ERROR.
+  ELSE do:
+      run cec/mis-ordfg.p (recid(oe-ord),output v-fgitem,output lv-error ) no-error.
       ASSIGN
           oe-ordm.spare-char-2 = v-fgitem  .
   END.
@@ -1419,7 +1419,7 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEF VAR char-hdl AS cha NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -1431,7 +1431,7 @@ PROCEDURE local-delete-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  FIND xoe-ord WHERE ROWID(xoe-ord) EQ ROWID(oe-ord) EXCLUSIVE.
+  FIND xoe-ord WHERE rowid(xoe-ord) EQ ROWID(oe-ord) EXCLUSIVE.
 
   RUN oe/oe-comm.p.
 
@@ -1475,7 +1475,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEF VAR char-hdl AS cha NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -1510,15 +1510,11 @@ PROCEDURE local-update-record :
 
   RUN valid-bill NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
-  FIND CURRENT oe-ordm EXCLUSIVE-LOCK NO-ERROR.
-  oe-ordm.spare-char-1 = oe-ordm.spare-char-1:SCREEN-VALUE .
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */  
-  
 
   ASSIGN
      lv-new-recid = ?
@@ -1566,10 +1562,10 @@ PROCEDURE new-charge :
   DEFINE VARIABLE markUp AS DECIMAL NO-UNDO.
   
   DO WITH FRAME {&FRAME-NAME}:
-    FIND prep  NO-LOCK
+    FIND prep
         WHERE prep.company EQ oe-ord.company 
           AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-ERROR.
+        NO-LOCK NO-ERROR.
     IF AVAIL prep THEN DO:
 
       IF ceprepprice-chr EQ "Profit" THEN
@@ -1610,11 +1606,11 @@ PROCEDURE new-comm :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
+  DEF INPUT PARAM ip-int AS INT NO-UNDO.
 
-  DEFINE VARIABLE v-li AS INTEGER NO-UNDO.
-  DEFINE VARIABLE ld AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE lv AS CHARACTER NO-UNDO.
+  DEF VAR v-li AS INT NO-UNDO.
+  DEF VAR ld AS DEC NO-UNDO.
+  DEF VAR lv AS CHAR NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1623,7 +1619,7 @@ PROCEDURE new-comm :
           AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
 
-   IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN DO:             /*Task# 11271302*/
+   IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN do:             /*Task# 11271302*/
         
     DO v-li = 1 TO IF ip-int EQ 0 THEN 3 ELSE ip-int:
       lv = IF v-li EQ 1 THEN oe-ordm.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} ELSE
@@ -1660,9 +1656,9 @@ PROCEDURE new-s-man :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
+  DEF INPUT PARAM ip-int AS INT NO-UNDO.
 
-  DEFINE VARIABLE lv-sman LIKE sman.sman NO-UNDO.
+  DEF VAR lv-sman LIKE sman.sman NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1678,9 +1674,9 @@ PROCEDURE new-s-man :
           NO-LOCK NO-ERROR.
       IF AVAIL sman THEN DO:
         IF ip-int EQ 3 THEN DO:
-          IF DECIMAL(oe-ordm.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
+          IF DEC(oe-ordm.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
             oe-ordm.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name} = "100".
-          IF DECIMAL(oe-ordm.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
+          IF DEC(oe-ordm.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
               IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN        /*Task# 11271302*/
                   oe-ordm.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
           END.
@@ -1689,9 +1685,9 @@ PROCEDURE new-s-man :
         END.
         ELSE
         IF ip-int EQ 2 THEN DO:
-          IF DECIMAL(oe-ordm.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
+          IF DEC(oe-ordm.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
             oe-ordm.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name} = "100".
-          IF DECIMAL(oe-ordm.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
+          IF DEC(oe-ordm.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
               IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN        /*Task# 11271302*/
                   oe-ordm.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
           END.
@@ -1699,9 +1695,9 @@ PROCEDURE new-s-man :
           RUN new-comm (2).
         END.
         ELSE DO:
-          IF DECIMAL(oe-ordm.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
+          IF DEC(oe-ordm.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
             oe-ordm.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name} = "100".
-          IF DECIMAL(oe-ordm.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
+          IF DEC(oe-ordm.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
               IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN        /*Task# 11271302*/
                   oe-ordm.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
           END.
@@ -1725,7 +1721,7 @@ PROCEDURE reopen-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
 
   RUN dispatch ('open-query').
@@ -1792,7 +1788,7 @@ PROCEDURE show-comm :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-visible AS LOGICAL NO-UNDO.
+  DEF INPUT PARAM ip-visible AS LOG NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1867,7 +1863,7 @@ PROCEDURE valid-bill :
   Notes:       
 ------------------------------------------------------------------------------*/
  DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-DO("Y,N,I",oe-ordm.bill:SCREEN-VALUE IN BROWSE {&browse-name})       
+    IF NOT can-do("Y,N,I",oe-ordm.bill:SCREEN-VALUE IN BROWSE {&browse-name})       
     THEN DO:
       MESSAGE "Invalid entry. Enter (Y)es, (N)o, or (I)nvoiced." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO oe-ordm.bill IN BROWSE {&browse-name}.
@@ -1887,9 +1883,9 @@ PROCEDURE valid-charge :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-focus AS HANDLE NO-UNDO.
+  DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
-  DEFINE VARIABLE ll AS LOGICAL INIT YES NO-UNDO.
+  DEF VAR ll AS LOG INIT YES NO-UNDO.
 
   
   DO WITH FRAME {&FRAME-NAME}:
@@ -1915,8 +1911,8 @@ PROCEDURE valid-charge :
                     WHERE ef.company EQ reftable.company
                       AND ef.est-no  EQ reftable.dscr
                       AND ef.eqty    EQ reftable.val[2]
-                      AND ef.form-no EQ INTEGER(reftable.val[3])
-                      AND ef.mis-cost[INTEGER(reftable.val[4])] EQ reftable.code2).
+                      AND ef.form-no EQ INT(reftable.val[3])
+                      AND ef.mis-cost[INT(reftable.val[4])] EQ reftable.code2).
     END.
 
     IF NOT ll THEN DO:
@@ -1939,9 +1935,9 @@ PROCEDURE valid-est :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-focus AS HANDLE NO-UNDO.
-  DEFINE VARIABLE lv-est-no LIKE oe-ordm.est-no NO-UNDO.
-  DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
+  DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
+  DEF VAR lv-est-no LIKE oe-ordm.est-no NO-UNDO.
+ DEF BUFFER bf-oe-ordl FOR oe-ordl .
  DO WITH FRAME {&FRAME-NAME}:
   IF AVAIL oe-ordm THEN do:
     ASSIGN 
@@ -1949,7 +1945,7 @@ PROCEDURE valid-est :
      lv-est-no = FILL(" ", 8 - LENGTH(TRIM(lv-est-no))) + TRIM(lv-est-no)
      oe-ordm.est-no:SCREEN-VALUE IN BROWSE {&browse-name} = lv-est-no.
 
-   IF oe-ordm.est-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+   IF oe-ordm.est-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN do:
     FIND FIRST bf-oe-ordl WHERE bf-oe-ordl.company EQ oe-ordm.company
         AND bf-oe-ordl.ord-no EQ oe-ordm.ord-no
        AND bf-oe-ordl.est-no EQ oe-ordm.est-no:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
@@ -1976,7 +1972,7 @@ PROCEDURE valid-ord-i-no :
   Parameters:  <none>
   Notes: ord-i-no is used for job-no
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lv-job-no LIKE job.job-no NO-UNDO.
+  DEF VAR lv-job-no LIKE job.job-no NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1986,10 +1982,10 @@ PROCEDURE valid-ord-i-no :
      oe-ordm.ord-i-no:SCREEN-VALUE IN BROWSE {&browse-name} = lv-job-no.
 
     IF lv-job-no NE "" THEN DO:
-      FIND FIRST job NO-LOCK
+      FIND FIRST job
           WHERE job.company EQ cocode
             AND job.job-no  EQ lv-job-no
-           NO-ERROR.
+          NO-LOCK NO-ERROR.
       IF NOT AVAIL job THEN DO:
         MESSAGE TRIM(oe-ordm.ord-i-no:LABEL IN BROWSE {&browse-name}) +
                 " is invalid..." VIEW-AS ALERT-BOX ERROR.
@@ -2012,7 +2008,7 @@ PROCEDURE valid-ord-line :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-   DEFINE VARIABLE lv-job-no LIKE job.job-no NO-UNDO.
+  DEF VAR lv-job-no LIKE job.job-no NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -2050,10 +2046,10 @@ PROCEDURE valid-po-no-po :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF INTEGER(oe-ordm.po-no-po:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 AND
+    IF INT(oe-ordm.po-no-po:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 AND
        NOT CAN-FIND(FIRST po-ord
                     WHERE po-ord.company EQ oe-ord.company 
-                      AND po-ord.po-no   EQ INTEGER(oe-ordm.po-no-po:SCREEN-VALUE IN BROWSE {&browse-name}))
+                      AND po-ord.po-no   EQ INT(oe-ordm.po-no-po:SCREEN-VALUE IN BROWSE {&browse-name}))
     THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO oe-ordm.po-no-po IN BROWSE {&browse-name}.
@@ -2073,10 +2069,10 @@ PROCEDURE valid-s-man :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
+  DEF INPUT PARAM ip-int AS INT NO-UNDO.
 
-   DEFINE VARIABLE v-li AS INTEGER NO-UNDO.
-   DEFINE VARIABLE lv-sman LIKE sman.sman NO-UNDO.
+  DEF VAR v-li AS INT NO-UNDO.
+  DEF VAR lv-sman LIKE sman.sman NO-UNDO.
 
   v-li = ip-int.
 
@@ -2133,21 +2129,21 @@ PROCEDURE valid-s-pct :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
+  DEF INPUT PARAM ip-int AS INT NO-UNDO.
 
-   DEFINE VARIABLE ld-pct AS DECIMAL NO-UNDO.
-   DEFINE VARIABLE ll AS LOGICAL NO-UNDO.
+  DEF VAR ld-pct AS DEC NO-UNDO.
+  DEF VAR ll AS LOG NO-UNDO.
 
    
   DO WITH FRAME {&FRAME-NAME}:
-    ld-pct = IF ip-int EQ 1 THEN DECIMAL(oe-ordm.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name})
+    ld-pct = IF ip-int EQ 1 THEN DEC(oe-ordm.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name})
              ELSE
-             IF ip-int EQ 2 THEN DECIMAL(oe-ordm.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name})
+             IF ip-int EQ 2 THEN DEC(oe-ordm.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name})
              ELSE
-             IF ip-int EQ 3 THEN DECIMAL(oe-ordm.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name})
-             ELSE (DECIMAL(oe-ordm.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name}) +
-                   DECIMAL(oe-ordm.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name}) +
-                   DECIMAL(oe-ordm.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name})).
+             IF ip-int EQ 3 THEN DEC(oe-ordm.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name})
+             ELSE (DEC(oe-ordm.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name}) +
+                   DEC(oe-ordm.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name}) +
+                   DEC(oe-ordm.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name})).
 
     IF (oe-ordm.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} NE "" OR
         oe-ordm.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name} NE "" OR

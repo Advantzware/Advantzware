@@ -86,17 +86,15 @@ ASSIGN cTextListToSelect = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #,DESCRIPTION,JO
                            "QTY SHIPPED,RECEIPT DATE,PRICE,VALUE,RELEASE QTY," +
                            "QTY PROD.,QTY BALANCE,ORDER DATE,SHIP DATE,WHSE," +
                            "RELEASE PO#,RELEASE LOT#,FG LOT#,SHIPTO,SHIPTO NAME,FG LOT QTY"
-                           "FACTORY COST/M,TOT FACTORY COST,ON HAND COST"
            cFieldListToSelect = "cust.cust-no,oe-ordl.po-no,sman,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,v-job-no," +
                                 "v-rel#,v-relDate,v-rfq,v-relQty,v-qty-onh,v-qty-ord," +
                                 "li-ship-qty,v-rctDate,v-price,v-ext,relqty," +
                                 "qty-pro,qty-bal,ord-date,ship-date,loc," +
                                 "relpo,rellot,fg-lot,shipto,shipname,prodqty"
-                                "fac-costm,tot-fac-cost,on-hand-cost"
            cFieldLength = "8,15,4,15,15,15,9," + "9,11,10,13,11,11," + "11,12,10,15,11," + "10,11,10,9,5," +
-                          "15,15,16,8,30,11," + "14,16,13"
+                          "15,15,16,8,30,11"
            cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i," + "i,c,i,i,i," + "i,i,c,c,c," +
-                        "c,c,c,c,c,i," + "i,i,i" 
+                        "c,c,c,c,c,i"
            .
 
 {sys/inc/ttRptSel.i}
@@ -465,8 +463,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -1642,7 +1640,6 @@ DEF VAR v-rel-date LIKE oe-rel.rel-date NO-UNDO.
 def var v-smry-dtl as char format "x(9)".
 DEF VAR v-rfq LIKE quotehd.rfq NO-UNDO.
 DEF VAR v-summ-temp AS INT NO-UNDO.
-DEF VAR vtot-costm AS DECIMAL format "->>,>>>,>>9.99" NO-UNDO.
 
 DEF BUFFER boe-ordl FOR oe-ordl.
 DEF BUFFER bcust FOR cust.

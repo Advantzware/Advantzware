@@ -281,29 +281,6 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
-  
-  /* disable/enable set parts tab */
-  def var char-hdl as cha no-undo.
-  def var cEmailTo as cha no-undo.
-  
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", OUTPUT char-hdl).
-  RUN get-link-handle IN adm-broker-hdl(WIDGET-HANDLE(char-hdl), "page-source", OUTPUT char-hdl).
-  
-  if emailcod.emailTo <> "" then do:
-    IF can-do(emailcod.emailTo,"Customer") or can-do(emailcod.emailTo,"Cust") 
-       THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 2) NO-ERROR.
-       ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 2) NO-ERROR.
-    IF can-do(emailcod.emailTo,"Vendor") or can-do(emailcod.emailTo,"Vend")  
-       then RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 3) NO-ERROR.
-       ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 3) NO-ERROR.
-    IF can-do(emailcod.emailTo,"ShipTo") THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 4) NO-ERROR.
-    ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 4) NO-ERROR.
-    IF can-do(emailcod.emailTo,"Employee") THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 5) NO-ERROR.
-    ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 5) NO-ERROR.
-    IF can-do(emailcod.emailTo,"SoldTo") THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6) NO-ERROR.
-    ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6) NO-ERROR.
-  end.
-  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -368,31 +345,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win
-PROCEDURE local-open-query:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
-  apply 'value-changed' to browse {&browse-name}.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

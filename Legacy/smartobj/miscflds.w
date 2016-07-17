@@ -12,8 +12,7 @@
   Created: 1.6.2011
 
 ------------------------------------------------------------------------*/
-/*          
-This .W file was created with the Progress UIB.             */
+/*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
 /* Create an unnamed pool to store all the widgets created 
@@ -62,7 +61,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON selectMiscFlds 
-     IMAGE-UP FILE "images/flds2-u.bmp":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/window_explorer.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Misc Fields" 
      SIZE 7.8 BY 1.81 TOOLTIP "Misc Fields".
 

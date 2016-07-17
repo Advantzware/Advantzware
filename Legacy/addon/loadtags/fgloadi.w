@@ -1,7 +1,5 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
-/* Connected Databases 
-*/
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
@@ -57,7 +55,7 @@ DEFINE VARIABLE header_value AS CHARACTER NO-UNDO.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -81,7 +79,8 @@ DEFINE VARIABLE h_loaditem AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Exit 
-     IMAGE-UP FILE "images\exit-au":U
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "E&xit" 
      SIZE 8 BY 2.33.
 
@@ -130,6 +129,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
@@ -150,7 +155,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-                                                                        */
+   FRAME-NAME                                                           */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -244,14 +249,12 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'loadtags/loaditem.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_loaditem ).
        RUN set-position IN h_loaditem ( 1.00 , 1.00 ) NO-ERROR.
        RUN set-size IN h_loaditem ( 20.00 , 133.00 ) NO-ERROR.
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_loaditem ,
-             Btn_Exit:HANDLE IN FRAME F-Main , 'BEFORE':U ).
     END. /* Page 0 */
 
   END CASE.

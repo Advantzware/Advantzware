@@ -85,8 +85,8 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-movecol 
-     IMAGE-UP FILE "images/movecol.ico":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet_column.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Browser Col. Mode - Move / Sort Columns".
 

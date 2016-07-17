@@ -83,7 +83,8 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCRM 
-     IMAGE-UP FILE "CRM/images/crmimage.jpg":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/handshake.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Import CRM".
 
@@ -132,6 +133,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -178,20 +180,7 @@ DO:
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'CRM-source':U,OUTPUT cHandle).
    RUN pCRM in WIDGET-HANDLE(cHandle).
-        /*
-        RUN init-object IN THIS-PROCEDURE (
-              INPUT  'panels/p-CRM.w':U ,
-              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-              INPUT  'Layout = ':U ,
-              OUTPUT h_CRM ).
-        RUN set-position IN h_CRM ( 1.00 , 51.00 ) NO-ERROR.
-        /* Size in UIB:  ( 1.81 , 7.80 ) */
-        */
-       
-   /*
-       /* Links to SmartViewer h_CRM. */
-       RUN add-link IN adm-broker-hdl ( h_phone , 'CRM':U , h_CRM ).
-       */
+   { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */

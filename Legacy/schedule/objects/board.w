@@ -291,7 +291,7 @@ FUNCTION timeSpan RETURNS INTEGER PRIVATE
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCalendar 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
@@ -2162,7 +2162,7 @@ PROCEDURE buildScenario :
   DEFINE VARIABLE listItems AS CHARACTER NO-UNDO.
 
   RUN msgFrame ('Building Scenarios').
-  searchDir = installDir + '{&scenarios}/' + ID.
+  searchDir = clientDat + '{&scenarios}/' + ID.
   IF INDEX(PROPATH,'schedule') NE 0 AND
      INDEX(PROPATH,':') EQ 0 THEN searchDir = '../' + searchDir.
   INPUT FROM OS-DIR(searchDir) NO-ECHO.

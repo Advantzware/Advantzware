@@ -81,8 +81,8 @@ DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-5 menu-items ~
-menu-names userName Btn_Build Btn_Add_Menu Btn_Default program-names ~
+&Scoped-Define ENABLED-OBJECTS Btn_Build menu-items menu-names RECT-1 ~
+RECT-2 RECT-3 RECT-5 userName Btn_Add_Menu Btn_Default program-names ~
 Btn_Reset Btn_Save Btn_Cancel Btn_Up Btn_Down Btn_Add_Rule Btn_Add_Skip ~
 Btn_Left Btn_Right Btn_Remove Btn_Add_Program 
 &Scoped-Define DISPLAYED-OBJECTS menu-items menu-names userName ~
@@ -123,7 +123,7 @@ DEFINE BUTTON Btn_Add_Skip
      FONT 4.
 
 DEFINE BUTTON Btn_Build 
-     IMAGE-UP FILE "images\menu-u":U
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Build" 
      SIZE 8.4 BY 2
      FONT 4.
@@ -134,7 +134,7 @@ DEFINE BUTTON Btn_Cancel
      BGCOLOR 8 FONT 4.
 
 DEFINE BUTTON Btn_Default 
-     IMAGE-UP FILE "images\menu-u":U
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "De&fault" 
      SIZE 8.4 BY 2
      FONT 4.
@@ -155,7 +155,7 @@ DEFINE BUTTON Btn_Remove
      FONT 4.
 
 DEFINE BUTTON Btn_Reset 
-     IMAGE-UP FILE "images\menu-u":U
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Rese&t" 
      SIZE 8.4 BY 2
      FONT 4.
@@ -166,7 +166,7 @@ DEFINE BUTTON Btn_Right
      FONT 4.
 
 DEFINE BUTTON Btn_Save 
-     IMAGE-UP FILE "images\menu-u":U
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Save" 
      SIZE 8.4 BY 2
      FONT 4.
@@ -219,14 +219,14 @@ DEFINE VARIABLE program-names AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     Btn_Build AT ROW 4.57 COL 134.8 HELP
+          "BUILD Menu Bar from Menu Structure Items"
      menu-items AT ROW 1 COL 2.4 HELP
           "Select Menu Structure Item" NO-LABEL
      menu-names AT ROW 1 COL 79.4 HELP
           "Select Available Menu Item" NO-LABEL
      userName AT ROW 2.43 COL 130 COLON-ALIGNED HELP
           "Select User Account ID" NO-LABEL
-     Btn_Build AT ROW 4.57 COL 134.8 HELP
-          "BUILD Menu Bar from Menu Structure Items"
      Btn_Add_Menu AT ROW 8 COL 94.8 HELP
           "Add a Menu Item to Menu Structure"
      Btn_Default AT ROW 9.57 COL 134.8 HELP
@@ -258,23 +258,23 @@ DEFINE FRAME DEFAULT-FRAME
      "Menu" VIEW-AS TEXT
           SIZE 6 BY .76 AT ROW 7.43 COL 136
           BGCOLOR 5 FGCOLOR 15 FONT 4
-     "De&fault Menu" VIEW-AS TEXT
-          SIZE 14 BY .76 AT ROW 11.57 COL 132
-          BGCOLOR 5 FGCOLOR 15 FONT 4
-     "User ID" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.71 COL 135
-          BGCOLOR 5 FGCOLOR 15 
-     "&Build Top Bar" VIEW-AS TEXT
-          SIZE 14 BY .76 AT ROW 6.67 COL 132
-          BGCOLOR 5 FGCOLOR 15 FONT 4
-     "&Save Menu" VIEW-AS TEXT
-          SIZE 11.2 BY .76 AT ROW 20.86 COL 133
+     "Rese&t Menu" VIEW-AS TEXT
+          SIZE 12.6 BY .76 AT ROW 16.57 COL 133
           BGCOLOR 5 FGCOLOR 15 FONT 4
      "(auto save)" VIEW-AS TEXT
           SIZE 11 BY .76 AT ROW 12.43 COL 133
           BGCOLOR 5 FGCOLOR 15 FONT 4
-     "Rese&t Menu" VIEW-AS TEXT
-          SIZE 12.6 BY .76 AT ROW 16.57 COL 133
+     "&Save Menu" VIEW-AS TEXT
+          SIZE 11.2 BY .76 AT ROW 20.86 COL 133
+          BGCOLOR 5 FGCOLOR 15 FONT 4
+     "&Build Top Bar" VIEW-AS TEXT
+          SIZE 14 BY .76 AT ROW 6.67 COL 132
+          BGCOLOR 5 FGCOLOR 15 FONT 4
+     "User ID" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.71 COL 135
+          BGCOLOR 5 FGCOLOR 15 
+     "De&fault Menu" VIEW-AS TEXT
+          SIZE 14 BY .76 AT ROW 11.57 COL 132
           BGCOLOR 5 FGCOLOR 15 FONT 4
      RECT-1 AT ROW 22.19 COL 2
      RECT-2 AT ROW 7.38 COL 79.4
@@ -320,8 +320,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -917,7 +917,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY menu-items menu-names userName program-names 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-1 RECT-2 RECT-3 RECT-5 menu-items menu-names userName Btn_Build 
+  ENABLE Btn_Build menu-items menu-names RECT-1 RECT-2 RECT-3 RECT-5 userName 
          Btn_Add_Menu Btn_Default program-names Btn_Reset Btn_Save Btn_Cancel 
          Btn_Up Btn_Down Btn_Add_Rule Btn_Add_Skip Btn_Left Btn_Right 
          Btn_Remove Btn_Add_Program 

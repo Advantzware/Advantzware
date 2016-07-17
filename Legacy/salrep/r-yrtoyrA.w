@@ -107,7 +107,7 @@ td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -324,8 +324,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -520,7 +520,7 @@ DO:
   
  SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1088,8 +1088,7 @@ DEF VAR fdate     AS   DATE EXTENT 26 INIT 12/31/9999 NO-UNDO.
 DEF VAR tdate     AS   DATE EXTENT 26 INIT 12/31/9999 NO-UNDO.
 DEF VAR fsman     LIKE cust.sman            INIT "" NO-UNDO.
 DEF VAR tsman     LIKE fsman                INIT "zzz" NO-UNDO.
-DEF VAR fcust     LIKE cust.cust-no         INIT "" NO-UNDO.
-DEF VAR tcust     LIKE cust.cust-no         INIT "zzz" NO-UNDO.
+
 DEF VAR v-per-1   AS   INT                  FORMAT ">9" NO-UNDO.
 DEF VAR v-per-2   AS   INT                  FORMAT ">9" NO-UNDO.
 DEF VAR v-custs   AS   INT                  FORMAT ">>,>>9" NO-UNDO.
@@ -1117,7 +1116,7 @@ DEF VAR lv-sman   AS   CHAR NO-UNDO.
 DEF VAR lv-ltype  AS   CHAR EXTENT 6 NO-UNDO.
 DEF VAR ll-tots   AS   LOG NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 {custom/statusMsg.i "'Processing...'"} 
 
 FORM HEADER
@@ -1234,10 +1233,7 @@ ASSIGN
  v-custs = cust
  fsman   = begin_slsmn
  tsman   = end_slsmn
- v-inc   = tb_prt-cust
- lSelected  = tb_cust-list
- fcust   = begin_cust-no
- tcust   = end_cust-no.
+ v-inc   = tb_prt-cust.
 
 FIND LAST period NO-LOCK
     WHERE period.company EQ cocode
@@ -1319,12 +1315,6 @@ END.
 
 DO i = 1 TO 13:
   v-label[i] = FILL(" ",12 - LENGTH(TRIM(v-label[i]))) + TRIM(v-label[i]).
-END.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
 END.
 
 {sys/inc/print1.i}

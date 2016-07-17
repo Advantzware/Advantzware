@@ -86,7 +86,7 @@ AND reftable.company EQ '' NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 btnRun browse-order ~
+&Scoped-Define ENABLED-OBJECTS btnRun Browser-Table RECT-4 browse-order ~
 auto_find Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
@@ -103,7 +103,7 @@ auto_find Btn_Clear_Find
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnRun 
-     IMAGE-UP FILE "images/run.ico":U
+     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Run" 
      SIZE 7 BY 1.38.
 
@@ -124,7 +124,7 @@ DEFINE VARIABLE browse-order AS INTEGER
      SIZE 75 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 138 BY 1.43.
 
 /* Query definitions                                                    */
@@ -154,9 +154,9 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnRun AT ROW 19.1 COL 85
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     btnRun AT ROW 19.1 COL 85
      browse-order AT ROW 19.33 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
      auto_find AT ROW 19.33 COL 101 COLON-ALIGNED HELP
@@ -224,7 +224,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -247,13 +247,13 @@ ASSIGN
      _Where[1]         = "reftable.reftable EQ 'Utilities'
 AND reftable.company EQ ''"
      _FldNameList[1]   > ASI.reftable.loc
-"reftable.loc" "Utility (Code)" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"reftable.loc" "Utility (Code)" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.reftable.code
-"reftable.code" "Module" "x(2)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"reftable.code" "Module" "x(2)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.reftable.code2
-"reftable.code2" "HotKeys" "x(4)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"reftable.code2" "HotKeys" "x(4)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.reftable.dscr
-"reftable.dscr" ? "x(60)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"reftable.dscr" ? "x(60)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

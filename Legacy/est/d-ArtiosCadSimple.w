@@ -203,14 +203,14 @@ FUNCTION GetXrefField RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCAD#Lookup 
-     IMAGE-UP FILE "images/find.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/find.bmp":U
      LABEL "" 
-     SIZE 4.4 BY 1.
+     SIZE 4.4 BY 1.05.
 
 DEFINE BUTTON btnCADPathLookup 
-     IMAGE-UP FILE "images/find.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/find.bmp":U
      LABEL "" 
-     SIZE 4.4 BY 1.
+     SIZE 4.4 BY 1.05.
 
 DEFINE BUTTON btnLoad 
      LABEL "Load" 

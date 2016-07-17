@@ -730,7 +730,7 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- IF AVAIL item-comm THEN
+
   IF item-comm.zz-char[4] = "YES" THEN
      TG_lock-base-cost:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES".
   ELSE

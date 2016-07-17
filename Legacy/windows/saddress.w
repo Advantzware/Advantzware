@@ -91,9 +91,10 @@ DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Address 
-     IMAGE-UP FILE "images\idxup":U NO-FOCUS
-     LABEL "" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Address".
+     IMAGE-UP FILE "Graphics/32x32/address_book.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Address" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Addresses".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -103,14 +104,14 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 150 BY 24
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
      Btn_Address AT ROW 1 COL 132
@@ -118,7 +119,7 @@ DEFINE FRAME OPTIONS-FRAME
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */

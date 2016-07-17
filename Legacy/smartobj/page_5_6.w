@@ -1,4 +1,4 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
@@ -40,9 +40,8 @@ CREATE WIDGET-POOL.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartObject
-&Scoped-define DB-AWARE no
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -61,14 +60,16 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Page_5 
-     IMAGE-UP FILE "images\y-browse":U NO-FOCUS
-     LABEL "Page_5" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Tab 5 Browser".
+     IMAGE-UP FILE "Graphics/32x32/window_split_ver.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Browser" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Browser".
 
 DEFINE BUTTON Select_Page_6 
-     IMAGE-UP FILE "images\y-view":U NO-FOCUS
-     LABEL "Page_6" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Tab 6 Viewer".
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Viewer" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Viewer".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -95,7 +96,7 @@ DEFINE FRAME F-Main
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT."
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
 END.
@@ -113,25 +114,14 @@ END.
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
-/* ************************* Included-Libraries *********************** */
 
-{advantzware/winkit/winkit-panel.i}
-{src/adm/method/smart.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
-/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
+/* ***************  Runtime Attributes and UIB Settings  ************** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -150,6 +140,17 @@ ASSIGN
 &ANALYZE-RESUME
 
  
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
+/* ************************* Included-Libraries *********************** */
+
+{advantzware/winkit/winkit-panel.i}
+{src/adm/method/smart.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -207,7 +208,7 @@ RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -224,6 +225,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :
@@ -245,4 +247,5 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 

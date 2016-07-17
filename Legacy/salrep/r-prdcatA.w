@@ -105,7 +105,7 @@ tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -345,8 +345,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -570,7 +570,6 @@ DO:
        THEN is-xprint-form = YES.     
   ELSE is-xprint-form = NO.
 
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   run run-report. 
   STATUS DEFAULT "Processing Complete".
   case rd-dest:
@@ -1012,7 +1011,6 @@ def var v-cst       as   log init yes                                   no-undo.
 DEF VAR cp-part-no LIKE itemfg.part-no NO-UNDO.
 DEF VAR cp-rowid AS ROWID NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 ASSIGN
   v-tot-amt = 0
@@ -1059,8 +1057,7 @@ ASSIGN
  tdate          = as-of-date
  v-sum          = NOT tb_detailed
  v-sum1         = rd_sum-by BEGINS "Cust"
- v-inc-fc       = tb_fin-chg
- lSelected      = tb_cust-list.
+ v-inc-fc       = tb_fin-chg.
 
 IF v-cst THEN DO: 
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
@@ -1081,12 +1078,6 @@ IF tb_excel THEN DO:
               + "Daily Cost,Daily Margin,PTD Sq FT/M,PTD Amount,PTD Cost,PTD Margin,"
               + "YTD Sq FT/M,YTD Amount,YTD Cost,YTD Margin".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-END.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
 END.
 
 IF td-show-parm THEN RUN show-param.

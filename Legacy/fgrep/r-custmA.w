@@ -110,7 +110,7 @@ fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY*/
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -365,8 +365,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -566,7 +566,7 @@ DO:
   ASSIGN {&displayed-objects}.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1462,7 +1462,7 @@ DEF VAR cSlsREp     AS CHAR NO-UNDO.
     
 DEF BUFFER b-fg-rcpth FOR fg-rcpth.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 FORM HEADER SKIP(1) WITH FRAME r-top.
 
 FORM itemfg.cust-no COLUMN-LABEL "CUSTOMER!   ID"
@@ -1512,8 +1512,7 @@ ASSIGN
  vzer   = tb_inc-zer
  vwhs   = tb_inc-cust
  vpcp   = tb_cust-pt
- vdue   = rd_sort EQ "due Date"
- lSelected    = tb_cust-list.
+ vdue   = rd_sort EQ "due Date".
 
 {sys/inc/print1.i}
 
@@ -1529,12 +1528,6 @@ END.
 
 VIEW FRAME r-top.
 IF td-show-parm THEN RUN show-param.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcus = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcus = ttCustList.cust-no .
- END.
 
 FOR EACH tt-report:
     DELETE tt-report.
@@ -1542,12 +1535,13 @@ END.
 
 EMPTY TEMP-TABLE tt-itemfg.
 
-FOR EACH itemfg
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+    EACH itemfg
     WHERE itemfg.company  EQ cocode
-    AND itemfg.cust-no GE fcus
-    AND itemfg.cust-no    LE tcus
-    AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
-    AND ttCustList.log-fld no-lock) else true)
+    AND itemfg.cust-no    EQ ttCustList.cust-no /*fcus
+    AND itemfg.cust-no    LE tcus*/
     AND itemfg.cust-po-no GE fpo
     AND itemfg.cust-po-no LE tpo
     NO-LOCK:

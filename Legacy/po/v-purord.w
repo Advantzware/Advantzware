@@ -115,8 +115,7 @@ lv_vend-area-code lv_vend-phone typeDescr
 &Scoped-define ADM-ASSIGN-FIELDS po-ord.po-no po-ord.ship-name ~
 po-ord.ship-addr[1] po-ord.ship-addr[2] po-ord.ship-city po-ord.ship-state ~
 po-ord.ship-zip 
-&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2 btnCalendar-3
-
+&Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 btnCalendar-3 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -150,193 +149,193 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCalendar-1 
-    IMAGE-UP FILE "schedule/images/calendar.bmp":U
-    LABEL "" 
-    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-2 
-    IMAGE-UP FILE "schedule/images/calendar.bmp":U
-    LABEL "" 
-    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-3 
-    IMAGE-UP FILE "schedule/images/calendar.bmp":U
-    LABEL "" 
-    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
-DEFINE VARIABLE lv_vend-add1      AS CHARACTER FORMAT "x(30)" 
-    VIEW-AS FILL-IN 
-    SIZE 42 BY 1 NO-UNDO.
+DEFINE VARIABLE lv_vend-add1 AS CHARACTER FORMAT "x(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv_vend-add2      AS CHARACTER FORMAT "x(30)" 
-    VIEW-AS FILL-IN 
-    SIZE 42 BY 1.
+DEFINE VARIABLE lv_vend-add2 AS CHARACTER FORMAT "x(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1.
 
 DEFINE VARIABLE lv_vend-area-code AS CHARACTER FORMAT "(999)" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1.
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1.
 
-DEFINE VARIABLE lv_vend-city      AS CHARACTER FORMAT "x(16)" 
-    VIEW-AS FILL-IN 
-    SIZE 21.2 BY 1.
+DEFINE VARIABLE lv_vend-city AS CHARACTER FORMAT "x(16)" 
+     VIEW-AS FILL-IN 
+     SIZE 21.2 BY 1.
 
-DEFINE VARIABLE lv_vend-name      AS CHARACTER FORMAT "x(30)" 
-    VIEW-AS FILL-IN 
-    SIZE 42 BY 1 NO-UNDO.
+DEFINE VARIABLE lv_vend-name AS CHARACTER FORMAT "x(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv_vend-phone     AS CHARACTER FORMAT "999-9999" 
-    VIEW-AS FILL-IN 
-    SIZE 13 BY 1.
+DEFINE VARIABLE lv_vend-phone AS CHARACTER FORMAT "999-9999" 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY 1.
 
-DEFINE VARIABLE lv_vend-state     AS CHARACTER FORMAT "x(2)" 
-    VIEW-AS FILL-IN 
-    SIZE 4.4 BY 1.
+DEFINE VARIABLE lv_vend-state AS CHARACTER FORMAT "x(2)" 
+     VIEW-AS FILL-IN 
+     SIZE 4.4 BY 1.
 
-DEFINE VARIABLE lv_vend-zip       AS CHARACTER FORMAT "xxxxx-xxxx" INITIAL "00000-0000" 
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1.
+DEFINE VARIABLE lv_vend-zip AS CHARACTER FORMAT "xxxxx-xxxx" INITIAL "00000-0000" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1.
 
-DEFINE VARIABLE shipAreaCode      AS CHARACTER FORMAT "(999)" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1.
+DEFINE VARIABLE shipAreaCode AS CHARACTER FORMAT "(999)" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1.
 
-DEFINE VARIABLE shipPhone         AS CHARACTER FORMAT "999-9999" 
-    VIEW-AS FILL-IN 
-    SIZE 13 BY 1.
+DEFINE VARIABLE shipPhone AS CHARACTER FORMAT "999-9999" 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY 1.
 
-DEFINE VARIABLE typeDescr         AS CHARACTER FORMAT "X(256)":U INITIAL "Type Description" 
-    VIEW-AS TEXT 
-    SIZE 20 BY 1 NO-UNDO.
+DEFINE VARIABLE typeDescr AS CHARACTER FORMAT "X(256)":U INITIAL "Type Description" 
+      VIEW-AS TEXT 
+     SIZE 20 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 144 BY 15.48.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 144 BY 15.48.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-    po-ord.po-no AT ROW 1.24 COL 23 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    po-ord.po-date AT ROW 1.24 COL 50 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1
-    btnCalendar-1 AT ROW 1.24 COL 68.40
-    po-ord.type AT ROW 1.24 COL 83 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 4 BY 1
-    po-ord.stat AT ROW 1.24 COL 119 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 3.2 BY 1
-    po-ord.vend-no AT ROW 2.43 COL 23 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    po-ord.ship-id AT ROW 2.43 COL 83 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    lv_vend-name AT ROW 3.38 COL 23 COLON-ALIGNED HELP
-    "Enter Vendor name." NO-LABELS
-    po-ord.ship-name AT ROW 3.38 COL 83 COLON-ALIGNED NO-LABELS
-    VIEW-AS FILL-IN 
-    SIZE 42 BY 1
-    po-ord.ship-addr[1] AT ROW 4.33 COL 83 COLON-ALIGNED NO-LABELS
-    VIEW-AS FILL-IN 
-    SIZE 42 BY 1
-    lv_vend-add1 AT ROW 4.38 COL 23 COLON-ALIGNED NO-LABELS
-    po-ord.ship-addr[2] AT ROW 5.29 COL 83 COLON-ALIGNED NO-LABELS FORMAT "x(30)"
-    VIEW-AS FILL-IN 
-    SIZE 42 BY 1
-    lv_vend-add2 AT ROW 5.38 COL 23 COLON-ALIGNED NO-LABELS
-    po-ord.ship-city AT ROW 6.24 COL 83 COLON-ALIGNED NO-LABELS FORMAT "x(16)"
-    VIEW-AS FILL-IN 
-    SIZE 21.2 BY 1
-    po-ord.ship-state AT ROW 6.24 COL 105 COLON-ALIGNED NO-LABELS
-    VIEW-AS FILL-IN 
-    SIZE 4.4 BY 1
-    po-ord.ship-zip AT ROW 6.24 COL 110 COLON-ALIGNED NO-LABELS FORMAT "xxxxx-xxxx"
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1
-    lv_vend-city AT ROW 6.38 COL 23 COLON-ALIGNED NO-LABELS
-    lv_vend-state AT ROW 6.38 COL 45 COLON-ALIGNED HELP
-    "Enter the vendor's state." NO-LABELS
-    lv_vend-zip AT ROW 6.38 COL 50 COLON-ALIGNED NO-LABELS
-    shipAreaCode AT ROW 7.19 COL 83 COLON-ALIGNED NO-LABELS
-    shipPhone AT ROW 7.19 COL 90 COLON-ALIGNED HELP
-    "Enter the Vendor's telephone number." NO-LABELS
-    lv_vend-area-code AT ROW 7.43 COL 23 COLON-ALIGNED NO-LABELS
-    lv_vend-phone AT ROW 7.43 COL 30 COLON-ALIGNED HELP
-    "Enter the Vendor's telephone number." NO-LABELS
-    po-ord.buyer AT ROW 9.1 COL 23 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    po-ord.contact AT ROW 10.29 COL 23 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 32 BY 1
-    po-ord.due-date AT ROW 11.48 COL 23 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1
-    po-ord.last-ship-date AT ROW 12.67 COL 23 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1
-    btnCalendar-2 AT ROW 11.43 COL 43.40
-    btnCalendar-3 AT ROW 12.62 COL 43.40
-    po-ord.under-pct AT ROW 13.86 COL 23 COLON-ALIGNED
-    LABEL "Under / Overrun %"
-    VIEW-AS FILL-IN 
-    SIZE 10.4 BY 1
-    po-ord.over-pct AT ROW 13.86 COL 36 COLON-ALIGNED NO-LABELS
-    VIEW-AS FILL-IN 
-    SIZE 10.4 BY 1
-    po-ord.carrier AT ROW 9.1 COL 83 COLON-ALIGNED FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    po-ord.tax-gr AT ROW 10.29 COL 83 COLON-ALIGNED
-    LABEL "Tax Code"
-    VIEW-AS FILL-IN 
-    SIZE 9 BY 1
-    po-ord.terms AT ROW 11.48 COL 83 COLON-ALIGNED FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    po-ord.frt-pay AT ROW 13.86 COL 85 NO-LABELS
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Prepaid", "P":U,
-    "Collect", "C":U,
-    "Bill", "B":U
-    SIZE 46 BY 1
+     btnCalendar-1 AT ROW 1.24 COL 68.4
+     po-ord.po-no AT ROW 1.24 COL 23 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     po-ord.po-date AT ROW 1.24 COL 50 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+     po-ord.type AT ROW 1.24 COL 83 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1
+     po-ord.stat AT ROW 1.24 COL 119 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1
+     po-ord.vend-no AT ROW 2.43 COL 23 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     po-ord.ship-id AT ROW 2.43 COL 83 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     lv_vend-name AT ROW 3.38 COL 23 COLON-ALIGNED HELP
+          "Enter Vendor name." NO-LABEL
+     po-ord.ship-name AT ROW 3.38 COL 83 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 42 BY 1
+     po-ord.ship-addr[1] AT ROW 4.33 COL 83 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 42 BY 1
+     lv_vend-add1 AT ROW 4.38 COL 23 COLON-ALIGNED NO-LABEL
+     po-ord.ship-addr[2] AT ROW 5.29 COL 83 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+          VIEW-AS FILL-IN 
+          SIZE 42 BY 1
+     lv_vend-add2 AT ROW 5.38 COL 23 COLON-ALIGNED NO-LABEL
+     po-ord.ship-city AT ROW 6.24 COL 83 COLON-ALIGNED NO-LABEL FORMAT "x(16)"
+          VIEW-AS FILL-IN 
+          SIZE 21.2 BY 1
+     po-ord.ship-state AT ROW 6.24 COL 105 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
+     po-ord.ship-zip AT ROW 6.24 COL 110 COLON-ALIGNED NO-LABEL FORMAT "xxxxx-xxxx"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+     lv_vend-city AT ROW 6.38 COL 23 COLON-ALIGNED NO-LABEL
+     lv_vend-state AT ROW 6.38 COL 45 COLON-ALIGNED HELP
+          "Enter the vendor's state." NO-LABEL
+     lv_vend-zip AT ROW 6.38 COL 50 COLON-ALIGNED NO-LABEL
+     shipAreaCode AT ROW 7.19 COL 83 COLON-ALIGNED NO-LABEL
+     shipPhone AT ROW 7.19 COL 90 COLON-ALIGNED HELP
+          "Enter the Vendor's telephone number." NO-LABEL
+     lv_vend-area-code AT ROW 7.43 COL 23 COLON-ALIGNED NO-LABEL
+     lv_vend-phone AT ROW 7.43 COL 30 COLON-ALIGNED HELP
+          "Enter the Vendor's telephone number." NO-LABEL
+     po-ord.buyer AT ROW 9.1 COL 23 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     po-ord.contact AT ROW 10.29 COL 23 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+     po-ord.due-date AT ROW 11.48 COL 23 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     po-ord.last-ship-date AT ROW 12.67 COL 23 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     btnCalendar-2 AT ROW 11.43 COL 43.4
+     btnCalendar-3 AT ROW 12.62 COL 43.4
+     po-ord.under-pct AT ROW 13.86 COL 23 COLON-ALIGNED
+          LABEL "Under / Overrun %"
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+     po-ord.over-pct AT ROW 13.86 COL 36 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+     po-ord.carrier AT ROW 9.1 COL 83 COLON-ALIGNED FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     po-ord.tax-gr AT ROW 10.29 COL 83 COLON-ALIGNED
+          LABEL "Tax Code"
+          VIEW-AS FILL-IN 
+          SIZE 9 BY 1
+     po-ord.terms AT ROW 11.48 COL 83 COLON-ALIGNED FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1 SCROLLABLE 
-    FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-    po-ord.fob-code AT ROW 15.05 COL 85 NO-LABELS
-    VIEW-AS RADIO-SET HORIZONTAL EXPAND 
-    RADIO-BUTTONS 
-    "Destination", "Dest":U,
-    "Origination", "Orig":U
-    SIZE 35 BY 1
-    po-ord.t-freight AT ROW 9.1 COL 119 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    po-ord.tax AT ROW 10.29 COL 119 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 12.8 BY 1
-    po-ord.t-cost AT ROW 11.48 COL 119 COLON-ALIGNED
-    VIEW-AS FILL-IN 
-    SIZE 17.6 BY 1
-    typeDescr AT ROW 1.24 COL 88 COLON-ALIGNED NO-LABELS
-    "FOB:" VIEW-AS TEXT
-    SIZE 6 BY .81 AT ROW 15.05 COL 78
-    "Freight Payment:" VIEW-AS TEXT
-    SIZE 19 BY .81 AT ROW 13.86 COL 65
-    RECT-1 AT ROW 1 COL 1
+     po-ord.frt-pay AT ROW 13.86 COL 85 NO-LABEL
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Prepaid", "P":U,
+"Collect", "C":U,
+"Bill", "B":U
+          SIZE 46 BY 1
+     po-ord.fob-code AT ROW 15.05 COL 85 NO-LABEL
+          VIEW-AS RADIO-SET HORIZONTAL EXPAND 
+          RADIO-BUTTONS 
+                    "Destination", "Dest":U,
+"Origination", "Orig":U
+          SIZE 35 BY 1
+     po-ord.t-freight AT ROW 9.1 COL 119 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     po-ord.tax AT ROW 10.29 COL 119 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 12.8 BY 1
+     po-ord.t-cost AT ROW 11.48 COL 119 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 17.6 BY 1
+     typeDescr AT ROW 1.24 COL 88 COLON-ALIGNED NO-LABEL
+     "FOB:" VIEW-AS TEXT
+          SIZE 6 BY .81 AT ROW 15.05 COL 78
+     "Freight Payment:" VIEW-AS TEXT
+          SIZE 19 BY .81 AT ROW 13.86 COL 65
+     RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1 SCROLLABLE 
-    FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -353,11 +352,10 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN 
-DO:
-    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+  RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -393,17 +391,17 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
 ASSIGN 
-       FRAME F-Main:SCROLLABLE = FALSE
-       FRAME F-Main:HIDDEN     = TRUE.
+       FRAME F-Main:SCROLLABLE       = FALSE
+       FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN po-ord.carrier IN FRAME F-Main
-   EXP-FORMAT                                                           */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-3 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR FILL-IN po-ord.carrier IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN lv_vend-add1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv_vend-add2 IN FRAME F-Main
@@ -488,7 +486,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME F-Main
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
@@ -574,6 +572,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME btnCalendar-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-3 V-table-Win
 ON CHOOSE OF btnCalendar-3 IN FRAME F-Main
@@ -584,56 +583,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME po-ord.po-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.po-date V-table-Win
-ON HELP OF po-ord.po-date IN FRAME F-Main /* Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME po-ord.vend-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.vend-no V-table-Win
-ON VALUE-CHANGED OF po-ord.vend-no IN FRAME F-Main /* vend-no */
-DO:
-
-  FIND FIRST vend
-      WHERE vend.company EQ po-ord.company
-      AND vend.vend-no EQ po-ord.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-      NO-LOCK NO-ERROR.
-
-  IF AVAILABLE vend THEN DO:
-      ASSIGN po-ord.due-date:SCREEN-VALUE = STRING(DATE(po-ord.po-date:SCREEN-VALUE) + vend.disc-days /*+
-                                                                                        IF WEEKDAY(po-ord.po-date) EQ 6 THEN 3 ELSE 1*/ ) .
-  END.
- 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME po-ord.due-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.due-date V-table-Win
-ON HELP OF po-ord.due-date IN FRAME F-Main /* Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME po-ord.last-ship-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.last-ship-date V-table-Win
-ON HELP OF po-ord.last-ship-date IN FRAME F-Main /* Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME po-ord.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.carrier V-table-Win
@@ -650,6 +599,17 @@ DO:
           RETURN NO-APPLY.
        END.
     END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME po-ord.due-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.due-date V-table-Win
+ON HELP OF po-ord.due-date IN FRAME F-Main /* Required Date */
+DO:
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -673,6 +633,28 @@ ON VALUE-CHANGED OF po-ord.frt-pay IN FRAME F-Main /* Freight Payment */
 DO:
   IF po-ord.fob-code:SCREEN-VALUE = "Orig" THEN
      RUN new-fob-code.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME po-ord.last-ship-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.last-ship-date V-table-Win
+ON HELP OF po-ord.last-ship-date IN FRAME F-Main /* Last Ship Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME po-ord.po-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.po-date V-table-Win
+ON HELP OF po-ord.po-date IN FRAME F-Main /* PO Date */
+DO:
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -847,6 +829,26 @@ DO:
 
     IF SELF:MODIFIED AND po-ord.type:SCREEN-VALUE EQ "D" THEN RUN is-dropship.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.vend-no V-table-Win
+ON VALUE-CHANGED OF po-ord.vend-no IN FRAME F-Main /* Vendor */
+DO:
+
+  FIND FIRST vend
+      WHERE vend.company EQ po-ord.company
+      AND vend.vend-no EQ po-ord.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+      NO-LOCK NO-ERROR.
+
+  IF AVAILABLE vend THEN DO:
+      ASSIGN po-ord.due-date:SCREEN-VALUE = STRING(DATE(po-ord.po-date:SCREEN-VALUE) + vend.disc-days /*+
+                                                                                        IF WEEKDAY(po-ord.po-date) EQ 6 THEN 3 ELSE 1*/ ) .
+  END.
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */

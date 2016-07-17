@@ -145,7 +145,7 @@ FUNCTION getInvSman RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -412,8 +412,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -643,7 +643,7 @@ DO:
        THEN is-xprint-form = YES.     
   ELSE is-xprint-form = NO.
    FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1297,7 +1297,7 @@ DEF VAR lv-r-no LIKE oe-retl.r-no NO-UNDO.
 DEF VAR lv-type AS CHAR NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR cSman LIKE ar-invl.sman[1] NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 form space(8)
      w-data.i-no
      itemfg.i-name        format "x(20)"
@@ -1373,8 +1373,7 @@ form cust.cust-no
    tdate       = END_inv-date
    v-det       = tb_detailed
    v-inc-fc    = tb_fin-chg
-   v-sort      = fi_SORT
-   lSelected   = tb_cust-list.
+   v-sort      = fi_SORT.
 
   {sys/inc/print1.i}
 
@@ -1392,12 +1391,6 @@ form cust.cust-no
       
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
   END.
-  IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
-  END.
 
   if td-show-parm then run show-param.
    
@@ -1411,13 +1404,15 @@ form cust.cust-no
     DELETE tt-report.
   END.
 
-FOR each ar-inv
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+   each ar-inv
       where ar-inv.company  eq cocode
         and ar-inv.posted   eq yes
-        AND ar-inv.cust-no  GE fcust
-        AND ar-inv.cust-no  LE tcust
-        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
-        AND ttCustList.log-fld no-lock) else true)
+        /*and ar-inv.cust-no  ge fcust
+        and ar-inv.cust-no  le tcust */
+        and ar-inv.cust-no  EQ ttCustList.cust-no
         and ar-inv.inv-date ge fdate
         and ar-inv.inv-date le tdate
         and (ar-inv.type    ne "FC" or v-inc-fc)
@@ -1433,12 +1428,14 @@ FOR each ar-inv
      
   end.
 
-  FOR each cust
+  FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+     each cust
       where cust.company eq cocode
-        AND cust.cust-no GE fcust
-        AND cust.cust-no LE tcust
-        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-        AND ttCustList.log-fld no-lock) else true)
+        /*and cust.cust-no ge fcust
+        and cust.cust-no le tcust*/
+        and cust.cust-no EQ ttCustList.cust-no
       no-lock,
 
       each ar-cash

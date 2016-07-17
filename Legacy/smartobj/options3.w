@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_appl Select_spec Select_att ~
-Select_dept Select_frac Select_Add Select_help Select_Home 
+&Scoped-Define ENABLED-OBJECTS Select_dept Select_Add Select_att ~
+Select_spec Select_frac Select_appl Select_help Select_Home 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -62,63 +62,63 @@ Select_dept Select_frac Select_Add Select_help Select_Home
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Add 
-     IMAGE-UP FILE "images\add":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/plus.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 7.8 BY 1.81 TOOLTIP "List".
 
 DEFINE BUTTON Select_appl 
-     IMAGE-UP FILE "images\util":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
-     LABEL "Util App" 
+     IMAGE-UP FILE "Graphics/32x32/window_gear.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Util_appl" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_att 
-     IMAGE-UP FILE "images/clip.ico":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/paperclip.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Attachment" 
      SIZE 7.8 BY 1.81 TOOLTIP "Attachments".
 
 DEFINE BUTTON Select_dept 
-     IMAGE-UP FILE "images/edit":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/edit.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_frac 
-     IMAGE-UP FILE "adeicon\aggr-u":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
-     LABEL "Util_frac" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Fraction".
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Calculate" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Calculate".
 
 DEFINE BUTTON Select_help 
-     IMAGE-UP FILE "images\help":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/question.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
 DEFINE BUTTON Select_Home 
-     IMAGE-UP FILE "images\homekeyg":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/refresh.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Home" 
      SIZE 7.8 BY 1.81 TOOLTIP "Home Key".
 
 DEFINE BUTTON Select_spec 
-     IMAGE-UP FILE "images\dict":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
-     LABEL "Spec Note" 
+     IMAGE-UP FILE "Graphics/32x32/book_open.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "spec_note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Select_appl AT ROW 1 COL 33
-     Select_spec AT ROW 1 COL 25
-     Select_att AT ROW 1 COL 8.8
      Select_dept AT ROW 1 COL 16.8
-     Select_frac AT ROW 1 COL 57
      Select_Add AT ROW 1 COL 1
+     Select_att AT ROW 1 COL 8.8
+     Select_spec AT ROW 1 COL 25
+     Select_frac AT ROW 1 COL 57
+     Select_appl AT ROW 1 COL 33
      Select_help AT ROW 1 COL 41
      Select_Home AT ROW 1 COL 49
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -218,7 +218,7 @@ END.
 
 &Scoped-define SELF-NAME Select_appl
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_appl s-object
-ON CHOOSE OF Select_appl IN FRAME F-Main /* Util App */
+ON CHOOSE OF Select_appl IN FRAME F-Main /* Util_appl */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
@@ -274,7 +274,7 @@ END.
 
 &Scoped-define SELF-NAME Select_frac
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_frac s-object
-ON CHOOSE OF Select_frac IN FRAME F-Main /* Util_frac */
+ON CHOOSE OF Select_frac IN FRAME F-Main /* Calculate */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
@@ -322,7 +322,7 @@ END.
 
 &Scoped-define SELF-NAME Select_spec
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_spec s-object
-ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
+ON CHOOSE OF Select_spec IN FRAME F-Main /* spec_note */
 DO:
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
@@ -373,7 +373,7 @@ PROCEDURE dept-pen-image :
    DO WITH FRAME {&FRAME-NAME}:
 
       IF NOT ip-log THEN
-         Select_dept:LOAD-IMAGE("images/edit.ico").
+         Select_dept:LOAD-IMAGE("images/edit.png").
       ELSE
          Select_dept:LOAD-IMAGE("images/edita.jpg").
    END.
@@ -509,9 +509,9 @@ PROCEDURE Paper-Clip-Image :
    DO WITH FRAME {&FRAME-NAME}:
 
       IF NOT ip-attach THEN
-         SELECT_att:LOAD-IMAGE("images/clip.ico").
+         SELECT_att:LOAD-IMAGE("images/clip.png").
       ELSE
-         SELECT_att:LOAD-IMAGE("images/clipa.ico").
+         SELECT_att:LOAD-IMAGE("images/clipa.png").
    END.
 END PROCEDURE.
 
@@ -530,9 +530,9 @@ PROCEDURE Spec-Book-Image :
    DO WITH FRAME {&FRAME-NAME}:
 
       IF NOT ip-log THEN
-         SELECT_spec:LOAD-IMAGE("images/dict.ico").
+         SELECT_spec:LOAD-IMAGE("images/dict.png").
       ELSE
-         SELECT_spec:LOAD-IMAGE("images/dicta.ico").
+         SELECT_spec:LOAD-IMAGE("images/dicta.png").
    END.
 END PROCEDURE.
 

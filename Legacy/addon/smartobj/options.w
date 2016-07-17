@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -62,36 +62,38 @@ Select_Misc_Fields Select_Browser Select_Viewer
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Browser 
-     IMAGE-UP FILE "images\b-browse":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/window_split_ver.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Browser" 
      SIZE 7.8 BY 1.81 TOOLTIP "Browser".
 
 DEFINE BUTTON Select_List 
-     IMAGE-UP FILE "images\results":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/printer.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
      SIZE 7.8 BY 1.81 TOOLTIP "List".
 
 DEFINE BUTTON Select_Misc_Fields 
-     IMAGE-UP FILE "images/flds-u":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
-     LABEL "Misc_Fields" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Misc. Fields".
+     IMAGE-UP FILE "Graphics/32x32/window_explorer.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Misc Fields" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Misc Fields".
 
 DEFINE BUTTON Select_Notes 
-     IMAGE-UP FILE "images/edit":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/edit.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_Search 
-     IMAGE-UP FILE "images/prospy":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/document_view.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Search" 
      SIZE 7.8 BY 1.81 TOOLTIP "Search".
 
 DEFINE BUTTON Select_Viewer 
-     IMAGE-UP FILE "images\b-view":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Viewer" 
      SIZE 7.8 BY 1.81 TOOLTIP "Viewer".
 
@@ -160,7 +162,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -218,7 +220,7 @@ END.
 
 &Scoped-define SELF-NAME Select_Misc_Fields
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_Misc_Fields s-object
-ON CHOOSE OF Select_Misc_Fields IN FRAME F-Main /* Misc_Fields */
+ON CHOOSE OF Select_Misc_Fields IN FRAME F-Main /* Misc Fields */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 

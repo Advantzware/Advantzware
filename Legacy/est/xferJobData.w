@@ -171,9 +171,9 @@ AND job-hdr.opened EQ FALSE NO-LOCK.
     ~{&OPEN-QUERY-estOpBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS machineRect allJobRect jobRect quantityRect ~
-standardsRect allJobs radioQty jobBrowse ttblEstOp btnSubmitDownLeft ~
-btnSubmit btnSubmitDownRight estOpBrowse selectionFilters quantityText ~
+&Scoped-Define ENABLED-OBJECTS btnSubmitDownLeft btnSubmitDownRight ~
+machineRect allJobRect jobRect quantityRect standardsRect allJobs radioQty ~
+jobBrowse ttblEstOp btnSubmit estOpBrowse selectionFilters quantityText ~
 jobText selectedJobs machineText standardsText 
 &Scoped-Define DISPLAYED-OBJECTS allJobs radioQty selectionFilters ~
 closeStart jobStart qtyStart closeEnd jobEnd qtyEnd quantityText jobText ~
@@ -213,12 +213,12 @@ DEFINE BUTTON btnSubmit
      FONT 6.
 
 DEFINE BUTTON btnSubmitDownLeft 
-     IMAGE-UP FILE "images/down.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/down.bmp":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 5 BY 1.14.
 
 DEFINE BUTTON btnSubmitDownRight 
-     IMAGE-UP FILE "images/down.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/down.bmp":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 5 BY 1.14.
 
@@ -393,14 +393,14 @@ DEFINE BROWSE ttblEstOp
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnSubmitDownLeft AT ROW 14.57 COL 85 WIDGET-ID 72
+     btnSubmitDownRight AT ROW 14.57 COL 155 WIDGET-ID 74
      allJobs AT ROW 1.71 COL 6 HELP
           "Select ALL Jobs" WIDGET-ID 18
      radioQty AT ROW 1.95 COL 36 NO-LABEL WIDGET-ID 40
      jobBrowse AT ROW 3.86 COL 5 WIDGET-ID 200
      ttblEstOp AT ROW 3.86 COL 36 WIDGET-ID 300
-     btnSubmitDownLeft AT ROW 14.57 COL 85 WIDGET-ID 72
      btnSubmit AT ROW 14.57 COL 90 WIDGET-ID 50
-     btnSubmitDownRight AT ROW 14.57 COL 155 WIDGET-ID 74
      estOpBrowse AT ROW 16.48 COL 36 WIDGET-ID 100
      selectionFilters AT ROW 26.95 COL 36 HELP
           "Show Selection Filters" WIDGET-ID 70
@@ -466,8 +466,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images/asi4.ico":U) THEN
-    MESSAGE "Unable to load icon: images/asi4.ico"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -484,7 +484,7 @@ IF NOT C-Win:LOAD-ICON("images/asi4.ico":U) THEN
    FRAME-NAME                                                           */
 /* BROWSE-TAB jobBrowse radioQty DEFAULT-FRAME */
 /* BROWSE-TAB ttblEstOp jobBrowse DEFAULT-FRAME */
-/* BROWSE-TAB estOpBrowse btnSubmitDownRight DEFAULT-FRAME */
+/* BROWSE-TAB estOpBrowse btnSubmit DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnApplyDateFilter IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 ASSIGN 
@@ -1129,9 +1129,9 @@ PROCEDURE enable_UI :
           closeEnd jobEnd qtyEnd quantityText jobText selectedJobs machineText 
           standardsText 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE machineRect allJobRect jobRect quantityRect standardsRect allJobs 
-         radioQty jobBrowse ttblEstOp btnSubmitDownLeft btnSubmit 
-         btnSubmitDownRight estOpBrowse selectionFilters quantityText jobText 
+  ENABLE btnSubmitDownLeft btnSubmitDownRight machineRect allJobRect jobRect 
+         quantityRect standardsRect allJobs radioQty jobBrowse ttblEstOp 
+         btnSubmit estOpBrowse selectionFilters quantityText jobText 
          selectedJobs machineText standardsText 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}

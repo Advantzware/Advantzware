@@ -47,9 +47,6 @@ DEFINE VARIABLE dataLine AS CHARACTER NO-UNDO.
 
 DEFINE STREAM monitorStrm.
 
-IF INDEX(PROPATH,".\custom") EQ 0 THEN
-PROPATH = ".\custom," + PROPATH.
-
 &IF '{1}' NE '' &THEN
 {{1}/{1}Defs.i}
 &ENDIF
@@ -174,8 +171,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */

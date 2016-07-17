@@ -105,7 +105,7 @@ tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -361,8 +361,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -584,7 +584,7 @@ DO:
   
   SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1134,7 +1134,7 @@ PROCEDURE run-report :
 {sys/form/r-topwas.f}
 
 DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 form header
      "        "
      "               "
@@ -1288,8 +1288,7 @@ assign
  v-tot-cst      = 0
  v-tot-ext      = 0
  v-tot-gsl      = 0
- v-tot-gsm      = 0
- lSelected      = tb_cust-list.
+ v-tot-gsm      = 0.
 
 IF v-prt-c THEN DO: 
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
@@ -1388,24 +1387,19 @@ IF tb_excel THEN DO:
   excelheader = excelheader + "GS&A LABOR CST,GS&A MAT CST,TOTAL COST".
 
 END.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN  fcus = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN  tcus = ttCustList.cust-no .
- END.
 
     STATUS DEFAULT "Processing...".
 
     EMPTY TEMP-TABLE tt-fg-bin.
     EMPTY TEMP-TABLE tt-itemfg.
 
-    FOR EACH itemfg
+    FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+        EACH itemfg
         WHERE itemfg.company EQ cocode
-          AND itemfg.cust-no GE fcus
-          AND itemfg.cust-no LE tcus
-          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
-          AND ttCustList.log-fld no-lock) else true)
+          AND itemfg.cust-no EQ ttCustList.cust-no /*fcus
+          AND itemfg.cust-no LE tcus*/
           AND itemfg.i-no    GE fino
           AND itemfg.i-no    LE tino
           AND itemfg.procat  GE fcat

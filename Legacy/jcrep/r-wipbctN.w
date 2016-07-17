@@ -58,7 +58,7 @@ ASSIGN cTextListToSelect = "CAT,CUSTOMER,FG ITEM #,CUSTOMER PART #,JOB #,"
               + "ACT LABOR,ACT MAT'L,MSF,RCPT QTY,ORDER QTY"
        cFieldListToSelect = "cat,cust,fgitem,cust-part,job," +
                             "act-lab,act-mat,msf,rcpt-qty,ord-qty"
-       cFieldLength = "5,8,15,15,9," + "17,17,9,14,14"
+       cFieldLength = "3,8,15,15,9," + "17,17,9,14,14"
        cFieldType = "c,c,c,c,c," + "i,i,i,i,i" 
     .
 
@@ -382,8 +382,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -1685,7 +1685,7 @@ for each tt-report,
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "cat"    THEN cVarValue = string(tt-report.key-01,"x(5)") .
+                         WHEN "cat"    THEN cVarValue = string(tt-report.key-01,"x(3)") .
                          WHEN "cust"   THEN cVarValue = string(tt-report.key-02,"x(8)").
                          WHEN "fgitem"   THEN cVarValue = STRING(tt-report.key-03,"x(15)").
                          WHEN "cust-part"  THEN cVarValue = STRING(tt-report.key-04,"x(15)") .
@@ -1760,7 +1760,7 @@ for each tt-report,
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "cat"    THEN cVarValue = IF NOT v-detl THEN string(tt-report.key-01,"x(5)")  ELSE "".
+                         WHEN "cat"    THEN cVarValue = IF NOT v-detl THEN string(tt-report.key-01,"x(3)")  ELSE "".
                          WHEN "cust"   THEN cVarValue = IF NOT v-detl THEN string(tt-report.key-02,"x(8)") ELSE "".
                          WHEN "fgitem"   THEN cVarValue = IF NOT v-detl THEN STRING(tt-report.key-03,"x(15)") ELSE "".
                          WHEN "cust-part"  THEN cVarValue = IF NOT v-detl THEN STRING(tt-report.key-04,"x(15)")  ELSE "".

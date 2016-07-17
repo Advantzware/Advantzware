@@ -130,7 +130,7 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -423,8 +423,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -661,7 +661,7 @@ DO:
   END.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1610,7 +1610,6 @@ DEF VAR cSelectedList AS cha NO-UNDO.
  DEFINE VAR countt AS INT NO-UNDO.
  DEFINE VAR amountcount AS INT NO-UNDO .
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form header
      "               "
@@ -1714,8 +1713,7 @@ ASSIGN
  v-det      = tb_detailed                  
 /* v-print1   = rd_show EQ "Customer Name" */
  v-sort1    = rd_sort EQ "Finished Goods"              
- v-inc-fc   = tb_fin-chg
- lSelected  = tb_cust-list. 
+ v-inc-fc   = tb_fin-chg. 
 
 ASSIGN
  v-hdr[1] = if v-sort1  then "FG Item#" else "Customer Part#"
@@ -1744,12 +1742,7 @@ DEF VAR cslist AS cha NO-UNDO.
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
-END.
+
 
  countt = INDEX(str-tit4,"Qty Shipped").
  amountcount = INDEX(str-tit4," Invoice Amt.").

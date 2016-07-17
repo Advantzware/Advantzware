@@ -2,96 +2,96 @@
   09/14/04  YSK  TASK 09130412   */
 /* CF Production Control Test Run */
 
-DEFINE INPUT PARAMETER rec-id AS RECID NO-UNDO.
+DEF INPUT PARAM rec-id AS RECID NO-UNDO.
 
 {sys/inc/var.i SHARED}
 
-DEFINE NEW SHARED BUFFER xest      FOR est.
-DEFINE NEW SHARED BUFFER xef       FOR ef.
-DEFINE NEW SHARED BUFFER xeb       FOR eb.
-DEFINE NEW SHARED BUFFER xeb2      FOR eb.
+DEF NEW SHARED BUFFER xest FOR est.
+DEF NEW SHARED BUFFER xef FOR ef.
+DEF NEW SHARED BUFFER xeb FOR eb.
+DEF NEW SHARED BUFFER xeb2 FOR eb.
 
-DEFINE            BUFFER x-job     FOR job.
-DEFINE            BUFFER x-item    FOR item.
+DEF BUFFER x-job FOR job.
+DEF BUFFER x-item FOR item.
 
-DEFINE            BUFFER b-oe-ordl FOR oe-ordl.
+DEF BUFFER b-oe-ordl FOR oe-ordl.
 
-DEFINE NEW SHARED VARIABLE v-rebuild      AS LOG       FORMAT "R/E" NO-UNDO.
+DEF NEW SHARED var v-rebuild AS LOG format "R/E" NO-UNDO.
 
-DEFINE            VARIABLE v-est-qty      AS DECIMAL   NO-UNDO.
-DEFINE            VARIABLE save_id        AS RECID     NO-UNDO.
-DEFINE            VARIABLE v-est-job      LIKE job.est-no NO-UNDO.
-DEFINE            VARIABLE v-up           LIKE job-mat.n-up NO-UNDO.
-DEFINE            VARIABLE v-out          LIKE ef.n-out NO-UNDO.
-DEFINE            VARIABLE v-job-hdr      AS LOG       NO-UNDO.
-DEFINE            VARIABLE v-hold-qty     LIKE job-hdr.qty NO-UNDO.
-DEFINE            VARIABLE choice         AS LOG       NO-UNDO.
-DEFINE            VARIABLE v-yld-qty      AS DECIMAL   NO-UNDO.
-DEFINE            VARIABLE li             AS INTEGER   NO-UNDO.
-DEFINE            VARIABLE ld             AS DECIMAL   NO-UNDO.
-DEFINE            VARIABLE lv-format-f    AS CHARACTER NO-UNDO.
-DEFINE            VARIABLE lv-date        AS DATE      NO-UNDO.
-DEFINE            VARIABLE v-on-f         AS INTEGER   NO-UNDO.
-DEFINE            VARIABLE v-blk-qty      AS INTEGER   NO-UNDO.
-DEFINE            VARIABLE ll-hold-qty    AS LOG       NO-UNDO.
-DEFINE            VARIABLE ll-all-warn    AS LOG       NO-UNDO.
-DEFINE            VARIABLE ll-add-over    AS LOG       NO-UNDO.
-DEFINE            VARIABLE ll-whs-item    AS LOG       NO-UNDO.
-DEFINE            VARIABLE ll-qty-changed AS LOG       NO-UNDO.
+DEF VAR v-est-qty AS DEC NO-UNDO.
+DEF VAR save_id AS RECID NO-UNDO.
+DEF VAR v-est-job LIKE job.est-no NO-UNDO.
+DEF VAR v-up LIKE job-mat.n-up NO-UNDO.
+DEF VAR v-out LIKE ef.n-out NO-UNDO.
+DEF VAR v-job-hdr AS LOG NO-UNDO.
+DEF VAR v-hold-qty LIKE job-hdr.qty NO-UNDO.
+DEF VAR choice AS LOG NO-UNDO.
+DEF VAR v-yld-qty AS DEC NO-UNDO.
+DEF VAR li AS INT NO-UNDO.
+DEF VAR ld AS DEC NO-UNDO.
+DEF VAR lv-format-f AS CHAR NO-UNDO.
+DEF VAR lv-date AS DATE NO-UNDO.
+DEF VAR v-on-f AS INT NO-UNDO.
+DEF VAR v-blk-qty AS INT NO-UNDO.
+DEF VAR ll-hold-qty AS LOG NO-UNDO.
+DEF VAR ll-all-warn AS LOG NO-UNDO.
+DEF VAR ll-add-over AS LOG NO-UNDO.
+DEF VAR ll-whs-item AS LOG NO-UNDO.
+DEF VAR ll-qty-changed AS LOG NO-UNDO.
 
-DEFINE            VARIABLE K_FRAC         AS DECIMAL   INIT 6.25 NO-UNDO.
+DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
 
-DEFINE SHARED     VARIABLE nufile         AS LOG       NO-UNDO.
-DEFINE NEW SHARED VARIABLE qty            AS INTEGER   NO-UNDO.
+DEF SHARED VAR nufile AS LOG NO-UNDO.
+DEF NEW SHARED VAR qty AS INT NO-UNDO.
 
 {ce/print4.i "new SHARED" "new SHARED"}
 {ce/print42.i "new SHARED"}
    
-DEFINE TEMP-TABLE work-ord NO-UNDO
-    FIELD cust-no LIKE job-hdr.cust-no
-    FIELD ord-no  LIKE job-hdr.ord-no.
+DEF TEMP-TABLE work-ord NO-UNDO
+   FIELD cust-no LIKE job-hdr.cust-no
+   FIELD ord-no  LIKE job-hdr.ord-no.
 
-DEFINE VARIABLE type-chk           AS CHARACTER INIT "C,D,F,G,I,L,M,P,R,T,V,W,B,7,8,X,Y" NO-UNDO.
-DEFINE VARIABLE type-mat           LIKE item.mat-type NO-UNDO.
-DEFINE VARIABLE over-pct           AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE ll-use-netsht      AS LOG       NO-UNDO.
-DEFINE VARIABLE v-qty              AS INTEGER   NO-UNDO.
+DEF VAR type-chk AS CHAR INIT "C,D,F,G,I,L,M,P,R,T,V,W,B,7,8,X,Y" NO-UNDO.
+DEF VAR type-mat LIKE item.mat-type NO-UNDO.
+DEF VAR over-pct AS DEC NO-UNDO.
+DEF VAR ll-use-netsht AS LOG NO-UNDO.
+DEF VAR v-qty AS INT NO-UNDO.
 
-DEFINE VARIABLE v-set-hdr          LIKE oe-ordl.i-no.
-DEFINE VARIABLE v-item-no          LIKE itemfg.i-no.
-DEFINE VARIABLE v-part-qty         AS DECIMAL.
+DEF VAR v-set-hdr LIKE oe-ordl.i-no.
+DEF VAR v-item-no    LIKE itemfg.i-no.
+DEF VAR v-part-qty   AS DEC.
 
-DEFINE VARIABLE ll-one-part        AS LOG       NO-UNDO.
-DEFINE VARIABLE ll-new-job-hdr     AS LOG       NO-UNDO.
-DEFINE VARIABLE ll-sep-prep        AS LOG       NO-UNDO.
-DEFINE VARIABLE blankNumber        AS INTEGER   NO-UNDO.
-DEFINE VARIABLE lv-sell-by-ce-ctrl AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-sell-by         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-pct-2            LIKE eb.comm NO-UNDO.
-DEFINE VARIABLE v-comm-2           AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE v-tot-comm-2       AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE v-basis            AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ll-use-margin      AS LOG       NO-UNDO.
-DEFINE VARIABLE v-sell-price       AS DECIMAL   DECIMALS 2 NO-UNDO.
-DEFINE VARIABLE v-probe-comm       AS DECIMAL   DECIMALS 5 NO-UNDO.
-DEFINE VARIABLE v-mp               AS DECIMAL   DECIMALS 5 NO-UNDO.
-DEFINE VARIABLE v-qty-2            AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE v-board-cst        AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE ll-jqcust          AS LOG       NO-UNDO.
+DEF VAR ll-one-part AS LOG NO-UNDO.
+DEF VAR ll-new-job-hdr AS LOG NO-UNDO.
+DEF VAR ll-sep-prep AS LOG NO-UNDO.
+DEF VAR blankNumber AS INT NO-UNDO.
+DEF VAR lv-sell-by-ce-ctrl AS CHAR NO-UNDO.
+DEF VAR lv-sell-by AS CHAR NO-UNDO.
+DEF VAR v-pct-2 LIKE eb.comm NO-UNDO.
+DEF VAR v-comm-2 as dec no-undo.
+DEF VAR v-tot-comm-2 AS DEC NO-UNDO.
+DEF VAR v-basis AS CHAR NO-UNDO.
+DEF VAR ll-use-margin AS LOG NO-UNDO.
+DEF VAR v-sell-price AS DEC DECIMALS 2 NO-UNDO.
+DEF VAR v-probe-comm AS DEC DECIMALS 5 NO-UNDO.
+DEF VAR v-mp AS DEC DECIMALS 5 NO-UNDO.
+DEF VAR v-qty-2 AS DEC NO-UNDO.
+DEF VAR v-board-cst AS DEC NO-UNDO.
+DEF VAR ll-jqcust AS LOG NO-UNDO.
 
 /* gdm - */
-DEFINE VARIABLE v-isaset           LIKE itemfg.isaset NO-UNDO.
+DEF VAR v-isaset LIKE itemfg.isaset NO-UNDO.
 
 
-DEFINE BUFFER x-eb            FOR eb.
-DEFINE BUFFER x-job-hdr       FOR job-hdr.
-DEFINE BUFFER b-ef2           FOR ef.
-DEFINE BUFFER b-eb2           FOR eb.
-DEFINE BUFFER b-blk           FOR blk.
-DEFINE BUFFER b-print-job-hdr FOR job-hdr.
+DEF BUFFER x-eb FOR eb.
+DEF BUFFER x-job-hdr FOR job-hdr.
+DEF BUFFER b-ef2 FOR ef.
+DEF BUFFER b-eb2 FOR eb.
+DEF BUFFER b-blk FOR blk.
+DEF BUFFER b-print-job-hdr FOR job-hdr.
 
-DEFINE TEMP-TABLE tt-job-mch NO-UNDO LIKE job-mch.
-DEFINE TEMP-TABLE tt-job-mat NO-UNDO LIKE job-mat.
+DEF TEMP-TABLE tt-job-mch NO-UNDO LIKE job-mch.
+DEF TEMP-TABLE tt-job-mat NO-UNDO LIKE job-mat.
 
 {oe/oe-sysct1.i NEW}
  
@@ -100,20 +100,20 @@ DEFINE TEMP-TABLE tt-job-mat NO-UNDO LIKE job-mat.
 {sys/inc/f16to32.i}
 
 DO TRANSACTION:
-    {sys/inc/graphic.i}
+   {sys/inc/graphic.i}
 END.
 
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "JOBCARDF"
+      AND sys-ctrl.name    EQ "JOBCARDF"
     NO-LOCK NO-ERROR.
-IF AVAILABLE sys-ctrl THEN lv-format-f = sys-ctrl.char-fld.
+IF AVAIL sys-ctrl THEN lv-format-f = sys-ctrl.char-fld.
 
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "JOBCREAT"
+      AND sys-ctrl.name    EQ "JOBCREAT"
     NO-LOCK NO-ERROR.
-IF AVAILABLE sys-ctrl THEN ll-sep-prep = sys-ctrl.dec-fld EQ 1.
+IF AVAIL sys-ctrl THEN ll-sep-prep = sys-ctrl.dec-fld EQ 1.
 
 {sys/ref/fgoecost.i}
 {sys/inc/cerun.i C}
@@ -124,37 +124,35 @@ RUN oe/oe-sysct.p.
 
 FIND FIRST sys-ctrl NO-LOCK
     WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name EQ "JOB QTY"
+      AND sys-ctrl.name EQ "JOB QTY"
     NO-ERROR.
-IF NOT AVAILABLE sys-ctrl THEN 
-DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN
-        sys-ctrl.company = cocode
-        sys-ctrl.name    = "JOB QTY"
-        sys-ctrl.descrip = "Create Job Quantity with overrun % from OE?"
-        sys-ctrl.log-fld = NO.
-    MESSAGE sys-ctrl.descrip
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE sys-ctrl.log-fld.
+IF NOT avail sys-ctrl THEN DO TRANSACTION:
+  CREATE sys-ctrl.
+  ASSIGN
+    sys-ctrl.company = cocode
+    sys-ctrl.name = "JOB QTY"
+    sys-ctrl.descrip = "Create Job Quantity with overrun % from OE?"
+    sys-ctrl.log-fld = NO.
+  MESSAGE sys-ctrl.descrip
+      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+      UPDATE sys-ctrl.log-fld.
 END.
 ASSIGN
-    ll-add-over   = sys-ctrl.log-fld
-    ll-use-netsht = sys-ctrl.char-fld EQ "Net Shts".
+ ll-add-over   = sys-ctrl.log-fld
+ ll-use-netsht = sys-ctrl.char-fld EQ "Net Shts".
 
 FIND FIRST sys-ctrl NO-LOCK
     WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name EQ "JOBQTYCUST"
+      AND sys-ctrl.name EQ "JOBQTYCUST"
     NO-ERROR.
-IF NOT AVAILABLE sys-ctrl THEN 
-DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN
-        sys-ctrl.company = cocode
-        sys-ctrl.module  = "JC"
-        sys-ctrl.name    = "JOBQTYCUST"
-        sys-ctrl.descrip = "Create Job Quantity with overrun % from customer if no order?"
-        sys-ctrl.log-fld = NO.
+IF NOT avail sys-ctrl THEN DO TRANSACTION:
+  CREATE sys-ctrl.
+  ASSIGN
+    sys-ctrl.company = cocode
+    sys-ctrl.module  = "JC"
+    sys-ctrl.name = "JOBQTYCUST"
+    sys-ctrl.descrip = "Create Job Quantity with overrun % from customer if no order?"
+    sys-ctrl.log-fld = NO.
 END.
 
 ll-jqcust = sys-ctrl.log-fld.
@@ -162,1282 +160,1235 @@ ll-jqcust = sys-ctrl.log-fld.
 FIND FIRST jc-ctrl WHERE jc-ctrl.company EQ cocode NO-LOCK NO-ERROR.
  
 IF nufile EQ ? THEN
-    ASSIGN
-        nufile      = YES
-        ll-hold-qty = YES.
+  ASSIGN
+   nufile      = YES
+   ll-hold-qty = YES.
 
 mainloop:
 DO TRANSACTION:
-    FIND job WHERE RECID(job) EQ rec-id NO-ERROR.
+  FIND job WHERE RECID(job) EQ rec-id NO-ERROR.
 
-    IF NOT AVAILABLE job THEN 
-    DO:
-        FIND job-hdr WHERE RECID(job-hdr) EQ rec-id NO-LOCK NO-ERROR.
-        IF AVAILABLE job-hdr THEN
-            FIND FIRST job
-                WHERE job.company EQ job-hdr.company
-                AND job.job     EQ job-hdr.job
-                AND job.job-no  EQ job-hdr.job-no
-                AND job.job-no2 EQ job-hdr.job-no2
-                NO-ERROR.
-        RELEASE job-hdr.
-    END.
-
-    IF NOT AVAILABLE job THEN RETURN.
-
-    IF nufile THEN 
-    DO:
-        /*release job-mat.
-    
-        if not program-name(2) begins "util/updstand" THEN
-        FIND FIRST job-mat
-            where job-mat.company EQ cocode
-              and job-mat.all-flg EQ yes
-              and job-mat.job     EQ job.job
-              and job-mat.job-no  EQ job.job-no
-              and job-mat.job-no2 EQ job.job-no2
-              and job-mat.qty-all ne 0
-            NO-LOCK NO-ERROR.
-          
-        choice = not avail job-mat.      
-        if not choice THEN do on endkey undo, leave:
-          message "WARNING: Raw materials will be decommitted, continue?"
-                  view-as alert-box button yes-no update choice.
-        END.
-        
-        if choice THEN run jc/jc-dall.p (recid(job)).
-      
-        else leave.*/
-
-        FOR EACH job-hdr
-            WHERE job-hdr.company EQ cocode
-            AND job-hdr.job     EQ job.job
-            AND job-hdr.job-no  EQ job.job-no
-            AND job-hdr.job-no2 EQ job.job-no2
-            AND job-hdr.qty     EQ 0:
-            DELETE job-hdr.
-        END.
-
-        EMPTY TEMP-TABLE work-ord.
-
-        FOR EACH job-hdr
-            WHERE job-hdr.company EQ cocode
-            AND job-hdr.job     EQ job.job
-            AND job-hdr.job-no  EQ job.job-no
-            AND job-hdr.job-no2 EQ job.job-no2
-            AND job-hdr.ord-no  NE 0
-            NO-LOCK
-            BREAK BY job-hdr.cust-no:
-    
-            IF LAST-OF(job-hdr.cust-no) THEN 
-            DO:
-                CREATE work-ord.
-                ASSIGN
-                    work-ord.cust-no = job-hdr.cust-no
-                    work-ord.ord-no  = job-hdr.ord-no.
-            END.  
-        END.
-    END.
-
-    FIND FIRST xest
-        WHERE xest.company EQ cocode
-        AND xest.est-no  EQ job.est-no
+  IF NOT AVAIL job THEN DO:
+    FIND job-hdr WHERE RECID(job-hdr) EQ rec-id NO-LOCK NO-ERROR.
+    IF AVAIL job-hdr THEN
+    FIND FIRST job
+        WHERE job.company EQ job-hdr.company
+          AND job.job     EQ job-hdr.job
+          AND job.job-no  EQ job-hdr.job-no
+          AND job.job-no2 EQ job-hdr.job-no2
         NO-ERROR.
-    IF NOT AVAILABLE xest THEN 
-    DO:
-        choice = NO.
-        MESSAGE "There is no estimate to build from for this job.  "
-            "Would you LIKE to create one?  " 
-            VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE choice .
-        IF NOT choice THEN UNDO, LEAVE.
-        IF choice THEN 
-        REPEAT:
-            MESSAGE "Enter the Estimate Number you wish to build from:  "
-                UPDATE v-est-job.             
-            RUN util/rjust.p (INPUT-OUTPUT v-est-job, INPUT 5).
-            FIND FIRST xest WHERE xest.company = cocode
-                AND xest.loc = locode
-                AND xest.est-no EQ v-est-job NO-ERROR.
-            IF NOT AVAILABLE xest THEN
-                /*run sys/msg/wemsg.p("Estimate Does Not Exist.  Please Re-enter",
-                                    "E R R O R!", 4).
-                 */
-                MESSAGE "Estimate Does Not Exist. Please Re-enter." VIEW-AS ALERT-BOX ERROR.                   
-            IF AVAILABLE xest THEN 
-            DO:
-                job.est-no = xest.est-no.
-                job.rec_key = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key.  /* for notes */
+    RELEASE job-hdr.
+  END.
 
-                FOR EACH job-hdr WHERE job-hdr.company EQ cocode
-                    AND job-hdr.job     EQ job.job
-                    AND job-hdr.job-no  EQ job.job-no
-                    AND job-hdr.job-no2 EQ job.job-no2,
-                    EACH oe-ordl WHERE oe-ordl.company EQ job-hdr.company
-                    AND oe-ordl.job-no  EQ job-hdr.job-no
-                    AND oe-ordl.job-no2 EQ job-hdr.job-no2
-                    AND oe-ordl.ord-no  EQ job-hdr.ord-no,
-                    EACH oe-ord OF oe-ordl:
+  IF NOT AVAIL job THEN RETURN.
+
+  IF nufile THEN DO:
+    /*release job-mat.
+
+    if not program-name(2) begins "util/updstand" THEN
+    FIND FIRST job-mat
+        where job-mat.company EQ cocode
+          and job-mat.all-flg EQ yes
+          and job-mat.job     EQ job.job
+          and job-mat.job-no  EQ job.job-no
+          and job-mat.job-no2 EQ job.job-no2
+          and job-mat.qty-all ne 0
+        NO-LOCK NO-ERROR.
+      
+    choice = not avail job-mat.      
+    if not choice THEN do on endkey undo, leave:
+      message "WARNING: Raw materials will be decommitted, continue?"
+              view-as alert-box button yes-no update choice.
+    END.
+    
+    if choice THEN run jc/jc-dall.p (recid(job)).
+  
+    else leave.*/
+
+    FOR EACH job-hdr
+        WHERE job-hdr.company EQ cocode
+          AND job-hdr.job     EQ job.job
+          AND job-hdr.job-no  EQ job.job-no
+          AND job-hdr.job-no2 EQ job.job-no2
+          AND job-hdr.qty     EQ 0:
+      DELETE job-hdr.
+    END.
+
+    EMPTY TEMP-TABLE work-ord.
+
+    FOR EACH job-hdr
+        WHERE job-hdr.company EQ cocode
+          AND job-hdr.job     EQ job.job
+          AND job-hdr.job-no  EQ job.job-no
+          AND job-hdr.job-no2 EQ job.job-no2
+          AND job-hdr.ord-no  NE 0
+        NO-LOCK
+        BREAK BY job-hdr.cust-no:
+    
+      IF LAST-OF(job-hdr.cust-no) THEN DO:
+        CREATE work-ord.
+        ASSIGN
+         work-ord.cust-no = job-hdr.cust-no
+         work-ord.ord-no  = job-hdr.ord-no.
+      END.  
+    END.
+  END.
+
+  FIND FIRST xest
+      where xest.company EQ cocode
+        and xest.est-no  EQ job.est-no
+      NO-ERROR.
+  if not avail xest THEN do:
+    choice = no.
+    message "There is no estimate to build from for this job.  "
+           "Would you LIKE to create one?  " 
+           view-as alert-box button yes-no update choice .
+    if not choice THEN undo, leave.
+    if choice THEN repeat:
+      message "Enter the Estimate Number you wish to build from:  "
+             update v-est-job.             
+      run util/rjust.p (INPUT-OUTPUT v-est-job, input 5).
+      FIND FIRST xest where xest.company = cocode
+                        AND xest.loc = locode
+                        AND xest.est-no EQ v-est-job NO-ERROR.
+      if not avail xest THEN
+        /*run sys/msg/wemsg.p("Estimate Does Not Exist.  Please Re-enter",
+                            "E R R O R!", 4).
+         */
+         message "Estimate Does Not Exist. Please Re-enter." view-as alert-box error.                   
+      if avail xest THEN do:
+         job.est-no = xest.est-no.
+         job.rec_key = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key.  /* for notes */
+
+         FOR EACH job-hdr where job-hdr.company EQ cocode
+                            and job-hdr.job     EQ job.job
+                            and job-hdr.job-no  EQ job.job-no
+                            and job-hdr.job-no2 EQ job.job-no2,
+             each oe-ordl where oe-ordl.company EQ job-hdr.company
+                            and oe-ordl.job-no  EQ job-hdr.job-no
+                            and oe-ordl.job-no2 EQ job-hdr.job-no2
+                            and oe-ordl.ord-no  EQ job-hdr.ord-no,
+             each oe-ord of oe-ordl:
  
-                    ASSIGN 
-                        job-hdr.est-no = job.est-no
-                        oe-ordl.est-no = job.est-no
-                        oe-ord.est-no  = job.est-no.
-                END.
-                LEAVE.
-            END. /* avail xest */     
-        END.  /* choice */
-    END. /* not avail xest */
+             ASSIGN job-hdr.est-no = job.est-no
+                    oe-ordl.est-no = job.est-no
+                    oe-ord.est-no  = job.est-no.
+         END.
+         leave.
+      END. /* avail xest */     
+    END.  /* choice */
+  END. /* not avail xest */
 
-    li = 0.
+  li = 0.
 
-    FOR EACH xeb
-        WHERE xeb.company   EQ xest.company 
+  FOR EACH xeb
+      WHERE xeb.company   EQ xest.company 
         AND xeb.est-no    EQ xest.est-no
         AND xeb.form-no   EQ 0
         AND (xeb.est-type NE xest.est-type OR
-        (xest.est-type NE 2 AND xest.est-type NE 6)):
-        DELETE xeb.
-    END.
+             (xest.est-type NE 2 AND xest.est-type NE 6)):
+    DELETE xeb.
+  END.
 
-    IF nufile THEN
-        FOR EACH xeb WHERE xeb.company = xest.company 
-            AND xeb.est-no = xest.est-no
-            BREAK BY xeb.est-no
+  if nufile THEN
+  FOR EACH xeb where xeb.company = xest.company 
+                 and xeb.est-no = xest.est-no
+      break by xeb.est-no
             BY xeb.form-no
             BY xeb.blank-no:
 
-            IF lv-format-f EQ "CentBox" OR lv-format-f EQ "Accord" THEN
-                ASSIGN
-                    li         = li + 1
-                    xeb.spc-no = TRIM(job.job-no)         + "-" +
+      IF lv-format-f EQ "CentBox" OR lv-format-f EQ "Accord" THEN
+        ASSIGN
+         li         = li + 1
+         xeb.spc-no = TRIM(job.job-no)         + "-" +
                       STRING(job.job-no2,"99") + "-" +
                       STRING(xeb.form-no,"99") + "-" +
                       STRING(li,"99").
     
-            FIND FIRST oe-ordl
-                WHERE oe-ordl.company    EQ cocode
-                AND oe-ordl.job-no     EQ job.job-no
-                AND oe-ordl.job-no2    EQ job.job-no2
-                AND ((oe-ordl.form-no  EQ xeb.form-no AND
-                oe-ordl.blank-no EQ xeb.blank-no) OR
-                xeb.est-type EQ 2 OR xeb.est-type EQ 6)
-                NO-LOCK NO-ERROR.
+      FIND FIRST oe-ordl
+          WHERE oe-ordl.company    EQ cocode
+            AND oe-ordl.job-no     EQ job.job-no
+            AND oe-ordl.job-no2    EQ job.job-no2
+            AND ((oe-ordl.form-no  EQ xeb.form-no AND
+                  oe-ordl.blank-no EQ xeb.blank-no) OR
+                 xeb.est-type EQ 2 OR xeb.est-type EQ 6)
+          NO-LOCK NO-ERROR.
 
-            IF xeb.stock-no EQ "" AND AVAILABLE oe-ordl THEN xeb.stock-no = oe-ordl.i-no.
+      IF xeb.stock-no EQ "" AND AVAIL oe-ordl THEN xeb.stock-no = oe-ordl.i-no.
 
-            FIND FIRST itemfg WHERE itemfg.company EQ cocode
-                AND itemfg.i-no    EQ xeb.stock-no
-                NO-LOCK NO-ERROR.
+      FIND FIRST itemfg where itemfg.company EQ cocode
+                          and itemfg.i-no    EQ xeb.stock-no
+                          NO-LOCK NO-ERROR.
 
-            choice = YES.
+      choice = YES.
 
-            /* gdm - 10060901 */ 
-            ASSIGN 
-                v-isaset = itemfg.isaset.
+      /* gdm - 10060901 */ 
+      ASSIGN v-isaset = itemfg.isaset.
 
-            IF NOT AVAILABLE itemfg OR xeb.stock-no EQ "" THEN 
-            REPEAT:
-                IF NOT choice OR xeb.stock-no EQ '' THEN 
-                DO:
-                    choice = NO.
-                    RUN jc/fgPrompt.w (cocode,xeb.cust-no,xeb.part-no,INPUT-OUTPUT xeb.stock-no).
-                    IF xeb.stock-no EQ '' THEN NEXT.
-                END.
-                /*
-                IF xeb.stock-no EQ "" THEN DO:
-                  message " FG Item Not defined, Please Enter "
-                          update xeb.stock-no.
-                  if xeb.stock-no EQ "" THEN next.
-                END.
-                */
-                FIND FIRST itemfg
-                {sys/look/itemfgrlW.i}
-                AND itemfg.i-no   EQ xeb.stock-no
-                    NO-LOCK NO-ERROR.
-                IF NOT AVAILABLE itemfg THEN 
-                DO ON ENDKEY UNDO, NEXT:
-                    choice = YES.
-                    MESSAGE "Item: " + TRIM(xeb.stock-no) + " doesn't exist, would you LIKE to create it?"
-                        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
-                    IF choice THEN 
-                    DO:
-                    {jc/fgadd.i}
-                        LEAVE.
-                    END.
-                END.
-                ELSE IF itemfg.est-no EQ '' THEN LEAVE.
+      if not avail itemfg OR xeb.stock-no EQ "" THEN repeat:
+        IF NOT choice OR xeb.stock-no EQ '' THEN DO:
+          choice = NO.
+          RUN jc/fgPrompt.w (cocode,xeb.cust-no,xeb.part-no,INPUT-OUTPUT xeb.stock-no).
+          IF xeb.stock-no EQ '' THEN NEXT.
+        END.
+         /*
+         IF xeb.stock-no EQ "" THEN DO:
+           message " FG Item Not defined, Please Enter "
+                   update xeb.stock-no.
+           if xeb.stock-no EQ "" THEN next.
+         END.
+         */
+        FIND FIRST itemfg
+              {sys/look/itemfgrlW.i}
+                and itemfg.i-no   EQ xeb.stock-no
+              NO-LOCK NO-ERROR.
+          if not avail itemfg THEN do on endkey undo, next:
+            choice = yes.
+            message "Item: " + TRIM(xeb.stock-no) + " doesn't exist, would you LIKE to create it?"
+                    view-as alert-box question button yes-no update choice.
+            if choice THEN do:
+              {jc/fgadd.i}
+              leave.
             END.
+          END.
+          ELSE IF itemfg.est-no EQ '' THEN LEAVE.
+      END.
 
-            IF xeb.form-no EQ 0 THEN 
-            DO:
-                v-set-hdr = xeb.stock-no.      
-                FIND FIRST eb WHERE eb.company = xeb.company
-                    AND eb.est-no   EQ xeb.est-no
-                    AND eb.cust-no NE ""
-                    NO-LOCK NO-ERROR.
-            END.
+      if xeb.form-no EQ 0 THEN do:
+         v-set-hdr = xeb.stock-no.      
+         FIND FIRST eb where eb.company = xeb.company
+                         and eb.est-no   EQ xeb.est-no
+                         and eb.cust-no ne ""
+                         NO-LOCK NO-ERROR.
+      END.
            
-            IF xest.est-type EQ 3 OR
-                xest.est-type EQ 4 OR
-                xest.est-type EQ 8 THEN
-                FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
-                    AND job-hdr.job     EQ job.job
-                    AND job-hdr.job-no  EQ job.job-no
-                    AND job-hdr.job-no2 EQ job.job-no2
-                    AND job-hdr.frm     EQ xeb.form-no
-                    AND job-hdr.i-no    EQ xeb.stock-no
-                    NO-ERROR.          
-            ELSE
-                IF xest.est-type EQ 1 OR
-                    xest.est-type EQ 5 OR
-                    xeb.form-no EQ 0   THEN
-                    FIND FIRST job-hdr WHERE job-hdr.company  EQ cocode
-                        AND job-hdr.job      EQ job.job
-                        AND job-hdr.job-no   EQ job.job-no
-                        AND job-hdr.job-no2  EQ job.job-no2 NO-ERROR.          
-                ELSE 
-                DO:
-                    IF LAST(xeb.est-no)                           AND
-                        (xest.est-type EQ 2 OR xest.est-type EQ 6) THEN 
-                    DO:
-                        {fg/addset.i v-set-hdr}
-                    END.   
-                    NEXT.
-                END.
+      if xest.est-type EQ 3 or
+         xest.est-type EQ 4 or
+         xest.est-type EQ 8 THEN
+         FIND FIRST job-hdr where job-hdr.company EQ cocode
+                              and job-hdr.job     EQ job.job
+                              and job-hdr.job-no  EQ job.job-no
+                              and job-hdr.job-no2 EQ job.job-no2
+                              and job-hdr.frm     EQ xeb.form-no
+                              and job-hdr.i-no    EQ xeb.stock-no
+                              NO-ERROR.          
+      else
+      if xest.est-type EQ 1 or
+         xest.est-type EQ 5 or
+         xeb.form-no EQ 0   THEN
+         FIND FIRST job-hdr where job-hdr.company  EQ cocode
+                              and job-hdr.job      EQ job.job
+                              and job-hdr.job-no   EQ job.job-no
+                              and job-hdr.job-no2  EQ job.job-no2 NO-ERROR.          
+      else do:
+         if last(xeb.est-no)                           and
+            (xest.est-type EQ 2 or xest.est-type EQ 6) THEN do:
+                  {fg/addset.i v-set-hdr}
+         END.   
+         next.
+      END.
 
-            RUN jc/job4rel.p (BUFFER job, BUFFER oe-rel).
+      RUN jc/job4rel.p (BUFFER job, BUFFER oe-rel).
 
-            ll-new-job-hdr = NOT AVAILABLE job-hdr.         
+      ll-new-job-hdr = not avail job-hdr.         
 
-            IF ll-new-job-hdr THEN 
-            DO:          
+      if ll-new-job-hdr THEN do:          
 
-                CREATE job-hdr.
-                ASSIGN 
-                    job-hdr.company    = cocode
-                    job-hdr.loc        = locode
-                    job-hdr.e-num      = xest.e-num
-                    job-hdr.est-no     = xest.est-no
-                    job-hdr.i-no       = xeb.stock-no
-                    job-hdr.job-no     = job.job-no
-                    job-hdr.job-no2    = job.job-no2
-                    job-hdr.cust-no    = IF xeb.form-no EQ 0 AND AVAILABLE eb THEN eb.cust-no
-                                       ELSE xeb.cust-no
-                    job-hdr.frm        = xeb.form-no
-                    job-hdr.job        = job.job
-                    job-hdr.start-date = job.start-date                           
-                    job-hdr.due-date   = job.due-date.
+         create job-hdr.
+         ASSIGN job-hdr.company      = cocode
+                job-hdr.loc          = locode
+                job-hdr.e-num        = xest.e-num
+                job-hdr.est-no       = xest.est-no
+                job-hdr.i-no         = xeb.stock-no
+                job-hdr.job-no       = job.job-no
+                job-hdr.job-no2      = job.job-no2
+                job-hdr.cust-no      = if xeb.form-no EQ 0 and avail eb THEN eb.cust-no
+                                       else xeb.cust-no
+                job-hdr.frm          = xeb.form-no
+                job-hdr.job          = job.job
+                job-hdr.start-date   = job.start-date                           
+                job-hdr.due-date     = job.due-date.
        
-                FIND FIRST work-ord WHERE work-ord.cust-no EQ job-hdr.cust-no NO-ERROR.
-                IF AVAILABLE work-ord THEN 
-                DO: 
-                    job-hdr.ord-no = work-ord.ord-no.
-                    /* rtc 08/28/08 begin */
-                    FIND FIRST b-oe-ordl WHERE
-                        b-oe-ordl.company   EQ cocode 
-                        AND b-oe-ordl.opened    EQ YES 
-                        AND b-oe-ordl.ord-no    EQ job-hdr.ord-no
-                        AND b-oe-ordl.i-no      EQ job-hdr.i-no NO-LOCK NO-ERROR.
-                    IF AVAILABLE b-oe-ordl THEN
-                        job-hdr.po-no = b-oe-ordl.po-no.
-                /* rtc 08/28/08 end */
-                END.
+         FIND FIRST work-ord where work-ord.cust-no EQ job-hdr.cust-no NO-ERROR.
+         if avail work-ord THEN DO: 
+            job-hdr.ord-no = work-ord.ord-no.
+            /* rtc 08/28/08 begin */
+            FIND FIRST b-oe-ordl WHERE
+                       b-oe-ordl.company   EQ cocode 
+                   AND b-oe-ordl.opened    EQ YES 
+                   AND b-oe-ordl.ord-no    EQ job-hdr.ord-no
+                   AND b-oe-ordl.i-no      EQ job-hdr.i-no NO-LOCK NO-ERROR.
+               IF AVAIL b-oe-ordl THEN
+                  job-hdr.po-no = b-oe-ordl.po-no.
+            /* rtc 08/28/08 end */
+         END.
       
-                {util/mkjobkey.i}
-            END.
+         {util/mkjobkey.i}
+      END.
 
-            IF job-hdr.frm EQ 0 THEN job-hdr.frm = 1.
+      if job-hdr.frm EQ 0 THEN job-hdr.frm = 1.
 
-            job-hdr.blank-no = IF xeb.form-no EQ 0 THEN 1 ELSE xeb.blank-no.
+      job-hdr.blank-no = if xeb.form-no EQ 0 THEN 1 else xeb.blank-no.
 
-            RUN util/upditmfg.p (ROWID(job-hdr), -1).
+      RUN util/upditmfg.p (ROWID(job-hdr), -1).
 
-            RUN jc/qty-changed.p (BUFFER job, OUTPUT ll-qty-changed).
+      RUN jc/qty-changed.p (BUFFER job, OUTPUT ll-qty-changed).
 
-            IF NOT ll-qty-changed THEN 
-            DO:
-                ASSIGN
-                    v-qty      = 0
-                    v-hold-qty = job-hdr.qty.
+      IF NOT ll-qty-changed THEN DO:
+        ASSIGN
+         v-qty      = 0
+         v-hold-qty = job-hdr.qty.
 
-                IF xest.est-type EQ 3 OR
-                    xest.est-type EQ 4 OR
-                    xest.est-type EQ 8 THEN
-                    FOR EACH eb FIELDS(form-no blank-no bl-qty) WHERE
-                        eb.company  EQ xest.company AND
-                        eb.est-no   EQ xest.est-no AND
-                        eb.stock-no EQ xeb.stock-no
-                        NO-LOCK:
+        IF xest.est-type EQ 3 OR
+           xest.est-type EQ 4 OR
+           xest.est-type EQ 8 THEN
+           FOR EACH eb fields(form-no blank-no bl-qty) WHERE
+               eb.company  EQ xest.company AND
+               eb.est-no   EQ xest.est-no AND
+               eb.stock-no EQ xeb.stock-no
+               NO-LOCK:
            
-                        IF eb.form-no EQ xeb.form-no AND eb.blank-no EQ xeb.blank-no THEN
-                            job-hdr.qty = eb.bl-qty.
+               IF eb.form-no EQ xeb.form-no AND eb.blank-no EQ xeb.blank-no THEN
+                  job-hdr.qty = eb.bl-qty.
           
-                        v-qty = v-qty + eb.bl-qty.
-                    END.
-                ELSE
-                    ASSIGN
-                        v-qty       = xest.est-qty[1]
-                        job-hdr.qty = xest.est-qty[1].
+               v-qty = v-qty + eb.bl-qty.
+           END.
+        ELSE
+           ASSIGN
+              v-qty       = xest.est-qty[1]
+              job-hdr.qty = xest.est-qty[1].
        
-                IF job-hdr.qty EQ 0 THEN job-hdr.qty = 1.
-                IF v-qty       EQ 0 THEN v-qty       = 1.
+        IF job-hdr.qty EQ 0 THEN job-hdr.qty = 1.
+        IF v-qty       EQ 0 THEN v-qty       = 1.
 
-                RUN jc/jobhordl.p (BUFFER job-hdr, BUFFER oe-rel, BUFFER oe-ordl).
+        RUN jc/jobhordl.p (BUFFER job-hdr, BUFFER oe-rel, BUFFER oe-ordl).
 
-                IF (ll-hold-qty OR
-                    (job-hdr.ord-no EQ 0 AND NOT AVAILABLE oe-rel)) AND
-                    v-hold-qty NE 0                             THEN
-                    job-hdr.qty = v-hold-qty.
+        IF (ll-hold-qty OR
+            (job-hdr.ord-no EQ 0 AND NOT AVAIL oe-rel)) AND
+            v-hold-qty NE 0                             THEN
+          job-hdr.qty = v-hold-qty.
 
-                ELSE
-                    IF AVAILABLE oe-ordl THEN 
-                    DO:
-                        job-hdr.qty = (IF AVAILABLE oe-rel THEN oe-rel.qty
-                        ELSE oe-ordl.qty) *
-                            (job-hdr.qty / v-qty).
+        ELSE
+        IF AVAIL oe-ordl THEN DO:
+          job-hdr.qty = (IF AVAIL oe-rel THEN oe-rel.qty
+                                         ELSE oe-ordl.qty) *
+                        (job-hdr.qty / v-qty).
 
-                        IF NOT AVAILABLE oe-rel THEN job-hdr.ord-no = oe-ordl.ord-no.
+          IF NOT AVAIL oe-rel THEN job-hdr.ord-no = oe-ordl.ord-no.
 
-                        RUN oe/whs-item.p (BUFFER oe-ordl, OUTPUT ll-whs-item).
+          RUN oe/whs-item.p (BUFFER oe-ordl, OUTPUT ll-whs-item).
 
-                        IF NOT ll-whs-item AND ll-add-over THEN
-                            RUN oe/overundr.p ("O", "+", oe-ordl.over-pct, job-hdr.qty,
-                                OUTPUT job-hdr.qty).
-                    END.
-            END.
+          IF NOT ll-whs-item AND ll-add-over THEN
+            RUN oe/overundr.p ("O", "+", oe-ordl.over-pct, job-hdr.qty,
+                               OUTPUT job-hdr.qty).
+        END.
+      END.
 
-            IF AVAILABLE oe-ordl THEN job-hdr.due-date = oe-ordl.req-date.
+      IF AVAIL oe-ordl THEN job-hdr.due-date = oe-ordl.req-date.
 
-            IF job-hdr.qty EQ 0           OR
-                (job-hdr.ord-no EQ 0 AND
-                NOT AVAILABLE oe-rel    AND
-                ll-new-job-hdr) THEN
+      IF job-hdr.qty EQ 0           OR
+         (job-hdr.ord-no EQ 0 AND
+          NOT AVAIL oe-rel    AND
+          ll-new-job-hdr) THEN
+         DO:
+            RUN jc/jobHdrQty.w ("Please enter job qty for FG#/Form#/Blank#: " +
+                                TRIM(job-hdr.i-no) + "/" +
+                                STRING(job-hdr.frm,"99") + "/" +
+                                STRING(job-hdr.blank-no,"99") + "...",
+                                INPUT-OUTPUT job-hdr.qty).
+           
+            IF ll-jqcust EQ YES AND NOT AVAIL oe-ordl THEN
             DO:
-                RUN jc/jobHdrQty.w ("Please enter job qty for FG#/Form#/Blank#: " +
-                    TRIM(job-hdr.i-no) + "/" +
-                    STRING(job-hdr.frm,"99") + "/" +
-                    STRING(job-hdr.blank-no,"99") + "...",
-                    INPUT-OUTPUT job-hdr.qty).
+               FIND FIRST cust WHERE
+                    cust.company EQ job-hdr.company AND
+                    cust.cust-no EQ job-hdr.cust-no
+                    NO-LOCK NO-ERROR.
            
-                IF ll-jqcust EQ YES AND NOT AVAILABLE oe-ordl THEN
-                DO:
-                    FIND FIRST cust WHERE
-                        cust.company EQ job-hdr.company AND
-                        cust.cust-no EQ job-hdr.cust-no
-                        NO-LOCK NO-ERROR.
-           
-                    IF AVAILABLE cust THEN
-                    DO:
-                        job-hdr.qty = job-hdr.qty + (job-hdr.qty * cust.over-pct * .01).
-                        {sys/inc/roundup.i job-hdr.qty}
-                    END.
-                END.
+               IF AVAIL cust THEN
+               DO:
+                  job-hdr.qty = job-hdr.qty + (job-hdr.qty * cust.over-pct * .01).
+                  {sys/inc/roundup.i job-hdr.qty}
+               END.
             END.
+         END.
 
-            RUN util/upditmfg.p (ROWID(job-hdr), 1).
+      RUN util/upditmfg.p (ROWID(job-hdr), 1).
 
-            FOR EACH x-job-hdr
-                WHERE x-job-hdr.company EQ job-hdr.company
-                AND x-job-hdr.job     EQ job-hdr.job
-                AND x-job-hdr.job-no  EQ job-hdr.job-no
-                AND x-job-hdr.job-no2 EQ job-hdr.job-no2
-                AND x-job-hdr.frm     EQ job-hdr.frm
-                AND x-job-hdr.i-no    EQ job-hdr.i-no
-                AND ROWID(x-job-hdr)  NE ROWID(job-hdr):
+      FOR EACH x-job-hdr
+          WHERE x-job-hdr.company EQ job-hdr.company
+            AND x-job-hdr.job     EQ job-hdr.job
+            AND x-job-hdr.job-no  EQ job-hdr.job-no
+            AND x-job-hdr.job-no2 EQ job-hdr.job-no2
+            AND x-job-hdr.frm     EQ job-hdr.frm
+            AND x-job-hdr.i-no    EQ job-hdr.i-no
+            AND ROWID(x-job-hdr)  NE ROWID(job-hdr):
 
-                RUN util/upditmfg.p (ROWID(x-job-hdr), -1).
+        RUN util/upditmfg.p (ROWID(x-job-hdr), -1).
 
-                DELETE x-job-hdr.
-            END.
-        END.  /* FOR EACH xeb */
+        DELETE x-job-hdr.
+      END.
+  END.  /* FOR EACH xeb */
 
-    FOR EACH job-hdr
-        WHERE job-hdr.company EQ job.company
+  FOR EACH job-hdr
+      WHERE job-hdr.company EQ job.company
         AND job-hdr.job     EQ job.job
         AND job-hdr.job-no  EQ job.job-no
         AND job-hdr.job-no2 EQ job.job-no2
         AND NOT CAN-FIND(FIRST xeb
-        WHERE xeb.company      EQ job-hdr.company
-        AND xeb.est-no       EQ job-hdr.est-no
-        AND xeb.stock-no     EQ job-hdr.i-no
-        AND ((xeb.form-no    EQ 0 AND
-        xeb.blank-no   EQ 0 AND
-        (xest.est-type EQ 2 OR xest.est-type EQ 6)) OR
-        (xeb.form-no    EQ job-hdr.frm AND
-        xeb.blank-no   EQ job-hdr.blank-no AND
-        xest.est-type  NE 2 AND xest.est-type NE 6))):
+                         WHERE xeb.company      EQ job-hdr.company
+                           AND xeb.est-no       EQ job-hdr.est-no
+                           AND xeb.stock-no     EQ job-hdr.i-no
+                           AND ((xeb.form-no    EQ 0 AND
+                                 xeb.blank-no   EQ 0 AND
+                                 (xest.est-type EQ 2 OR xest.est-type EQ 6)) OR
+                                (xeb.form-no    EQ job-hdr.frm AND
+                                 xeb.blank-no   EQ job-hdr.blank-no AND
+                                 xest.est-type  NE 2 AND xest.est-type NE 6))):
 
-        RUN util/upditmfg.p (ROWID(job-hdr), -1).
+    RUN util/upditmfg.p (ROWID(job-hdr), -1).
 
-        DELETE job-hdr.
-    END.
+    DELETE job-hdr.
+  END.
 
-    ASSIGN
-        job.est-no      = xest.est-no
-        job.create-date = TODAY
-        job.rec_key     = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key.
-    job.stat          = "R".
+  ASSIGN
+   job.est-no        = xest.est-no
+   job.create-date   = TODAY
+   job.rec_key       = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key.
+   job.stat          = "R".
        
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "job.create-time"
+  FIND FIRST reftable
+      WHERE reftable.reftable EQ "job.create-time"
         AND reftable.company  EQ job.company
         AND reftable.loc      EQ ""
         AND reftable.code     EQ STRING(job.job,"9999999999")
-        USE-INDEX reftable NO-ERROR.
-    IF NOT AVAILABLE reftable THEN 
-    DO:
-        CREATE reftable.
-        ASSIGN
-            reftable.reftable = "job.create-time"
-            reftable.company  = job.company
-            reftable.loc      = ""
-            reftable.code     = STRING(job.job,"9999999999").
-    END.
-    reftable.val[1] = TIME.
+      USE-INDEX reftable NO-ERROR.
+  IF NOT AVAIL reftable THEN DO:
+    CREATE reftable.
+    ASSIGN
+     reftable.reftable = "job.create-time"
+     reftable.company  = job.company
+     reftable.loc      = ""
+     reftable.code     = STRING(job.job,"9999999999").
+  END.
+  reftable.val[1] = TIME.
 
-    FIND CURRENT job NO-LOCK.
+  FIND CURRENT job NO-LOCK.
 
-    RUN jc/calc-est.p (RECID(job)).
+  run jc/calc-est.p (recid(job)).
 
-    FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-        AND sys-ctrl.name    EQ "SCHEDULE" NO-LOCK NO-ERROR.
-    IF NOT AVAILABLE sys-ctrl THEN 
-    DO:
-        CREATE sys-ctrl.
-        ASSIGN 
-            sys-ctrl.company  = cocode
+   FIND FIRST sys-ctrl where sys-ctrl.company EQ cocode
+                        and sys-ctrl.name    EQ "SCHEDULE" NO-LOCK NO-ERROR.
+   if not avail sys-ctrl THEN do:
+     create sys-ctrl.
+     ASSIGN sys-ctrl.company  = cocode
             sys-ctrl.name     = "SCHEDULE"
             sys-ctrl.char-fld = "None"
             sys-ctrl.descrip  = "Update Due date and Promise date for Schedule?".
-        MESSAGE sys-ctrl.descrip
+     MESSAGE sys-ctrl.descrip
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE sys-ctrl.log-fld.                             
-    END.
-    IF nufile THEN RUN jc/startdat.p (ROWID(job)).
+   END.
+   IF nufile THEN run jc/startdat.p (ROWID(job)).
   
-    FIND CURRENT job EXCLUSIVE-LOCK.
+   FIND CURRENT job EXCLUSIVE-LOCK.
 
-    /* task 09130412 YSK 09/14/04  */
-    IF nufile AND AVAILABLE sys-ctrl AND sys-ctrl.char-fld = "NoDate" AND sys-ctrl.log-fld
-        THEN job.start-date = ?.
+   /* task 09130412 YSK 09/14/04  */
+   IF nufile AND AVAIL sys-ctrl AND sys-ctrl.char-fld = "NoDate" AND sys-ctrl.log-fld
+   THEN job.start-date = ?.
 
-    ASSIGN
-        job.std-fix-cost = 0
-        job.std-lab-cost = 0
-        job.std-mat-cost = 0
-        job.std-var-cost = 0.
+  ASSIGN
+   job.std-fix-cost = 0
+   job.std-lab-cost = 0
+   job.std-mat-cost = 0
+   job.std-var-cost = 0.
 
-    IF job.job NE 0 THEN
-        FOR EACH reftable
-            WHERE reftable.reftable EQ "jc/jc-calc.p"
-            AND reftable.company  EQ job.company
-            AND reftable.loc      EQ ""
-            AND reftable.code     EQ STRING(job.job,"999999999"):
-            DELETE reftable.
-        END.
+  IF job.job NE 0 THEN
+  FOR EACH reftable
+      WHERE reftable.reftable EQ "jc/jc-calc.p"
+        AND reftable.company  EQ job.company
+        AND reftable.loc      EQ ""
+        AND reftable.code     EQ STRING(job.job,"999999999"):
+    DELETE reftable.
+  END.
 
-    FOR EACH job-hdr EXCLUSIVE-LOCK
-        WHERE job-hdr.company EQ job.company
+  FOR EACH job-hdr EXCLUSIVE-LOCK
+      WHERE job-hdr.company EQ job.company
         AND job-hdr.job     EQ job.job
         AND job-hdr.job-no  EQ job.job-no
         AND job-hdr.job-no2 EQ job.job-no2:
 
-        job-hdr.ftick-prnt = NO.
+    job-hdr.ftick-prnt = NO.
 
-        IF job-hdr.sq-in EQ 0 THEN 
-        DO:
-            IF xest.est-type EQ 2 OR xest.est-type EQ 6 THEN job-hdr.sq-in = 100.00.
-            ELSE 
-            DO:
-                FIND FIRST xjob
-                    WHERE xjob.form-no  EQ job-hdr.frm
-                    AND xjob.blank-no EQ job-hdr.blank-no
-                    AND xjob.stock-no EQ job-hdr.i-no
-                    NO-ERROR.
-                IF AVAILABLE xjob THEN
-                    ASSIGN
-                        job-hdr.blank-no = xjob.blank-no
-                        job-hdr.frm      = xjob.form-no
-                        job-hdr.sq-in    = xjob.pct * 100.
-            END.
-        END.
-
-        ASSIGN
-            job-hdr.lock         = YES
-            job-hdr.std-lab-cost = 0
-            job-hdr.std-mat-cost = 0
-            job-hdr.std-var-cost = 0
-            job-hdr.std-fix-cost = 0.
-
-        FOR EACH xjob
-            WHERE (xjob.form-no  EQ job-hdr.frm AND
-            xjob.blank-no EQ job-hdr.blank-no AND
-            xjob.stock-no EQ job-hdr.i-no)
-            OR xest.est-type EQ 2
-            OR xest.est-type EQ 6,
-
-            FIRST eb
-            WHERE eb.company  EQ job.company
-            AND eb.est-no   EQ job.est-no
-            AND eb.form-no  EQ xjob.form-no
-            AND eb.blank-no EQ xjob.blank-no
-            NO-LOCK:
-
-            ASSIGN
-                job-hdr.std-lab-cost = job-hdr.std-lab-cost + xjob.lab
-                job-hdr.std-mat-cost = job-hdr.std-mat-cost + xjob.mat
-                job-hdr.std-var-cost = job-hdr.std-var-cost + xjob.voh
-                job-hdr.std-fix-cost = job-hdr.std-fix-cost + xjob.foh.
-
-            FIND FIRST reftable
-                WHERE reftable.reftable EQ "jc/jc-calc.p"
-                AND reftable.company  EQ job.company
-                AND reftable.loc      EQ ""
-                AND reftable.code     EQ STRING(job.job,"999999999")
-                AND reftable.code2    EQ eb.stock-no
-                AND reftable.val[12]  EQ eb.form-no
-                AND reftable.val[13]  EQ eb.blank-no
-                USE-INDEX reftable NO-ERROR.
-            IF NOT AVAILABLE reftable THEN 
-            DO:
-                CREATE reftable.
-                ASSIGN
-                    reftable.reftable = "jc/jc-calc.p"
-                    reftable.company  = job.company
-                    reftable.loc      = ""
-                    reftable.code     = STRING(job.job,"999999999")
-                    reftable.code2    = eb.stock-no
-                    reftable.val[12]  = eb.form-no
-                    reftable.val[13]  = eb.blank-no
-                    reftable.val[11]  = eb.num-up.
-            END.
-
-            ASSIGN
-                v-yld-qty       = IF eb.est-type EQ 2 THEN eb.cust-% ELSE eb.yld-qty
-                v-yld-qty       = IF v-yld-qty LT 0 THEN (-1 / v-yld-qty) ELSE v-yld-qty
-                reftable.val[1] = reftable.val[1] + (xjob.lab / v-yld-qty)
-                reftable.val[2] = reftable.val[2] + (xjob.mat / v-yld-qty)
-                reftable.val[3] = reftable.val[3] + (xjob.voh / v-yld-qty)
-                reftable.val[4] = reftable.val[4] + (xjob.foh / v-yld-qty)
-                reftable.val[5] = reftable.val[1] + reftable.val[2] +
-                         reftable.val[3] + reftable.val[4].
-
-            FIND CURRENT reftable NO-LOCK.
-
-            FIND FIRST itemfg
-                WHERE itemfg.company EQ reftable.company
-                AND itemfg.i-no    EQ reftable.code2
-                NO-ERROR.
-
-            MESSAGE itemfg.i-no SKIP
-                xest.est-type SKIP
-                job-hdr.qty SKIP
-                eb.pur-man
-                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-
-            IF AVAILABLE itemfg THEN RUN fg/calcqono.p (ROWID(itemfg), OUTPUT itemfg.q-ono).
-
-            MESSAGE "After calcqono" itemfg.q-ono
-                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-
-            IF AVAILABLE itemfg       AND 
-                xest.est-type EQ 6  AND
-                eb.pur-man EQ NO THEN 
-            DO:
-
-                ASSIGN 
-                    itemfg.q-ono = job-hdr.qty.      
-            END.
-      
-        END.
-
-        ASSIGN
-            job-hdr.std-tot-cost = job-hdr.std-mat-cost + job-hdr.std-lab-cost +
-                            job-hdr.std-fix-cost + job-hdr.std-var-cost
-            job.std-fix-cost     = job.std-fix-cost     + job-hdr.std-fix-cost
-            job.std-lab-cost     = job.std-lab-cost     + job-hdr.std-lab-cost
-            job.std-mat-cost     = job.std-mat-cost     + job-hdr.std-mat-cost
-            job.std-var-cost     = job.std-var-cost     + job-hdr.std-var-cost
-            job.std-tot-cost     = job.std-fix-cost     + job.std-lab-cost +
-                            job.std-mat-cost     + job.std-var-cost.
-
-        FOR EACH eb
-            WHERE eb.company  EQ job-hdr.company
-            AND eb.est-no   EQ job-hdr.est-no
-            AND eb.form-no  EQ job-hdr.frm
-            AND eb.blank-no NE 0
-            NO-LOCK
-            BY eb.blank-no DESCENDING:
-        
-            job-hdr.n-on = eb.num-up.
-            IF eb.blank-no EQ job-hdr.blank-no THEN LEAVE.
-        END.
+    IF job-hdr.sq-in EQ 0 THEN DO:
+      IF xest.est-type EQ 2 OR xest.est-type EQ 6 THEN job-hdr.sq-in = 100.00.
+      ELSE DO:
+        FIND FIRST xjob
+            WHERE xjob.form-no  EQ job-hdr.frm
+              AND xjob.blank-no EQ job-hdr.blank-no
+              AND xjob.stock-no EQ job-hdr.i-no
+            NO-ERROR.
+        IF AVAIL xjob THEN
+          ASSIGN
+           job-hdr.blank-no = xjob.blank-no
+           job-hdr.frm      = xjob.form-no
+           job-hdr.sq-in    = xjob.pct * 100.
+      END.
     END.
 
-    FOR EACH job-hdr EXCLUSIVE-LOCK
-        WHERE job-hdr.company EQ job.company
+    ASSIGN
+     job-hdr.lock         = YES
+     job-hdr.std-lab-cost = 0
+     job-hdr.std-mat-cost = 0
+     job-hdr.std-var-cost = 0
+     job-hdr.std-fix-cost = 0.
+
+    FOR EACH xjob
+        WHERE (xjob.form-no  EQ job-hdr.frm AND
+               xjob.blank-no EQ job-hdr.blank-no AND
+               xjob.stock-no EQ job-hdr.i-no)
+           OR xest.est-type EQ 2
+           OR xest.est-type EQ 6,
+
+        FIRST eb
+        WHERE eb.company  EQ job.company
+          AND eb.est-no   EQ job.est-no
+          AND eb.form-no  EQ xjob.form-no
+          AND eb.blank-no EQ xjob.blank-no
+        NO-LOCK:
+
+      ASSIGN
+       job-hdr.std-lab-cost = job-hdr.std-lab-cost + xjob.lab
+       job-hdr.std-mat-cost = job-hdr.std-mat-cost + xjob.mat
+       job-hdr.std-var-cost = job-hdr.std-var-cost + xjob.voh
+       job-hdr.std-fix-cost = job-hdr.std-fix-cost + xjob.foh.
+
+      FIND FIRST reftable
+          WHERE reftable.reftable EQ "jc/jc-calc.p"
+            AND reftable.company  EQ job.company
+            AND reftable.loc      EQ ""
+            AND reftable.code     EQ STRING(job.job,"999999999")
+            AND reftable.code2    EQ eb.stock-no
+            AND reftable.val[12]  EQ eb.form-no
+            AND reftable.val[13]  EQ eb.blank-no
+          USE-INDEX reftable NO-ERROR.
+      IF NOT AVAIL reftable THEN DO:
+        CREATE reftable.
+        ASSIGN
+         reftable.reftable = "jc/jc-calc.p"
+         reftable.company  = job.company
+         reftable.loc      = ""
+         reftable.code     = STRING(job.job,"999999999")
+         reftable.code2    = eb.stock-no
+         reftable.val[12]  = eb.form-no
+         reftable.val[13]  = eb.blank-no
+         reftable.val[11]  = eb.num-up.
+      END.
+
+      ASSIGN
+       v-yld-qty       = IF eb.est-type EQ 2 THEN eb.cust-% ELSE eb.yld-qty
+       v-yld-qty       = IF v-yld-qty LT 0 THEN (-1 / v-yld-qty) ELSE v-yld-qty
+       reftable.val[1] = reftable.val[1] + (xjob.lab / v-yld-qty)
+       reftable.val[2] = reftable.val[2] + (xjob.mat / v-yld-qty)
+       reftable.val[3] = reftable.val[3] + (xjob.voh / v-yld-qty)
+       reftable.val[4] = reftable.val[4] + (xjob.foh / v-yld-qty)
+       reftable.val[5] = reftable.val[1] + reftable.val[2] +
+                         reftable.val[3] + reftable.val[4].
+
+      FIND CURRENT reftable NO-LOCK.
+
+      FIND FIRST itemfg
+          WHERE itemfg.company EQ reftable.company
+            AND itemfg.i-no    EQ reftable.code2
+          NO-ERROR.
+
+      MESSAGE itemfg.i-no SKIP
+          xest.est-type SKIP
+          job-hdr.qty SKIP
+          eb.pur-man
+          VIEW-AS ALERT-BOX INFO BUTTONS OK.
+
+      IF AVAIL itemfg THEN RUN fg/calcqono.p (ROWID(itemfg), OUTPUT itemfg.q-ono).
+
+      MESSAGE "After calcqono" itemfg.q-ono
+          VIEW-AS ALERT-BOX INFO BUTTONS OK.
+
+      IF AVAIL itemfg       AND 
+         xest.est-type EQ 6  AND
+         eb.pur-man EQ NO THEN DO:
+
+          ASSIGN itemfg.q-ono = job-hdr.qty.      
+      END.
+      
+    END.
+
+    ASSIGN
+     job-hdr.std-tot-cost = job-hdr.std-mat-cost + job-hdr.std-lab-cost +
+                            job-hdr.std-fix-cost + job-hdr.std-var-cost
+     job.std-fix-cost     = job.std-fix-cost     + job-hdr.std-fix-cost
+     job.std-lab-cost     = job.std-lab-cost     + job-hdr.std-lab-cost
+     job.std-mat-cost     = job.std-mat-cost     + job-hdr.std-mat-cost
+     job.std-var-cost     = job.std-var-cost     + job-hdr.std-var-cost
+     job.std-tot-cost     = job.std-fix-cost     + job.std-lab-cost +
+                            job.std-mat-cost     + job.std-var-cost.
+
+    FOR EACH eb
+        WHERE eb.company  EQ job-hdr.company
+          AND eb.est-no   EQ job-hdr.est-no
+          AND eb.form-no  EQ job-hdr.frm
+          AND eb.blank-no ne 0
+        NO-LOCK
+        BY eb.blank-no DESC:
+        
+      job-hdr.n-on = eb.num-up.
+      IF eb.blank-no EQ job-hdr.blank-no THEN LEAVE.
+    END.
+  END.
+
+  FOR EACH job-hdr EXCLUSIVE-LOCK
+      WHERE job-hdr.company EQ job.company
         AND job-hdr.job     EQ job.job
         AND job-hdr.job-no  EQ job.job-no
         AND job-hdr.job-no2 EQ job.job-no2
         AND job-hdr.ord-no  NE 0 
-        BREAK BY job-hdr.i-no:
+      BREAK BY job-hdr.i-no:
 
-        ACCUM job-hdr.std-mat-cost * job-hdr.qty (TOTAL BY job-hdr.i-no).
-        ACCUM job-hdr.std-lab-cost * job-hdr.qty (TOTAL BY job-hdr.i-no).
-        ACCUM job-hdr.std-fix-cost * job-hdr.qty (TOTAL BY job-hdr.i-no).
-        ACCUM job-hdr.std-var-cost * job-hdr.qty (TOTAL BY job-hdr.i-no).
-        ACCUM job-hdr.std-tot-cost * job-hdr.qty (TOTAL BY job-hdr.i-no).
-        ACCUM job-hdr.qty                        (TOTAL BY job-hdr.i-no).
+    ACCUM job-hdr.std-mat-cost * job-hdr.qty (TOTAL BY job-hdr.i-no).
+    ACCUM job-hdr.std-lab-cost * job-hdr.qty (TOTAL BY job-hdr.i-no).
+    ACCUM job-hdr.std-fix-cost * job-hdr.qty (TOTAL BY job-hdr.i-no).
+    ACCUM job-hdr.std-var-cost * job-hdr.qty (TOTAL BY job-hdr.i-no).
+    ACCUM job-hdr.std-tot-cost * job-hdr.qty (TOTAL BY job-hdr.i-no).
+    ACCUM job-hdr.qty                        (TOTAL BY job-hdr.i-no).
 
-        IF LAST-OF(job-hdr.i-no) THEN 
-        DO:
-            ASSIGN
-                job-hdr.std-mat-cost = (ACCUM TOTAL BY job-hdr.i-no job-hdr.std-mat-cost * job-hdr.qty) /
+    IF LAST-OF(job-hdr.i-no) THEN DO:
+      ASSIGN
+       job-hdr.std-mat-cost = (ACCUM TOTAL BY job-hdr.i-no job-hdr.std-mat-cost * job-hdr.qty) /
                               (ACCUM TOTAL BY job-hdr.i-no job-hdr.qty)
-                job-hdr.std-lab-cost = (ACCUM TOTAL BY job-hdr.i-no job-hdr.std-lab-cost * job-hdr.qty) /
+       job-hdr.std-lab-cost = (ACCUM TOTAL BY job-hdr.i-no job-hdr.std-lab-cost * job-hdr.qty) /
                               (ACCUM TOTAL BY job-hdr.i-no job-hdr.qty)
-                job-hdr.std-fix-cost = (ACCUM TOTAL BY job-hdr.i-no job-hdr.std-fix-cost * job-hdr.qty) /
+       job-hdr.std-fix-cost = (ACCUM TOTAL BY job-hdr.i-no job-hdr.std-fix-cost * job-hdr.qty) /
                               (ACCUM TOTAL BY job-hdr.i-no job-hdr.qty)
-                job-hdr.std-var-cost = (ACCUM TOTAL BY job-hdr.i-no job-hdr.std-var-cost * job-hdr.qty) /
+       job-hdr.std-var-cost = (ACCUM TOTAL BY job-hdr.i-no job-hdr.std-var-cost * job-hdr.qty) /
                               (ACCUM TOTAL BY job-hdr.i-no job-hdr.qty)
-                job-hdr.std-tot-cost = (ACCUM TOTAL BY job-hdr.i-no job-hdr.std-tot-cost * job-hdr.qty) /
+       job-hdr.std-tot-cost = (ACCUM TOTAL BY job-hdr.i-no job-hdr.std-tot-cost * job-hdr.qty) /
                               (ACCUM TOTAL BY job-hdr.i-no job-hdr.qty).
 
-            FOR EACH x-job-hdr EXCLUSIVE
+      FOR EACH x-job-hdr EXCLUSIVE
           WHERE x-job-hdr.company EQ job-hdr.company
             AND x-job-hdr.job     EQ job-hdr.job
             AND x-job-hdr.job-no  EQ job-hdr.job-no
             AND x-job-hdr.job-no2 EQ job-hdr.job-no2
             AND x-job-hdr.i-no    EQ job-hdr.i-no
             AND ROWID(x-job-hdr)  NE ROWID(job-hdr):
-                ASSIGN
-                    x-job-hdr.std-mat-cost = job-hdr.std-mat-cost
-                    x-job-hdr.std-lab-cost = job-hdr.std-lab-cost
-                    x-job-hdr.std-fix-cost = job-hdr.std-fix-cost
-                    x-job-hdr.std-var-cost = job-hdr.std-var-cost
-                    x-job-hdr.std-tot-cost = job-hdr.std-tot-cost.
-            END.
+        ASSIGN
+         x-job-hdr.std-mat-cost = job-hdr.std-mat-cost
+         x-job-hdr.std-lab-cost = job-hdr.std-lab-cost
+         x-job-hdr.std-fix-cost = job-hdr.std-fix-cost
+         x-job-hdr.std-var-cost = job-hdr.std-var-cost
+         x-job-hdr.std-tot-cost = job-hdr.std-tot-cost.
+      END.
 
-            FOR EACH oe-ordl
-                WHERE oe-ordl.company   EQ job-hdr.company
-                AND oe-ordl.ord-no    EQ job-hdr.ord-no
-                AND oe-ordl.i-no      EQ job-hdr.i-no
-                AND oe-ordl.job-no    EQ job-hdr.job-no
-                AND oe-ordl.job-no2   EQ job-hdr.job-no2,
-                FIRST oe-ord NO-LOCK
-                WHERE oe-ord.company EQ oe-ordl.company
-                AND oe-ord.ord-no  EQ oe-ordl.ord-no:
+      FOR EACH oe-ordl
+          WHERE oe-ordl.company   EQ job-hdr.company
+            AND oe-ordl.ord-no    EQ job-hdr.ord-no
+            AND oe-ordl.i-no      EQ job-hdr.i-no
+            AND oe-ordl.job-no    EQ job-hdr.job-no
+            AND oe-ordl.job-no2   EQ job-hdr.job-no2,
+          FIRST oe-ord NO-LOCK
+          WHERE oe-ord.company EQ oe-ordl.company
+            AND oe-ord.ord-no  EQ oe-ordl.ord-no:
 
-                IF v-full-cost THEN 
-                DO:
-                    RELEASE blk.
-                    IF xest.est-type EQ 3 OR
-                        xest.est-type EQ 4 OR
-                        xest.est-type EQ 8 THEN
-                        FIND FIRST blk WHERE blk.id EQ oe-ordl.part-no NO-LOCK NO-ERROR.  
-                    IF AVAILABLE blk THEN 
-                    DO:
-                        IF xest.est-type EQ 4 OR
-                            xest.est-type EQ 8 THEN 
-                        DO:
-                            ASSIGN
-                                v-blk-qty    = 0
-                                oe-ordl.cost = 0
-                                v-tot-comm-2 = 0.
+        IF v-full-cost THEN DO:
+          RELEASE blk.
+          IF xest.est-type EQ 3 OR
+             xest.est-type EQ 4 OR
+             xest.est-type EQ 8 THEN
+          FIND FIRST blk WHERE blk.id EQ oe-ordl.part-no NO-LOCK NO-ERROR.  
+          IF AVAIL blk THEN DO:
+            IF xest.est-type EQ 4 OR
+               xest.est-type EQ 8 THEN DO:
+              ASSIGN
+               v-blk-qty    = 0
+               oe-ordl.cost = 0
+               v-tot-comm-2 = 0.
             
-                            FOR EACH blk WHERE blk.id EQ oe-ordl.part-no NO-LOCK,
-                                FIRST xjob
-                                WHERE xjob.form-no  EQ blk.snum
-                                AND xjob.blank-no EQ blk.bnum:
+              FOR EACH blk WHERE blk.id EQ oe-ordl.part-no NO-LOCK,
+                  FIRST xjob
+                  WHERE xjob.form-no  EQ blk.snum
+                    AND xjob.blank-no EQ blk.bnum:
               
-                                IF xest.est-type EQ 8 THEN
-                                DO:
-                                    IF cerunc EQ "Fibre" THEN
-                                        RUN est/usemargin.p (ROWID(xest), OUTPUT ll-use-margin).
+                IF xest.est-type EQ 8 THEN
+                DO:
+                   IF cerunc EQ "Fibre" THEN
+                      RUN est/usemargin.p (ROWID(xest), OUTPUT ll-use-margin).
                 
-                                    ASSIGN
-                                        lv-sell-by         = ce-ctrl.sell-by
-                                        lv-sell-by-ce-ctrl = ce-ctrl.sell-by
-                                        v-pct-2            = ce-ctrl.prof-mrkup
-                                        v-probe-comm       = eb.comm.
+                   ASSIGN
+                      lv-sell-by = ce-ctrl.sell-by
+                      lv-sell-by-ce-ctrl = ce-ctrl.sell-by
+                      v-pct-2 = ce-ctrl.prof-mrkup
+                      v-probe-comm = eb.comm.
                 
-                                    FIND FIRST cust WHERE
-                                        cust.company EQ job-hdr.company AND
-                                        cust.cust-no EQ job-hdr.cust-no
-                                        NO-LOCK.
+                   FIND FIRST cust WHERE
+                        cust.company EQ job-hdr.company AND
+                        cust.cust-no EQ job-hdr.cust-no
+                        NO-LOCK.
 
-                                    RUN custom/combasis.p (cocode,
-                                        eb.sman,
-                                        cust.type,
-                                        eb.procat,
-                                        0,
-                                        cust.cust-no,
-                                        OUTPUT v-basis).
+                   RUN custom/combasis.p (cocode,
+                                          eb.sman,
+                                          cust.type,
+                                          eb.procat,
+                                          0,
+                                          cust.cust-no,
+                                          OUTPUT v-basis).
                 
-                                    IF cust.markup NE 0 THEN
-                                        v-pct-2 = cust.markup.
+                   IF cust.markup NE 0 THEN
+                      v-pct-2 = cust.markup.
                 
-                                    IF NOT cecomm-log THEN
-                                        v-probe-comm = 0.
+                   IF NOT cecomm-log THEN
+                      v-probe-comm = 0.
                 
-                                    IF ll-use-margin THEN                 /* Get Margin% */
-                                        RUN est/getsmanmtrx.p (ROWID(xest), "M",
-                                            INPUT-OUTPUT v-probe-comm,
-                                            INPUT-OUTPUT v-mp).
+                   IF ll-use-margin THEN                 /* Get Margin% */
+                      RUN est/getsmanmtrx.p (ROWID(xest), "M",
+                                             INPUT-OUTPUT v-probe-comm,
+                                             INPUT-OUTPUT v-mp).
                 
-                                    RUN custom/markup.p (ROWID(xeb),
+                   RUN custom/markup.p (ROWID(xeb),
                                         INPUT-OUTPUT lv-sell-by,
                                         INPUT-OUTPUT v-pct-2).
                 
-                                    IF ll-use-margin THEN
-                                        v-pct-2 = v-mp.
+                   IF ll-use-margin THEN
+                      v-pct-2 = v-mp.
                 
-                                    v-qty-2 = IF eb.yrprice THEN blk.qyld ELSE blk.qreq.
+                   v-qty-2 = IF eb.yrprice THEN blk.qyld ELSE blk.qreq.
                 
-                                    IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 
-                                    DO:
-                                        ASSIGN
-                                            v-board-cst = 0
-                                            t-blkqty    = 0.
+                   IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN DO:
+                      ASSIGN
+                         v-board-cst = 0
+                         t-blkqty = 0.
 
-                                        FOR EACH b-eb2 FIELDS(form-no yrprice yld-qty bl-qty) NO-LOCK WHERE
-                                            b-eb2.company EQ xest.company AND
-                                            b-eb2.est-no  EQ xest.est-no AND
-                                            b-eb2.form-no EQ job-hdr.frm:
-                                            /* set total # of blanks on all forms */
+                      FOR EACH b-eb2 fields(form-no yrprice yld-qty bl-qty) NO-LOCK WHERE
+                          b-eb2.company EQ xest.company AND
+                          b-eb2.est-no  EQ xest.est-no AND
+                          b-eb2.form-no EQ job-hdr.frm:
+                          /* set total # of blanks on all forms */
                 
-                                            t-blkqty[b-eb2.form-no] = t-blkqty[b-eb2.form-no] +
-                                                IF b-eb2.yrprice THEN b-eb2.yld-qty ELSE b-eb2.bl-qty.
-                                        END.
+                          t-blkqty[b-eb2.form-no] = t-blkqty[b-eb2.form-no] +
+                                                    if b-eb2.yrprice THEN b-eb2.yld-qty ELSE b-eb2.bl-qty.
+                      END.
                 
-                                        FOR EACH b-blk WHERE b-blk.id EQ xeb.part-no,
-                                            FIRST b-ef2 NO-LOCK
-                                            WHERE b-ef2.company EQ xest.company
-                                            AND b-ef2.est-no  EQ xest.est-no
-                                            AND b-ef2.form-no EQ b-blk.snum,
-                                            EACH brd WHERE brd.form-no EQ b-ef2.form-no:
+                      FOR EACH b-blk WHERE b-blk.id EQ xeb.part-no,
+                          FIRST b-ef2 NO-LOCK
+                          WHERE b-ef2.company EQ xest.company
+                            AND b-ef2.est-no  EQ xest.est-no
+                            AND b-ef2.form-no EQ b-blk.snum,
+                          EACH brd WHERE brd.form-no EQ b-ef2.form-no:
                      
-                                            v-board-cst = v-board-cst + (brd.cost-m * b-blk.pct * (t-blkqty[b-ef2.form-no] / 1000)).
-                                        END.
+                          v-board-cst = v-board-cst + (brd.cost-m * b-blk.pct * (t-blkqty[b-ef2.form-no] / 1000)).
+                      END.
                      
-                                        v-board-cst = v-board-cst / (v-qty-2 / 1000).
-                                    END.
+                      v-board-cst = v-board-cst / (v-qty-2 / 1000).
+                   END.
                 
-                                    RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
-                                        lv-sell-by,
-                                        v-basis,
-                                        (IF lv-sell-by-ce-ctrl NE "B" AND
-                                        lv-sell-by EQ "B" THEN v-board-cst
-                                        ELSE blk.fact / (v-qty-2 / 1000)),
-                                        (IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 0
-                                        ELSE (blk.cost / (v-qty-2 / 1000)) - (blk.fact / (v-qty-2 / 1000))),
-                                        (IF ll-use-margin OR
-                                        (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN 0
-                                        ELSE v-comm-2),
-                                        v-pct-2,
-                                        OUTPUT v-sell-price,
-                                        OUTPUT v-comm-2).
-                                    IF ll-use-margin OR
-                                        (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN
-                                        v-comm-2 = v-sell-price * v-probe-comm / 100.
-                                END.
-                                ELSE
-                                    v-comm-2 = 0.
-
-                                ASSIGN
-                                    v-tot-comm-2 = v-tot-comm-2 + v-comm-2
-                                    v-blk-qty    = v-blk-qty + blk.qyld.
-                                oe-ordl.cost = oe-ordl.cost + blk.cost.
-                            END. /*end blk*/
-            
-                            oe-ordl.cost = (oe-ordl.cost / (v-blk-qty / 1000)) + v-tot-comm-2.
-
-                        END.
-
-                        ELSE
-                            oe-ordl.cost = blk.cost -
-                                (((blk.fg-wt / 100) * blk.fg-wt$)
-                                * (blk.qyld / xest.est-qty[1])).
-                    END.
-
-                    ELSE oe-ordl.cost = tt-tot / (job-hdr.qty / 1000).
+                   RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
+                                          lv-sell-by,
+                                          v-basis,
+                                          (IF lv-sell-by-ce-ctrl NE "B" AND
+                                              lv-sell-by EQ "B" THEN v-board-cst
+                                           ELSE blk.fact / (v-qty-2 / 1000)),
+                                          (IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 0
+                                           ELSE (blk.cost / (v-qty-2 / 1000)) - (blk.fact / (v-qty-2 / 1000))),
+                                          (IF ll-use-margin OR
+                                              (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN 0
+                                           ELSE v-comm-2),
+                                          v-pct-2,
+                                          OUTPUT v-sell-price,
+                                          OUTPUT v-comm-2).
+                   IF ll-use-margin OR
+                      (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN
+                      v-comm-2 = v-sell-price * v-probe-comm / 100.
                 END.
+                ELSE
+                   v-comm-2 = 0.
 
-                ELSE oe-ordl.cost = job-hdr.std-tot-cost.
+                ASSIGN
+                 v-tot-comm-2 = v-tot-comm-2 + v-comm-2
+                 v-blk-qty    = v-blk-qty + blk.qyld.
+                 oe-ordl.cost = oe-ordl.cost + blk.cost.
+              END. /*end blk*/
+            
+              oe-ordl.cost = (oe-ordl.cost / (v-blk-qty / 1000)) + v-tot-comm-2.
 
-                RUN oe/calcordt.p (ROWID(oe-ord)).
             END.
+
+            ELSE
+              oe-ordl.cost = blk.cost -
+                             (((blk.fg-wt / 100) * blk.fg-wt$)
+                                * (blk.qyld / xest.est-qty[1])).
+          END.
+
+          ELSE oe-ordl.cost = tt-tot / (job-hdr.qty / 1000).
         END.
+
+        ELSE oe-ordl.cost = job-hdr.std-tot-cost.
+
+        RUN oe/calcordt.p (ROWID(oe-ord)).
+      END.
+    END.
+  END.
+
+  RUN util/jobsqin2.p (RECID(job)).
+
+  IF nufile THEN DO:
+    EMPTY TEMP-TABLE tt-job-mat.
+    EMPTY TEMP-TABLE tt-job-mch.
+
+    FOR EACH job-mat NO-LOCK
+        WHERE job-mat.company EQ cocode
+          AND job-mat.job     EQ job.job
+          AND job-mat.job-no  EQ job.job-no
+          AND job-mat.job-no2 EQ job.job-no2:
+      CREATE tt-job-mat.
+      BUFFER-COPY job-mat EXCEPT rec_key TO tt-job-mat.
     END.
 
-    RUN util/jobsqin2.p (RECID(job)).
+    FOR EACH job-mch NO-LOCK
+        WHERE job-mch.company EQ job.company
+          AND job-mch.job     EQ job.job
+          AND job-mch.job-no  EQ job.job-no
+          AND job-mch.job-no2 EQ job.job-no2:
+      CREATE tt-job-mch.
+      BUFFER-COPY job-mch EXCEPT rec_key TO tt-job-mch.
+    END.
 
-    IF nufile THEN 
-    DO:
-        EMPTY TEMP-TABLE tt-job-mat.
-        EMPTY TEMP-TABLE tt-job-mch.
+    RUN jc/delkids.p (ROWID(job), NO).
 
-        FOR EACH job-mat NO-LOCK
-            WHERE job-mat.company EQ cocode
-            AND job-mat.job     EQ job.job
-            AND job-mat.job-no  EQ job.job-no
-            AND job-mat.job-no2 EQ job.job-no2:
-            CREATE tt-job-mat.
-            BUFFER-COPY job-mat EXCEPT rec_key TO tt-job-mat.
-        END.
+    x = 0.
 
-        FOR EACH job-mch NO-LOCK
-            WHERE job-mch.company EQ job.company
-            AND job-mch.job     EQ job.job
-            AND job-mch.job-no  EQ job.job-no
-            AND job-mch.job-no2 EQ job.job-no2:
-            CREATE tt-job-mch.
-            BUFFER-COPY job-mch EXCEPT rec_key TO tt-job-mch.
-        END.
+    FOR EACH xprep
+        WHERE xprep.ml EQ YES
+          AND (CAN-DO("I,M",xprep.simon) OR
+               (ll-sep-prep AND xprep.simon EQ "S")),
+        FIRST item NO-LOCK
+        WHERE item.company EQ cocode
+          AND item.i-no    EQ xprep.code
+          AND CAN-DO("7,8,M,X,Y",item.mat-type):
 
-        RUN jc/delkids.p (ROWID(job), NO).
-
-        x = 0.
-
-        FOR EACH xprep
-            WHERE xprep.ml EQ YES
-            AND (CAN-DO("I,M",xprep.simon) OR
-            (ll-sep-prep AND xprep.simon EQ "S")),
-            FIRST item NO-LOCK
-            WHERE item.company EQ cocode
-            AND item.i-no    EQ xprep.code
-            AND CAN-DO("7,8,M,X,Y",item.mat-type):
-
-            CREATE brd.
-            ASSIGN
-                brd.form-no  = xprep.frm
-                brd.blank-no = xprep.blank-no
-                brd.i-no     = xprep.code
-                brd.cost     = xprep.std-cost
-                brd.cost-m   = xprep.cost-m
-                brd.qty-uom  = "EA"
-                brd.sc-uom   = "EA"
-                brd.qty      = xprep.qty.
+      CREATE brd.
+      ASSIGN
+       brd.form-no  = xprep.frm
+       brd.blank-no = xprep.blank-no
+       brd.i-no     = xprep.code
+       brd.cost     = xprep.std-cost
+       brd.cost-m   = xprep.cost-m
+       brd.qty-uom  = "EA"
+       brd.sc-uom   = "EA"
+       brd.qty      = xprep.qty.
   
-            FIND FIRST prep NO-LOCK
-                WHERE prep.company EQ cocode
-                AND prep.code    EQ xprep.code
-                NO-ERROR.
-            IF AVAILABLE prep THEN
-                ASSIGN
-                    brd.qty-uom = prep.uom
-                    brd.sc-uom  = prep.uom.
+      FIND FIRST prep NO-LOCK
+          WHERE prep.company EQ cocode
+            AND prep.code    EQ xprep.code
+          NO-ERROR.
+      IF AVAIL prep THEN
+        ASSIGN
+         brd.qty-uom = prep.uom
+         brd.sc-uom  = prep.uom.
 
-            DELETE xprep.
+      DELETE xprep.
+    END.
+
+    FOR EACH brd WHERE brd.i-no NE "":
+      IF brd.cost EQ ? THEN brd.cost = 0.
+      IF brd.cost-m EQ ? THEN brd.cost-m = 0.
+      IF brd.qty EQ ? THEN brd.qty = 0.
+
+      FIND FIRST item NO-LOCK
+          WHERE item.company EQ cocode
+            AND item.i-no    EQ brd.i-no.
+      v-up = 1.
+      IF CAN-DO("1,2,3,4,B,P,R",item.mat-type) THEN
+        RUN sys/inc/numup.p (job.company,job.est-no, brd.form-no, OUTPUT v-up).
+      v-out = 1.
+
+      FIND FIRST ef NO-LOCK
+          WHERE ef.company EQ job.company
+            AND ef.est-no  EQ job.est-no
+            AND ef.form-no EQ brd.form-no
+          NO-ERROR.
+      IF AVAIL ef THEN RUN est/ef-#out.p (ROWID(ef), OUTPUT v-out).
+
+      type-mat = item.mat-type.
+
+      IF type-mat EQ "B" AND item.i-code NE "R" THEN type-mat = "".
+
+      IF CAN-DO("5,6",type-mat) THEN type-mat = "C".
+
+      z = LOOKUP(type-mat,type-chk).
+
+      IF CAN-DO("1,2,3,4,B,P,R",item.mat-type) THEN
+      FOR EACH job-mat
+          WHERE job-mat.company  EQ job.company
+            AND job-mat.job      EQ job.job
+            AND job-mat.job-no   EQ job.job-no
+            AND job-mat.job-no2  EQ job.job-no2
+            AND job-mat.frm      EQ brd.form-no
+            AND job-mat.blank-no EQ brd.blank-no
+            AND job-mat.i-no     NE brd.i-no
+            AND job-mat.qty-all  GT 0
+            AND job-mat.all-flg  EQ YES
+            AND CAN-FIND(FIRST x-item
+                         WHERE x-item.company  EQ job-mat.company
+                           AND x-item.i-no     EQ job-mat.i-no
+                           AND x-item.mat-type EQ item.mat-type)
+          USE-INDEX job:
+
+        ASSIGN
+         brd.qty = brd.qty * v-up * v-out
+         brd.qty = brd.qty - (job-mat.qty * job-mat.n-up)
+         brd.qty = brd.qty / (v-up * v-out).
+      END.
+
+      IF brd.qty GT 0 THEN DO:
+        FIND FIRST job-mat
+            WHERE job-mat.company  EQ job.company
+              AND job-mat.job      EQ job.job
+              AND job-mat.job-no   EQ job.job-no
+              AND job-mat.job-no2  EQ job.job-no2
+              AND job-mat.frm      EQ brd.form-no
+              AND job-mat.blank-no EQ brd.blank-no
+              AND job-mat.i-no     EQ brd.i-no
+              AND job-mat.rm-i-no  EQ brd.i-no
+              /*AND job-mat.len      EQ brd.len
+              AND job-mat.wid      EQ brd.wid*/
+            USE-INDEX i-no NO-ERROR.
+
+        IF NOT AVAIL job-mat THEN DO:
+          x = 0.
+          FOR EACH job-mat NO-LOCK
+              WHERE job-mat.company EQ job.company
+                AND job-mat.job     EQ job.job
+                AND job-mat.job-no  EQ job.job-no
+                AND job-mat.job-no2 EQ job.job-no2
+              USE-INDEX job
+              BY job-mat.line DESC:
+
+            x = job-mat.line.
+            LEAVE.
+          END.
+
+          CREATE job-mat.
+
+          ASSIGN job-mat.company  = cocode
+                 job-mat.job      = job.job
+                 job-mat.job-no   = job.job-no
+                 job-mat.job-no2  = job.job-no2
+                 job-mat.line     = x + 1
+                 job-mat.blank-no = brd.blank-no
+                 job-mat.frm      = brd.form-no
+                 job-mat.i-no     = brd.i-no
+                 job-mat.rm-i-no  = brd.i-no.
         END.
 
-        FOR EACH brd WHERE brd.i-no NE "":
-            IF brd.cost EQ ? THEN brd.cost = 0.
-            IF brd.cost-m EQ ? THEN brd.cost-m = 0.
-            IF brd.qty EQ ? THEN brd.qty = 0.
+        IF job-mat.qty-all LT 0 THEN job-mat.qty-all = 0.
 
-            FIND FIRST item NO-LOCK
-                WHERE item.company EQ cocode
-                AND item.i-no    EQ brd.i-no.
-            v-up = 1.
-            IF CAN-DO("1,2,3,4,B,P,R",item.mat-type) THEN
-                RUN sys/inc/numup.p (job.company,job.est-no, brd.form-no, OUTPUT v-up).
-            v-out = 1.
+        ASSIGN
+         job-mat.len      = brd.len
+         job-mat.wid      = brd.wid
+         job-mat.cost-m   = brd.cost-m
+         job-mat.basis-w  = brd.basis-w
+         job-mat.n-up     = v-up * v-out
+         job-mat.qty-mr   = brd.qty-mr
+         job-mat.qty-wst  = brd.qty-wst
+         job-mat.qty-uom  = brd.qty-uom
+         job-mat.sc-uom   = brd.sc-uom
+         job-mat.std-cost = brd.cost
+         job-mat.qty      = brd.qty.
 
-            FIND FIRST ef NO-LOCK
-                WHERE ef.company EQ job.company
-                AND ef.est-no  EQ job.est-no
-                AND ef.form-no EQ brd.form-no
-                NO-ERROR.
-            IF AVAILABLE ef THEN RUN est/ef-#out.p (ROWID(ef), OUTPUT v-out).
+        IF job-mat.qty-all EQ 0 OR
+           NOT job-mat.all-flg  THEN
+          job-mat.qty-all = brd.qty - job-mat.qty-iss.
 
-            type-mat = item.mat-type.
+        ELSE
+        IF job-mat.qty-all NE brd.qty AND NOT ll-all-warn THEN DO:
+          MESSAGE "Allocated material must be manually updated by Planner..."
+              VIEW-AS ALERT-BOX WARNING.
+          ll-all-warn = YES.
+        END.
 
-            IF type-mat EQ "B" AND item.i-code NE "R" THEN type-mat = "".
+        job-mat.post = (z GT 0 AND jc-ctrl.post[z]) OR CAN-DO("J",type-mat).
 
-            IF CAN-DO("5,6",type-mat) THEN type-mat = "C".
+        IF ll-use-netsht AND CAN-DO("1,2,3,4,B,P,R",item.mat-type) THEN DO:
+          v-blk-qty = 0.
+          FOR EACH job-hdr
+              WHERE job-hdr.company  EQ job-mat.company
+                AND job-hdr.job      EQ job-mat.job
+                AND job-hdr.job-no   EQ job-mat.job-no
+                AND job-hdr.job-no2  EQ job-mat.job-no2
+                AND (job-hdr.frm     EQ job-mat.frm OR
+                     xest.est-type   EQ 2           OR
+                     xest.est-type   EQ 6)
+              USE-INDEX job NO-LOCK:
 
-            z = LOOKUP(type-mat,type-chk).
-
-            IF CAN-DO("1,2,3,4,B,P,R",item.mat-type) THEN
-                FOR EACH job-mat
-                    WHERE job-mat.company  EQ job.company
-                    AND job-mat.job      EQ job.job
-                    AND job-mat.job-no   EQ job.job-no
-                    AND job-mat.job-no2  EQ job.job-no2
-                    AND job-mat.frm      EQ brd.form-no
-                    AND job-mat.blank-no EQ brd.blank-no
-                    AND job-mat.i-no     NE brd.i-no
-                    AND job-mat.qty-all  GT 0
-                    AND job-mat.all-flg  EQ YES
-                    AND CAN-FIND(FIRST x-item
-                    WHERE x-item.company  EQ job-mat.company
-                    AND x-item.i-no     EQ job-mat.i-no
-                    AND x-item.mat-type EQ item.mat-type)
-                    USE-INDEX job:
-
-                    ASSIGN
-                        brd.qty = brd.qty * v-up * v-out
-                        brd.qty = brd.qty - (job-mat.qty * job-mat.n-up)
-                        brd.qty = brd.qty / (v-up * v-out).
-                END.
-
-            IF brd.qty GT 0 THEN 
-            DO:
-                FIND FIRST job-mat
-                    WHERE job-mat.company  EQ job.company
-                    AND job-mat.job      EQ job.job
-                    AND job-mat.job-no   EQ job.job-no
-                    AND job-mat.job-no2  EQ job.job-no2
-                    AND job-mat.frm      EQ brd.form-no
-                    AND job-mat.blank-no EQ brd.blank-no
-                    AND job-mat.i-no     EQ brd.i-no
-                    AND job-mat.rm-i-no  EQ brd.i-no
-                    /*AND job-mat.len      EQ brd.len
-                    AND job-mat.wid      EQ brd.wid*/
-                    USE-INDEX i-no NO-ERROR.
-
-                IF NOT AVAILABLE job-mat THEN 
-                DO:
-                    x = 0.
-                    FOR EACH job-mat NO-LOCK
-                        WHERE job-mat.company EQ job.company
-                        AND job-mat.job     EQ job.job
-                        AND job-mat.job-no  EQ job.job-no
-                        AND job-mat.job-no2 EQ job.job-no2
-                        USE-INDEX job
-                        BY job-mat.line DESCENDING:
-
-                        x = job-mat.line.
-                        LEAVE.
-                    END.
-
-                    CREATE job-mat.
-
-                    ASSIGN 
-                        job-mat.company  = cocode
-                        job-mat.job      = job.job
-                        job-mat.job-no   = job.job-no
-                        job-mat.job-no2  = job.job-no2
-                        job-mat.line     = x + 1
-                        job-mat.blank-no = brd.blank-no
-                        job-mat.frm      = brd.form-no
-                        job-mat.i-no     = brd.i-no
-                        job-mat.rm-i-no  = brd.i-no.
-                END.
-
-                IF job-mat.qty-all LT 0 THEN job-mat.qty-all = 0.
-
-                ASSIGN
-                    job-mat.len      = brd.len
-                    job-mat.wid      = brd.wid
-                    job-mat.cost-m   = brd.cost-m
-                    job-mat.basis-w  = brd.basis-w
-                    job-mat.n-up     = v-up * v-out
-                    job-mat.qty-mr   = brd.qty-mr
-                    job-mat.qty-wst  = brd.qty-wst
-                    job-mat.qty-uom  = brd.qty-uom
-                    job-mat.sc-uom   = brd.sc-uom
-                    job-mat.std-cost = brd.cost
-                    job-mat.qty      = brd.qty.
-
-                IF job-mat.qty-all EQ 0 OR
-                    NOT job-mat.all-flg  THEN
-                    job-mat.qty-all = brd.qty - job-mat.qty-iss.
-
-                ELSE
-                    IF job-mat.qty-all NE brd.qty AND NOT ll-all-warn THEN 
-                    DO:
-                        MESSAGE "Allocated material must be manually updated by Planner..."
-                            VIEW-AS ALERT-BOX WARNING.
-                        ll-all-warn = YES.
-                    END.
-
-                job-mat.post = (z GT 0 AND jc-ctrl.post[z]) OR CAN-DO("J",type-mat).
-
-                IF ll-use-netsht AND CAN-DO("1,2,3,4,B,P,R",item.mat-type) THEN 
-                DO:
-                    v-blk-qty = 0.
-                    FOR EACH job-hdr
-                        WHERE job-hdr.company  EQ job-mat.company
-                        AND job-hdr.job      EQ job-mat.job
-                        AND job-hdr.job-no   EQ job-mat.job-no
-                        AND job-hdr.job-no2  EQ job-mat.job-no2
-                        AND (job-hdr.frm     EQ job-mat.frm OR
-                        xest.est-type   EQ 2           OR
-                        xest.est-type   EQ 6)
-                        USE-INDEX job NO-LOCK:
-
-                        IF xest.est-type EQ 2 OR xest.est-type EQ 6 THEN
-                            FOR EACH eb
-                                WHERE eb.company EQ job.company
-                                AND eb.est-no  EQ job.est-no
-                                AND eb.form-no EQ job-mat.frm
-                                USE-INDEX est-no NO-LOCK
-                                BY job-hdr.qty *
-                                (IF eb.est-type EQ 2 THEN
-                                IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
-                                ELSE
-                                IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty) /
-                                eb.num-up DESCENDING:
-                                v-blk-qty = (job-hdr.qty *
-                                    (IF eb.est-type EQ 2 THEN
-                                    IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
-                                    ELSE
-                                    IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty) /
-                                    (eb.num-up * v-out)).
-                                LEAVE.
-                            END.
-                        ELSE v-blk-qty = v-blk-qty + (job-hdr.qty / job-mat.n-up).
-                    END.
-                    IF v-blk-qty NE 0 THEN job-mat.qty = v-blk-qty.
-                END.
-
-                IF job-mat.qty-uom EQ "EA" THEN 
-                DO:
-                {sys/inc/roundup.i job-mat.qty}
-                END.
-
-                IF job-mat.qty-all EQ 0 OR
-                    NOT job-mat.all-flg  THEN
-                    job-mat.qty-all = job-mat.qty - job-mat.qty-iss.
-
-                ELSE
-                    IF job-mat.qty-all NE brd.qty AND NOT ll-all-warn THEN 
-                    DO:
-                        MESSAGE "Allocated material must be manually updated by Planner..."
-                            VIEW-AS ALERT-BOX WARNING.
-                        ll-all-warn = YES.
-                    END.
+            IF xest.est-type EQ 2 OR xest.est-type EQ 6 THEN
+            FOR EACH eb
+                WHERE eb.company EQ job.company
+                  AND eb.est-no  EQ job.est-no
+                  AND eb.form-no EQ job-mat.frm
+                USE-INDEX est-no NO-LOCK
+                BY job-hdr.qty *
+                   (IF eb.est-type EQ 2 THEN
+                      IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
+                    ELSE
+                    IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty) /
+                    eb.num-up DESC:
+              v-blk-qty = (job-hdr.qty *
+                           (IF eb.est-type EQ 2 THEN
+                              IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
+                            ELSE
+                            IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty) /
+                            (eb.num-up * v-out)).
+              LEAVE.
             END.
+            ELSE v-blk-qty = v-blk-qty + (job-hdr.qty / job-mat.n-up).
+          END.
+          IF v-blk-qty NE 0 THEN job-mat.qty = v-blk-qty.
         END.
 
-        EMPTY TEMP-TABLE tt-job-mat.
+        IF job-mat.qty-uom EQ "EA" THEN DO:
+          {sys/inc/roundup.i job-mat.qty}
+        END.
 
-        FOR EACH op
-            WHERE op.m-code NE ""
-            AND NOT CAN-FIND(FIRST job-mch
-            WHERE job-mch.company   EQ job.company
-            AND job-mch.job       EQ job.job
-            AND job-mch.job-no    EQ job.job-no
-            AND job-mch.job-no2   EQ job.job-no2
-            AND job-mch.frm       EQ op.form-no
-            AND (job-mch.blank-no EQ op.blank-no OR
-            job-mch.blank-no EQ 0)
-            AND job-mch.dept      EQ op.dept
-            AND job-mch.pass      EQ op.pass):
+        IF job-mat.qty-all EQ 0 OR
+           NOT job-mat.all-flg  THEN
+          job-mat.qty-all = job-mat.qty - job-mat.qty-iss.
 
-            RUN sys/inc/numup.p (job.company, job.est-no, op.form-no, OUTPUT v-up).
-            v-out = 1.
-            FIND FIRST ef WHERE ef.company EQ job.company
-                AND ef.est-no  EQ job.est-no
-                AND ef.form-no EQ op.form-no
-                NO-LOCK NO-ERROR.
-            IF AVAILABLE ef THEN RUN est/ef-#out.p (ROWID(ef), OUTPUT v-out).
+        ELSE
+        IF job-mat.qty-all NE brd.qty AND NOT ll-all-warn THEN DO:
+          MESSAGE "Allocated material must be manually updated by Planner..."
+              VIEW-AS ALERT-BOX WARNING.
+          ll-all-warn = YES.
+        END.
+      END.
+    END.
 
-            FIND job-hdr NO-LOCK
-                WHERE job-hdr.company   EQ job.company
-                AND job-hdr.job       EQ job.job
-                AND job-hdr.job-no    EQ job.job-no
-                AND job-hdr.job-no2   EQ job.job-no2
-                AND job-hdr.frm       EQ op.form-no
-                AND (job-hdr.blank-no EQ op.blank-no OR op.blank-no EQ 0)
-                NO-ERROR.
+    EMPTY TEMP-TABLE tt-job-mat.
 
-            RELEASE itemfg.
-            IF AVAILABLE job-hdr THEN
-                FIND FIRST itemfg NO-LOCK
-                    WHERE itemfg.company EQ job-hdr.company
-                    AND itemfg.i-no    EQ job-hdr.i-no
-                    NO-ERROR.
+    FOR EACH op
+        WHERE op.m-code NE ""
+          AND NOT CAN-FIND(FIRST job-mch
+                           WHERE job-mch.company   EQ job.company
+                             AND job-mch.job       EQ job.job
+                             AND job-mch.job-no    EQ job.job-no
+                             AND job-mch.job-no2   EQ job.job-no2
+                             AND job-mch.frm       EQ op.form-no
+                             AND (job-mch.blank-no EQ op.blank-no OR
+                                  job-mch.blank-no EQ 0)
+                             AND job-mch.dept      EQ op.dept
+                             AND job-mch.pass      EQ op.pass):
 
-            FIND FIRST mach NO-LOCK 
-            {sys/ref/machW.i}
+      RUN sys/inc/numup.p (job.company, job.est-no, op.form-no, OUTPUT v-up).
+      v-out = 1.
+      FIND FIRST ef WHERE ef.company EQ job.company
+                      AND ef.est-no  EQ job.est-no
+                      AND ef.form-no EQ op.form-no
+                      NO-LOCK NO-ERROR.
+      IF AVAIL ef THEN RUN est/ef-#out.p (ROWID(ef), OUTPUT v-out).
+
+      FIND job-hdr NO-LOCK
+          WHERE job-hdr.company   EQ job.company
+            AND job-hdr.job       EQ job.job
+            AND job-hdr.job-no    EQ job.job-no
+            AND job-hdr.job-no2   EQ job.job-no2
+            AND job-hdr.frm       EQ op.form-no
+            AND (job-hdr.blank-no EQ op.blank-no or op.blank-no EQ 0)
+          NO-ERROR.
+
+      RELEASE itemfg.
+      IF AVAIL job-hdr THEN
+      FIND FIRST itemfg NO-LOCK
+          WHERE itemfg.company EQ job-hdr.company
+            AND itemfg.i-no    EQ job-hdr.i-no
+          NO-ERROR.
+
+      FIND FIRST mach NO-LOCK 
+          {sys/ref/machW.i}
             AND mach.m-code EQ op.m-code.
 
-            v-on-f = 1.
+      v-on-f = 1.
 
-            FIND FIRST est-op NO-LOCK
-                WHERE est-op.company EQ cocode
-                AND est-op.est-no  EQ job.est-no
-                AND est-op.line    EQ op.line
-                NO-ERROR.
+      FIND FIRST est-op NO-LOCK
+          WHERE est-op.company EQ cocode
+            AND est-op.est-no  EQ job.est-no
+            AND est-op.line    EQ op.line
+          NO-ERROR.
 
-            IF NOT AVAILABLE est-op THEN
-                FIND FIRST est-op NO-LOCK
-                    WHERE est-op.company EQ cocode
-                    AND est-op.est-no  EQ job.est-no
-                    AND est-op.line    EQ op.line + 500
-                    NO-ERROR.
+      IF NOT AVAIL est-op THEN
+      FIND FIRST est-op NO-LOCK
+          WHERE est-op.company EQ cocode
+            AND est-op.est-no  EQ job.est-no
+            AND est-op.line    EQ op.line + 500
+          NO-ERROR.
 
-            IF AVAILABLE est-op THEN
-                RUN sys/inc/numout.p (RECID(est-op), OUTPUT v-on-f).
+      IF AVAIL est-op THEN
+        RUN sys/inc/numout.p (RECID(est-op), OUTPUT v-on-f).
 
-            CREATE job-mch.
+      CREATE job-mch.
 
-            ASSIGN
-                job-mch.company  = cocode
-                job-mch.blank-no = IF (mach.p-type EQ "B" OR
+      ASSIGN
+       job-mch.company  = cocode
+       job-mch.blank-no = IF (mach.p-type EQ "B" OR
                               (xest.est-type EQ 3 AND op.dept EQ "PR"))
                           THEN op.blank-no ELSE 0
-                job-mch.job      = job.job
-                job-mch.job-no   = job.job-no
-                job-mch.job-no2  = job.job-no2
-                job-mch.dept     = op.dept
-                job-mch.frm      = op.form-no
-                job-mch.i-no     = IF AVAIL itemfg THEN itemfg.i-no ELSE op.i-no
-                job-mch.i-name   = IF AVAIL itemfg THEN itemfg.i-name ELSE op.i-name
-                job-mch.line     = op.line
-                job-mch.m-code   = op.m-code
-                job-mch.mr-fixoh = op.mr-fixoh
-                job-mch.mr-hr    = op.mr-hr
-                job-mch.mr-rate  = op.mr-rate
-                job-mch.mr-varoh = op.mr-varoh
-                job-mch.mr-waste = op.mr-waste
-                job-mch.pass     = op.pass
-                job-mch.run-hr   = op.run-hr
-                job-mch.run-fixoh = op.run-fixoh
-                job-mch.run-rate  = op.run-rate
-                job-mch.run-varoh = op.run-varoh
-                job-mch.speed    = op.speed
-                job-mch.wst-prct = op.wst-prct
-                job-mch.lag-time = mach.daily-prod-hours
-                job-mch.start-date = job.start-date
-                job-mch.run-qty  = op.run-qty
-                job-mch.n-out    = IF AVAIL est-op AND est-op.n-out NE 0 THEN est-op.n-out ELSE 1
-                job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
-                                    (v-up * v-out / v-on-f).
+       job-mch.job      = job.job
+       job-mch.job-no   = job.job-no
+       job-mch.job-no2  = job.job-no2
+       job-mch.dept     = op.dept
+       job-mch.frm      = op.form-no
+       job-mch.i-no     = IF AVAIL itemfg THEN itemfg.i-no ELSE op.i-no
+       job-mch.i-name   = IF AVAIL itemfg THEN itemfg.i-name ELSE op.i-name
+       job-mch.line     = op.line
+       job-mch.m-code   = op.m-code
+       job-mch.mr-fixoh = op.mr-fixoh
+       job-mch.mr-hr    = op.mr-hr
+       job-mch.mr-rate  = op.mr-rate
+       job-mch.mr-varoh = op.mr-varoh
+       job-mch.mr-waste = op.mr-waste
+       job-mch.pass     = op.pass
+       job-mch.run-hr   = op.run-hr
+       job-mch.speed    = op.speed
+       job-mch.wst-prct = op.wst-prct
+       job-mch.lag-time = mach.daily-prod-hours
+       job-mch.start-date = job.start-date
+       job-mch.run-qty  = op.run-qty
+       job-mch.n-out    = IF AVAIL est-op AND est-op.n-out NE 0 THEN est-op.n-out ELSE 1
+       job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
+                            (v-up * v-out / v-on-f).
 
-            FIND FIRST tt-job-mch
-                WHERE tt-job-mch.company  EQ job-mch.company
-                AND tt-job-mch.job      EQ job-mch.job
-                AND tt-job-mch.job-no   EQ job-mch.job-no
-                AND tt-job-mch.job-no2  EQ job-mch.job-no2
-                AND tt-job-mch.frm      EQ job-mch.frm
-                AND tt-job-mch.blank-no EQ job-mch.blank-no
-                AND tt-job-mch.m-code   EQ job-mch.m-code
-                AND tt-job-mch.pass     EQ job-mch.pass
-                NO-LOCK NO-ERROR.
-            IF AVAILABLE tt-job-mch THEN
-                ASSIGN
-                    job-mch.start-date    = tt-job-mch.start-date
-                    job-mch.start-date-su = tt-job-mch.start-date-su
-                    job-mch.end-date      = tt-job-mch.end-date
-                    job-mch.end-date-su   = tt-job-mch.end-date-su
-                    job-mch.mr-complete   = tt-job-mch.mr-complete
-                    job-mch.run-complete  = tt-job-mch.run-complete.
-        END.
-
-        EMPTY TEMP-TABLE tt-job-mch.
-
-        z = 0.
-        FOR EACH job-mch WHERE job-mch.company EQ job.company
-            AND job-mch.job     EQ job.job
-            AND job-mch.job-no  EQ job.job-no
-            AND job-mch.job-no2 EQ job.job-no2 EXCLUSIVE
-                       BY job-mch.frm BY job-mch.line:
-            z = z + 1.  
-            job-mch.line = z.
-        END.
-
-        FOR EACH xprep
-            WHERE CAN-DO("I,M",xprep.simon) OR
-            (ll-sep-prep AND xprep.simon EQ "S"):        
-   
-            CREATE job-prep.
-            ASSIGN
-                job-prep.company  = cocode
-                job-prep.job      = job.job
-                job-prep.job-no   = job.job-no
-                job-prep.job-no2  = job.job-no2
-                job-prep.frm      = xprep.frm
-                job-prep.blank-no = xprep.blank-no
-                job-prep.code     = xprep.code
-                job-prep.ml       = xprep.ml
-                job-prep.std-cost = xprep.std-cost
-                job-prep.cost-m   = xprep.cost-m
-                job-prep.opn      = YES
-                job-prep.qty      = xprep.qty
-                job-prep.simon    = xprep.simon.
-  
-            FIND FIRST prep NO-LOCK
-                WHERE prep.company EQ cocode
-                AND prep.code    EQ xprep.code
-                NO-ERROR.
-            job-prep.sc-uom = IF AVAILABLE prep THEN prep.uom ELSE "EA".
-        END.
+      FIND FIRST tt-job-mch
+          WHERE tt-job-mch.company  EQ job-mch.company
+            AND tt-job-mch.job      EQ job-mch.job
+            AND tt-job-mch.job-no   EQ job-mch.job-no
+            AND tt-job-mch.job-no2  EQ job-mch.job-no2
+            AND tt-job-mch.frm      EQ job-mch.frm
+            AND tt-job-mch.blank-no EQ job-mch.blank-no
+            AND tt-job-mch.m-code   EQ job-mch.m-code
+            AND tt-job-mch.pass     EQ job-mch.pass
+          NO-LOCK NO-ERROR.
+      IF AVAIL tt-job-mch THEN
+        ASSIGN
+         job-mch.start-date    = tt-job-mch.start-date
+         job-mch.start-date-su = tt-job-mch.start-date-su
+         job-mch.end-date      = tt-job-mch.end-date
+         job-mch.end-date-su   = tt-job-mch.end-date-su
+         job-mch.mr-complete   = tt-job-mch.mr-complete
+         job-mch.run-complete  = tt-job-mch.run-complete.
     END.
 
-    /*run jc/kiwiexp2.p (recid(job)).*/
-    RUN jc/chkalloc.p (ROWID(job)).
+    EMPTY TEMP-TABLE tt-job-mch.
+
+    z = 0.
+    FOR EACH job-mch WHERE job-mch.company EQ job.company
+                       AND job-mch.job     EQ job.job
+                       AND job-mch.job-no  EQ job.job-no
+                       AND job-mch.job-no2 EQ job.job-no2 EXCLUSIVE
+                       BY job-mch.frm BY job-mch.line:
+      z = z + 1.  
+      job-mch.line = z.
+    END.
+
+    FOR EACH xprep
+        WHERE CAN-DO("I,M",xprep.simon) OR
+              (ll-sep-prep AND xprep.simon EQ "S"):        
+   
+      CREATE job-prep.
+      ASSIGN
+       job-prep.company  = cocode
+       job-prep.job      = job.job
+       job-prep.job-no   = job.job-no
+       job-prep.job-no2  = job.job-no2
+       job-prep.frm      = xprep.frm
+       job-prep.blank-no = xprep.blank-no
+       job-prep.code     = xprep.code
+       job-prep.ml       = xprep.ml
+       job-prep.std-cost = xprep.std-cost
+       job-prep.cost-m   = xprep.cost-m
+       job-prep.opn      = YES
+       job-prep.qty      = xprep.qty
+       job-prep.simon    = xprep.simon.
+  
+      FIND FIRST prep NO-LOCK
+          WHERE prep.company EQ cocode
+            AND prep.code    EQ xprep.code
+          NO-ERROR.
+      job-prep.sc-uom = IF AVAIL prep THEN prep.uom ELSE "EA".
+    END.
+  END.
+
+  /*run jc/kiwiexp2.p (recid(job)).*/
+  RUN jc/chkalloc.p (ROWID(job)).
 END. /* trans */
 
 /* Auto Job Ticket Print Mods   Task#09180401*/
-DEFINE VARIABLE v-jobcard AS cha NO-UNDO.
-DEFINE VARIABLE v-reprint AS LOG NO-UNDO.
+DEF VAR v-jobcard AS cha NO-UNDO.
+DEF VAR v-reprint AS LOG NO-UNDO.
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
 RELEASE oe-ord.
 
-IF nufile THEN 
-DO:
-    IF NOT oe-ctrl.p-fact THEN
-        FOR EACH job-hdr
-            WHERE job-hdr.company EQ job.company
-            AND job-hdr.job     EQ job.job
-            AND job-hdr.job-no  EQ job.job-no
-            AND job-hdr.job-no2 EQ job.job-no2
-            AND job-hdr.ord-no  NE 0
-            NO-LOCK,
-            FIRST oe-ord
-            WHERE oe-ord.company EQ job-hdr.company
-            AND oe-ord.ord-no  EQ job-hdr.ord-no
-            AND oe-ord.stat    EQ "H"
-            NO-LOCK:
-            LEAVE.
-        END.
+IF nufile THEN DO:
+  IF NOT oe-ctrl.p-fact THEN
+  FOR EACH job-hdr
+      WHERE job-hdr.company EQ job.company
+        AND job-hdr.job     EQ job.job
+        AND job-hdr.job-no  EQ job.job-no
+        AND job-hdr.job-no2 EQ job.job-no2
+        AND job-hdr.ord-no  NE 0
+      NO-LOCK,
+      FIRST oe-ord
+      WHERE oe-ord.company EQ job-hdr.company
+        AND oe-ord.ord-no  EQ job-hdr.ord-no
+        AND oe-ord.stat    EQ "H"
+      NO-LOCK:
+    LEAVE.
+  END.
 
-    IF NOT AVAILABLE oe-ord THEN 
-    DO:
-        FIND FIRST xest
-            WHERE xest.company     EQ cocode
-            AND xest.est-no      EQ job.est-no
-            AND TRIM(job.est-no) NE ""
-            NO-LOCK NO-ERROR.
-        v-jobcard = IF NOT AVAILABLE xest THEN "" ELSE
-            IF xest.est-type LE 4 THEN "JOBCARDF"
-            ELSE "JOBCARDC".
+  IF NOT AVAIL oe-ord THEN DO:
+    FIND FIRST xest
+        WHERE xest.company     EQ cocode
+          AND xest.est-no      EQ job.est-no
+          AND TRIM(job.est-no) NE ""
+        NO-LOCK NO-ERROR.
+    v-jobcard = IF NOT AVAIL xest THEN "" ELSE
+                IF xest.est-type LE 4 THEN "JOBCARDF"
+                                      ELSE "JOBCARDC".
 
-        IF v-jobcard NE "" THEN 
+    IF v-jobcard NE "" THEN DO:
+      FIND FIRST sys-ctrl
+          WHERE sys-ctrl.company EQ cocode
+            AND sys-ctrl.name    EQ v-jobcard
+          NO-LOCK NO-ERROR.  
+
+      IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN 
+      DO:
+        FIND FIRST b-print-job-hdr NO-LOCK
+             WHERE b-print-job-hdr.company EQ job.company
+               AND b-print-job-hdr.job     EQ job.job
+               AND b-print-job-hdr.job-no  EQ job.job-no
+               AND b-print-job-hdr.job-no2 EQ job.job-no2 NO-ERROR.
+
+        IF AVAIL b-print-job-hdr THEN
         DO:
-            FIND FIRST sys-ctrl
-                WHERE sys-ctrl.company EQ cocode
-                AND sys-ctrl.name    EQ v-jobcard
-                NO-LOCK NO-ERROR.  
-
-            IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN 
-            DO:
-                FIND FIRST b-print-job-hdr NO-LOCK
-                    WHERE b-print-job-hdr.company EQ job.company
-                    AND b-print-job-hdr.job     EQ job.job
-                    AND b-print-job-hdr.job-no  EQ job.job-no
-                    AND b-print-job-hdr.job-no2 EQ job.job-no2 NO-ERROR.
-
-                IF AVAILABLE b-print-job-hdr THEN
-                DO:
-                    v-reprint = b-print-job-hdr.ftick-prnt.
-                    RELEASE b-print-job-hdr.
-                END.
-
-                RUN custom/setUserPrint.p (job.company,'r-ticket.',
-                    'begin_job1,begin_job2,end_job1,end_job2,tb_reprint,fl-jobord',
-                    job.job-no + ',' + STRING(job.job-no2) + ',' +
-                    job.job-no + ',' + STRING(job.job-no2) + ',' +
-                    STRING(v-reprint)+ ',' +  "0" ). /* gdm - 07130906 */
-
-                RUN jcrep/r-ticket.w.
-            END.
+           v-reprint = b-print-job-hdr.ftick-prnt.
+           RELEASE b-print-job-hdr.
         END.
-    END. 
+
+        RUN custom/setUserPrint.p (job.company,'r-ticket.',
+                                   'begin_job1,begin_job2,end_job1,end_job2,tb_reprint,fl-jobord',
+                                   job.job-no + ',' + STRING(job.job-no2) + ',' +
+                                   job.job-no + ',' + STRING(job.job-no2) + ',' +
+                                   STRING(v-reprint)+ ',' +  "0" ). /* gdm - 07130906 */
+
+        RUN jcrep/r-ticket.w.
+      END.
+    END.
+  END. 
 END. 

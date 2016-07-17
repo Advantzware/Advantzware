@@ -110,9 +110,10 @@ DEFINE VARIABLE headervalue AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 15  NO-UNDO.
 
 DEFINE BUTTON Btn_Address 
-     IMAGE-UP FILE "images\idxup":U NO-FOCUS
-     LABEL "" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Address".
+     IMAGE-UP FILE "Graphics/32x32/address_book.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Address" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Addresses".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -176,6 +177,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 

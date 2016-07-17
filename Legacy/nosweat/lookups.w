@@ -59,11 +59,11 @@ DEFINE VARIABLE cDataFormat       AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-3 RECT-1 RECT-2 btnGetField ~
-svWhereStatement svOrderValues svAutoSet svSelectedSet btnUP svShowFields ~
-svOrderFields svAvailableSelections btnDown btnAdd btnRemove svFrameTitle ~
-svTopInclude svDefInclude svEndInclude svUIPrgmname svFont svHeightSize ~
-svWidthSize btnReset btnSave btnDelete btnCancel btnOK btnDescription 
+&Scoped-Define ENABLED-OBJECTS btnAdd btnDown btnRemove btnUP btnGetField ~
+RECT-3 RECT-1 RECT-2 svWhereStatement svOrderValues svAutoSet svSelectedSet ~
+svShowFields svOrderFields svAvailableSelections svFrameTitle svTopInclude ~
+svDefInclude svEndInclude svUIPrgmname svFont svHeightSize svWidthSize ~
+btnReset btnSave btnDelete btnCancel btnOK btnDescription 
 &Scoped-Define DISPLAYED-OBJECTS svLookupPrgm svLookupDB svLookupFile ~
 svReturnField svWhereStatement svOrderValues svAutoSet svSelectedSet ~
 svShowFields svOrderFields svAvailableSelections svFrameTitle svTopInclude ~
@@ -86,7 +86,7 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAdd 
-     IMAGE-UP FILE "images/pvback.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/pvback.bmp":U NO-FOCUS FLAT-BUTTON
      LABEL "&Add" 
      SIZE 6.6 BY 1.33
      FONT 4.
@@ -107,7 +107,7 @@ DEFINE BUTTON btnDescription
      FONT 4.
 
 DEFINE BUTTON btnDown 
-     IMAGE-UP FILE "images/down.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/down.bmp":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Do&wn" 
      SIZE 6.6 BY 1.33
      FONT 4.
@@ -123,7 +123,7 @@ DEFINE BUTTON btnOK AUTO-GO
      FONT 4.
 
 DEFINE BUTTON btnRemove 
-     IMAGE-UP FILE "images/pvforw.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/pvforw.bmp":U NO-FOCUS FLAT-BUTTON
      LABEL "Re&move" 
      SIZE 7.2 BY 1.33
      FONT 4.
@@ -139,7 +139,7 @@ DEFINE BUTTON btnSave
      BGCOLOR 8 FONT 4.
 
 DEFINE BUTTON btnUP 
-     IMAGE-UP FILE "images/up.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/up.bmp":U NO-FOCUS FLAT-BUTTON
      LABEL "Move &Up" 
      SIZE 6.6 BY 1.33
      FONT 4.
@@ -265,6 +265,14 @@ DEFINE VARIABLE svAutoSet AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnAdd AT ROW 13.62 COL 80 HELP
+          "Add Selected Item"
+     btnDown AT ROW 11.95 COL 80 HELP
+          "Move Selected Item Down"
+     btnRemove AT ROW 15.05 COL 80 HELP
+          "Remove Selected Item"
+     btnUP AT ROW 10.52 COL 80 HELP
+          "Move Selected Item Up"
      btnGetField AT ROW 1 COL 34.2 HELP
           "Get Database, Table, & Return Field"
      svLookupPrgm AT ROW 1.38 COL 12.6 COLON-ALIGNED
@@ -280,20 +288,12 @@ DEFINE FRAME DEFAULT-FRAME
           "Auto Set Order Values Indicator"
      svSelectedSet AT ROW 9.24 COL 14.6 HELP
           "Make Selection List Active" NO-LABEL
-     btnUP AT ROW 10.52 COL 80 HELP
-          "Move Selected Item Up"
      svShowFields AT ROW 10.57 COL 14.6 HELP
           "Select Show Field" NO-LABEL
      svOrderFields AT ROW 10.57 COL 46.8 HELP
           "Select Browser Order Field" NO-LABEL
      svAvailableSelections AT ROW 10.57 COL 111.2 HELP
           "Select Item to Add to Select List" NO-LABEL
-     btnDown AT ROW 11.95 COL 80 HELP
-          "Move Selected Item Down"
-     btnAdd AT ROW 13.62 COL 80 HELP
-          "Add Selected Item"
-     btnRemove AT ROW 15.05 COL 80 HELP
-          "Remove Selected Item"
      svFrameTitle AT ROW 16.57 COL 12.6 COLON-ALIGNED HELP
           "Enter Lookup Browser's Title (will also appear in prgrms)"
      svTopInclude AT ROW 18.24 COL 12.6 COLON-ALIGNED HELP
@@ -1025,12 +1025,11 @@ PROCEDURE enable_UI :
           svAvailableSelections svFrameTitle svTopInclude svDefInclude 
           svEndInclude svUIPrgmname svStatus svFont svHeightSize svWidthSize F1 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-3 RECT-1 RECT-2 btnGetField svWhereStatement svOrderValues 
-         svAutoSet svSelectedSet btnUP svShowFields svOrderFields 
-         svAvailableSelections btnDown btnAdd btnRemove svFrameTitle 
-         svTopInclude svDefInclude svEndInclude svUIPrgmname svFont 
-         svHeightSize svWidthSize btnReset btnSave btnDelete btnCancel btnOK 
-         btnDescription 
+  ENABLE btnAdd btnDown btnRemove btnUP btnGetField RECT-3 RECT-1 RECT-2 
+         svWhereStatement svOrderValues svAutoSet svSelectedSet svShowFields 
+         svOrderFields svAvailableSelections svFrameTitle svTopInclude 
+         svDefInclude svEndInclude svUIPrgmname svFont svHeightSize svWidthSize 
+         btnReset btnSave btnDelete btnCancel btnOK btnDescription 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

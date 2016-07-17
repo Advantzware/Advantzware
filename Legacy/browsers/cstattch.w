@@ -94,7 +94,7 @@ attach.creat-date attach.attach-file attach.est-no
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 btnRun browse-order ~
+&Scoped-Define ENABLED-OBJECTS btnRun Browser-Table RECT-4 browse-order ~
 auto_find Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
@@ -120,9 +120,10 @@ FUNCTION i-no-pos RETURNS LOGICAL
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnRun 
-     IMAGE-UP FILE "images/run.ico":U
-     LABEL "&Run" 
-     SIZE 7 BY 1.38.
+     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 7.8 BY 1.38 TOOLTIP "Run Program".
 
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 
@@ -171,9 +172,9 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnRun AT ROW 17.67 COL 84
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     btnRun AT ROW 17.67 COL 84
      browse-order AT ROW 17.91 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
      auto_find AT ROW 17.91 COL 101 COLON-ALIGNED HELP
@@ -241,7 +242,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -339,7 +340,7 @@ END.
 
 &Scoped-define SELF-NAME btnRun
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun B-table-Win
-ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
+ON CHOOSE OF btnRun IN FRAME F-Main
 DO:
   RUN call-attach.
 END.

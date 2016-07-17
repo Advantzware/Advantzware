@@ -42,12 +42,12 @@ CREATE WIDGET-POOL.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_Security Select_Font_Color ~
-Select_Menu_Bar Select_MF_Design 
+&Scoped-Define ENABLED-OBJECTS Select_Font_Color Select_Menu_Bar ~
+Select_MF_Design Select_Security 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -62,22 +62,26 @@ Select_Menu_Bar Select_MF_Design
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Font_Color 
-     IMAGE-UP FILE "images/setfont":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/window_font.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Font_Color" 
      SIZE 7.8 BY 1.81 TOOLTIP "Set Font and Colors".
 
 DEFINE BUTTON Select_Menu_Bar 
-     IMAGE-UP FILE "images/menu-u":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Menu_Bar" 
      SIZE 7.8 BY 1.81 TOOLTIP "Menu Bar".
 
 DEFINE BUTTON Select_MF_Design 
-     IMAGE-UP FILE "images/uib":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/compasses.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "MF_Design" 
      SIZE 7.8 BY 1.81 TOOLTIP "Misc Fields Design Screen".
 
 DEFINE BUTTON Select_Security 
-     IMAGE-UP FILE "images/dog":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/spy.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Security" 
      SIZE 7.8 BY 1.81 TOOLTIP "Security".
 
@@ -85,10 +89,10 @@ DEFINE BUTTON Select_Security
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Select_Security AT ROW 1 COL 1
      Select_Font_Color AT ROW 1 COL 9
      Select_Menu_Bar AT ROW 1 COL 17
      Select_MF_Design AT ROW 1 COL 25
+     Select_Security AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -144,7 +148,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.

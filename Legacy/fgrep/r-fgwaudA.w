@@ -65,7 +65,7 @@ DEF VAR ls-fax-file AS cha NO-UNDO.
 DEF VAR excel-header-var-1 AS CHAR NO-UNDO.
 DEF VAR excel-header-var-2 AS CHAR NO-UNDO.
 DEF VAR excel-header-var-3 AS CHAR NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 DEF TEMP-TABLE tt-random FIELD RandomNum AS INT.
 
 /* _UIB-CODE-BLOCK-END */
@@ -106,7 +106,7 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -480,8 +480,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -886,7 +886,7 @@ DO:
   END.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1422,7 +1422,10 @@ FOR EACH itemfg NO-LOCK WHERE itemfg.company = cocode
                           AND fg-set.part-no EQ itemfg.i-no))) :
 
   isItemofFirst = YES.
-  FOR EACH fg-bin NO-LOCK
+  FOR EACH ttCustList 
+          WHERE ttCustList.log-fld
+          NO-LOCK,
+    EACH fg-bin NO-LOCK
     WHERE fg-bin.company   EQ itemfg.company
       AND fg-bin.i-no      EQ itemfg.i-no
       AND STRING(FILL(" ",6 - LENGTH(TRIM(fg-bin.job-no))) +
@@ -1435,10 +1438,7 @@ FOR EACH itemfg NO-LOCK WHERE itemfg.company = cocode
       AND fg-bin.loc       LE ip-tloc
       AND fg-bin.loc-bin   GE ip-fbin
       AND fg-bin.loc-bin   LE ip-tbin
-      AND fg-bin.cust-no GE fcus
-      AND fg-bin.cust-no LE tcus
-      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq fg-bin.cust-no
-      AND ttCustList.log-fld no-lock) else true)
+      AND fg-bin.cust-no EQ ttCustList.cust-no
       AND ((fg-bin.cust-no EQ "" AND fg-bin.loc NE "CUST") OR ip-cust)
       AND (fg-bin.qty      NE 0 OR ip-zbal):
 
@@ -1825,7 +1825,6 @@ assign
  v-sets         = tb_sets
  v-rct-date     = tb_rct-date
  v-summ-bin     = NO /*tb_summ-bin*/
- lSelected    = tb_cust-list
 
  v-tot-qty      = 0
  v-tot-cst      = 0
@@ -1845,13 +1844,6 @@ IF v-prt-c THEN DO:
    v-prt-c = ll-secure
    v-prt-p = (v-prt-c and v-dl-mat) or (v-prt-p and not v-dl-mat).
 END.
-
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN  fcus = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN  tcus = ttCustList.cust-no .
- END.
 
 SESSION:SET-WAIT-STATE ("general").
 

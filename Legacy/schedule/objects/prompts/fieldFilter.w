@@ -112,12 +112,12 @@ DEFINE BUTTON btnClose
      FONT 6.
 
 DEFINE BUTTON btnFromDate 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY .81 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnFromDueDate 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY .81 TOOLTIP "PopUp Calendar".
 
@@ -127,12 +127,12 @@ DEFINE BUTTON btnReset
      FONT 6.
 
 DEFINE BUTTON btnToDate 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY .81 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnToDueDate 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY .81 TOOLTIP "PopUp Calendar".
 

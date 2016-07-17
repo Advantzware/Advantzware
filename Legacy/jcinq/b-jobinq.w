@@ -8,7 +8,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
 /* Connected Databases 
           asi              PROGRESS
 */
-&SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -52,36 +52,34 @@ DEFINE VARIABLE invoiceQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE wipQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE overUnderPct AS INTEGER NO-UNDO.
 DEFINE VARIABLE fgItemNo AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-job-rec-key AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-job-header AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-col-move AS LOGICAL INITIAL YES NO-UNDO.
-DEFINE VARIABLE ll-first AS LOGICAL INITIAL YES NO-UNDO.
-DEFINE VARIABLE ll-initial AS LOGICAL INITIAL YES NO-UNDO.
-DEFINE VARIABLE lv-frst-rowid AS ROWID NO-UNDO.
-DEFINE VARIABLE lv-last-rowid AS ROWID NO-UNDO.
-DEFINE VARIABLE lv-frst-rowid2 AS ROWID NO-UNDO.
-DEFINE VARIABLE lv-last-rowid2 AS ROWID NO-UNDO.
-DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-DEFINE VARIABLE phandle AS HANDLE NO-UNDO.
+DEF VAR v-job-rec-key AS CHAR NO-UNDO.
+DEF VAR v-job-header AS CHAR NO-UNDO.
+DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
+DEF VAR ll-first AS LOG INIT YES NO-UNDO.
+DEF VAR ll-initial AS LOG INIT YES NO-UNDO.
+DEF VAR lv-frst-rowid AS ROWID NO-UNDO.
+DEF VAR lv-last-rowid AS ROWID NO-UNDO.
+DEF VAR lv-frst-rowid2 AS ROWID NO-UNDO.
+DEF VAR lv-last-rowid2 AS ROWID NO-UNDO.
+DEF VAR char-hdl AS cha NO-UNDO.
+DEF VAR phandle AS HANDLE NO-UNDO.
 
-DEFINE VARIABLE lv-sort-by AS CHARACTER INITIAL "job-no" NO-UNDO.
-DEFINE VARIABLE lv-sort-by-lab AS CHARACTER INITIAL "Job#" NO-UNDO.
-DEFINE VARIABLE ll-sort-asc AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lv-show-prev AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lv-show-next AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lv-first-show-job-no AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-last-show-job-no AS CHARACTER NO-UNDO.
-DEFINE VARIABLE liPrevJob AS INTEGER NO-UNDO.
-DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
-DEFINE VARIABLE v-whereamI AS CHARACTER . 
+DEF VAR lv-sort-by AS CHAR INIT "job-no" NO-UNDO.
+DEF VAR lv-sort-by-lab AS CHAR INIT "Job#" NO-UNDO.
+DEF VAR ll-sort-asc AS LOG NO-UNDO.
+DEF VAR lv-show-prev AS LOG NO-UNDO.
+DEF VAR lv-show-next AS LOG NO-UNDO.
+DEF VAR lv-first-show-job-no AS cha NO-UNDO.
+DEF VAR lv-last-show-job-no AS cha NO-UNDO.
+DEF VAR liPrevJob AS INT NO-UNDO.
+DEF VAR lActive AS LOG NO-UNDO.
+DEF VAR v-whereamI AS CHAR . 
 
 ASSIGN v-whereamI = PROGRAM-NAME(3).
-IF v-whereamI MATCHES "*jcinq/w-jobinq*"  THEN
+IF v-whereamI MATCHES "*jcinq/w-jobinq*" THEN
     v-whereamI = "JQ1" .
-ELSE IF v-whereamI MATCHES "*jc/w-jobcst*" THEN
-    v-whereamI = "JU1" .
-ELSE IF v-whereamI MATCHES "*jc/w-inqjob*"   OR v-whereamI MATCHES "*jc/w-clsjc*"  THEN
-     v-whereamI = "JC" .
+IF v-whereamI MATCHES "*jc/w-jobcst*" THEN
+     v-whereamI = "JU1" .
 
 DO TRANSACTION:
     {sys/ref/CustList.i NEW}
@@ -150,54 +148,54 @@ ll-initial = browser-log.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE SmartNavBrowser
-&SCOPED-DEFINE DB-AWARE NO
+&Scoped-define PROCEDURE-TYPE SmartNavBrowser
+&Scoped-define DB-AWARE no
 
-&SCOPED-DEFINE ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME F-Main
-&SCOPED-DEFINE BROWSE-NAME Browser-Table
+&Scoped-define FRAME-NAME F-Main
+&Scoped-define BROWSE-NAME Browser-Table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&SCOPED-DEFINE INTERNAL-TABLES job-hdr job
+&Scoped-define INTERNAL-TABLES job-hdr job
 
 /* Define KEY-PHRASE in case it is used by any query. */
-&SCOPED-DEFINE KEY-PHRASE TRUE
+&Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&SCOPED-DEFINE FIELDS-IN-QUERY-Browser-Table job-hdr.job-no job-hdr.job-no2 ~
+&Scoped-define FIELDS-IN-QUERY-Browser-Table job-hdr.job-no job-hdr.job-no2 ~
 job-hdr.i-no job-hdr.est-no job-hdr.ord-no job-hdr.cust-no job.start-date ~
 job.close-date job.stat custPart() @ custPart job-hdr.qty ~
 orderQty() @ orderQty producedQty(onHandQty) @ producedQty ~
 onHandQty(qtyOnHand) @ onHandQty shipQty() @ shipQty ~
 invoiceQty() @ invoiceQty wipQty() @ wipQty ~
 overUnderPct(onHandQty) @ overUnderPct fgItemNo() @ fgItemNo 
-&SCOPED-DEFINE ENABLED-FIELDS-IN-QUERY-Browser-Table job-hdr.job-no ~
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table job-hdr.job-no ~
 job-hdr.job-no2 job-hdr.i-no job-hdr.est-no job-hdr.ord-no job-hdr.cust-no ~
 job.start-date job.close-date job.stat 
-&SCOPED-DEFINE ENABLED-TABLES-IN-QUERY-Browser-Table job-hdr job
-&SCOPED-DEFINE FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table job-hdr
-&SCOPED-DEFINE SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table job
-&SCOPED-DEFINE QUERY-STRING-Browser-Table FOR EACH job-hdr WHERE ~{&KEY-PHRASE} ~
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table job-hdr job
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table job-hdr
+&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table job
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH job-hdr WHERE ~{&KEY-PHRASE} ~
       AND job-hdr.job = 0 NO-LOCK, ~
       EACH job OF job-hdr NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&SCOPED-DEFINE OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH job-hdr WHERE ~{&KEY-PHRASE} ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH job-hdr WHERE ~{&KEY-PHRASE} ~
       AND job-hdr.job = 0 NO-LOCK, ~
       EACH job OF job-hdr NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&SCOPED-DEFINE TABLES-IN-QUERY-Browser-Table job-hdr job
-&SCOPED-DEFINE FIRST-TABLE-IN-QUERY-Browser-Table job-hdr
-&SCOPED-DEFINE SECOND-TABLE-IN-QUERY-Browser-Table job
+&Scoped-define TABLES-IN-QUERY-Browser-Table job-hdr job
+&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table job-hdr
+&Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table job
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS fi_job-no fi_job-no2 fi_i-no fi_cust-no ~
+&Scoped-Define ENABLED-OBJECTS fi_job-no fi_job-no2 fi_i-no fi_cust-no ~
 fi_est-no fi_ord-no tb_open tb_closed btn_go btn_prev Browser-Table RECT-1 
-&SCOPED-DEFINE DISPLAYED-OBJECTS fi_job-no fi_job-no2 fi_i-no fi_cust-no ~
+&Scoped-Define DISPLAYED-OBJECTS fi_job-no fi_job-no2 fi_i-no fi_cust-no ~
 fi_est-no fi_ord-no tb_open tb_closed fi_sort-by FI_moveCol
 
 /* Custom List Definitions                                              */
@@ -403,42 +401,42 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fi_job-no AT ROW 2.19 COLUMN 6 COLON-ALIGNED NO-LABEL
-     fi_job-no2 AT ROW 2.19 COLUMN 21 COLON-ALIGNED
-     fi_i-no AT ROW 2.19 COLUMN 30 COLON-ALIGNED NO-LABEL
-     fi_cust-no AT ROW 2.19 COLUMN 59 COLON-ALIGNED NO-LABEL
-     fi_est-no AT ROW 2.19 COLUMN 82 COLON-ALIGNED NO-LABEL
-     fi_ord-no AT ROW 2.19 COLUMN 105 COLON-ALIGNED NO-LABEL
-     tb_open AT ROW 1.24 COLUMN 129
-     tb_closed AT ROW 2.43 COLUMN 129
-     btn_go AT ROW 3.62 COLUMN 3
-     btn_prev AT ROW 3.62 COLUMN 17
-     btn_next AT ROW 3.62 COLUMN 38
-     fi_sort-by AT ROW 3.62 COLUMN 66 COLON-ALIGNED
-    FI_moveCol AT ROW 3.62 COLUMN 122 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-     Browser-Table AT ROW 5.05 COLUMN 1 HELP
+     fi_job-no AT ROW 2.19 COL 6 COLON-ALIGNED NO-LABEL
+     fi_job-no2 AT ROW 2.19 COL 21 COLON-ALIGNED
+     fi_i-no AT ROW 2.19 COL 30 COLON-ALIGNED NO-LABEL
+     fi_cust-no AT ROW 2.19 COL 59 COLON-ALIGNED NO-LABEL
+     fi_est-no AT ROW 2.19 COL 82 COLON-ALIGNED NO-LABEL
+     fi_ord-no AT ROW 2.19 COL 105 COLON-ALIGNED NO-LABEL
+     tb_open AT ROW 1.24 COL 129
+     tb_closed AT ROW 2.43 COL 129
+     btn_go AT ROW 3.62 COL 3
+     btn_prev AT ROW 3.62 COL 17
+     btn_next AT ROW 3.62 COL 38
+     fi_sort-by AT ROW 3.62 COL 66 COLON-ALIGNED
+    FI_moveCol AT ROW 3.62 COL 122 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+     Browser-Table AT ROW 5.05 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Job#" VIEW-AS TEXT
-          SIZE 8 BY .71 AT ROW 1.24 COLUMN 12
+          SIZE 8 BY .71 AT ROW 1.24 COL 12
           FGCOLOR 9 FONT 6
      "FG Item#" VIEW-AS TEXT
-          SIZE 14 BY .71 AT ROW 1.24 COLUMN 38
+          SIZE 14 BY .71 AT ROW 1.24 COL 38
           FGCOLOR 9 FONT 6
      "Customer#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COLUMN 63
+          SIZE 13 BY .71 AT ROW 1.24 COL 63
           FGCOLOR 9 FONT 6
      "Estimate#" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COLUMN 86
+          SIZE 12 BY .71 AT ROW 1.24 COL 86
           FGCOLOR 9 FONT 6
      "Order#" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COLUMN 110
+          SIZE 10 BY .71 AT ROW 1.24 COL 110
           FGCOLOR 9 FONT 6
      "Click on Yellow Field to" VIEW-AS TEXT
           SIZE 27 BY 1.19 AT ROW 3.62 COL 96
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COLUMN 1 ROW 1 SCROLLABLE 
+         AT COL 1 ROW 1 SCROLLABLE 
          BGCOLOR 8 FGCOLOR 0 FONT 6
          DEFAULT-BUTTON btn_go.
 
@@ -574,13 +572,13 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE BROWSE-NAME Browser-Table
-&SCOPED-DEFINE SELF-NAME Browser-Table
+&Scoped-define BROWSE-NAME Browser-Table
+&Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
-  DEFINE VARIABLE phandle AS HANDLE NO-UNDO.
-  DEFINE VARIABLE char-hdl AS cha NO-UNDO.
+  DEF VAR phandle AS HANDLE NO-UNDO.
+  DEF VAR char-hdl AS cha NO-UNDO.
 
   {methods/run_link.i "container-source" "select-page" "(2)"}
 END.
@@ -619,9 +617,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-  DEFINE VARIABLE lh-column AS HANDLE NO-UNDO.
-  DEFINE VARIABLE lv-column-nam AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lv-column-lab AS CHARACTER NO-UNDO.
+  DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lv-column-nam AS CHAR NO-UNDO.
+  DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
   
   ASSIGN
@@ -656,7 +654,7 @@ DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF BUFFER xeb FOR eb.
   IF AVAIL job THEN DO:
     {methods/run_link.i "CONTAINER-SOURCE" "Set-Rec-Key_Header"
@@ -681,14 +679,14 @@ DO:
        "(CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = v-job-rec-key))"}
        
        IF job-hdr.est-no GT "" THEN DO:
-           FIND FIRST xeb NO-LOCK WHERE xeb.company EQ job-hdr.company
+           FIND FIRST xeb WHERE xeb.company EQ job-hdr.company
                AND xeb.est-no EQ job-hdr.est-no
                AND xeb.pur-man
-               NO-ERROR.
+               NO-LOCK NO-ERROR.
            IF NOT AVAIL xeb THEN
-           FIND FIRST xeb NO-LOCK WHERE xeb.company EQ job-hdr.company
+           FIND FIRST xeb WHERE xeb.company EQ job-hdr.company
             AND xeb.est-no EQ job-hdr.est-no            
-            NO-ERROR.
+            NO-LOCK NO-ERROR.
 
            IF AVAIL xeb THEN DO:
                RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", OUTPUT char-hdl).
@@ -703,11 +701,11 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_go
+&Scoped-define SELF-NAME btn_go
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
 DO:
-  DEFINE VARIABLE v-cust-no AS CHARACTER NO-UNDO .
+  DEF VAR v-cust-no AS CHAR NO-UNDO .
   DEF BUFFER bf-job-hdr  FOR job-hdr .
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
@@ -728,19 +726,19 @@ DO:
              v-cust-no = fi_cust-no .
          END.
          ELSE do:
-             FIND FIRST bf-job-hdr NO-LOCK WHERE bf-job-hdr.company = cocode 
+             FIND FIRST bf-job-hdr WHERE bf-job-hdr.company = cocode 
                  AND (bf-job-hdr.cust-no BEGINS fi_cust-no OR fi_cust-no = "")
                  AND (bf-job-hdr.job-no BEGINS fi_job-no OR fi_job-no = "")
                  AND (bf-job-hdr.i-no BEGINS fi_i-no OR fi_i-no = "")
                  AND (bf-job-hdr.est-no BEGINS fi_est-no OR fi_est-no = "")
-                 AND (bf-job-hdr.ord-no = fi_ord-no OR fi_ord-no = 0)  NO-ERROR. 
+                 AND (bf-job-hdr.ord-no = fi_ord-no OR fi_ord-no = 0) NO-LOCK NO-ERROR. 
              IF AVAIL bf-job-hdr THEN
                  v-cust-no = bf-job-hdr.cust-no .
              ELSE v-cust-no = "".
          END.
 
-         FIND FIRST cust NO-LOCK WHERE cust.company = cocode 
-             AND cust.cust-no = v-cust-no NO-ERROR.
+         FIND FIRST cust WHERE cust.company = cocode 
+             AND cust.cust-no = v-cust-no NO-LOCK NO-ERROR.
          IF AVAIL cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
              MESSAGE "Customer is not on Users Customer List.  "  SKIP
               "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
@@ -752,7 +750,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_next
+&Scoped-define SELF-NAME btn_next
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_next B-table-Win
 ON CHOOSE OF btn_next IN FRAME F-Main /* Show Next */
 DO:
@@ -775,7 +773,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_prev
+&Scoped-define SELF-NAME btn_prev
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_prev B-table-Win
 ON CHOOSE OF btn_prev IN FRAME F-Main /* Show Previous */
 DO:
@@ -798,7 +796,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_cust-no
+&Scoped-define SELF-NAME fi_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON LEAVE OF fi_cust-no IN FRAME F-Main
 DO:
@@ -821,21 +819,21 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_cust-no
+&Scoped-define SELF-NAME fi_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON HELP OF fi_cust-no IN FRAME F-Main
 DO:
-   DEFINE VARIABLE char-val AS cha NO-UNDO.
-   RUN windows/l-cust2.w (INPUT g_company, INPUT FOCUS:SCREEN-VALUE, INPUT v-whereamI, OUTPUT char-val).
-          IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-          RETURN NO-APPLY.
+   DEF VAR char-val AS cha NO-UNDO.
+   RUN windows/l-cust2.w (INPUT g_company, INPUT focus:screen-value, INPUT v-whereamI, OUTPUT char-val).
+          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+          return no-apply.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_est-no
+&Scoped-define SELF-NAME fi_est-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_est-no B-table-Win
 ON LEAVE OF fi_est-no IN FRAME F-Main
 DO:
@@ -848,25 +846,25 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_est-no
+&Scoped-define SELF-NAME fi_est-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_est-no B-table-Win
 ON HELP OF fi_est-no IN FRAME F-Main
 DO:
-   DEFINE VARIABLE char-val AS cha NO-UNDO.
+   DEF VAR char-val AS cha NO-UNDO.
    DEF BUFFER buff-eb FOR eb.
-   RUN windows/l-est2.w (INPUT g_company,INPUT v-whereamI, INPUT FOCUS:SCREEN-VALUE,  OUTPUT char-val).
-          IF char-val <> "" THEN
-              FIND FIRST buff-eb NO-LOCK WHERE RECID(buff-eb) EQ INT(ENTRY(1,char-val))  NO-ERROR. 
+   RUN windows/l-est2.w (INPUT g_company,INPUT v-whereamI, INPUT focus:screen-value,  OUTPUT char-val).
+          if char-val <> "" then
+              FIND FIRST buff-eb where recid(buff-eb) eq int(entry(1,char-val)) no-lock no-error. 
           IF AVAIL buff-eb THEN
               ASSIGN FOCUS:SCREEN-VALUE = (buff-eb.est-no).
-          RETURN NO-APPLY.
+          return no-apply.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_i-no
+&Scoped-define SELF-NAME fi_i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
 ON LEAVE OF fi_i-no IN FRAME F-Main
 DO:
@@ -879,14 +877,14 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_i-no
+&Scoped-define SELF-NAME fi_i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
 ON HELP OF fi_i-no IN FRAME F-Main
 DO:
-   DEFINE VARIABLE char-val AS cha NO-UNDO.
-   RUN windows/l-itemfg.w (INPUT g_company,INPUT v-whereamI, INPUT FOCUS:SCREEN-VALUE,  OUTPUT char-val).
-          IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-          RETURN NO-APPLY.
+   DEF VAR char-val AS cha NO-UNDO.
+   RUN windows/l-itemfg.w (INPUT g_company,INPUT v-whereamI, INPUT focus:screen-value,  OUTPUT char-val).
+          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+          return no-apply.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -904,7 +902,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_job-no
+&Scoped-define SELF-NAME fi_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no B-table-Win
 ON LEAVE OF fi_job-no IN FRAME F-Main
 DO:
@@ -927,22 +925,22 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_job-no
+&Scoped-define SELF-NAME fi_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no B-table-Win
 ON HELP OF fi_job-no IN FRAME F-Main
 DO:
-   DEFINE VARIABLE char-val AS cha NO-UNDO.
-   DEFINE VARIABLE char-rec AS RECID NO-UNDO.
-   RUN windows/l-jobno3.w (INPUT g_company, INPUT v-whereamI,INPUT FOCUS:SCREEN-VALUE, OUTPUT char-val, OUTPUT char-rec).
-          if char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-          RETURN NO-APPLY.
+   DEF VAR char-val AS cha NO-UNDO.
+   DEF VAR char-rec AS RECID NO-UNDO.
+   RUN windows/l-jobno3.w (INPUT g_company, INPUT v-whereamI,INPUT focus:screen-value, OUTPUT char-val, OUTPUT char-rec).
+          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+          return no-apply.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_job-no2
+&Scoped-define SELF-NAME fi_job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no2 B-table-Win
 ON LEAVE OF fi_job-no2 IN FRAME F-Main /* - */
 DO:
@@ -955,7 +953,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_ord-no
+&Scoped-define SELF-NAME fi_ord-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_ord-no B-table-Win
 ON LEAVE OF fi_ord-no IN FRAME F-Main
 DO:
@@ -968,21 +966,21 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_ord-no
+&Scoped-define SELF-NAME fi_ord-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_ord-no B-table-Win
 ON HELP OF fi_ord-no IN FRAME F-Main
 DO:
-   DEFINE VARIABLE char-val AS cha NO-UNDO.
-   RUN windows/l-ordno2.w (INPUT g_company, INPUT v-whereamI, INPUT FOCUS:SCREEN-VALUE, OUTPUT char-val).
-          IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-          RETURN NO-APPLY.
+   DEF VAR char-val AS cha NO-UNDO.
+   RUN windows/l-ordno2.w (INPUT g_company, INPUT v-whereamI, INPUT focus:screen-value, OUTPUT char-val).
+          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+          return no-apply.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_closed
+&Scoped-define SELF-NAME tb_closed
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_closed B-table-Win
 ON VALUE-CHANGED OF tb_closed IN FRAME F-Main /* Closed Jobs */
 DO:
@@ -993,7 +991,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_open
+&Scoped-define SELF-NAME tb_open
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_open B-table-Win
 ON VALUE-CHANGED OF tb_open IN FRAME F-Main /* Open Jobs */
 DO:
@@ -1028,9 +1026,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
      IF v-whereamI = "JU1" THEN
      RUN sys/ref/CustList.p (INPUT cocode,INPUT 'JU1',
                             INPUT YES,OUTPUT lActive).
-     IF v-whereamI EQ "JC" THEN
-     RUN sys/ref/CustList.p (INPUT cocode,INPUT 'JC',
-                            INPUT YES,OUTPUT lActive).
+{sys/inc/chblankcust.i}
 
 FI_moveCol = "Sort".
 DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
@@ -1132,13 +1128,13 @@ PROCEDURE first-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE li AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lv-job-no LIKE job-hdr.job-no INITIAL "" NO-UNDO.
+  DEF VAR li AS INT NO-UNDO.
+  DEF VAR lv-job-no LIKE job-hdr.job-no INIT "" NO-UNDO.
 
   &SCOPED-DEFINE where-first1                         ~
         WHERE {&key-phrase}                           ~
           AND job-hdr.opened EQ YES                   ~
-          AND ( (LOOKUP(job-hdr.cust-no,custcount) <> 0 AND job-hdr.cust-no <> "") OR custcount = "") 
+          AND ( (lookup(job-hdr.cust-no,custcount) <> 0 AND job-hdr.cust-no <> "") OR custcount = "") 
 
   RUN set-defaults.
   DO WITH FRAME {&FRAME-NAME}:
@@ -1153,30 +1149,30 @@ PROCEDURE first-query :
      fi_job-no
      fi_job-no2.
   END.
-  FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
-                      AND sys-ctrl.name    EQ "JCBROWSE"
-                         NO-ERROR.
-  IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
-     CREATE sys-ctrl.
-     ASSIGN sys-ctrl.company = cocode
+  find first sys-ctrl where sys-ctrl.company eq cocode
+                      and sys-ctrl.name    eq "JCBROWSE"
+                        no-lock no-error.
+  if not avail sys-ctrl then do transaction:
+     create sys-ctrl.
+     assign sys-ctrl.company = cocode
             sys-ctrl.name    = "JCBROWSE"
             sys-ctrl.descrip = "# of Records to be displayed in oe browser"
             sys-ctrl.log-fld = YES
             sys-ctrl.char-fld = "JC"
             sys-ctrl.int-fld = 30.
-  END.
+  end.
   
   adm-query-opened = YES.
   
   IF ll-initial THEN DO:
     RELEASE job-hdr.
-    FIND LAST job-hdr NO-LOCK {&where-first1} USE-INDEX job-no  NO-ERROR.
+    FIND LAST job-hdr {&where-first1} USE-INDEX job-no NO-LOCK NO-ERROR.
     DO WHILE AVAIL job-hdr:
       IF job-hdr.job-no NE lv-job-no THEN li = li + 1.
       lv-job-no = job-hdr.job-no.
       IF li GE sys-ctrl.int-fld THEN LEAVE.
 
-      FIND PREV job-hdr NO-LOCK {&where-first1} USE-INDEX job-no  NO-ERROR.
+      FIND PREV job-hdr {&where-first1} USE-INDEX job-no NO-LOCK NO-ERROR.
     END.
 
     &SCOPED-DEFINE open-query                   ~
@@ -1207,7 +1203,7 @@ PROCEDURE get-job-header :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF OUTPUT PARAM opHeader_key AS CHARACTER NO-UNDO.
+  DEF OUTPUT PARAM opHeader_key AS cha NO-UNDO.
 
   opHeader_key = STRING(job.job) .
 
@@ -1267,9 +1263,9 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
-  DEFINE VARIABLE ll-open AS LOGICAL INITIAL ? NO-UNDO.
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+  DEF VAR lv-rowid AS ROWID NO-UNDO.
+  DEF VAR ll-open AS LOG INIT ? NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -1378,8 +1374,8 @@ PROCEDURE navigate-browser :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEFINE INPUT  PARAMETER ip-nav-type AS CHARACTER.
-  DEFINE OUTPUT PARAMETER op-nav-type AS CHARACTER.
+  DEF INPUT  PARAMETER ip-nav-type AS CHAR.
+  DEF OUTPUT PARAMETER op-nav-type AS CHAR.
 
 
   IF ip-nav-type NE "" THEN
@@ -1430,10 +1426,10 @@ PROCEDURE navigate-browser2 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEFINE INPUT  PARAMETER ip-nav-type AS CHARACTER.
-  DEFINE OUTPUT PARAMETER op-nav-type AS CHARACTER.
+  DEF INPUT  PARAMETER ip-nav-type AS CHAR.
+  DEF OUTPUT PARAMETER op-nav-type AS CHAR.
   
-  DEFINE VARIABLE hld-rowid AS ROWID NO-UNDO.
+  DEF VAR hld-rowid AS ROWID NO-UNDO.
 
 
   hld-rowid = ROWID(job).
@@ -1483,10 +1479,10 @@ PROCEDURE reopen-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE BUFFER bf-job-hdr FOR job-hdr.
-  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+  DEF BUFFER bf-job-hdr FOR job-hdr.
+  DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
-  FIND bf-job-hdr NO-LOCK WHERE ROWID(bf-job-hdr) = ip-rowid NO-ERROR.
+  FIND bf-job-hdr WHERE ROWID(bf-job-hdr) = ip-rowid NO-LOCK NO-ERROR.
   IF AVAIL bf-job-hdr THEN DO WITH FRAME F-Main:
       ASSIGN fi_cust-no:SCREEN-VALUE = ""
              fi_est-no:SCREEN-VALUE  = ""
@@ -1524,7 +1520,7 @@ PROCEDURE repo-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+  DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
 
   RUN dispatch ('open-query').
@@ -1614,12 +1610,12 @@ PROCEDURE setFarmTab :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE BUFFER xeb FOR eb.   
+DEF BUFFER xeb FOR eb.   
 
-   IF AVAIL(job-hdr) AND job-hdr.est-no GT "" THEN DO:
-       FIND FIRST xeb NO-LOCK WHERE xeb.company EQ job-hdr.company
+   IF avail(job-hdr) AND job-hdr.est-no GT "" THEN DO:
+       FIND FIRST xeb WHERE xeb.company EQ job-hdr.company
            AND xeb.est-no EQ job-hdr.est-no
-           NO-ERROR.
+           NO-LOCK NO-ERROR.
        IF AVAIL xeb THEN DO:
            RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", OUTPUT char-hdl).
            RUN disable-enable-farm IN WIDGET-HANDLE(char-hdl) (xeb.pur-man) NO-ERROR.
@@ -1643,8 +1639,8 @@ PROCEDURE show-all :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE li AS INTEGER NO-UNDO.
-DEFINE VARIABLE lv-job-no AS CHARACTER NO-UNDO.
+DEF VAR li AS INT NO-UNDO.
+DEF VAR lv-job-no AS cha NO-UNDO.
 
 &SCOPED-DEFINE for-each-f1                            ~
     FOR EACH job-hdr                                  ~
@@ -1654,17 +1650,18 @@ DEFINE VARIABLE lv-job-no AS CHARACTER NO-UNDO.
 &SCOPED-DEFINE for-each-f2       ~
     FIRST job OF job-hdr NO-LOCK
 
-FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
-                      AND sys-ctrl.name    EQ "JCBROWSE" NO-ERROR.
-IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
-   CREATE sys-ctrl.
-   ASSIGN sys-ctrl.company = cocode
+find first sys-ctrl where sys-ctrl.company eq cocode
+                      and sys-ctrl.name    eq "JCBROWSE"
+                        no-lock no-error.
+if not avail sys-ctrl then do transaction:
+   create sys-ctrl.
+   assign sys-ctrl.company = cocode
           sys-ctrl.name    = "JCBROWSE"
           sys-ctrl.descrip = "# of Records to be displayed in OE browser"
           sys-ctrl.log-fld = YES
           sys-ctrl.char-fld = "CE"
           sys-ctrl.int-fld = 30.
-END.
+end.
 
 RUN set-defaults. 
                  
@@ -1697,7 +1694,7 @@ END.  /* lv-show-prev */
 ELSE IF lv-show-next THEN DO:
     
     {&for-each-f1}                    ~
-          AND job-hdr.job-no GE lv-first-show-job-no  ~
+          AND job-hdr.job-no gE lv-first-show-job-no  ~
           USE-INDEX job-no  NO-LOCK,   ~
        {&for-each-f2} BREAK BY job-hdr.job-no  :
      
@@ -1710,7 +1707,7 @@ ELSE IF lv-show-next THEN DO:
         OPEN QUERY {&browse-name}               ~
             {&for-each-f1}                    ~
                 AND job-hdr.job-no lE lv-job-no  ~
-                AND job-hdr.job-no GE lv-first-show-job-no ~
+                AND job-hdr.job-no gE lv-first-show-job-no ~
             USE-INDEX job-no  NO-LOCK,   ~
             {&for-each-f2}
 
@@ -1766,10 +1763,11 @@ PROCEDURE dept-image-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE v-spec AS LOGICAL NO-UNDO.
-   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
   
-   FIND FIRST notes NO-LOCK WHERE notes.rec_key = job.rec_key NO-ERROR.
+   FIND FIRST notes WHERE notes.rec_key = job.rec_key
+       NO-LOCK NO-ERROR.
    
    IF AVAIL notes THEN
       v-spec = TRUE.
@@ -1791,8 +1789,8 @@ PROCEDURE spec-image-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE v-spec AS LOGICAL NO-UNDO.
-   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
 
  IF AVAIL job-hdr THEN
      FIND FIRST itemfg NO-LOCK
@@ -1891,7 +1889,7 @@ FUNCTION onHandQty RETURNS INTEGER
 /*                                  AND oe-ordl.i-no EQ job-hdr.i-no               */
 /*                                  AND oe-ordl.ord-no EQ job-hdr.ord-no NO-ERROR. */
 /*     IF AVAILABLE oe-ordl AND oe-ordl.job-no NE '' THEN                          */
-    FOR EACH fg-bin FIELDS(qty) NO-LOCK
+    FOR EACH fg-bin fields(qty) NO-LOCK
         WHERE fg-bin.company EQ job-hdr.company
           AND fg-bin.job-no EQ job-hdr.job-no
           AND fg-bin.job-no2 EQ job-hdr.job-no2
@@ -1964,14 +1962,14 @@ FUNCTION producedQty RETURNS INTEGER
     Notes:  
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE rtnValue AS INTEGER NO-UNDO.
-  DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE iJobNo2 AS INTEGER NO-UNDO.
-  DEFINE VARIABLE cINo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cJobNo AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE iJobNo2 AS INTEGER     NO-UNDO.
+  DEFINE VARIABLE cINo AS CHARACTER   NO-UNDO.
 
   IF AVAILABLE job-hdr THEN DO:
     ASSIGN 
-        cINo    = job-hdr.i-no
-        cJobNo  = job-hdr.job-no
+        cINo = job-hdr.i-no
+        cJobNo = job-hdr.job-no
         iJobNo2 = job-hdr.job-no2
         .
 /*     FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ job-hdr.company          */
@@ -2049,8 +2047,8 @@ FUNCTION shipQty RETURNS INTEGER
     Notes:  
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE rtnValue AS INTEGER NO-UNDO.
-  DEFINE VARIABLE li-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
-  DEFINE VARIABLE li-ship-qty LIKE oe-ordl.ship-qty NO-UNDO.
+  DEF VAR li-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
+  DEF VAR li-ship-qty LIKE oe-ordl.ship-qty NO-UNDO.
 
   IF AVAILABLE job-hdr THEN DO:
     FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ job-hdr.company

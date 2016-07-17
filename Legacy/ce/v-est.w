@@ -125,8 +125,8 @@ eb.bl-qty
 &Scoped-define FIRST-ENABLED-TABLE eb
 &Scoped-define SECOND-ENABLED-TABLE ef
 &Scoped-define THIRD-ENABLED-TABLE est
-&Scoped-Define ENABLED-OBJECTS btn_fgitem btn_style btn_board btn_cust ~
-btn_from RECT-18 RECT-19 RECT-23 RECT-24 
+&Scoped-Define ENABLED-OBJECTS btn_fgitem btn_from btn_style btn_board ~
+btn_cust RECT-18 RECT-19 RECT-23 RECT-24 
 &Scoped-Define DISPLAYED-FIELDS est.est-no eb.form-no est.form-qty ~
 eb.blank-no est.mod-date est.ord-date eb.cust-no eb.ship-id eb.ship-name ~
 eb.ship-addr[1] eb.ship-addr[2] eb.ship-city eb.ship-state eb.ship-zip ~
@@ -188,35 +188,34 @@ FUNCTION imageName RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCadLookup 
-     IMAGE-UP FILE "images/find.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/find.bmp":U
      LABEL "" 
      SIZE 4.4 BY 1.05.
 
 DEFINE BUTTON btnDieLookup 
-     IMAGE-UP FILE "images/find.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/find.bmp":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 4.4 BY 1.05.
 
-DEFINE BUTTON btn_fgitem  
+DEFINE BUTTON btn_board 
+     LABEL "" 
+     SIZE 10 BY 1.
+
+DEFINE BUTTON btn_cust 
+     LABEL "" 
+     SIZE 10 BY 1.
+
+DEFINE BUTTON btn_fgitem 
      LABEL "" 
      SIZE 14 BY 1.
 
-DEFINE BUTTON btn_from  
+DEFINE BUTTON btn_from 
      LABEL "From:" 
-     SIZE 7.5 BY 1.
+     SIZE 7.6 BY 1.
 
-DEFINE BUTTON btn_style
+DEFINE BUTTON btn_style 
      LABEL "" 
      SIZE 15 BY 1.
-
-DEFINE BUTTON btn_board
-     LABEL "" 
-     SIZE 10 BY 1.
-
-
-DEFINE BUTTON btn_cust
-     LABEL "" 
-     SIZE 10 BY 1.
 
 DEFINE VARIABLE fi_blank-qty AS INTEGER FORMAT ">9" INITIAL 1 
      VIEW-AS FILL-IN 
@@ -382,7 +381,7 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
      eb.upc-no AT ROW 8.86 COL 121.2 COLON-ALIGNED
-          LABEL "UPC#" FORMAT "x(20)"
+          LABEL "UPC#"
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           FONT 6
@@ -475,8 +474,8 @@ DEFINE FRAME fold
           LABEL "Last Order#" FORMAT ">>>>>>>>"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     btn_fgitem AT ROW 3.80 COL 115 WIDGET-ID 16
-     btn_from AT ROW 1.20 COL 24.8 WIDGET-ID 16
+     btn_fgitem AT ROW 3.81 COL 115 WIDGET-ID 16
+     btn_from AT ROW 1.19 COL 24.8 WIDGET-ID 16
      btn_style AT ROW 10.52 COL 11 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 16 WIDGET-ID 16
      btn_cust AT ROW 2.67 COL 12 WIDGET-ID 16
@@ -974,55 +973,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_fgitem
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_fgitem V-table-Win
-ON CHOOSE OF btn_fgitem IN FRAME fold
-DO:
-  IF AVAIL eb THEN
-   FIND FIRST itemfg WHERE itemfg.company  = cocode
-       AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
-  
-   IF AVAIL itemfg THEN
-   RUN oe/w-estfg.w(RECID(eb)) .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn_from
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_from V-table-Win
-ON CHOOSE OF btn_from IN FRAME fold
-DO:
-    DEF BUFFER bf-est FOR est.
-  IF AVAIL eb THEN
-   FIND FIRST bf-est WHERE bf-est.company  = cocode
-       AND bf-est.est-no = FILL(" ",8 - LENGTH(TRIM(INPUT fi_from-est-no))) + TRIM(INPUT fi_from-est-no) NO-LOCK NO-ERROR.
-  
-   IF AVAIL bf-est THEN
-   RUN est/w-estesf.w(RECID(bf-est)) .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn_style
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_style V-table-Win
-ON CHOOSE OF btn_style IN FRAME fold
-DO:
-  IF AVAIL eb THEN
-   FIND FIRST style WHERE style.company  = cocode
-       AND style.style = eb.style NO-LOCK NO-ERROR.
-  
-   IF AVAIL style THEN
-   RUN windows/stylef-e.w(RECID(style)) .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btn_board
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_board V-table-Win
 ON CHOOSE OF btn_board IN FRAME fold
@@ -1049,6 +999,55 @@ DO:
   
    IF AVAIL cust THEN
    RUN windows/v-cust.w(RECID(cust)) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_fgitem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_fgitem V-table-Win
+ON CHOOSE OF btn_fgitem IN FRAME fold
+DO:
+  IF AVAIL eb THEN
+   FIND FIRST itemfg WHERE itemfg.company  = cocode
+       AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
+  
+   IF AVAIL itemfg THEN
+   RUN oe/w-estfg.w(RECID(eb)) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_from
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_from V-table-Win
+ON CHOOSE OF btn_from IN FRAME fold /* From: */
+DO:
+    DEF BUFFER bf-est FOR est.
+  IF AVAIL eb THEN
+   FIND FIRST bf-est WHERE bf-est.company  = cocode
+       AND bf-est.est-no = FILL(" ",8 - LENGTH(TRIM(INPUT fi_from-est-no))) + TRIM(INPUT fi_from-est-no) NO-LOCK NO-ERROR.
+  
+   IF AVAIL bf-est THEN
+   RUN est/w-estesf.w(RECID(bf-est)) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_style
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_style V-table-Win
+ON CHOOSE OF btn_style IN FRAME fold
+DO:
+  IF AVAIL eb THEN
+   FIND FIRST style WHERE style.company  = cocode
+       AND style.style = eb.style NO-LOCK NO-ERROR.
+  
+   IF AVAIL style THEN
+   RUN windows/stylef-e.w(RECID(style)) .
 END.
 
 /* _UIB-CODE-BLOCK-END */

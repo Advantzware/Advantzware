@@ -154,7 +154,7 @@ begin_date3 end_date3 begin_date4 end_date4
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -413,8 +413,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -678,7 +678,7 @@ DO:
   
   SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1542,7 +1542,6 @@ PROCEDURE run-report :
 /* -------------------------------------------------------------------------- */
 DEF VAR v-tot AS DEC FORMAT ">>>,>>>,>>9.99".
 DEF VAR v-per-tot AS DEC  NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 {sys/form/r-topw.f}
 
     {custom/statusMsg.i "'Processing...'"} 
@@ -1589,14 +1588,8 @@ assign
  
  v-custs    = 0
  v-sort     = rd_print EQ "Customer"
- v-inc      = tb_zer-col
- lSelected  = tb_cust-list. 
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
-END.
+ v-inc      = tb_zer-col. 
+
  
 
 DO WITH FRAME {&frame-name}:
@@ -1714,12 +1707,12 @@ ASSIGN
 
 SESSION:SET-WAIT-STATE ("general").
         
-        FOR EACH ar-inv
+        FOR EACH ttCustList 
+          WHERE ttCustList.log-fld
+          NO-LOCK,
+          EACH ar-inv
           WHERE ar-inv.company  EQ cocode
-            AND ar-inv.cust-no  GE fcust
-            AND ar-inv.cust-no  LE tcust
-            AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
-            AND ttCustList.log-fld no-lock) else true)
+            AND ar-inv.cust-no EQ ttCustList.cust-no
             AND ar-inv.inv-date GE lo-date
             AND ar-inv.inv-date LE hi-date
             AND ar-inv.posted   EQ YES
@@ -1775,11 +1768,11 @@ SESSION:SET-WAIT-STATE ("general").
  
 
 
-      FOR each cust where cust.company eq cocode
-          AND cust.cust-no GE fcust
-          AND cust.cust-no LE tcust
-          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-          AND ttCustList.log-fld no-lock) else true) no-lock,
+      FOR EACH ttCustList 
+          WHERE ttCustList.log-fld
+          NO-LOCK,
+          each cust where cust.company eq cocode
+          AND cust.cust-no EQ ttCustList.cust-no no-lock,
        
           each ar-cash
           where ar-cash.company    eq cocode

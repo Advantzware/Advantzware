@@ -88,7 +88,7 @@ tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -288,8 +288,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -443,7 +443,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1035,7 +1035,7 @@ def var v-prt-all as log format "Y/N" init no.
 DEF VAR li-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
 DEF VAR li-ship-qty LIKE oe-ordl.ship-qty NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+
 form
     itemfg.cust-no to 8 label "CUSTOMER"
     oe-ordl.i-no to 24 label "ITEM #"
@@ -1068,8 +1068,7 @@ assign
  tpo        = end_cust-po 
  type       = substr(rd_itm-code,1,1) 
  zbal       = tb_inc-zer
- v-prt-all  = tb_con-job
- lSelected      = tb_cust-list .
+ v-prt-all  = tb_con-job.
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1077,19 +1076,14 @@ assign
 if td-show-parm then run show-param.
 
 display "" with frame r-top.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN  fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN  tcust = ttCustList.cust-no .
- END.
 
-    FOR each itemfg
+    FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+        each itemfg
         where itemfg.company eq cocode
-            and itemfg.cust-no GE fcust
-            and itemfg.cust-no le tcust
-            AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
-            AND ttCustList.log-fld no-lock) else true)
+            and itemfg.cust-no EQ ttCustList.cust-no /*fcust
+            and itemfg.cust-no le tcust*/
             and (type eq "A" or itemfg.i-code eq type)
             use-index customer no-lock
 

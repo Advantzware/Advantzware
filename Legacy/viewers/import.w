@@ -85,7 +85,8 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-import 
-     IMAGE-UP FILE "images/import-u.bmp":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/import.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Export to Excel".
 

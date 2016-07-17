@@ -205,8 +205,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -374,7 +374,7 @@ DO:
   SYSTEM-DIALOG GET-FILE selected-name
       TITLE       "Choose Image to SELECT ..."
       FILTERS     "Image Files (*.bmp)" "*.bmp"
-      INITIAL-DIR "images"
+      INITIAL-DIR "Graphics"
       MUST-EXIST
       USE-FILENAME
       UPDATE OKpressed.

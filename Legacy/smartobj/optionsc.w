@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_appl Select_spec Select_List ~
-Select_frac Select_help Select_Home Select_Notes 
+&Scoped-Define ENABLED-OBJECTS Select_List Select_spec Select_frac ~
+Select_appl Select_help Select_Home Select_Notes 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -62,51 +62,55 @@ Select_frac Select_help Select_Home Select_Notes
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_appl 
-     IMAGE-UP FILE "images\util":U NO-FOCUS
-     LABEL "Util App" 
+     IMAGE-UP FILE "Graphics/32x32/window_gear.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Util_appl" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_frac 
-     IMAGE-UP FILE "adeicon\aggr-u":U NO-FOCUS
-     LABEL "Util_frac" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Fraction".
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Calculate" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Calculate".
 
 DEFINE BUTTON Select_help 
-     IMAGE-UP FILE "images\help":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/question.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
 DEFINE BUTTON Select_Home 
-     IMAGE-UP FILE "images\homekeyg":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/refresh.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Home" 
      SIZE 7.8 BY 1.81 TOOLTIP "Home Key".
 
 DEFINE BUTTON Select_List 
-     IMAGE-UP FILE "images/print-u.bmp":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/printer.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
      SIZE 7.8 BY 1.81 TOOLTIP "List".
 
 DEFINE BUTTON Select_Notes 
-     IMAGE-UP FILE "images/edit":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/edit.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_spec 
-     IMAGE-UP FILE "images\edit":U
-     IMAGE-INSENSITIVE FILE "images/badsmo.bmp":U NO-FOCUS
-     LABEL "Spec Note" 
+     IMAGE-UP FILE "Graphics/32x32/book_open.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "spec_note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Select_appl AT ROW 1 COL 25
-     Select_spec AT ROW 1 COL 17
      Select_List AT ROW 1 COL 1
+     Select_spec AT ROW 1 COL 17
      Select_frac AT ROW 1 COL 49
+     Select_appl AT ROW 1 COL 25
      Select_help AT ROW 1 COL 33
      Select_Home AT ROW 1 COL 41
      Select_Notes AT ROW 1 COL 9
@@ -191,7 +195,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Select_appl
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_appl s-object
-ON CHOOSE OF Select_appl IN FRAME F-Main /* Util App */
+ON CHOOSE OF Select_appl IN FRAME F-Main /* Util_appl */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
@@ -300,7 +304,7 @@ END.
 
 &Scoped-define SELF-NAME Select_spec
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_spec s-object
-ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
+ON CHOOSE OF Select_spec IN FRAME F-Main /* spec_note */
 DO:
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
@@ -423,7 +427,7 @@ PROCEDURE Spec-Book-Image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-log THEN
-         SELECT_spec:LOAD-IMAGE("images/edit.ico").
+         SELECT_spec:LOAD-IMAGE("images/edit.png").
       ELSE
          SELECT_spec:LOAD-IMAGE("images/edita.jpg").
    END.

@@ -544,7 +544,7 @@ PROCEDURE delete_item :
   END.
   SESSION:SET-WAIT-STATE("general").
 
-  FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
+  FIND CURRENT po-ordl NO-ERROR.
 
   IF AVAIL po-ordl THEN DO:
     IF CAN-FIND(FIRST b-po-ordl
@@ -583,8 +583,7 @@ PROCEDURE delete_item :
       RUN dispatch ('row-changed').
     END.
   END.
-  FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-  
+
   SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
@@ -620,9 +619,9 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute PRIOR to standard behavior. */
   
   IF AVAIL(po-ordl) AND  po-ordl.item-type = NO  THEN
-    FIND itemfg NO-LOCK WHERE itemfg.company EQ po-ordl.company
+    FIND itemfg WHERE itemfg.company EQ po-ordl.company
       AND itemfg.i-no EQ po-ordl.i-no
-    NO-ERROR.
+    NO-LOCK NO-ERROR.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
@@ -672,7 +671,7 @@ FOR EACH tt-po-ordl-renum:
         bf-po-ordl.LINE = tt-po-ordl-renum.po-line-num.
     END.
     DELETE tt-po-ordl-renum.
-    FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.
+
 
 END.
 
@@ -695,9 +694,9 @@ PROCEDURE reopen-query :
 
   RUN dispatch ('open-query').
   IF ip-rowid = ? THEN DO:
-     FIND LAST bf-ordl NO-LOCK WHERE bf-ordl.company = po-ordl.company
+     FIND LAST bf-ordl WHERE bf-ordl.company = po-ordl.company
                          AND bf-ordl.po-no = po-ordl.po-no
-                         NO-ERROR.
+                         NO-LOCK NO-ERROR.
      IF AVAIL bf-ordl THEN DO:
         REPOSITION {&browse-name} TO ROWID ROWID(bf-ordl) NO-ERROR.
         RUN dispatch ('row-changed').

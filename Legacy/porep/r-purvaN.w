@@ -115,16 +115,15 @@ ASSIGN cTextListToDefault  = "PO #,Vendor #,Job #,Item #,Due Date,Rec Date,MSF,V
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_po-no end_po-no ~
 begin_po-date end_po-date begin_vend-no end_vend-no begin_po-i-no ~
-end_po-i-no begin_job-no end_job-no tb_receipt begin_rec-date end_rec-date ~
+end_po-i-no begin_job-no end_job-no rd_vend-cost tb_repeat tb_mpv tb_overs ~
 tb_adder rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
 tb_runExcel fi_file btn-ok btn-cancel Btn_Def sl_avail sl_selected Btn_Add ~
 Btn_Remove btn_Up btn_down
 &Scoped-Define DISPLAYED-OBJECTS begin_po-no end_po-no begin_po-date ~
 end_po-date begin_vend-no end_vend-no begin_po-i-no end_po-i-no ~
-begin_job-no end_job-no tb_receipt begin_rec-date end_rec-date ~
-lbl_vend-cost rd_vend-cost tb_mpv tb_repeat tb_overs tb_adder sl_avail ~
-sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file 
+begin_job-no end_job-no lbl_vend-cost rd_vend-cost tb_repeat tb_mpv ~
+tb_overs tb_adder rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
+td-show-parm tb_excel tb_runExcel fi_file sl_avail sl_selected
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -281,7 +280,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 10.95.
+     SIZE 93 BY 9.29.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -311,11 +310,6 @@ DEFINE VARIABLE tb_overs AS LOGICAL INITIAL no
      LABEL "Overs %" 
      VIEW-AS TOGGLE-BOX
      SIZE 12 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tb_receipt AS LOGICAL INITIAL no 
-     LABEL "Only Purchase Orders With Receipts?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 42 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_repeat AS LOGICAL INITIAL no 
      LABEL "Repeat PO#/Vendor#?" 
@@ -357,54 +351,49 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Job Number"
      end_job-no AT ROW 6 COL 69 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     tb_receipt AT ROW 7.14 COL 28 WIDGET-ID 62
-     begin_rec-date AT ROW 8 COL 26 COLON-ALIGNED HELP
+     lbl_vend-cost AT ROW 7.29 COL 26 COLON-ALIGNED NO-LABEL
+     rd_vend-cost AT ROW 7.29 COL 51 NO-LABEL
      tb_mpv AT ROW 8.48 COL 56
-     end_rec-date AT ROW 8 COL 69 COLON-ALIGNED HELP
+     tb_repeat AT ROW 8.52 COL 29
      tb_overs AT ROW 9.43 COL 29
-     lbl_vend-cost AT ROW 9.05 COL 26 COLON-ALIGNED NO-LABEL
-     rd_vend-cost AT ROW 9.05 COL 51 NO-LABEL
-     tb_mpv AT ROW 10.24 COL 56
-     tb_repeat AT ROW 10.29 COL 29
-     tb_overs AT ROW 11.19 COL 29
-     tb_adder AT ROW 11.19 COL 56
-     sl_avail AT ROW 13.1 COL 3.6 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 13.1 COL 60.4 NO-LABEL WIDGET-ID 28
-     Btn_Def AT ROW 13.29 COL 41 HELP
+     tb_adder AT ROW 9.43 COL 56
+     sl_avail AT ROW 11.24 COL 3.6 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 11.24 COL 60.4 NO-LABEL WIDGET-ID 28
+     Btn_Def AT ROW 11.43 COL 41 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 14.29 COL 41 HELP
+     Btn_Add AT ROW 12.43 COL 41 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 15.29 COL 41 HELP
+     Btn_Remove AT ROW 13.43 COL 41 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 16.33 COL 41 WIDGET-ID 40
-     btn_down AT ROW 17.38 COL 41 WIDGET-ID 42
-     rd-dest AT ROW 19.86 COL 6 NO-LABEL
-     lv-ornt AT ROW 20.33 COL 31 NO-LABEL
-     lines-per-page AT ROW 20.33 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 22 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 22.95 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 24.05 COL 31
-     tb_excel AT ROW 25.57 COL 51 RIGHT-ALIGNED
-     tb_runExcel AT ROW 25.57 COL 72.4 RIGHT-ALIGNED
-     fi_file AT ROW 26.48 COL 29 COLON-ALIGNED HELP
+     btn_Up AT ROW 14.48 COL 41 WIDGET-ID 40
+     btn_down AT ROW 15.52 COL 41 WIDGET-ID 42
+     rd-dest AT ROW 17.91 COL 6 NO-LABEL
+     lv-ornt AT ROW 18.38 COL 31 NO-LABEL
+     lines-per-page AT ROW 18.38 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 20.05 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 21 COL 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 22.1 COL 31
+     tb_excel AT ROW 23.62 COL 51 RIGHT-ALIGNED
+     tb_runExcel AT ROW 23.62 COL 72.4 RIGHT-ALIGNED
+     fi_file AT ROW 24.52 COL 29 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 28.38 COL 19
-     btn-cancel AT ROW 28.38 COL 57
+     btn-ok AT ROW 26.52 COL 19
+     btn-cancel AT ROW 26.52 COL 57
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 12.38 COL 4.2 WIDGET-ID 38
+          SIZE 29 BY .62 AT ROW 10.52 COL 4.2 WIDGET-ID 38
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18.91 COL 4
+          SIZE 18 BY .62 AT ROW 16.95 COL 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.48 COL 3
           BGCOLOR 2 
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.48 COL 60.6 WIDGET-ID 44
-     RECT-6 AT ROW 18.62 COL 2
+          SIZE 34 BY .62 AT ROW 10.62 COL 60.6 WIDGET-ID 44
+     RECT-6 AT ROW 16.67 COL 2
      RECT-7 AT ROW 1.24 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 95.8 BY 29.1.
+         SIZE 95.8 BY 27.05.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -424,11 +413,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "PO Purchased Variance"
-         HEIGHT             = 29.1
+         HEIGHT             = 27.05
          WIDTH              = 95.6
-         MAX-HEIGHT         = 29.1
+         MAX-HEIGHT         = 27.05
          MAX-WIDTH          = 95.8
-         VIRTUAL-HEIGHT     = 29.1
+         VIRTUAL-HEIGHT     = 27.05
          VIRTUAL-WIDTH      = 95.8
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -442,8 +431,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -1040,17 +1029,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_receipt
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_receipt C-Win
-ON VALUE-CHANGED OF tb_receipt IN FRAME FRAME-A /* Only Purchase Orders With Receipts? */
-DO:
-    assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME tb_repeat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_repeat C-Win
 ON VALUE-CHANGED OF tb_repeat IN FRAME FRAME-A /* Repeat PO#/Vendor#? */
@@ -1343,16 +1321,16 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_po-no end_po-no begin_po-date end_po-date begin_vend-no 
           end_vend-no begin_po-i-no end_po-i-no begin_job-no end_job-no 
-          tb_receipt begin_rec-date end_rec-date lbl_vend-cost rd_vend-cost 
-          tb_mpv tb_repeat tb_overs tb_adder sl_avail sl_selected rd-dest 
+          lbl_vend-cost rd_vend-cost tb_repeat tb_mpv tb_overs tb_adder rd-dest 
           lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file sl_avail sl_selected
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_po-no end_po-no begin_po-date end_po-date 
          begin_vend-no end_vend-no begin_po-i-no end_po-i-no begin_job-no 
-         end_job-no tb_receipt begin_rec-date end_rec-date rd_vend-cost tb_mpv 
-         tb_repeat tb_overs tb_adder sl_avail sl_selected Btn_Def Btn_Add 
-         Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no 
-         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         end_job-no rd_vend-cost tb_repeat tb_mpv tb_overs tb_adder rd-dest 
+         lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel 
+         fi_file btn-ok btn-cancel Btn_Def sl_avail sl_selected Btn_Add Btn_Remove 
+         btn_Up btn_down
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1772,8 +1750,6 @@ def var pr-ct as int no-undo.
              and (((rm-rcpth.rita-code eq "R" or rm-rcpth.rita-code eq "A")))
              and rm-rcpth.po-no      eq trim(string(po-ordl.po-no,">>>>>9")) NO-ERROR.
       IF AVAILABLE rm-rcpth THEN receiptDate = rm-rcpth.trans-date.
-      IF tb_receipt THEN
-          IF NOT AVAIL rm-rcpth THEN NEXT .
    END.
    ELSE DO:
       FIND FIRST fg-rcpth NO-LOCK
@@ -1783,8 +1759,6 @@ def var pr-ct as int no-undo.
              and (fg-rcpth.rita-code eq "R" or
                  fg-rcpth.rita-code eq "A") NO-ERROR.
       IF AVAILABLE fg-rcpth THEN receiptDate = fg-rcpth.trans-date .
-      IF tb_receipt THEN
-          IF NOT AVAIL fg-rcpth THEN NEXT .
   END.
   /*END.*/
     
@@ -2398,4 +2372,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

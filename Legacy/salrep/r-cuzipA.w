@@ -104,7 +104,7 @@ fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -298,8 +298,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -454,7 +454,7 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -987,7 +987,6 @@ def var v-inc-fc as log init no.
 
 def var v-tot as dec format "->,>>>,>>>,>>9.99" extent 2.
 DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
  ASSIGN
   str-tit2 = c-win:title
@@ -999,8 +998,7 @@ DEF VAR lSelected AS LOG INIT YES NO-UNDO.
   tzip       = END_zip
   fdate      = begin_inv-date
   tdate      = end_inv-date
-  v-inc-fc   = tb_fin-chg
-  lSelected  = tb_cust-list.
+  v-inc-fc   = tb_fin-chg.
   
 
 {sys/inc/print1.i}
@@ -1012,12 +1010,7 @@ IF tb_excel THEN DO:
   excelheader = "Cust#,Cust Name,City,State,Zip Code,Sales $".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
-END.
+
 if td-show-parm then run show-param.
 
 display "" with frame r-top.
@@ -1028,12 +1021,13 @@ SESSION:SET-WAIT-STATE ("general").
     DELETE tt-report.
   END.
 
-  FOR each cust
+  FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+    each cust
       where cust.company eq cocode
-        AND cust.cust-no GE fcust
-        AND cust.cust-no LE tcust
-        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-        AND ttCustList.log-fld no-lock) else true)
+        and cust.cust-no EQ ttCustList.cust-no /*fcust*/
+   /*    and cust.cust-no le tcust*/
         AND cust.zip GE begin_zip
         AND cust.zip LE END_zip
       no-lock:

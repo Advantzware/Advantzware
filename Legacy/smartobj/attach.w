@@ -61,8 +61,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_att 
-     IMAGE-UP FILE "images/clip.ico":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/paperclip.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Attachment" 
      SIZE 7.8 BY 1.81 TOOLTIP "Attachments".
 
@@ -184,7 +184,7 @@ END.
 &ENDIF
 
 IF INDEX(PROGRAM-NAME(3),"windows/cust") > 0 THEN
-   SELECT_att:LOAD-IMAGE("images\pushpin.ico").
+   SELECT_att:LOAD-IMAGE("images\pushpin.png").
 
 RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 
@@ -223,9 +223,9 @@ PROCEDURE Paper-Clip-Image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-attach THEN
-         SELECT_att:LOAD-IMAGE("images/clip.ico").
+         SELECT_att:LOAD-IMAGE("images/clip.png").
       ELSE
-         SELECT_att:LOAD-IMAGE("images/clipa.ico").
+         SELECT_att:LOAD-IMAGE("images/clipa.png").
    END.
 END PROCEDURE.
 
@@ -243,9 +243,9 @@ PROCEDURE pushpin-image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-attach THEN
-         SELECT_att:LOAD-IMAGE("images/pushpin.ico").
+         SELECT_att:LOAD-IMAGE("images/pushpin.png").
       ELSE
-         SELECT_att:LOAD-IMAGE("images/pushpiny.ico").
+         SELECT_att:LOAD-IMAGE("images/pushpiny.png").
    END.
 END PROCEDURE.
 

@@ -174,16 +174,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF "{&IAMWHAT}" = "SEARCH" &THEN
-&Scoped-define LOADIMAGE prospy
-&ELSEIF "{&IAMWHAT}" = "LOOKUP" &THEN
-&Scoped-define LOADIMAGE help
-&ENDIF
-
-IF NOT {&WINDOW-NAME}:LOAD-ICON("images\{&LOADIMAGE}":U) THEN
-    MESSAGE "Unable to load icon: images\{&LOADIMAGE}"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-
 /* ***************  Runtime Attributes and UIB Settings  ************** */
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE({&WINDOW-NAME})

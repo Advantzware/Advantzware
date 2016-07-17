@@ -179,7 +179,7 @@ DEFINE BUTTON btn4Steps
      SIZE 28 BY 1.
 
 DEFINE BUTTON btnCalendar 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.4 BY 1.05 TOOLTIP "PopUp Calendar".
 

@@ -135,11 +135,11 @@ DEFINE VARIABLE users_user_id AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
 
 DEFINE IMAGE boxes
-     FILENAME "images\bigboxes":U
+     FILENAME "Graphics\bigboxes":U
      SIZE 79 BY 17.38.
 
 DEFINE IMAGE menu-image
-     FILENAME "images\logo1":U CONVERT-3D-COLORS
+     FILENAME "Graphics\logo1":U CONVERT-3D-COLORS
      SIZE 79 BY 4.52.
 
 DEFINE RECTANGLE RECT-2

@@ -301,9 +301,9 @@ PUT
 
     "<=2><R+13><C12>STYLE:" v-style FORM "x(30)" AT 51  SKIP
     "<=2><R+14><C12>BOARD:" v-board FORM "x(40)" AT 50 SKIP
-    "<=2><R+15><C12>LENGTH:" v-len FORM ">>9.99999" AT 48 SKIP
-    "<=2><R+16><C12>WIDTH:"  v-wid FORM ">>9.99999" AT 50 SKIP
-    "<=2><R+17><C12>DEPTH:" v-dep FORM ">>9.99999" AT 50 SKIP
+    "<=2><R+15><C12>LENGTH:" v-len AT 48 SKIP
+    "<=2><R+16><C12>WIDTH:"  v-wid AT 50 SKIP
+    "<=2><R+17><C12>DEPTH:" v-dep AT 50 SKIP
     "<=2><R+18><C12>BLANK LENGTH:" v-blen AT 41 SKIP
     "<=2><R+19><C12>BLANK WIDTH:" v-bwid AT 43 SKIP
     "<=2><R+20><C12>COLORS:" "1               2                3                 4                5                 6                 7" AT 55 SKIP
