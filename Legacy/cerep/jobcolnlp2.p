@@ -939,7 +939,7 @@ FOR  EACH job-hdr NO-LOCK
              v-po-duedate = IF AVAIL po-ordl THEN po-ordl.due-date ELSE ?.
 
              PUT "<P10>" 
-                "<B> STOCK CODE  DESCRIPTION            GRAIN   WIDTH   CYLINDER  DIE SIZE              DIE#               PRINT QTY      PRINT FEET</B>" 
+                "<B> STOCK CODE  DESCRIPTION            GRAIN  WIDTH CYLINDER   DIE SIZE             DIE#              PRINT QTY      PRINT FEET</B>" 
                 SKIP.
 
             /** PRINT SHEET **/
@@ -969,16 +969,16 @@ FOR  EACH job-hdr NO-LOCK
                DISPLAY
                  SPACE(1) trim(wrk-sheet.i-no) FORMAT "X(10)"  SPACE(2)
                    ITEM.i-name  FORM "x(23)"  
-                   ef.xgrain FORM "x(2)" SPACE(2)
+                   ef.xgrain FORM "x(2)" SPACE(1)
 /*                     v-lbs SPACE(2) */
                   FILL(" ",8 - LENGTH(STRING(wrk-sheet.sh-wid))) + STRING(wrk-sheet.sh-wid)
-                  SPACE (2)
+                  SPACE (1)
                   (IF AVAIL job-mat THEN job-mat.len  ELSE ef.gsh-len) FORMAT ">>9.9999"
-                   SPACE(3)
+                   SPACE(2)
                   string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(21)" SPACE(1)
                   eb.die-no FORMAT "X(15)"  SPACE(1)
                  /* gdm - 12040803 */
-                  wrk-sheet.gsh-qty  SPACE (1)
+                  wrk-sheet.gsh-qty FORMAT "->>,>>>,>>9"  SPACE (1)
                   v-print-feet 
                   with stream-io width 170 no-labels no-box frame sheet.
 

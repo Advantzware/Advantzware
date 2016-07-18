@@ -813,7 +813,7 @@ for each job-hdr NO-LOCK
             v-upc-lbl = "   CAD#".
            /* IF FIRST-OF(eb.form-no) THEN DO:*/
               PUT
-                 "<P9><B>F/B         FG Item #       Cust Part #     Art #            PO#            Customer Lot#     Description                    Cad            # Up   " "</B>" SKIP.  /* Style  Carton Size*/
+                 "<P9><B>F/B         FG Item #       Cust Part #     Art #            PO#            Customer Lot#     Description                 Cad            # Up   " "</B>" SKIP.  /* Style  Carton Size*/
 
               ASSIGN v-case-size-ext = ""
                      v-case-qty-ext = 0
@@ -900,8 +900,8 @@ for each job-hdr NO-LOCK
                     (IF eb.plate-no <> "" THEN eb.plate-no  ELSE IF AVAIL itemfg THEN itemfg.plate-no ELSE "" ) FORM "x(15)"
                     (IF AVAIL oe-ordl  THEN oe-ordl.po-no ELSE "") FORM "x(15)"
                     v-cust-lot#  FORM "x(17)"
-                    v-dsc[1] FORM "x(30)"
-                    eb.cad-no  FORM "x(15)" /*v-stypart */
+                    v-dsc[1] FORM "x(27)" SPACE(1)
+                    eb.cad-no FORM "x(15)" /*v-stypart */
                     v-up-ext[vext]        @ v-up FORMAT ">>9"  /*v-size[1] FORM "x(30)"*/
                     skip
                 with stream-io width 175 no-labels no-box frame line-det1.
@@ -1013,7 +1013,7 @@ for each job-hdr NO-LOCK
                     wrk-film.bnum SPACE(3)
                     string(wrk-film.leaf-l) + "x" + string(wrk-film.leaf-w)
                     format "x(23)" SPACE(10)
-                   STRING( ( wrk-film.leaf-l + 1) * (IF AVAIL job-mch THEN job-mch.run-qty ELSE 0) / 12)
+                   STRING( ( wrk-film.leaf-l + 1) * (IF AVAIL job-mch THEN job-mch.run-qty ELSE 0) / 12) SPACE(2)
                    STRING((IF AVAIL job-mch THEN job-mch.run-qty ELSE 0) * (wrk-film.leaf-l + 1) * ( wrk-film.leaf-w + 1) /
                     (IF AVAIL ITEM THEN ITEM.sqin-lb ELSE 0) )
                     with stream-io width 170 no-labels no-box frame film.
