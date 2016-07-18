@@ -41,36 +41,36 @@ CREATE WIDGET-POOL.
 {sys/inc/VAR.i NEW SHARED}
 
 ASSIGN
- cocode = g_company
- locode = g_loc
- gcompany = g_company
- gloc = g_loc   .
+    cocode   = g_company
+    locode   = g_loc
+    gcompany = g_company
+    gloc     = g_loc   .
 
-def var li-new-estnum like  ce-ctrl.e-num no-undo.
-def var ll-new-record as log no-undo.
-DEF VAR char-hdl AS cha NO-UNDO.
-DEF VAR lv-frst-rowid AS ROWID NO-UNDO.
-DEF VAR lv-last-rowid AS ROWID NO-UNDO.
-DEF VAR lv-frst-rowid2 AS ROWID NO-UNDO.
-DEF VAR lv-last-rowid2 AS ROWID NO-UNDO.
-DEF VAR lv-first-run AS LOG INIT YES NO-UNDO.
-DEF VAR ll-initial AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE li-new-estnum        LIKE ce-ctrl.e-num NO-UNDO.
+DEFINE VARIABLE ll-new-record        AS LOG       NO-UNDO.
+DEFINE VARIABLE char-hdl             AS cha       NO-UNDO.
+DEFINE VARIABLE lv-frst-rowid        AS ROWID     NO-UNDO.
+DEFINE VARIABLE lv-last-rowid        AS ROWID     NO-UNDO.
+DEFINE VARIABLE lv-frst-rowid2       AS ROWID     NO-UNDO.
+DEFINE VARIABLE lv-last-rowid2       AS ROWID     NO-UNDO.
+DEFINE VARIABLE lv-first-run         AS LOG       INIT YES NO-UNDO.
+DEFINE VARIABLE ll-initial           AS LOG       INIT YES NO-UNDO.
 
-DEF VAR lv-sort-by AS CHAR INIT "est-no" NO-UNDO.
-DEF VAR lv-sort-by-lab AS CHAR INIT "Estimate" NO-UNDO.
-DEF VAR ll-sort-asc AS LOG NO-UNDO.
-DEF VAR ll-shipto AS LOG NO-UNDO.
+DEFINE VARIABLE lv-sort-by           AS CHARACTER INIT "est-no" NO-UNDO.
+DEFINE VARIABLE lv-sort-by-lab       AS CHARACTER INIT "Estimate" NO-UNDO.
+DEFINE VARIABLE ll-sort-asc          AS LOG       NO-UNDO.
+DEFINE VARIABLE ll-shipto            AS LOG       NO-UNDO.
 
-DEF VAR lv-est-date-entered AS LOG NO-UNDO.
-DEF VAR lv-show-prev AS LOG NO-UNDO.
-DEF VAR lv-show-next AS LOG NO-UNDO.
-DEF VAR lv-last-show-est-no AS cha NO-UNDO.
-DEF VAR lv-first-show-est-no AS cha NO-UNDO.
-DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
-DEF VAR v-rec-key-list AS CHAR NO-UNDO.
-DEF VAR lActive AS LOG NO-UNDO.
+DEFINE VARIABLE lv-est-date-entered  AS LOG       NO-UNDO.
+DEFINE VARIABLE lv-show-prev         AS LOG       NO-UNDO.
+DEFINE VARIABLE lv-show-next         AS LOG       NO-UNDO.
+DEFINE VARIABLE lv-last-show-est-no  AS cha       NO-UNDO.
+DEFINE VARIABLE lv-first-show-est-no AS cha       NO-UNDO.
+DEFINE VARIABLE v-col-move           AS LOG       INIT TRUE NO-UNDO.
+DEFINE VARIABLE v-rec-key-list       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lActive              AS LOG       NO-UNDO.
 DO TRANSACTION:
-     {sys/ref/CustList.i NEW}
+    {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""EF"" }
 END.
 
@@ -170,17 +170,17 @@ END.
     BY ({&sortby-log}) DESC       ~
     {&sortby}
 
-DEF VAR lv-disp-qty AS INT FORM ">>>>>>>>9" NO-UNDO.
+DEFINE VARIABLE lv-disp-qty AS INTEGER FORM ">>>>>>>>9" NO-UNDO.
 
 DO TRANSACTION:
-  {sys/inc/browser.i "CEBROWSE"}
-  {sys/inc/cefgitem.i}
+    {sys/inc/browser.i "CEBROWSE"}
+    {sys/inc/cefgitem.i}
 END.
 
 ll-initial = browser-log.
 
-DEF BUFFER blast-eb FOR eb.
-DEF VAR lv-last-est-no AS cha NO-UNDO.
+DEFINE BUFFER blast-eb FOR eb.
+DEFINE VARIABLE lv-last-est-no       AS cha    NO-UNDO.
 DEFINE VARIABLE lv-Persistent-Handle AS HANDLE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -277,14 +277,14 @@ tb_single tb_set tb_tancom fi_sort-by FI_moveCol
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD display-qty B-table-Win 
 FUNCTION display-qty RETURNS INTEGER
-  ( /* parameter-definitions */ )  FORWARD.
+    ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD display-qty-set B-table-Win 
 FUNCTION display-qty-set RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
+    ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -295,183 +295,183 @@ FUNCTION display-qty-set RETURNS DECIMAL
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn_go 
-     LABEL "&Go" 
-     SIZE 14 BY 1
-     FONT 6.
+    LABEL "&Go" 
+    SIZE 14 BY 1
+    FONT 6.
 
 DEFINE BUTTON btn_next 
-     LABEL "Show &Next" 
-     SIZE 16 BY 1
-     FONT 6.
+    LABEL "Show &Next" 
+    SIZE 16 BY 1
+    FONT 6.
 
 DEFINE BUTTON btn_prev 
-     LABEL "Show &Previous" 
-     SIZE 20 BY 1
-     FONT 6.
+    LABEL "Show &Previous" 
+    SIZE 20 BY 1
+    FONT 6.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)":U 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1
-     BGCOLOR 15  NO-UNDO.
+    VIEW-AS FILL-IN 
+    SIZE 14 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE begin_ship AS CHARACTER FORMAT "X(8)":U 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE begin_ship    AS CHARACTER FORMAT "X(8)":U 
+    VIEW-AS FILL-IN 
+    SIZE 14 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
-     VIEW-AS FILL-IN 
-     SIZE 10.8 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+DEFINE VARIABLE FI_moveCol    AS CHARACTER FORMAT "X(4)":U 
+    VIEW-AS FILL-IN 
+    SIZE 10.8 BY 1
+    BGCOLOR 14 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 29.6 BY 1
-     BGCOLOR 14  NO-UNDO.
+DEFINE VARIABLE fi_sort-by    AS CHARACTER FORMAT "X(256)":U 
+    VIEW-AS FILL-IN 
+    SIZE 29.6 BY 1
+    BGCOLOR 14 NO-UNDO.
 
-DEFINE VARIABLE vi_cad-no AS CHARACTER FORMAT "x(15)":U 
-     VIEW-AS FILL-IN 
-     SIZE 22 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE vi_cad-no     AS CHARACTER FORMAT "x(15)":U 
+    VIEW-AS FILL-IN 
+    SIZE 22 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE vi_dep AS DECIMAL FORMAT "->>,>>9.99999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 12 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE vi_dep        AS DECIMAL   FORMAT "->>,>>9.99999":U INITIAL 0 
+    VIEW-AS FILL-IN 
+    SIZE 12 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE vi_dep-2 AS DECIMAL FORMAT "->>,>>9.99999":U INITIAL 9999.9999 
-     VIEW-AS FILL-IN 
-     SIZE 12 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE vi_dep-2      AS DECIMAL   FORMAT "->>,>>9.99999":U INITIAL 9999.9999 
+    VIEW-AS FILL-IN 
+    SIZE 12 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE vi_die-no AS CHARACTER FORMAT "x(15)":U 
-     VIEW-AS FILL-IN 
-     SIZE 22 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE vi_die-no     AS CHARACTER FORMAT "x(15)":U 
+    VIEW-AS FILL-IN 
+    SIZE 22 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE vi_est-date AS DATE FORMAT "99/99/9999":U 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE vi_est-date   AS DATE      FORMAT "99/99/9999":U 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE vi_est-no AS CHARACTER FORMAT "x(8)":U 
-     VIEW-AS FILL-IN 
-     SIZE 15 BY 1
-     BGCOLOR 15 FONT 2 NO-UNDO.
+DEFINE VARIABLE vi_est-no     AS CHARACTER FORMAT "x(8)":U 
+    VIEW-AS FILL-IN 
+    SIZE 15 BY 1
+    BGCOLOR 15 FONT 2 NO-UNDO.
 
-DEFINE VARIABLE vi_len AS DECIMAL FORMAT "->>,>>9.99999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 12 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE vi_len        AS DECIMAL   FORMAT "->>,>>9.99999":U INITIAL 0 
+    VIEW-AS FILL-IN 
+    SIZE 12 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE vi_len-2 AS DECIMAL FORMAT "->>,>>9.99999":U INITIAL 9999.9999 
-     VIEW-AS FILL-IN 
-     SIZE 12 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE vi_len-2      AS DECIMAL   FORMAT "->>,>>9.99999":U INITIAL 9999.9999 
+    VIEW-AS FILL-IN 
+    SIZE 12 BY 1
+    BGCOLOR 15 NO-UNDO.
 
 DEFINE VARIABLE vi_part-dscr1 AS CHARACTER FORMAT "X(30)":U 
-     VIEW-AS FILL-IN 
-     SIZE 36 BY 1
-     BGCOLOR 15  NO-UNDO.
+    VIEW-AS FILL-IN 
+    SIZE 36 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE vi_part-no AS CHARACTER FORMAT "X(15)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE vi_part-no    AS CHARACTER FORMAT "X(15)":U 
+    VIEW-AS FILL-IN 
+    SIZE 20 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE vi_plate-no AS CHARACTER FORMAT "x(15)":U 
-     VIEW-AS FILL-IN 
-     SIZE 22 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE vi_plate-no   AS CHARACTER FORMAT "x(15)":U 
+    VIEW-AS FILL-IN 
+    SIZE 22 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE vi_stock-no AS CHARACTER FORMAT "X(15)":U 
-     VIEW-AS FILL-IN 
-     SIZE 22 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE vi_stock-no   AS CHARACTER FORMAT "X(15)":U 
+    VIEW-AS FILL-IN 
+    SIZE 22 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE vi_style AS CHARACTER FORMAT "X(6)":U 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE vi_style      AS CHARACTER FORMAT "X(6)":U 
+    VIEW-AS FILL-IN 
+    SIZE 14 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE vi_wid AS DECIMAL FORMAT "->>,>>9.99999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 12 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE vi_wid        AS DECIMAL   FORMAT "->>,>>9.99999":U INITIAL 0 
+    VIEW-AS FILL-IN 
+    SIZE 12 BY 1
+    BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE vi_wid-2 AS DECIMAL FORMAT "->>,>>9.99999":U INITIAL 9999.9999 
-     VIEW-AS FILL-IN 
-     SIZE 12 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE vi_wid-2      AS DECIMAL   FORMAT "->>,>>9.99999":U INITIAL 9999.9999 
+    VIEW-AS FILL-IN 
+    SIZE 12 BY 1
+    BGCOLOR 15 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 151 BY 5.24.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 151 BY 5.24.
 
-DEFINE VARIABLE tb_set AS LOGICAL INITIAL yes 
-     LABEL "Set" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 8 BY .86 NO-UNDO.
+DEFINE VARIABLE tb_set         AS LOGICAL INITIAL YES 
+    LABEL "Set" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 8 BY .86 NO-UNDO.
 
-DEFINE VARIABLE tb_single AS LOGICAL INITIAL yes 
-     LABEL "Single" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 10 BY .86 NO-UNDO.
+DEFINE VARIABLE tb_single      AS LOGICAL INITIAL YES 
+    LABEL "Single" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 10 BY .86 NO-UNDO.
 
-DEFINE VARIABLE tb_tancom AS LOGICAL INITIAL yes 
-     LABEL "Tandem/Combo" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 20 BY .86 NO-UNDO.
+DEFINE VARIABLE tb_tancom      AS LOGICAL INITIAL YES 
+    LABEL "Tandem/Combo" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 20 BY .86 NO-UNDO.
 
-DEFINE VARIABLE TG_exact-match AS LOGICAL INITIAL no 
-     LABEL "Exact" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 9.8 BY .81 TOOLTIP "Exact Match" NO-UNDO.
+DEFINE VARIABLE TG_exact-match AS LOGICAL INITIAL NO 
+    LABEL "Exact" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 9.8 BY .81 TOOLTIP "Exact Match" NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      eb, 
-      est, 
-      est-qty
+    eb, 
+    est, 
+    est-qty
     FIELDS(est-qty.eqty
-      est-qty.eqty
-      est-qty.eqty), 
-      ef
+    est-qty.eqty
+    est-qty.eqty), 
+    ef
     FIELDS(ef.medium
-      ef.flute) SCROLLING.
+    ef.flute) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
-  QUERY Browser-Table NO-LOCK DISPLAY
-      est.est-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
-      eb.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      eb.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
-      display-qty() @ est-qty.eqty LABEL-BGCOLOR 14
-      est-qty.eqty FORMAT ">>>,>>>,>>9":U WIDTH 14 LABEL-BGCOLOR 14
-      eb.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
-      display-qty() @ est-qty.eqty LABEL-BGCOLOR 14
-      eb.stock-no COLUMN-LABEL "FG Item #" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
-      eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U LABEL-BGCOLOR 14
-      ef.medium COLUMN-LABEL "Paper 1" FORMAT "x(10)":U LABEL-BGCOLOR 14
-      ef.flute COLUMN-LABEL "Paper 2" FORMAT "x(10)":U LABEL-BGCOLOR 14
-      eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>>>>>9":U LABEL-BGCOLOR 14
-      display-qty-set() @ eb.cust-%
-      eb.die-no FORMAT "x(15)":U LABEL-BGCOLOR 14
-      eb.cad-no COLUMN-LABEL "Cad #" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      display-qty-set() @ eb.cust-%
-      eb.plate-no FORMAT "x(15)":U LABEL-BGCOLOR 14
-      est.entered-id COLUMN-LABEL "Created By" FORMAT "X(8)":U
-            WIDTH 15 LABEL-BGCOLOR 14
-      est.updated-id COLUMN-LABEL "Modifed By" FORMAT "X(8)":U
-            WIDTH 15 LABEL-BGCOLOR 14
-      eb.len LABEL-BGCOLOR 14
-      est.est-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      eb.wid LABEL-BGCOLOR 14
-      eb.pur-man FORMAT "P/M":U
-      eb.dep LABEL-BGCOLOR 14
+    QUERY Browser-Table NO-LOCK DISPLAY
+    est.est-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
+    eb.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U LABEL-BGCOLOR 14
+    eb.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+    display-qty() @ est-qty.eqty LABEL-BGCOLOR 14
+    est-qty.eqty FORMAT ">>>,>>>,>>9":U WIDTH 14 LABEL-BGCOLOR 14
+    eb.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+    display-qty() @ est-qty.eqty LABEL-BGCOLOR 14
+    eb.stock-no COLUMN-LABEL "FG Item #" FORMAT "x(15)":U LABEL-BGCOLOR 14
+    eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
+    eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U LABEL-BGCOLOR 14
+    ef.medium COLUMN-LABEL "Paper 1" FORMAT "x(10)":U LABEL-BGCOLOR 14
+    ef.flute COLUMN-LABEL "Paper 2" FORMAT "x(10)":U LABEL-BGCOLOR 14
+    eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>>>>>9":U LABEL-BGCOLOR 14
+    display-qty-set() @ eb.cust-%
+    eb.die-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+    eb.cad-no COLUMN-LABEL "Cad #" FORMAT "x(15)":U LABEL-BGCOLOR 14
+    display-qty-set() @ eb.cust-%
+    eb.plate-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+    est.entered-id COLUMN-LABEL "Created By" FORMAT "X(8)":U
+    WIDTH 15 LABEL-BGCOLOR 14
+    est.updated-id COLUMN-LABEL "Modifed By" FORMAT "X(8)":U
+    WIDTH 15 LABEL-BGCOLOR 14
+    eb.len LABEL-BGCOLOR 14
+    est.est-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+    eb.wid LABEL-BGCOLOR 14
+    eb.pur-man FORMAT "P/M":U
+    eb.dep LABEL-BGCOLOR 14
   ENABLE
       est.est-no
       eb.cust-no
@@ -497,75 +497,75 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     vi_est-no AT ROW 1.95 COL 2 NO-LABEL
-     begin_cust-no AT ROW 1.95 COL 15 COLON-ALIGNED NO-LABEL
-     begin_ship AT ROW 3 COL 15 COLON-ALIGNED NO-LABEL
-     vi_part-no AT ROW 1.95 COL 29 COLON-ALIGNED NO-LABEL
-     vi_stock-no AT ROW 1.95 COL 49 COLON-ALIGNED NO-LABEL
-     vi_part-dscr1 AT ROW 3.14 COL 49 COLON-ALIGNED NO-LABEL
-     vi_style AT ROW 1.95 COL 71 COLON-ALIGNED NO-LABEL
-     vi_len AT ROW 1.95 COL 86 COLON-ALIGNED NO-LABEL
-     vi_len-2 AT ROW 1.95 COL 103 COLON-ALIGNED NO-LABEL
-     vi_wid AT ROW 2.91 COL 86 COLON-ALIGNED NO-LABEL
-     vi_wid-2 AT ROW 2.91 COL 103 COLON-ALIGNED NO-LABEL
-     vi_dep AT ROW 3.86 COL 86 COLON-ALIGNED NO-LABEL
-     vi_dep-2 AT ROW 3.86 COL 103 COLON-ALIGNED NO-LABEL
-     vi_die-no AT ROW 1.95 COL 116 COLON-ALIGNED NO-LABEL
-     TG_exact-match AT ROW 2 COL 140.6 WIDGET-ID 8
-     vi_cad-no AT ROW 2.91 COL 116 COLON-ALIGNED NO-LABEL
-     vi_plate-no AT ROW 3.86 COL 116 COLON-ALIGNED NO-LABEL
-     tb_single AT ROW 4.19 COL 3
-     tb_set AT ROW 4.19 COL 17
-     tb_tancom AT ROW 4.19 COL 30
-     btn_go AT ROW 5.05 COL 3
-     btn_prev AT ROW 5.05 COL 18
-     btn_next AT ROW 5.05 COL 39
-     vi_est-date AT ROW 5.05 COL 54.2 COLON-ALIGNED NO-LABEL
-     fi_sort-by AT ROW 5.05 COL 83.2 COLON-ALIGNED NO-LABEL
-     FI_moveCol AT ROW 5.05 COL 137 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     Browser-Table AT ROW 6.24 COL 1 HELP
-          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 2.91 COL 101
-     "Match" VIEW-AS TEXT
-          SIZE 6.8 BY .62 AT ROW 2.76 COL 144.2 WIDGET-ID 10
-     "Die # / Cad # / Plate #" VIEW-AS TEXT
-          SIZE 28 BY .62 AT ROW 1.24 COL 118
-          FGCOLOR 9 FONT 6
-     "Customer Part#" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 1.24 COL 31
-          FGCOLOR 9 FONT 6
-     "Estimate" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 3
-          FGCOLOR 9 FONT 6
-     "L x W x D" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 96
-          FGCOLOR 9 FONT 6
-     "Style" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.24 COL 73
-          FGCOLOR 9 FONT 6
-     "Sort By:" VIEW-AS TEXT
-          SIZE 9.8 BY .62 AT ROW 5.24 COL 75.6
-          FONT 6
-     "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 3.86 COL 101
-     "Browser Col. Mode:" VIEW-AS TEXT
-          SIZE 22.6 BY .62 AT ROW 5.33 COL 116.4 WIDGET-ID 6
-          FONT 6
-     "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 1.95 COL 101
-     "FG Item# / Name" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 1.24 COL 51
-          FGCOLOR 9 FONT 6
-     "Customer" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 17
-          FGCOLOR 9 FONT 6
-     RECT-1 AT ROW 1 COL 1
+    vi_est-no AT ROW 1.95 COL 2 NO-LABELS
+    begin_cust-no AT ROW 1.95 COL 15 COLON-ALIGNED NO-LABELS
+    begin_ship AT ROW 3 COL 15 COLON-ALIGNED NO-LABELS
+    vi_part-no AT ROW 1.95 COL 29 COLON-ALIGNED NO-LABELS
+    vi_stock-no AT ROW 1.95 COL 49 COLON-ALIGNED NO-LABELS
+    vi_part-dscr1 AT ROW 3.14 COL 49 COLON-ALIGNED NO-LABELS
+    vi_style AT ROW 1.95 COL 71 COLON-ALIGNED NO-LABELS
+    vi_len AT ROW 1.95 COL 86 COLON-ALIGNED NO-LABELS
+    vi_len-2 AT ROW 1.95 COL 103 COLON-ALIGNED NO-LABELS
+    vi_wid AT ROW 2.91 COL 86 COLON-ALIGNED NO-LABELS
+    vi_wid-2 AT ROW 2.91 COL 103 COLON-ALIGNED NO-LABELS
+    vi_dep AT ROW 3.86 COL 86 COLON-ALIGNED NO-LABELS
+    vi_dep-2 AT ROW 3.86 COL 103 COLON-ALIGNED NO-LABELS
+    vi_die-no AT ROW 1.95 COL 116 COLON-ALIGNED NO-LABELS
+    TG_exact-match AT ROW 2 COL 140.6 WIDGET-ID 8
+    vi_cad-no AT ROW 2.91 COL 116 COLON-ALIGNED NO-LABELS
+    vi_plate-no AT ROW 3.86 COL 116 COLON-ALIGNED NO-LABELS
+    tb_single AT ROW 4.19 COL 3
+    tb_set AT ROW 4.19 COL 17
+    tb_tancom AT ROW 4.19 COL 30
+    btn_go AT ROW 5.05 COL 3
+    btn_prev AT ROW 5.05 COL 18
+    btn_next AT ROW 5.05 COL 39
+    vi_est-date AT ROW 5.05 COL 54.2 COLON-ALIGNED NO-LABELS
+    fi_sort-by AT ROW 5.05 COL 83.2 COLON-ALIGNED NO-LABELS
+    FI_moveCol AT ROW 5.05 COL 137 COLON-ALIGNED NO-LABELS WIDGET-ID 4
+    Browser-Table AT ROW 6.24 COL 1 HELP
+    "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+    "to" VIEW-AS TEXT
+    SIZE 3 BY 1 AT ROW 2.91 COL 101
+    "Match" VIEW-AS TEXT
+    SIZE 6.8 BY .62 AT ROW 2.76 COL 144.2 WIDGET-ID 10
+    "Die # / Cad # / Plate #" VIEW-AS TEXT
+    SIZE 28 BY .62 AT ROW 1.24 COL 118
+    FGCOLOR 9 FONT 6
+    "Customer Part#" VIEW-AS TEXT
+    SIZE 19 BY .62 AT ROW 1.24 COL 31
+    FGCOLOR 9 FONT 6
+    "Estimate" VIEW-AS TEXT
+    SIZE 11 BY .67 AT ROW 1.24 COL 3
+    FGCOLOR 9 FONT 6
+    "L x W x D" VIEW-AS TEXT
+    SIZE 13 BY .62 AT ROW 1.24 COL 96
+    FGCOLOR 9 FONT 6
+    "Style" VIEW-AS TEXT
+    SIZE 9 BY .62 AT ROW 1.24 COL 73
+    FGCOLOR 9 FONT 6
+    "Sort By:" VIEW-AS TEXT
+    SIZE 9.8 BY .62 AT ROW 5.24 COL 75.6
+    FONT 6
+    "to" VIEW-AS TEXT
+    SIZE 3 BY 1 AT ROW 3.86 COL 101
+    "Browser Col. Mode:" VIEW-AS TEXT
+    SIZE 22.6 BY .62 AT ROW 5.33 COL 116.4 WIDGET-ID 6
+    FONT 6
+    "to" VIEW-AS TEXT
+    SIZE 3 BY 1 AT ROW 1.95 COL 101
+    "FG Item# / Name" VIEW-AS TEXT
+    SIZE 20 BY .62 AT ROW 1.24 COL 51
+    FGCOLOR 9 FONT 6
+    "Customer" VIEW-AS TEXT
+    SIZE 13 BY .62 AT ROW 1.24 COL 17
+    FGCOLOR 9 FONT 6
+    RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 
-         DEFAULT-BUTTON btn_go.
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1 SCROLLABLE 
+    BGCOLOR 8 FGCOLOR 0 
+    DEFAULT-BUTTON btn_go.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -581,10 +581,11 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-  RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN 
+DO:
+    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+    RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -620,18 +621,17 @@ END.
    NOT-VISIBLE FRAME-NAME Size-to-Fit L-To-R                            */
 /* BROWSE-TAB Browser-Table FI_moveCol F-Main */
 ASSIGN 
-       FRAME F-Main:SCROLLABLE       = FALSE
-       FRAME F-Main:HIDDEN           = TRUE.
+       FRAME F-Main:SCROLLABLE = FALSE
+       FRAME F-Main:HIDDEN     = TRUE.
 
 /* SETTINGS FOR FILL-IN begin_ship IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BROWSE Browser-Table IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 3
-       Browser-Table:MAX-DATA-GUESS IN FRAME F-Main         = 30
-       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
-                "2".
+       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main = 3
+       Browser-Table:MAX-DATA-GUESS IN FRAME F-Main     = 30
+       Browser-Table:PRIVATE-DATA IN FRAME F-Main       = "2".
 
 ASSIGN 
        eb.pur-man:VISIBLE IN BROWSE Browser-Table = FALSE.
@@ -760,7 +760,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ship B-table-Win
 ON HELP OF begin_ship IN FRAME F-Main
 DO:
-  DEF VAR char-val AS cha NO-UNDO.
+  DEFINE VARIABLE char-val AS cha NO-UNDO.
 
 
   RUN windows/l-shipto.w (g_company, g_loc, begin_cust-no:SCREEN-VALUE,
@@ -817,8 +817,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
-    DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
-    IF AVAIL est AND est.mod-date = 01/01/1900 THEN
+    DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
+    IF AVAILABLE est AND est.mod-date = 01/01/1900 THEN
        est.est-no:bgcolor IN BROWSE {&browse-name} = 12.
     ELSE est.est-no:bgcolor = ?.
 
@@ -874,9 +874,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-   DEF VAR lh-column AS HANDLE NO-UNDO.
-  DEF VAR lv-column-nam AS CHAR NO-UNDO.
-  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+   DEFINE VARIABLE lh-column     AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE lv-column-nam AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lv-column-lab AS CHARACTER NO-UNDO.
 
   
   ASSIGN
@@ -903,8 +903,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
-  DEF VAR char-hdl AS cha NO-UNDO.
-  DEF VAR phandle AS HANDLE NO-UNDO.
+  DEFINE VARIABLE char-hdl AS cha    NO-UNDO.
+  DEFINE VARIABLE phandle  AS HANDLE NO-UNDO.
 
 
   /* This ADM trigger code must be preserved in order to notify other
@@ -912,7 +912,7 @@ DO:
   {src/adm/template/brschnge.i}
   /*{methods/template/local/setvalue.i}     */
   
-  IF AVAIL est AND AVAIL eb THEN DO:
+  IF AVAILABLE est AND AVAILABLE eb THEN DO:
 
     {methods/run_link.i "CONTAINER-SOURCE" "Set-Rec-Key_Header"
        "(est.rec_key,'ESTIMATE:' + eb.rec_key + ' ' + {methods/headers/est.i})"}
@@ -934,7 +934,7 @@ DO:
             itemfg.i-no EQ eb.stock-no
             NO-LOCK NO-ERROR.
 
-       IF AVAIL itemfg THEN
+       IF AVAILABLE itemfg THEN
        DO:
           RUN spec-image-proc(INPUT itemfg.rec_key, INPUT YES).
           RELEASE itemfg.
@@ -956,9 +956,9 @@ END.
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
 DO:
   SESSION:SET-WAIT-STATE("general").
-  DEF VAR v-cust-no AS CHAR NO-UNDO .
-  DEF BUFFER bf-eb  FOR eb .
-  DEF BUFFER bf-est FOR est .
+  DEFINE VARIABLE v-cust-no AS CHARACTER NO-UNDO .
+  DEFINE BUFFER bf-eb  FOR eb .
+  DEFINE BUFFER bf-est FOR est .
   DO WITH FRAME {&FRAME-NAME}:
     APPLY "leave" TO FOCUS.
 
@@ -987,9 +987,9 @@ DO:
 
     RUN dispatch ("open-query").
     GET FIRST Browser-Table .
-     IF NOT AVAIL est THEN do:
+     IF NOT AVAILABLE est THEN DO:
 
-        IF begin_cust-no <> "" THEN dO:
+        IF begin_cust-no <> "" THEN DO:
              v-cust-no = begin_cust-no  .
          END.
          ELSE DO:
@@ -1002,7 +1002,7 @@ DO:
                  AND  (bf-eb.style BEGINS vi_style OR vi_style = "")
                  AND (bf-eb.part-dscr1 BEGINS vi_part-dscr1 OR vi_part-dscr1 = "")
                  NO-LOCK NO-ERROR. 
-             IF AVAIL bf-eb THEN
+             IF AVAILABLE bf-eb THEN
                  v-cust-no = bf-eb.cust-no .
              ELSE v-cust-no = "".
                   
@@ -1010,7 +1010,7 @@ DO:
 
          FIND FIRST cust WHERE cust.company = cocode 
              AND cust.cust-no = v-cust-no NO-LOCK NO-ERROR.
-         IF AVAIL cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
+         IF AVAILABLE cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
              MESSAGE "Customer is not on Users Customer List.  "  SKIP
               "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
          ELSE
@@ -1033,18 +1033,18 @@ DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-     vi_est-no:SCREEN-VALUE = ""
+     vi_est-no:SCREEN-VALUE     = ""
      begin_cust-no:SCREEN-VALUE = ""
-     vi_part-no:SCREEN-VALUE = ""
-     vi_stock-no:SCREEN-VALUE    = ""
-     vi_style:SCREEN-VALUE   = ""
-     vi_len:SCREEN-VALUE  = ""
-     vi_wid:SCREEN-VALUE  = ""
-     vi_dep:SCREEN-VALUE  = ""
-     vi_len-2:SCREEN-VALUE  = "9,999.99999"
-     vi_wid-2:SCREEN-VALUE  = "9,999.99999"
-     vi_dep-2:SCREEN-VALUE  = "9,999.99999"
-     vi_die-no:SCREEN-VALUE  = ""
+     vi_part-no:SCREEN-VALUE    = ""
+     vi_stock-no:SCREEN-VALUE   = ""
+     vi_style:SCREEN-VALUE      = ""
+     vi_len:SCREEN-VALUE        = ""
+     vi_wid:SCREEN-VALUE        = ""
+     vi_dep:SCREEN-VALUE        = ""
+     vi_len-2:SCREEN-VALUE      = "9,999.99999"
+     vi_wid-2:SCREEN-VALUE      = "9,999.99999"
+     vi_dep-2:SCREEN-VALUE      = "9,999.99999"
+     vi_die-no:SCREEN-VALUE     = ""
     /* vi_est-date:SCREEN-VALUE = ?  /*string(date(1,1,year(today)))*/ */
         .
     lv-show-next = YES.
@@ -1065,18 +1065,18 @@ DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-     vi_est-no:SCREEN-VALUE = ""
+     vi_est-no:SCREEN-VALUE     = ""
      begin_cust-no:SCREEN-VALUE = ""
-     vi_part-no:SCREEN-VALUE = ""
-     vi_stock-no:SCREEN-VALUE    = ""
-     vi_style:SCREEN-VALUE   = ""
-     vi_len:SCREEN-VALUE  = ""
-     vi_wid:SCREEN-VALUE  = ""
-     vi_dep:SCREEN-VALUE  = ""
-     vi_len-2:SCREEN-VALUE  = "9,999.99999"
-     vi_wid-2:SCREEN-VALUE  = "9,999.99999"
-     vi_dep-2:SCREEN-VALUE  = "9,999.99999"
-     vi_die-no:SCREEN-VALUE  = ""
+     vi_part-no:SCREEN-VALUE    = ""
+     vi_stock-no:SCREEN-VALUE   = ""
+     vi_style:SCREEN-VALUE      = ""
+     vi_len:SCREEN-VALUE        = ""
+     vi_wid:SCREEN-VALUE        = ""
+     vi_dep:SCREEN-VALUE        = ""
+     vi_len-2:SCREEN-VALUE      = "9,999.99999"
+     vi_wid-2:SCREEN-VALUE      = "9,999.99999"
+     vi_dep-2:SCREEN-VALUE      = "9,999.99999"
+     vi_die-no:SCREEN-VALUE     = ""
     /* vi_est-date:SCREEN-VALUE = ?  /*string(date(1,1,year(today)))*/ */
         .
     lv-show-prev = YES.
@@ -1095,7 +1095,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL TG_exact-match B-table-Win
 ON VALUE-CHANGED OF TG_exact-match IN FRAME F-Main /* Exact */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
    IF TG_exact-match = NO THEN DO:
       IF INDEX(vi_die-no:SCREEN-VALUE,"*") = 0 THEN
          vi_die-no:SCREEN-VALUE = CAPS(vi_die-no:SCREEN-VALUE + "*"). 
@@ -1196,11 +1196,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_est-no B-table-Win
 ON HELP OF vi_est-no IN FRAME F-Main
 DO:
-   DEF VAR char-val AS cha NO-UNDO.
+   DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-    run windows/l-esttyp.w (g_company,g_loc,"1234","EST",focus:screen-value, output char-val).
-    if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-    return no-apply.
+    RUN windows/l-esttyp.w (g_company,g_loc,"1234","EST",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1211,11 +1211,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_stock-no B-table-Win
 ON HELP OF vi_stock-no IN FRAME F-Main
 DO:
-   DEF VAR char-val AS cha NO-UNDO.
+   DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-    run windows/l-itemfg.w (g_company,"","", output char-val).
-    if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-    return no-apply.
+    RUN windows/l-itemfg.w (g_company,"","", OUTPUT char-val).
+    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1282,11 +1282,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_part-no B-table-Win
 ON HELP OF vi_part-no IN FRAME F-Main
 DO:
-  DEF VAR char-val AS cha NO-UNDO.
+  DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-    run windows/l-esttyp.w (g_company,g_loc,"1234","part",focus:screen-value, output char-val).
-    if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(2,char-val).
-    return no-apply.
+    RUN windows/l-esttyp.w (g_company,g_loc,"1234","part",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(2,char-val).
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1341,11 +1341,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_style B-table-Win
 ON HELP OF vi_style IN FRAME F-Main
 DO:
-  DEF VAR char-val AS cha NO-UNDO.
+  DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-  run windows/l-stylef.w (gcompany,focus:screen-value, output char-val).
-  if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-  return no-apply.
+  RUN windows/l-stylef.w (gcompany,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+  IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+  RETURN NO-APPLY.
 
 END.
 
@@ -1357,10 +1357,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON HELP OF begin_cust-no IN FRAME F-Main
 DO:
-   DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-cust2.w (INPUT g_company, INPUT focus:screen-value,"", OUTPUT char-val).
-          if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-          return no-apply.
+   DEFINE VARIABLE char-val AS cha NO-UNDO.
+   RUN windows/l-cust2.w (INPUT g_company, INPUT FOCUS:SCREEN-VALUE,"", OUTPUT char-val).
+          IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+          RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1423,9 +1423,9 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT YES,
                             OUTPUT lActive).
 {sys/inc/chblankcust.i ""EF""}
-FIND LAST blast-eb WHERE blast-eb.company = gcompany and
+FIND LAST blast-eb WHERE blast-eb.company = gcompany AND
                          blast-eb.est-type < 5 NO-LOCK NO-ERROR.
-lv-last-est-no = IF AVAIL blast-eb THEN blast-eb.est-no ELSE "".
+lv-last-est-no = IF AVAILABLE blast-eb THEN blast-eb.est-no ELSE "".
 
 &SCOPED-DEFINE cellColumnDat ceb-estq1 
 
@@ -1443,6 +1443,29 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 
 /* **********************  Internal Procedures  *********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setEstNoSearch B-table-Win
+PROCEDURE setEstNoSearch:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipiEstNo LIKE eb.est-no NO-UNDO.
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+ASSIGN vi_est-no = ipiEstNo.
+
+  IF AVAILABLE eb THEN DO:   
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'record-source':U,OUTPUT char-hdl).
+    RUN setEstNoSearch  IN WIDGET-HANDLE(char-hdl) (INPUT eb.est-no).  /* to have save button */  
+  END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -1473,10 +1496,10 @@ PROCEDURE create-est :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-def var cocode as cha no-undo.
-  def buffer bf-est for est.
-  def buffer bb for eb.
-  DEF BUFFER recalc-mr FOR reftable.
+DEFINE VARIABLE cocode AS cha NO-UNDO.
+  DEFINE BUFFER bf-est    FOR est.
+  DEFINE BUFFER bb        FOR eb.
+  DEFINE BUFFER recalc-mr FOR reftable.
 
   /*  don't use e-num any more as key index
   find last bf-est use-index e-num no-lock no-error.
@@ -1485,11 +1508,11 @@ def var cocode as cha no-undo.
 
   REPEAT:
   
-  find first ce-ctrl where ce-ctrl.company = gcompany and
+  FIND FIRST ce-ctrl WHERE ce-ctrl.company = gcompany AND
                            ce-ctrl.loc = gloc
        EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
-  IF AVAIL ce-ctrl THEN
+  IF AVAILABLE ce-ctrl THEN
   DO:
      ASSIGN
      li-new-estnum = ce-ctrl.e-num + 1
@@ -1499,28 +1522,28 @@ def var cocode as cha no-undo.
   END.
   END.
   
-  create est.  
-  assign ll-new-record = yes
-         est.est-type = 1
-         est.company = gcompany
-         est.loc = gloc
+  CREATE est.  
+  ASSIGN ll-new-record = YES
+         est.est-type  = 1
+         est.company   = gcompany
+         est.loc       = gloc
        /*  est.e-num = li-enum + 1 */
-         est.est-no = string(li-new-estnum,">>>>>>>9")
-         est.form-qty = 1
-         est.est-date = today
-         est.mod-date = ?
+         est.est-no    = STRING(li-new-estnum,">>>>>>>9")
+         est.form-qty  = 1
+         est.est-date  = TODAY
+         est.mod-date  = ?
          .
             
-   assign cocode = gcompany
+   ASSIGN cocode = gcompany
          .      
 
    {sys/ref/est-add.i est}     
 
-   run crt-est-childrecord.  /* create ef,eb,est-prep */
+   RUN crt-est-childrecord.  /* create ef,eb,est-prep */
    ce-ctrl.e-num = li-new-estnum.
    
-   run local-open-query.  
-   RUN set-attribute-list in adm-broker-hdl ('Is-First-Est = Yes').
+   RUN local-open-query.  
+   RUN set-attribute-list IN adm-broker-hdl ('Is-First-Est = Yes').
 
 END PROCEDURE.
 
@@ -1534,16 +1557,16 @@ PROCEDURE crt-est-childrecord :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-def var i as int no-undo.
-  def buffer bb for eb.
+DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE BUFFER bb FOR eb.
  
-  create est-qty.
-  assign est-qty.company = gcompany
-         est-qty.est-no =  est.est-no
-         est-qty.eqty = 0.
+  CREATE est-qty.
+  ASSIGN est-qty.company = gcompany
+         est-qty.est-no  = est.est-no
+         est-qty.eqty    = 0.
           
-  create ef.
-  assign
+  CREATE ef.
+  ASSIGN
    ef.est-type  = 1
    ef.company   = gcompany
    ef.loc       = gloc
@@ -1555,13 +1578,13 @@ def var i as int no-undo.
    ef.lsh-len   = ce-ctrl.ls-length
    ef.lsh-wid   = ce-ctrl.ls-width.
 
-  create eb.
-  assign  eb.est-type = 1
+  CREATE eb.
+  ASSIGN  eb.est-type = 1
           eb.company  = gcompany
    eb.loc      = gloc
    eb.e-num    = est.e-num
    eb.est-no   = est.est-no
-   eb.est-int  = integer(est.est-no)
+   eb.est-int  = INTEGER(est.est-no)
    eb.form-no  = 1
    eb.cust-seq = 1
    eb.blank-no = 1
@@ -1574,34 +1597,34 @@ def var i as int no-undo.
       delete bb.
   end.
   ========*/
-  find first item where item.company = gcompany
-                    and item.mat-type = "C"  /* Case/Bundle */
-                    and item.i-no eq eb.cas-no
-      no-lock no-error.
-  if avail item then do:
-     find first e-item where e-item.company eq item.company
-                         and e-item.loc     eq item.loc
-                         and e-item.i-no    eq item.i-no
-        no-lock no-error.
-     find first itemfg  where itemfg.company eq gcompany
-                          and itemfg.i-no    eq eb.stock-no
-        no-lock no-error.
-     if avail e-item then
-        assign  eb.cas-len = e-item.case-l
+  FIND FIRST item WHERE item.company = gcompany
+                    AND item.mat-type = "C"  /* Case/Bundle */
+                    AND item.i-no EQ eb.cas-no
+      NO-LOCK NO-ERROR.
+  IF AVAILABLE item THEN DO:
+     FIND FIRST e-item WHERE e-item.company EQ item.company
+                         AND e-item.loc     EQ item.loc
+                         AND e-item.i-no    EQ item.i-no
+        NO-LOCK NO-ERROR.
+     FIND FIRST itemfg  WHERE itemfg.company EQ gcompany
+                          AND itemfg.i-no    EQ eb.stock-no
+        NO-LOCK NO-ERROR.
+     IF AVAILABLE e-item THEN
+        ASSIGN  eb.cas-len = e-item.case-l
                 eb.cas-wid = e-item.case-w
                 eb.cas-dep = e-item.case-d
                 eb.cas-wt  = e-item.avg-w
                 eb.cas-pal = e-item.case-pall
-                eb.cas-cnt = if avail itemfg then itemfg.case-count else e-item.box-case
+                eb.cas-cnt = IF AVAILABLE itemfg THEN itemfg.case-count ELSE e-item.box-case
                 .
-     if eb.cas-len eq 0 then eb.cas-len = item.case-l.
-     if eb.cas-wid eq 0 then eb.cas-wid = item.case-w.
-     if eb.cas-dep eq 0 then eb.cas-dep = item.case-d.
-     if eb.cas-wt  eq 0 then eb.cas-wt  = item.avg-w.
-     if eb.cas-pal eq 0 then eb.cas-pal = item.case-pall.
-     if eb.cas-cnt eq 0 then eb.cas-cnt =
-              if avail itemfg then itemfg.case-count else item.box-case.
-  end.  /* avail item */
+     IF eb.cas-len EQ 0 THEN eb.cas-len = item.case-l.
+     IF eb.cas-wid EQ 0 THEN eb.cas-wid = item.case-w.
+     IF eb.cas-dep EQ 0 THEN eb.cas-dep = item.case-d.
+     IF eb.cas-wt  EQ 0 THEN eb.cas-wt  = item.avg-w.
+     IF eb.cas-pal EQ 0 THEN eb.cas-pal = item.case-pall.
+     IF eb.cas-cnt EQ 0 THEN eb.cas-cnt =
+              IF AVAILABLE itemfg THEN itemfg.case-count ELSE item.box-case.
+  END.  /* avail item */
 
   RUN est/BuildDefaultPreps.p(BUFFER est,
                               BUFFER ef,
@@ -1660,7 +1683,7 @@ PROCEDURE disable-note :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF OUTPUT PARAMETER op-enable-note AS LOG  NO-UNDO.
+ DEFINE OUTPUT PARAMETER op-enable-note AS LOG  NO-UNDO.
  
 
 END PROCEDURE.
@@ -1723,8 +1746,8 @@ PROCEDURE export-xl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR FromEstNo AS CHAR NO-UNDO.
-DEF VAR ToEstNo AS CHAR NO-UNDO.
+DEFINE VARIABLE FromEstNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ToEstNo   AS CHARACTER NO-UNDO.
 
 IF est.est-no NE "" THEN
     ASSIGN
@@ -1746,8 +1769,8 @@ PROCEDURE first-run :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR li AS INT NO-UNDO.
-DEF VAR lv-est-no AS CHAR INIT "" NO-UNDO.
+DEFINE VARIABLE li        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lv-est-no AS CHARACTER INIT "" NO-UNDO.
 
 &SCOPED-DEFINE where-first1           ~
       WHERE est.company  EQ g_company ~
@@ -1757,20 +1780,20 @@ DEF VAR lv-est-no AS CHAR INIT "" NO-UNDO.
 
 
 RUN set-defaults.
-find first sys-ctrl where sys-ctrl.company eq cocode
-                      and sys-ctrl.name    eq "CEBROWSE"
-                        no-lock no-error.
-if not avail sys-ctrl then do transaction:
-        create sys-ctrl.
-        assign sys-ctrl.company = cocode
-               sys-ctrl.name    = "CEBROWSE"
-               sys-ctrl.descrip = "# of Records to be displayed in browser"
-               sys-ctrl.log-fld = YES
+FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+                      AND sys-ctrl.name    EQ "CEBROWSE"
+                        NO-LOCK NO-ERROR.
+IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
+        CREATE sys-ctrl.
+        ASSIGN sys-ctrl.company  = cocode
+               sys-ctrl.name     = "CEBROWSE"
+               sys-ctrl.descrip  = "# of Records to be displayed in browser"
+               sys-ctrl.log-fld  = YES
                sys-ctrl.char-fld = "CE"
-               sys-ctrl.int-fld = 30.
+               sys-ctrl.int-fld  = 30.
         /*message "Sys-ctrl record NOT found. " sys-ctrl.descrip
                 update sys-ctrl.log-fld. */
-end.
+END.
   
 IF ll-initial THEN DO:
   li = 0.
@@ -1792,11 +1815,11 @@ IF ll-initial THEN DO:
           IF li GE sys-ctrl.int-fld THEN LEAVE.
       END.
   END.
-  ELSE do:
+  ELSE DO:
       RELEASE est.
       FIND LAST est {&where-first1} NO-LOCK NO-ERROR.
 
-      DO WHILE AVAIL est:
+      DO WHILE AVAILABLE est:
           IF est.est-no NE lv-est-no THEN li = li + 1.
           lv-est-no = est.est-no.
           IF li GE sys-ctrl.int-fld THEN LEAVE.
@@ -1831,18 +1854,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-num-records B-table-Win 
 PROCEDURE get-num-records :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  DEF OUTPUT PARAM op-num-record AS INT.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-num-record AS INTEGER.
 
 
-  op-num-record = NUM-RESULTS("{&browse-name}") - 1.
-  IF op-num-record LT 0 THEN op-num-record = 0.
-  IF op-num-record NE 0 AND lv-last-rowid EQ ip-rowid THEN op-num-record = ?.
+    op-num-record = NUM-RESULTS("{&browse-name}") - 1.
+    IF op-num-record LT 0 THEN op-num-record = 0.
+    IF op-num-record NE 0 AND lv-last-rowid EQ ip-rowid THEN op-num-record = ?.
 
 END PROCEDURE.
 
@@ -1851,21 +1874,21 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields B-table-Win 
 PROCEDURE local-display-fields :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  DO WITH FRAME {&FRAME-NAME}:
-    fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
-                              TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
-  END.
+    /* Code placed here will execute AFTER standard behavior.    */
+    DO WITH FRAME {&FRAME-NAME}:
+        fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
+            TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
+    END.
 
 END PROCEDURE.
 
@@ -1874,26 +1897,26 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-hide B-table-Win 
 PROCEDURE local-hide :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-   def buffer bf-first for est.
+    DEFINE BUFFER bf-first FOR est.
   
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  find first bf-first where bf-first.company = g_company and
-                            bf-first.loc = g_loc and
-                            bf-first.est-type >= 1 AND
-                            bf-first.est-type <= 4
-                            no-lock no-error.
-  if not avail bf-first then run create-est.
+    /* Dispatch standard ADM method.                             */
+    FIND FIRST bf-first WHERE bf-first.company = g_company AND
+        bf-first.loc = g_loc AND
+        bf-first.est-type >= 1 AND
+        bf-first.est-type <= 4
+        NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE bf-first THEN RUN create-est.
   
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'hide':U ) .
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'hide':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+/* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1901,51 +1924,51 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
   
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
    
-  /* Code placed here will execute AFTER standard behavior.    */
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-  {methods/winReSizeLocInit.i}
+    /* Code placed here will execute AFTER standard behavior.    */
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    {methods/winReSizeLocInit.i}
 
-  RUN setCellColumns.  
+    RUN setCellColumns.  
 
-  ASSIGN 
-   est.est-no:READ-ONLY IN BROWSE {&browse-name} = YES
-   est.est-date:READ-ONLY IN BROWSE {&browse-name} = YES
-   est-qty.eqty:READ-ONLY IN BROWSE {&browse-name} = YES
-   eb.ord-no:READ-ONLY IN BROWSE {&browse-name} = YES
-   eb.cust-no:READ-ONLY IN BROWSE {&browse-name} = YES
-   eb.part-no:READ-ONLY IN BROWSE {&browse-name} = YES 
-   eb.stock-no:READ-ONLY IN BROWSE {&browse-name} = YES
-   eb.style:READ-ONLY IN BROWSE {&browse-name} = YES
-   eb.part-dscr1:READ-ONLY IN BROWSE {&browse-name} = YES
-   ef.medium:READ-ONLY IN BROWSE {&browse-name} = YES
-   ef.flute:READ-ONLY IN BROWSE {&browse-name} = YES
- /*  eb.len:READ-ONLY IN BROWSE {&browse-name} = YES
-   eb.wid:READ-ONLY IN BROWSE {&browse-name} = YES
-   eb.dep:READ-ONLY IN BROWSE {&browse-name} = YES */
-   eb.cust-%:READ-ONLY IN BROWSE {&browse-name} = YES
-   eb.die-no:READ-ONLY IN BROWSE {&browse-name} = YES
-   eb.cad-no:READ-ONLY IN BROWSE {&browse-name} = YES
-   eb.plate-no:READ-ONLY IN BROWSE {&browse-name} = YES
-   vi_die-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "*" .
+    ASSIGN 
+        est.est-no:READ-ONLY IN BROWSE {&browse-name}    = YES
+        est.est-date:READ-ONLY IN BROWSE {&browse-name}  = YES
+        est-qty.eqty:READ-ONLY IN BROWSE {&browse-name}  = YES
+        eb.ord-no:READ-ONLY IN BROWSE {&browse-name}     = YES
+        eb.cust-no:READ-ONLY IN BROWSE {&browse-name}    = YES
+        eb.part-no:READ-ONLY IN BROWSE {&browse-name}    = YES 
+        eb.stock-no:READ-ONLY IN BROWSE {&browse-name}   = YES
+        eb.style:READ-ONLY IN BROWSE {&browse-name}      = YES
+        eb.part-dscr1:READ-ONLY IN BROWSE {&browse-name} = YES
+        ef.medium:READ-ONLY IN BROWSE {&browse-name}     = YES
+        ef.flute:READ-ONLY IN BROWSE {&browse-name}      = YES
+        /*  eb.len:READ-ONLY IN BROWSE {&browse-name} = YES
+          eb.wid:READ-ONLY IN BROWSE {&browse-name} = YES
+          eb.dep:READ-ONLY IN BROWSE {&browse-name} = YES */
+        eb.cust-%:READ-ONLY IN BROWSE {&browse-name}     = YES
+        eb.die-no:READ-ONLY IN BROWSE {&browse-name}     = YES
+        eb.cad-no:READ-ONLY IN BROWSE {&browse-name}     = YES
+        eb.plate-no:READ-ONLY IN BROWSE {&browse-name}   = YES
+        vi_die-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}    = "*" .
 
-  FI_moveCol = "Sort".
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}. 
+    FI_moveCol = "Sort".
+    DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}. 
 
-  /*RUN set-focus. */
-  ENABLE {&browse-name} WITH FRAME {&FRAME-NAME}. 
+    /*RUN set-focus. */
+    ENABLE {&browse-name} WITH FRAME {&FRAME-NAME}. 
 
-  APPLY "entry" TO  vi_est-no IN FRAME {&FRAME-NAME}. 
+    APPLY "entry" TO  vi_est-no IN FRAME {&FRAME-NAME}. 
 
 END PROCEDURE.
 
@@ -1954,46 +1977,50 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+    /* Code placed here will execute AFTER standard behavior.    */
 
-  IF lv-first-run THEN DO:
-     RUN first-run.
-  END.
-  ELSE IF lv-show-prev OR lv-show-next THEN DO:
-      RUN show-all.
-  END.
-  ELSE DO:
-    {ce/j-esteb.i}
-  END.
-  IF AVAIL {&first-table-in-query-{&browse-name}} THEN DO:
-    RUN dispatch ("display-fields").
-    RUN dispatch ("row-changed").
-    APPLY "value-changed" TO BROWSE {&browse-name}.
-    /*RUN dispatch ('get-last':U).*/
-    GET LAST {&browse-name}.
-    IF AVAIL {&first-table-in-query-{&browse-name}} THEN
-      ASSIGN lv-last-rowid = ROWID({&first-table-in-query-{&browse-name}})
-             lv-last-show-est-no = est.est-no.
+    IF lv-first-run THEN 
+    DO:
+        RUN first-run.
+    END.
+    ELSE IF lv-show-prev OR lv-show-next THEN 
+        DO:
+            RUN show-all.
+        END.
+        ELSE 
+        DO:
+            {ce/j-esteb.i}
+        END.
+    IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN 
+    DO:
+        RUN dispatch ("display-fields").
+        RUN dispatch ("row-changed").
+        APPLY "value-changed" TO BROWSE {&browse-name}.
+        /*RUN dispatch ('get-last':U).*/
+        GET LAST {&browse-name}.
+        IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN
+            ASSIGN lv-last-rowid       = ROWID({&first-table-in-query-{&browse-name}})
+                lv-last-show-est-no = est.est-no.
 
-    /*RUN dispatch ('get-first':U).*/
-    GET FIRST {&browse-name}.
-    IF AVAIL {&first-table-in-query-{&browse-name}} THEN
-      ASSIGN lv-frst-rowid = ROWID({&first-table-in-query-{&browse-name}})
-             lv-first-show-est-no = est.est-no.
-    lv-first-run = NO.
-    lv-show-prev = NO.
-    lv-show-next = NO.
-  END.
+        /*RUN dispatch ('get-first':U).*/
+        GET FIRST {&browse-name}.
+        IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN
+            ASSIGN lv-frst-rowid        = ROWID({&first-table-in-query-{&browse-name}})
+                lv-first-show-est-no = est.est-no.
+        lv-first-run = NO.
+        lv-show-prev = NO.
+        lv-show-next = NO.
+    END.
 
 END PROCEDURE.
 
@@ -2002,21 +2029,21 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view B-table-Win 
 PROCEDURE local-view :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    /* Code placed here will execute AFTER standard behavior.    */
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
-  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(NO)"}
+    {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(NO)"}
 
 END PROCEDURE.
 
@@ -2025,19 +2052,19 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
 PROCEDURE move-columns :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DO WITH FRAME {&FRAME-NAME}:
-  ASSIGN
-     Browser-Table:COLUMN-MOVABLE = v-col-move
-     Browser-Table:COLUMN-RESIZABLE = v-col-move
-     v-col-move = NOT v-col-move
-     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-  DISPLAY FI_moveCol.
-END.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            Browser-Table:COLUMN-MOVABLE   = v-col-move
+            Browser-Table:COLUMN-RESIZABLE = v-col-move
+            v-col-move                     = NOT v-col-move
+            FI_moveCol                     = IF v-col-move = NO THEN "Move" ELSE "Sort".
+        DISPLAY FI_moveCol.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2045,29 +2072,29 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE navigate-browser B-table-Win 
 PROCEDURE navigate-browser :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  DEF INPUT  PARAMETER ip-nav-type AS CHAR.
-  DEF OUTPUT PARAMETER op-nav-type AS CHAR.
+    DEFINE INPUT  PARAMETER ip-nav-type AS CHARACTER.
+    DEFINE OUTPUT PARAMETER op-nav-type AS CHARACTER.
 
 
-  IF ip-nav-type NE "" THEN
-  CASE ip-nav-type:
-    WHEN "F" THEN RUN dispatch ('get-first':U).
-    WHEN "L" THEN RUN dispatch ('get-last':U).
-    WHEN "N" THEN RUN dispatch ('get-next':U).
-    WHEN "P" THEN RUN dispatch ('get-prev':U).
-  END CASE.
+    IF ip-nav-type NE "" THEN
+        CASE ip-nav-type:
+            WHEN "F" THEN RUN dispatch ('get-first':U).
+            WHEN "L" THEN RUN dispatch ('get-last':U).
+            WHEN "N" THEN RUN dispatch ('get-next':U).
+            WHEN "P" THEN RUN dispatch ('get-prev':U).
+        END CASE.
     
-  IF ROWID(ar-invl) EQ lv-last-rowid THEN
-    op-nav-type = "L".
+    IF ROWID(ar-invl) EQ lv-last-rowid THEN
+        op-nav-type = "L".
       
-  IF ROWID(ar-invl) EQ lv-frst-rowid THEN
-    op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
+    IF ROWID(ar-invl) EQ lv-frst-rowid THEN
+        op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
 END PROCEDURE.
 
@@ -2076,37 +2103,39 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE navigate-browser2 B-table-Win 
 PROCEDURE navigate-browser2 :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  DEF INPUT  PARAMETER ip-nav-type AS CHAR.
-  DEF OUTPUT PARAMETER op-nav-type AS CHAR.
+    DEFINE INPUT  PARAMETER ip-nav-type AS CHARACTER.
+    DEFINE OUTPUT PARAMETER op-nav-type AS CHARACTER.
   
-  DEF VAR hld-rowid AS ROWID NO-UNDO.
+    DEFINE VARIABLE hld-rowid AS ROWID NO-UNDO.
 
 
-  hld-rowid = ROWID(ar-inv).
+    hld-rowid = ROWID(ar-inv).
 
-  IF ip-nav-type NE "" THEN
-  CASE ip-nav-type:
-    WHEN "F" THEN RUN dispatch ('get-first':U).
-    WHEN "L" THEN RUN dispatch ('get-last':U).
-    WHEN "N" THEN DO WHILE ROWID(ar-inv) EQ hld-rowid:
+    IF ip-nav-type NE "" THEN
+        CASE ip-nav-type:
+            WHEN "F" THEN RUN dispatch ('get-first':U).
+            WHEN "L" THEN RUN dispatch ('get-last':U).
+            WHEN "N" THEN 
+                DO WHILE ROWID(ar-inv) EQ hld-rowid:
                     RUN dispatch ('get-next':U).
-                  END.
-    WHEN "P" THEN DO WHILE ROWID(ar-inv) EQ hld-rowid:
+                END.
+            WHEN "P" THEN 
+                DO WHILE ROWID(ar-inv) EQ hld-rowid:
                     RUN dispatch ('get-prev':U).
-                  END.
-  END CASE.
+                END.
+        END CASE.
     
-  IF ROWID(ar-inv) EQ lv-last-rowid2 THEN
-    op-nav-type = "L".
+    IF ROWID(ar-inv) EQ lv-last-rowid2 THEN
+        op-nav-type = "L".
       
-  IF ROWID(ar-inv) EQ lv-frst-rowid2 THEN
-    op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
+    IF ROWID(ar-inv) EQ lv-frst-rowid2 THEN
+        op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
 END PROCEDURE.
 
@@ -2115,28 +2144,33 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE New_record B-table-Win 
 PROCEDURE New_record :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- def input parameter ip-rowid as rowid no-undo.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
   
-  /*lv-first-run = YES.*/
+    /*lv-first-run = YES.*/
   
-  run local-open-query.
+    /* Set the lv-est-no value so that search will be faster */
+    FIND FIRST eb WHERE ROWID(eb) EQ ip-rowid NO-LOCK NO-ERROR.
+    IF AVAILABLE eb THEN 
+        RUN setEstNoSearch (INPUT eb.est-no). 
+    
+    RUN local-open-query.
   
-  /*
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"itemrec-target",OUTPUT char-hdl).
-  RUN dispatch IN WIDGET-HANDLE(char-hdl) ('open-query').
-  */
+    /*
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"itemrec-target",OUTPUT char-hdl).
+    RUN dispatch IN WIDGET-HANDLE(char-hdl) ('open-query').
+    */
 
-  do with frame {&frame-name}:
-    reposition {&browse-name} to rowid ip-rowid no-error.  
-    run dispatch ('row-changed').
-    apply "value-changed" to {&browse-name}.
-    return no-apply.  
-  end.
+    DO WITH FRAME {&frame-name}:
+        REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.  
+        RUN dispatch ('row-changed').
+        APPLY "value-changed" TO {&browse-name}.
+        RETURN NO-APPLY.  
+    END.
 
 END PROCEDURE.
 
@@ -2146,30 +2180,31 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE New_record-user B-table-Win 
 PROCEDURE New_record-user :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- def input parameter ip-rowid as rowid no-undo.
- DEF VAR v-custcount AS CHAR NO-UNDO . 
-  lv-first-run = YES.
-  ASSIGN
-       v-custcount = custcount 
-      custcount    = "" .
-  run local-open-query.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+    DEFINE VARIABLE v-custcount AS CHARACTER NO-UNDO . 
+    lv-first-run = YES.
+    ASSIGN
+        v-custcount = custcount 
+        custcount   = "" .
+    RUN local-open-query.
   
-  /*
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"itemrec-target",OUTPUT char-hdl).
-  RUN dispatch IN WIDGET-HANDLE(char-hdl) ('open-query').
-  */
-ASSIGN custcount = v-custcount .
-  do with frame {&frame-name}:
-    reposition {&browse-name} to rowid ip-rowid no-error.  
-    run dispatch ('row-changed').
-    apply "value-changed" to {&browse-name}.
-    return no-apply.  
-  end.
+    /*
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"itemrec-target",OUTPUT char-hdl).
+    RUN dispatch IN WIDGET-HANDLE(char-hdl) ('open-query').
+    */
+    ASSIGN 
+        custcount = v-custcount .
+    DO WITH FRAME {&frame-name}:
+        REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.  
+        RUN dispatch ('row-changed').
+        APPLY "value-changed" TO {&browse-name}.
+        RETURN NO-APPLY.  
+    END.
 
 END PROCEDURE.
 
@@ -2178,42 +2213,42 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE paper-clip-image-proc B-table-Win 
 PROCEDURE paper-clip-image-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rec_key AS CHARACTER NO-UNDO.
    
-   DEF VAR v-i-no AS CHAR NO-UNDO.
-   DEF VAR v-est-no AS cha NO-UNDO.
-   DEF VAR v-att AS LOG NO-UNDO.
-   DEF VAR char-hdl AS CHAR NO-UNDO.
+    DEFINE VARIABLE v-i-no   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-est-no AS cha       NO-UNDO.
+    DEFINE VARIABLE v-att    AS LOG       NO-UNDO.
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
-   {sys/ref/attachlogic.i}
+    {sys/ref/attachlogic.i}
   
-   IF v-est-no <> "" AND v-i-no <> "" THEN
-      v-att = CAN-FIND(FIRST asi.attach WHERE
-              attach.company = cocode and
-              (LOOKUP(attach.rec_key,v-rec-key-list) gt 0 AND
-              (trim(attach.est-no) = trim(v-est-no)) or 
-               (index(v-i-no,attach.i-no) > 0))).
-   ELSE
-      IF v-est-no <> "" /*AND v-i-no EQ ""*/ THEN
-         v-att = CAN-FIND(FIRST asi.attach WHERE
-              attach.company = cocode and
-              LOOKUP(attach.rec_key,v-rec-key-list) gt 0 AND
-              trim(attach.est-no) = trim(v-est-no)).
-   ELSE
-      IF v-est-no EQ "" AND v-i-no <> "" THEN
-         v-att = CAN-FIND(FIRST asi.attach WHERE
-              attach.company = cocode and
+    IF v-est-no <> "" AND v-i-no <> "" THEN
+        v-att = CAN-FIND(FIRST asi.attach WHERE
+            attach.company = cocode AND
+            (LOOKUP(attach.rec_key,v-rec-key-list) GT 0 AND
+            (TRIM(attach.est-no) = trim(v-est-no)) OR 
+            (INDEX(v-i-no,attach.i-no) > 0))).
+    ELSE
+        IF v-est-no <> "" /*AND v-i-no EQ ""*/ THEN
+            v-att = CAN-FIND(FIRST asi.attach WHERE
+                attach.company = cocode AND
+                LOOKUP(attach.rec_key,v-rec-key-list) GT 0 AND
+                trim(attach.est-no) = trim(v-est-no)).
+        ELSE
+            IF v-est-no EQ "" AND v-i-no <> "" THEN
+                v-att = CAN-FIND(FIRST asi.attach WHERE
+                    attach.company = cocode AND
               index(v-i-no,attach.i-no) > 0).
 
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
   
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN paper-clip-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN paper-clip-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2228,7 +2263,7 @@ PROCEDURE send-records :
 ------------------------------------------------------------------------------*/
 
   /* Define variables needed by this internal procedure.               */
-  {src/adm/template/snd-head.i}
+    {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "eb"}
@@ -2246,47 +2281,48 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-defaults B-table-Win 
 PROCEDURE set-defaults :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   ASSIGN vi_est-no = ""
-          begin_cust-no = ""
-          begin_ship = ""
-          vi_part-no = ""
-          vi_stock-no = ""
-          vi_style = ""
-          vi_len = 0
-          vi_wid = 0
-          vi_dep = 0
-          vi_len-2 = 9999.99999
-          vi_wid-2 = 9999.99999
-          vi_dep-2 = 9999.99999
-          vi_die-no = ""
-          vi_est-date = ? /* DATE(1,1,YEAR(TODAY)) */
-          /*tb_single = YES
-          tb_set = YES
-          tb_tancom = YES*/.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    ASSIGN 
+        vi_est-no     = ""
+        begin_cust-no = ""
+        begin_ship    = ""
+        vi_part-no    = ""
+        vi_stock-no   = ""
+        vi_style      = ""
+        vi_len        = 0
+        vi_wid        = 0
+        vi_dep        = 0
+        vi_len-2      = 9999.99999
+        vi_wid-2      = 9999.99999
+        vi_dep-2      = 9999.99999
+        vi_die-no     = ""
+        vi_est-date   = ? /* DATE(1,1,YEAR(TODAY)) */
+        /*tb_single = YES
+        tb_set = YES
+        tb_tancom = YES*/.
 
-   DISP  vi_est-no 
-          begin_cust-no
-          begin_ship
-          vi_part-no 
-          vi_stock-no
-          vi_style
-          vi_len
-          vi_wid
-          vi_dep
-          vi_len-2
-          vi_wid-2
-          vi_dep-2 
-          vi_die-no 
-          vi_est-date
-          tb_single
-          tb_set
-          tb_tancom
-          WITH FRAME {&FRAME-NAME}.
+    DISPLAY  vi_est-no 
+        begin_cust-no
+        begin_ship
+        vi_part-no 
+        vi_stock-no
+        vi_style
+        vi_len
+        vi_wid
+        vi_dep
+        vi_len-2
+        vi_wid-2
+        vi_dep-2 
+        vi_die-no 
+        vi_est-date
+        tb_single
+        tb_set
+        tb_tancom
+        WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -2309,44 +2345,47 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-all B-table-Win 
 PROCEDURE show-all :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR li AS INT NO-UNDO.
-DEF VAR lv-est-no AS cha NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE li        AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lv-est-no AS cha     NO-UNDO.
 
-find first sys-ctrl where sys-ctrl.company eq cocode
-                      and sys-ctrl.name    eq "CEBROWSE"
-                        no-lock no-error.
-if not avail sys-ctrl then do transaction:
-        create sys-ctrl.
-        assign sys-ctrl.company = cocode
-               sys-ctrl.name    = "CEBROWSE"
-               sys-ctrl.descrip = "# of Records to be displayed in browser"
-               sys-ctrl.log-fld = YES
-               sys-ctrl.char-fld = "CE"
-               sys-ctrl.int-fld = 30.
-        /*message "Sys-ctrl record NOT found. " sys-ctrl.descrip
-                update sys-ctrl.log-fld. */
-end.
+    FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+        AND sys-ctrl.name    EQ "CEBROWSE"
+        NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE sys-ctrl THEN 
+    DO TRANSACTION:
+        CREATE sys-ctrl.
+        ASSIGN 
+            sys-ctrl.company  = cocode
+            sys-ctrl.name     = "CEBROWSE"
+            sys-ctrl.descrip  = "# of Records to be displayed in browser"
+            sys-ctrl.log-fld  = YES
+            sys-ctrl.char-fld = "CE"
+            sys-ctrl.int-fld  = 30.
+    /*message "Sys-ctrl record NOT found. " sys-ctrl.descrip
+            update sys-ctrl.log-fld. */
+    END.
 
-RUN set-defaults.
+    RUN set-defaults.
 
-IF lv-show-prev THEN DO:
-   li = 0.
-  FOR EACH est WHERE est.company = g_company
-                AND est.est-no <= lv-last-show-est-no
-                AND est.est-type >= 1 AND est.est-type <= 4 NO-LOCK,
-      FIRST eb WHERE eb.company = g_company
-        AND eb.est-no = est.est-no 
-        AND ( (lookup(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "") NO-LOCK BY est.est-no DESC:
+    IF lv-show-prev THEN 
+    DO:
+        li = 0.
+        FOR EACH est WHERE est.company = g_company
+            AND est.est-no <= lv-last-show-est-no
+            AND est.est-type >= 1 AND est.est-type <= 4 NO-LOCK,
+            FIRST eb WHERE eb.company = g_company
+            AND eb.est-no = est.est-no 
+            AND ( (LOOKUP(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "") NO-LOCK BY est.est-no DESCENDING:
 
-     li = li + 1.
-     lv-est-no = est.est-no.
-     IF li >= sys-ctrl.int-fld THEN LEAVE.
-  END.
+            li = li + 1.
+            lv-est-no = est.est-no.
+            IF li >= sys-ctrl.int-fld THEN LEAVE.
+        END.
   /*MESSAGE lv-last-show-est-no lv-first-show-est-no lv-est-no VIEW-AS ALERT-BOX.*/
 
   &SCOPED-DEFINE open-query                   ~
@@ -2361,25 +2400,26 @@ IF lv-show-prev THEN DO:
             
   
 
-          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+        IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                          ELSE {&open-query} {&sortby-phrase-desc}. 
 
 
-END.  /* lv-show-prev */
-ELSE IF lv-show-next THEN DO:
-    li = 0.   
+    END.  /* lv-show-prev */
+    ELSE IF lv-show-next THEN 
+        DO:
+            li = 0.   
 
-    FOR EACH est WHERE est.company = g_company                   
-                   AND est.est-no >= lv-first-show-est-no
-                  AND est.est-type >= 1 AND est.est-type <= 4 NO-LOCK,
-        FIRST eb WHERE eb.company = g_company
-          AND eb.est-no = est.est-no 
-          AND ( (lookup(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "") NO-LOCK BY est.est-no  :
+            FOR EACH est WHERE est.company = g_company                   
+                AND est.est-no >= lv-first-show-est-no
+                AND est.est-type >= 1 AND est.est-type <= 4 NO-LOCK,
+                FIRST eb WHERE eb.company = g_company
+                AND eb.est-no = est.est-no 
+                AND ( (LOOKUP(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "") NO-LOCK BY est.est-no  :
 
-       li = li + 1.
-       lv-est-no = est.est-no.
-       IF li >= sys-ctrl.int-fld THEN LEAVE.
-    END.
+                li = li + 1.
+                lv-est-no = est.est-no.
+                IF li >= sys-ctrl.int-fld THEN LEAVE.
+            END.
    /*MESSAGE "NEXT:" lv-last-show-est-no "," lv-first-show-est-no "," lv-est-no VIEW-AS ALERT-BOX.*/
 
     &SCOPED-DEFINE open-query                   ~
@@ -2397,7 +2437,7 @@ ELSE IF lv-show-next THEN DO:
             IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                            ELSE {&open-query} {&sortby-phrase-desc}. 
 
-END.
+        END.
 
 END PROCEDURE.
 
@@ -2406,26 +2446,26 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-image-proc B-table-Win 
 PROCEDURE spec-image-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
-   DEFINE INPUT PARAMETER ip-search AS LOG NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rec_key AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ip-search AS LOG NO-UNDO.
 
-   DEF VAR v-spec AS LOG NO-UNDO.
-   DEF VAR char-hdl AS CHAR NO-UNDO.
+    DEFINE VARIABLE v-spec   AS LOG       NO-UNDO.
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
   
-   IF ip-search THEN
-      v-spec = CAN-FIND(FIRST notes WHERE
-               notes.rec_key = ip-rec_key AND
-               notes.note_type = "S").
+    IF ip-search THEN
+        v-spec = CAN-FIND(FIRST notes WHERE
+            notes.rec_key = ip-rec_key AND
+            notes.note_type = "S").
 
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
   
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2433,25 +2473,25 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
 PROCEDURE dept-image-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR v-spec AS LOG NO-UNDO.
-   DEF VAR char-hdl AS CHAR NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE v-spec   AS LOG       NO-UNDO.
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
   
-   FIND FIRST notes WHERE notes.rec_key = est.rec_key
-       NO-LOCK NO-ERROR.
+    FIND FIRST notes WHERE notes.rec_key = est.rec_key
+        NO-LOCK NO-ERROR.
    
-   IF AVAIL notes THEN
-      v-spec = TRUE.
-   ELSE v-spec = FALSE.
+    IF AVAILABLE notes THEN
+        v-spec = TRUE.
+    ELSE v-spec = FALSE.
 
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
   
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2459,19 +2499,19 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
-/* -----------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
--------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
-  DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+    /* -----------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    -------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
 
-  CASE p-state:
+    CASE p-state:
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
-      {src/adm/template/bstates.i}
-  END CASE.
+    {src/adm/template/bstates.i}
+    END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2479,14 +2519,14 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE value-changed-proc B-table-Win 
 PROCEDURE value-changed-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DO WITH FRAME {&FRAME-NAME}:
-      APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
-   END.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2496,15 +2536,15 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION display-qty B-table-Win 
 FUNCTION display-qty RETURNS INTEGER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-  IF est.est-type = 4 OR est.est-type = 3 /* tandem conversion */
-      THEN RETURN eb.bl-qty.
-  ELSE  /* eb.yld-qty <> 0 THEN RETURN INT(eb.eqty * eb.yld-qty).  */
-          RETURN INT(eb.eqty)    .
+    ( /* parameter-definitions */ ) :
+    /*------------------------------------------------------------------------------
+      Purpose:  
+        Notes:  
+    ------------------------------------------------------------------------------*/
+    IF est.est-type = 4 OR est.est-type = 3 /* tandem conversion */
+        THEN RETURN eb.bl-qty.
+    ELSE  /* eb.yld-qty <> 0 THEN RETURN INT(eb.eqty * eb.yld-qty).  */
+        RETURN INT(eb.eqty)    .
   
 
 END FUNCTION.
@@ -2514,13 +2554,13 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION display-qty-set B-table-Win 
 FUNCTION display-qty-set RETURNS DECIMAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
+    ( /* parameter-definitions */ ) :
+    /*------------------------------------------------------------------------------
+      Purpose:  
+        Notes:  
+    ------------------------------------------------------------------------------*/
 
-  RETURN IF eb.cust-% EQ 0 THEN 1 ELSE eb.cust-%.   /* Function return value. */
+    RETURN IF eb.cust-% EQ 0 THEN 1 ELSE eb.cust-%.   /* Function return value. */
 
 END FUNCTION.
 
