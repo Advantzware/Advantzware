@@ -25,7 +25,8 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "oeShipFrom,SSFGSCAN,Paperless,FGSetAssembly,AutoFGIssue,CustomerList,SSLoadtag,ChkFmtACH,"
             + "OESellPriceXfer,OEPO#Xfer,SSBolEmail,OEDateAuto,QuoteNotes,OEPriceMatrixCheck,GLJournalPost,"
             + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
-            + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn".
+            + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor".
+
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -222,6 +223,11 @@ CASE ip-nk1-value:
     WHEN "TSAMPMWarn" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "AM/PM Toggle Button - Warning when changing AM/PM",
+                          INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                          INPUT NO /* Logical value */).
+    WHEN "SSScanVendor" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                          INPUT "Additional fields required to scan in Scan Vendor Tags",
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                           INPUT NO /* Logical value */).
 END CASE.

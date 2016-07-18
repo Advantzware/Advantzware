@@ -114,6 +114,7 @@ DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cSSScanVendor AS CHARACTER NO-UNDO .
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
                        INPUT "L",
@@ -133,6 +134,15 @@ RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "",
                        INPUT "",
                        OUTPUT cFGSetAssembly,
+                       OUTPUT lFound).
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "SSScanVendor",
+                       INPUT "C",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT cSSScanVendor,
                        OUTPUT lFound).
 
 /* _UIB-CODE-BLOCK-END */
@@ -834,6 +844,11 @@ DO:
         IF AVAIL loadtag THEN 
            fg-rctd.stack-code:SCREEN-VALUE IN BROWSE {&browse-name} = loadtag.misc-char[2] .  /* task 12051303 */
 
+        IF cSSScanVendor = "RMLot" THEN DO:
+            APPLY "entry" TO fg-rctd.stack-code.
+            RETURN NO-APPLY.
+        END.
+
    /* IF int(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}) = 0  THEN APPLY "entry" TO fg-rctd.t-qty.
     ELSE APPLY "entry" TO fg-rctd.loc.
     RETURN NO-APPLY. */
@@ -1004,6 +1019,20 @@ END.
 ON LEAVE OF fg-rctd.stack-code IN BROWSE br_table /* FG Lot# */
 DO:
   IF LASTKEY NE -1 THEN DO:
+
+    IF cSSScanVendor = "RMLot" THEN DO:
+        FIND FIRST fg-bin NO-LOCK WHERE fg-bin.company = cocode 
+                           AND fg-bin.i-no = ""
+                           AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+                           AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
+                           USE-INDEX co-ino NO-ERROR.
+       IF NOT AVAIL fg-bin THEN DO:
+          MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO fg-rctd.loc.
+          RETURN NO-APPLY.
+       END.
+    END.
+
     RUN valid-lot# (INPUT SELF) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN DO: 
       RETURN NO-APPLY.
@@ -1373,7 +1402,7 @@ PROCEDURE get-fg-bin-cost :
   Notes:       
 ------------------------------------------------------------------------------*/
  DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST fg-bin
+    FIND FIRST fg-bin NO-LOCK
         WHERE fg-bin.company EQ cocode
           AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1381,7 +1410,7 @@ PROCEDURE get-fg-bin-cost :
           AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
+        NO-ERROR.
     IF AVAIL fg-bin THEN
       ASSIGN
        fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fg-bin.std-tot-cost)
@@ -1860,12 +1889,12 @@ PROCEDURE get-values :
                        INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
                        OUTPUT lv-loc, OUTPUT lv-loc-bin).
 
-    FIND FIRST fg-bin
+    FIND FIRST fg-bin NO-LOCK
         WHERE fg-bin.company EQ cocode
           AND fg-bin.loc     EQ lv-loc
           AND fg-bin.loc-bin EQ lv-loc-bin
           AND fg-bin.i-no    EQ ""
-        NO-LOCK NO-ERROR.
+        NO-ERROR.
     IF AVAIL fg-bin THEN 
       ASSIGN
        lv-std-cost = IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" AND
@@ -2348,6 +2377,24 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
+  DO WITH FRAME {&FRAME-NAME}:
+      IF AVAIL fg-rctd AND (cSSScanVendor = "RMLot" OR cSSScanVendor = "RM Lot") THEN DO:
+          DEF VAR hColumn AS HANDLE.
+          
+          hColumn = BROWSE br_table:FIRST-COLUMN.
+          DO WHILE VALID-HANDLE(hColumn):
+              CASE hColumn:LABEL:
+                  WHEN "FG Lot#" THEN hColumn:LABEL = "RM Lot#".
+              END CASE.
+          
+              /* hb:LABEL = "#".*/
+              hColumn = hColumn:NEXT-COLUMN.
+          END.
+          /* hb:LABEL = "name".  */
+          br_table:REFRESH() NO-ERROR.
+      END. /* avail fg-rctd */  
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2409,6 +2456,13 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  FIND FIRST loadtag EXCLUSIVE-LOCK
+       WHERE loadtag.company = cocode and 
+       loadtag.item-type = NO and 
+       loadtag.tag-no = fg-rctd.tag NO-ERROR.
+   IF AVAIL loadtag AND ( cSSScanVendor = "RMLot" OR cSSScanVendor = "RM Lot") AND lv-do-what NE "delete" THEN do:
+       ASSIGN loadtag.misc-char[2] = fg-rctd.stack-code .
+   END.
   lv-overrun-checked = NO.
 
 
@@ -2670,14 +2724,14 @@ PROCEDURE post-finish-goods :
             IF fgPostLog THEN RUN fgPostLog ('End loadtag - Start fg-bin').
   
             IF AVAIL loadtag THEN DO:
-              FIND FIRST fg-bin
+              FIND FIRST fg-bin NO-LOCK
                   WHERE fg-bin.company EQ g_company
                     AND fg-bin.i-no    EQ loadtag.i-no
                     AND fg-bin.tag     EQ loadtag.tag-no
                   /*AND fg-bin.job-no = loadtag.job-no
                     AND fg-bin.job-no2 = loadtag.job-no2*/
                     AND fg-bin.qty     GT 0
-                  USE-INDEX tag NO-LOCK NO-ERROR.
+                  USE-INDEX tag  NO-ERROR.
               IF w-fg-rctd.rita-code = "T" AND /*loadtag.tot-cases = w-fg-rctd.cases*/
                  TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) = w-fg-rctd.cases THEN  /* full qty transfer*/ 
                 ASSIGN
@@ -3161,11 +3215,11 @@ PROCEDURE valid-delete-tag :
                       AND loadtag.tag-no = fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
                       NO-LOCK NO-ERROR.
  IF AVAIL loadtag THEN
-    FIND FIRST fg-bin WHERE fg-bin.company = g_company
+    FIND FIRST fg-bin NO-LOCK WHERE fg-bin.company = g_company
                         AND fg-bin.i-no = loadtag.i-no
                         AND fg-bin.tag = loadtag.tag-no
                         AND fg-bin.qty > 0
-                        NO-LOCK NO-ERROR.
+                        NO-ERROR.
  IF NOT AVAIL fg-bin THEN DO:
     RUN custom/d-msg.w ("Error","","No Inventory On Hand Exists, Item cannot be deleted.","",1,"OK", OUTPUT v-msgreturn).
     APPLY "entry" TO fg-rctd.tag .
