@@ -5,60 +5,60 @@
         cExcelDisplay = "".
 
  DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-            cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-            IF INDEX(cTmpField,".") > 0 THEN DO:
+            cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+            IF INDEX(cTmpField,".") GT 0 THEN DO:
                  cFieldName = cTmpField.
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
                  hField =  BUFFER bwork-item:BUFFER-FIELD(cTmpField).
-                 IF hField <> ? THEN DO:                 
-                     cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
+                 IF hField NE ? THEN DO:                 
+                     cTmpField = SUBSTRING(GetFieldValue(hField),1,INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      cDisplay = cDisplay + 
-                               IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldType) = "C" THEN
-                                 (cTmpField + FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)))
-                               ELSE IF LENGTH(cTmpField) <  int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) THEN
-                                 (FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
+                               IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldType) = "C" THEN
+                                 (cTmpField + FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)))
+                               ELSE IF LENGTH(cTmpField) <  INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) THEN
+                                 (FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
                                ELSE cTmpField.
-                     cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".   
+                     cExcelDisplay = cExcelDisplay + QUOTER(GetFieldValue(hField)) + ",".   
 
                  END.
                  ELSE DO:
-                    cTmpField = substring(cFieldName,1,int( entry( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
-                    cDisplay = cDisplay + FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
-                    cExcelDisplay = cExcelDisplay + quoter(" ") + ",".
+                    cTmpField = substring(cFieldName,1,INTEGER(ENTRY( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
+                    cDisplay = cDisplay + FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
+                    cExcelDisplay = cExcelDisplay + QUOTER(" ") + ",".
                  END.
             END.
             ELSE DO: 
               cVarValue = "".
               CASE cTmpField:               
-                 WHEN "v-job-no" THEN cVarValue = string(job.job-no + "-" + string(job.job-no2,"99")).
-                 WHEN "v-i-name" THEN cVarValue = IF AVAIL itemfg THEN substring(itemfg.i-name,1,25) ELSE "".
-                 WHEN "v-fgcat" THEN cVarValue = IF AVAIL itemfg THEN itemfg.procat ELSE "".
+                 WHEN "v-job-no" THEN cVarValue = STRING(job.job-no + "-" + STRING(job.job-no2,"99")).
+                 WHEN "v-i-name" THEN cVarValue = IF AVAILABLE itemfg THEN SUBSTRING(itemfg.i-name,1,25) ELSE "".
+                 WHEN "v-fgcat" THEN cVarValue = IF AVAILABLE itemfg THEN itemfg.procat ELSE "".
                  WHEN "v-custname" THEN cVarValue = STRING(cust.name).
                  WHEN "v-act-mAT-cost" THEN cVarValue = STRING(v-act-mAT-cost,"->>>>>,>>9.99").
                  WHEN "v-est-mAT-cost" THEN cVarValue = STRING(v-est-mAT-cost,"->>>>>,>>9.99").
                  WHEN "v-var-mat-cost" THEN cVarValue = STRING(v-est-mAT-cost - v-act-mAT-cost,"->>>>>,>>9.99").
                  WHEN "v-var%-mat-cost" THEN cVarValue = 
-                     STRING( IF v-act-mat-cost <> 0 THEN (((v-est-mAT-cost - v-act-mAT-cost) / v-act-mAT-cost)  * 100) ELSE 0 ,"->>>>>,>>9.99").
+                     STRING( IF v-act-mat-cost NE 0 THEN (((v-est-mAT-cost - v-act-mAT-cost) / v-act-mAT-cost)  * 100) ELSE 0 ,"->>>>>,>>9.99").
                  WHEN "v-act-lab-cost" THEN cVarValue = STRING(v-act-lab-cost,"->>>>>,>>9.99").
                  WHEN "v-est-lab-cost" THEN cVarValue = STRING(v-est-lab-cost,"->>>>>,>>9.99").
                  WHEN "v-var-lab-cost" THEN cVarValue = STRING( v-est-lab-cost - v-act-lab-cost,"->>>>>,>>9.99").
                  WHEN "v-var%-lab-cost" THEN cVarValue = 
-                     STRING( IF v-act-lab-cost <> 0 THEN (((v-est-lab-cost - v-act-lab-cost) / v-act-lab-cost) * 100) ELSE 0,"->>>>>,>>9.99"). 
+                     STRING( IF v-act-lab-cost NE 0 THEN (((v-est-lab-cost - v-act-lab-cost) / v-act-lab-cost) * 100) ELSE 0,"->>>>>,>>9.99"). 
                  WHEN "v-act-foh-cost" THEN cVarValue = STRING(v-act-foh-cost,"->>>>>,>>9.99").
                  WHEN "v-est-foh-cost" THEN cVarValue = STRING(v-est-foh-cost,"->>>>>,>>9.99").
                  WHEN "v-var-foh-cost" THEN cVarValue = STRING( v-est-foh-cost - v-act-foh-cost,"->>>>>,>>9.99").
                  WHEN "v-var%-foh-cost" THEN cVarValue = 
-                     STRING( IF v-act-foh-cost <> 0 THEN (((v-est-voh-cost - v-act-voh-cost) / v-act-voh-cost) * 100) ELSE 0,"->>>>>,>>9.99"). 
+                     STRING( IF v-act-foh-cost NE 0 THEN (((v-est-voh-cost - v-act-voh-cost) / v-act-voh-cost) * 100) ELSE 0,"->>>>>,>>9.99"). 
                  WHEN "v-act-voh-cost" THEN cVarValue = STRING(v-act-voh-cost,"->>>>>,>>9.99").
                  WHEN "v-est-voh-cost" THEN cVarValue = STRING(v-est-voh-cost,"->>>>>,>>9.99").
                  WHEN "v-var-voh-cost" THEN cVarValue = STRING( v-est-voh-cost - v-act-foh-cost,"->>>>>,>>9.99").
                  WHEN "v-var%-voh-cost" THEN cVarValue = 
-                     STRING( IF v-act-voh-cost <> 0 THEN (((v-est-voh-cost - v-act-voh-cost) / v-act-voh-cost) * 100) ELSE 0,"->>>>>,>>9.99"). 
+                     STRING( IF v-act-voh-cost NE 0 THEN (((v-est-voh-cost - v-act-voh-cost) / v-act-voh-cost) * 100) ELSE 0,"->>>>>,>>9.99"). 
                  WHEN "v-act-tot-cost" THEN cVarValue = STRING(v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost,"->>>>>,>>9.99").
                  WHEN "v-est-tot-cost" THEN cVarValue = STRING(v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost,"->>>>>,>>9.99").
                  WHEN "v-var-tot-cost" THEN cVarValue = STRING( (v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost) - (v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost),"->>>>>,>>9.99").
                  WHEN "v-var%-tot-cost" THEN cVarValue = 
-                   STRING( IF (v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost) <> 0 THEN (((v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost) -
+                   STRING( IF (v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost) NE 0 THEN (((v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost) -
                                                               (v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost) / (v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost)) * 100) ELSE 0,"->>>>>,>>9.99"). 
                  WHEN "v-mat-usage" THEN cVarValue = STRING((v-est-mAT-cost - v-act-mAT-cost),"->>>>>,>>9.99").
                  WHEN "v-lab-eff" THEN cVarValue = STRING((v-est-lab-cost - v-act-lab-cost),"->>>>>,>>9.99").
@@ -83,8 +83,8 @@
 
              cExcelVarValue = cVarValue.  
              cDisplay = cDisplay + cVarValue +
-                       FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
+             cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
             END.
  END.
         PUT UNFORMATTED cDisplay SKIP.
