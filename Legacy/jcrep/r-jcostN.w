@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME C-Win
+&SCOPED-DEFINE WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -18,62 +18,62 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
-DEF VAR is-xprint-form AS LOG NO-UNDO.
-DEF VAR ls-fax-file AS CHAR NO-UNDO.
-DEF VAR tb_curr AS LOG INIT YES NO-UNDO.
-DEF STREAM excel.
-DEF VAR v-est-mAT-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-est-board-mat-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-est-other-mat-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-est-lab-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-est-foh-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-est-voh-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-act-mAT-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-act-board-mat-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-act-other-mat-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-act-lab-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-act-foh-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-act-voh-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-std-price    AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-act-price    AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-op-cost      AS DEC NO-UNDO.
+DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
+DEFINE VARIABLE tb_curr AS LOGICAL INITIAL YES NO-UNDO.
+DEFINE STREAM excel.
+DEFINE VARIABLE v-est-mAT-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-est-board-mat-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-est-other-mat-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-est-lab-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-est-foh-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-est-voh-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-act-mAT-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-act-board-mat-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-act-other-mat-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-act-lab-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-act-foh-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-act-voh-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-std-price AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-act-price AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-op-cost AS DECIMAL NO-UNDO.
 /* gdm - 11170812 */
-DEF VAR v-gest-mAT-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-gest-lab-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-gest-foh-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-gest-voh-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-gact-mAT-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-gact-lab-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-gact-foh-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-gact-voh-cost AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-gstd-price    AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-gact-price    AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-matvar        AS DEC FORMAT "->>>>>9.9" NO-UNDO.
-DEF VAR v-boardvar      AS DEC FORMAT "->>>>>9.9" NO-UNDO.
-DEF VAR v-othervar      AS DEC FORMAT "->>>>>9.9" NO-UNDO.
-DEF VAR v-labvar        AS DEC FORMAT "->>>>>9.9" NO-UNDO.
-DEF VAR v-fixvar        AS DEC FORMAT "->>>>>9.9" NO-UNDO.
-DEF VAR v-varvar        AS DEC FORMAT "->>>>>9.9" NO-UNDO.
-DEF VAR v-totvar        AS DEC FORMAT "->>>>>9.9" NO-UNDO.
-DEF VAR v-constn        AS DEC FORMAT "->>>>>9.9" NO-UNDO.
-DEF VAR v-conact        AS DEC FORMAT "->>>>>9.9" NO-UNDO.
-DEF VAR v-tot-cost      AS DECIMAL NO-UNDO .
-DEFINE var v-mater   as dec format "->>,>>>,>>9.99" no-undo.
-DEFINE var v-prep    as dec format "->>,>>>,>>9.99" no-undo.
-DEFINE var v-labor   as dec format "->>,>>>,>>9.99" no-undo.
-DEFINE var v-lab-m   as dec format "->>,>>>,>>9.99" no-undo.
-DEFINE var v-comm    as dec format "->>,>>>,>>9.99" no-undo.
-DEFINE var v-frate   as dec format "->>,>>>,>>9.99" no-undo.
-DEFINE var v-total   as dec format "->>,>>>,>>9.99" no-undo.
-DEFINE var v-sale    as dec format "->>,>>>,>>9.99" no-undo.
-DEFINE VAR v-t-inv-qty AS DEC NO-UNDO.
-def var v-avg-prc as dec format ">>>>>9.99" no-undo.
+DEFINE VARIABLE v-gest-mAT-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-gest-lab-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-gest-foh-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-gest-voh-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-gact-mAT-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-gact-lab-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-gact-foh-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-gact-voh-cost AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-gstd-price AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-gact-price AS DECIMAL FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-matvar AS DECIMAL FORMAT "->>>>>9.9" NO-UNDO.
+DEFINE VARIABLE v-boardvar AS DECIMAL FORMAT "->>>>>9.9" NO-UNDO.
+DEFINE VARIABLE v-othervar AS DECIMAL FORMAT "->>>>>9.9" NO-UNDO.
+DEFINE VARIABLE v-labvar AS DECIMAL FORMAT "->>>>>9.9" NO-UNDO.
+DEFINE VARIABLE v-fixvar AS DECIMAL FORMAT "->>>>>9.9" NO-UNDO.
+DEFINE VARIABLE v-varvar AS DECIMAL FORMAT "->>>>>9.9" NO-UNDO.
+DEFINE VARIABLE v-totvar AS DECIMAL FORMAT "->>>>>9.9" NO-UNDO.
+DEFINE VARIABLE v-constn AS DECIMAL FORMAT "->>>>>9.9" NO-UNDO.
+DEFINE VARIABLE v-conact AS DECIMAL FORMAT "->>>>>9.9" NO-UNDO.
+DEFINE VARIABLE v-tot-cost AS DECIMAL NO-UNDO .
+DEFINE VARIABLE v-mater AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-prep AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-labor AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-lab-m AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-comm AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-frate AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-total AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-sale AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-t-inv-qty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-avg-prc AS DECIMAL FORMAT ">>>>>9.99" NO-UNDO.
 /*var declarations for compiling - used in job-clsr.i*/
-DEF VAR tb_exclude_run_if_no_prod AS LOG INIT NO NO-UNDO.
+DEFINE VARIABLE tb_exclude_run_if_no_prod AS LOGICAL INIT NO NO-UNDO.
 
-DEF VAR tb_exclude_prep AS LOG NO-UNDO.
+DEFINE VARIABLE tb_exclude_prep AS LOGICAL NO-UNDO.
 {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
 
@@ -82,9 +82,9 @@ DEF VAR tb_exclude_prep AS LOG NO-UNDO.
 {custom/getcmpny.i}
 {custom/getloc.i}
 
-{sys/inc/var.i new shared}
+{sys/inc/var.i NEW SHARED}
 
-assign
+ASSIGN 
  cocode = gcompany
  locode = gloc.
 
@@ -95,15 +95,15 @@ DO TRANSACTION:
    {rm/msfcalc.i}
 END.
 
-DEF TEMP-TABLE tt-report NO-UNDO LIKE report.
+DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report.
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF VAR cFieldType AS cha NO-UNDO.
-DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldLength AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEFINE VARIABLE cFieldType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
 ASSIGN cTextListToSelect = "JOB#,FG ITEM,ITEM DESCRIPTION,FG CATEGORY,CUSTOMER,CUSTOMER NAME," +       /*6*/
                            "QTY ORDERED,QTY PRODUCED,MAT. ACT COST,MAT STND COST,MAT VAR,MAT % VAR," + /*6*/
@@ -210,19 +210,19 @@ ASSIGN cTextListToSelect = "JOB#,FG ITEM,ITEM DESCRIPTION,FG CATEGORY,CUSTOMER,C
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Window
-&Scoped-define DB-AWARE no
+&SCOPED-DEFINE PROCEDURE-TYPE WINDOW
+&SCOPED-DEFINE DB-AWARE NO
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME FRAME-A
+&SCOPED-DEFINE FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_job-no begin_job-no2 ~
+&SCOPED-DEFINE ENABLED-OBJECTS RECT-6 RECT-7 begin_job-no begin_job-no2 ~
 end_job-no end_job-no2 begin_clsdate end_clsdate begin_cust-no end_cust-no ~
 begin_fgcat end_fgcat Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up ~
 btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
 tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_job-no begin_job-no2 begin_clsdate ~
+&SCOPED-DEFINE DISPLAYED-OBJECTS begin_job-no begin_job-no2 begin_clsdate ~
 end_clsdate begin_cust-no end_cust-no begin_fgcat end_fgcat sl_avail ~
 sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
 td-show-parm tb_excel tb_runExcel fi_file 
@@ -238,7 +238,7 @@ td-show-parm tb_excel tb_runExcel fi_file
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getInvoiceTotal C-Win 
 FUNCTION getInvoiceTotal RETURNS DECIMAL
-  ( ipiOrder AS INT, ipcJob AS CHAR, ipcJobNo2 AS INT, ipcPriceOrQty AS CHAR )  FORWARD.
+  ( ipiOrder AS INTEGER, ipcJob AS CHARACTER, ipcJobNo2 AS INTEGER, ipcPriceOrQty AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -408,39 +408,39 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 35 BY 6.43 NO-UNDO.
 
-DEFINE VARIABLE exclude-billed-prep AS LOGICAL INITIAL no 
+DEFINE VARIABLE exclude-billed-prep AS LOGICAL INITIAL NO  
      LABEL "Exclude Billed Prep" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES  
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3 FGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_invoiced AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_invoiced AS LOGICAL INITIAL NO  
      LABEL "Print Only Invoiced Jobs If yes, then" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO  
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3 FGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_sep_board AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_sep_board AS LOGICAL INITIAL NO  
      LABEL "Separate Board / Other Mat'l" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES  
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tgl_SumTot AS LOGICAL INITIAL no 
+DEFINE VARIABLE tgl_SumTot AS LOGICAL INITIAL NO  
      LABEL "Print Summary - Grand Total Only" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
@@ -449,71 +449,71 @@ DEFINE VARIABLE tgl_SumTot AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_job-no AT ROW 2.19 COL 20.8 COLON-ALIGNED HELP
+     begin_job-no AT ROW 2.19 COLUMN 20.8 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 2.19 COL 33 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 2.19 COLUMN 33 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 2.29 COL 60.4 COLON-ALIGNED HELP
+     end_job-no AT ROW 2.29 COLUMN 60.4 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.29 COL 72.6 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.29 COLUMN 72.6 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     begin_clsdate AT ROW 3.38 COL 21 COLON-ALIGNED HELP
+     begin_clsdate AT ROW 3.38 COLUMN 21 COLON-ALIGNED HELP
           "Enter Beginning Date" WIDGET-ID 2
-     end_clsdate AT ROW 3.43 COL 60.6 COLON-ALIGNED HELP
+     end_clsdate AT ROW 3.43 COLUMN 60.6 COLON-ALIGNED HELP
           "Enter Ending Date" WIDGET-ID 6
-     lbl_qty AT ROW 3.62 COL 97 COLON-ALIGNED NO-LABEL
-     begin_cust-no AT ROW 4.57 COL 21 COLON-ALIGNED HELP
+     lbl_qty AT ROW 3.62 COLUMN 97 COLON-ALIGNED NO-LABEL
+     begin_cust-no AT ROW 4.57 COLUMN 21 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 4
-     end_cust-no AT ROW 4.57 COL 60.6 COLON-ALIGNED HELP
+     end_cust-no AT ROW 4.57 COLUMN 60.6 COLON-ALIGNED HELP
           "Enter Ending Customer Number" WIDGET-ID 8
-     rd_qty AT ROW 5.05 COL 106 NO-LABEL
-     begin_fgcat AT ROW 6 COL 21 COLON-ALIGNED HELP
+     rd_qty AT ROW 5.05 COLUMN 106 NO-LABEL
+     begin_fgcat AT ROW 6 COLUMN 21 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 46
-     end_fgcat AT ROW 6 COL 59.6 COLON-ALIGNED HELP
+     end_fgcat AT ROW 6 COLUMN 59.6 COLON-ALIGNED HELP
           "Enter Ending Customer Number" WIDGET-ID 48
-     tgl_SumTot AT ROW 6.24 COL 99 WIDGET-ID 10
-     tb_sep_board AT ROW 7.43 COL 103 WIDGET-ID 12
-     tb_invoiced AT ROW 8.62 COL 105
-     begin_date AT ROW 9.81 COL 115 COLON-ALIGNED
-     sl_avail AT ROW 10.52 COL 2 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 10.52 COL 61.4 NO-LABEL WIDGET-ID 28
-     Btn_Def AT ROW 10.52 COL 41 HELP
+     tgl_SumTot AT ROW 6.24 COLUMN 99 WIDGET-ID 10
+     tb_sep_board AT ROW 7.43 COLUMN 103 WIDGET-ID 12
+     tb_invoiced AT ROW 8.62 COLUMN 105
+     begin_date AT ROW 9.81 COLUMN 115 COLON-ALIGNED
+     sl_avail AT ROW 10.52 COLUMN 2 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 10.52 COLUMN 61.4 NO-LABEL WIDGET-ID 28
+     Btn_Def AT ROW 10.52 COLUMN 41 HELP
           "Default Selected Table to Tables to Audit" WIDGET-ID 56
-     end_date AT ROW 10.76 COL 115 COLON-ALIGNED HELP
+     end_date AT ROW 10.76 COLUMN 115 COLON-ALIGNED HELP
           "Enter Ending Due Date"
-     Btn_Add AT ROW 11.70 COL 41 HELP
+     Btn_Add AT ROW 11.70 COLUMN 41 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 12.98 COL 41 HELP
+     Btn_Remove AT ROW 12.98 COLUMN 41 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     exclude-billed-prep AT ROW 12.67 COL 108 WIDGET-ID 14
-     btn_Up AT ROW 14.26 COL 41 WIDGET-ID 40
-     btn_down AT ROW 15.54 COL 41 WIDGET-ID 42
-     rd-dest AT ROW 19.1 COL 7 NO-LABEL
-     lv-ornt AT ROW 19.33 COL 33 NO-LABEL
-     lines-per-page AT ROW 19.33 COL 86 COLON-ALIGNED
-     lv-font-no AT ROW 20.76 COL 36 COLON-ALIGNED
-     lv-font-name AT ROW 21.71 COL 30 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 23.14 COL 32
-     tb_excel AT ROW 24.1 COL 69 RIGHT-ALIGNED
-     tb_runExcel AT ROW 24.1 COL 93 RIGHT-ALIGNED
-     fi_file AT ROW 25.05 COL 47 COLON-ALIGNED HELP
+     exclude-billed-prep AT ROW 12.67 COLUMN 108 WIDGET-ID 14
+     btn_Up AT ROW 14.26 COLUMN 41 WIDGET-ID 40
+     btn_down AT ROW 15.54 COLUMN 41 WIDGET-ID 42
+     rd-dest AT ROW 19.1 COLUMN 7 NO-LABEL
+     lv-ornt AT ROW 19.33 COLUMN 33 NO-LABEL
+     lines-per-page AT ROW 19.33 COLUMN 86 COLON-ALIGNED
+     lv-font-no AT ROW 20.76 COLUMN 36 COLON-ALIGNED
+     lv-font-name AT ROW 21.71 COLUMN 30 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 23.14 COLUMN 32
+     tb_excel AT ROW 24.1 COLUMN 69 RIGHT-ALIGNED
+     tb_runExcel AT ROW 24.1 COLUMN 93 RIGHT-ALIGNED
+     fi_file AT ROW 25.05 COLUMN 47 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 27.24 COL 20
-     btn-cancel AT ROW 27.24 COL 58
+     btn-ok AT ROW 27.24 COLUMN 20
+     btn-cancel AT ROW 27.24 COLUMN 58
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18.14 COL 7
+          SIZE 18 BY .62 AT ROW 18.14 COLUMN 7
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
+          SIZE 21 BY .71 AT ROW 1.24 COLUMN 5
           BGCOLOR 2 
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 9.57 COL 60 WIDGET-ID 44
+          SIZE 34 BY .62 AT ROW 9.57 COLUMN 60 WIDGET-ID 44
      "Available Columns" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 9.57 COL 2 WIDGET-ID 38
-     RECT-6 AT ROW 17.43 COL 3
-     RECT-7 AT ROW 1 COL 1
+          SIZE 22 BY .62 AT ROW 9.57 COLUMN 2 WIDGET-ID 38
+     RECT-6 AT ROW 17.43 COLUMN 3
+     RECT-7 AT ROW 1 COLUMN 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1.6 ROW 1.24
+         AT COLUMN 1.6 ROW 1.24
          SIZE 135.4 BY 27.81.
 
 
@@ -540,15 +540,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES 
+         SCROLL-BARS        = NO 
+         STATUS-AREA        = YES 
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES 
+         THREE-D            = YES 
+         MESSAGE-AREA       = NO 
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -694,7 +694,7 @@ THEN C-Win:HIDDEN = no.
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME C-Win
+&SCOPED-DEFINE SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Job Actual/Standard Cost */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
@@ -720,7 +720,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_clsdate
+&SCOPED-DEFINE SELF-NAME begin_clsdate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_clsdate C-Win
 ON LEAVE OF begin_clsdate IN FRAME FRAME-A /* From Close Date */
 DO:
@@ -731,7 +731,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_cust-no
+&SCOPED-DEFINE SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* From Cust # */
 DO:
@@ -744,18 +744,18 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_date
+&SCOPED-DEFINE SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning InvDate */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_fgcat
+&SCOPED-DEFINE SELF-NAME begin_fgcat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_fgcat C-Win
 ON LEAVE OF begin_fgcat IN FRAME FRAME-A /* From FG Category */
 DO:
@@ -768,7 +768,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_job-no
+&SCOPED-DEFINE SELF-NAME begin_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no C-Win
 ON LEAVE OF begin_job-no IN FRAME FRAME-A /* Beginning Job# */
 DO:
@@ -781,11 +781,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_job-no2
+&SCOPED-DEFINE SELF-NAME begin_job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no2 C-Win
 ON LEAVE OF begin_job-no2 IN FRAME FRAME-A
 DO:
-  assign 
+  ASSIGN 
      {&self-name}
      end_job-no2:SCREEN-VALUE = begin_job-no2.
 END.
@@ -794,18 +794,18 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-cancel
+&SCOPED-DEFINE SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-ok
+&SCOPED-DEFINE SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
@@ -827,24 +827,24 @@ DO:
       tb_exclude_prep = exclude-billed-prep.
        
   RUN GetSelectionList.
-  run run-report. 
+  RUN run-report. 
 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
+  CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
+       WHEN 3 THEN RUN output-to-file.
        WHEN 5 THEN
        DO:
-          DEF VAR lv-tmp AS CHAR INIT "-0" NO-UNDO.
+          DEFINE VARIABLE lv-tmp AS CHARACTER INITIAL "-0" NO-UNDO.
           
           {custom/asimailr.i &TYPE="Customer"
                              &begin_cust=lv-tmp
                              &END_cust=lv-tmp
-                             &mail-subject=c-win:title
-                             &mail-body=c-win:title
+                             &mail-subject=c-win:TITLE 
+                             &mail-body=c-win:TITLE 
                              &mail-file=list-name }
        END.
-  end case. 
+  END CASE. 
 
 END.
 
@@ -852,11 +852,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Add
+&SCOPED-DEFINE SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -878,11 +878,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Def
+&SCOPED-DEFINE SELF-NAME Btn_Def
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
   RUN DisplaySelectionDefault.  /* task 04141411 */ 
   RUN DisplaySelectionList2 .
@@ -893,7 +893,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_down
+&SCOPED-DEFINE SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down C-Win
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
@@ -904,7 +904,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Remove
+&SCOPED-DEFINE SELF-NAME Btn_Remove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove C-Win
 ON CHOOSE OF Btn_Remove IN FRAME FRAME-A /* << Remove */
 DO:
@@ -920,7 +920,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_Up
+&SCOPED-DEFINE SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up C-Win
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
@@ -931,7 +931,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_clsdate
+&SCOPED-DEFINE SELF-NAME end_clsdate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_clsdate C-Win
 ON LEAVE OF end_clsdate IN FRAME FRAME-A /* To Close Date */
 DO:
@@ -942,7 +942,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_cust-no
+&SCOPED-DEFINE SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* To Cust # */
 DO:
@@ -954,18 +954,18 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_date
+&SCOPED-DEFINE SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending InvDate */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_fgcat
+&SCOPED-DEFINE SELF-NAME end_fgcat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_fgcat C-Win
 ON LEAVE OF end_fgcat IN FRAME FRAME-A /* To FG Category */
 DO:
@@ -977,58 +977,58 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_job-no
+&SCOPED-DEFINE SELF-NAME end_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no C-Win
 ON LEAVE OF end_job-no IN FRAME FRAME-A /* Ending Job# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_job-no2
+&SCOPED-DEFINE SELF-NAME end_job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no2 C-Win
 ON LEAVE OF end_job-no2 IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_file
+&SCOPED-DEFINE SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME lines-per-page
+&SCOPED-DEFINE SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME lv-font-no
+&SCOPED-DEFINE SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    IF char-val NE "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
@@ -1047,7 +1047,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME lv-ornt
+&SCOPED-DEFINE SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
 DO:
@@ -1068,29 +1068,29 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rd-dest
+&SCOPED-DEFINE SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rd_qty
+&SCOPED-DEFINE SELF-NAME rd_qty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_qty C-Win
 ON VALUE-CHANGED OF rd_qty IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME sl_avail
+&SCOPED-DEFINE SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
@@ -1129,13 +1129,13 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME sl_selected
+&SCOPED-DEFINE SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected C-Win
 ON DEFAULT-ACTION OF sl_selected IN FRAME FRAME-A
 DO:
    DO i = 1 TO {&SELF-NAME}:NUM-ITEMS:
     IF {&SELF-NAME}:IS-SELECTED(i) THEN DO:
-       ASSIGN ldummy = sl_Avail:add-last({&SELF-NAME}:SCREEN-VALUE)
+       ASSIGN ldummy = sl_Avail:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
               ldummy = /*{&SELF-NAME}:DELETE(i)*/
                        {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
               .
@@ -1153,51 +1153,51 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_excel
+&SCOPED-DEFINE SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_invoiced
+&SCOPED-DEFINE SELF-NAME tb_invoiced
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_invoiced C-Win
 ON VALUE-CHANGED OF tb_invoiced IN FRAME FRAME-A /* Print Only Invoiced Jobs If yes, then */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
+&SCOPED-DEFINE SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME td-show-parm
+&SCOPED-DEFINE SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    assign {&self-name}.
+    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tgl_SumTot
+&SCOPED-DEFINE SELF-NAME tgl_SumTot
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tgl_SumTot C-Win
 ON VALUE-CHANGED OF tgl_SumTot IN FRAME FRAME-A /* Print Summary - Grand Total Only */
 DO:
@@ -1286,10 +1286,10 @@ PROCEDURE DisplaySelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
-  IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:   
+  IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:   
      RETURN.
   END.
 
@@ -1298,7 +1298,7 @@ DEF VAR cListContents AS cha NO-UNDO.
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
 
      cListContents = cListContents +                   
-                    (IF cListContents = "" THEN ""  ELSE ",") +
+                    (IF cListContents EQ "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
     ASSIGN ttRptList.TextList = ENTRY(iCount,cTextListToSelect)
@@ -1320,11 +1320,11 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
+  DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
 
-  IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
+  IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
         
@@ -1333,7 +1333,7 @@ PROCEDURE DisplaySelectionList2 :
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
 
      cListContents = cListContents +
-                    (IF cListContents = "" THEN ""  ELSE ",") +
+                    (IF cListContents EQ "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
     ASSIGN ttRptList.TextList = ENTRY(iCount,cTextListToSelect)
@@ -1349,7 +1349,7 @@ PROCEDURE DisplaySelectionList2 :
   cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
    DO iCount = 1 TO sl_selected:NUM-ITEMS: /* task 08191414 */
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
+       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) EQ 0 THEN
         ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
   END.
 
@@ -1366,13 +1366,13 @@ PROCEDURE DisplaySelectionDefault :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
-                    (IF cListContents = "" THEN ""  ELSE ",") +
+                    (IF cListContents EQ "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToDefault)   .
   END.            
   sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
@@ -1418,16 +1418,16 @@ PROCEDURE gather-data :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR v-job-no  LIKE job.job-no  EXTENT 2 INIT ["", "zzzzzz"] NO-UNDO.
-DEF VAR v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [00, 99]       NO-UNDO.
+DEFINE VARIABLE v-job-no  LIKE job.job-no  EXTENT 2 INITIAL ["", "zzzzzz"] NO-UNDO.
+DEFINE VARIABLE v-job-no2 LIKE job.job-no2 EXTENT 2 INITIAL [00, 99]       NO-UNDO.
 
-DEF VAR ll AS LOG NO-UNDO.
+DEFINE VARIABLE ll AS LOGICAL NO-UNDO.
 
 ASSIGN
     v-job-no[1] = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-                  TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
+                  TRIM(begin_job-no) + STRING(INTEGER(begin_job-no2),"99")
     v-job-no[2] = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-                  TRIM(end_job-no)   + STRING(INT(end_job-no2),"99"). 
+                  TRIM(end_job-no)   + STRING(INTEGER(end_job-no2),"99"). 
 
 
 EMPTY TEMP-TABLE tt-report.
@@ -1435,12 +1435,12 @@ EMPTY TEMP-TABLE tt-report.
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ cocode
           AND job-hdr.opened  EQ NO
-          AND job-hdr.job-no  GE SUBSTR(v-job-no[1],1,6)
-          AND job-hdr.job-no  LE SUBSTR(v-job-no[2],1,6)
+          AND job-hdr.job-no  GE SUBSTRING(v-job-no[1],1,6)
+          AND job-hdr.job-no  LE SUBSTRING(v-job-no[2],1,6)
           AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-              TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"99") GE v-job-no[1]
+              TRIM(job-hdr.job-no) + STRING(INTEGER(job-hdr.job-no2),"99") GE v-job-no[1]
           AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no)))   +
-              TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"99") LE v-job-no[2]
+              TRIM(job-hdr.job-no) + STRING(INTEGER(job-hdr.job-no2),"99") LE v-job-no[2]
           AND job-hdr.cust-no GE begin_cust-no 
           AND job-hdr.cust-no LE end_cust-no USE-INDEX opened:
         FIND FIRST job NO-LOCK
@@ -1451,7 +1451,7 @@ EMPTY TEMP-TABLE tt-report.
               AND job.job-no  EQ job-hdr.job-no
               AND job.job-no2 EQ job-hdr.job-no2
               AND job.job     EQ job-hdr.job NO-ERROR.
-        IF NOT AVAIL job THEN NEXT.
+        IF NOT AVAILABLE job THEN NEXT.
 
 
         STATUS INPUT "  Processing Job#      "  + STRING(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2).
@@ -1487,7 +1487,7 @@ EMPTY TEMP-TABLE tt-report.
          tt-report.rec-id = RECID(job-hdr)
          tt-report.key-01 = FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
                             TRIM(job-hdr.job-no) +
-                            STRING(INT(job-hdr.job-no2),"99").
+                            STRING(INTEGER(job-hdr.job-no2),"99").
       END.
     END.
 
@@ -1505,21 +1505,21 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
  iColumnLength = 0.
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
-    FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
+    FIND FIRST ttRptList NO-LOCK WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-ERROR.     
   
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
            ttRptSelected.DisplayOrder = i
-           ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
+           ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
            
@@ -2038,7 +2038,7 @@ PROCEDURE output-to-printer :
                             INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
                                     /* use-dialog(1) and landscape(2) */
   */
-  RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
+  RUN custom/prntproc.p (list-name,INTEGER(lv-font-no),lv-ornt).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2051,7 +2051,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+  RUN scr-rpt.w (list-name,c-win:TITLE,INTEGER(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2063,70 +2063,70 @@ PROCEDURE run-report :
 /* WIP Job Audit Listing Report                                               */
 /* ---------------------------------------------------------------------------*/
 /*{sys/form/r-topw.f}*/
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR str-tit4 AS cha FORM "x(299)" NO-UNDO.
-DEF VAR str-tit5 AS cha FORM "x(299)" NO-UNDO.
-DEF VAR v-prep-cost AS DECIMAL NO-UNDO .
-def var v-prof    as   dec format "->>,>>>,>>9.99" no-undo.
-def var v-com     like eb.comm init 0              no-undo.
-def var v-wt      as   dec init 0                  no-undo.
-def var v-rate    as   dec init 0                  no-undo.
-DEF VAR c1        AS   CHAR INIT ""                NO-UNDO.
-DEF VAR c2        AS   CHAR INIT ""                NO-UNDO.
-DEF VAR dFrt      AS   DEC                         NO-UNDO.
-DEF VAR iOrder    AS   INT                         NO-UNDO.
+DEFINE VARIABLE cDisplay AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVarValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE str-tit4 AS CHARACTER FORMAT "x(299)" NO-UNDO.
+DEFINE VARIABLE str-tit5 AS CHARACTER FORMAT "x(299)" NO-UNDO.
+DEFINE VARIABLE v-prep-cost AS DECIMAL NO-UNDO .
+DEFINE VARIABLE v-prof AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-com LIKE eb.comm INITIAL 0 NO-UNDO.
+DEFINE VARIABLE v-wt AS DECIMAL INITIAL 0 NO-UNDO.
+DEFINE VARIABLE v-rate AS DECIMAL INITIAL 0 NO-UNDO.
+DEFINE VARIABLE c1 AS CHARACTER INITIAL "" NO-UNDO.
+DEFINE VARIABLE c2 AS CHARACTER INITIAL "" NO-UNDO.
+DEFINE VARIABLE dFrt AS DECIMAL NO-UNDO.
+DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
 
 {sys/form/r-top5DL3.f} 
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
 ASSIGN
- v-est-mAT-cost = 0
+ v-est-mAT-cost       = 0
  v-est-board-mat-cost = 0
  v-est-other-mat-cost = 0
- v-est-lab-cost = 0
- v-est-foh-cost = 0
- v-est-voh-cost = 0
- v-act-mAT-cost = 0
+ v-est-lab-cost       = 0
+ v-est-foh-cost       = 0
+ v-est-voh-cost       = 0
+ v-act-mAT-cost       = 0
  v-act-board-mat-cost = 0
  v-act-other-mat-cost = 0
- v-act-lab-cost = 0
- v-act-foh-cost = 0
- v-act-voh-cost = 0
- v-std-price    = 0
- v-act-price    = 0
- v-op-cost     = 0
- v-gest-mAT-cost = 0
- v-gest-lab-cost = 0
- v-gest-foh-cost = 0
- v-gest-voh-cost = 0
- v-gact-mAT-cost = 0
- v-gact-lab-cost = 0
- v-gact-foh-cost = 0
- v-gact-voh-cost = 0
- v-gstd-price    = 0
- v-gact-price    = 0
- v-constn        = 0
- v-conact        = 0.
+ v-act-lab-cost       = 0
+ v-act-foh-cost       = 0
+ v-act-voh-cost       = 0
+ v-std-price          = 0
+ v-act-price          = 0
+ v-op-cost            = 0
+ v-gest-mAT-cost      = 0
+ v-gest-lab-cost      = 0
+ v-gest-foh-cost      = 0
+ v-gest-voh-cost      = 0
+ v-gact-mAT-cost      = 0
+ v-gact-lab-cost      = 0
+ v-gact-foh-cost      = 0
+ v-gact-voh-cost      = 0
+ v-gstd-price         = 0
+ v-gact-price         = 0
+ v-constn             = 0
+ v-conact             = 0.
 
-DEF VAR v-ip-basis-w   LIKE job-mAT.basis-w NO-UNDO.
-DEF VAR v-ip-len       LIKE job-mAT.len     NO-UNDO.
-DEF VAR v-ip-wid       LIKE job-mAT.wid     NO-UNDO.
-DEF VAR v-ip-sc-uom    LIKE job-mAT.sc-uom  NO-UNDO.
-DEF VAR v-stAT         LIKE job.stAT        NO-UNDO.
+DEFINE VARIABLE v-ip-basis-w LIKE job-mAT.basis-w NO-UNDO.
+DEFINE VARIABLE v-ip-len LIKE job-mAT.len NO-UNDO.
+DEFINE VARIABLE v-ip-wid LIKE job-mAT.wid NO-UNDO.
+DEFINE VARIABLE v-ip-sc-uom LIKE job-mAT.sc-uom NO-UNDO.
+DEFINE VARIABLE v-stAT LIKE job.stAT NO-UNDO.
 
-DEF VAR v-t-qty-ord    AS INT NO-UNDO.
-DEF VAR v-num-up       AS INT NO-UNDO.
+DEFINE VARIABLE v-t-qty-ord AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-num-up AS INTEGER NO-UNDO.
 
-DEF VAR excelheader AS CHARACTER  NO-UNDO.
-DEF BUFFER bwork-item FOR work-item.
+DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE BUFFER bwork-item FOR work-item.
 
 ASSIGN 
     str-tit2 = c-win:TITLE 
@@ -2150,7 +2150,7 @@ FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
              .        
  END.
 {sys/inc/print1.i}
-{sys/inc/outprint.i value(lines-per-page)}
+{sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF td-show-parm THEN RUN show-param.
 
@@ -2313,12 +2313,12 @@ FOR EACH tt-report,
            v-gact-foh-cost = v-gact-foh-cost + v-act-foh-cost
            v-gact-voh-cost = v-gact-voh-cost + v-act-voh-cost.
 
-       find first work-item WHERE work-item.cust-no eq job-hdr.cust-no AND
-                            work-item.i-no    eq job-hdr.i-no NO-LOCK no-error.
-       FIND cust NO-LOCK WHERE cust.company = cocode 
-                  AND cust.cust-no = work-item.cust-no NO-ERROR.
-       FIND itemfg NO-LOCK WHERE itemfg.company = cocode 
-                  AND itemfg.i-no    = work-item.i-no NO-ERROR.
+       find first work-item NO-LOCK WHERE work-item.cust-no EQ job-hdr.cust-no AND
+                            work-item.i-no    EQ job-hdr.i-no  NO-ERROR.
+       FIND cust NO-LOCK WHERE cust.company EQ cocode 
+                  AND cust.cust-no EQ work-item.cust-no NO-ERROR.
+       FIND itemfg NO-LOCK WHERE itemfg.company EQ cocode 
+                           AND itemfg.i-no EQ work-item.i-no NO-ERROR.
 
        {jcrep/r-jcostN1.i}
        
@@ -2571,62 +2571,62 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label AS CHARACTER.
   
-  lv-frame-hdl = frame {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:first-child.
-  lv-field-hdl = lv-group-hdl:first-child .
+  lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE.
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
   
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") GT 0
+        THEN DO:
+           IF lv-field-hdl:LABEL NE ? THEN 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
                      .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
                      .
-              lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
 
-  put space(28)
+  PUT SPACE(28)
       "< Selection Parameters >"
-      skip(1).
+      SKIP(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR
+       ENTRY(i,parm-lbl-list) ne "" THEN DO:
        
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+      lv-label = FILL(" ",34 - LENGTH(TRIM(ENTRY(i,parm-lbl-list)))) +
+                 TRIM(ENTRY(i,parm-lbl-list)) + ":".
                  
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+      PUT lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
  
-  put fill("-",80) format "x(80)" skip.
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.
   
 END PROCEDURE.
 
@@ -2643,7 +2643,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN string(hipField:BUFFER-VALUE).
+  RETURN STRING(hipField:BUFFER-VALUE).
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2653,27 +2653,27 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getInvoiceTotal C-Win 
 FUNCTION getInvoiceTotal RETURNS DECIMAL
-  ( ipiOrder AS INT, ipcJob AS CHAR, ipcJobNo2 AS INT, ipcPriceOrQty AS CHAR ) :
+  ( ipiOrder AS INTEGER, ipcJob AS CHARACTER, ipcJobNo2 AS INTEGER, ipcPriceOrQty AS CHARACTER ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-DEF VAR dInvTot AS DEC NO-UNDO.
-DEF VAR v-subtot-lines AS DEC NO-UNDO.
-DEF VAR v-subtot-qty AS DEC NO-UNDO.
-DEF VAR v-inv-freight AS DEC NO-UNDO.
-DEF VAR v-inv-total AS DEC NO-UNDO.
-DEF VAR v-total-qty AS DEC NO-UNDO.
-DEF VAR v-total-prep AS DEC NO-UNDO.
-DEF VAR v-subtot-prep AS DEC NO-UNDO.
-DEF VAR v-save-x AS INT NO-UNDO.
+DEFINE VARIABLE dInvTot AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-subtot-lines AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-subtot-qty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-inv-freight AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-inv-total AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-total-qty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-total-prep AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-subtot-prep AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-save-x AS INTEGER NO-UNDO.
 v-subtot-lines = 0.
-FOR EACH oe-ord WHERE oe-ord.company EQ cocode
-    AND oe-ord.ord-no = ipiOrder NO-LOCK,
+FOR EACH oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
+    AND oe-ord.ord-no EQ ipiOrder ,
     EACH oe-ordl OF oe-ord NO-LOCK,
-    EACH oe-boll WHERE oe-boll.company EQ oe-ordl.company
+    EACH oe-boll NO-LOCK WHERE oe-boll.company EQ oe-ordl.company
       AND oe-boll.ord-no EQ oe-ordl.ord-no
-    NO-LOCK
+   
     BREAK BY oe-boll.bol-no:
     IF FIRST-OF(oe-boll.bol-no) THEN DO:
         ASSIGN v-inv-total    = 0
@@ -2683,17 +2683,16 @@ FOR EACH oe-ord WHERE oe-ord.company EQ cocode
                v-total-qty    = 0
                v-total-prep   = 0
                v-subtot-prep  = 0.
-        FOR EACH inv-head WHERE inv-head.company EQ oe-boll.company
-            AND inv-head.bol-no EQ oe-boll.bol-no
-            NO-LOCK:
+        FOR EACH inv-head NO-LOCK WHERE inv-head.company EQ oe-boll.company
+            AND inv-head.bol-no EQ oe-boll.bol-no :
             
-            FOR EACH inv-line NO-LOCK WHERE inv-line.r-no = inv-head.r-no
+            FOR EACH inv-line NO-LOCK WHERE inv-line.r-no EQ inv-head.r-no
               AND inv-line.job-no EQ ipcJob
               AND inv-line.job-no2 EQ ipcJobNo2:
                 v-subtot-lines = v-subtot-lines + inv-line.t-price.
                 v-subtot-qty   = v-subtot-qty   + inv-line.inv-qty .
-                FOR EACH inv-misc WHERE inv-misc.r-no EQ inv-line.r-no
-                  AND inv-misc.LINE EQ inv-line.LINE NO-LOCK:
+                FOR EACH inv-misc NO-LOCK WHERE inv-misc.r-no EQ inv-line.r-no
+                  AND inv-misc.LINE EQ inv-line.LINE :
                   v-subtot-prep = v-subtot-prep + misc.cost.
                   
                 END.
@@ -2717,22 +2716,20 @@ FOR EACH oe-ord WHERE oe-ord.company EQ cocode
                v-subtot-lines  = 0
                v-total-qty     = 0
                v-subtot-qty    = 0
-               v-total-prep   = 0
-               v-subtot-prep  = 0
-               v-save-x     = 0.
-        FOR EACH ar-invl WHERE ar-invl.company EQ oe-boll.company
+               v-total-prep    = 0
+               v-subtot-prep   = 0
+               v-save-x        = 0.
+        FOR EACH ar-invl NO-LOCK WHERE ar-invl.company EQ oe-boll.company
             AND ar-invl.bol-no EQ oe-boll.bol-no
             AND ar-invl.job-no EQ ipcJob
-            AND ar-invl.job-no2 EQ ipcJobNo2
-            NO-LOCK,
-            FIRST ar-inv WHERE ar-inv.x-no EQ ar-invl.x-no
-              NO-LOCK.
+            AND ar-invl.job-no2 EQ ipcJobNo2,
+            FIRST ar-inv NO-LOCK WHERE ar-inv.x-no EQ ar-invl.x-no  .
             ASSIGN v-subtot-lines = v-subtot-lines + ar-invl.amt
                    v-subtot-qty   = v-subtot-qty   + ar-invl.inv-qty
                    v-save-x       = ar-invl.x-no.
                                              
             /* Avoid doing a break by since assiging inv-total each time */
-            v-inv-freight = IF NOT(ar-inv.freight eq 0 or not ar-inv.f-bill) THEN
+            v-inv-freight = IF NOT(ar-inv.freight EQ 0 OR NOT ar-inv.f-bill) THEN
                           ar-inv.freight 
                        ELSE 0.
             
@@ -2742,11 +2739,9 @@ FOR EACH oe-ord WHERE oe-ord.company EQ cocode
                    .
         v-total-qty = v-total-qty + v-subtot-qty.
         IF v-save-x GT 0 THEN DO:
-          FOR EACH ar-invl WHERE ar-invl.x-no EQ v-save-x
-              AND ar-invl.prep-charge GT ""
-              NO-LOCK,
-              FIRST ar-inv WHERE ar-inv.x-no EQ ar-invl.x-no
-                NO-LOCK.
+          FOR EACH ar-invl NO-LOCK WHERE ar-invl.x-no EQ v-save-x
+              AND ar-invl.prep-charge GT "" ,
+              FIRST ar-inv NO-LOCK WHERE ar-inv.x-no EQ ar-invl.x-no .
        
                v-subtot-prep  = v-subtot-prep  + ar-invl.amt.                                         
           END.
