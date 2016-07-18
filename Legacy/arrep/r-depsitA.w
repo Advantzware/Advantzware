@@ -98,7 +98,7 @@ lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -292,8 +292,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -449,7 +449,7 @@ DO:
   END.
   
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
       EMPTY TEMP-TABLE ttCustList.
       RUN BuildCustList(INPUT cocode,
                         INPUT tb_cust-list AND glCustListActive,
@@ -572,8 +572,8 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-fonts.w ({&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
@@ -589,8 +589,8 @@ ON HELP OF begin_cust IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -605,8 +605,8 @@ ON HELP OF end_cust IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -756,7 +756,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT NO,
                           OUTPUT glCustListActive).
 
- {sys/inc/chblankcust.i}
+ {sys/inc/chblankcust.i ""AR8""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1050,7 +1050,9 @@ def var v-date as date no-undo.
 DEF VAR v-tr-num AS CHAR FORMAT "x(26)" NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR v-void AS LOG NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEF VAR fcust AS CHAR NO-UNDO.
+DEF VAR tcust AS CHAR NO-UNDO.
 FORM
     bank.bank-code AT 1 COLUMN-LABEL "BANK"
     bank.actnum AT 10 FORMAT "x(20)" COLUMN-LABEL "ACCOUNT NUMBER"
@@ -1068,7 +1070,10 @@ assign
  v-s-date = begin_date
  v-e-date = end_date
  v-s-bank = begin_bank
- v-e-bank = end_bank.
+ v-e-bank = end_bank
+ fcust    = begin_cust
+ tcust    = END_cust
+ lSelected = tb_cust-list.
 
 {sys/inc/print1.i}
 
@@ -1078,6 +1083,13 @@ IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(fi_file).
    excelheader = "BANK,ACCT/CUST NUMBER,DATE,TRANSACTION#,DAILY TOTAL".
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+END.
+
+IF lselected THEN DO:
+    FIND FIRST ttCustList NO-LOCK WHERE ttCustList.log-fld EQ TRUE NO-ERROR.
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList NO-LOCK WHERE ttCustList.log-fld EQ TRUE NO-ERROR.
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
 END.
 
 if td-show-parm then run show-param.
@@ -1093,61 +1105,65 @@ SESSION:SET-WAIT-STATE ("general").
 
 EMPTY TEMP-TABLE tt-gltrans.
 
-FOR EACH ttCustList
-       WHERE ttCustList.log-fld
-       NO-LOCK,
-   EACH ar-cash NO-LOCK
+FOR EACH ar-cash NO-LOCK
     WHERE ar-cash.company   EQ cocode
       AND ar-cash.posted    EQ YES
       AND ar-cash.bank-code GE v-s-bank
       AND ar-cash.bank-code LE v-e-bank
-      AND ar-cash.cust-no  EQ ttCustList.cust-no /*begin_cust*/
-    /*  AND ar-cash.cust-no   LE end_cust*/ ,
-    EACH ar-cashl NO-LOCK WHERE ar-cashl.c-no EQ ar-cash.c-no:
-    {custom/statusMsg.i " 'Processing Bank#  '  + ar-cash.bank-code "}
-  v-void = CAN-FIND(FIRST reftable WHERE
-           reftable.reftable = "ARCASHLVDDATE" AND
-           reftable.rec_key = ar-cashl.rec_key
-           USE-INDEX rec_key).
-
-  IF NOT v-void THEN
-     FIND FIRST ar-ledger WHERE
-          ar-ledger.company EQ ar-cash.company AND
-          ar-ledger.cust-no EQ ar-cash.cust-no AND
-          ar-ledger.ref-num EQ "CHK# " + STRING(ar-cash.check-no,"9999999999") AND
-          ar-ledger.tr-date GE v-s-date AND
-          ar-ledger.tr-date LE v-e-date
-          NO-LOCK NO-ERROR.
-  ELSE
-     FIND FIRST ar-ledger WHERE
-          ar-ledger.company EQ ar-cash.company AND
-          ar-ledger.cust-no EQ ar-cash.cust-no AND
-          ar-ledger.ref-num EQ "VOIDED CHK# " + STRING(ar-cash.check-no,"9999999999") AND
-          ar-ledger.tr-date GE v-s-date AND
-          ar-ledger.tr-date LE v-e-date
-          NO-LOCK NO-ERROR.
-
-  IF NOT AVAIL ar-ledger THEN
-     NEXT.
-
-  CREATE tt-gltrans.
-  assign
-   tt-gltrans.company = ar-cash.company
-   tt-gltrans.actnum  = ar-cash.bank-code
-   tt-gltrans.jrnl    = "CASHR"
-   tt-gltrans.tr-dscr = ar-cash.cust-no + " " +
-                        STRING(ar-cash.check-no,"9999999999") +
-                        " Inv# " + STRING(ar-cashl.inv-no)
-   tt-gltrans.tr-date = ar-ledger.tr-date
-   tt-gltrans.tr-amt  = ar-cashl.amt-paid
-   tt-gltrans.trnum   = ar-ledger.tr-num
-   tt-gltrans.VOID    = v-void.
-
-  RELEASE tt-gltrans.
+      AND ar-cash.cust-no   GE fcust
+      AND ar-cash.cust-no   LE tcust
+    :
+  IF lselected AND
+     CAN-FIND(FIRST ttCustList
+              WHERE ttCustList.cust-no EQ ar-cash.cust-no
+                AND ttCustList.log-fld) THEN
+  FOR EACH ar-cashl NO-LOCK
+      WHERE ar-cashl.c-no EQ ar-cash.c-no
+      :
+      {custom/statusMsg.i " 'Processing Bank#  '  + ar-cash.bank-code "}
+      v-void = CAN-FIND(FIRST reftable
+                        WHERE reftable.reftable = "ARCASHLVDDATE"
+                          AND reftable.rec_key = ar-cashl.rec_key
+                        USE-INDEX rec_key).
+    
+      IF NOT v-void THEN
+        FIND FIRST ar-ledger NO-LOCK
+             WHERE ar-ledger.company EQ ar-cash.company
+               AND ar-ledger.cust-no EQ ar-cash.cust-no
+               AND ar-ledger.ref-num EQ "CHK# " + STRING(ar-cash.check-no,"9999999999")
+               AND ar-ledger.tr-date GE v-s-date
+               AND ar-ledger.tr-date LE v-e-date
+             NO-ERROR.
+      ELSE
+        FIND FIRST ar-ledger NO-LOCK
+             WHERE ar-ledger.company EQ ar-cash.company
+               AND ar-ledger.cust-no EQ ar-cash.cust-no
+               AND ar-ledger.ref-num EQ "VOIDED CHK# " + STRING(ar-cash.check-no,"9999999999")
+               AND ar-ledger.tr-date GE v-s-date
+               AND ar-ledger.tr-date LE v-e-date
+             NO-ERROR.
+    
+      IF NOT AVAIL ar-ledger THEN NEXT.
+    
+      CREATE tt-gltrans.
+      ASSIGN
+        tt-gltrans.company = ar-cash.company
+        tt-gltrans.actnum  = ar-cash.bank-code
+        tt-gltrans.jrnl    = "CASHR"
+        tt-gltrans.tr-dscr = ar-cash.cust-no + " " +
+                             STRING(ar-cash.check-no,"9999999999") +
+                             " Inv# " + STRING(ar-cashl.inv-no)
+        tt-gltrans.tr-date = ar-ledger.tr-date
+        tt-gltrans.tr-amt  = ar-cashl.amt-paid
+        tt-gltrans.trnum   = ar-ledger.tr-num
+        tt-gltrans.VOID    = v-void
+        .
+      RELEASE tt-gltrans.
+  END. /* each ar-cashl */
 END.
 
 IF TRIM(begin_cust) EQ "" AND
-   end_cust EQ "zzzzzzzz" THEN
+   end_cust EQ "zzzzzzzz" AND NOT lselected THEN
    FOR EACH ar-mcash
       WHERE ar-mcash.company   EQ cocode
          AND ar-mcash.posted    EQ YES
