@@ -1547,9 +1547,10 @@ FOR EACH ar-cash NO-LOCK
       AND ar-cash.cust-no   LE tcust
     :
   IF lselected AND
-     CAN-FIND(FIRST ttCustList
-              WHERE ttCustList.cust-no EQ ar-cash.cust-no
-                AND ttCustList.log-fld) THEN
+     NOT CAN-FIND(FIRST ttCustList
+                  WHERE ttCustList.cust-no EQ ar-cash.cust-no
+                    AND ttCustList.log-fld) THEN NEXT.
+
   FOR EACH ar-cashl NO-LOCK
       WHERE ar-cashl.c-no EQ ar-cash.c-no
       :
