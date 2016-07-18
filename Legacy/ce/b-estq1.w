@@ -764,8 +764,8 @@ DO:
 
 
   RUN windows/l-shipto.w (g_company, g_loc, begin_cust-no:SCREEN-VALUE,
-                          FOCUS:SCREEN-VALUE, OUTPUT char-val).
-  IF char-val NE "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+                          {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+  IF char-val NE "" THEN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
   RETURN NO-APPLY.
 END.
 
@@ -1198,8 +1198,8 @@ ON HELP OF vi_est-no IN FRAME F-Main
 DO:
    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-    RUN windows/l-esttyp.w (g_company,g_loc,"1234","EST",FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    run windows/l-esttyp.w (g_company,g_loc,"1234","EST",{&SELF-NAME}:screen-value, output char-val).
+    if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
     RETURN NO-APPLY.
 END.
 
@@ -1214,7 +1214,7 @@ DO:
    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
     RUN windows/l-itemfg.w (g_company,"","", OUTPUT char-val).
-    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
     RETURN NO-APPLY.
 END.
 
@@ -1284,8 +1284,8 @@ ON HELP OF vi_part-no IN FRAME F-Main
 DO:
   DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-    RUN windows/l-esttyp.w (g_company,g_loc,"1234","part",FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(2,char-val).
+    run windows/l-esttyp.w (g_company,g_loc,"1234","part",{&SELF-NAME}:screen-value, output char-val).
+    if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(2,char-val).
     RETURN NO-APPLY.
 END.
 
@@ -1343,8 +1343,8 @@ ON HELP OF vi_style IN FRAME F-Main
 DO:
   DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-  RUN windows/l-stylef.w (gcompany,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-  IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+  run windows/l-stylef.w (gcompany,{&SELF-NAME}:screen-value, output char-val).
+  if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
   RETURN NO-APPLY.
 
 END.
@@ -1358,8 +1358,8 @@ END.
 ON HELP OF begin_cust-no IN FRAME F-Main
 DO:
    DEFINE VARIABLE char-val AS cha NO-UNDO.
-   RUN windows/l-cust2.w (INPUT g_company, INPUT FOCUS:SCREEN-VALUE,"", OUTPUT char-val).
-          IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+   RUN windows/l-cust2.w (INPUT g_company, INPUT {&SELF-NAME}:screen-value,"", OUTPUT char-val).
+          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
           RETURN NO-APPLY.
 END.
 
