@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_dept Select_list Select_spec ~
-Select_frac Select_appl Select_help Select_Home 
+&Scoped-Define ENABLED-OBJECTS Select_list Select_frac Select_dept ~
+Select_spec Select_appl Select_help Select_Home 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -77,7 +77,7 @@ DEFINE BUTTON Select_frac
      IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Calculate" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Calculate".
+     SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
      IMAGE-UP FILE "Graphics/32x32/question.ico":U
@@ -95,7 +95,7 @@ DEFINE BUTTON Select_list
      IMAGE-UP FILE "Graphics/32x32/printer.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
-     SIZE 7.8 BY 1.81 TOOLTIP "List".
+     SIZE 7.8 BY 1.81 TOOLTIP "Job Ticket".
 
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
@@ -107,10 +107,10 @@ DEFINE BUTTON Select_spec
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Select_dept AT ROW 1 COL 1
      Select_list AT ROW 1 COL 49
-     Select_spec AT ROW 1 COL 9
      Select_frac AT ROW 1 COL 41
+     Select_dept AT ROW 1 COL 1
+     Select_spec AT ROW 1 COL 9
      Select_appl AT ROW 1 COL 17
      Select_help AT ROW 1 COL 25
      Select_Home AT ROW 1 COL 33

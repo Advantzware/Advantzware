@@ -46,7 +46,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_List Select_spec Select_frac ~
+&Scoped-Define ENABLED-OBJECTS Select_frac Select_List Select_spec ~
 Select_appl Select_help Select_Home Select_Notes 
 
 /* Custom List Definitions                                              */
@@ -71,7 +71,7 @@ DEFINE BUTTON Select_frac
      IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Calculate" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Calculate".
+     SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
      IMAGE-UP FILE "Graphics/32x32/question.ico":U
@@ -107,9 +107,9 @@ DEFINE BUTTON Select_spec
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     Select_frac AT ROW 1 COL 49
      Select_List AT ROW 1 COL 1
      Select_spec AT ROW 1 COL 17
-     Select_frac AT ROW 1 COL 49
      Select_appl AT ROW 1 COL 25
      Select_help AT ROW 1 COL 33
      Select_Home AT ROW 1 COL 41
@@ -205,7 +205,7 @@ END.
 
 &Scoped-define SELF-NAME Select_frac
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_frac s-object
-ON CHOOSE OF Select_frac IN FRAME F-Main /* Util_frac */
+ON CHOOSE OF Select_frac IN FRAME F-Main /* Calculate */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
@@ -307,6 +307,27 @@ RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pen-image s-object 
+PROCEDURE dept-pen-image :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
+
+   DO WITH FRAME {&FRAME-NAME}:
+
+      IF NOT ip-log THEN
+         Select_Notes:LOAD-IMAGE("Graphics/32x32/edit.ico").
+      ELSE
+         Select_Notes:LOAD-IMAGE("Graphics/32x32/edit_star.jpg").
+   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -394,27 +415,6 @@ PROCEDURE Spec-Book-Image :
          SELECT_spec:LOAD-IMAGE("Graphics/32x32/book_open.ico").
       ELSE
          SELECT_spec:LOAD-IMAGE("Graphics/32x32/book_open_star.ico").
-   END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pen-image s-object 
-PROCEDURE dept-pen-image :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
-
-   DO WITH FRAME {&FRAME-NAME}:
-
-      IF NOT ip-log THEN
-         Select_Notes:LOAD-IMAGE("Graphics/32x32/edit.ico").
-      ELSE
-         Select_Notes:LOAD-IMAGE("Graphics/32x32/edit_star.jpg").
    END.
 END PROCEDURE.
 

@@ -46,7 +46,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_List Select_spec Select_frac ~
+&Scoped-Define ENABLED-OBJECTS Select_frac Select_List Select_spec ~
 Select_appl Select_help Select_Home Select_Notes 
 
 /* Custom List Definitions                                              */
@@ -71,7 +71,7 @@ DEFINE BUTTON Select_frac
      IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Calculate" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Calculate".
+     SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
      IMAGE-UP FILE "Graphics/32x32/question.ico":U
@@ -107,9 +107,9 @@ DEFINE BUTTON Select_spec
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     Select_frac AT ROW 1 COL 49
      Select_List AT ROW 1 COL 1
      Select_spec AT ROW 1 COL 17
-     Select_frac AT ROW 1 COL 49
      Select_appl AT ROW 1 COL 25
      Select_help AT ROW 1 COL 33
      Select_Home AT ROW 1 COL 41
@@ -205,7 +205,7 @@ END.
 
 &Scoped-define SELF-NAME Select_frac
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_frac s-object
-ON CHOOSE OF Select_frac IN FRAME F-Main /* Util_frac */
+ON CHOOSE OF Select_frac IN FRAME F-Main /* Calculate */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.

@@ -63,8 +63,8 @@ CREATE WIDGET-POOL.
 DEFINE BUTTON Select_ONote 
      IMAGE-UP FILE "Graphics/32x32/gearwheels.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Operator Notes" 
-     SIZE 8 BY 1.81 TOOLTIP "Notes".
+     LABEL "" 
+     SIZE 8 BY 1.81 TOOLTIP "Job Notes".
 
 
 /* ************************  Frame Definitions  *********************** */

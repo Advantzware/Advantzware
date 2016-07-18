@@ -64,7 +64,7 @@ DEFINE BUTTON Select_dept2
      IMAGE-UP FILE "Graphics/32x32/calendar_clock.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
-     SIZE 8 BY 1.81 TOOLTIP "Notes".
+     SIZE 8 BY 1.81 TOOLTIP "Date Change Notes".
 
 
 /* ************************  Frame Definitions  *********************** */

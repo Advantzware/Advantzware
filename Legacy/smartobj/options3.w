@@ -88,8 +88,8 @@ DEFINE BUTTON Select_dept
 DEFINE BUTTON Select_frac 
      IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Calculate" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Calculate".
+     LABEL "" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
      IMAGE-UP FILE "Graphics/32x32/question.ico":U

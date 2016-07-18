@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_list Select_spec Select_dept ~
-Select_frac Select_Add Select_appl Select_help Select_Home 
+&Scoped-Define ENABLED-OBJECTS Select_add Select_list Select_spec ~
+Select_dept Select_frac Select_appl Select_help Select_Home 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -65,7 +65,7 @@ DEFINE BUTTON Select_add
      IMAGE-UP FILE "Graphics/32x32/plus.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Exit".
+     SIZE 7.8 BY 1.81 TOOLTIP "Add".
 
 DEFINE BUTTON Select_appl 
      IMAGE-UP FILE "Graphics/32x32/window_gear.ico":U
@@ -82,8 +82,8 @@ DEFINE BUTTON Select_dept
 DEFINE BUTTON Select_frac 
      IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Calculate" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Calculate".
+     LABEL "" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
      IMAGE-UP FILE "Graphics/32x32/question.ico":U
@@ -113,11 +113,11 @@ DEFINE BUTTON Select_spec
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     Select_add AT ROW 1 COL 1
      Select_list AT ROW 1 COL 57
      Select_spec AT ROW 1 COL 17
      Select_dept AT ROW 1 COL 9
      Select_frac AT ROW 1 COL 49
-     Select_Add AT ROW 1 COL 1
      Select_appl AT ROW 1 COL 25
      Select_help AT ROW 1 COL 33
      Select_Home AT ROW 1 COL 41
@@ -199,9 +199,9 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Select_Add
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_Add s-object
-ON CHOOSE OF Select_Add IN FRAME F-Main /* Add */
+&Scoped-define SELF-NAME Select_add
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_add s-object
+ON CHOOSE OF Select_add IN FRAME F-Main /* Add */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
@@ -235,7 +235,7 @@ END.
 
 &Scoped-define SELF-NAME Select_frac
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_frac s-object
-ON CHOOSE OF Select_frac IN FRAME F-Main /* Util_frac */
+ON CHOOSE OF Select_frac IN FRAME F-Main /* Calculate */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
