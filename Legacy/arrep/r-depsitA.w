@@ -1086,9 +1086,9 @@ IF tb_excel THEN DO:
 END.
 
 IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    FIND FIRST ttCustList NO-LOCK WHERE ttCustList.log-fld EQ TRUE NO-ERROR.
     IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    FIND LAST ttCustList NO-LOCK WHERE ttCustList.log-fld EQ TRUE NO-ERROR.
     IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
 END.
 
@@ -1110,52 +1110,56 @@ FOR EACH ar-cash NO-LOCK
       AND ar-cash.posted    EQ YES
       AND ar-cash.bank-code GE v-s-bank
       AND ar-cash.bank-code LE v-e-bank
-      AND ar-cash.cust-no GE fcust
-      AND ar-cash.cust-no LE tcust
-      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-cash.cust-no
-      AND ttCustList.log-fld no-lock) else true)
-    /*  AND ar-cash.cust-no   LE end_cust*/ ,
-    EACH ar-cashl NO-LOCK WHERE ar-cashl.c-no EQ ar-cash.c-no:
-    {custom/statusMsg.i " 'Processing Bank#  '  + ar-cash.bank-code "}
-  v-void = CAN-FIND(FIRST reftable WHERE
-           reftable.reftable = "ARCASHLVDDATE" AND
-           reftable.rec_key = ar-cashl.rec_key
-           USE-INDEX rec_key).
-
-  IF NOT v-void THEN
-     FIND FIRST ar-ledger WHERE
-          ar-ledger.company EQ ar-cash.company AND
-          ar-ledger.cust-no EQ ar-cash.cust-no AND
-          ar-ledger.ref-num EQ "CHK# " + STRING(ar-cash.check-no,"9999999999") AND
-          ar-ledger.tr-date GE v-s-date AND
-          ar-ledger.tr-date LE v-e-date
-          NO-LOCK NO-ERROR.
-  ELSE
-     FIND FIRST ar-ledger WHERE
-          ar-ledger.company EQ ar-cash.company AND
-          ar-ledger.cust-no EQ ar-cash.cust-no AND
-          ar-ledger.ref-num EQ "VOIDED CHK# " + STRING(ar-cash.check-no,"9999999999") AND
-          ar-ledger.tr-date GE v-s-date AND
-          ar-ledger.tr-date LE v-e-date
-          NO-LOCK NO-ERROR.
-
-  IF NOT AVAIL ar-ledger THEN
-     NEXT.
-
-  CREATE tt-gltrans.
-  assign
-   tt-gltrans.company = ar-cash.company
-   tt-gltrans.actnum  = ar-cash.bank-code
-   tt-gltrans.jrnl    = "CASHR"
-   tt-gltrans.tr-dscr = ar-cash.cust-no + " " +
-                        STRING(ar-cash.check-no,"9999999999") +
-                        " Inv# " + STRING(ar-cashl.inv-no)
-   tt-gltrans.tr-date = ar-ledger.tr-date
-   tt-gltrans.tr-amt  = ar-cashl.amt-paid
-   tt-gltrans.trnum   = ar-ledger.tr-num
-   tt-gltrans.VOID    = v-void.
-
-  RELEASE tt-gltrans.
+      AND ar-cash.cust-no   GE fcust
+      AND ar-cash.cust-no   LE tcust
+    :
+  IF lselected AND
+     CAN-FIND(FIRST ttCustList
+              WHERE ttCustList.cust-no EQ ar-cash.cust-no
+                AND ttCustList.log-fld) THEN
+  FOR EACH ar-cashl NO-LOCK
+      WHERE ar-cashl.c-no EQ ar-cash.c-no
+      :
+      {custom/statusMsg.i " 'Processing Bank#  '  + ar-cash.bank-code "}
+      v-void = CAN-FIND(FIRST reftable
+                        WHERE reftable.reftable = "ARCASHLVDDATE"
+                          AND reftable.rec_key = ar-cashl.rec_key
+                        USE-INDEX rec_key).
+    
+      IF NOT v-void THEN
+        FIND FIRST ar-ledger NO-LOCK
+             WHERE ar-ledger.company EQ ar-cash.company
+               AND ar-ledger.cust-no EQ ar-cash.cust-no
+               AND ar-ledger.ref-num EQ "CHK# " + STRING(ar-cash.check-no,"9999999999")
+               AND ar-ledger.tr-date GE v-s-date
+               AND ar-ledger.tr-date LE v-e-date
+             NO-ERROR.
+      ELSE
+        FIND FIRST ar-ledger NO-LOCK
+             WHERE ar-ledger.company EQ ar-cash.company
+               AND ar-ledger.cust-no EQ ar-cash.cust-no
+               AND ar-ledger.ref-num EQ "VOIDED CHK# " + STRING(ar-cash.check-no,"9999999999")
+               AND ar-ledger.tr-date GE v-s-date
+               AND ar-ledger.tr-date LE v-e-date
+             NO-ERROR.
+    
+      IF NOT AVAIL ar-ledger THEN NEXT.
+    
+      CREATE tt-gltrans.
+      ASSIGN
+        tt-gltrans.company = ar-cash.company
+        tt-gltrans.actnum  = ar-cash.bank-code
+        tt-gltrans.jrnl    = "CASHR"
+        tt-gltrans.tr-dscr = ar-cash.cust-no + " " +
+                             STRING(ar-cash.check-no,"9999999999") +
+                             " Inv# " + STRING(ar-cashl.inv-no)
+        tt-gltrans.tr-date = ar-ledger.tr-date
+        tt-gltrans.tr-amt  = ar-cashl.amt-paid
+        tt-gltrans.trnum   = ar-ledger.tr-num
+        tt-gltrans.VOID    = v-void
+        .
+      RELEASE tt-gltrans.
+  END. /* each ar-cashl */
 END.
 
 IF TRIM(begin_cust) EQ "" AND
