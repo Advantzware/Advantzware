@@ -17,7 +17,7 @@ sys\look\routing.w
 sys\look\rout-mtx.w
 sys\look\shipto.w
 sys\look\stax.w
-sys\look\stax1.w
+sys\look\stax1W.i
 sys\look\style.w
 sys\look\terms.w
 sys\look\true.w
@@ -30,7 +30,7 @@ sys\ref\prep.w
 sys\ref\routing.w 
 sys\ref\rout-mtx.w 
 sys\ref\stax.w 
-sys\ref\stax1.w 
+sys\ref\stax1W.i 
 sys\ref\true.w
 sys\inc\stax.w
 sys\look\ce-ctrl.w

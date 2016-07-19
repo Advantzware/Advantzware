@@ -358,7 +358,7 @@ if avail itemfg and itemfg.isaset then do transaction:
        b-ef.eqty     = b-eb.eqty
        b-ef.form-no  = b-est.form-qty.
 
-      for each reftable {ce/est-mrpl.w ef} no-lock:
+      for each reftable {ce/est-mrpl.i ef} no-lock:
         create b-ref.
         buffer-copy reftable except rec_key to b-ref
         assign

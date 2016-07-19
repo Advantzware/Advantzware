@@ -171,7 +171,7 @@ DEF VAR v-sep-prep-tot AS DEC NO-UNDO.
       if index("SON",xef.mis-simon[i]) = 0 then next.
 
       if mis-cost[i] ne "" then do:
-         {cec/refest5a.i MAT-QTY i "no-lock no-error"}
+         {cec/refest5aW.i MAT-QTY i "no-lock no-error"}
 
          if avail reftable then do v = 1 to EXTENT(reftable.val):
            if qty le reftable.val[v] then leave.
@@ -183,7 +183,7 @@ DEF VAR v-sep-prep-tot AS DEC NO-UNDO.
          end.
 
          if avail reftable then
-           {cec/refest5a.i MAT-CST i "no-lock no-error"}
+           {cec/refest5aW.i MAT-CST i "no-lock no-error"}
 
          ASSIGN
             v-mat-cost = if avail reftable then reftable.val[v] else 0.
@@ -195,7 +195,7 @@ DEF VAR v-sep-prep-tot AS DEC NO-UNDO.
             mis-tot[5] = (xef.mis-matf[i] + (v-mat-cost * (qty / 1000))) *
                                             (1 + (xef.mis-mkup[i] / 100)).
 
-         {cec/refest5a.i LAB-QTY i "no-lock no-error"}
+         {cec/refest5aW.i LAB-QTY i "no-lock no-error"}
 
          if avail reftable then do v = 1 to EXTENT(reftable.val):
            if qty le reftable.val[v] then leave.
@@ -207,7 +207,7 @@ DEF VAR v-sep-prep-tot AS DEC NO-UNDO.
          end.
 
          if avail reftable then
-           {cec/refest5a.i LAB-CST i "no-lock no-error"}
+           {cec/refest5aW.i LAB-CST i "no-lock no-error"}
 
          ASSIGN
             v-lab-cost = if avail reftable then reftable.val[v] else 0.

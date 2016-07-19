@@ -531,7 +531,7 @@ DO:
     END.
   END.
 
-  find first itemfg {sys/look/itemfgrl.w}
+  find first itemfg {sys/look/itemfgrlW.i}
              and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                  no-lock no-error.
   IF NOT AVAIL itemfg THEN DO:
@@ -549,7 +549,7 @@ DO:
        END.
        ELSE DO:
            RUN fg/d-crtitm.w (SELF:SCREEN-VALUE) .
-           find first itemfg {sys/look/itemfgrl.w}
+           find first itemfg {sys/look/itemfgrlW.i}
                      and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                      no-lock no-error.
            IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name
