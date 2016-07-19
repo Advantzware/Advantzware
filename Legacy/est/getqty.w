@@ -693,7 +693,9 @@ DO:
   DEF VAR char-val2 AS CHAR NO-UNDO.        
   DEF VAR date-val AS CHAR NO-UNDO.
   DEF VAR date-val2 AS CHAR NO-UNDO.
-
+  DEFINE BUFFER bff-eb FOR eb .
+  DEFINE BUFFER bff-ef FOR ef .
+ 
   lv-estqty-recid = IF AVAIL est-qty THEN RECID(est-qty) ELSE ?.
   RUN est/estqtyd.w (lv-estqty-recid, RECID(eb), STRING(IF xest.est-type LE 4 THEN eb.bl-qty ELSE est-qty.eqty), OUTPUT char-val, OUTPUT char-val2, OUTPUT date-val, OUTPUT date-val2).
 
@@ -711,20 +713,20 @@ DO:
      est-qty.eqty = INT(ENTRY(1,char-val)).
      FIND CURRENT est-qty NO-LOCK NO-ERROR.
     
-     RELEASE eb.
-     FOR EACH eb
-         WHERE eb.company EQ xest.company
-           AND eb.est-no  EQ xest.est-no
-           AND eb.eqty    EQ lv-hld-eqty
-           AND eb.form-no NE 0:
-       IF xest.est-type LE 4 THEN eb.bl-qty = INT(ENTRY(1,char-val)).
-       eb.eqty = INT(ENTRY(1,char-val)).
+     /*RELEASE eb.*/
+     FOR EACH bff-eb
+         WHERE bff-eb.company EQ xest.company
+           AND bff-eb.est-no  EQ xest.est-no
+           AND bff-eb.eqty    EQ lv-hld-eqty
+           AND bff-eb.form-no NE 0:
+       IF xest.est-type LE 4 THEN bff-eb.bl-qty = INT(ENTRY(1,char-val)).
+       bff-eb.eqty = INT(ENTRY(1,char-val)).
      END.
-     FOR EACH ef
-         WHERE ef.company EQ xest.company
-           AND ef.est-no  EQ xest.est-no
-           AND ef.eqty    EQ lv-hld-eqty:
-       ef.eqty = INT(ENTRY(1,char-val)).
+     FOR EACH bff-ef
+         WHERE bff-ef.company EQ xest.company
+           AND bff-ef.est-no  EQ xest.est-no
+           AND bff-ef.eqty    EQ lv-hld-eqty:
+       bff-ef.eqty = INT(ENTRY(1,char-val)).
      END.
     
      FOR EACH est-op
@@ -743,7 +745,7 @@ DO:
      END.
     
      APPLY "choose" TO btn-clear.
-  END.
+  END. 
 
   IF char-val NE "?" THEN DO:
      IF INT(ENTRY(1,char-val)) NE 0 THEN DO:
