@@ -622,7 +622,7 @@ PROCEDURE list-post :
     
       first xoe-ord where recid(xoe-ord) eq w-report.rec-id,
         
-      first cust {sys/ref/cust.w} and cust.cust-no eq xoe-ord.cust-no
+      first cust {sys/ref/custW.i} and cust.cust-no eq xoe-ord.cust-no
         
       by w-report.key-01:
 
@@ -662,7 +662,7 @@ PROCEDURE list-post :
         else
         if oe-ordl.pr-uom EQ "CS" THEN DO:
           FIND FIRST itemfg
-              {sys/look/itemfgrl.w}
+              {sys/look/itemfgrlW.i}
                 and itemfg.i-no EQ oe-ordl.i-no
               no-lock no-error.
           if avail itemfg and itemfg.case-count ne 0 then
@@ -1089,7 +1089,7 @@ end.
   if td-show-parm then run show-param.
   
   display with frame r-top.
- for each cust {sys/ref/cust.w} no-lock,
+ for each cust {sys/ref/custW.i} no-lock,
       each ar-inv
       where ar-inv.company  eq cocode
         and ar-inv.posted   eq no

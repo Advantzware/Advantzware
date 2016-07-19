@@ -188,7 +188,7 @@ form inv-misc.charge at 20
          v-printline  = 0.
 
         find first stax
-            {sys/ref/stax1.w}
+            {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq /*ar-inv.tax-gr*/ ar-inv.tax-code
             no-lock no-error.
             

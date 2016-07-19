@@ -1192,17 +1192,13 @@ ON HELP OF vi_est-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
 
-    run windows/l-esttyp.w (g_company,g_loc,"1234","EST",{&SELF-NAME}:screen-value, output char-val).
-    if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
+    RUN windows/l-esttyp.w (g_company,g_loc,"1234","EST",{&SELF-NAME}:screen-value, OUTPUT char-val).
+    IF char-val <> "" THEN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
     RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-    if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
-   RUN windows/l-cust2.w (INPUT g_company, INPUT {&SELF-NAME}:screen-value,"", OUTPUT char-val).
-          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_est-no B-table-Win
 ON LEAVE OF vi_est-no IN FRAME F-Main
@@ -1266,8 +1262,8 @@ ON HELP OF vi_part-no IN FRAME F-Main
 DO:
   DEF VAR char-val AS cha NO-UNDO.
 
-    run windows/l-esttyp.w (g_company,g_loc,"1234","part",{&SELF-NAME}:screen-value, output char-val).
-    if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(2,char-val).
+    RUN windows/l-esttyp.w (g_company,g_loc,"1234","part",{&SELF-NAME}:screen-value, OUTPUT char-val).
+    IF char-val <> "" THEN {&SELF-NAME}:SCREEN-VALUE = ENTRY(2,char-val).
     RETURN NO-APPLY.
 END.
 
@@ -1339,8 +1335,8 @@ ON HELP OF vi_style IN FRAME F-Main
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    run windows/l-stylef.w (gcompany,{&SELF-NAME}:screen-value, output char-val).
-    if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
+    RUN windows/l-stylef.w (gcompany,{&SELF-NAME}:screen-value, OUTPUT char-val).
+    IF char-val <> "" THEN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
     RETURN NO-APPLY.
 END.
 

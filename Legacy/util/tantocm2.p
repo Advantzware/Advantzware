@@ -112,7 +112,7 @@ IF AVAIL est THEN DO:
          b-est-flm.snum = eb.blank-no.
       END.
 
-      FOR EACH reftable {ce/est-mrpl.w ef}:
+      FOR EACH reftable {ce/est-mrpl.i ef}:
         CREATE b-est-ref.
         BUFFER-COPY reftable EXCEPT rec_key TO b-est-ref
         ASSIGN
