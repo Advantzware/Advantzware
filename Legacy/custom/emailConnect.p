@@ -16,10 +16,10 @@ IF CONNECTED('JOBS') THEN DO:
         VIEW-AS ALERT-BOX ERROR
         TITLE 'Database Connect Error (custom/emailConnect.p)'.
   END.
-  IF CONNECTED('asiNoSweat') THEN DO:
+  IF CONNECTED('asinos') THEN DO:
     RUN custom/emailListAddon.p (ipRecKey,ipPrgmName,OUTPUT opEmailList).
-    DISCONNECT asiNoSweat.
-  END. /* if connect asinosweat */
+    DISCONNECT asinos.
+  END. /* if connect asinos */
 END. /* if connected jobs */
 ELSE
 RUN custom/emailList.p (ipRecKey,ipPrgmName,OUTPUT opEmailList).
@@ -39,5 +39,5 @@ PROCEDURE pfLine:
     opPFLine = opPFLine + ' ' + pfText.
   END.
   INPUT CLOSE.
-  opPFLine = opPFLine + ' -N TCP -ld asiNoSweat -h 7'.
+  opPFLine = opPFLine + ' -N TCP -ld asinos -h 7'.
 END PROCEDURE.
