@@ -233,8 +233,7 @@ oe-ord.spare-char-1
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
-btnCalendar-4 btnCalendar-5 btnCalendar-6 btnCalendar-7 RECT-30 RECT-33 ~
-RECT-35 RECT-36 RECT-37 
+btnCalendar-4 btnCalendar-5 RECT-30 RECT-33 RECT-35 RECT-36 RECT-37 RECT-34 
 &Scoped-Define DISPLAYED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
 oe-ord.job-no2 oe-ord.user-id oe-ord.stat oe-ord.spare-char-2 ~
 oe-ord.cust-no oe-ord.sold-id oe-ord.ord-date oe-ord.cust-name ~
@@ -263,7 +262,7 @@ oe-ord.sold-addr[2] oe-ord.city oe-ord.state oe-ord.zip oe-ord.sold-city ~
 oe-ord.sold-state oe-ord.sold-zip oe-ord.terms-d fi_prev_order tb_whs-order ~
 oe-ord.sname[1] oe-ord.sname[2] oe-ord.sname[3] 
 &Scoped-define calendarPopup btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
-btnCalendar-4 btnCalendar-5 btnCalendar-6 btnCalendar-7 
+btnCalendar-4 btnCalendar-5 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -329,16 +328,6 @@ DEFINE BUTTON btnCalendar-5
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
-DEFINE BUTTON btnCalendar-6 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-
-DEFINE BUTTON btnCalendar-7 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-
 DEFINE VARIABLE fi_prev_order AS CHARACTER FORMAT "X(6)":U 
      LABEL "Previous Order #" 
      VIEW-AS FILL-IN 
@@ -376,6 +365,11 @@ DEFINE RECTANGLE RECT-30
 DEFINE RECTANGLE RECT-33
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 75.4 BY 3.43
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-34
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 75.4 BY 1.75
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-35
@@ -609,18 +603,16 @@ DEFINE FRAME F-Main
      btnCalendar-3 AT ROW 5.05 COL 147.2
      btnCalendar-4 AT ROW 6.24 COL 147.2
      btnCalendar-5 AT ROW 14.33 COL 138
-     btnCalendar-6 AT ROW 9 COL 112
-     btnCalendar-7 AT ROW 9 COL 147.2
      oe-ord.spare-char-1 AT ROW 15.52 COL 133.6 COLON-ALIGNED WIDGET-ID 4
           LABEL "VCode" FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     oe-ord.approved-date AT ROW 9 COL 96.2 COLON-ALIGNED HELP
+     oe-ord.approved-date AT ROW 9 COL 98.2 COLON-ALIGNED HELP
           "Enter the date this order was approved" WIDGET-ID 10
           LABEL "Hold/Appr Date"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-ord.ack-prnt-date AT ROW 9 COL 130 COLON-ALIGNED WIDGET-ID 12
+     oe-ord.ack-prnt-date AT ROW 9 COL 128.2 COLON-ALIGNED WIDGET-ID 12
           LABEL "Ack. Date" FORMAT "99/99/99"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
@@ -634,6 +626,7 @@ DEFINE FRAME F-Main
      RECT-35 AT ROW 13.71 COL 78
      RECT-36 AT ROW 13.71 COL 1.6
      RECT-37 AT ROW 2.52 COL 1.4
+     RECT-34 AT ROW 8.62 COL 78 WIDGET-ID 14
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -712,10 +705,6 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnCalendar-4 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-5 IN FRAME F-Main
-   3                                                                    */
-/* SETTINGS FOR BUTTON btnCalendar-6 IN FRAME F-Main
-   3                                                                    */
-/* SETTINGS FOR BUTTON btnCalendar-7 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR FILL-IN oe-ord.cc-auth IN FRAME F-Main
    EXP-LABEL                                                            */
@@ -1022,28 +1011,6 @@ END.
 ON CHOOSE OF btnCalendar-5 IN FRAME F-Main
 DO:
   {methods/btnCalendar.i oe-ord.cc-expiration}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnCalendar-6
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-6 V-table-Win
-ON CHOOSE OF btnCalendar-6 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i oe-ord.approved-date}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnCalendar-7
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-7 V-table-Win
-ON CHOOSE OF btnCalendar-7 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i oe-ord.ack-prnt-date}
 END.
 
 /* _UIB-CODE-BLOCK-END */
