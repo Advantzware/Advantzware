@@ -339,6 +339,8 @@ PROCEDURE Tool_Tips :
 
   DEFINE VARIABLE current-widget AS WIDGET-HANDLE NO-UNDO.
 
+  IF TRUE THEN RETURN.
+  
   ASSIGN
     current-widget = current-frame
     current-widget = current-widget:FIRST-CHILD
