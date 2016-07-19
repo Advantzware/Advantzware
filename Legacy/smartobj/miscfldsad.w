@@ -183,10 +183,10 @@ END.
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-/*RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).*/
-
+RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
+/*
 selectMiscFlds:TOOLTIP = "Job Checklist".
-
+*/
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

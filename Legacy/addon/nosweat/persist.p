@@ -338,6 +338,8 @@ PROCEDURE Tool_Tips :
   DEFINE INPUT PARAMETER current-frame AS WIDGET-HANDLE NO-UNDO.
 
   DEFINE VARIABLE current-widget AS WIDGET-HANDLE NO-UNDO.
+  
+  IF TRUE THEN RETURN.
 
   ASSIGN
     current-widget = current-frame
