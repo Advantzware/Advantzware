@@ -20,20 +20,20 @@
 
 DEFINE INPUT-OUTPUT PARAMETER m-lookup-var AS CHARACTER.
 
-&Scoped-define lookup-db  
-&Scoped-define lookup-file 
-&Scoped-define where-statement TRUE
-&Scoped-define return-field 
+&Scoped-define lookup-db  asi.
+&Scoped-define lookup-file job
+&Scoped-define where-statement job.company eq cocode
+&Scoped-define return-field job-no
 &Scoped-define font 4
 &Scoped-define height-size 19
 &Scoped-define width-size 46
-&Scoped-define show-fields 
+&Scoped-define show-fields job.job-no
 &Scoped-define show-fields-yellow 
 &Scoped-define frame-title 
-&Scoped-define top-include 
-&Scoped-define def-include 
+&Scoped-define top-include ~{custom/getcmpny.i} ~{custom/getloc.i} ~{sys/inc/varasgn.i}
+&Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
-&Scoped-define ui-prgmname 
+&Scoped-define ui-prgmname job-no
 &Scoped-define window-size 23
 &Scoped-define window-col 52
 &Scoped-define rect-1-row 20.15
