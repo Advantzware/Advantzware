@@ -74,7 +74,7 @@ DEFINE BUTTON Select_dept
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_frac 
-     IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.ico":U
+     IMAGE-UP FILE "Graphics/32x32/calculator.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Calculate" 
      SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
@@ -303,7 +303,7 @@ PROCEDURE dept-pen-image :
       IF NOT ip-log THEN
          SELECT_dept:LOAD-IMAGE("Graphics/32x32/edit.ico").
       ELSE
-         SELECT_dept:LOAD-IMAGE("Graphics/32x32/edit_star.jpg").
+         SELECT_dept:LOAD-IMAGE("Graphics/32x32/edit_star.ico").
    END.
 END PROCEDURE.
 
