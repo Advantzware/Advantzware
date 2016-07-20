@@ -72,6 +72,7 @@ DEF BUFFER save-line  FOR reftable.
 DEF BUFFER b1-cust    FOR cust.
 DEF BUFFER b-ar-inv FOR ar-inv.
 DEF BUFFER buf-inv-head FOR inv-head.
+DEF BUFFER b2-inv-head FOR inv-head.
 DEF BUFFER b-cust FOR cust.
 DEF BUFFER b-broker-bol FOR reftable.
 
@@ -1751,8 +1752,18 @@ PROCEDURE BatchMail :
         ASSIGN  vlSkipRec = YES
                 vcBegCustNo = b1-inv-head.cust-no
                 vcEndCustNo = b1-inv-head.cust-no.
-        vSoldToNo = "". 
-        FIND FIRST inv-line OF b1-inv-head NO-LOCK WHERE inv-line.ord-no NE 0 NO-ERROR.
+        vSoldToNo = "".
+        if b1-inv-head.multi-invoice then do: 
+           find first b2-inv-head 
+                      WHERE b2-inv-head.company       EQ b1-inv-head.company
+                        AND b2-inv-head.cust-no       EQ b1-inv-head.cust-no
+                        AND b2-inv-head.inv-no        EQ b1-inv-head.inv-no
+                        AND b2-inv-head.multi-invoice EQ NO            
+                        AND INDEX(vcHoldStats, b2-inv-head.stat) EQ 0 no-lock no-error.
+           if avail b2-inv-head then
+              FIND FIRST inv-line OF b2-inv-head NO-LOCK WHERE inv-line.ord-no NE 0 NO-ERROR.  
+        end.  
+        else FIND FIRST inv-line OF b1-inv-head NO-LOCK WHERE inv-line.ord-no NE 0 NO-ERROR.
         IF AVAIL inv-line THEN do:
            FIND oe-ord WHERE oe-ord.company = b1-inv-head.company
                      AND oe-ord.ord-no = inv-line.ord-no
@@ -1797,7 +1808,17 @@ PROCEDURE BatchMail :
                 vcBegCustNo = b1-inv-head.cust-no
                 vcEndCustNo = b1-inv-head.cust-no.
         vSoldToNo = "".
-          FIND FIRST inv-line OF b1-inv-head NO-LOCK WHERE inv-line.ord-no NE 0 NO-ERROR.
+        if b1-inv-head.multi-invoice then do: 
+           find first b2-inv-head 
+                      WHERE b2-inv-head.company       EQ b1-inv-head.company
+                        AND b2-inv-head.cust-no       EQ b1-inv-head.cust-no
+                        AND b2-inv-head.inv-no        EQ b1-inv-head.inv-no
+                        AND b2-inv-head.multi-invoice EQ NO            
+                        AND INDEX(vcHoldStats, b2-inv-head.stat) EQ 0 no-lock no-error.
+           if avail b2-inv-head then
+              FIND FIRST inv-line OF b2-inv-head NO-LOCK WHERE inv-line.ord-no NE 0 NO-ERROR.  
+        end.  
+        else FIND FIRST inv-line OF b1-inv-head NO-LOCK WHERE inv-line.ord-no NE 0 NO-ERROR.
           IF AVAIL inv-line THEN do:
              FIND oe-ord WHERE oe-ord.company = b1-inv-head.company
                        AND oe-ord.ord-no = inv-line.ord-no
@@ -2212,7 +2233,18 @@ PROCEDURE output-to-mail :
                      lv-pdf-file = init-dir + "\Inv".
                    RUN run-report(buf-inv-head.cust-no,"", TRUE).
                    assign vSoldToNo = ""
-                          vShipToNo = "".  
+                          vShipToNo = "".
+                   if buf-inv-head.multi-invoice then do: 
+                     find first b2-inv-head 
+                      WHERE b2-inv-head.company       EQ buf-inv-head.company
+                        AND b2-inv-head.cust-no       EQ buf-inv-head.cust-no
+                        AND b2-inv-head.inv-no        EQ buf-inv-head.inv-no
+                        AND b2-inv-head.multi-invoice EQ NO            
+                        AND INDEX(vcHoldStats, b2-inv-head.stat) EQ 0 no-lock no-error.
+                     if avail b2-inv-head then
+                        FIND FIRST inv-line OF b2-inv-head NO-LOCK WHERE inv-line.ord-no NE 0 NO-ERROR.  
+                   end.  
+                   else         
                    FIND FIRST inv-line of buf-inv-head NO-LOCK NO-ERROR.
                    IF AVAIL inv-line THEN do:
                      FIND oe-ord WHERE oe-ord.company = buf-inv-head.company
