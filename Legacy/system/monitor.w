@@ -112,11 +112,13 @@ DEFINE BUTTON btnViewLog
 
 DEFINE VARIABLE edLocks AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-     SIZE 62 BY 5 NO-UNDO.
+     SIZE 62 BY 5
+     BGCOLOR 10  NO-UNDO.
 
 DEFINE VARIABLE edTrans AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-     SIZE 62 BY 4.29 NO-UNDO.
+     SIZE 62 BY 4.29
+     BGCOLOR 10  NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -218,7 +220,7 @@ THEN C-Win:HIDDEN = no.
 CREATE CONTROL-FRAME CtrlFrame ASSIGN
        FRAME           = FRAME DEFAULT-FRAME:HANDLE
        ROW             = 1.24
-       COLUMN          = 40
+       COLUMN          = 42.2
        HEIGHT          = 4.76
        WIDTH           = 20
        WIDGET-ID       = 4
@@ -463,13 +465,17 @@ DO WITH FRAME {&frame-name}:
     IF lIsTrans THEN 
       ASSIGN edTrans:BGCOLOR = 12  .
     ELSE
-      edTrans:BGCOLOR = ?.
+      edTrans:BGCOLOR = 10.
     RUN system/checkLocks.p (INPUT TABLE tt-allLocks BY-REFERENCE, OUTPUT lIsLocks).
     edLocks:SENSITIVE = TRUE.
     IF lIsLocks THEN 
       edLocks:BGCOLOR = 12.
-    ELSE
-      edLocks:BGCOLOR = ?.
+    ELSE DO: 
+      ASSIGN
+        edLocks:SCREEN-VALUE = "".
+        edLocks:BGCOLOR = 10
+      .
+    END.
 END.
 END PROCEDURE.
 
