@@ -3,8 +3,8 @@
 /* Connected Databases 
           asi              PROGRESS
 */
-&Scoped-define WINDOW-NAME CURRENT-WINDOW
-&Scoped-define FRAME-NAME d-updset
+&SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
+&SCOPED-DEFINE FRAME-NAME d-updset
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS d-updset 
 /*------------------------------------------------------------------------
 
@@ -20,25 +20,25 @@
 
 /* Local Variable Definitions ---                                       */
 
-DEF INPUT PARAM ip-recid AS RECID NO-UNDO.
-DEF INPUT PARAM ip-est-type AS INT NO-UNDO.
+DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
+DEFINE INPUT PARAMETER ip-est-type AS INTEGER NO-UNDO.
 
-DEF BUFFER bf-eb FOR eb.
-DEF BUFFER bf-est FOR est.
-DEF BUFFER bf-set FOR eb.
-DEF VAR lv-set-recid AS RECID NO-UNDO.
-DEF VAR lv-new-set AS LOG NO-UNDO.
-DEF VAR ld-yld AS DEC NO-UNDO.
-DEF VAR ld-sqin AS DEC NO-UNDO.
-DEF VAR ld-msf AS DEC NO-UNDO.
-DEF VAR lv-rowid AS ROWID NO-UNDO.
-DEF VAR ll-alloc AS LOG NO-UNDO.
-def var ll-crt-itemfg as log no-undo.
+DEFINE BUFFER bf-eb FOR eb.
+DEFINE BUFFER bf-est FOR est.
+DEFINE BUFFER bf-set FOR eb.
+DEFINE VARIABLE lv-set-recid AS RECID NO-UNDO.
+DEFINE VARIABLE lv-new-set AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ld-yld AS DECIMAL NO-UNDO.
+DEFINE VARIABLE ld-sqin AS DECIMAL NO-UNDO.
+DEFINE VARIABLE ld-msf AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+DEFINE VARIABLE ll-alloc AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ll-crt-itemfg as LOGICAL no-undo.
 
-def shared buffer xest for est.
-def shared buffer xef for ef.
-def shared buffer xeb for eb.
-def shared buffer xqty for est-qty.
+DEFINE SHARED BUFFER xest FOR est.
+DEFINE SHARED BUFFER xef FOR ef.
+DEFINE SHARED BUFFER xeb FOR eb.
+DEFINE SHARED BUFFER xqty FOR est-qty.
 
 {custom/globdefs.i}
 
@@ -53,7 +53,7 @@ ASSIGN
 {sys/inc/setprint.i}
 ll-alloc = IF ip-est-type LE 4 THEN v-allocf ELSE v-alloc.
 
-def var k_frac as dec init "6.25" no-undo.
+DEFINE VARIABLE k_frac AS DECIMAL INITIAL "6.25" NO-UNDO.
 {sys/inc/f16to32.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -64,38 +64,38 @@ def var k_frac as dec init "6.25" no-undo.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Dialog-Box
-&Scoped-define DB-AWARE no
+&SCOPED-DEFINE PROCEDURE-TYPE Dialog-Box
+&SCOPED-DEFINE DB-AWARE NO
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME d-updset
+&SCOPED-DEFINE FRAME-NAME d-updset
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES eb est-qty
+&SCOPED-DEFINE INTERNAL-TABLES eb est-qty
 
 /* Definitions for DIALOG-BOX d-updset                                  */
-&Scoped-define FIELDS-IN-QUERY-d-updset eb.stock-no eb.part-no ~
+&SCOPED-DEFINE FIELDS-IN-QUERY-d-updset eb.stock-no eb.part-no ~
 eb.part-dscr1 eb.part-dscr2 eb.procat eb.len eb.wid eb.dep 
-&Scoped-define QUERY-STRING-d-updset FOR EACH eb SHARE-LOCK, ~
+&SCOPED-DEFINE QUERY-STRING-d-updset FOR EACH eb SHARE-LOCK, ~
       EACH est-qty WHERE TRUE /* Join to eb incomplete */ SHARE-LOCK
-&Scoped-define OPEN-QUERY-d-updset OPEN QUERY d-updset FOR EACH eb SHARE-LOCK, ~
+&SCOPED-DEFINE OPEN-QUERY-d-updset OPEN QUERY d-updset FOR EACH eb SHARE-LOCK, ~
       EACH est-qty WHERE TRUE /* Join to eb incomplete */ SHARE-LOCK.
-&Scoped-define TABLES-IN-QUERY-d-updset eb est-qty
-&Scoped-define FIRST-TABLE-IN-QUERY-d-updset eb
-&Scoped-define SECOND-TABLE-IN-QUERY-d-updset est-qty
+&SCOPED-DEFINE TABLES-IN-QUERY-d-updset eb est-qty
+&SCOPED-DEFINE FIRST-TABLE-IN-QUERY-d-updset eb
+&SCOPED-DEFINE SECOND-TABLE-IN-QUERY-d-updset est-qty
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-5 btn_qty-msf btn_update Btn_Cancel 
-&Scoped-Define DISPLAYED-FIELDS eb.stock-no eb.part-no eb.part-dscr1 ~
+&SCOPED-DEFINE ENABLED-OBJECTS RECT-5 btn_qty-msf btn_update Btn_Cancel 
+&SCOPED-DEFINE DISPLAYED-FIELDS eb.stock-no eb.part-no eb.part-dscr1 ~
 eb.part-dscr2 eb.procat eb.len eb.wid eb.dep 
-&Scoped-define DISPLAYED-TABLES eb
-&Scoped-define FIRST-DISPLAYED-TABLE eb
-&Scoped-Define DISPLAYED-OBJECTS rd_alloc tb_unitize 
+&SCOPED-DEFINE DISPLAYED-TABLES eb
+&SCOPED-DEFINE FIRST-DISPLAYED-TABLE eb
+&SCOPED-DEFINE DISPLAYED-OBJECTS rd_alloc tb_unitize 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-1 eb.stock-no eb.part-no eb.part-dscr1 eb.part-dscr2 ~
+&SCOPED-DEFINE List-1 eb.stock-no eb.part-no eb.part-dscr1 eb.part-dscr2 ~
 eb.procat eb.len eb.wid eb.dep rd_alloc tb_unitize 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -153,49 +153,49 @@ DEFINE QUERY d-updset FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME d-updset
-     eb.stock-no AT ROW 1.95 COL 24 COLON-ALIGNED
+     eb.stock-no AT ROW 1.95 COLUMN 24 COLON-ALIGNED
           LABEL "Set FG Item#"
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     eb.part-no AT ROW 2.95 COL 24 COLON-ALIGNED
+     eb.part-no AT ROW 2.95 COLUMN 24 COLON-ALIGNED
           LABEL "Set Cust Part#"
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     eb.part-dscr1 AT ROW 3.95 COL 24 COLON-ALIGNED
+     eb.part-dscr1 AT ROW 3.95 COLUMN 24 COLON-ALIGNED
           LABEL "Item Name"
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
-     eb.part-dscr2 AT ROW 4.95 COL 24 COLON-ALIGNED
+     eb.part-dscr2 AT ROW 4.95 COLUMN 24 COLON-ALIGNED
           LABEL "Part Description"
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
-     eb.procat AT ROW 6 COL 24 COLON-ALIGNED
+     eb.procat AT ROW 6 COLUMN 24 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     eb.len AT ROW 7.19 COL 24 COLON-ALIGNED
+     eb.len AT ROW 7.19 COLUMN 24 COLON-ALIGNED
           LABEL "F.G. Length" FORMAT ">>9.9999"
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
-     eb.wid AT ROW 8.19 COL 24 COLON-ALIGNED FORMAT ">>9.9999"
+     eb.wid AT ROW 8.19 COLUMN 24 COLON-ALIGNED FORMAT ">>9.9999"
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
-     eb.dep AT ROW 9.19 COL 24 COLON-ALIGNED
+     eb.dep AT ROW 9.19 COLUMN 24 COLON-ALIGNED
           LABEL "Depth" FORMAT ">>9.9999"
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
-     btn_qty-msf AT ROW 10.29 COL 10
-     est-qty.eqty AT ROW 10.29 COL 24 COLON-ALIGNED
+     btn_qty-msf AT ROW 10.29 COLUMN 10
+     est-qty.eqty AT ROW 10.29 COLUMN 24 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     fi_msf AT ROW 10.29 COL 46 COLON-ALIGNED
-     rd_alloc AT ROW 11.48 COL 28 NO-LABEL
-     tb_unitize AT ROW 14.1 COL 28
-     btn_update AT ROW 16 COL 15
-     Btn_Cancel AT ROW 16 COL 49
+     fi_msf AT ROW 10.29 COLUMN 46 COLON-ALIGNED
+     rd_alloc AT ROW 11.48 COLUMN 28 NO-LABEL
+     tb_unitize AT ROW 14.1 COLUMN 28
+     btn_update AT ROW 16 COLUMN 15
+     Btn_Cancel AT ROW 16 COLUMN 49
      "Set Allocation :" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 12.19 COL 9
+          SIZE 18 BY 1 AT ROW 12.19 COLUMN 9
           FGCOLOR 9 
-     RECT-5 AT ROW 1 COL 1
+     RECT-5 AT ROW 1 COLUMN 1
      SPACE(0.00) SKIP(2.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -275,7 +275,7 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME d-updset
+&SCOPED-DEFINE SELF-NAME d-updset
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL d-updset d-updset
 ON WINDOW-CLOSE OF FRAME d-updset /* SET Information */
 DO:
@@ -286,7 +286,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Cancel
+&SCOPED-DEFINE SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel d-updset
 ON CHOOSE OF Btn_Cancel IN FRAME d-updset /* Close */
 DO:
@@ -297,7 +297,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_qty-msf
+&SCOPED-DEFINE SELF-NAME btn_qty-msf
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_qty-msf d-updset
 ON CHOOSE OF btn_qty-msf IN FRAME d-updset
 DO:
@@ -308,12 +308,12 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME eb.stock-no
+&SCOPED-DEFINE SELF-NAME eb.stock-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.stock-no d-updset
 ON LEAVE OF eb.stock-no IN FRAME d-updset /* FG Item# */
 DO:
-  DEF VAR ll-copy-fg AS LOG NO-UNDO.
-  DEF VAR lActive AS LOG NO-UNDO.
+  DEFINE VARIABLE ll-copy-fg AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
 
   IF LASTKEY NE -1 THEN DO:
     IF eb.stock-no:SCREEN-VALUE  NE "" THEN DO:
@@ -342,7 +342,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME btn_update
+&SCOPED-DEFINE SELF-NAME btn_update
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_update d-updset
 ON CHOOSE OF btn_update IN FRAME d-updset /* Update */
 DO:
@@ -394,11 +394,11 @@ DO:
          IF eb.set-is-assembled NE ? THEN
            eb.set-is-assembled = NOT eb.set-is-assembled.
 
-         if ll-crt-itemfg then do:
+         IF ll-crt-itemfg THEN DO:
              /*find xest where recid(xest) = recid(est) no-lock no-error.
              find xeb where recid(xeb) = recid(eb) no-lock no-error.
              find xef where recid(xef) = recid(ef) no-lock no-error.*/
-             run fg/ce-addfg.p (xeb.stock-no).
+             RUN fg/ce-addfg.p (xeb.stock-no).
              FIND FIRST xeb NO-LOCK
                  WHERE xeb.company  EQ eb.company
                  AND xeb.est-no   EQ eb.est-no
@@ -413,7 +413,7 @@ DO:
          end.
 
 
-         FIND FIRST itemfg
+         FIND FIRST itemfg NO-LOCK
              WHERE itemfg.company EQ eb.company
                AND itemfg.i-no    EQ eb.stock-no
              NO-ERROR.
@@ -422,7 +422,7 @@ DO:
             itemfg.alloc  = rd_alloc
             itemfg.procat = eb.procat.
          
-         APPLY "go" TO FRAME {&frame-name}.
+         APPLY "go" TO FRAME {&FRAME-NAME}.
     END.
       
 END.
@@ -431,7 +431,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME eb.part-dscr1
+&SCOPED-DEFINE SELF-NAME eb.part-dscr1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.part-dscr1 d-updset
 ON HELP OF eb.part-dscr1 IN FRAME d-updset /* Item Name */
 DO:
@@ -443,7 +443,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME eb.part-no
+&SCOPED-DEFINE SELF-NAME eb.part-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.part-no d-updset
 ON HELP OF eb.part-no IN FRAME d-updset /* Set Cust Part# */
 DO:
@@ -468,14 +468,14 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME eb.procat
+&SCOPED-DEFINE SELF-NAME eb.procat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.procat d-updset
 ON HELP OF eb.procat IN FRAME d-updset /* Category */
 DO:
-   DEF VAR char-val AS cha NO-UNDO.
-   run windows/l-fgcat.w (eb.company,focus:screen-value, output char-val).
+   DEFINE VARIABLE char-val AS cha NO-UNDO.
+   run windows/l-fgcat.w (eb.company,eb.procat:SCREEN-VALUE, OUTPUT char-val).
    if char-val <> "" then 
-      assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+      ASSIGN eb.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val)
                /*        itemfg.procat-desc:screen-value = entry(2,char-val) */
                        .
    
@@ -498,7 +498,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rd_alloc
+&SCOPED-DEFINE SELF-NAME rd_alloc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_alloc d-updset
 ON VALUE-CHANGED OF rd_alloc IN FRAME d-updset
 DO:
@@ -519,11 +519,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME eb.stock-no
+&SCOPED-DEFINE SELF-NAME eb.stock-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.stock-no d-updset
 ON HELP OF eb.stock-no IN FRAME d-updset /* Set FG Item# */
 DO:
-  RUN est/l-ebstk.w (cocode, locode, est.est-type, ?, 5, FOCUS:SCREEN-VALUE, OUTPUT lv-rowid).
+  RUN est/l-ebstk.w (cocode, locode, est.est-type, ?, 5, eb.stock-no:SCREEN-VALUE, OUTPUT lv-rowid).
   RUN new-eb (lv-rowid).
 END.
 
@@ -538,7 +538,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpd.i}
-DEF VAR ll AS LOG NO-UNDO.
+DEFINE VARIABLE ll AS LOG NO-UNDO.
 
 SESSION:DATA-ENTRY-RETURN = YES.
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
@@ -553,20 +553,20 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-   FIND bf-eb WHERE RECID(bf-eb) EQ ip-recid NO-LOCK NO-ERROR.
+   FIND bf-eb NO-LOCK WHERE RECID(bf-eb) EQ ip-recid NO-ERROR.
    
-   FIND FIRST style WHERE
+   FIND FIRST style NO-LOCK WHERE
         style.company EQ bf-eb.company AND
         style.style   EQ bf-eb.style
-        NO-LOCK NO-ERROR.
+        NO-ERROR.
 
    IF AVAIL style AND style.TYPE = "P" THEN
       eb.dep:LABEL = "Height".
 
-   FIND FIRST bf-set WHERE bf-set.company = bf-eb.company
+   FIND FIRST bf-set NO-LOCK WHERE bf-set.company = bf-eb.company
                        AND bf-set.est-no = bf-eb.est-no
                        AND bf-set.form-no = 0
-                       NO-LOCK NO-ERROR.
+                       NO-ERROR.
 
    IF AVAIL bf-set THEN lv-set-recid = RECID(bf-set).
    ELSE DO:
@@ -592,10 +592,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
    /* update set info from eb */
    i = 0.
-   FOR EACH bf-eb WHERE bf-eb.company EQ bf-set.company
+   FOR EACH bf-eb NO-LOCK WHERE bf-eb.company EQ bf-set.company
                     AND bf-eb.est-no  EQ bf-set.est-no
                     AND bf-eb.form-no NE 0
-                  NO-LOCK BREAK BY bf-eb.est-no:
+                  BREAK BY bf-eb.est-no:
        i = i + 1.
        IF LAST(bf-eb.est-no) THEN LEAVE.
    END.
@@ -608,15 +608,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
    FIND eb WHERE RECID(eb) = lv-set-recid NO-LOCK.
   
-   FIND FIRST est
+   FIND FIRST est NO-LOCK
        WHERE est.company EQ eb.company
          AND est.est-no  EQ eb.est-no
-       NO-LOCK.
+       NO-ERROR.
 
-   FIND FIRST est-qty
+   FIND FIRST est-qty NO-LOCK
        WHERE est-qty.company EQ eb.company
          AND est-qty.est-no  EQ eb.est-no
-       NO-LOCK NO-ERROR.
+       NO-ERROR.
 
    ASSIGN
     ld-msf     = 0
@@ -625,12 +625,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
    IF rd_alloc NE ? THEN rd_alloc = NOT rd_alloc.
 
-   FOR EACH b-eb
+   FOR EACH b-eb NO-LOCK
        WHERE b-eb.company EQ eb.company
          AND b-eb.est-no  EQ eb.est-no
          AND b-eb.form-no NE 0
          AND ROWID(b-eb)  NE ROWID(eb)
-       NO-LOCK
        BREAK BY b-eb.est-no:
      ASSIGN
       ld-yld   = IF b-eb.est-type GE 5 THEN
@@ -651,11 +650,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           TRIM(fi_msf:LABEL) + ": " +
                           TRIM(STRING(fi_msf,fi_msf:FORMAT)).
 
-   FIND FIRST itemfg
+   FIND FIRST itemfg NO-LOCK
        WHERE itemfg.company EQ eb.company
          AND itemfg.i-no    EQ eb.stock-no
          AND itemfg.i-no    NE ""
-       NO-LOCK NO-ERROR.
+       NO-ERROR.
    IF AVAIL itemfg THEN rd_alloc = itemfg.alloc.
 
    RUN enable_UI.
@@ -712,10 +711,10 @@ PROCEDURE create-set :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  FIND FIRST bf-est
+  FIND FIRST bf-est NO-LOCK
       WHERE bf-est.company EQ bf-eb.company
         AND bf-est.est-no  EQ bf-eb.est-no
-      NO-LOCK NO-ERROR.
+      NO-ERROR.
 
   {ce/set-info.a ip-est-type "bf-" "bf-"}
 
@@ -804,11 +803,11 @@ PROCEDURE new-eb :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
-  DEF BUFFER new-eb FOR eb.
+  DEFINE BUFFER new-eb FOR eb.
 
-  DEF VAR ll-alloc LIKE eb.set-is-assembled NO-UNDO.
+  DEFINE VARIABLE ll-alloc LIKE eb.set-is-assembled NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -846,7 +845,7 @@ PROCEDURE upd-2box :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR ll AS LOG NO-UNDO.
+  DEFINE VARIABLE ll AS LOGICAL NO-UNDO.
 
 
   MESSAGE "Is this a 2 Piece Box?"
@@ -855,7 +854,7 @@ PROCEDURE upd-2box :
 
   IF ll THEN DO:
     FIND eb WHERE RECID(eb) = lv-set-recid .
-    FIND bf-eb WHERE RECID(bf-eb) EQ ip-recid NO-LOCK NO-ERROR.
+    FIND bf-eb NO-LOCK WHERE RECID(bf-eb) EQ ip-recid  NO-ERROR.
     ASSIGN eb.stock-no = bf-eb.stock-no
            eb.part-no = bf-eb.part-no
            eb.part-dscr1 = bf-eb.part-dscr1
@@ -882,10 +881,10 @@ PROCEDURE UpdateSetUnitize :
 ------------------------------------------------------------------------------*/
 
   IF tb_unitize THEN DO:
-     FIND FIRST bf-eb WHERE bf-eb.company EQ eb.company
+     FIND FIRST bf-eb NO-LOCK WHERE bf-eb.company EQ eb.company
                   AND bf-eb.est-no  EQ eb.est-no
                   AND bf-eb.form-no NE 0
-                  AND bf-eb.blank-no NE 0 NO-LOCK NO-ERROR.
+                  AND bf-eb.blank-no NE 0 NO-ERROR.
      IF AVAIL bf-eb AND eb.cas-no EQ "" OR eb.cas-cnt = 0 THEN
      /* task 07211403 - only override if information is not already entered*/
      ASSIGN eb.cas-no = bf-eb.cas-no
@@ -952,7 +951,7 @@ PROCEDURE valid-part-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR li AS INT NO-UNDO.
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
 
   DEF BUFFER b-eb FOR eb.
 
@@ -1002,7 +1001,7 @@ PROCEDURE valid-procat :
        RETURN ERROR.
     END.
     IF NOT CAN-FIND(FIRST fgcat WHERE fgcat.company = eb.company and
-                                      fgcat.procat = eb.procat:screen-value)
+                                      fgcat.procat = eb.procat:SCREEN-VALUE)
     THEN DO:
         MESSAGE "Invalid Category. Try help." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO eb.procat.
