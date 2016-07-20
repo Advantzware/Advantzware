@@ -4,16 +4,16 @@ DEF INPUT PARAMETER ip_rec_key LIKE nosweat.notes.rec_key.
 DISABLE TRIGGERS FOR LOAD OF nosweat.notes.
 
 
-IF CONNECTED("nosweat-asi") THEN DO:
+IF CONNECTED("asinos") THEN DO:
    
-   FOR EACH nosweat-asi.notes WHERE nosweat-asi.notes.rec_key = ip_rec_key :
-       DELETE nosweat-asi.notes.
+   FOR EACH asinos.notes WHERE asinos.notes.rec_key = ip_rec_key :
+       DELETE asinos.notes.
    END.
 
    FOR EACH nosweat.notes WHERE nosweat.notes.rec_key = ip_rec_key NO-LOCK:
        
-       CREATE nosweat-asi.notes.
-       BUFFER-COPY nosweat.notes TO nosweat-asi.notes. 
+       CREATE asinos.notes.
+       BUFFER-COPY nosweat.notes TO asinos.notes. 
    END.
    
 END.
