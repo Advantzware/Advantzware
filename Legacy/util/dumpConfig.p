@@ -1,6 +1,6 @@
 
 
-DEFINE INPUT PARAMETER ipcPFPatch    AS CHARACTER NO-UNDO.
+
 DEFINE INPUT PARAMETER ipcOutputPath AS CHARACTER NO-UNDO.
 
 DEF STREAM sNotes.
@@ -25,8 +25,8 @@ vcCommand = 'ATTRIB -R ' + cPrgrmsPath.
 OS-COMMAND SILENT VALUE (vcCommand).
 
 OUTPUT TO VALUE(cPrgrmsPath).
-FOR EACH nosweat.prgrms NO-LOCK:
-    EXPORT nosweat.prgrms.
+FOR EACH asinos.prgrms NO-LOCK:
+    EXPORT asinos.prgrms.
 END.
 OUTPUT CLOSE.
 
@@ -34,8 +34,8 @@ vcCommand = 'ATTRIB -R ' + cPrgmxrefPath.
 OS-COMMAND SILENT VALUE (vcCommand).
 
 OUTPUT TO VALUE(cPrgmxrefPath).
-FOR EACH nosweat.prgmxref NO-LOCK:
-    EXPORT nosweat.prgmxref.
+FOR EACH asinos.prgmxref NO-LOCK:
+    EXPORT asinos.prgmxref.
 END.
 OUTPUT CLOSE.
 
@@ -43,8 +43,8 @@ vcCommand = 'ATTRIB -R ' + cLookupsPath.
 OS-COMMAND SILENT VALUE (vcCommand).
 
 OUTPUT TO VALUE(cLookupsPath).
-FOR EACH nosweat.lookups NO-LOCK:
-    EXPORT nosweat.lookups.
+FOR EACH asinos.lookups NO-LOCK:
+    EXPORT asinos.lookups.
 END.
 OUTPUT CLOSE.
 
@@ -67,8 +67,8 @@ OUTPUT TO VALUE(cReftablePath).
 OUTPUT STREAM sNotes TO VALUE(cNotePath).
 FOR EACH reftable NO-LOCK WHERE reftable.reftable EQ 'Utilities':
     EXPORT reftable.
-    FOR EACH nosweat.notes NO-LOCK WHERE nosweat.notes.rec_key EQ reftable.rec_key:
-        EXPORT STREAM sNotes nosweat.notes.
+    FOR EACH asinos.notes NO-LOCK WHERE asinos.notes.rec_key EQ reftable.rec_key:
+        EXPORT STREAM sNotes asinos.notes.
     END.
 END.
 OUTPUT STREAM sNotes CLOSE.
@@ -91,8 +91,8 @@ DO:
     OS-COMMAND SILENT VALUE (vcCommand).
 
     OUTPUT TO VALUE(cPrgrmsPath).
-    FOR EACH nosweat-addon.prgrms NO-LOCK:
-        EXPORT nosweat-addon.prgrms.
+    FOR EACH nosweat.prgrms NO-LOCK:
+        EXPORT nosweat.prgrms.
     END.
     OUTPUT CLOSE.
 
@@ -100,8 +100,8 @@ DO:
     OS-COMMAND SILENT VALUE (vcCommand).
 
     OUTPUT TO VALUE(cPrgmxrefPath).
-    FOR EACH nosweat-addon.prgmxref NO-LOCK:
-        EXPORT nosweat-addon.prgmxref.
+    FOR EACH nosweat.prgmxref NO-LOCK:
+        EXPORT nosweat.prgmxref.
     END.
     OUTPUT CLOSE.
 
@@ -109,8 +109,8 @@ DO:
     OS-COMMAND SILENT VALUE (vcCommand).
 
     OUTPUT TO VALUE(cLookupsPath).
-    FOR EACH nosweat-addon.lookups NO-LOCK:
-        EXPORT nosweat-addon.lookups.
+    FOR EACH nosweat.lookups NO-LOCK:
+        EXPORT nosweat.lookups.
     END.
     OUTPUT CLOSE.
 END.
