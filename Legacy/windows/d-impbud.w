@@ -66,7 +66,7 @@ in-file-name
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bt-search-file 
      IMAGE-UP FILE "Graphics/32x32/document_view.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Search" 
      SIZE 7.8 BY 1.81 TOOLTIP "Search".
 
