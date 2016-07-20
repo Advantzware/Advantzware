@@ -177,7 +177,7 @@ for each xef where xef.company = xest.company AND xef.est-no eq xest.est-no:
        qm = qm + (if bf-eb.yrprice then bf-eb.yld-qty else bf-eb.bl-qty).
      END.
 
-	 {cec/refest5a.i MAT-QTY i "no-lock no-error"}
+	 {cec/refest5aW.i MAT-QTY i "no-lock no-error"}
 
 	 if avail reftable then do v = 1 to EXTENT(reftable.val):
 	   if qm le reftable.val[v] then leave.
@@ -189,7 +189,7 @@ for each xef where xef.company = xest.company AND xef.est-no eq xest.est-no:
 	 end.
 
 	 if avail reftable then
-	   {cec/refest5a.i MAT-CST i "no-lock no-error"}
+	   {cec/refest5aW.i MAT-CST i "no-lock no-error"}
 
      ASSIGN
 	 v-mat-cost = if avail reftable then reftable.val[v] else 0.
@@ -201,7 +201,7 @@ for each xef where xef.company = xest.company AND xef.est-no eq xest.est-no:
         mis-tot[5] = (xef.mis-matf[i] + (v-mat-cost * qm / 1000)) *
 		    		 (1 + (xef.mis-mkup[i] / 100)).
 
-	 {cec/refest5a.i LAB-QTY i "no-lock no-error"}
+	 {cec/refest5aW.i LAB-QTY i "no-lock no-error"}
 
 	 if avail reftable then do v = 1 to EXTENT(reftable.val):
 	   if qm le reftable.val[v] then leave.
@@ -213,7 +213,7 @@ for each xef where xef.company = xest.company AND xef.est-no eq xest.est-no:
 	 end.
 
 	 if avail reftable then
-	   {cec/refest5a.i LAB-CST i "no-lock no-error"}
+	   {cec/refest5aW.i LAB-CST i "no-lock no-error"}
 
      v-lab-cost = if avail reftable then reftable.val[v] else 0.
 

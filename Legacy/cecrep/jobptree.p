@@ -136,6 +136,7 @@ DEF SHARED VAR s-prt-set-header AS LOG NO-UNDO.
 DEF VAR v-managed-order AS cha FORM "x(30)" NO-UNDO.
 DEF VAR ll-tandem AS LOG NO-UNDO.
 DEF VAR ll-jqcust AS LOG NO-UNDO.
+DEFINE VAR cCustpo-name AS CHARACTER NO-UNDO .
 
 FIND FIRST sys-ctrl NO-LOCK
     WHERE sys-ctrl.company EQ cocode
@@ -581,6 +582,20 @@ assign
            END. /* IF b-eb.i-code[v-i] <> "" THEN DO: */
         END. /*  DO v-i = 1 TO 5: */
         /**** END code from Hughes for printing ink ****/
+        ASSIGN cCustpo-name = "".
+        /* cust po from rel */
+         IF AVAIL xoe-rel THEN
+             FIND FIRST reftable NO-LOCK WHERE
+             reftable.reftable EQ "oe-rel.lot-no" AND
+             reftable.company  EQ STRING(xoe-rel.r-no,"9999999999")
+             NO-ERROR.
+
+         IF AVAIL reftable THEN
+             ASSIGN
+             cCustpo-name      = reftable.CODE . 
+         IF AVAIL xoe-rel AND cCustpo-name = "" THEN
+             ASSIGN cCustpo-name = (IF xoe-rel.po-no NE "" THEN xoe-rel.po-no ELSE IF AVAIL xoe-ordl THEN xoe-ordl.po-no ELSE "") .  .
+
 
         DISPLAY  
            "<B>" WHEN  NOT vll-is-a-set
@@ -609,7 +624,7 @@ assign
            v-shp[3] AT 2  SKIP
            v-shp[4] AT 2  "<U>Board:</U>" AT 106 "<U>Adders:</U>" AT 125  WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
            SKIP
-           "Cust. PO #:" AT 2  xoe-ordl.po-no when avail xoe-ordl
+           "Cust. PO #:" AT 2 cCustpo-name FORMAT "x(15)" /*xoe-ordl.po-no when avail xoe-ordl*/
            "Shts Req'd:" AT 90 WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
            trim(string(v-sht-qty)) format "x(9)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
            "<B><C97>" v-adder-1 "</B>" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank

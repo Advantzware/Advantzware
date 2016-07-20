@@ -233,7 +233,7 @@ find first xeb where xeb.company = xest.company
                qty   = qty + tt-blk * v-yld.
             END.
 
-            {cec/refest5a.i MAT-QTY i "no-lock no-error"}
+            {cec/refest5aW.i MAT-QTY i "no-lock no-error"}
 
             if avail reftable then do v = 1 to EXTENT(reftable.val):
                if qty le reftable.val[v] then leave.
@@ -245,7 +245,7 @@ find first xeb where xeb.company = xest.company
             end.
 
             if avail reftable then
-               {cec/refest5a.i MAT-CST i "no-lock no-error"}
+               {cec/refest5aW.i MAT-CST i "no-lock no-error"}
 
             ASSIGN
                v-mat-cost = if avail reftable then reftable.val[v] else 0.
@@ -261,7 +261,7 @@ find first xeb where xeb.company = xest.company
               {sys/inc/roundup.i mis-tot[5]}
             END.*/
 
-            {cec/refest5a.i LAB-QTY i "no-lock no-error"}
+            {cec/refest5aW.i LAB-QTY i "no-lock no-error"}
 
             if avail reftable then do v = 1 to EXTENT(reftable.val):
                if qty le reftable.val[v] then leave.
@@ -273,7 +273,7 @@ find first xeb where xeb.company = xest.company
             end.
 
             if avail reftable then
-               {cec/refest5a.i LAB-CST i "no-lock no-error"}
+               {cec/refest5aW.i LAB-CST i "no-lock no-error"}
 
             v-lab-cost = if avail reftable then reftable.val[v] else 0.
 

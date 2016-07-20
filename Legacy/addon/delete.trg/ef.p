@@ -36,6 +36,6 @@ FOR EACH box-design-hdr WHERE box-design-hdr.company EQ ef.company
                           AND box-design-hdr.form-no EQ ef.form-no:
     DELETE box-design-hdr.
 END.
-FOR EACH reftable {ce/est-mrpl.w ef}:
+FOR EACH reftable {ce/est-mrpl.i ef}:
     DELETE reftable.
 END.

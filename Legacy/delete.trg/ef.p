@@ -57,7 +57,7 @@ FOR EACH reftable
   DELETE reftable.
 END.
 
-FOR EACH reftable {ce/est-mrpl.w {&TABLENAME}}:
+FOR EACH reftable {ce/est-mrpl.i {&TABLENAME}}:
   DELETE reftable.
 END.
 

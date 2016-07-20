@@ -1,5 +1,5 @@
 /* cec/refestg.i  will be called from v-est4.w (Farm/Misc)
-                  from cec/refest5a.i  {1} - MAT or LAB 
+                  from cec/refest5aW.i  {1} - MAT or LAB 
                                        {2} - array index */  
 def var lv-ref-rec-qty as recid no-undo.
 def var lv-ref-rec-cst as recid no-undo.

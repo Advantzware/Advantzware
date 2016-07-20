@@ -1062,7 +1062,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 {methods/winReSize.i}
 
 DEFINE VARIABLE lv-col-hand AS HANDLE.
-FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
 IF AVAILABLE ce-ctrl THEN
   v-ceSellPrice = ce-ctrl.sell-by.
 IF v-ceSellPrice NE "F" THEN DO lv-int = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME} 
@@ -1169,7 +1169,7 @@ PROCEDURE calc-fields :
       USE-INDEX est-qty :
       v-freight = v-freight + est-summ.per-m.
   END.
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
 
   IF lv-changed NE "" THEN
   DO WITH FRAME {&FRAME-NAME}:
@@ -1615,7 +1615,7 @@ IF CAN-FIND(FIRST xprobe
       {custom/getrfq.i}
       
       FIND FIRST cust
-          {sys/look/cust.w}
+          {sys/look/custW.i}
             AND cust.cust-no EQ quotehd.cust-no
           NO-LOCK NO-ERROR.
       FIND FIRST shipto NO-LOCK
@@ -1873,7 +1873,7 @@ IF CAN-FIND(FIRST xprobe
         END.
 
         DO j = 1 TO 6:
-          IF bf-ef.mis-simon[j] EQ "S" and bf-ef.mis-cost[j] NE "" THEN DO:
+          IF bf-ef.mis-simon[j] EQ "S" AND bf-ef.mis-cost[j] NE "" THEN DO:
             CREATE quotechg.
 
             IF (bf-ef.mis-labf[j] NE 0 OR bf-ef.mis-labm[j] NE 0) AND
@@ -2318,7 +2318,7 @@ PROCEDURE local-assign-record :
   probe.sell-price-wo = probe.sell-price -
                         (probe.sell-price * probe.market-price / 100).
         
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
 
   FIND FIRST est NO-LOCK
       WHERE est.company EQ probe.company
@@ -2420,7 +2420,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
@@ -2854,7 +2854,7 @@ PROCEDURE print-box-est :
   OUTPUT TO VALUE(ls-outfile) .
   IF ip-dest EQ 1 THEN PUT "<PRINTER?></PROGRESS>".  /*<REVIEW>*/
   ELSE IF ip-dest EQ 2 THEN PUT "<PREVIEW=ZoomToWidth></PROGRESS>".  /*<REVIEW>*/
-  ELSE IF ip-dest EQ 4 THEN do:
+  ELSE IF ip-dest EQ 4 THEN DO:
      ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tIF".
      PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
   END.        
@@ -2981,7 +2981,7 @@ PROCEDURE print-notes :
   IF lv-k GT EXTENT(v-dept-inst) THEN lv-k = EXTENT(v-dept-inst).
        
   DO i = 1 TO lv-k:
-      IF v-line-count GT 62 THEN do:
+      IF v-line-count GT 62 THEN DO:
           PAGE.
           v-line-count = 0 .
       END.
@@ -3044,7 +3044,7 @@ PROCEDURE print4 :
   DEFINE VARIABLE lv-error AS LOGICAL NO-UNDO.
   DEFINE VARIABLE v-vend-no   LIKE e-item-vend.vend-no INITIAL "".
   DEFINE VARIABLE v-vend-list AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lv-ef-recid AS recid NO-UNDO.
+  DEFINE VARIABLE lv-ef-recid AS RECID NO-UNDO.
 
   ASSIGN
     lv-ef-recid = RECID(ef)
@@ -3449,7 +3449,7 @@ PROCEDURE run-screen-calc :
         AND est-op.est-no  EQ est.est-no
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ est-op.m-code,
       FIRST reftable NO-LOCK
       WHERE reftable.reftable EQ "mach.obsolete"
@@ -3498,7 +3498,7 @@ PROCEDURE run-screen-calc :
 
   RUN release-shared-buffers.
 
-  session:set-wait-state("").
+  SESSION:SET-WAIT-STATE("").
 
   FIND eb NO-LOCK WHERE RECID(eb) EQ lv-eb-recid .
   FIND ef NO-LOCK WHERE RECID(ef) EQ lv-ef-recid .
@@ -3516,8 +3516,8 @@ PROCEDURE run-whatif :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lv-eb-recid AS recid NO-UNDO.
-  DEFINE VARIABLE lv-ef-recid AS recid NO-UNDO.
+  DEFINE VARIABLE lv-eb-recid AS RECID NO-UNDO.
+  DEFINE VARIABLE lv-ef-recid AS RECID NO-UNDO.
   DEFINE VARIABLE lv-probe-line LIKE probe.LINE NO-UNDO.
   DEFINE VARIABLE tmp-outfile AS CHARACTER NO-UNDO.
   DEFINE VARIABLE viewfile AS CHARACTER NO-UNDO.
@@ -3557,7 +3557,7 @@ PROCEDURE run-whatif :
         AND est-op.est-no  EQ est.est-no
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
-      {sys/look/mach.w}
+      {sys/look/machW.i}
         AND mach.m-code EQ est-op.m-code,
       FIRST reftable NO-LOCK
       WHERE reftable.reftable EQ "mach.obsolete"
@@ -3581,7 +3581,7 @@ PROCEDURE run-whatif :
 
     IF AVAILABLE probe THEN RUN est/d-probeu.w (OUTPUT lv-override).
 
-    IF v-cestcalc EQ "Prompt on Purge" AND lv-override THEN do:  /* Task 12101301 */
+    IF v-cestcalc EQ "Prompt on Purge" AND lv-override THEN DO:  /* Task 12101301 */
         MESSAGE "Warning, all existing calculated quantities will be deleted."
             VIEW-AS ALERT-BOX INFO BUTTONS YES-NO
             UPDATE ll-return.
@@ -3609,7 +3609,7 @@ PROCEDURE run-whatif :
 
   RUN release-shared-buffers.
 
-  session:set-wait-state("").
+  SESSION:SET-WAIT-STATE("").
 
   FIND eb NO-LOCK WHERE RECID(eb) EQ lv-eb-recid .
   FIND ef NO-LOCK WHERE RECID(ef) EQ lv-ef-recid .
@@ -4130,7 +4130,7 @@ FUNCTION display-gp RETURNS DECIMAL
   DEFINE VARIABLE lv-gp AS DECIMAL NO-UNDO.
 
 
-  FIND FIRST ce-ctrl {sys/look/ce-ctrl.w} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
 
   DO WITH FRAME {&FRAME-NAME}:
     lv-gp = IF ce-ctrl.sell-by EQ "S" THEN
