@@ -122,7 +122,7 @@ DEFINE BUTTON Btn-Reset
 
 DEFINE BUTTON Btn-run 
      IMAGE-UP FILE "Graphics/32x32/media_play.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Excute" 
      SIZE 8 BY 1.29
      FONT 4.

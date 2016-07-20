@@ -61,13 +61,13 @@ CREATE WIDGET-POOL.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Page_3 
      IMAGE-UP FILE "Graphics/32x32/window_split_ver.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Browser" 
      SIZE 7.8 BY 1.81 TOOLTIP "Browser".
 
 DEFINE BUTTON Select_Page_4 
      IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Viewer" 
      SIZE 7.8 BY 1.81 TOOLTIP "Viewer".
 
