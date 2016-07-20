@@ -62,37 +62,37 @@ Select_Misc_Fields Select_Browser Select_Viewer
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Browser 
      IMAGE-UP FILE "Graphics/32x32/window_split_ver.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Browser" 
      SIZE 7.8 BY 1.81 TOOLTIP "Browser".
 
 DEFINE BUTTON Select_List 
      IMAGE-UP FILE "Graphics/32x32/printer.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
      SIZE 7.8 BY 1.81 TOOLTIP "List".
 
 DEFINE BUTTON Select_Misc_Fields 
      IMAGE-UP FILE "Graphics/32x32/window_explorer.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Misc Fields" 
      SIZE 7.8 BY 1.81 TOOLTIP "Misc Fields".
 
 DEFINE BUTTON Select_Notes 
      IMAGE-UP FILE "Graphics/32x32/edit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_Search 
      IMAGE-UP FILE "Graphics/32x32/document_view.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Search" 
      SIZE 7.8 BY 1.81 TOOLTIP "Search".
 
 DEFINE BUTTON Select_Viewer 
      IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Viewer" 
      SIZE 7.8 BY 1.81 TOOLTIP "Viewer".
 

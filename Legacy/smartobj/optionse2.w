@@ -63,43 +63,43 @@ Select_Add Select_appl Select_help Select_Home
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_add 
      IMAGE-UP FILE "Graphics/32x32/plus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 7.8 BY 1.81 TOOLTIP "Exit".
 
 DEFINE BUTTON Select_appl 
      IMAGE-UP FILE "Graphics/32x32/window_gear.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Util Appl" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_dept 
      IMAGE-UP FILE "Graphics/32x32/edit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_frac 
      IMAGE-UP FILE "Graphics/32x32/calculator.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
      IMAGE-UP FILE "Graphics/32x32/question.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
 DEFINE BUTTON Select_Home 
      IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Home" 
      SIZE 7.8 BY 1.81 TOOLTIP "Home Key".
 
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "spec_note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
 

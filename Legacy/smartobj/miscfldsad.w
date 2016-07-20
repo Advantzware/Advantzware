@@ -62,7 +62,7 @@ CREATE WIDGET-POOL.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON selectMiscFlds 
      IMAGE-UP FILE "Graphics/32x32/document_checks.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Misc Fields" 
      SIZE 7.8 BY 1.81 TOOLTIP "Misc Fields".
 

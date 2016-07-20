@@ -62,7 +62,7 @@ CREATE WIDGET-POOL.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_att 
      IMAGE-UP FILE "Graphics/32x32/paperclip.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_warning.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Attachment" 
      SIZE 7.8 BY 1.81 TOOLTIP "Attachments".
 
