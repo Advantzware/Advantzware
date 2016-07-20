@@ -432,13 +432,14 @@ PROCEDURE asi-exit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE lv-can-exit AS LOGICAL NO-UNDO.
+   /*DEFINE VARIABLE lv-can-exit AS LOGICAL NO-UNDO.
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
    RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
-
-   IF NOT lv-can-exit THEN RETURN ERROR.
+  
+   IF NOT lv-can-exit THEN RETURN ERROR.*/
    
+    RUN do-cancel IN h_p-updbar.
 
 END PROCEDURE.
 
