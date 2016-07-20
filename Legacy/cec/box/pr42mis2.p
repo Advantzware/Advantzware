@@ -1,20 +1,20 @@
 /* ----------------------------------------------- cec/box/pr42mis2.p 9/93 cd */
 DEFINE INPUT PARAMETER ip-last-ef AS LOG NO-UNDO.
 
-def shared var cocode as cha no-undo.
-def shared var locode as cha no-undo.
-def shared var qty as INT NO-UNDO .
-def var i as int no-undo.
-def var tmpstore as cha no-undo.
+DEF SHARED VAR cocode AS cha NO-UNDO.
+DEF SHARED VAR locode AS cha NO-UNDO.
+DEF SHARED VAR qty AS INT NO-UNDO .
+DEF VAR i AS INT NO-UNDO.
+DEF VAR tmpstore AS cha NO-UNDO.
 
-def shared buffer xest for est.
-def shared buffer xef  for ef.
-def shared buffer xeb  for eb.
+DEF SHARED BUFFER xest FOR est.
+DEF SHARED BUFFER xef  FOR ef.
+DEF SHARED BUFFER xeb  FOR eb.
 
-def var v as int no-undo.
-def var v-mat-cost as dec no-undo.
-def var v-lab-cost as dec no-undo.
-def var v-yld as dec no-undo.
+DEF VAR v AS INT NO-UNDO.
+DEF VAR v-mat-cost AS DEC NO-UNDO.
+DEF VAR v-lab-cost AS DEC NO-UNDO.
+DEF VAR v-yld AS DEC NO-UNDO.
 DEF VAR ld-fac AS DEC NO-UNDO.
 DEF VAR v-tmp-int AS INT NO-UNDO.
 DEF VAR v-line AS CHAR NO-UNDO.
@@ -35,32 +35,32 @@ DEF VAR v-orig-prep-lab LIKE prep-lab NO-UNDO.
 DEF VAR v-sep-prep-tot AS DEC NO-UNDO.
 DEF VAR v-sep-misc-tot AS DEC NO-UNDO.
 
-find first xeb where xeb.company = xest.company 
-                    and xeb.est-no eq xest.est-no
-                    and xeb.form-no ne 0 no-error.
+FIND FIRST xeb WHERE xeb.company = xest.company 
+                    AND xeb.est-no EQ xest.est-no
+                    AND xeb.form-no NE 0 NO-ERROR.
 
-   output to value(outfile2).
+   OUTPUT to value(outfile2).
 
-   find first est-prep where est-prep.company = xest.company 
-                         and est-prep.est-no = xest.est-no
-                         and (est-prep.s-num eq v-form-no or (not vmclean2))
-        and index("SON",est-prep.simon) > 0 no-lock no-error.
+   FIND FIRST est-prep WHERE est-prep.company = xest.company 
+                         AND est-prep.est-no = xest.est-no
+                         AND (est-prep.s-num EQ v-form-no OR (NOT vmclean2))
+        AND index("SON",est-prep.simon) > 0 NO-LOCK NO-ERROR.
 
-   if (xeb.chg-method ne "P" and fr-tot <> 0) or avail est-prep then
+   IF (xeb.chg-method NE "P" AND fr-tot <> 0) OR AVAIL est-prep THEN
       PUT SKIP(1)
          SPACE(24) "B I L L A B L E    C H A R G E S" SKIP
          "Prep Description      Mat'l   Labor  Addt'l   Amtz   Charge    Cost/M Total Cost" SKIP.
 
-   assign save-qty = qty
+   ASSIGN save-qty = qty
          tprep-mat = 0
          tprep-lab = 0
          tprep-tot = 0.
 
-   for each est-prep where est-prep.company = xest.company 
-                       and est-prep.est-no = xest.est-no
-                       and (est-prep.s-num eq v-form-no or (not vmclean2))
-         and index("SON",est-prep.simon) > 0 no-lock
-       with frame ag no-box no-labels:
+   FOR EACH est-prep WHERE est-prep.company = xest.company 
+                       AND est-prep.est-no = xest.est-no
+                       AND (est-prep.s-num EQ v-form-no OR (NOT vmclean2))
+         AND index("SON",est-prep.simon) > 0 NO-LOCK
+       WITH FRAME ag NO-BOX NO-LABELS:
 
        qty = 0.
        FOR EACH xeb FIELDS(yld-qty)
@@ -71,19 +71,19 @@ find first xeb where xeb.company = xest.company
                   est-prep.b-num EQ 0)
            NO-LOCK:
            ASSIGN
-              v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty
+              v-yld = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
               qty = qty + (tt-blk * v-yld).
        END.
       
-       if est-prep.code ne "" then do:
+       IF est-prep.code NE "" THEN DO:
           prep-add = est-prep.mkup / 100.
-          if est-prep.amtz ne 0 then prep-atz = est-prep.amtz / 100.
-          else prep-atz = 1.
-          if est-prep.ml = true THEN
+          IF est-prep.amtz NE 0 THEN prep-atz = est-prep.amtz / 100.
+          ELSE prep-atz = 1.
+          IF est-prep.ml = TRUE THEN
              ASSIGN
                 prep-lab = 0
                 prep-mat = est-prep.cost * est-prep.qty.
-          else
+          ELSE
              ASSIGN
                 prep-mat = 0
                 prep-lab = est-prep.cost * est-prep.qty.
@@ -99,7 +99,7 @@ find first xeb where xeb.company = xest.company
              prep-tot  = prep-tot * (1 + prep-add) * prep-atz.
              
           IF ceprep-cha EQ "Dollar" AND est-prep.simon EQ "S" AND
-             prep-tot ne 0 THEN DO:
+             prep-tot NE 0 THEN DO:
             ld-fac = prep-tot.
             {sys/inc/roundup.i prep-tot}
             ASSIGN
@@ -108,7 +108,7 @@ find first xeb where xeb.company = xest.company
                prep-lab = prep-lab * ld-fac.
           END.
           ELSE IF ceprep-cha EQ "FiveDollar" AND
-               prep-tot ne 0 THEN DO:
+               prep-tot NE 0 THEN DO:
             ld-fac = prep-tot.
             {sys/inc/roundupfive.i prep-tot}
             ASSIGN
@@ -128,8 +128,8 @@ find first xeb where xeb.company = xest.company
 
           tprep-tot = tprep-tot + prep-tot.
       
-          create xprep.
-          assign xprep.frm      = est-prep.s-num
+          CREATE xprep.
+          ASSIGN xprep.frm      = est-prep.s-num
                  xprep.blank-no = est-prep.b-num
                  xprep.qty      = est-prep.qty
                  xprep.std-cost = est-prep.cost
@@ -138,16 +138,16 @@ find first xeb where xeb.company = xest.company
                  xprep.simon    = est-prep.simon
                  xprep.code     = est-prep.CODE.
       
-          display est-prep.dscr format "x(19)"
-                  v-orig-prep-mat format "->>9.99"
-                  v-orig-prep-lab format "->>9.99"
-                  est-prep.mkup format ">>9.99" to 42 space(0) "%"
-                  est-prep.amtz to 50 format ">>9.99" space(0) "%"
-                  est-prep.simon format "X" to 58
-                  prep-tot / (qty / 1000) to 69
-                  prep-tot to 80 format ">>>,>>9.99"
-                    when index("SO",est-prep.simon) > 0
-                         "      N/C " when est-prep.simon = "N" @ prep-tot
+          DISPLAY est-prep.dscr FORMAT "x(19)"
+                  v-orig-prep-mat FORMAT "->>9.99"
+                  v-orig-prep-lab FORMAT "->>9.99"
+                  est-prep.mkup FORMAT ">>9.99" TO 42 SPACE(0) "%"
+                  est-prep.amtz TO 50 FORMAT ">>9.99" SPACE(0) "%"
+                  est-prep.simon FORMAT "X" TO 58
+                  prep-tot / (qty / 1000) TO 69
+                  prep-tot TO 80 FORMAT ">>>,>>9.99"
+                    WHEN INDEX("SO",est-prep.simon) > 0
+                         "      N/C " WHEN est-prep.simon = "N" @ prep-tot
                   SKIP WITH STREAM-IO.
 
           IF cerunc EQ "Protagon" AND
@@ -180,46 +180,46 @@ find first xeb where xeb.company = xest.company
             
                 RELEASE tt-prep-sep.
              END.
-       end.
-   end.
+       END.
+   END.
        
-   find first xeb where xeb.company = xest.company 
-                    and xeb.est-no eq xest.est-no
-                    and xeb.form-no ne 0 no-error.
+   FIND FIRST xeb WHERE xeb.company = xest.company 
+                    AND xeb.est-no EQ xest.est-no
+                    AND xeb.form-no NE 0 NO-ERROR.
 
-   if xeb.chg-method ne "P" and fr-tot ne 0 then do:
-      put "Freight"   at 1
-           fr-tot      FORMAT ">>>9.99" to 27
+   IF xeb.chg-method NE "P" AND fr-tot NE 0 THEN DO:
+      PUT "Freight"   AT 1
+           fr-tot      FORMAT ">>>9.99" TO 27
            (fr-tot / (tt-blk / 1000)) TO 69
            fr-tot                  TO 80 SKIP.
-      assign
+      ASSIGN
        tprep-mat = tprep-mat + fr-tot
        tprep-tot = tprep-tot + fr-tot.
-   end.
+   END.
 
    tmpstore = "new".
-   for each xef where xef.company = xest.company 
-                  and xef.est-no    eq xest.est-no
-                  and (xef.form-no eq v-form-no or (not vmclean)):
+   FOR EACH xef WHERE xef.company = xest.company 
+                  AND xef.est-no    EQ xest.est-no
+                  AND (xef.form-no EQ v-form-no OR (NOT vmclean)):
 
-      if tmpstore = "new" then do i = 1 to 6:
+      IF tmpstore = "new" THEN DO i = 1 TO 6:
 
-         if index("SON",xef.mis-simon[i]) = 0 then next.
+         IF INDEX("SON",xef.mis-simon[i]) = 0 THEN NEXT.
          tmpstore = "done".
-         put skip(1).
+         PUT SKIP(1).
          IF cerunc = "Protagon" THEN
             PUT "Miscellaneous Cost    Mat/F   Lab/F    Mat/M  Lab/M  Charge      OH% Total Cost" SKIP.
          ELSE    
             PUT "Miscellaneous Cost    Mat/F   Lab/F    Mat/M  Lab/M  Charge   Mrkup% Total Cost" SKIP.
-         leave.
-      end.
+         LEAVE.
+      END.
 
-      if tmpstore = "new" then next.
-      do i = 1 to 6 with frame ah down no-labels no-box:
+      IF tmpstore = "new" THEN NEXT.
+      DO i = 1 TO 6 WITH FRAME ah DOWN NO-LABELS NO-BOX:
 
-         if index("SON",xef.mis-simon[i]) = 0 then next.
+         IF INDEX("SON",xef.mis-simon[i]) = 0 THEN NEXT.
 
-         if mis-cost[i] ne "" then do:
+         IF mis-cost[i] NE "" THEN DO:
             qty = 0.
             FOR EACH xeb FIELDS(yld-qty)
                 WHERE xeb.company      EQ xef.company
@@ -233,22 +233,22 @@ find first xeb where xeb.company = xest.company
                qty   = qty + tt-blk * v-yld.
             END.
 
-            {cec/refest5aW.i MAT-QTY i "no-lock no-error"}
+            {cec/refest5a.i MAT-QTY i "no-lock no-error"}
 
-            if avail reftable then do v = 1 to EXTENT(reftable.val):
-               if qty le reftable.val[v] then leave.
-               if v = EXTENT(reftable.val) then do:
+            IF AVAIL reftable THEN DO v = 1 TO EXTENT(reftable.val):
+               IF qty LE reftable.val[v] THEN LEAVE.
+               IF v = EXTENT(reftable.val) THEN DO:
                   v = 0.
-                  release reftable.
-                  leave.
-               end.
-            end.
+                  RELEASE reftable.
+                  LEAVE.
+               END.
+            END.
 
-            if avail reftable then
-               {cec/refest5aW.i MAT-CST i "no-lock no-error"}
+            IF AVAIL reftable THEN
+               {cec/refest5a.i MAT-CST i "no-lock no-error"}
 
             ASSIGN
-               v-mat-cost = if avail reftable then reftable.val[v] else 0.
+               v-mat-cost = IF AVAIL reftable THEN reftable.val[v] ELSE 0.
 
             IF ceprepprice-chr EQ "Profit" THEN
                mis-tot[5] = (xef.mis-matf[i] + (v-mat-cost * (qty / 1000))) /
@@ -261,21 +261,21 @@ find first xeb where xeb.company = xest.company
               {sys/inc/roundup.i mis-tot[5]}
             END.*/
 
-            {cec/refest5aW.i LAB-QTY i "no-lock no-error"}
+            {cec/refest5a.i LAB-QTY i "no-lock no-error"}
 
-            if avail reftable then do v = 1 to EXTENT(reftable.val):
-               if qty le reftable.val[v] then leave.
-               if v = EXTENT(reftable.val) then do:
+            IF AVAIL reftable THEN DO v = 1 TO EXTENT(reftable.val):
+               IF qty LE reftable.val[v] THEN LEAVE.
+               IF v = EXTENT(reftable.val) THEN DO:
                   v = 0.
-                  release reftable.
-                  leave.
-               end.
-            end.
+                  RELEASE reftable.
+                  LEAVE.
+               END.
+            END.
 
-            if avail reftable then
-               {cec/refest5aW.i LAB-CST i "no-lock no-error"}
+            IF AVAIL reftable THEN
+               {cec/refest5a.i LAB-CST i "no-lock no-error"}
 
-            v-lab-cost = if avail reftable then reftable.val[v] else 0.
+            v-lab-cost = IF AVAIL reftable THEN reftable.val[v] ELSE 0.
 
             IF ceprepprice-chr EQ "Profit" THEN
                mis-tot[6] = (xef.mis-labf[i] + (v-lab-cost * (qty / 1000))) /
@@ -287,7 +287,7 @@ find first xeb where xeb.company = xest.company
             prep-tot = mis-tot[5] + mis-tot[6].
 
             IF ceprep-cha EQ "Dollar" AND xef.mis-simon[i] EQ "S" AND
-               prep-tot ne 0 THEN DO:
+               prep-tot NE 0 THEN DO:
               ld-fac = prep-tot.
               {sys/inc/roundup.i prep-tot}
               ASSIGN
@@ -296,7 +296,7 @@ find first xeb where xeb.company = xest.company
                  mis-tot[6] = mis-tot[6] * ld-fac.
             END.
             ELSE IF ceprep-cha EQ "FiveDollar" AND
-                 prep-tot ne 0 THEN DO:
+                 prep-tot NE 0 THEN DO:
               ld-fac = prep-tot.
               {sys/inc/roundupfive.i prep-tot}
               ASSIGN
@@ -305,29 +305,29 @@ find first xeb where xeb.company = xest.company
                  mis-tot[6] = mis-tot[6] * ld-fac.
             END.
 
-	        if mis-tot[5] ne 0 then do:
-	          create xprep.
-	          assign xprep.frm      = xef.mis-snum[i]
+	        IF mis-tot[5] NE 0 THEN DO:
+	          CREATE xprep.
+	          ASSIGN xprep.frm      = xef.mis-snum[i]
 		         xprep.blank-no = xef.mis-bnum[i]
 		         xprep.qty      = 1
 		         xprep.std-cost = mis-tot[5]
-		         xprep.ml       = yes
+		         xprep.ml       = YES
 		         xprep.cost-m   = mis-tot[5] / (qty / 1000)
 		         xprep.simon    = xef.mis-simon[i]
 		         xprep.code     = "MISM" + string(i,"9").
-	        end.
+	        END.
 
-	        if mis-tot[6] ne 0 then do:
-	          create xprep.
-	          assign xprep.frm      = xef.mis-snum[i]
+	        IF mis-tot[6] NE 0 THEN DO:
+	          CREATE xprep.
+	          ASSIGN xprep.frm      = xef.mis-snum[i]
 		         xprep.blank-no = xef.mis-bnum[i]
 		         xprep.qty      = 1
 		         xprep.std-cost = mis-tot[6]
-		         xprep.ml       = no
+		         xprep.ml       = NO
 		         xprep.cost-m   = mis-tot[6] / (qty / 1000)
 		         xprep.simon    = xef.mis-simon[i]
 		         xprep.code     = "MISL" + string(i,"9").
-	        end.
+	        END.
 
             IF cerunc EQ "Protagon" AND
             xef.mis-simon[i] EQ "S" THEN
@@ -360,27 +360,27 @@ find first xeb where xeb.company = xest.company
                RELEASE tt-prep-sep.
             END.
 
-            display
-             xef.mis-cost[i]  format "x(19)"
-             xef.mis-matf[i]  format "->>9.99"
-             xef.mis-labf[i]  format "->>9.99"
-             v-mat-cost       format "->>>9.99" to 44
-             v-lab-cost       format "->>>9.99" to 53
-             xef.mis-simon[i] format "X" to 58
-             xef.mis-mkup[i]  to 69
-             prep-tot to 80   format ">>>,>>9.99" SKIP  WITH STREAM-IO.
-         end.
-      end.
-   end.
+            DISPLAY
+             xef.mis-cost[i]  FORMAT "x(19)"
+             xef.mis-matf[i]  FORMAT "->>9.99"
+             xef.mis-labf[i]  FORMAT "->>9.99"
+             v-mat-cost       FORMAT "->>>9.99" TO 44
+             v-lab-cost       FORMAT "->>>9.99" TO 53
+             xef.mis-simon[i] FORMAT "X" TO 58
+             xef.mis-mkup[i]  TO 69
+             prep-tot TO 80   FORMAT ">>>,>>9.99" SKIP  WITH STREAM-IO.
+         END.
+      END.
+   END.
 
-   put skip(2).
+   PUT SKIP(2).
 
-   output close.
+   OUTPUT close.
 
    FIND FIRST tt-prep-sep NO-LOCK NO-ERROR.
    IF cerunc EQ "Protagon" AND AVAIL tt-prep-sep AND ip-last-ef  THEN
    DO:
-      output to value(outfile4) APPEND.
+      OUTPUT to value(outfile4) APPEND.
 
 /*       IF vmclean2 THEN                         */
 /*          FIND FIRST b-ef WHERE                 */
@@ -401,7 +401,7 @@ find first xeb where xeb.company = xest.company
              PUT
                  tt-prep-sep.CODE FORMAT "X(20)"
                  tt-prep-sep.item-name FORMAT "X(30)"
-                 tt-prep-sep.sep-cost FORMAT ">>>,>>9.99" at 53
+                 tt-prep-sep.sep-cost FORMAT ">>>,>>9.99" AT 53
                  /*WITH STREAM-IO NO-BOX NO-LABELS*/ SKIP .
               v-sep-misc-tot = v-sep-misc-tot + ROUND(tt-prep-sep.sep-cost, 2).
            END.
@@ -421,11 +421,11 @@ find first xeb where xeb.company = xest.company
             PUT
                 tt-prep-sep.CODE FORMAT "X(20)"
                 tt-prep-sep.item-name FORMAT "X(30)"
-                tt-prep-sep.sep-cost FORMAT ">>>,>>9.99" at 53
+                tt-prep-sep.sep-cost FORMAT ">>>,>>9.99" AT 53
                 /*WITH STREAM-IO NO-BOX NO-LABELS*/ SKIP .
              v-sep-prep-tot = v-sep-prep-tot + ROUND(tt-prep-sep.sep-cost, 2).
          END.
-         PUT "TOTAL:" v-sep-prep-tot format ">>>,>>9.99" AT 53 SKIP(1).
+         PUT "TOTAL:" v-sep-prep-tot FORMAT ">>>,>>9.99" AT 53 SKIP(1).
        END.
 /*       IF vmclean2 THEN                                                   */
 /*          FIND LAST b-ef WHERE                                            */
