@@ -191,6 +191,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
      application would exit. */
+    
   IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
 END.
 
@@ -400,13 +401,12 @@ PROCEDURE asi-exit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR lv-can-exit AS LOG NO-UNDO.
-
+   /*DEF VAR lv-can-exit AS LOG NO-UNDO.
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
-   RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
-
-   IF NOT lv-can-exit THEN RETURN ERROR.
+   RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).*/
    
+   /*IF NOT lv-can-exit THEN RETURN ERROR.*/
+   RUN do-cancel IN h_p-updba2.
 
 END PROCEDURE.
 
@@ -479,8 +479,9 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
-   APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+     MESSAGE "hello " VIEW-AS ALERT-BOX ERROR.
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+  
    RETURN.
        
 END PROCEDURE.
