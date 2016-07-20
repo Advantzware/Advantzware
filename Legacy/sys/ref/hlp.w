@@ -83,6 +83,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE MENU POPUP-MENU-btDataDigger 
        MENU-ITEM m_DataDigger2  LABEL "DataDigger"    
        MENU-ITEM m_ProTools2    LABEL "ProTools"      
+       MENU-ITEM m_Program_Stack LABEL "Program Stack" 
        MENU-ITEM m_Trans        LABEL "Transactions and Locks Window".
 
 DEFINE MENU POPUP-MENU-lv-program 
@@ -383,19 +384,6 @@ END.
 ON CHOOSE OF MENU-ITEM m_ProTools2 /* ProTools */
 DO:
   RUN protools\_protool.w.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&UNDEFINE SELF-NAME
-
-&Scoped-define SELF-NAME m_Trans
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Trans W-Win
-ON CHOOSE OF MENU-ITEM m_Trans /* ProTools */
-DO:
-  RUN system/monitor.w PERSISTENT.
 END.
 
 /* _UIB-CODE-BLOCK-END */
