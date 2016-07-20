@@ -28,6 +28,7 @@ DEF VAR ld-pmrkp AS DEC EXTENT 3 NO-UNDO.
 
 DEF BUFFER reftable-fm FOR reftable.
 DEF BUFFER reftable-fold-pct FOR reftable.
+def buffer bf-set for eb.
 
 DO TRANSACTION:
   {sys/inc/cerun.i F}
@@ -40,13 +41,15 @@ find first ce-ctrl where ce-ctrl.company = cocode and
                          ce-ctrl.loc     = locode no-lock no-error.
 
 output to value(outfile1) append .
+
 fg-wt = 0.
-for each car break by car.id:
+for each car break by car.id:    
       z = tt-blk.
       find first xeb where xeb.company  = xest.company and
                            xeb.est-no   = xest.est-no and
                            xeb.form-no  = car.snum   and
                            xeb.blank-no = car.bnum no-lock no-error.
+                           
       find first carrier where carrier.company = cocode and carrier.loc = locode
       and carrier.carrier = car.carrier no-lock no-error.
       if avail carrier then
@@ -104,6 +107,13 @@ for each car break by car.id:
          blk.lab  = blk.lab  + ((car.qty / 100) * ld-fg-rate)
          blk.cost = blk.cost + ((car.qty / 100) * ld-fg-rate)
          fg-wt$   = fg-wt$ + (car.qty / 100 * ld-fg-rate).
+      
+      /* if set is unitized freight is charged only once not per form */
+      FIND FIRST bf-set WHERE bf-set.company = xest.company
+                       AND bf-set.est-no = xest.est-no
+                       AND bf-set.form-no = 0
+                       NO-LOCK NO-ERROR.                          
+      if avail bf-set /*and bf-set.set-is-assembled*/ and bf-set.pur-man then leave.   
 end.
 
 if fg-wt$ gt 0 then put "Finished Goods Handling" fg-wt$ to 80 skip.
