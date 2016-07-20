@@ -14,6 +14,7 @@ DEFINE VARIABLE begin_actnum AS CHARACTER FORMAT "X(10)" LABEL "Beginning Accoun
 DEFINE VARIABLE begin_account_dscr AS CHARACTER FORMAT "X(30)" LABEL "Beginning Account Description" NO-UNDO.
 DEFINE VARIABLE end_actnum AS CHARACTER FORMAT "X(10)" LABEL "Ending Account" NO-UNDO.
 DEFINE VARIABLE end_account_dscr AS CHARACTER FORMAT "X(30)" LABEL "Ending Account Description" NO-UNDO.
+DEFINE VARIABLE show-history AS LOGICAL FORMAT "yes/no" LABEL "Show History" NO-UNDO.
 
 {methods/lstlogic/lstlogic.i}
 

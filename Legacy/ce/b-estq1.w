@@ -1198,8 +1198,8 @@ ON HELP OF vi_est-no IN FRAME F-Main
 DO:
    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-    run windows/l-esttyp.w (g_company,g_loc,"1234","EST",{&SELF-NAME}:screen-value, output char-val).
-    if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
+    RUN windows/l-esttyp.w (g_company,g_loc,"1234","EST",{&SELF-NAME}:screen-value, OUTPUT char-val).
+    IF char-val <> "" THEN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
     RETURN NO-APPLY.
 END.
 
@@ -1214,7 +1214,7 @@ DO:
    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
     RUN windows/l-itemfg.w (g_company,"","", OUTPUT char-val).
-    if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
+    IF char-val <> "" THEN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
     RETURN NO-APPLY.
 END.
 
@@ -1284,8 +1284,8 @@ ON HELP OF vi_part-no IN FRAME F-Main
 DO:
   DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-    run windows/l-esttyp.w (g_company,g_loc,"1234","part",{&SELF-NAME}:screen-value, output char-val).
-    if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(2,char-val).
+    RUN windows/l-esttyp.w (g_company,g_loc,"1234","part",{&SELF-NAME}:screen-value, OUTPUT char-val).
+    IF char-val <> "" THEN {&SELF-NAME}:SCREEN-VALUE = ENTRY(2,char-val).
     RETURN NO-APPLY.
 END.
 
@@ -1343,8 +1343,8 @@ ON HELP OF vi_style IN FRAME F-Main
 DO:
   DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-  run windows/l-stylef.w (gcompany,{&SELF-NAME}:screen-value, output char-val).
-  if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
+  RUN windows/l-stylef.w (gcompany,{&SELF-NAME}:screen-value, OUTPUT char-val).
+  IF char-val <> "" THEN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
   RETURN NO-APPLY.
 
 END.
@@ -1359,7 +1359,7 @@ ON HELP OF begin_cust-no IN FRAME F-Main
 DO:
    DEFINE VARIABLE char-val AS cha NO-UNDO.
    RUN windows/l-cust2.w (INPUT g_company, INPUT {&SELF-NAME}:screen-value,"", OUTPUT char-val).
-          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
+          IF char-val <> "" THEN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
           RETURN NO-APPLY.
 END.
 
@@ -1451,14 +1451,9 @@ PROCEDURE setEstNoSearch:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipiEstNo LIKE eb.est-no NO-UNDO.
-DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-ASSIGN vi_est-no = ipiEstNo.
+DEF INPUT PARAM ipiEstNo LIKE eb.est-no NO-UNDO.
 
-  IF AVAILABLE eb THEN DO:   
-    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'record-source':U,OUTPUT char-hdl).
-    RUN setEstNoSearch  IN WIDGET-HANDLE(char-hdl) (INPUT eb.est-no).  /* to have save button */  
-  END.
+ASSIGN vi_est-no = ipiEstNo.
 
 END PROCEDURE.
 	
