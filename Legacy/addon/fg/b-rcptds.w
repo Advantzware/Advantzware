@@ -114,7 +114,6 @@ DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
-DEFINE VARIABLE cSSScanVendor AS CHARACTER NO-UNDO .
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
                        INPUT "L",
@@ -134,15 +133,6 @@ RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "",
                        INPUT "",
                        OUTPUT cFGSetAssembly,
-                       OUTPUT lFound).
-RUN sys/ref/nk1look.p (INPUT cocode,
-                       INPUT "SSScanVendor",
-                       INPUT "C",
-                       INPUT NO,
-                       INPUT NO,
-                       INPUT "",
-                       INPUT "",
-                       OUTPUT cSSScanVendor,
                        OUTPUT lFound).
 
 /* _UIB-CODE-BLOCK-END */
@@ -844,11 +834,6 @@ DO:
         IF AVAIL loadtag THEN 
            fg-rctd.stack-code:SCREEN-VALUE IN BROWSE {&browse-name} = loadtag.misc-char[2] .  /* task 12051303 */
 
-        IF cSSScanVendor = "RMLot" THEN DO:
-            APPLY "entry" TO fg-rctd.stack-code.
-            RETURN NO-APPLY.
-        END.
-
    /* IF int(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}) = 0  THEN APPLY "entry" TO fg-rctd.t-qty.
     ELSE APPLY "entry" TO fg-rctd.loc.
     RETURN NO-APPLY. */
@@ -1019,20 +1004,6 @@ END.
 ON LEAVE OF fg-rctd.stack-code IN BROWSE br_table /* FG Lot# */
 DO:
   IF LASTKEY NE -1 THEN DO:
-
-    IF cSSScanVendor = "RMLot" THEN DO:
-        FIND FIRST fg-bin WHERE fg-bin.company = cocode 
-                           AND fg-bin.i-no = ""
-                           AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                           AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                           USE-INDEX co-ino NO-LOCK NO-ERROR.
-       IF NOT AVAIL fg-bin THEN DO:
-          MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
-           APPLY "entry" TO fg-rctd.loc.
-          RETURN NO-APPLY.
-       END.
-    END.
-
     RUN valid-lot# (INPUT SELF) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN DO: 
       RETURN NO-APPLY.
@@ -2377,24 +2348,6 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  DO WITH FRAME {&FRAME-NAME}:
-      IF AVAIL fg-rctd AND (cSSScanVendor = "RMLot" OR cSSScanVendor = "RM Lot") THEN DO:
-          DEF VAR hColumn AS HANDLE.
-          
-          hColumn = BROWSE br_table:FIRST-COLUMN.
-          DO WHILE VALID-HANDLE(hColumn):
-              CASE hColumn:LABEL:
-                  WHEN "FG Lot#" THEN hColumn:LABEL = "RM Lot#".
-              END CASE.
-          
-              /* hb:LABEL = "#".*/
-              hColumn = hColumn:NEXT-COLUMN.
-          END.
-          /* hb:LABEL = "name".  */
-          br_table:REFRESH() NO-ERROR.
-      END. /* avail fg-rctd */  
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2456,13 +2409,6 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  FIND FIRST loadtag EXCLUSIVE-LOCK
-       WHERE loadtag.company = cocode and 
-       loadtag.item-type = NO and 
-       loadtag.tag-no = fg-rctd.tag NO-ERROR.
-   IF AVAIL loadtag AND ( cSSScanVendor = "RMLot" OR cSSScanVendor = "RM Lot") AND lv-do-what NE "delete" THEN do:
-       ASSIGN loadtag.misc-char[2] = fg-rctd.stack-code .
-   END.
   lv-overrun-checked = NO.
 
 
