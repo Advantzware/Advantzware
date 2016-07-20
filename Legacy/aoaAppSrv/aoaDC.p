@@ -316,7 +316,7 @@ PROCEDURE pMachineProductivity :
             ttMachineProductivity.sqFtPiece      = ttMachineProductivity.sqFtPiece   / ttMachineProductivity.xxPieces    * 1000
             ttMachineProductivity.manHrPerSqFt   = ttMachineProductivity.xxTotLabHrs / ttMachineProductivity.xxTotalMSF
             ttMachineProductivity.piecesPerHr    = ttMachineProductivity.xxPieces    / ttMachineProductivity.xxTotActHrs
-            ttMachineProductivity.piecesRunHr    = ttMachineProductivity.xxPieces    / ttMachineProductivity.xxTotRunHrs
+            ttMachineProductivity.piecesRunHr    = ttMachineProductivity.xxPieces    / ttMachineProductivity.xxRunActHr
             ttMachineProductivity.piecesPerSetup = ttMachineProductivity.xxPieces    / ttMachineProductivity.xxSetups
             ttMachineProductivity.minPerSetup    = ttMachineProductivity.xxMRActHr   / ttMachineProductivity.xxSetups    * 60
             ttMachineProductivity.avgCrew        = ttMachineProductivity.avgCrew     / ttMachineProductivity.xxSetups
