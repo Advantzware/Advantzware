@@ -2566,7 +2566,7 @@ PROCEDURE valid-cr-hold :
   DO WITH FRAME {&frame-name}:    
     IF NOT ll-secure                                              AND
        v-secur                                                    AND
-       NOT adm-new-record                                         AND
+       /*NOT adm-new-record                                         AND*/
        STRING(cust.cr-hold,"yes/no") NE cust.cr-hold:SCREEN-VALUE AND
        v-custpass                                                 THEN DO:
 
@@ -2600,7 +2600,7 @@ PROCEDURE valid-cr-hold-invdays :
     IF NOT ll-secure                                                  AND
        v-secur                                                        AND
        SUBSTR(v-secur-fld,1,1) EQ "Y"                                 AND
-       NOT adm-new-record                                             AND
+       /*NOT adm-new-record                                             AND*/
        cust.cr-hold-invdays NE DEC(cust.cr-hold-invdays:SCREEN-VALUE) AND
        v-custpass                                                     THEN DO:
 
@@ -2634,7 +2634,7 @@ PROCEDURE valid-cr-lim :
     IF NOT ll-secure                                AND
        v-secur                                      AND
        SUBSTR(v-secur-fld,2,1) EQ "Y"               AND
-       NOT adm-new-record                           AND
+       /*NOT adm-new-record                           AND*/
        cust.cr-lim NE DEC(cust.cr-lim:SCREEN-VALUE) AND
        v-custpass                                   THEN DO:
 
@@ -2709,7 +2709,7 @@ PROCEDURE valid-disc :
     IF NOT ll-secure                            AND
        v-secur                                  AND
        SUBSTR(v-secur-fld,6,1) EQ "Y"           AND
-       NOT adm-new-record                       AND
+       /*NOT adm-new-record                       AND*/
        cust.disc NE DEC(cust.disc:SCREEN-VALUE) AND
        v-custpass                               THEN DO:
 
@@ -2742,7 +2742,7 @@ PROCEDURE valid-fin-chg :
     IF NOT ll-secure                                              AND
        v-secur                                                    AND
        SUBSTR(v-secur-fld,7,1) EQ "Y"                             AND
-       NOT adm-new-record                                         AND
+       /*NOT adm-new-record                                         AND*/
        STRING(cust.fin-chg,"yes/no") NE cust.fin-chg:SCREEN-VALUE AND
        v-custpass                                                 THEN DO:
 
@@ -2775,7 +2775,7 @@ PROCEDURE valid-inv-meth :
     IF NOT ll-secure                                   AND
        v-secur                                         AND
        SUBSTR(v-secur-fld,4,1) EQ "Y"                  AND
-       NOT adm-new-record                              AND
+       /*NOT adm-new-record                              AND*/
        ((rd_inv-meth NE ? AND STRING(rd_inv-meth) NE rd_inv-meth:SCREEN-VALUE) OR
        (rd_inv-meth EQ ? AND rd_inv-meth:SCREEN-VALUE NE "?")) AND
        v-custpass                                      THEN DO:
@@ -2810,7 +2810,7 @@ PROCEDURE valid-markup :
     IF NOT ll-secure                                AND
        v-secur                                      AND
        SUBSTR(v-secur-fld,8,1) EQ "Y"               AND
-       NOT adm-new-record                           AND
+       /*NOT adm-new-record                           AND*/
        cust.markup NE DEC(cust.markup:SCREEN-VALUE) AND
        v-custpass                                   THEN DO:
 
@@ -2844,7 +2844,7 @@ PROCEDURE valid-ord-lim :
     IF NOT ll-secure                                  AND
        v-secur                                        AND
        SUBSTR(v-secur-fld,3,1) EQ "Y"                 AND
-       NOT adm-new-record                             AND
+       /*NOT adm-new-record                             AND*/
        cust.ord-lim NE DEC(cust.ord-lim:SCREEN-VALUE) AND
        v-custpass                                     THEN DO:
 
@@ -2933,7 +2933,7 @@ PROCEDURE valid-terms :
     IF NOT ll-secure                         AND
        v-secur                               AND
        SUBSTR(v-secur-fld,5,1) EQ "Y"        AND
-       NOT adm-new-record                    AND
+       /*NOT adm-new-record                    AND*/
        cust.terms NE cust.terms:SCREEN-VALUE AND
        v-custpass                            THEN DO:
 
