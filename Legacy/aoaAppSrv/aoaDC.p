@@ -294,10 +294,7 @@ PROCEDURE pMachineProductivity :
 
         ASSIGN
             ttMachineProductivity.xxSetups       = ttMachineProductivity.xxSetups    + 1
-            ttMachineProductivity.msfPerHr       = ttMachineProductivity.msfPerHr    + ttProductionAnalysis.msfPerHr
             ttMachineProductivity.sqFtPiece      = ttMachineProductivity.sqFtPiece   + ttProductionAnalysis.sqFtPiece
-            ttMachineProductivity.piecesPerHr    = ttMachineProductivity.piecesPerHr + ttProductionAnalysis.piecesPerHr
-            ttMachineProductivity.piecesRunHr    = ttMachineProductivity.piecesRunHr + ttProductionAnalysis.piecesRunHr
             ttMachineProductivity.avgCrew        = ttMachineProductivity.avgCrew     + ttProductionAnalysis.crew
             ttMachineProductivity.xxPieces       = ttMachineProductivity.xxPieces    + ttProductionAnalysis.pieces
             ttMachineProductivity.xxTotalMSF     = ttMachineProductivity.xxTotalMSF  + ttProductionAnalysis.totalMSF
@@ -314,15 +311,23 @@ PROCEDURE pMachineProductivity :
     FOR EACH ttMachineProductivity
         :
         ASSIGN
+            ttMachineProductivity.msfPerHr       = ttMachineProductivity.xxTotalMSF  / ttMachineProductivity.xxTotActHrs
             ttMachineProductivity.sqFtPerSetup   = ttMachineProductivity.xxTotalMSF  / ttMachineProductivity.xxSetups
+            ttMachineProductivity.sqFtPiece      = ttMachineProductivity.sqFtPiece   / ttMachineProductivity.xxPieces    * 1000
             ttMachineProductivity.manHrPerSqFt   = ttMachineProductivity.xxTotLabHrs / ttMachineProductivity.xxTotalMSF
+            ttMachineProductivity.piecesPerHr    = ttMachineProductivity.xxPieces    / ttMachineProductivity.xxTotActHrs
+            ttMachineProductivity.piecesRunHr    = ttMachineProductivity.xxPieces    / ttMachineProductivity.xxTotRunHrs
             ttMachineProductivity.piecesPerSetup = ttMachineProductivity.xxPieces    / ttMachineProductivity.xxSetups
-            ttMachineProductivity.minPerSetup    = ttMachineProductivity.xxPieces    / ttMachineProductivity.xxRunActHr
+            ttMachineProductivity.minPerSetup    = ttMachineProductivity.xxMRActHr   / ttMachineProductivity.xxSetups    * 60
             ttMachineProductivity.avgCrew        = ttMachineProductivity.avgCrew     / ttMachineProductivity.xxSetups
-            ttMachineProductivity.downTimePct    = ttMachineProductivity.xxDTActHr   / ttMachineProductivity.xxTotActHrs
+            ttMachineProductivity.downTimePct    = ttMachineProductivity.xxDTActHr   / ttMachineProductivity.xxTotActHrs * 100
             .
+        IF ttMachineProductivity.msfPerHr       EQ ? THEN ttMachineProductivity.msfPerHr       = 0.
         IF ttMachineProductivity.sqFtPerSetup   EQ ? THEN ttMachineProductivity.sqFtPerSetup   = 0.
+        IF ttMachineProductivity.sqFtPiece      EQ ? THEN ttMachineProductivity.sqFtPiece      = 0.
         IF ttMachineProductivity.manHrPerSqFt   EQ ? THEN ttMachineProductivity.manHrPerSqFt   = 0.
+        IF ttMachineProductivity.piecesPerHr    EQ ? THEN ttMachineProductivity.piecesPerHr    = 0.
+        IF ttMachineProductivity.piecesRunHr    EQ ? THEN ttMachineProductivity.piecesRunHr    = 0.
         IF ttMachineProductivity.piecesPerSetup EQ ? THEN ttMachineProductivity.piecesPerSetup = 0.
         IF ttMachineProductivity.minPerSetup    EQ ? THEN ttMachineProductivity.minPerSetup    = 0.
         IF ttMachineProductivity.avgCrew        EQ ? THEN ttMachineProductivity.avgCrew        = 0.
@@ -1006,6 +1011,7 @@ FUNCTION fMachineProductivity RETURNS HANDLE
   Purpose:  Machine Productivity.rpa
     Notes:  
 ------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttProductionAnalysis.
     EMPTY TEMP-TABLE ttMachineProductivity.
 
     RUN pMachineProductivity (ipcCompany, ipiBatch, ipcUserID).
