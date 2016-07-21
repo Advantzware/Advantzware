@@ -50,9 +50,9 @@ DEF NEW SHARED VAR fil_id AS RECID NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 begin_est end_est begin_cust ~
-end_cust tb_slsmn tb_comm tb_order tb_inv btn-process btn-cancel 
+end_cust tb_slsmn tb_shipto tb_comm tb_order tb_inv btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_est end_est begin_cust end_cust ~
-tb_slsmn tb_comm tb_order tb_inv v-status 
+tb_slsmn tb_shipto tb_comm tb_order tb_inv v-status 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -119,6 +119,11 @@ DEFINE VARIABLE tb_order AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 35 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_shipto AS LOGICAL INITIAL no 
+     LABEL "Update Shipto" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 19 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_slsmn AS LOGICAL INITIAL no 
      LABEL "Update SalesRep?" 
      VIEW-AS TOGGLE-BOX
@@ -136,10 +141,11 @@ DEFINE FRAME DEFAULT-FRAME
           "Enter Beginning Customer Number"
      end_cust AT ROW 4.33 COL 67 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     tb_slsmn AT ROW 6 COL 31
-     tb_comm AT ROW 7.19 COL 31
-     tb_order AT ROW 8.38 COL 31 WIDGET-ID 2
-     tb_inv AT ROW 9.57 COL 31 WIDGET-ID 4
+     tb_slsmn AT ROW 6 COL 23.2
+     tb_shipto AT ROW 6.24 COL 61 WIDGET-ID 6
+     tb_comm AT ROW 7.19 COL 23.2
+     tb_order AT ROW 8.38 COL 23.2 WIDGET-ID 2
+     tb_inv AT ROW 9.57 COL 23.2 WIDGET-ID 4
      v-status AT ROW 10.86 COL 1 NO-LABEL
      btn-process AT ROW 12.29 COL 21
      btn-cancel AT ROW 12.29 COL 58
@@ -149,7 +155,7 @@ DEFINE FRAME DEFAULT-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 88 BY 12.76.
+         SIZE 86.8 BY 13.57.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -169,8 +175,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Update Estimates/Quotes for Sales Rep/Commission"
-         HEIGHT             = 12.76
-         WIDTH              = 88
+         HEIGHT             = 13.57
+         WIDTH              = 86.8
          MAX-HEIGHT         = 20
          MAX-WIDTH          = 90
          VIRTUAL-HEIGHT     = 20
@@ -341,11 +347,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_est end_est begin_cust end_cust tb_slsmn tb_comm tb_order tb_inv 
-          v-status 
+  DISPLAY begin_est end_est begin_cust end_cust tb_slsmn tb_shipto tb_comm 
+          tb_order tb_inv v-status 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-17 begin_est end_est begin_cust end_cust tb_slsmn tb_comm 
-         tb_order tb_inv btn-process btn-cancel 
+  ENABLE RECT-17 begin_est end_est begin_cust end_cust tb_slsmn tb_shipto 
+         tb_comm tb_order tb_inv btn-process btn-cancel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
