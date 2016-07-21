@@ -65,7 +65,7 @@ DEFINE BUTTON Select_Add
      IMAGE-UP FILE "Graphics/32x32/plus.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
-     SIZE 7.8 BY 1.81 TOOLTIP "List".
+     SIZE 7.8 BY 1.81 TOOLTIP "Add".
 
 DEFINE BUTTON Select_appl 
      IMAGE-UP FILE "Graphics/32x32/window_gear.png":U
