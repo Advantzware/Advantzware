@@ -211,9 +211,9 @@ PROCEDURE PushPin-Image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-attach THEN
-         SELECT_attvinv:LOAD-IMAGE("Graphics/32x32/pushpin.ico").
+         SELECT_attvinv:LOAD-IMAGE("Graphics/32x32/pin2.ico").
       ELSE
-         SELECT_attvinv:LOAD-IMAGE("Graphics/32x32/pushpiny.ico").
+         SELECT_attvinv:LOAD-IMAGE("Graphics/32x32/pin2_star.ico").
    END.
 END PROCEDURE.
 
