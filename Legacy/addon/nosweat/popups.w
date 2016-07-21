@@ -147,10 +147,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-
-IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 

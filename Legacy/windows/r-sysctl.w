@@ -258,6 +258,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
