@@ -10,41 +10,41 @@ DEF VAR cSide AS CHAR NO-UNDO.
 {jcrep/r-ticket.i "shared"}
 {cerep\tt-samp-ctn.i}
 
-def new shared var save_id as recid.
-def new shared var v-today as date init today.
-def new shared var v-job as char format "x(6)" extent 2 init [" ","zzzzzz"].
-def new shared var v-job2 as int format "99" extent 2 init [00,99].
-def new shared var v-stypart like style.dscr.
-def new shared var v-dsc like oe-ordl.part-dscr1 extent 2.
-def new shared var v-size as char format "x(26)" extent 2.
-def new shared var v-bld-job like oe-ord.job-no.
-def new shared var v-bld-job2 like oe-ord.job-no2.
-def new shared var v-fill as char format "x(128)".
-def new shared var v-frst as log.
-def new shared var v-ok as log.
-def new shared var v-est-qty as int format "->>,>>>,>>9".
-def new shared var v-job-qty as int format "->>,>>>,>>9".
-def new shared var v-fac as DEC .
-def new shared var v-job-no like oe-ordl.job-no.
-def new shared var v-job-no2 like oe-ordl.job-no2.
-def new shared var v-due-date like oe-ord.due-date.
-def new shared var v-reprint as log.
-def new shared var v-up like eb.num-up.
-def new shared var v-tandem as log.
-def new shared var v-form-no like eb.form-no.
-def new shared var v-fup as char.
-def new shared var v-layout as char format "x(30)".
+DEF NEW SHARED VAR save_id AS RECID.
+DEF NEW SHARED VAR v-today AS DATE INIT TODAY.
+DEF NEW SHARED VAR v-job AS CHAR FORMAT "x(6)" EXTENT 2 INIT [" ","zzzzzz"].
+DEF NEW SHARED VAR v-job2 AS INT FORMAT "99" EXTENT 2 INIT [00,99].
+DEF NEW SHARED VAR v-stypart LIKE style.dscr.
+DEF NEW SHARED VAR v-dsc LIKE oe-ordl.part-dscr1 EXTENT 2.
+DEF NEW SHARED VAR v-size AS CHAR FORMAT "x(26)" EXTENT 2.
+DEF NEW SHARED VAR v-bld-job LIKE oe-ord.job-no.
+DEF NEW SHARED VAR v-bld-job2 LIKE oe-ord.job-no2.
+DEF NEW SHARED VAR v-fill AS CHAR FORMAT "x(128)".
+DEF NEW SHARED VAR v-frst AS LOG.
+DEF NEW SHARED VAR v-ok AS LOG.
+DEF NEW SHARED VAR v-est-qty AS INT FORMAT "->>,>>>,>>9".
+DEF NEW SHARED VAR v-job-qty AS INT FORMAT "->>,>>>,>>9".
+DEF NEW SHARED VAR v-fac AS DEC .
+DEF NEW SHARED VAR v-job-no LIKE oe-ordl.job-no.
+DEF NEW SHARED VAR v-job-no2 LIKE oe-ordl.job-no2.
+DEF NEW SHARED VAR v-due-date LIKE oe-ord.due-date.
+DEF NEW SHARED VAR v-reprint AS LOG.
+DEF NEW SHARED VAR v-up LIKE eb.num-up.
+DEF NEW SHARED VAR v-tandem AS LOG.
+DEF NEW SHARED VAR v-form-no LIKE eb.form-no.
+DEF NEW SHARED VAR v-fup AS CHAR.
+DEF NEW SHARED VAR v-layout AS CHAR FORMAT "x(30)".
 DEF VAR v-case-count LIKE eb.cas-cnt NO-UNDO.
 DEF VAR v-case-qty AS INT NO-UNDO.
 DEF VAR v-spc-no LIKE eb.spc-no NO-UNDO.
-def var v-gsh-qty as int no-undo.
-def var v-frm-blk as char format "x(6)" no-undo.
-def var v-dec as dec no-undo.
-def var v-ovund as char format "x(34)" no-undo.
-def var v-mrhr as char format "x(5)".
-def var v-cas-dscr like item.est-dscr.
-def var v-first as log no-undo.
-def var v-spec-list as char format "x(20)"init "QA" no-undo.
+DEF VAR v-gsh-qty AS INT NO-UNDO.
+DEF VAR v-frm-blk AS CHAR FORMAT "x(6)" NO-UNDO.
+DEF VAR v-dec AS DEC NO-UNDO.
+DEF VAR v-ovund AS CHAR FORMAT "x(34)" NO-UNDO.
+DEF VAR v-mrhr AS CHAR FORMAT "x(5)".
+DEF VAR v-cas-dscr LIKE item.est-dscr.
+DEF VAR v-first AS LOG NO-UNDO.
+DEF VAR v-spec-list AS CHAR FORMAT "x(20)"INIT "QA" NO-UNDO.
 DEF VAR lv-form-note AS cha NO-UNDO.
 DEF VAR v-itm-printed AS INT NO-UNDO.
 DEF VAR v-prep AS cha EXTENT 8 NO-UNDO.
@@ -87,87 +87,87 @@ DEF BUFFER b-cust FOR cust.
 DEF BUFFER b-rt FOR reftable.
 DEF BUFFER ref-side FOR reftable.
 
-def TEMP-TABLE w-lo NO-UNDO
-  field layout like v-layout.
+DEF TEMP-TABLE w-lo NO-UNDO
+  FIELD layout LIKE v-layout.
 
-def new shared buffer xjob-hdr for job-hdr.
+DEF NEW SHARED BUFFER xjob-hdr FOR job-hdr.
 
-def buffer b-eb for eb.
+DEF BUFFER b-eb FOR eb.
 
-def new shared workfile wrk-op
-  field m-dscr like est-op.m-dscr
-  field m-code like est-op.m-code
-  field d-seq like est-op.d-seq
-  field dept like est-op.dept
-  field b-num like est-op.b-num
-  field s-num like est-op.s-num
-  field pass like est-op.op-pass
-  field mr like est-op.op-mr extent 100
-  field speed like est-op.op-speed extent 100
-  field run-hr like job-mch.run-hr extent 100
-  field num-sh like est-op.num-sh extent 100
+DEF NEW SHARED WORKFILE wrk-op
+  FIELD m-dscr LIKE est-op.m-dscr
+  FIELD m-code LIKE est-op.m-code
+  FIELD d-seq LIKE est-op.d-seq
+  FIELD dept LIKE est-op.dept
+  FIELD b-num LIKE est-op.b-num
+  FIELD s-num LIKE est-op.s-num
+  FIELD pass LIKE est-op.op-pass
+  FIELD mr LIKE est-op.op-mr EXTENT 100
+  FIELD speed LIKE est-op.op-speed EXTENT 100
+  FIELD run-hr LIKE job-mch.run-hr EXTENT 100
+  FIELD num-sh LIKE est-op.num-sh EXTENT 100
   FIELD spoil LIKE job-mch.wst-prct EXTENT 20
   FIELD mr-waste LIKE job-mch.mr-waste EXTENT 20    .
 
-def new shared workfile wrk-die
-  field die-no like eb.die-no
+DEF NEW SHARED WORKFILE wrk-die
+  FIELD die-no LIKE eb.die-no
   FIELD cad-no LIKE eb.cad-no
-  field form-no like eb.form-no
-  field die-size as char format "x(17)".
+  FIELD form-no LIKE eb.form-no
+  FIELD die-size AS CHAR FORMAT "x(17)".
 
-def new shared workfile wrk-sheet
+DEF NEW SHARED WORKFILE wrk-sheet
   /*field gsh-qty like ef.gsh-qty*/
-  field gsh-qty AS INT  FORMAT "->>>,>>>,>>9" /* gdm - 12180809*/
-  field cal like ef.cal
+  FIELD gsh-qty AS INT  FORMAT "->>>,>>>,>>9" /* gdm - 12180809*/
+  FIELD cal LIKE ef.cal
   FIELD i-no LIKE ITEM.i-no
-  field brd-dscr like ef.brd-dscr
-  field form-no like ef.form-no
-  field sh-wid like ef.nsh-len
-  field sh-len like ef.nsh-wid.
+  FIELD brd-dscr LIKE ef.brd-dscr
+  FIELD form-no LIKE ef.form-no
+  FIELD sh-wid LIKE ef.nsh-len
+  FIELD sh-len LIKE ef.nsh-wid.
 
-def new shared workfile wrk-film
-  field form-no like ef.form-no
-  field snum as int format "99"
-  field bnum as int format "99"
-  field leaf as char format "x(10)"
-  field leaf-l as dec format ">9.9999"
-  field leaf-w as dec format ">9.9999".
+DEF NEW SHARED WORKFILE wrk-film
+  FIELD form-no LIKE ef.form-no
+  FIELD snum AS INT FORMAT "99"
+  FIELD bnum AS INT FORMAT "99"
+  FIELD leaf AS CHAR FORMAT "x(10)"
+  FIELD leaf-l AS DEC FORMAT ">9.9999"
+  FIELD leaf-w AS DEC FORMAT ">9.9999".
 
-def new shared workfile wrk-ink
-  field i-code as char format "x(10)"
-  field form-no like eb.form-no
-  field blank-no like eb.blank-no
-  field i-dscr as char format "x(20)"
-  field i-qty as dec format ">,>>9.9<"
-  field i-pass as DEC
+DEF NEW SHARED WORKFILE wrk-ink
+  FIELD i-code AS CHAR FORMAT "x(10)"
+  FIELD form-no LIKE eb.form-no
+  FIELD blank-no LIKE eb.blank-no
+  FIELD i-dscr AS CHAR FORMAT "x(20)"
+  FIELD i-qty AS DEC FORMAT ">,>>9.9<"
+  FIELD i-pass AS DEC
   FIELD i-unit AS INT
   FIELD i-side AS CHAR.
 
-def new shared workfile wrk-prep
-  field code like est-prep.code
-  field dscr like est-prep.dscr
-  field s-num as int format "99"
-  field b-num as int format "99"
-  field ml like est-prep.ml.
+DEF NEW SHARED WORKFILE wrk-prep
+  FIELD code LIKE est-prep.code
+  FIELD dscr LIKE est-prep.dscr
+  FIELD s-num AS INT FORMAT "99"
+  FIELD b-num AS INT FORMAT "99"
+  FIELD ml LIKE est-prep.ml.
 
-def new shared workfile wrk-spec
-  field form-no like ef.form-no
-  field spec-no as char format "x(10)"
-  field dscr as char format "x(20)"
-  field qty as dec format ">>>9.9<<<"
-  field uom as char format "x(3)".
+DEF NEW SHARED WORKFILE wrk-spec
+  FIELD form-no LIKE ef.form-no
+  FIELD spec-no AS CHAR FORMAT "x(10)"
+  FIELD dscr AS CHAR FORMAT "x(20)"
+  FIELD qty AS DEC FORMAT ">>>9.9<<<"
+  FIELD uom AS CHAR FORMAT "x(3)".
 
-def new shared workfile wrk-inst
-  field d-seq like dept.fc
-  field dscr like est-inst.dscr
-  field line like est-inst.line-no
-  field rec-id as recid.
+DEF NEW SHARED WORKFILE wrk-inst
+  FIELD d-seq LIKE dept.fc
+  FIELD dscr LIKE est-inst.dscr
+  FIELD line LIKE est-inst.line-no
+  FIELD rec-id AS RECID.
 
-def new shared workfile wrk-misc
-  field form-no like ef.form-no
-  field snum as int format "99"
-  field bnum as int format "99"
-  field cost as char format "x(20)".
+DEF NEW SHARED WORKFILE wrk-misc
+  FIELD form-no LIKE ef.form-no
+  FIELD snum AS INT FORMAT "99"
+  FIELD bnum AS INT FORMAT "99"
+  FIELD cost AS CHAR FORMAT "x(20)".
   
 {custom/formtext.i NEW}     
 {custom/notesdef.i}
@@ -230,7 +230,7 @@ DEFINE VARIABLE v-print-feet AS DECIMAL FORMAT "->>>,>>>,>>9.99"   NO-UNDO.
 
 v-fill = "<||3><C2><FROM><C108><LINE><||3>".
 
-def new shared frame head.
+DEF NEW SHARED FRAME head.
 
 DEF SHARED VAR s-prt-mstandard AS LOG NO-UNDO.
 DEF SHARED VAR s-prt-shipto AS LOG NO-UNDO.
@@ -261,60 +261,60 @@ cDraftImageFull = IF lDraft
                     THEN  "<C25><#1><R+80><C+50><IMAGE#1=" + FILE-INFO:FULL-PATHNAME + ">" 
                     ELSE "".
 
-format HEADER 
+FORMAT HEADER 
        cDraftImageFull FORMAT "x(100)" SKIP
        "<R1><C68><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(9)" /*v-job-no space(0) "-" space(0) v-job-no2 format "99"*/ ">"
 /*        "<AT=-.5,6.3><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(9)" /*v-job-no space(0) "-" space(0) v-job-no2 format "99"*/ ">" */
-       "<P12><C2><R2>JOB NUMBER:<B>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"      SPACE(1) /* v-reprun   */
+       "<P12><C2><R2>JOB NUMBER:<B>" v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" "</B>"      SPACE(1) /* v-reprun   */
        "CSR:" v-pricnt-id
-       "<C40><R2><B><P12>F A C T O R Y   T I C K E T</B><P10>" at 52  
-       "START DATE:" at 128 v-start-date skip
+       "<C40><R2><B><P12>F A C T O R Y   T I C K E T</B><P10>" AT 52  
+       "START DATE:" AT 128 v-start-date SKIP
        v-fill SKIP
     v-fill
-    with no-box frame head no-labels stream-io width 155.
+    WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 155.
     
 {sys/inc/notes.i}
 
-find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
+FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
 ASSIGN
  v-reprint   = reprint
  v-spec-list = spec-list.
 
 FOR  EACH job-hdr NO-LOCK
-        where job-hdr.company               eq cocode
-          and job-hdr.job-no                EQ ip-job-no
-          and job-hdr.job-no2               EQ ip-job-no2
-          and (production OR
-               job-hdr.ftick-prnt           eq v-reprint OR
+        WHERE job-hdr.company               EQ cocode
+          AND job-hdr.job-no                EQ ip-job-no
+          AND job-hdr.job-no2               EQ ip-job-no2
+          AND (production OR
+               job-hdr.ftick-prnt           EQ v-reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-          and can-find(first job where job.company eq cocode
-                                   and job.job     eq job-hdr.job
-                                   and job.job-no  eq job-hdr.job-no
-                                   and job.job-no2 eq job-hdr.job-no2
+          AND CAN-FIND(FIRST job WHERE job.company EQ cocode
+                                   AND job.job     EQ job-hdr.job
+                                   AND job.job-no  EQ job-hdr.job-no
+                                   AND job.job-no2 EQ job-hdr.job-no2
                                    /*and job.stat    ne "H"*/
                                    AND (job.pr-printed EQ reprint OR
                                         NOT production))
-        use-index job-no,
+        USE-INDEX job-no,
 
-        first est
-        where est.company  eq job-hdr.company
+        FIRST est
+        WHERE est.company  EQ job-hdr.company
           AND est.est-no   EQ job-hdr.est-no
-          and est.est-type LE 4  
-        no-lock
+          AND est.est-type LE 4  
+        NO-LOCK
 
-        break by job-hdr.job
-              by job-hdr.job-no
-              by job-hdr.job-no2
+        BREAK BY job-hdr.job
+              BY job-hdr.job-no
+              BY job-hdr.job-no2
               BY job-hdr.frm:
 
    
-      find first job
-      where job.company eq cocode
-        and job.job     eq job-hdr.job
-        and job.job-no  eq job-hdr.job-no
-        and job.job-no2 eq job-hdr.job-no2
-      no-lock no-error.
+      FIND FIRST job
+      WHERE job.company EQ cocode
+        AND job.job     EQ job-hdr.job
+        AND job.job-no  EQ job-hdr.job-no
+        AND job.job-no2 EQ job-hdr.job-no2
+      NO-LOCK NO-ERROR.
 
       IF production AND
          job.cs-trans-date NE ? THEN DO:
@@ -375,31 +375,31 @@ FOR  EACH job-hdr NO-LOCK
 
       FIND CURRENT job NO-LOCK NO-ERROR.
       
-      v-est-qty = if avail est then est.est-qty[1] else 0.
-      find first oe-ord where oe-ord.company eq job-hdr.company
-                          and oe-ord.ord-no  eq job-hdr.ord-no no-lock no-error.
+      v-est-qty = IF AVAIL est THEN est.est-qty[1] ELSE 0.
+      FIND FIRST oe-ord WHERE oe-ord.company EQ job-hdr.company
+                          AND oe-ord.ord-no  EQ job-hdr.ord-no NO-LOCK NO-ERROR.
 
-      if first-of(job-hdr.frm) then v-first = yes.
+      IF FIRST-OF(job-hdr.frm) THEN v-first = YES.
 
       /** PRINT JOB HEADER **/
-      if v-first then do:
-        assign
+      IF v-first THEN DO:
+        ASSIGN
          v-job-no  = job-hdr.job-no
          v-job-no2 = job-hdr.job-no2
          cJobNo = v-job-no + "-" + string(v-job-no2,"99").
 
-        if avail oe-ord then
-          if not oe-ctrl.p-fact and oe-ord.stat eq "H" then next.
+        IF AVAIL oe-ord THEN
+          IF NOT oe-ctrl.p-fact AND oe-ord.stat EQ "H" THEN NEXT.
 
           FIND FIRST cust WHERE cust.company = job-hdr.company AND
                   cust.cust-no = job-hdr.cust-no NO-LOCK NO-ERROR.
 
-          IF AVAIL cust THEN do:
+          IF AVAIL cust THEN DO:
               ASSIGN v-pricnt-id = "" . 
               FOR EACH empalert WHERE empalert.table_rec_key = cust.rec_key NO-LOCK,
                   FIRST users WHERE users.user_id = empalert.user-id NO-LOCK:
 
-                  IF empalert.spare-char-1 EQ "YES" THEN do:
+                  IF empalert.spare-char-1 EQ "YES" THEN DO:
                       ASSIGN v-pricnt-id = users.USER_id .
                       LEAVE.
                   END.
@@ -410,29 +410,29 @@ FOR  EACH job-hdr NO-LOCK
            /*v-due-date = if avail oe-ord then oe-ord.due-date else ?*/
            v-start-date = job-hdr.start-date.
 
-        if not first(job-hdr.job-no) then page.
+        IF NOT FIRST(job-hdr.job-no) THEN PAGE.
         
         v-shipto = "".
-        find first oe-ordl
-                where oe-ordl.company eq job-hdr.company
-                  and oe-ordl.ord-no  eq job-hdr.ord-no
-                  and oe-ordl.job-no  eq job-hdr.job-no
-                  and oe-ordl.job-no2 eq job-hdr.job-no2
-                  and oe-ordl.i-no    eq job-hdr.i-no
-                no-lock no-error.
+        FIND FIRST oe-ordl
+                WHERE oe-ordl.company EQ job-hdr.company
+                  AND oe-ordl.ord-no  EQ job-hdr.ord-no
+                  AND oe-ordl.job-no  EQ job-hdr.job-no
+                  AND oe-ordl.job-no2 EQ job-hdr.job-no2
+                  AND oe-ordl.i-no    EQ job-hdr.i-no
+                NO-LOCK NO-ERROR.
         IF AVAIL oe-ordl THEN 
-            find first oe-rel
-            where oe-rel.company eq cocode
-              and oe-rel.ord-no  eq oe-ordl.ord-no
-              and oe-rel.i-no    eq oe-ordl.i-no
-              and oe-rel.line    eq oe-ordl.line
-            no-lock no-error.
+            FIND FIRST oe-rel
+            WHERE oe-rel.company EQ cocode
+              AND oe-rel.ord-no  EQ oe-ordl.ord-no
+              AND oe-rel.i-no    EQ oe-ordl.i-no
+              AND oe-rel.line    EQ oe-ordl.line
+            NO-LOCK NO-ERROR.
         ASSIGN 
               v-reprun =  IF AVAIL oe-ordl AND oe-ordl.type-code = "R" THEN "RETURN" 
                           ELSE "NEW" .
         
-        view frame head.
-        if avail oe-rel then do:
+        VIEW FRAME head.
+        IF AVAIL oe-rel THEN DO:
            v-po-no = oe-rel.po-no .
 
            FIND FIRST reftable WHERE
@@ -444,25 +444,25 @@ FOR  EACH job-hdr NO-LOCK
            ELSE
              ASSIGN v-cust-lot# = "".
 
-           find first shipto
-              where shipto.company eq cocode
-                and shipto.cust-no eq oe-rel.cust-no
-                and shipto.ship-id eq oe-rel.ship-id
-              no-lock no-error.  
-          if avail shipto then
+           FIND FIRST shipto
+              WHERE shipto.company EQ cocode
+                AND shipto.cust-no EQ oe-rel.cust-no
+                AND shipto.ship-id EQ oe-rel.ship-id
+              NO-LOCK NO-ERROR.  
+          IF AVAIL shipto THEN
               ASSIGN v-shipto[1] = shipto.ship-name
                      v-shipto[2] = shipto.ship-addr[1]
                      v-shipto[3] = shipto.ship-addr[2]
-                     v-shipto[4] = trim(oe-rel.ship-city) + ", " +
+                     v-shipto[4] = TRIM(oe-rel.ship-city) + ", " +
                                    oe-rel.ship-state + "  " + oe-rel.ship-zip.  
 
-          end.
+          END.
           /* aj */
           icount = 0.
-          FOR EACH b-oe-rel WHERE  b-oe-rel.company eq cocode
-                                AND b-oe-rel.ord-no  eq oe-rel.ord-no
-                                AND b-oe-rel.i-no    eq oe-rel.i-no
-                                AND b-oe-rel.line    eq oe-rel.line  
+          FOR EACH b-oe-rel WHERE  b-oe-rel.company EQ cocode
+                                AND b-oe-rel.ord-no  EQ oe-rel.ord-no
+                                AND b-oe-rel.i-no    EQ oe-rel.i-no
+                                AND b-oe-rel.line    EQ oe-rel.line  
                                 NO-LOCK :
 
              FIND FIRST reftable WHERE
@@ -509,23 +509,23 @@ FOR  EACH job-hdr NO-LOCK
            v-cust-name = IF AVAIL oe-ord THEN oe-ord.cust-name 
                          ELSE IF AVAIL cust THEN cust.name
                          ELSE job-hdr.cust-no
-           lv-over-run = IF AVAIL oe-ordl THEN trim(string(oe-ordl.over-pct,">>9.99")) ELSE
-                         IF AVAIL oe-ord  THEN trim(string(oe-ord.over-pct,">>9.99"))  ELSE ""
-           lv-under-run = IF AVAIL oe-ordl THEN trim(string(oe-ordl.under-pct,">>9.99")) ELSE
-                          IF AVAIL oe-ord  THEN trim(string(oe-ord.under-pct,">>9.99"))  ELSE ""
-           v-due-date = if avail oe-ordl then oe-ordl.prom-date else ? .
+           lv-over-run = IF AVAIL oe-ordl THEN TRIM(STRING(oe-ordl.over-pct,">>9.99")) ELSE
+                         IF AVAIL oe-ord  THEN TRIM(STRING(oe-ord.over-pct,">>9.99"))  ELSE ""
+           lv-under-run = IF AVAIL oe-ordl THEN TRIM(STRING(oe-ordl.under-pct,">>9.99")) ELSE
+                          IF AVAIL oe-ord  THEN TRIM(STRING(oe-ord.under-pct,">>9.99"))  ELSE ""
+           v-due-date = IF AVAIL oe-ordl THEN oe-ordl.prom-date ELSE ? .
             IF AVAIL oe-ord THEN
             v-per-ord   = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2 ELSE STRING(oe-ord.pord-no) .
             IF AVAIL oe-ord AND oe-ord.TYPE EQ "T" AND oe-ord.pord-no GT 0 THEN
                v-per-ord = STRING(oe-ord.pord-no).
       
-       FIND first eb WHERE eb.company     EQ job-hdr.company
-                        AND eb.est-no      eq job-hdr.est-no
-                        and eb.form-no     eq job-hdr.frm
+       FIND FIRST eb WHERE eb.company     EQ job-hdr.company
+                        AND eb.est-no      EQ job-hdr.est-no
+                        AND eb.form-no     EQ job-hdr.frm
                         AND eb.stock-no = job-hdr.i-no NO-LOCK NO-ERROR.
-        IF NOT AVAIL eb THEN FIND first eb WHERE eb.company     EQ job-hdr.company
-                        AND eb.est-no      eq job-hdr.est-no
-                        and eb.form-no     eq job-hdr.frm
+        IF NOT AVAIL eb THEN FIND FIRST eb WHERE eb.company     EQ job-hdr.company
+                        AND eb.est-no      EQ job-hdr.est-no
+                        AND eb.form-no     EQ job-hdr.frm
                         AND eb.blank-no > 0 NO-LOCK NO-ERROR.
         v-spc-no = IF AVAIL eb THEN eb.spc-no ELSE "".
         v-upc-no = IF AVAIL eb THEN eb.upc-no ELSE "".
@@ -533,49 +533,49 @@ FOR  EACH job-hdr NO-LOCK
         PUT "<B> Customer Name:</B>" v-cust-name FORM "x(25)" "<B>Acct Code:</B> " job-hdr.cust-no 
             "<B> REL. DATE:    QTY DUE:  PO#:         Customer Lot#:    Print Date:" SKIP
             " Shipto:</B>" v-shipto[1] SPACE(2) "Prev.Ord#:" v-per-ord v-ship-date[1] AT 65 v-due-qty[1] AT 75  v-po-no[1] FORMAT "x(12)" AT 89 v-cust-lot#[1] AT 102 FORM "x(15)" TODAY FORMAT "99/99/9999" AT 120 SKIP  
-            v-shipto[2] AT 9 SPACE(2) "MFG DATE:" v-due-date v-ship-date[2] AT 61 v-due-qty[2] AT 71 v-po-no[2] FORM "x(12)" AT 85 v-cust-lot#[2] AT 98 FORM "x(15)"  string(TIME,"HH:MM am/pm") AT 115 " by " USERID("nosweat")   SKIP  
-            v-shipto[3] AT 9 "<B>QC/SPC#</B>:" AT 41 v-spc-no  FORM "x(10)" space(2) v-ship-date[3] space(2) 
-            v-due-qty[3] space(3) v-po-no[3] FORM "x(12)" SPACE(1) v-cust-lot#[3] FORM "x(15)" SPACE(3) "<B>Estimate:</B>" /*AT 116*/  SKIP 
+            v-shipto[2] AT 9 SPACE(2) "MFG DATE:" v-due-date v-ship-date[2] AT 61 v-due-qty[2] AT 71 v-po-no[2] FORM "x(12)" AT 85 v-cust-lot#[2] AT 98 FORM "x(15)"  STRING(TIME,"HH:MM am/pm") AT 115 " by " USERID("nosweat")   SKIP  
+            v-shipto[3] AT 9 "<B>QC/SPC#</B>:" AT 41 v-spc-no  FORM "x(10)" SPACE(2) v-ship-date[3] SPACE(2) 
+            v-due-qty[3] SPACE(3) v-po-no[3] FORM "x(12)" SPACE(1) v-cust-lot#[3] FORM "x(15)" SPACE(3) "<B>Estimate:</B>" /*AT 116*/  SKIP 
             v-shipto[4] AT 9 "Pharma Code:" AT 41 v-upc-no  /*v-ship-date[4] AT 61 v-due-qty[4] AT 71 v-po-no[4] FORM "x(12)" AT 85 v-cust-lot#[4]  AT 98 FORM "x(15)"*/ TRIM(job-hdr.est-no) AT 116 SKIP 
             v-fill SKIP.
 
         /** SUM UP NUMBER OF SHEETS **/
-        find first job
-            where job.company eq cocode
-              and job.job     eq job-hdr.job
-              and job.job-no  eq v-job-no
-              and job.job-no2 eq v-job-no2
-            no-lock no-error.
+        FIND FIRST job
+            WHERE job.company EQ cocode
+              AND job.job     EQ job-hdr.job
+              AND job.job-no  EQ v-job-no
+              AND job.job-no2 EQ v-job-no2
+            NO-LOCK NO-ERROR.
             
-        if avail job then
-        for each job-mch
-            where job-mch.company eq cocode
-              and job-mch.job     eq job.job
-              and job-mch.job-no  eq job.job-no
-              and job-mch.job-no2 eq job.job-no2
+        IF AVAIL job THEN
+        FOR EACH job-mch
+            WHERE job-mch.company EQ cocode
+              AND job-mch.job     EQ job.job
+              AND job-mch.job-no  EQ job.job-no
+              AND job-mch.job-no2 EQ job.job-no2
               AND job-mch.frm = job-hdr.frm
-            no-lock,
+            NO-LOCK,
 
-            first mach
+            FIRST mach
             {sys/ref/machW.i}
-              and mach.m-code eq job-mch.m-code
-            no-lock
+              AND mach.m-code EQ job-mch.m-code
+            NO-LOCK
 
-            by mach.d-seq
-            by job-mch.frm
-            by job-mch.blank-no
-            by job-mch.pass
-            by job-mch.run-qty desc:
+            BY mach.d-seq
+            BY job-mch.frm
+            BY job-mch.blank-no
+            BY job-mch.pass
+            BY job-mch.run-qty DESC:
 
-          find first wrk-op
-              where wrk-op.m-code eq job-mch.m-code
-                and wrk-op.s-num  eq job-mch.frm
-               and wrk-op.b-num  eq job-mch.blank-no
-                and wrk-op.pass   eq job-mch.pass 
-              no-error.
-          if not avail wrk-op then do:
-            create wrk-op.
-            assign
+          FIND FIRST wrk-op
+              WHERE wrk-op.m-code EQ job-mch.m-code
+                AND wrk-op.s-num  EQ job-mch.frm
+               AND wrk-op.b-num  EQ job-mch.blank-no
+                AND wrk-op.pass   EQ job-mch.pass 
+              NO-ERROR.
+          IF NOT AVAIL wrk-op THEN DO:
+            CREATE wrk-op.
+            ASSIGN
              wrk-op.m-code = job-mch.m-code
              wrk-op.m-dscr = mach.m-dscr
              wrk-op.d-seq  = mach.d-seq
@@ -583,143 +583,143 @@ FOR  EACH job-hdr NO-LOCK
              wrk-op.s-num  = job-mch.frm
              wrk-op.b-num  = job-mch.blank-no
              wrk-op.pass   = job-mch.pass.
-          end.
-          assign
+          END.
+          ASSIGN
            wrk-op.mr[job-mch.frm]     = job-mch.mr-hr
            wrk-op.speed[job-mch.frm]  = job-mch.speed
            wrk-op.num-sh[job-mch.frm] = job-mch.run-qty
            wrk-op.spoil[job-mch.frm] = job-mch.wst-prct   
            wrk-op.mr-waste[job-mch.frm] = job-mch.mr-waste  
            wrk-op.run-hr[job-mch.frm] = job-mch.run-hr    .
-        end.
+        END.
 
         /** BUILD PREP WORK FILE **/
-        for each job-prep
-            where job-prep.company eq cocode
-              and job-prep.job     eq job-hdr.job
-              and job-prep.job-no  eq job-hdr.job-no
-              and job-prep.job-no2 eq job-hdr.job-no2
-            no-lock:
-          find first prep
-              where prep.company eq cocode
-                and prep.code    eq job-prep.code
-              no-lock no-error.
-          create wrk-prep.
-          assign
+        FOR EACH job-prep
+            WHERE job-prep.company EQ cocode
+              AND job-prep.job     EQ job-hdr.job
+              AND job-prep.job-no  EQ job-hdr.job-no
+              AND job-prep.job-no2 EQ job-hdr.job-no2
+            NO-LOCK:
+          FIND FIRST prep
+              WHERE prep.company EQ cocode
+                AND prep.code    EQ job-prep.code
+              NO-LOCK NO-ERROR.
+          CREATE wrk-prep.
+          ASSIGN
            wrk-prep.code = job-prep.code
-           wrk-prep.dscr = if avail prep then prep.dscr else ""
+           wrk-prep.dscr = IF AVAIL prep THEN prep.dscr ELSE ""
            wrk-prep.s-num = job-prep.frm
            wrk-prep.b-num = job-prep.blank-no
            wrk-prep.ml = job-prep.ml.
-        end. /* each job-prep */
+        END. /* each job-prep */
 
-        if avail est then
-        for each est-prep
-            where est-prep.company eq est.company
-              AND est-prep.est-no  eq est.est-no
-              and index("SON",est-prep.simon) gt 0
-            no-lock:
-          find first prep
-              where prep.company eq cocode
-                and prep.code    eq est-prep.code
-              no-lock no-error.
-          create wrk-prep.
-          assign
+        IF AVAIL est THEN
+        FOR EACH est-prep
+            WHERE est-prep.company EQ est.company
+              AND est-prep.est-no  EQ est.est-no
+              AND index("SON",est-prep.simon) GT 0
+            NO-LOCK:
+          FIND FIRST prep
+              WHERE prep.company EQ cocode
+                AND prep.code    EQ est-prep.code
+              NO-LOCK NO-ERROR.
+          CREATE wrk-prep.
+          ASSIGN
            wrk-prep.code  = est-prep.code
-           wrk-prep.dscr  = if avail prep then prep.dscr else ""
+           wrk-prep.dscr  = IF AVAIL prep THEN prep.dscr ELSE ""
            wrk-prep.s-num = est-prep.s-num
            wrk-prep.b-num = est-prep.b-num
            wrk-prep.ml    = est-prep.ml.
-        end.
+        END.
 
-        if avail oe-ord then
-        for each oe-ordm 
-            where oe-ordm.company eq cocode
-              and oe-ordm.ord-no  eq oe-ord.ord-no
-            no-lock:
-          find first wrk-prep where wrk-prep.code eq oe-ordm.charge no-error.
-          if not avail wrk-prep then do:
-            find first prep
-                where prep.company eq cocode
-                  and prep.code    eq oe-ordm.charge
-                no-lock no-error.
-            create wrk-prep.
-            assign
+        IF AVAIL oe-ord THEN
+        FOR EACH oe-ordm 
+            WHERE oe-ordm.company EQ cocode
+              AND oe-ordm.ord-no  EQ oe-ord.ord-no
+            NO-LOCK:
+          FIND FIRST wrk-prep WHERE wrk-prep.code EQ oe-ordm.charge NO-ERROR.
+          IF NOT AVAIL wrk-prep THEN DO:
+            FIND FIRST prep
+                WHERE prep.company EQ cocode
+                  AND prep.code    EQ oe-ordm.charge
+                NO-LOCK NO-ERROR.
+            CREATE wrk-prep.
+            ASSIGN
              wrk-prep.code  = oe-ordm.charge
-             wrk-prep.dscr  = if avail prep then prep.dscr else ""
+             wrk-prep.dscr  = IF AVAIL prep THEN prep.dscr ELSE ""
              wrk-prep.s-num = 9
              wrk-prep.b-num = 99
-             wrk-prep.ml    = if avail prep then prep.ml else ?.
-          end.
-        end.
+             wrk-prep.ml    = IF AVAIL prep THEN prep.ml ELSE ?.
+          END.
+        END.
       
 
-      for each ef
+      FOR EACH ef
           WHERE ef.company EQ job-hdr.company
             AND ef.est-no  EQ job-hdr.est-no
             AND ef.form-no = job-hdr.frm
-          break by ef.est-no by ef.form-no:
+          BREAK BY ef.est-no BY ef.form-no:
           
 
         v-job-qty = 0.
-        for each xjob-hdr FIELDS(qty)
-            where xjob-hdr.company eq cocode
-              and xjob-hdr.job     eq job-hdr.job
-              and xjob-hdr.job-no  eq job-hdr.job-no
-              and xjob-hdr.job-no2 eq job-hdr.job-no2
-              and xjob-hdr.i-no    eq job-hdr.i-no
-            no-lock:
+        FOR EACH xjob-hdr FIELDS(qty)
+            WHERE xjob-hdr.company EQ cocode
+              AND xjob-hdr.job     EQ job-hdr.job
+              AND xjob-hdr.job-no  EQ job-hdr.job-no
+              AND xjob-hdr.job-no2 EQ job-hdr.job-no2
+              AND xjob-hdr.i-no    EQ job-hdr.i-no
+            NO-LOCK:
           v-job-qty = v-job-qty + xjob-hdr.qty.
-        end.
+        END.
           
         v-est-qty = 0.
-        if est.est-type eq 4 then
-        for each eb
+        IF est.est-type EQ 4 THEN
+        FOR EACH eb
             WHERE eb.company  EQ ef.company
-              AND eb.est-no   eq ef.est-no
-              and eb.stock-no eq job-hdr.i-no
-            no-lock:
+              AND eb.est-no   EQ ef.est-no
+              AND eb.stock-no EQ job-hdr.i-no
+            NO-LOCK:
           v-est-qty = v-est-qty + eb.yld-qty.
-        end.
+        END.
 
-        else v-fac = 1.
+        ELSE v-fac = 1.
         v-itm-printed = 0.
 
-        if ef.form-no eq job-hdr.frm then ebloop:
-        for each eb
+        IF ef.form-no EQ job-hdr.frm THEN ebloop:
+        FOR EACH eb
             WHERE eb.company     EQ ef.company
-              AND eb.est-no      eq ef.est-no
-              and eb.form-no     eq ef.form-no
+              AND eb.est-no      EQ ef.est-no
+              AND eb.form-no     EQ ef.form-no
               NO-LOCK
-            break by eb.form-no BY eb.blank-no.
+            BREAK BY eb.form-no BY eb.blank-no.
 
-          create w-lo.
-          for each b-eb
+          CREATE w-lo.
+          FOR EACH b-eb
               WHERE b-eb.company EQ eb.company
-                AND b-eb.est-no  eq eb.est-no
-                and b-eb.part-no eq eb.part-no
-              no-lock break by b-eb.est-no:
-            v-fup = "F" + trim(string(b-eb.form-no,">>9")) + "-" +
-                    trim(string(b-eb.blank-no,"99")) + "/" +
-                    trim(string(b-eb.num-up,">>9")) + "up".
-            if length(trim(v-fup)) + length(trim(w-lo.layout)) gt 30 then do:
-              substr(w-lo.layout,length(trim(w-lo.layout)),1) = "".
-              create w-lo.
-            end.
-            w-lo.layout = trim(w-lo.layout + " " + trim(v-fup) + ",").
-            if last(b-eb.est-no) then
-              substr(w-lo.layout,length(trim(w-lo.layout)),1) = "".
-          end.
+                AND b-eb.est-no  EQ eb.est-no
+                AND b-eb.part-no EQ eb.part-no
+              NO-LOCK BREAK BY b-eb.est-no:
+            v-fup = "F" + trim(STRING(b-eb.form-no,">>9")) + "-" +
+                    trim(STRING(b-eb.blank-no,"99")) + "/" +
+                    trim(STRING(b-eb.num-up,">>9")) + "up".
+            IF LENGTH(TRIM(v-fup)) + length(TRIM(w-lo.layout)) GT 30 THEN DO:
+              substr(w-lo.layout,LENGTH(TRIM(w-lo.layout)),1) = "".
+              CREATE w-lo.
+            END.
+            w-lo.layout = TRIM(w-lo.layout + " " + trim(v-fup) + ",").
+            IF LAST(b-eb.est-no) THEN
+              substr(w-lo.layout,LENGTH(TRIM(w-lo.layout)),1) = "".
+          END.
           
-          find first wrk-die where wrk-die.die-no eq eb.die-no no-error.
-          if not avail wrk-die and eb.die-no gt "" then do:
-            create wrk-die.
-            assign wrk-die.die-no = eb.die-no
+          FIND FIRST wrk-die WHERE wrk-die.die-no EQ eb.die-no NO-ERROR.
+          IF NOT AVAIL wrk-die AND eb.die-no GT "" THEN DO:
+            CREATE wrk-die.
+            ASSIGN wrk-die.die-no = eb.die-no
                    wrk-die.cad-no = eb.cad-no
               wrk-die.form-no = eb.form-no
-              wrk-die.die-size = string(ef.trim-w) + "x" +
+              wrk-die.die-size = STRING(ef.trim-w) + "x" +
               string(ef.trim-l).
-          end.
+          END.
 
           /** BUILD INK WORK FILE **/
           FIND FIRST reftable WHERE
@@ -738,18 +738,18 @@ FOR  EACH job-hdr NO-LOCK
                b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
                NO-LOCK NO-ERROR.
 
-          for each job-mat
-              where job-mat.company eq cocode
-                and job-mat.job     eq job-hdr.job
-                and job-mat.frm     eq eb.form-no
-              no-lock,
-              first item
+          FOR EACH job-mat
+              WHERE job-mat.company EQ cocode
+                AND job-mat.job     EQ job-hdr.job
+                AND job-mat.frm     EQ eb.form-no
+              NO-LOCK,
+              FIRST item
               {sys/look/itemivW.i}
-                and item.i-no eq job-mat.i-no
-              no-lock:
+                AND item.i-no EQ job-mat.i-no
+              NO-LOCK:
 
-            do i = 1 to 20:
-               if eb.i-code2[i] eq job-mat.i-no then do:
+            DO i = 1 TO 20:
+               IF eb.i-code2[i] EQ job-mat.i-no THEN DO:
 
                    cSide = "".
                    IF AVAIL(reftable) THEN
@@ -761,8 +761,8 @@ FOR  EACH job-hdr NO-LOCK
                    NO-ERROR.
                   IF NOT AVAIL wrk-ink THEN DO:
                   
-                    create wrk-ink.
-                    assign
+                    CREATE wrk-ink.
+                    ASSIGN
                      wrk-ink.i-code   = eb.i-code2[i]
                      wrk-ink.form-no  = eb.form-no
                      wrk-ink.blank-no = eb.blank-no
@@ -775,7 +775,7 @@ FOR  EACH job-hdr NO-LOCK
   
                    /* IF AVAIL reftable THEN
                        wrk-ink.i-side = FILL(" ",5) + SUBSTRING(reftable.dscr,i,1).*/
-                    IF i <= 12 THEN do:
+                    IF i <= 12 THEN DO:
                     FIND FIRST ref-side WHERE
                       ref-side.reftable EQ "ce/v-est3.w Unit#"  AND
                       ref-side.company  EQ eb.company AND
@@ -786,7 +786,7 @@ FOR  EACH job-hdr NO-LOCK
                     IF AVAIL ref-side THEN
                         wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i,1).
                   END.
-                  ELSE do:
+                  ELSE DO:
                       FIND FIRST ref-side WHERE
                           ref-side.reftable EQ "ce/v-est3.w Unit#1"  AND
                           ref-side.company  EQ eb.company AND
@@ -801,46 +801,46 @@ FOR  EACH job-hdr NO-LOCK
                     IF wrk-ink.i-unit EQ 0 THEN
                        wrk-ink.i-unit = 1.
                   END.
-               end.
-            end. /* loop i */
+               END.
+            END. /* loop i */
             
-            find first wrk-ink
-                where wrk-ink.i-code    eq job-mat.i-no
-                  and wrk-ink.form-no   eq job-mat.frm
-                  and (wrk-ink.blank-no eq job-mat.blank-no or
-                       est.est-type     eq 4)
-                no-error.
+            FIND FIRST wrk-ink
+                WHERE wrk-ink.i-code    EQ job-mat.i-no
+                  AND wrk-ink.form-no   EQ job-mat.frm
+                  AND (wrk-ink.blank-no EQ job-mat.blank-no OR
+                       est.est-type     EQ 4)
+                NO-ERROR.
                 
-            if not avail wrk-ink                              and
-               (job-mat.blank-no  eq eb.blank-no or
-                (job-mat.blank-no eq 0 and eb.blank-no eq 1)) then do:
-              create wrk-ink.
-              assign
+            IF NOT AVAIL wrk-ink                              AND
+               (job-mat.blank-no  EQ eb.blank-no OR
+                (job-mat.blank-no EQ 0 AND eb.blank-no EQ 1)) THEN DO:
+              CREATE wrk-ink.
+              ASSIGN
                wrk-ink.i-code   = job-mat.i-no
                wrk-ink.form-no  = eb.form-no
                wrk-ink.blank-no = eb.blank-no
                wrk-ink.i-dscr   = item.est-dscr
                wrk-ink.i-pass   = 1
                wrk-ink.i-unit   = 1.
-            end.
-            if avail wrk-ink AND
-               ((est.est-type eq 4 and eb.form-no = job-mat.frm AND eb.blank-no = job-mat.blank-no) OR
+            END.
+            IF AVAIL wrk-ink AND
+               ((est.est-type EQ 4 AND eb.form-no = job-mat.frm AND eb.blank-no = job-mat.blank-no) OR
                  est.est-type <> 4 ) 
-                 then wrk-ink.i-qty = wrk-ink.i-qty + job-mat.qty.            
+                 THEN wrk-ink.i-qty = wrk-ink.i-qty + job-mat.qty.            
             
-          end. /* JOB-MAT */
+          END. /* JOB-MAT */
 
-          if eb.est-type eq 4 then v-fac = eb.yld-qty / v-est-qty.
+          IF eb.est-type EQ 4 THEN v-fac = eb.yld-qty / v-est-qty.
           
-            find first style
-                where style.company eq eb.company
-                  and style.style   eq eb.style
-                no-lock no-error.
-            if avail style then v-stypart = style.dscr.
-            assign
+            FIND FIRST style
+                WHERE style.company EQ eb.company
+                  AND style.style   EQ eb.style
+                NO-LOCK NO-ERROR.
+            IF AVAIL style THEN v-stypart = style.dscr.
+            ASSIGN
              v-dsc[1] = eb.part-dscr1
              v-dsc[2] = eb.part-dscr2
-             v-size[1] = string(eb.len) + "x" + string(eb.wid) + "x" +
+             v-size[1] = STRING(eb.len) + "x" + string(eb.wid) + "x" +
                          string(eb.dep)
              v-size[2] = eb.i-coldscr.
 
@@ -854,51 +854,51 @@ FOR  EACH job-hdr NO-LOCK
                    " F/B         FG Item #       Cust Part #      Artwork #      Description                       Order Qty    MAX QTY    MIN QTY </B>" SKIP.
               
            v-job-qty = 0.
-           for each xjob-hdr fields(qty) where xjob-hdr.company eq cocode
-               and xjob-hdr.job     eq job-hdr.job
-               and xjob-hdr.job-no  eq job-hdr.job-no
-               and xjob-hdr.job-no2 eq job-hdr.job-no2
-               and xjob-hdr.i-no    eq eb.stock no-lock:
+           FOR EACH xjob-hdr FIELDS(qty) WHERE xjob-hdr.company EQ cocode
+               AND xjob-hdr.job     EQ job-hdr.job
+               AND xjob-hdr.job-no  EQ job-hdr.job-no
+               AND xjob-hdr.job-no2 EQ job-hdr.job-no2
+               AND xjob-hdr.i-no    EQ eb.stock NO-LOCK:
                v-job-qty = v-job-qty + xjob-hdr.qty.
-           end.
+           END.
 
            /** PRINT ITEM **/
-           find first oe-ordl
-                where oe-ordl.company eq job-hdr.company
-                  and oe-ordl.ord-no  eq job-hdr.ord-no
-                  and oe-ordl.job-no  eq job-hdr.job-no
-                  and oe-ordl.job-no2 eq job-hdr.job-no2
-                  and oe-ordl.i-no    eq eb.stock-no /*job-hdr.i-no*/
-                no-lock no-error.
+           FIND FIRST oe-ordl
+                WHERE oe-ordl.company EQ job-hdr.company
+                  AND oe-ordl.ord-no  EQ job-hdr.ord-no
+                  AND oe-ordl.job-no  EQ job-hdr.job-no
+                  AND oe-ordl.job-no2 EQ job-hdr.job-no2
+                  AND oe-ordl.i-no    EQ eb.stock-no /*job-hdr.i-no*/
+                NO-LOCK NO-ERROR.
  
-            if avail oe-ordl then do:
+            IF AVAIL oe-ordl THEN DO:
               v-est-qty = oe-ordl.qty.
-              find first oe-ord of oe-ordl no-lock.
-              v-ovund = string("Overrun/Underrun %:  " +
-                               trim(string(oe-ordl.over-pct,">>9.99")) + "/" +
-                               trim(string(oe-ordl.under-pct,">>9.99"))).
+              FIND FIRST oe-ord OF oe-ordl NO-LOCK.
+              v-ovund = STRING("Overrun/Underrun %:  " +
+                               trim(STRING(oe-ordl.over-pct,">>9.99")) + "/" +
+                               trim(STRING(oe-ordl.under-pct,">>9.99"))).
               ASSIGN
                   v-max-qty  = INT ( oe-ordl.qty + oe-ordl.qty * (dec(lv-over-run) / 100) )
                   v-min-qty =  INT ( oe-ordl.qty - oe-ordl.qty * (dec(lv-under-run) / 100)).
-            end.
-            else v-est-qty = v-job-qty.
+            END.
+            ELSE v-est-qty = v-job-qty.
            
-            release w-lo.
-            find first w-lo no-error.
+            RELEASE w-lo.
+            FIND FIRST w-lo NO-ERROR.
             ASSIGN
-            v-case-size = string(eb.cas-len) + "x" + string(eb.cas-wid) + "x" +
+            v-case-size = STRING(eb.cas-len) + "x" + string(eb.cas-wid) + "x" +
                          string(eb.cas-dep)
             v-up = eb.num-up
             v-case-count = IF AVAIL oe-ordl AND oe-ordl.cas-cnt <> 0 THEN oe-ordl.cas-cnt
                            ELSE eb.cas-cnt
-            v-case-qty = round(v-job-qty / v-case-count,0)
+            v-case-qty = ROUND(v-job-qty / v-case-count,0)
             v-itm-printed = v-itm-printed + 1.
 
              FIND FIRST itemfg WHERE itemfg.company = job-hdr.company
                             AND itemfg.i-no = job-hdr.i-no NO-LOCK NO-ERROR.
 
-            display SPACE(1) v-job-no + "-" + trim(string(eb.form-no,">>9")) +
-                    trim(string(eb.blank-no,">>9")) FORM "x(11)" 
+            DISPLAY SPACE(1) v-job-no + "-" + trim(STRING(eb.form-no,">>9")) +
+                    trim(STRING(eb.blank-no,">>9")) FORM "x(11)" 
                     SPACE(1) eb.stock-no @ job-hdr.i-no 
                     (IF AVAIL oe-ordl  THEN oe-ordl.part-no ELSE IF AVAIL itemfg THEN itemfg.part-no ELSE "") FORM "x(15)"   SPACE(1)
                     (IF eb.plate-no <> "" THEN eb.plate-no  ELSE IF AVAIL itemfg THEN itemfg.plate-no ELSE "" ) FORM "x(15)"
@@ -908,10 +908,10 @@ FOR  EACH job-hdr NO-LOCK
                     v-min-qty  format "->,>>>,>>9"
                 with stream-io width 175 no-labels no-box frame line-det1.
 
-            find first item
-                where item.company eq cocode
-                  and item.i-no    eq eb.cas-no
-                no-lock no-error.
+            FIND FIRST item
+                WHERE item.company EQ cocode
+                  AND item.i-no    EQ eb.cas-no
+                NO-LOCK NO-ERROR.
             /* v-cas-dscr = if avail item then item.i-name else "". */
            v-item-desc = IF AVAIL ITEM THEN ITEM.i-name ELSE  "" .  
            /* end. /* last-of(eb.form-no) */      */
@@ -920,7 +920,7 @@ FOR  EACH job-hdr NO-LOCK
              ELSE PUT SKIP(4 - v-itm-printed).
              
              /* Number of sheets ticket1.p - single board, ticket2.p - multi board */
-             run oe/rep/ticket2.p (recid(ef), recid(job-hdr)).
+             RUN oe/rep/ticket2.p (RECID(ef), RECID(job-hdr)).
              /*find first wrk-sheet where recid(wrk-sheet) eq save_id.*/
              IF AVAIL oe-ordl THEN
                FIND FIRST po-ord WHERE po-ord.company = oe-ordl.company
@@ -945,10 +945,10 @@ FOR  EACH job-hdr NO-LOCK
             /** PRINT SHEET **/
              x = 2.
              
-             for each wrk-sheet WHERE wrk-sheet.form-no = ef.form-no  
+             FOR EACH wrk-sheet WHERE wrk-sheet.form-no = ef.form-no  
                  /*break by wrk-sheet.form-no*/ :  
-               find first ITEM where item.company eq cocode
-                                 and item.i-no    eq wrk-sheet.i-no no-lock no-error.
+               FIND FIRST ITEM WHERE item.company EQ cocode
+                                 AND item.i-no    EQ wrk-sheet.i-no NO-LOCK NO-ERROR.
                FIND FIRST job-mat 
                    WHERE job-mat.company EQ cocode 
                      AND job-mat.job-no EQ v-job-no
@@ -957,7 +957,7 @@ FOR  EACH job-hdr NO-LOCK
                      AND job-mat.i-no EQ wrk-sheet.i-no
                    NO-LOCK NO-ERROR.
 
-               FIND first notes WHERE notes.rec_key = job.rec_key AND
+               FIND FIRST notes WHERE notes.rec_key = job.rec_key AND
                                       notes.note_code = "BS" AND
                                       notes.note_form_no = wrk-sheet.form-no NO-LOCK NO-ERROR.
 
@@ -967,7 +967,7 @@ FOR  EACH job-hdr NO-LOCK
                   v-print-feet = (wrk-sheet.gsh-qty * ef.gsh-len) / 12 .
                
                DISPLAY
-                 SPACE(1) trim(wrk-sheet.i-no) FORMAT "X(10)"  SPACE(2)
+                 SPACE(1) TRIM(wrk-sheet.i-no) FORMAT "X(10)"  SPACE(2)
                    ITEM.i-name  FORM "x(23)"  
                    ef.xgrain FORM "x(2)" SPACE(1)
 /*                     v-lbs SPACE(2) */
@@ -975,22 +975,22 @@ FOR  EACH job-hdr NO-LOCK
                   SPACE (1)
                   (IF AVAIL job-mat THEN job-mat.len  ELSE ef.gsh-len) FORMAT ">>9.9999"
                    SPACE(2)
-                  string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(21)" SPACE(1)
+                  STRING(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(21)" SPACE(1)
                   eb.die-no FORMAT "X(15)"  SPACE(1)
                  /* gdm - 12040803 */
                   wrk-sheet.gsh-qty FORMAT "->>,>>>,>>9"  SPACE (1)
                   v-print-feet 
-                  with stream-io width 170 no-labels no-box frame sheet.
+                  WITH STREAM-IO WIDTH 170 NO-LABELS NO-BOX FRAME sheet.
 
                x = 1.
-             end. /* each wrk-sheet */   
+             END. /* each wrk-sheet */   
 
               /** Print Leaf/Film ticket 15459 **/
 
              FOR EACH wrk-film WHERE wrk-film.form-no = ef.form-no
                  /*break by wrk-sheet.form-no*/ NO-LOCK BREAK BY wrk-film.leaf :
-               find first ITEM where item.company eq cocode
-                                 and item.i-no    eq wrk-film.leaf no-lock no-error.
+               FIND FIRST ITEM WHERE item.company EQ cocode
+                                 AND item.i-no    EQ wrk-film.leaf NO-LOCK NO-ERROR.
                 FIND FIRST job-mch WHERE job-mch.company = cocode 
                                       AND job-mch.job = job.job
                    AND job-mch.job-no = job.job-no 
@@ -1001,8 +1001,8 @@ FOR  EACH job-hdr NO-LOCK
                     PUT "<P10>" SKIP
                  "<B> LEAF/FILM CODE  DESCRIPTION                 FORM  BLANK  APERTURE SIZE (W x L)   TOTAL LINEAL FEET   POUNDS     </B>" 
                  SKIP.
-                display 
-                    space(1) wrk-film.leaf FORM "x(15)"
+                DISPLAY 
+                    SPACE(1) wrk-film.leaf FORM "x(15)"
                     (IF AVAIL ITEM THEN ITEM.i-name ELSE "") FORM "x(28)" SPACE(2)
                     wrk-film.snum SPACE(4)
                     wrk-film.bnum SPACE(3)
@@ -1028,12 +1028,12 @@ FOR  EACH job-hdr NO-LOCK
                 v-ink2 = ""
                 v-pass-count = 0.
 
-             for each wrk-ink WHERE wrk-ink.form-no = eb.form-no
-                 break by wrk-ink.i-pass:
+             FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
+                 BREAK BY wrk-ink.i-pass:
                  IF FIRST-OF(wrk-ink.i-pass) THEN v-pass-count = v-pass-count + 1.
              END.
-             for each wrk-ink WHERE wrk-ink.form-no = eb.form-no
-                break by wrk-ink.i-pass
+             FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
+                BREAK BY wrk-ink.i-pass
                       BY wrk-ink.i-code
                       BY wrk-ink.blank-no:
 
@@ -1043,11 +1043,11 @@ FOR  EACH job-hdr NO-LOCK
                 IF FIRST-OF(wrk-ink.i-code) THEN ASSIGN v-item[i] = ""
                                                         v-i-qty[i] = 0.
                 ASSIGN
-                   v-item[i] = IF LOOKUP(string(wrk-ink.blank-no),v-item[i]) > 0 THEN v-item[i] ELSE v-item[i] + string(wrk-ink.blank-no) + ","
+                   v-item[i] = IF LOOKUP(STRING(wrk-ink.blank-no),v-item[i]) > 0 THEN v-item[i] ELSE v-item[i] + string(wrk-ink.blank-no) + ","
                    v-i-qty[i] = v-i-qty[i] + wrk-ink.i-qty.
 
                 /*IF LAST-OF(wrk-ink.i-code) THEN DO:*/
-                    IF SUBSTRING(v-item[i],LENGTH(v-item[i]),1) = "," THEN v-item[i] = substring(v-item[i],1,LENGTH(v-item[i]) - 1).                    
+                    IF SUBSTRING(v-item[i],LENGTH(v-item[i]),1) = "," THEN v-item[i] = SUBSTRING(v-item[i],1,LENGTH(v-item[i]) - 1).                    
                     /*v-alloc = v-item[i].
                     if num-entries(v-item[i]) gt 1 then do:
                        v-alloc = "".
@@ -1150,8 +1150,8 @@ FOR  EACH job-hdr NO-LOCK
 
                 /*END.*/
               
-                delete wrk-ink.
-             end. /* each wrk-ink */
+                DELETE wrk-ink.
+             END. /* each wrk-ink */
 
              ASSIGN
                 v-skip = NO
@@ -1159,11 +1159,11 @@ FOR  EACH job-hdr NO-LOCK
              
              DO j = 1 TO EXTENT(v-ink1):
                 IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
-                IF v-ink1[j] <> "" THEN do:
+                IF v-ink1[j] <> "" THEN DO:
                 /* ASSIGN v-ink1[j] = SUBSTRING(v-ink1[j],1,5) + FILL(" ",7) + TRIM(SUBSTRING(v-ink1[j],6)). */
-                   IF v-skip THEN do:
+                   IF v-skip THEN DO:
                        PUT v-ink1[j] FORM "x(52)" .
-                       IF j = 2 THEN do:
+                       IF j = 2 THEN DO:
                            /*PUT eb.plate-no AT 107.*/
                            v-plate-printed = YES.
                        END.
@@ -1178,9 +1178,9 @@ FOR  EACH job-hdr NO-LOCK
 
              DO j = 1 TO EXTENT(v-ink2):
                 IF TRIM(v-ink2[j]) = "-" THEN v-ink2[j] = "".                 
-                IF v-ink2[j] <> "" THEN do:
-                   IF v-skip THEN PUT space(1) v-ink2[j] FORM "x(52)" SKIP.
-                   ELSE PUT space(1) v-ink2[j] FORM "x(52)".
+                IF v-ink2[j] <> "" THEN DO:
+                   IF v-skip THEN PUT SPACE(1) v-ink2[j] FORM "x(52)" SKIP.
+                   ELSE PUT SPACE(1) v-ink2[j] FORM "x(52)".
                    v-skip = NOT v-skip.
                 END.                
              END.
@@ -1200,13 +1200,13 @@ FOR  EACH job-hdr NO-LOCK
                                 est-op.est-no EQ est.est-no AND
                                 est-op.dept = "SW").
 
-            PUT "<B> UNIT SIZE:  </B>" string(eb.t-len) + " x " + string(eb.t-wid) FORMAT "X(38)"
+            PUT "<B> UNIT SIZE:  </B>" STRING(eb.t-len) + " x " + string(eb.t-wid) FORMAT "X(38)"
                 "  <B>#UP</B> :"   STRING(v-upnew)     "<B>Speed(FPM)        MR</B>" SKIP.
                 
             FOR FIRST wrk-op WHERE
                 wrk-op.s-num = job-hdr.frm AND
                 wrk-op.dept = "PR"
-                BREAK by wrk-op.d-seq by wrk-op.b-num:
+                BREAK BY wrk-op.d-seq BY wrk-op.b-num:
 
                 ASSIGN
                    v-pr-speed = wrk-op.speed[job-hdr.frm]
@@ -1216,7 +1216,7 @@ FOR  EACH job-hdr NO-LOCK
             FOR FIRST wrk-op WHERE
                 wrk-op.s-num = job-hdr.frm AND
                 INDEX("DC,GL",wrk-op.dept) > 0
-                BREAK by wrk-op.d-seq by wrk-op.b-num:
+                BREAK BY wrk-op.d-seq BY wrk-op.b-num:
 
                 v-dc-gl-speed = wrk-op.speed[job-hdr.frm].
             END.
@@ -1224,20 +1224,20 @@ FOR  EACH job-hdr NO-LOCK
             FOR FIRST wrk-op WHERE
                 wrk-op.s-num = job-hdr.frm AND
                 wrk-op.dept = "DC"
-                BREAK by wrk-op.d-seq by wrk-op.b-num:
+                BREAK BY wrk-op.d-seq BY wrk-op.b-num:
 
                 v-dc-gl-speed = wrk-op.speed[job-hdr.frm].
             END.
 
-            FOR EACH est-op fields(n-out m-code d-seq b-num) WHERE
+            FOR EACH est-op FIELDS(n-out m-code d-seq b-num) WHERE
                 est-op.company EQ job-hdr.company AND
                 est-op.est-no EQ est.est-no AND
                 est-op.line < 500
                 NO-LOCK,
-                first mach FIELDS(dept)
+                FIRST mach FIELDS(dept)
                 {sys/ref/machW.i}
-                and mach.m-code eq est-op.m-code
-                no-lock
+                AND mach.m-code EQ est-op.m-code
+                NO-LOCK
                 BY est-op.d-seq BY est-op.b-num:
 
                 IF mach.dept[1] EQ "DC" OR
@@ -1249,15 +1249,15 @@ FOR  EACH job-hdr NO-LOCK
                 
             END.
 
-            FOR EACH est-op fields(n-out m-code d-seq b-num) WHERE
+            FOR EACH est-op FIELDS(n-out m-code d-seq b-num) WHERE
                 est-op.company EQ job-hdr.company AND
                 est-op.est-no EQ est.est-no AND
                 est-op.line < 500
                 NO-LOCK,
-                first mach
+                FIRST mach
                 {sys/ref/machW.i}
-                and mach.m-code eq est-op.m-code
-                no-lock
+                AND mach.m-code EQ est-op.m-code
+                NO-LOCK
                 BY est-op.d-seq BY est-op.b-num:
                     
                 IF INDEX("GL,DC",mach.dept[1]) > 0 OR
@@ -1269,23 +1269,23 @@ FOR  EACH job-hdr NO-LOCK
             END.
 
             IF ef.xgrain NE "B" THEN
-               PUT " <B>#AC:</B>"    string(eb.num-wid)       string(eb.t-wid)  AT 21 v-pr-speed AT 69 v-mr-hours AT 86 SKIP  
-                   " <B>#AR:</B>"    string(eb.num-len)       string(eb.t-len)  AT 21.
+               PUT " <B>#AC:</B>"    STRING(eb.num-wid)       STRING(eb.t-wid)  AT 21 v-pr-speed AT 69 v-mr-hours AT 86 SKIP  
+                   " <B>#AR:</B>"    STRING(eb.num-len)       STRING(eb.t-len)  AT 21.
             ELSE
-               PUT " <B>#AC:</B>"    string(eb.num-wid)       string(eb.t-len)  AT 21 v-pr-speed AT 69 v-mr-hours AT 86 SKIP  
-                   " <B>#AR:</B>"    string(eb.num-len)       string(eb.t-wid)  AT 21.
+               PUT " <B>#AC:</B>"    STRING(eb.num-wid)       STRING(eb.t-len)  AT 21 v-pr-speed AT 69 v-mr-hours AT 86 SKIP  
+                   " <B>#AR:</B>"    STRING(eb.num-len)       STRING(eb.t-wid)  AT 21.
 
-            put v-fill at 1 SKIP "<B><P12> F I N I S H I N G</B><P9>" SKIP.
+            PUT v-fill AT 1 SKIP "<B><P12> F I N I S H I N G</B><P9>" SKIP.
            
-           find item where
-                item.company = eb.company and
-                item.i-no = eb.layer-pad  and
+           FIND item WHERE
+                item.company = eb.company AND
+                item.i-no = eb.layer-pad  AND
                 item.mat-type = "5" 
-                no-lock no-error.
+                NO-LOCK NO-ERROR.
 
            ASSIGN 
-              v-lp-dep = if avail item then ITEM.case-d ELSE 0 
-              v-lp-qty = if avail item THEN ITEM.box-case ELSE 0.
+              v-lp-dep = IF AVAIL item THEN ITEM.case-d ELSE 0 
+              v-lp-qty = IF AVAIL item THEN ITEM.box-case ELSE 0.
 
           /*IF FIRST-OF(eb.form-no) THEN
              PUT 
@@ -1325,8 +1325,7 @@ FOR  EACH job-hdr NO-LOCK
 
           IF AVAIL itemfg THEN
           DO:
-             v-cas-wt = (itemfg.weight-100 / 100) * eb.cas-cnt.
-             RELEASE itemfg.
+             v-cas-wt = (itemfg.weight-100 / 100) * eb.cas-cnt.             
           END.
 
           FIND FIRST tt-sample-ctn WHERE
@@ -1344,7 +1343,7 @@ FOR  EACH job-hdr NO-LOCK
           IF v-dc-out EQ 0 THEN
              v-dc-out = 1.
 
-          PUT "<P9><B> UNIT SIZE   Flat:</B>"  string(eb.t-len) + " x " + string(eb.t-wid * v-dc-only-out)  FORMAT "x(19)"
+          PUT "<P9><B> UNIT SIZE   Flat:</B>"  STRING(eb.t-len) + " x " + string(eb.t-wid * v-dc-only-out)  FORMAT "x(19)"
               "<B>Finished:</B> "  STRING(eb.len) + " x " + string(eb.wid) FORMAT "X(19)"
               "<B>UP#:</B>" v-dc-out SPACE(4)
               "<B>Speed:</B>" v-dc-gl-speed FORMAT "->,>>>,>>9" SPACE(4)
@@ -1352,7 +1351,7 @@ FOR  EACH job-hdr NO-LOCK
 
               "<B> Packaging: " SKIP
               " Tray # </B>" eb.layer-pad FORMAT "x(15)"
-              "<C20><B>Size: </B>"  string(eb.lp-len) + "x" + string(eb.lp-wid) + "x" + string(v-lp-dep)  FORMAT "x(27)"
+              "<C20><B>Size: </B>"  STRING(eb.lp-len) + "x" + string(eb.lp-wid) + "x" + string(v-lp-dep)  FORMAT "x(27)"
               "<C40><B>Qty per tray:</B>"   v-unit-per-int
               "<C60><B># of trays:</B>"  v-lp-qty  FORMAT "->>>>>>9"  SKIP 
 
@@ -1385,39 +1384,39 @@ FOR  EACH job-hdr NO-LOCK
                "<B> Units/Shts UPS: </B>" v-dc-out
                "Pallet"  AT 40 space(1) eb.tr-no
                "Shrink wrap"  AT 116 SPACE (1) v-shrink-wrap.*/
-           put v-fill at 1 skip.
+           PUT v-fill AT 1 SKIP.
              
           END. /* last-of(eb.form-no) */
           
-        end. /* each eb */
-      end. /* each ef */
-      end. /* first job-no */
+        END. /* each eb */
+      END. /* each ef */
+      END. /* first job-no */
 
-      if last-of(job-hdr.frm) then do:
+      IF LAST-OF(job-hdr.frm) THEN DO:
 
          IF s-run-speed THEN
             PUT "<B> MACHINE                 MR WASTE   MR HRS  RUN SPEED   SPOIL%    SHEETS PER MACHINE   </B>" /* SIZE  TOTAL REQUIRED  PALLET*/
                 SKIP.
-         else
+         ELSE
             PUT "<B> MACHINE                 MR WASTE   MR HRS   RUN HOUR    SPOIL%    SHEETS PER MACHINE   </B>"  /* SIZE  TOTAL REQUIRED  PALLET*/
                 SKIP.
 
-         FOR EACH wrk-op WHERE wrk-op.s-num = job-hdr.frm BREAK by wrk-op.d-seq by wrk-op.b-num:
+         FOR EACH wrk-op WHERE wrk-op.s-num = job-hdr.frm BREAK BY wrk-op.d-seq BY wrk-op.b-num:
              v-mat-for-mach = "".
-             IF lookup(wrk-op.dept,lv-mat-dept-list) > 0 THEN DO:
+             IF LOOKUP(wrk-op.dept,lv-mat-dept-list) > 0 THEN DO:
                  
-                FOR EACH xjob-mat WHERE xjob-mat.company eq cocode
-                                       and xjob-mat.job     eq job-hdr.job
-                                       and xjob-mat.job-no  eq job-hdr.job-no
-                                       and xjob-mat.job-no2 eq job-hdr.job-no2
+                FOR EACH xjob-mat WHERE xjob-mat.company EQ cocode
+                                       AND xjob-mat.job     EQ job-hdr.job
+                                       AND xjob-mat.job-no  EQ job-hdr.job-no
+                                       AND xjob-mat.job-no2 EQ job-hdr.job-no2
                                        AND xjob-mat.frm = job-hdr.frm
                                        /*AND (xjob-mat.blank-no = job-hdr.blank-no
                                             OR xjob-mat.blank-no = 0)*/  NO-LOCK,
-                     first ITEM WHERE ITEM.company = cocode AND
+                     FIRST ITEM WHERE ITEM.company = cocode AND
                                       ITEM.i-no = xjob-mat.rm-i-no AND
                                       ITEM.mat-type = SUBSTRING(wrk-op.dept,1,1) NO-LOCK :
                      v-mat-for-mach = /*ITEM.i-name + fill(" ", 33 - LENGTH(ITEM.i-name))  /*"       " */ + */
-                                      string(xjob-mat.wid) + "x" + STRING(xjob-mat.len) +
+                                      STRING(xjob-mat.wid) + "x" + STRING(xjob-mat.len) +
                                       "      " + string(xjob-mat.qty).                   
                      LEAVE.                 
                 END.                            
@@ -1425,14 +1424,14 @@ FOR  EACH job-hdr NO-LOCK
      
 
              IF LAST(wrk-op.d-seq) THEN DO: /* pallet code*/
-                FOR EACH xjob-mat WHERE xjob-mat.company eq cocode
-                                       and xjob-mat.job     eq job-hdr.job
-                                       and xjob-mat.job-no  eq job-hdr.job-no
-                                       and xjob-mat.job-no2 eq job-hdr.job-no2
+                FOR EACH xjob-mat WHERE xjob-mat.company EQ cocode
+                                       AND xjob-mat.job     EQ job-hdr.job
+                                       AND xjob-mat.job-no  EQ job-hdr.job-no
+                                       AND xjob-mat.job-no2 EQ job-hdr.job-no2
                                        AND xjob-mat.frm = job-hdr.frm
                                        AND (xjob-mat.blank-no = job-hdr.blank-no
                                             OR xjob-mat.blank-no = 0) NO-LOCK,
-                     first ITEM WHERE ITEM.company = cocode AND
+                     FIRST ITEM WHERE ITEM.company = cocode AND
                                       ITEM.i-no = xjob-mat.rm-i-no AND 
                                       ITEM.mat-type = "D" NO-LOCK :
                      v-mat-for-mach = v-mat-for-mach +
@@ -1469,7 +1468,7 @@ FOR  EACH job-hdr NO-LOCK
                      wrk-op.num-sh[job-hdr.frm]     SPACE(11)  /* 9 + 9 */
                      /*v-mat-for-mach FORM "x(40)" /*60*/*/
                      SKIP.
-        end. /* each wrk-op*/        
+        END. /* each wrk-op*/        
 
         PUT v-fill AT 1 SKIP.        
         /** PRINT JOB INSTRUCTIONS **/
@@ -1517,7 +1516,7 @@ FOR  EACH job-hdr NO-LOCK
                    IF  i <= 4 THEN v-dept-inst[i] = tt-formtext.tt-text.      
                END.
                IF PAGE-SIZE - LINE-COUNTER < 11 THEN PAGE.
-               IF first(notes.note_code) THEN PUT "<B> DEPARTMENT   INSTRUCTION NOTES</B>" SKIP.
+               IF FIRST(notes.note_code) THEN PUT "<B> DEPARTMENT   INSTRUCTION NOTES</B>" SKIP.
 
                IF v-dept-inst[1] NE "" THEN
                   PUT " " v-dept-inst[1] FORM "x(128)" SKIP.
@@ -1627,30 +1626,30 @@ FOR  EACH job-hdr NO-LOCK
             DELETE tt-fgitm.
         END.
 
-        for each xjob-hdr where xjob-hdr.company eq cocode
-                            and xjob-hdr.job     eq job-hdr.job
-                            and xjob-hdr.job-no  eq job-hdr.job-no
-                            and xjob-hdr.job-no2 eq job-hdr.job-no2
-                            and xjob-hdr.frm     eq job-hdr.frm NO-LOCK BY xjob-hdr.blank-no:
+        FOR EACH xjob-hdr WHERE xjob-hdr.company EQ cocode
+                            AND xjob-hdr.job     EQ job-hdr.job
+                            AND xjob-hdr.job-no  EQ job-hdr.job-no
+                            AND xjob-hdr.job-no2 EQ job-hdr.job-no2
+                            AND xjob-hdr.frm     EQ job-hdr.frm NO-LOCK BY xjob-hdr.blank-no:
            
-           find first xoe-ordl
-                where xoe-ordl.company eq xjob-hdr.company
-                  and xoe-ordl.ord-no  eq xjob-hdr.ord-no
-                  and xoe-ordl.job-no  eq xjob-hdr.job-no
-                  and xoe-ordl.job-no2 eq xjob-hdr.job-no2
-                  and xoe-ordl.i-no    eq xjob-hdr.i-no
-                  no-lock no-error.
+           FIND FIRST xoe-ordl
+                WHERE xoe-ordl.company EQ xjob-hdr.company
+                  AND xoe-ordl.ord-no  EQ xjob-hdr.ord-no
+                  AND xoe-ordl.job-no  EQ xjob-hdr.job-no
+                  AND xoe-ordl.job-no2 EQ xjob-hdr.job-no2
+                  AND xoe-ordl.i-no    EQ xjob-hdr.i-no
+                  NO-LOCK NO-ERROR.
            IF AVAIL xoe-ordl THEN v-fgqty[i] = xoe-ordl.cas-cnt.
            
            FIND FIRST b-eb WHERE b-eb.company EQ xjob-hdr.company
-                             AND b-eb.est-no  eq xjob-hdr.est-no
+                             AND b-eb.est-no  EQ xjob-hdr.est-no
                              AND b-eb.form-no = xjob-hdr.frm
                              AND b-eb.blank-no = xjob-hdr.blank-no
                              AND b-eb.stock-no = xjob-hdr.i-no
                              NO-LOCK NO-ERROR.
            IF NOT AVAIL b-eb THEN 
                FIND FIRST b-eb WHERE b-eb.company EQ xjob-hdr.company
-                             AND b-eb.est-no  eq xjob-hdr.est-no
+                             AND b-eb.est-no  EQ xjob-hdr.est-no
                              AND b-eb.form-no = xjob-hdr.frm
                              AND b-eb.stock-no = xjob-hdr.i-no
                              NO-LOCK NO-ERROR.
@@ -1664,7 +1663,7 @@ FOR  EACH job-hdr NO-LOCK
                   i = i + 1.
 
            FIND FIRST b-est WHERE
-                b-est.company  eq xjob-hdr.company AND
+                b-est.company  EQ xjob-hdr.company AND
                 b-est.est-no   EQ xjob-hdr.est-no
                 NO-LOCK NO-ERROR.
 
@@ -1680,33 +1679,33 @@ FOR  EACH job-hdr NO-LOCK
                  tt-fgitm.cust-name = b-cust.NAME.
 
                  FIND FIRST b-oe-ordl WHERE
-                      b-oe-ordl.company eq xjob-hdr.company AND
-                      b-oe-ordl.ord-no  eq xjob-hdr.ord-no AND
-                      b-oe-ordl.job-no  eq xjob-hdr.job-no AND
-                      b-oe-ordl.job-no2 eq xjob-hdr.job-no2 AND
-                      b-oe-ordl.i-no    eq xjob-hdr.i-no
-                      no-lock no-error.
+                      b-oe-ordl.company EQ xjob-hdr.company AND
+                      b-oe-ordl.ord-no  EQ xjob-hdr.ord-no AND
+                      b-oe-ordl.job-no  EQ xjob-hdr.job-no AND
+                      b-oe-ordl.job-no2 EQ xjob-hdr.job-no2 AND
+                      b-oe-ordl.i-no    EQ xjob-hdr.i-no
+                      NO-LOCK NO-ERROR.
 
                  IF AVAIL b-oe-ordl THEN 
-                    find first b-oe-rel WHERE
-                         b-oe-rel.company eq cocode AND
-                         b-oe-rel.ord-no  eq b-oe-ordl.ord-no AND
-                         b-oe-rel.i-no    eq b-oe-ordl.i-no AND
-                         b-oe-rel.line    eq b-oe-ordl.LINE
-                         no-lock no-error.
+                    FIND FIRST b-oe-rel WHERE
+                         b-oe-rel.company EQ cocode AND
+                         b-oe-rel.ord-no  EQ b-oe-ordl.ord-no AND
+                         b-oe-rel.i-no    EQ b-oe-ordl.i-no AND
+                         b-oe-rel.line    EQ b-oe-ordl.LINE
+                         NO-LOCK NO-ERROR.
 
-                  if avail b-oe-rel then do:
-                     find first b-shipto WHERE
-                          b-shipto.company eq cocode AND
-                          b-shipto.cust-no eq b-oe-rel.cust-no AND
-                          b-shipto.ship-id eq b-oe-rel.ship-id
-                          no-lock no-error.  
+                  IF AVAIL b-oe-rel THEN DO:
+                     FIND FIRST b-shipto WHERE
+                          b-shipto.company EQ cocode AND
+                          b-shipto.cust-no EQ b-oe-rel.cust-no AND
+                          b-shipto.ship-id EQ b-oe-rel.ship-id
+                          NO-LOCK NO-ERROR.  
                  
-                    if avail b-shipto then
+                    IF AVAIL b-shipto THEN
                         ASSIGN
                           tt-fgitm.shipto1 = b-shipto.ship-name
                           tt-fgitm.shipto2 = b-shipto.ship-addr[1]
-                          tt-fgitm.shipto4 = trim(b-oe-rel.ship-city) + ", " +
+                          tt-fgitm.shipto4 = TRIM(b-oe-rel.ship-city) + ", " +
                                              b-oe-rel.ship-state + "  " + b-oe-rel.ship-zip.
                  
                         RELEASE b-cust.
@@ -1762,9 +1761,9 @@ ELSE  DO:
                v-shipto1[4] = v-ship4-extent[2]
                v-shipto2[4] = v-ship4-extent[3].
 
-            display v-fill skip
-               "<B><U>LABEL ITEM" + trim(string(j - 2)) + "</U>"  FORM "x(22)"
-               "<U>LABEL ITEM" + trim(string(j - 1)) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 55
+            DISPLAY v-fill SKIP
+               "<B><U>LABEL ITEM" + trim(STRING(j - 2)) + "</U>"  FORM "x(22)"
+               "<U>LABEL ITEM" + trim(STRING(j - 1)) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 55
                "<U>LABEL ITEM" + TRIM(STRING(j)) + "</U></B>" FORM "x(23)" WHEN v-fgitm[3] <> "" AT 107
                SKIP
                "Job#:" v-job-no + "-" + string(v-job-no2)
@@ -1850,9 +1849,9 @@ ELSE  DO:
                v-shipto1[4] = v-ship4-extent[2]
                v-shipto2[4] = v-ship4-extent[3].
 
-            display v-fill skip
-               "<B><U>LABEL ITEM" + trim(string(v-last-j + 1)) + "</U>"  FORM "x(22)"
-               "<U>LABEL ITEM" + trim(string(v-last-j + 2)) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 55
+            DISPLAY v-fill SKIP
+               "<B><U>LABEL ITEM" + trim(STRING(v-last-j + 1)) + "</U>"  FORM "x(22)"
+               "<U>LABEL ITEM" + trim(STRING(v-last-j + 2)) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 55
                "<U>LABEL ITEM" + TRIM(STRING(v-last-j + 3)) + "</U></B>" FORM "x(23)" WHEN v-fgitm[3] <> "" AT 107
                SKIP
                "Job#:" v-job-no + "-" + string(v-job-no2)
@@ -1898,41 +1897,41 @@ ELSE  DO:
           END. /* i <= 3 */
 END. /* s-prt-label*/           
         PAGE.
-      end. /* last-of job-hdr.frm */
+      END. /* last-of job-hdr.frm */
 
       /** PRINT MULT COPIES OF TICKETS **/
-      save_id = recid(job-hdr).
-      if last-of(job-hdr.job-no2) then do:
-        for each wrk-op:
-          delete wrk-op.
-        end.
-        for each wrk-prep:
-          delete wrk-prep.
-        end.
-      end.
+      save_id = RECID(job-hdr).
+      IF LAST-OF(job-hdr.job-no2) THEN DO:
+        FOR EACH wrk-op:
+          DELETE wrk-op.
+        END.
+        FOR EACH wrk-prep:
+          DELETE wrk-prep.
+        END.
+      END.
 
-      for each wrk-spec:
-        delete wrk-spec.
-      end.
-      for each wrk-film:
-        delete wrk-film.
-      end.
-      for each wrk-die:
-        delete wrk-die.
-      end.
-      for each wrk-sheet:
-        delete wrk-sheet.
-      end.
-      for each wrk-misc:
-        delete wrk-misc.
-      end.
-      for each wrk-inst:
-        delete wrk-inst.
-      end.
+      FOR EACH wrk-spec:
+        DELETE wrk-spec.
+      END.
+      FOR EACH wrk-film:
+        DELETE wrk-film.
+      END.
+      FOR EACH wrk-die:
+        DELETE wrk-die.
+      END.
+      FOR EACH wrk-sheet:
+        DELETE wrk-sheet.
+      END.
+      FOR EACH wrk-misc:
+        DELETE wrk-misc.
+      END.
+      FOR EACH wrk-inst:
+        DELETE wrk-inst.
+      END.
       
-      v-first = no.
+      v-first = NO.
 
-end. /* for first job-hdr */  
+END. /* for first job-hdr */  
     
 /*     if v-format eq "Fibre" then page. */
 
