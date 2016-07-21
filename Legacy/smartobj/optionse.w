@@ -70,7 +70,7 @@ DEFINE BUTTON Select_add
 DEFINE BUTTON Select_appl 
      IMAGE-UP FILE "Graphics/32x32/window_gear.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Util_appl" 
+     LABEL "Run App" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_dept 
@@ -106,7 +106,7 @@ DEFINE BUTTON Select_list
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "spec_note" 
+     LABEL "Spec Note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
 
 
@@ -218,7 +218,7 @@ END.
 
 &Scoped-define SELF-NAME Select_appl
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_appl s-object
-ON CHOOSE OF Select_appl IN FRAME F-Main /* Util_appl */
+ON CHOOSE OF Select_appl IN FRAME F-Main /* Run App */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
@@ -322,7 +322,7 @@ END.
 
 &Scoped-define SELF-NAME Select_spec
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_spec s-object
-ON CHOOSE OF Select_spec IN FRAME F-Main /* spec_note */
+ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
 DO:
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
@@ -451,9 +451,9 @@ PROCEDURE Spec-Book-Image :
    DO WITH FRAME {&FRAME-NAME}:
 
       IF NOT ip-log THEN
-         SELECT_spec:LOAD-IMAGE("images/dict.png").
+         SELECT_spec:LOAD-IMAGE("Graphics/32x32/open_book.png").
       ELSE
-         SELECT_spec:LOAD-IMAGE("images/dicta.png").
+         SELECT_spec:LOAD-IMAGE("Graphics/32x32/open_book_star.png").
    END.
 END PROCEDURE.
 

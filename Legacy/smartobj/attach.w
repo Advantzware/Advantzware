@@ -184,7 +184,7 @@ END.
 &ENDIF
 
 IF INDEX(PROGRAM-NAME(3),"windows/cust") > 0 THEN
-   SELECT_att:LOAD-IMAGE("images\pushpin.png").
+   SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2.png").
 
 RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 
@@ -223,9 +223,9 @@ PROCEDURE Paper-Clip-Image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-attach THEN
-         SELECT_att:LOAD-IMAGE("images/clip.png").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/paperclip.png").
       ELSE
-         SELECT_att:LOAD-IMAGE("images/clipa.png").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/paperclip_star.png").
    END.
 END PROCEDURE.
 
@@ -243,9 +243,9 @@ PROCEDURE pushpin-image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-attach THEN
-         SELECT_att:LOAD-IMAGE("images/pushpin.png").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2.png").
       ELSE
-         SELECT_att:LOAD-IMAGE("images/pushpiny.png").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2_star.png").
    END.
 END PROCEDURE.
 

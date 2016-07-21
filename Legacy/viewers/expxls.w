@@ -138,6 +138,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -255,6 +256,7 @@ DO:
           ELSE
               RUN jcrep/r-jobexl.w.   /*Task# 08111405*/
          END.
+    { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */

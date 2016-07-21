@@ -144,7 +144,7 @@ DEFINE BUTTON btn_cancel AUTO-END-KEY
 
 DEFINE BUTTON btn_itemfg 
      IMAGE-UP FILE "Graphics/32x32/plus.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "&Cancel" 
+     LABEL "&Add" 
      SIZE 11 BY 1.8.
 
 DEFINE VARIABLE part-no AS CHARACTER FORMAT "x(15)" 
