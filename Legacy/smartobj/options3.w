@@ -46,7 +46,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_dept Select_Add Select_att ~
+&Scoped-Define ENABLED-OBJECTS Select_Add Select_dept Select_att ~
 Select_spec Select_frac Select_appl Select_help Select_Home 
 
 /* Custom List Definitions                                              */
@@ -65,12 +65,12 @@ DEFINE BUTTON Select_Add
      IMAGE-UP FILE "Graphics/32x32/plus.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
-     SIZE 7.8 BY 1.81 TOOLTIP "List".
+     SIZE 7.8 BY 1.81 TOOLTIP "Add".
 
 DEFINE BUTTON Select_appl 
      IMAGE-UP FILE "Graphics/32x32/window_gear.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Util_appl" 
+     LABEL "Run App" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_att 
@@ -106,15 +106,15 @@ DEFINE BUTTON Select_Home
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "spec_note" 
+     LABEL "Spec Note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Select_dept AT ROW 1 COL 16.8
      Select_Add AT ROW 1 COL 1
+     Select_dept AT ROW 1 COL 16.8
      Select_att AT ROW 1 COL 8.8
      Select_spec AT ROW 1 COL 25
      Select_frac AT ROW 1 COL 57
@@ -212,7 +212,7 @@ END.
 
 &Scoped-define SELF-NAME Select_appl
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_appl s-object
-ON CHOOSE OF Select_appl IN FRAME F-Main /* Util_appl */
+ON CHOOSE OF Select_appl IN FRAME F-Main /* Run App */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
@@ -253,7 +253,7 @@ END.
 
 &Scoped-define SELF-NAME Select_frac
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_frac s-object
-ON CHOOSE OF Select_frac IN FRAME F-Main /* Calculate */
+ON CHOOSE OF Select_frac IN FRAME F-Main
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
@@ -286,7 +286,7 @@ END.
 
 &Scoped-define SELF-NAME Select_spec
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_spec s-object
-ON CHOOSE OF Select_spec IN FRAME F-Main /* spec_note */
+ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
 DO:
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 

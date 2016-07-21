@@ -81,7 +81,8 @@ SESSION:SET-WAIT-STATE('').
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnViewLog btnClose edTrans edLocks 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 btnViewLog btnClose edTrans ~
+edLocks 
 &Scoped-Define DISPLAYED-OBJECTS edTrans edLocks 
 
 /* Custom List Definitions                                              */
@@ -107,36 +108,46 @@ DEFINE BUTTON btnClose
      SIZE 15 BY 1.43.
 
 DEFINE BUTTON btnViewLog 
-     LABEL "&View Locks" 
-     SIZE 15 BY 1.43.
+     LABEL "&View / Refresh Locks" 
+     SIZE 23 BY 1.43.
 
 DEFINE VARIABLE edLocks AS CHARACTER 
-     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
      SIZE 62 BY 5 NO-UNDO.
 
 DEFINE VARIABLE edTrans AS CHARACTER 
-     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-     SIZE 62 BY 4.29 NO-UNDO.
+     VIEW-AS EDITOR
+     SIZE 62 BY 5 NO-UNDO.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 65 BY 5.95.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 65 BY 6.19.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
      btnViewLog AT ROW 1.48 COL 5 WIDGET-ID 6
-     btnClose AT ROW 1.52 COL 25 HELP
+     btnClose AT ROW 1.48 COL 47.8 HELP
           "Close TCP/IP Server Process"
-     edTrans AT ROW 4.81 COL 3 NO-LABEL WIDGET-ID 16
-     edLocks AT ROW 10.52 COL 3 NO-LABEL WIDGET-ID 18
+     edTrans AT ROW 4.57 COL 4 NO-LABEL WIDGET-ID 16
+     edLocks AT ROW 11.95 COL 4 NO-LABEL WIDGET-ID 18
      "Transaction When Red" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 4.33 COL 3 WIDGET-ID 20
-          BGCOLOR 15 
+          SIZE 26 BY .62 AT ROW 3.71 COL 4.2 WIDGET-ID 20
+          FGCOLOR 9 
      "Locking Records When Red" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 10.05 COL 3 WIDGET-ID 22
-          BGCOLOR 15 
+          SIZE 30 BY .62 AT ROW 10.91 COL 4.2 WIDGET-ID 22
+          FGCOLOR 9 
+     RECT-1 AT ROW 4.1 COL 3 WIDGET-ID 24
+     RECT-2 AT ROW 11.24 COL 3 WIDGET-ID 26
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 66.4 BY 14.71.
+         SIZE 72 BY 17.62.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -156,8 +167,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Transaction Monitor"
-         HEIGHT             = 14.71
-         WIDTH              = 66.4
+         HEIGHT             = 17.62
+         WIDTH              = 72
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -217,14 +228,15 @@ THEN C-Win:HIDDEN = no.
 
 CREATE CONTROL-FRAME CtrlFrame ASSIGN
        FRAME           = FRAME DEFAULT-FRAME:HANDLE
-       ROW             = 1.24
-       COLUMN          = 40
+       ROW             = 3.38
+       COLUMN          = 43
        HEIGHT          = 4.76
        WIDTH           = 20
        WIDGET-ID       = 4
        HIDDEN          = yes
        SENSITIVE       = yes.
 /* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
+      CtrlFrame:MOVE-AFTER(btnClose:HANDLE IN FRAME DEFAULT-FRAME).
 
 &ENDIF
 
@@ -272,7 +284,7 @@ END.
 
 &Scoped-define SELF-NAME btnViewLog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnViewLog C-Win
-ON CHOOSE OF btnViewLog IN FRAME DEFAULT-FRAME /* View Locks */
+ON CHOOSE OF btnViewLog IN FRAME DEFAULT-FRAME /* View / Refresh Locks */
 DO:
   DEFINE VARIABLE cLockDisplayLine AS CHARACTER NO-UNDO.
   edLocks:SCREEN-VALUE = "".
@@ -420,7 +432,7 @@ PROCEDURE enable_UI :
   RUN control_load.
   DISPLAY edTrans edLocks 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnViewLog btnClose edTrans edLocks 
+  ENABLE RECT-1 RECT-2 btnViewLog btnClose edTrans edLocks 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -461,15 +473,22 @@ DO WITH FRAME {&frame-name}:
     ENABLE edTrans edLocks.
     edTrans:SENSITIVE = TRUE.
     IF lIsTrans THEN 
-      ASSIGN edTrans:BGCOLOR = 12  .
+      ASSIGN edTrans:BGCOLOR = 12  
+             edTrans:SCREEN-VALUE = "In a Transaction".
     ELSE
-      edTrans:BGCOLOR = ?.
+      ASSIGN edTrans:BGCOLOR = 10
+             edTrans:SCREEN-VALUE = "None".
     RUN system/checkLocks.p (INPUT TABLE tt-allLocks BY-REFERENCE, OUTPUT lIsLocks).
     edLocks:SENSITIVE = TRUE.
     IF lIsLocks THEN 
-      edLocks:BGCOLOR = 12.
-    ELSE
-      edLocks:BGCOLOR = ?.
+      ASSIGN edLocks:BGCOLOR = 12
+             edLocks:SCREEN-VALUE = "Records Locked".
+    ELSE DO: 
+      ASSIGN
+        edLocks:BGCOLOR = 10
+        edLocks:SCREEN-VALUE = "None"
+      .
+    END.
 END.
 END PROCEDURE.
 
