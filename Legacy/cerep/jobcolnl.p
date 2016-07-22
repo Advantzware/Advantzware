@@ -1269,7 +1269,6 @@ for each job-hdr NO-LOCK
           IF AVAIL itemfg THEN
           DO:
              v-cas-wt = (itemfg.weight-100 / 100) * eb.cas-cnt.
-             RELEASE itemfg.
           END.
 
           FIND FIRST tt-sample-ctn WHERE
@@ -1300,9 +1299,9 @@ for each job-hdr NO-LOCK
               eb.cas-no FORMAT "X(15)" AT 54 /* cases# */
               eb.cas-cnt AT 77  /* qty per case */
               eb.tr-no   AT 90 /* Pallet */ 
-              (IF AVAIL itemfg THEN itemfg.prod-no ELSE "") FORMAT "X(15)" AT 106 /* packing spacs*/ SKIP .
-
-
+              (IF AVAIL itemfg THEN itemfg.prod-not ELSE "") FORMAT "X(20)" AT 106 /* packing spacs*/ SKIP .
+               
+              RELEASE itemfg.
          /* PUT " Flat" "Finished"  AT 22 "Tray#" AT 33 eb.layer-pad FORMAT "x(10)"
                string(eb.lp-len) + "x" + string(eb.lp-wid) + "x" + string(v-lp-dep)  FORMAT "x(27)" AT 49
                v-unit-per-int   AT 76

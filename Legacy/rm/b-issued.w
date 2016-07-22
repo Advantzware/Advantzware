@@ -3507,19 +3507,6 @@ PROCEDURE valid-tag :
        RETURN ERROR.
     END.
   END.
-  ELSE DO:
-      IF(rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "") THEN DO:
-          FIND FIRST loadtag WHERE loadtag.company = g_company
-              AND loadtag.item-type = YES
-              AND loadtag.tag-no = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
-          IF NOT AVAIL loadtag THEN DO:
-              MESSAGE "Invalid Tag#. Try help or Scan valid tag#..." VIEW-AS ALERT-BOX ERROR.
-              rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = ''.
-              APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}.
-              RETURN ERROR.
-          END.
-      END.
-  END.
 
 END PROCEDURE.
 

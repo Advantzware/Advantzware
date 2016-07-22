@@ -53,7 +53,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -92,9 +92,9 @@ oe-boll.b-no eq oe-bolh.b-no NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table browse-order auto_find ~
-Btn_Clear_Find RECT-23 RECT-4 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-23 RECT-4 browse-order ~
+auto_find Btn_Clear_Find li-cost 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find li-cost 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -118,6 +118,11 @@ DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 49 BY 1 NO-UNDO.
 
+DEFINE VARIABLE li-cost AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Cost" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
@@ -125,11 +130,11 @@ DEFINE VARIABLE browse-order AS INTEGER
      SIZE 54 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-23
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 143 BY 8.57.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 137 BY 1.43.
 
 /* Query definitions                                                    */
@@ -195,10 +200,11 @@ DEFINE FRAME F-Main
           "Enter Auto Find Value"
      Btn_Clear_Find AT ROW 8.62 COL 121 HELP
           "CLEAR AUTO FIND Value"
-     RECT-23 AT ROW 1 COL 1
-     RECT-4 AT ROW 8.38 COL 1
+     li-cost AT ROW 8.62 COL 128.4 COLON-ALIGNED WIDGET-ID 2
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 8.62 COL 2
+     RECT-23 AT ROW 1 COL 1
+     RECT-4 AT ROW 8.38 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -257,8 +263,8 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -282,27 +288,27 @@ ASSIGN
 oe-boll.b-no eq oe-bolh.b-no"
      _FldNameList[1]   = ASI.oe-boll.ord-no
      _FldNameList[2]   > ASI.oe-boll.po-no
-"oe-boll.po-no" "PO No" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"oe-boll.po-no" "PO No" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-boll.i-no
-"oe-boll.i-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"oe-boll.i-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-boll.tag
-"oe-boll.tag" "Tag" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"oe-boll.tag" "Tag" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-boll.loc
-"oe-boll.loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"oe-boll.loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-boll.loc-bin
-"oe-boll.loc-bin" "Bin Loc." ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"oe-boll.loc-bin" "Bin Loc." ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.oe-boll.cases
-"oe-boll.cases" "Units" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"oe-boll.cases" "Units" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-boll.qty-case
-"oe-boll.qty-case" "Qty/Unit" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"oe-boll.qty-case" "Qty/Unit" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-boll.partial
-"oe-boll.partial" "Partial" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"oe-boll.partial" "Partial" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-boll.job-no
-"oe-boll.job-no" "Job No" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"oe-boll.job-no" "Job No" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.oe-boll.job-no2
-"oe-boll.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"oe-boll.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-boll.p-c
-"oe-boll.p-c" "P/C" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
+"oe-boll.p-c" "P/C" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

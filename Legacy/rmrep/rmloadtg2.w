@@ -37,7 +37,7 @@ DEFINE INPUT PARAMETER ip-tag-no AS CHAR NO-UNDO.
 DEFINE INPUT PARAMETER ip-ret-qty AS DEC NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEF VAR list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE correct-error AS LOGICAL NO-UNDO.
 
@@ -51,27 +51,27 @@ DEFINE VARIABLE correct-error AS LOGICAL NO-UNDO.
 
 {sys/inc/var.i new shared}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
 DEF VAR lines-per-page AS INT NO-UNDO.
 
-DEF var save_id AS RECID.
+DEF VAR save_id AS RECID.
 
-DEF var time_stamp AS ch.
-ASSIGN time_stamp = string(TIME, "hh:mmam").
+DEF VAR time_stamp AS ch.
+ASSIGN time_stamp = STRING(TIME, "hh:mmam").
 
-DEF var v-fpo-no AS int FORMAT ">>>>>>" extent 2 no-undo.
-def var v-orders as char format "x(78)" extent 10.
-DEF var v-fitem AS char FORMAT "x(15)" extent 2 init ["","zzzzzzzzzzzzzzz"].
-DEF var v-po-no-source AS char FORMAT "!" init "R".
-def var v-stat as char format "!" init "O".
+DEF VAR v-fpo-no AS INT FORMAT ">>>>>>" EXTENT 2 NO-UNDO.
+DEF VAR v-orders AS CHAR FORMAT "x(78)" EXTENT 10.
+DEF VAR v-fitem AS CHAR FORMAT "x(15)" EXTENT 2 INIT ["","zzzzzzzzzzzzzzz"].
+DEF VAR v-po-no-source AS CHAR FORMAT "!" INIT "R".
+DEF VAR v-stat AS CHAR FORMAT "!" INIT "O".
 
-DEF var v-out AS char FORMAT "x(40)" NO-UNDO.
-DEF var v-job AS char FORMAT "x(9)" NO-UNDO.
-DEF var num-rec AS int init 0 NO-UNDO.
-DEF var by-release AS log init NO NO-UNDO.
+DEF VAR v-out AS CHAR FORMAT "x(40)" NO-UNDO.
+DEF VAR v-job AS CHAR FORMAT "x(9)" NO-UNDO.
+DEF VAR num-rec AS INT INIT 0 NO-UNDO.
+DEF VAR by-release AS LOG INIT NO NO-UNDO.
 DEF VAR lv-rd_print  AS CHAR NO-UNDO.
 
 /* 9812 CAH: */
@@ -86,23 +86,23 @@ DEF VAR v-bin     AS CHAR NO-UNDO. /* sys ctrl cption */
 DEF VAR ext-cost  AS DEC  NO-UNDO.
 
 /* 9812 CAH: Variables for Intermec Support */
-def var stx as char format 'x(01)' no-undo initial "~002".
-def var etx as char format 'x(01)' no-undo initial "~003".
-def var esc as char format 'x(01)' no-undo initial "~033".
-def var etb as char format 'x(01)' no-undo initial "~027".
-def var cr  as char format 'x(01)' no-undo initial "~015".
-def var can as char format 'x(01)' no-undo initial "~030".
-def var rs  as char format 'x(01)' no-undo initial "~036".
-def var us  as char format 'x(01)' no-undo initial "~037".
+DEF VAR stx AS CHAR FORMAT 'x(01)' NO-UNDO INITIAL "~002".
+DEF VAR etx AS CHAR FORMAT 'x(01)' NO-UNDO INITIAL "~003".
+DEF VAR esc AS CHAR FORMAT 'x(01)' NO-UNDO INITIAL "~033".
+DEF VAR etb AS CHAR FORMAT 'x(01)' NO-UNDO INITIAL "~027".
+DEF VAR cr  AS CHAR FORMAT 'x(01)' NO-UNDO INITIAL "~015".
+DEF VAR can AS CHAR FORMAT 'x(01)' NO-UNDO INITIAL "~030".
+DEF VAR rs  AS CHAR FORMAT 'x(01)' NO-UNDO INITIAL "~036".
+DEF VAR us  AS CHAR FORMAT 'x(01)' NO-UNDO INITIAL "~037".
 
-def stream s-form.
-def stream s-bar.
+DEF STREAM s-form.
+DEF STREAM s-bar.
 
-def var form_fid        as char no-undo initial "barcode.frm" FORMAT "X(40)".
-def var form#           as int  no-undo format "9" initial 3.
-def var char_units      as char no-undo.
-def var copy_count      as int no-undo initial 2.
-def var n               as int no-undo initial 0.
+DEF VAR form_fid        AS CHAR NO-UNDO INITIAL "barcode.frm" FORMAT "X(40)".
+DEF VAR form#           AS INT  NO-UNDO FORMAT "9" INITIAL 3.
+DEF VAR char_units      AS CHAR NO-UNDO.
+DEF VAR copy_count      AS INT NO-UNDO INITIAL 2.
+DEF VAR n               AS INT NO-UNDO INITIAL 0.
 DEF VAR v-avgcost AS LOG NO-UNDO.
 {rm/avgcost.i}
 
@@ -271,12 +271,12 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 104 BY 14.29.
 
-DEFINE VARIABLE reprintTag AS LOGICAL INITIAL yes 
+DEFINE VARIABLE reprintTag AS LOGICAL INITIAL YES 
      LABEL "&Reprint Tag" 
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_16ths AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_16ths AS LOGICAL INITIAL NO 
      LABEL "Show LWD in 16ths?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY 1 NO-UNDO.
@@ -353,15 +353,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 105
          VIRTUAL-HEIGHT     = 16.33
          VIRTUAL-WIDTH      = 105
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -471,7 +471,7 @@ ASSIGN
        v-po-list:RETURN-INSERTED IN FRAME FRAME-A  = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -512,18 +512,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_filename C-Win
 ON LEAVE OF begin_filename IN FRAME FRAME-A /* Form File */
 DO:
-  assign begin_filename.
+  ASSIGN begin_filename.
   
-  if begin_filename gt "" and lastkey ne -1 then do:
-    if search(begin_filename) eq ? then do:
-      message "Form file does not exist"
-              view-as alert-box error.
-      return no-apply.
-    end.
+  IF begin_filename GT "" AND LASTKEY NE -1 THEN DO:
+    IF SEARCH(begin_filename) EQ ? THEN DO:
+      MESSAGE "Form file does not exist"
+              VIEW-AS ALERT-BOX ERROR.
+      RETURN NO-APPLY.
+    END.
     
-    begin_filename = search(begin_filename).
-    display begin_filename WITH FRAME FRAME-A IN WINDOW C-Win.
-  end.
+    begin_filename = SEARCH(begin_filename).
+    DISPLAY begin_filename WITH FRAME FRAME-A IN WINDOW C-Win.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -534,11 +534,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_form C-Win
 ON LEAVE OF begin_form IN FRAME FRAME-A /* Printer Form# */
 DO:
-  assign begin_form.
+  ASSIGN begin_form.
   
   begin_filename = "barcode" + string(begin_form) + ".frm".
   
-  display begin_filename WITH FRAME FRAME-A IN WINDOW C-Win.
+  DISPLAY begin_filename WITH FRAME FRAME-A IN WINDOW C-Win.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -549,7 +549,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -626,7 +626,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_16ths C-Win
 ON VALUE-CHANGED OF tb_16ths IN FRAME FRAME-A /* Show LWD in 16ths? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1382,7 +1382,7 @@ PROCEDURE output-to-file :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
   
-  if init-dir = "" then init-dir = "c:\temp" .
+  IF init-dir = "" THEN init-dir = "c:\temp" .
   SYSTEM-DIALOG GET-FILE list-name
       TITLE      "Enter Listing Name to SAVE AS ..."
       FILTERS    "Listing Files (*.rpt)" "*.rpt",
@@ -1667,7 +1667,9 @@ PROCEDURE reprintTag :
   IF AVAILABLE po-ordl THEN
   RELEASE po-ordl.
   IF AVAILABLE po-ord THEN
-  FIND po-ordl OF po-ord NO-LOCK WHERE po-ordl.i-no EQ loadtag.i-no NO-ERROR.
+  FIND FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ po-ord.company
+   AND po-ordl.po-no EQ po-ord.po-no
+   AND po-ordl.i-no EQ loadtag.i-no NO-ERROR.
   
   FIND cust NO-LOCK WHERE cust.company EQ po-ord.company
                       AND cust.cust-no EQ po-ord.cust-no NO-ERROR.
@@ -1867,9 +1869,9 @@ PROCEDURE run-report :
   END.
 
   IF v-po-list NE "" AND 
-     (asc(SUBSTRING(v-po-list,LENGTH(v-po-list),1)) = 10 OR
+     (ASC(SUBSTRING(v-po-list,LENGTH(v-po-list),1)) = 10 OR
      asc(SUBSTRING(v-po-list,LENGTH(v-po-list),1)) = 13 )
-  THEN v-po-list = subSTRING(v-po-list,1,LENGTH(v-po-list) - 1).
+  THEN v-po-list = SUBSTRING(v-po-list,1,LENGTH(v-po-list) - 1).
 
   DO i = 1 TO NUM-ENTRIES(v-po-list).
     lv-po-no = INT(ENTRY(i,v-po-list)) NO-ERROR.
@@ -2015,62 +2017,62 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEF VAR lv-frame-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field2-hdl AS HANDLE NO-UNDO.
+  DEF VAR parm-fld-list AS cha NO-UNDO.
+  DEF VAR parm-lbl-list AS cha NO-UNDO.
+  DEF VAR i AS INT NO-UNDO.
+  DEF VAR lv-label AS cha.
   
-  lv-frame-hdl = frame {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:first-child.
-  lv-field-hdl = lv-group-hdl:first-child .
+  lv-frame-hdl = FRAME {&frame-name}:handle.
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
   
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+        THEN DO:
+           IF lv-field-hdl:LABEL <> ? THEN 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
                      .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
                      .
-              lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
 
-  put space(28)
+  PUT SPACE(28)
       "< Selection Parameters >"
-      skip(1).
+      SKIP(1).
   
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR
+       entry(i,parm-lbl-list) NE "" THEN DO:
        
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
+                 trim(ENTRY(i,parm-lbl-list)) + ":".
                  
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+      PUT lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
  
-  put fill("-",80) format "x(80)" skip.
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.
   
 END PROCEDURE.
 
