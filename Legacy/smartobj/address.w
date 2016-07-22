@@ -61,7 +61,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Address 
-     IMAGE-UP FILE "Graphics/32x32/address_book.png":U
+     IMAGE-UP FILE "Graphics/32x32/dictionary.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Address" 
      SIZE 7.8 BY 1.81 TOOLTIP "Addresses".
