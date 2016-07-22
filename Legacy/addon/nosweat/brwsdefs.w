@@ -52,8 +52,9 @@ DEFINE VARIABLE i AS INTEGER NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
@@ -119,17 +120,20 @@ DEFINE VARIABLE db-name AS CHARACTER FORMAT "X(256)":U
      LABEL "Database" 
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEMS "None" 
+     DROP-DOWN-LIST
      SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE index-label AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 13
-     LIST-ITEMS " "
+     LIST-ITEMS "?" 
+     DROP-DOWN-LIST
      SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tablename AS CHARACTER FORMAT "X(256)":U 
      LABEL "Table" 
      VIEW-AS COMBO-BOX INNER-LINES 20
      LIST-ITEMS "None" 
+     DROP-DOWN-LIST
      SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE sort-label AS CHARACTER FORMAT "X(256)":U 
@@ -218,14 +222,14 @@ DEFINE FRAME DEFAULT-FRAME
           "CANCEL and EXIT List Parameters Create/Update"
      Btn_OK AT ROW 13.62 COL 108 HELP
           "OK to SAVE and EXIT List Parameter Create/Update"
-     "Sort Field Labels" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 1.71 COL 77
-     "Use Index Names" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 1.71 COL 101
-     "Fields:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 2.43 COL 5
      "Selected Fields:" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 2.43 COL 36
+     "Fields:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 2.43 COL 5
+     "Use Index Names" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 1.71 COL 101
+     "Sort Field Labels" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 1.71 COL 77
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -265,21 +269,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-
-IF NOT C-Win:LOAD-ICON("Graphics\xRemove.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\xRemove.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
+   FRAME-NAME                                                           */
 /* SETTINGS FOR COMBO-BOX index-label IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR SELECTION-LIST index-names IN FRAME DEFAULT-FRAME
@@ -291,7 +292,6 @@ THEN C-Win:HIDDEN = no.
 &ANALYZE-RESUME
 
  
-
 
 
 
@@ -739,7 +739,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -758,8 +758,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -784,7 +783,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-DBs C-Win 
 PROCEDURE Get-DBs :
 /*------------------------------------------------------------------------------
@@ -807,7 +805,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-Fields C-Win 
 PROCEDURE Get-Fields :
@@ -833,7 +830,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-Tables C-Win 
 PROCEDURE Get-Tables :
 /*------------------------------------------------------------------------------
@@ -854,7 +850,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Move-Field C-Win 
 PROCEDURE Move-Field :
@@ -900,7 +895,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Open-brwsdefs C-Win 
 PROCEDURE Open-brwsdefs :
@@ -974,7 +968,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Output-Defines C-Win 
 PROCEDURE Output-Defines :
 /*------------------------------------------------------------------------------
@@ -1023,7 +1016,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Save-brwsdefs C-Win 
 PROCEDURE Save-brwsdefs :
 /*------------------------------------------------------------------------------
@@ -1062,7 +1054,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus C-Win 
 PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
@@ -1076,5 +1067,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
