@@ -60,12 +60,6 @@ ll-sort-asc = NO /*oeinq*/  .
 
 &SCOPED-DEFINE key-phrase oe-bolh.company EQ cocode
 
-&SCOPED-DEFINE for-each1                                       ~
-     FOR EACH ASI.oe-boll  WHERE oe-boll.company EQ g_company  ~
-                             AND oe-boll.i-no BEGINS fi_i-no   ~
-                             AND oe-boll.po-no BEGINS fi_po-no ~
-                             AND oe-boll.posted EQ tb_posted
-
 &SCOPED-DEFINE for-each2    ~
      FIRST ASI.oe-bolh NO-LOCK WHERE oe-bolh.company EQ oe-boll.company ~
                                 AND oe-bolh.b-no EQ oe-boll.b-no       ~
@@ -73,6 +67,12 @@ ll-sort-asc = NO /*oeinq*/  .
                                 AND oe-bolh.cust-no BEGINS fi_cust-no ~
                                 AND oe-bolh.posted EQ tb_posted  ~
                       USE-INDEX b-no
+
+&SCOPED-DEFINE for-each1                                       ~
+     FOR EACH ASI.oe-boll  WHERE oe-boll.company EQ g_company  ~
+                             AND oe-boll.i-no BEGINS fi_i-no   ~
+                             AND oe-boll.po-no BEGINS fi_po-no ~
+                             AND oe-boll.posted EQ tb_posted
 
 &SCOPED-DEFINE for-each3                                             ~
      EACH ASI.itemfg NO-LOCK WHERE itemfg.company EQ oe-boll.company ~
@@ -569,6 +569,7 @@ DO:
     ASSIGN   
      fi_bol-no
      tb_posted
+     fi_cust-no
      fi_i-no
      fi_cust-no
      fi_ord-no
