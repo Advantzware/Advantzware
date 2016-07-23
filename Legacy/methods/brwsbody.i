@@ -179,13 +179,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF "{&IAMWHAT}" = "SEARCH" &THEN
-&Scoped-define LOADIMAGE prospy
+&Scoped-define LOADIMAGE document_view
 &ELSEIF "{&IAMWHAT}" = "LOOKUP" &THEN
-&Scoped-define LOADIMAGE help
+&Scoped-define LOADIMAGE question
 &ENDIF
 
-IF NOT {&WINDOW-NAME}:LOAD-ICON("images\{&LOADIMAGE}":U) THEN
-    MESSAGE "Unable to load icon: images\{&LOADIMAGE}"
+IF NOT {&WINDOW-NAME}:LOAD-ICON("Graphics\32x32\{&LOADIMAGE}":U) THEN
+    MESSAGE "Unable to load icon: Graphics\32x32\{&LOADIMAGE}"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 
 /* ***************  Runtime Attributes and UIB Settings  ************** */

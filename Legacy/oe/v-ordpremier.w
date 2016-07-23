@@ -304,27 +304,27 @@ FUNCTION get-colonial-rel-date RETURNS DATE
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCalendar-1 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-2 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-3 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-4 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-5 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
@@ -2826,7 +2826,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
         v-ext-price = oe-ordl.price - ROUND( (oe-ordl.price * oe-ordl.disc) / 100, 2).
       ELSE
       IF oe-ordl.pr-uom = "CS" THEN DO:
-        FIND FIRST itemfg {sys/look/itemfgrl.w}
+        FIND FIRST itemfg {sys/look/itemfgrlW.i}
         AND itemfg.i-no = oe-ordl.i-no NO-LOCK NO-ERROR.
         IF AVAIL itemfg AND itemfg.case-count NE 0 THEN
         v-ext-price = ((v-qty-lft / itemfg.case-count) * oe-ordl.price) -
@@ -3466,7 +3466,7 @@ IF AVAIL xest THEN DO:
     IF FIRST-OF(eb.cust-no) THEN DO:
       /** finding the customer is done this way because the index is not
       setup efficently to find the customer regardles of active stat **/
-      FIND FIRST cust {sys/ref/cust.w}
+      FIND FIRST cust {sys/ref/custW.i}
                       AND cust.cust-no EQ eb.cust-no
            USE-INDEX cust NO-LOCK NO-ERROR.
       IF NOT AVAIL cust OR cust.active EQ "I" THEN DO:
@@ -3518,7 +3518,7 @@ IF AVAIL xest THEN DO:
                 AND TRIM(eb.cust-no) NE ""
       NO-LOCK,
       FIRST cust NO-LOCK
-      {sys/ref/cust.w}
+      {sys/ref/custW.i}
         AND cust.cust-no EQ eb.cust-no
       USE-INDEX cust
       BREAK BY eb.est-no BY eb.cust-no BY eb.form-no BY eb.blank-no:

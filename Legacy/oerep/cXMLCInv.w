@@ -104,12 +104,12 @@ DEFINE BUTTON btnOK
      SIZE 15 BY 1.14.
 
 DEFINE BUTTON calendar-1 
-     IMAGE-UP FILE "images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05.
 
 DEFINE BUTTON calendar-2 
-     IMAGE-UP FILE "images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05.
 

@@ -503,8 +503,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -2313,6 +2313,9 @@ PROCEDURE GenerateEmail:
   IF lv-mailattach MATCHES('*xpr*') AND SEARCH('viewer.exe') NE ? THEN
       ASSIGN  FILE-INFO:FILE-NAME = 'viewer.exe'
               lv-mailattach       = FILE-INFO:FULL-PATHNAME + ',' + lv-mailattach.
+
+   IF lv-attach-push NE "" AND TG_eml-push-att:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Yes" THEN
+            lv-mailattach = lv-mailattach + "," + lv-attach-push .
                          
   RUN mail (lv-mailto,        /* Mail Recepients  */
             lv-mailsubject,   /* Subject          */

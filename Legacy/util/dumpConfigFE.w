@@ -17,8 +17,6 @@
 
 /* Local Variable Definitions ---                                       */
 
-DEF STREAM st-line .
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -34,8 +32,8 @@ DEF STREAM st-line .
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiPFFileLocation lv-file Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiPFFileLocation lv-file 
+&Scoped-Define ENABLED-OBJECTS RECT-25 lv-file Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS lv-file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -60,27 +58,25 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE VARIABLE fiPFFileLocation AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 58 BY 1 NO-UNDO.
-
 DEFINE VARIABLE lv-file AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 58 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE RECT-25
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 69 BY 3.1.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     fiPFFileLocation AT ROW 3.38 COL 3 NO-LABEL WIDGET-ID 2
-     lv-file AT ROW 7.91 COL 3 COLON-ALIGNED NO-LABEL
-     Btn_OK AT ROW 10.05 COL 15
-     Btn_Cancel AT ROW 10.05 COL 43
+     lv-file AT ROW 4.1 COL 8 COLON-ALIGNED NO-LABEL
+     Btn_OK AT ROW 7.19 COL 15
+     Btn_Cancel AT ROW 7.19 COL 43
      "Enter Config Data Output File Path" VIEW-AS TEXT
-          SIZE 27 BY 1.1 AT ROW 5.76 COL 4
-     "Enter PF Files Path" VIEW-AS TEXT
-          SIZE 27 BY 1.1 AT ROW 1.95 COL 5 WIDGET-ID 4
-     SPACE(33.13) SKIP(10.29)
+          SIZE 27 BY 1.1 AT ROW 2.43 COL 6
+     RECT-25 AT ROW 3.14 COL 5 WIDGET-ID 6
+     SPACE(1.59) SKIP(4.37)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Dump Utilities"
@@ -108,8 +104,6 @@ ASSIGN
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN fiPFFileLocation IN FRAME Dialog-Frame
-   ALIGN-L                                                              */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -135,60 +129,35 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
     ASSIGN lv-file.
+/*    IF SEARCH(fiPFFileLocation + "\addon\" + "nosweat.pf") EQ ? THEN DO:   */
+/*        MESSAGE 'Please run from Advantzware.  addon\nosweat.pf is missing'*/
+/*        VIEW-AS ALERT-BOX.                                                 */
+/*        RETURN.                                                            */
+/*    END.                                                                   */
     
-    DEF VAR lv-file2 AS cha NO-UNDO.
+/*    IF NOT CONNECTED("nosweat-addon") THEN DO:                                           */
+/*        CONNECT -pf VALUE(fiPFFileLocation + "\addon\" + "nosweat.pf") -ld nosweat-addon.*/
+/*    END. 
+                                                                                */
+    IF CONNECTED("nosweat") THEN
+        DISCONNECT nosweat.
+        MESSAGE "after disconnect"
+        VIEW-AS ALERT-BOX.
+    CONNECT -db nosweat -S 3810 -H asidc.
+    CONNECT -db nosweat -ld "ASINOS" -S 3802 -H asidc.        
 
-    SESSION:SET-WAIT-STATE("general"). 
-    lv-file2 = lv-file.
-    SUBSTRING(lv-file2,LENGTH(lv-file2),1) = "2".
-
-    OUTPUT STREAM st-line TO VALUE(lv-file2).
-    OUTPUT TO VALUE(lv-file).
+    RUN util/dumpConfig.p (INPUT lv-file).
+    IF CONNECTED("nosweat") THEN
+      DISCONNECT nosweat.
+      
+    IF CONNECTED("asinos") THEN 
+      DISCONNECT asinos.
+      
+    CONNECT -db nosweat -S 3802 -H asidc.
     
-    /*need to export note as well, use lv-file2, do like previous program
-      did it*/
-
-    FOR EACH reftable WHERE
-        reftable.reftable EQ 'Utilities' AND
-        reftable.company EQ ''
-        NO-LOCK:
-
-        EXPORT reftable.
-
-        FOR EACH notes WHERE
-            notes.rec_key EQ reftable.rec_key
-            NO-LOCK:
-            
-            EXPORT STREAM st-line notes.
-       END.
-    END.
-
     MESSAGE "Dump completed." VIEW-AS ALERT-BOX.
     APPLY "go" TO FRAME {&FRAME-NAME}.
 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiPFFileLocation
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPFFileLocation Dialog-Frame
-ON HELP OF fiPFFileLocation IN FRAME Dialog-Frame
-DO:
-   DEF VAR ls-filename AS cha NO-UNDO.
-   DEF VAR ll-ok AS LOG NO-UNDO.
-   
-   SYSTEM-DIALOG GET-FILE ls-filename 
-                 TITLE "Select File to insert"
-                 FILTERS "Data Files    (*.dat)" "*.dat",
-                         "Text files (*.txt)" "*.txt",                         
-                         "All Files    (*.*) " "*.*"
-                 INITIAL-DIR "boximage\"
-                 USE-FILENAME
-                 UPDATE ll-ok.
-      
-    IF ll-ok THEN SELF:screen-value = ls-filename.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -229,7 +198,10 @@ END.
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
-
+IF CONNECTED("jobs") THEN DO:
+    MESSAGE "Please run this utility from Advantzware."
+    VIEW-AS ALERT-BOX.
+END.
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -275,9 +247,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiPFFileLocation lv-file 
+  DISPLAY lv-file 
       WITH FRAME Dialog-Frame.
-  ENABLE fiPFFileLocation lv-file Btn_OK Btn_Cancel 
+  ENABLE RECT-25 lv-file Btn_OK Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

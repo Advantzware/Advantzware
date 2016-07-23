@@ -35,10 +35,10 @@ IF run-proc NE '' THEN ~
 &Scoped-define PROC6 RUN SELECT-PAGE (2).
 =========================*/
 &Scoped-define ITEM5 spec_note
-&Scoped-define LABEL5 Spec_Note
+&Scoped-define LABEL5 Spec Note
 &Scoped-define PROC5 run Select_spec.
 &Scoped-define ITEM6 Util_Appl
-&Scoped-define LABEL6 Util_Appl
+&Scoped-define LABEL6 Run App
 &Scoped-define PROC6 RUN Select_appl.
 &Scoped-define ITEM7 Exit
 &Scoped-define LABEL7 E&xit

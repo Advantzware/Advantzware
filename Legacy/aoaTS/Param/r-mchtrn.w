@@ -29,9 +29,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
-
-{sys/ref/CustList.i NEW}
+&SCOPED-DEFINE useCustList
+{aoa/aoaParamVars.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -72,12 +71,12 @@ svEndShift endShiftDescription svSort svSubRpt_EmployeeTransactions
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCalendar-1 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-2 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
@@ -325,10 +324,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllMachine sObject
 ON VALUE-CHANGED OF svAllMachine IN FRAME F-Main /* All Machines */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartMachine:READ-ONLY = {&SELF-NAME}
-      svEndMachine:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartMachine svEndMachine}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -339,10 +335,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllShift sObject
 ON VALUE-CHANGED OF svAllShift IN FRAME F-Main /* All Shifts */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartShift:READ-ONLY = {&SELF-NAME}
-      svEndShift:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartShift svEndShift}
 END.
 
 /* _UIB-CODE-BLOCK-END */

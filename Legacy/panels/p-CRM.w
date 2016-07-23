@@ -83,7 +83,8 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCRM 
-     IMAGE-UP FILE "CRM/images/crmimage.jpg":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/handshake.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Import CRM".
 

@@ -61,7 +61,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON selectMiscFlds 
-     IMAGE-UP FILE "images/flds2-u.bmp":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/document_checks.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Misc Fields" 
      SIZE 7.8 BY 1.81 TOOLTIP "Misc Fields".
 
@@ -72,8 +73,7 @@ DEFINE FRAME F-Main
      selectMiscFlds AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 4 .
+         AT COL 1 ROW 1 SCROLLABLE .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -172,10 +172,10 @@ END.
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-/*RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).*/
-
+RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
+/*
 selectMiscFlds:TOOLTIP = "Job Checklist".
-
+*/
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

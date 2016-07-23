@@ -61,42 +61,46 @@ Select_Add Select_appl Select_help Select_Home
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Select_Add 
-     IMAGE-UP FILE "images\add":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+DEFINE BUTTON Select_add 
+     IMAGE-UP FILE "Graphics/32x32/plus.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
-     SIZE 7.8 BY 1.81 TOOLTIP "List".
+     SIZE 7.8 BY 1.81 TOOLTIP "Add".
 
 DEFINE BUTTON Select_appl 
-     IMAGE-UP FILE "images\util":U NO-FOCUS
-     LABEL "Util_appl" 
+     IMAGE-UP FILE "Graphics/32x32/window_gear.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Util Appl" 
      SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_dept 
-     IMAGE-UP FILE "images/edit":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/edit.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_frac 
-     IMAGE-UP FILE "adeicon\aggr-u":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
-     LABEL "Util_frac" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Fraction".
+     IMAGE-UP FILE "Graphics/32x32/calculator.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
-     IMAGE-UP FILE "images\help":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/question.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
 DEFINE BUTTON Select_Home 
-     IMAGE-UP FILE "images\homekeyg":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Home" 
      SIZE 7.8 BY 1.81 TOOLTIP "Home Key".
 
 DEFINE BUTTON Select_spec 
-     IMAGE-UP FILE "images\dict":U NO-FOCUS
-     LABEL "spec_note" 
+     IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Spec Note" 
      SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
 
 
@@ -201,7 +205,7 @@ END.
 
 &Scoped-define SELF-NAME Select_appl
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_appl s-object
-ON CHOOSE OF Select_appl IN FRAME F-Main /* Util_appl */
+ON CHOOSE OF Select_appl IN FRAME F-Main /* Run App */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
@@ -257,7 +261,7 @@ END.
 
 &Scoped-define SELF-NAME Select_spec
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_spec s-object
-ON CHOOSE OF Select_spec IN FRAME F-Main /* spec_note */
+ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
 DO:
     {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.

@@ -744,8 +744,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 ASSIGN {&WINDOW-NAME}:MENUBAR    = MENU MENU-BAR-C-Win:HANDLE.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT wMiscFlds:LOAD-ICON("images\uib":U) THEN
-    MESSAGE "Unable to load icon: images\uib"
+IF NOT wMiscFlds:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */

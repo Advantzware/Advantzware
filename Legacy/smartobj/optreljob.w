@@ -61,8 +61,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_jobrel 
-     IMAGE-UP FILE "images/pen.jpg":U
-     IMAGE-INSENSITIVE FILE "images/pen.jpg":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/document_check_edit.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "JobsCard" 
      SIZE 8 BY 1.81 TOOLTIP "Job Card".
 
@@ -151,7 +151,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Select_jobrel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_jobrel s-object
-ON CHOOSE OF Select_jobrel IN FRAME F-Main /* Notes */
+ON CHOOSE OF Select_jobrel IN FRAME F-Main /* JobsCard */
 DO:
   
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}

@@ -2679,6 +2679,8 @@ PROCEDURE print-bol :
   DEF VAR v-msgreturn AS INT NO-UNDO.
   DEF VAR v-create-backorder AS LOG NO-UNDO.
   DEF VAR li AS LOG INIT YES NO-UNDO.
+  DEFINE VARIABLE v-scan-qty-c AS INTEGER  INITIAL 0 NO-UNDO.
+  DEFINE VARIABLE v-rel-qty-c AS INTEGER  INITIAL 0 NO-UNDO .
 
   RUN validate-scan (OUTPUT v-create-backorder) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
@@ -2695,18 +2697,43 @@ PROCEDURE print-bol :
 
      IF NOT ll THEN RETURN.
   END.*/
-  IF v-rel-qty LT v-scan-qty AND (ssbolprint-char = "OverShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
-     MESSAGE "Release Qty for item: " + string(v-rel-qty) + "   " +
-             "Scanned Qty for item: " + STRING(v-scan-qty) + "   " +
-             "Continue with BOL Creation?" 
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE li.
-  ELSE IF v-rel-qty GT v-scan-qty AND (ssbolprint-char = "UnderShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
-     MESSAGE "Release Qty for item: " + string(v-rel-qty) + "   " +
-             "Scanned Qty for item: " + STRING(v-scan-qty) + "   " +
-             "Continue with BOL Creation?" 
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE li.
-  
-  IF NOT li THEN RETURN.
+   FOR EACH tt-relbol NO-LOCK BREAK BY tt-relbol.release# 
+                                    BY tt-relbol.i-no:
+      IF FIRST-OF(tt-relbol.i-no) THEN DO:
+          ASSIGN 
+              v-scan-qty-c = 0
+              v-rel-qty-c  = 0
+              li           = YES  .
+        FOR EACH bf-tmp NO-LOCK
+          WHERE bf-tmp.release# EQ tt-relbol.release#
+            AND bf-tmp.i-no     EQ tt-relbol.i-no:
+            v-scan-qty-c = v-scan-qty-c + bf-tmp.qty.
+        END.
+        FOR EACH oe-relh NO-LOCK WHERE oe-relh.company = cocode AND
+                           oe-relh.release# = INT(tt-relbol.release#)
+                       AND oe-relh.printed AND NOT oe-relh.posted ,
+            EACH oe-rell
+            WHERE oe-rell.company EQ oe-relh.company
+            AND oe-rell.r-no    EQ oe-relh.r-no
+            USE-INDEX r-no NO-LOCK BREAK BY oe-rell.i-no BY oe-rell.LINE:
+
+            v-rel-qty-c = v-rel-qty-c + oe-rell.qty.
+        END.
+
+        IF v-rel-qty-c LT v-scan-qty-c AND (ssbolprint-char = "OverShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
+            MESSAGE "Release Qty for item# " + STRING(tt-relbol.i-no) + " :  " + string(v-rel-qty-c) + "   " +
+              "Scanned Qty for item# " + STRING(tt-relbol.i-no) + " :  " + STRING(v-scan-qty-c) + "   " +
+              "Continue with BOL Creation?" 
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE li.
+
+        ELSE IF v-rel-qty-c GT v-scan-qty-c AND (ssbolprint-char = "UnderShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
+            MESSAGE "Release Qty for item# " + STRING(tt-relbol.i-no) + " :  " + string(v-rel-qty-c) + "   " +
+              "Scanned Qty for item# " + STRING(tt-relbol.i-no) + " :  " + STRING(v-scan-qty-c) + "   " +
+              "Continue with BOL Creation?" 
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE li.
+        IF NOT li THEN RETURN.
+      END.
+   END.
 
   SESSION:SET-WAIT-STATE("general").
 

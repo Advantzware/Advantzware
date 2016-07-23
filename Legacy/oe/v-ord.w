@@ -233,7 +233,7 @@ oe-ord.spare-char-1
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
-btnCalendar-4 btnCalendar-5 RECT-30 RECT-33 RECT-35 RECT-36 RECT-37 
+btnCalendar-4 btnCalendar-5 RECT-30 RECT-33 RECT-35 RECT-36 RECT-37 RECT-34 
 &Scoped-Define DISPLAYED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
 oe-ord.job-no2 oe-ord.user-id oe-ord.stat oe-ord.spare-char-2 ~
 oe-ord.cust-no oe-ord.sold-id oe-ord.ord-date oe-ord.cust-name ~
@@ -304,27 +304,27 @@ FUNCTION get-colonial-rel-date RETURNS DATE
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCalendar-1 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-2 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-3 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-4 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-5 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
@@ -365,6 +365,11 @@ DEFINE RECTANGLE RECT-30
 DEFINE RECTANGLE RECT-33
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 75.4 BY 3.43
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-34
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 75.4 BY 1.75
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-35
@@ -602,15 +607,15 @@ DEFINE FRAME F-Main
           LABEL "VCode" FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     oe-ord.approved-date AT ROW 9 COL 96.4 COLON-ALIGNED HELP
+     oe-ord.approved-date AT ROW 9 COL 98.2 COLON-ALIGNED HELP
           "Enter the date this order was approved" WIDGET-ID 10
           LABEL "Hold/Appr Date"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     oe-ord.ack-prnt-date AT ROW 9 COL 128.4 COLON-ALIGNED WIDGET-ID 12
+          SIZE 14 BY 1
+     oe-ord.ack-prnt-date AT ROW 9 COL 128.2 COLON-ALIGNED WIDGET-ID 12
           LABEL "Ack. Date" FORMAT "99/99/99"
           VIEW-AS FILL-IN 
-          SIZE 14.4 BY 1
+          SIZE 15 BY 1
      "Freight Charge" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 11.05 COL 81
           FGCOLOR 9 
@@ -621,6 +626,7 @@ DEFINE FRAME F-Main
      RECT-35 AT ROW 13.71 COL 78
      RECT-36 AT ROW 13.71 COL 1.6
      RECT-37 AT ROW 2.52 COL 1.4
+     RECT-34 AT ROW 8.62 COL 78 WIDGET-ID 14
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -928,6 +934,28 @@ DO:
          END.
     END CASE.
     RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-ord.ack-prnt-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.ack-prnt-date V-table-Win
+ON HELP OF oe-ord.ack-prnt-date IN FRAME F-Main /* Ack. Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-ord.approved-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.approved-date V-table-Win
+ON HELP OF oe-ord.approved-date IN FRAME F-Main /* Hold/Appr Date */
+DO:
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

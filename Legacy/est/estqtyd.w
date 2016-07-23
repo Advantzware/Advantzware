@@ -514,6 +514,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Quantity Detail Information */
 DO:
+    op-char-val = "?".
+    op-char-val2 = "?".
   APPLY "END-ERROR":U TO SELF.
 END.
 

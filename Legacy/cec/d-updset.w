@@ -33,6 +33,12 @@ DEF VAR ld-sqin AS DEC NO-UNDO.
 DEF VAR ld-msf AS DEC NO-UNDO.
 DEF VAR lv-rowid AS ROWID NO-UNDO.
 DEF VAR ll-alloc AS LOG NO-UNDO.
+def var ll-crt-itemfg as log no-undo.
+
+def shared buffer xest for est.
+def shared buffer xef for ef.
+def shared buffer xeb for eb.
+def shared buffer xqty for est-qty.
 
 {custom/globdefs.i}
 
@@ -302,6 +308,40 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME eb.stock-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.stock-no d-updset
+ON LEAVE OF eb.stock-no IN FRAME d-updset /* FG Item# */
+DO:
+  DEF VAR ll-copy-fg AS LOG NO-UNDO.
+  DEF VAR lActive AS LOG NO-UNDO.
+
+  IF LASTKEY NE -1 THEN DO:
+    IF eb.stock-no:SCREEN-VALUE  NE "" THEN DO:
+        RUN fg/GetItemfgActInact.p (INPUT g_company,
+                                    INPUT SELF:SCREEN-VALUE,
+                                    OUTPUT lActive).
+        IF NOT lActive THEN DO:
+/*                                                                   */
+/*         FIND FIRST reftable WHERE reftable.reftable EQ "FGSTATUS" */
+/*                        AND reftable.company  EQ g_company         */
+/*                        AND reftable.loc      EQ ""                */
+/*                        AND reftable.code     EQ SELF:SCREEN-VALUE */
+/*                        NO-LOCK NO-ERROR.                          */
+/*         IF AVAIL reftable AND reftable.code2 = "I" THEN DO:       */
+           MESSAGE eb.stock-no:SCREEN-VALUE + " has InActive Status. Order cannot be placed for the Inactive Item."
+                   VIEW-AS ALERT-BOX ERROR.
+           RETURN NO-APPLY.
+        END.        
+    END.
+    
+    RUN valid-stock-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &Scoped-define SELF-NAME btn_update
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_update d-updset
 ON CHOOSE OF btn_update IN FRAME d-updset /* Update */
@@ -353,6 +393,25 @@ DO:
 
          IF eb.set-is-assembled NE ? THEN
            eb.set-is-assembled = NOT eb.set-is-assembled.
+
+         if ll-crt-itemfg then do:
+             /*find xest where recid(xest) = recid(est) no-lock no-error.
+             find xeb where recid(xeb) = recid(eb) no-lock no-error.
+             find xef where recid(xef) = recid(ef) no-lock no-error.*/
+             run fg/ce-addfg.p (xeb.stock-no).
+             FIND FIRST xeb NO-LOCK
+                 WHERE xeb.company  EQ eb.company
+                 AND xeb.est-no   EQ eb.est-no
+                 AND xeb.form-no  EQ 0
+                 AND xeb.stock-no NE ""
+                 AND NOT CAN-FIND(FIRST itemfg
+                                  WHERE itemfg.company EQ xeb.company
+                                  AND itemfg.i-no    EQ xeb.stock-no)
+                 NO-ERROR.
+             IF AVAIL xeb THEN RUN fg/ce-addfg.p (xeb.stock-no).
+             ll-crt-itemfg = no.
+         end.
+
 
          FIND FIRST itemfg
              WHERE itemfg.company EQ eb.company
@@ -987,3 +1046,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-stock-no d-updset 
+PROCEDURE valid-stock-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&frame-name}:
+    IF eb.stock-no:SCREEN-VALUE  NE "" AND
+       NOT ll-crt-itemfg                                       AND
+       NOT CAN-FIND(FIRST itemfg
+                    WHERE itemfg.company EQ cocode
+                      AND itemfg.i-no    EQ eb.stock-no:SCREEN-VALUE )
+    THEN DO:
+      MESSAGE "This item does not exist, would you like to add it?"
+              VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+              UPDATE ll-ans as log.  
+      IF ll-ans then ll-crt-itemfg = YES.
+      ELSE DO:
+        APPLY "entry" TO eb.stock-no .
+        RETURN ERROR.
+      END.
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

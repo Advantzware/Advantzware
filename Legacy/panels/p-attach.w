@@ -75,12 +75,12 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add Btn-Copy ~
-Btn-Delete Btn-Cancel Btn-run 
+&Scoped-Define ENABLED-OBJECTS Btn-run Btn-Save Btn-Reset Btn-Add Btn-Copy ~
+Btn-Delete Btn-Cancel 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -121,8 +121,8 @@ DEFINE BUTTON Btn-Reset
      FONT 4.
 
 DEFINE BUTTON Btn-run 
-     IMAGE-UP FILE "images/run-u.bmp":U
-     IMAGE-DOWN FILE "images/badsmo.bmp":U
+     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Excute" 
      SIZE 8 BY 1.29
      FONT 4.
@@ -133,20 +133,20 @@ DEFINE BUTTON Btn-Save
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 82 BY 1.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
+     Btn-run AT ROW 1.48 COL 56
      Btn-Save AT ROW 1.29 COL 2
      Btn-Reset AT ROW 1.29 COL 11
      Btn-Add AT ROW 1.29 COL 20
      Btn-Copy AT ROW 1.29 COL 29
      Btn-Delete AT ROW 1.29 COL 38
      Btn-Cancel AT ROW 1.29 COL 47
-     Btn-run AT ROW 1.48 COL 56
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -203,7 +203,7 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.

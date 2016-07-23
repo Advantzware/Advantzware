@@ -88,10 +88,10 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-excel-exp 
-     IMAGE-UP FILE "images/file_excel.ico":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/file_excel.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 7.8 BY 1.81.
+     SIZE 7.8 BY 1.81 TOOLTIP "Export to Excel".
 
 
 /* ************************  Frame Definitions  *********************** */

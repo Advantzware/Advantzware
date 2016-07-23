@@ -88,9 +88,10 @@ DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Address 
-     IMAGE-UP FILE "images\idxup":U NO-FOCUS
-     LABEL "" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Address".
+     IMAGE-UP FILE "Graphics/32x32/dictionary.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Address" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Addresses".
 
 
 /* ************************  Frame Definitions  *********************** */

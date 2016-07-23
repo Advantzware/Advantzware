@@ -229,12 +229,12 @@ DEFINE BUTTON bt-new-plate
      FONT 6.
 
 DEFINE BUTTON btnCadLookup 
-     IMAGE-UP FILE "images/find.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/find.bmp":U
      LABEL "" 
      SIZE 4.4 BY 1.05.
 
 DEFINE BUTTON btnDieLookup 
-     IMAGE-UP FILE "images/find.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/find.bmp":U
      LABEL "" 
      SIZE 4.4 BY 1.05.
 

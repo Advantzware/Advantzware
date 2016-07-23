@@ -109,9 +109,10 @@ DEFINE VARIABLE headervalue AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 15  NO-UNDO.
 
 DEFINE BUTTON Btn_Address 
-     IMAGE-UP FILE "images\idxup":U NO-FOCUS
-     LABEL "" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Address".
+     IMAGE-UP FILE "Graphics/32x32/dictionary.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Address" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Addresses".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -122,7 +123,7 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 123 BY 15
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
      Btn_Address AT ROW 1 COL 105
@@ -130,14 +131,14 @@ DEFINE FRAME OPTIONS-FRAME
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 121 BY 1.91
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 78 BY 1.43
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */

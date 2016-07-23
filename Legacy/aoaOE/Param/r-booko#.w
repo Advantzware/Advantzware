@@ -29,9 +29,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
-
-{sys/ref/CustList.i NEW}
+&SCOPED-DEFINE useCustList
+{aoa/aoaParamVars.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -81,32 +80,32 @@ btnCalendar-4 btnCalendar-5 btnCalendar-6
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCalendar-1 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-2 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-3 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-4 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-5 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCalendar-6 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
@@ -539,10 +538,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCustNo sObject
 ON VALUE-CHANGED OF svAllCustNo IN FRAME F-Main /* All Customers */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartCustNo:READ-ONLY = {&SELF-NAME}
-      svEndCustNo:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartCustNo svEndCustNo}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -553,10 +549,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllItemNo sObject
 ON VALUE-CHANGED OF svAllItemNo IN FRAME F-Main /* All Items */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartItemNo:READ-ONLY = {&SELF-NAME}
-      svEndItemNo:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartItemNo svEndItemNo}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -567,10 +560,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllOrderNo sObject
 ON VALUE-CHANGED OF svAllOrderNo IN FRAME F-Main /* All Orders */
 DO:
-  ASSIGN {&SELF-NAME}
-      svStartOrderNo:READ-ONLY = {&SELF-NAME}
-      svEndOrderNo:READ-ONLY   = {&SELF-NAME}
-      .
+    {aoa/svAllValueChanged.i svStartOrderNo svEndOrderNo}
 END.
 
 /* _UIB-CODE-BLOCK-END */

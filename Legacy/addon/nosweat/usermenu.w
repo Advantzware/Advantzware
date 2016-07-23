@@ -73,13 +73,14 @@ DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-3 RECT-5 RECT-2 menu-items ~
-menu-names Btn_Build Btn_Default Btn_Add_Menu program-names Btn_Reset ~
+&Scoped-Define ENABLED-OBJECTS Btn_Build menu-items menu-names RECT-1 ~
+RECT-3 RECT-5 RECT-2 Btn_Default Btn_Add_Menu program-names Btn_Reset ~
 Btn_Save Btn_Cancel Btn_Up Btn_Down Btn_Add_Rule Btn_Add_Skip Btn_Left ~
 Btn_Right Btn_Remove Btn_Add_Program 
 &Scoped-Define DISPLAYED-OBJECTS menu-items menu-names program-names 
@@ -119,7 +120,7 @@ DEFINE BUTTON Btn_Add_Skip
      FONT 4.
 
 DEFINE BUTTON Btn_Build 
-     IMAGE-UP FILE "images\menu-u":U
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Build" 
      SIZE 8.4 BY 2
      FONT 4.
@@ -130,7 +131,7 @@ DEFINE BUTTON Btn_Cancel
      BGCOLOR 8 FONT 4.
 
 DEFINE BUTTON Btn_Default 
-     IMAGE-UP FILE "images\menu-u":U
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "De&fault" 
      SIZE 8.4 BY 2
      FONT 4.
@@ -151,7 +152,7 @@ DEFINE BUTTON Btn_Remove
      FONT 4.
 
 DEFINE BUTTON Btn_Reset 
-     IMAGE-UP FILE "images\menu-u":U
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Rese&t" 
      SIZE 8.4 BY 2
      FONT 4.
@@ -162,7 +163,7 @@ DEFINE BUTTON Btn_Right
      FONT 4.
 
 DEFINE BUTTON Btn_Save 
-     IMAGE-UP FILE "images\menu-u":U
+     IMAGE-UP FILE "Graphics/32x32/drop_down_list.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Save" 
      SIZE 8.4 BY 2
      FONT 4.
@@ -173,22 +174,22 @@ DEFINE BUTTON Btn_Up
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 8  
+     EDGE-PIXELS 8    
      SIZE 75.6 BY 2.67
      BGCOLOR 4 .
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 8  
+     EDGE-PIXELS 8    
      SIZE 49 BY 2.67
      BGCOLOR 3 .
 
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 8  
+     EDGE-PIXELS 8    
      SIZE 49 BY 2.67
      BGCOLOR 3 .
 
 DEFINE RECTANGLE RECT-5
-     EDGE-PIXELS 8  
+     EDGE-PIXELS 8    
      SIZE 19.6 BY 23.81
      BGCOLOR 5 .
 
@@ -210,12 +211,12 @@ DEFINE VARIABLE program-names AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     Btn_Build AT ROW 3.14 COL 134.8 HELP
+          "BUILD Menu Bar from Menu Structure Items"
      menu-items AT ROW 1 COL 2.4 HELP
           "Select Menu Structure Item" NO-LABEL
      menu-names AT ROW 1 COL 79.4 HELP
           "Select Available Menu Item" NO-LABEL
-     Btn_Build AT ROW 3.14 COL 134.8 HELP
-          "BUILD Menu Bar from Menu Structure Items"
      Btn_Default AT ROW 7.52 COL 134.8 HELP
           "Load Menu Structure from System DEFAULT Menu List"
      Btn_Add_Menu AT ROW 8 COL 94.8 HELP
@@ -244,22 +245,22 @@ DEFINE FRAME DEFAULT-FRAME
           "REMOVE Menu Structure Item"
      Btn_Add_Program AT ROW 23 COL 94.8 HELP
           "Add a Program Item to Menu Structure"
+     "De&fault Menu" VIEW-AS TEXT
+          SIZE 14 BY 1.05 AT ROW 9.52 COL 132
+          BGCOLOR 5 FGCOLOR 15 FONT 4
+     "&Build Menu" VIEW-AS TEXT
+          SIZE 11.2 BY 1.24 AT ROW 5.24 COL 133.4
+          BGCOLOR 5 FGCOLOR 15 FONT 4
+     "Rese&t Menu" VIEW-AS TEXT
+          SIZE 12.6 BY 1.24 AT ROW 13.52 COL 133.4
+          BGCOLOR 5 FGCOLOR 15 FONT 4
      "&Save Menu" VIEW-AS TEXT
           SIZE 11.2 BY 1.24 AT ROW 17.52 COL 133.4
           BGCOLOR 5 FGCOLOR 15 FONT 4
      RECT-1 AT ROW 22.19 COL 2
      RECT-3 AT ROW 22.19 COL 79
-     "Rese&t Menu" VIEW-AS TEXT
-          SIZE 12.6 BY 1.24 AT ROW 13.52 COL 133.4
-          BGCOLOR 5 FGCOLOR 15 FONT 4
      RECT-5 AT ROW 1 COL 129
-     "&Build Menu" VIEW-AS TEXT
-          SIZE 11.2 BY 1.24 AT ROW 5.24 COL 133.4
-          BGCOLOR 5 FGCOLOR 15 FONT 4
      RECT-2 AT ROW 7.38 COL 79.4
-     "De&fault Menu" VIEW-AS TEXT
-          SIZE 14 BY 1.05 AT ROW 9.52 COL 132
-          BGCOLOR 5 FGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -299,20 +300,23 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
+   FRAME-NAME                                                           */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = yes.
 
@@ -320,7 +324,6 @@ THEN C-Win:HIDDEN = yes.
 &ANALYZE-RESUME
 
  
-
 
 
 
@@ -767,7 +770,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Build_Menu_Items C-Win 
 PROCEDURE Build_Menu_Items :
 /*------------------------------------------------------------------------------
@@ -808,7 +810,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Check_Menu C-Win 
 PROCEDURE Check_Menu :
@@ -851,8 +852,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -871,8 +871,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -885,7 +884,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY menu-items menu-names program-names 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-1 RECT-3 RECT-5 RECT-2 menu-items menu-names Btn_Build 
+  ENABLE Btn_Build menu-items menu-names RECT-1 RECT-3 RECT-5 RECT-2 
          Btn_Default Btn_Add_Menu program-names Btn_Reset Btn_Save Btn_Cancel 
          Btn_Up Btn_Down Btn_Add_Rule Btn_Add_Skip Btn_Left Btn_Right 
          Btn_Remove Btn_Add_Program 
@@ -896,7 +895,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Move_Item C-Win 
 PROCEDURE Move_Item :
@@ -930,7 +928,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Save_Menu C-Win 
 PROCEDURE Save_Menu :
@@ -969,7 +966,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Item C-Win 
 PROCEDURE Select_Item :
 /*------------------------------------------------------------------------------
@@ -998,7 +994,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus C-Win 
 PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
@@ -1012,7 +1007,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Shift_Item C-Win 
 PROCEDURE Shift_Item :
@@ -1044,5 +1038,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

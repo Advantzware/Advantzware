@@ -60,9 +60,9 @@ CREATE WIDGET-POOL.
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Select_Add 
-     IMAGE-UP FILE "images\add":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+DEFINE BUTTON Select_add 
+     IMAGE-UP FILE "Graphics/32x32/plus.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 7.8 BY 1.81 TOOLTIP "Add".
 

@@ -121,8 +121,8 @@ DEFINE BUTTON Btn-Reset
      FONT 4.
 
 DEFINE BUTTON Btn-run 
-     IMAGE-UP FILE "images/run-u.bmp":U
-     IMAGE-DOWN FILE "images/badsmo.bmp":U
+     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U
      LABEL "&Excute" 
      SIZE 8 BY 1.29
      FONT 4.
@@ -133,7 +133,7 @@ DEFINE BUTTON Btn-Save
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 82 BY 1.76.
 
 

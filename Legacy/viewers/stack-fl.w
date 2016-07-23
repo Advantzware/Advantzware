@@ -100,21 +100,21 @@ stack-flute.vals[99] stack-flute.vals[100] stack-flute.row-value[10] ~
 stack-flute.vals[101] stack-flute.vals[102] stack-flute.vals[103] ~
 stack-flute.vals[104] stack-flute.vals[105] stack-flute.vals[106] ~
 stack-flute.vals[107] stack-flute.vals[108] stack-flute.vals[109] ~
-stack-flute.vals[110] stack-flute.vals[113] stack-flute.vals[117] ~
-stack-flute.vals[119] stack-flute.vals[120] stack-flute.row-value[11] ~
-stack-flute.vals[111] stack-flute.vals[112] stack-flute.vals[114] ~
-stack-flute.vals[115] stack-flute.vals[116] stack-flute.vals[118] ~
-stack-flute.vals[127] stack-flute.vals[128] stack-flute.vals[129] ~
-stack-flute.vals[130] stack-flute.vals[123] stack-flute.row-value[12] ~
-stack-flute.vals[121] stack-flute.vals[122] stack-flute.vals[124] ~
-stack-flute.vals[125] stack-flute.vals[126] stack-flute.vals[139] ~
-stack-flute.vals[140] stack-flute.vals[133] stack-flute.row-value[13] ~
-stack-flute.vals[131] stack-flute.vals[132] stack-flute.vals[134] ~
-stack-flute.vals[136] stack-flute.vals[137] stack-flute.vals[138] ~
-stack-flute.vals[135] stack-flute.vals[149] stack-flute.vals[150] ~
-stack-flute.vals[143] stack-flute.row-value[14] stack-flute.vals[141] ~
-stack-flute.vals[142] stack-flute.vals[144] stack-flute.vals[145] ~
-stack-flute.vals[146] stack-flute.vals[147] stack-flute.vals[148] ~
+stack-flute.vals[110] stack-flute.vals[111] stack-flute.vals[112] ~
+stack-flute.vals[113] stack-flute.vals[114] stack-flute.row-value[11] ~
+stack-flute.vals[115] stack-flute.vals[116] stack-flute.vals[117] ~
+stack-flute.vals[118] stack-flute.vals[119] stack-flute.vals[120] ~
+stack-flute.vals[121] stack-flute.vals[122] stack-flute.vals[123] ~
+stack-flute.vals[124] stack-flute.vals[125] stack-flute.row-value[12] ~
+stack-flute.vals[126] stack-flute.vals[127] stack-flute.vals[128] ~
+stack-flute.vals[129] stack-flute.vals[130] stack-flute.vals[131] ~
+stack-flute.vals[132] stack-flute.vals[133] stack-flute.row-value[13] ~
+stack-flute.vals[134] stack-flute.vals[135] stack-flute.vals[136] ~
+stack-flute.vals[137] stack-flute.vals[138] stack-flute.vals[139] ~
+stack-flute.vals[140] stack-flute.vals[141] stack-flute.vals[142] ~
+stack-flute.vals[143] stack-flute.row-value[14] stack-flute.vals[144] ~
+stack-flute.vals[145] stack-flute.vals[146] stack-flute.vals[147] ~
+stack-flute.vals[148] stack-flute.vals[149] stack-flute.vals[150] ~
 stack-flute.row-value[15] stack-flute.vals[151] stack-flute.vals[152] ~
 stack-flute.vals[153] stack-flute.vals[154] stack-flute.vals[155] ~
 stack-flute.vals[156] stack-flute.vals[157] stack-flute.vals[158] ~
@@ -167,22 +167,22 @@ stack-flute.rtit[10] stack-flute.row-value[10] stack-flute.vals[101] ~
 stack-flute.vals[102] stack-flute.vals[103] stack-flute.vals[104] ~
 stack-flute.vals[105] stack-flute.vals[106] stack-flute.vals[107] ~
 stack-flute.vals[108] stack-flute.vals[109] stack-flute.vals[110] ~
-stack-flute.vals[113] stack-flute.vals[117] stack-flute.vals[119] ~
-stack-flute.vals[120] stack-flute.rtit[11] stack-flute.row-value[11] ~
-stack-flute.vals[111] stack-flute.vals[112] stack-flute.vals[114] ~
-stack-flute.vals[115] stack-flute.vals[116] stack-flute.vals[118] ~
-stack-flute.vals[127] stack-flute.vals[128] stack-flute.vals[129] ~
-stack-flute.vals[130] stack-flute.vals[123] stack-flute.rtit[12] ~
-stack-flute.row-value[12] stack-flute.vals[121] stack-flute.vals[122] ~
-stack-flute.vals[124] stack-flute.vals[125] stack-flute.vals[126] ~
-stack-flute.vals[139] stack-flute.vals[140] stack-flute.vals[133] ~
-stack-flute.rtit[13] stack-flute.row-value[13] stack-flute.vals[131] ~
-stack-flute.vals[132] stack-flute.vals[134] stack-flute.vals[136] ~
-stack-flute.vals[137] stack-flute.vals[138] stack-flute.vals[135] ~
-stack-flute.vals[149] stack-flute.vals[150] stack-flute.vals[143] ~
-stack-flute.rtit[14] stack-flute.row-value[14] stack-flute.vals[141] ~
-stack-flute.vals[142] stack-flute.vals[144] stack-flute.vals[145] ~
-stack-flute.vals[146] stack-flute.vals[147] stack-flute.vals[148] ~
+stack-flute.vals[111] stack-flute.vals[112] stack-flute.vals[113] ~
+stack-flute.vals[114] stack-flute.rtit[11] stack-flute.row-value[11] ~
+stack-flute.vals[115] stack-flute.vals[116] stack-flute.vals[117] ~
+stack-flute.vals[118] stack-flute.vals[119] stack-flute.vals[120] ~
+stack-flute.vals[121] stack-flute.vals[122] stack-flute.vals[123] ~
+stack-flute.vals[124] stack-flute.vals[125] stack-flute.rtit[12] ~
+stack-flute.row-value[12] stack-flute.vals[126] stack-flute.vals[127] ~
+stack-flute.vals[128] stack-flute.vals[129] stack-flute.vals[130] ~
+stack-flute.vals[131] stack-flute.vals[132] stack-flute.vals[133] ~
+stack-flute.rtit[13] stack-flute.row-value[13] stack-flute.vals[134] ~
+stack-flute.vals[135] stack-flute.vals[136] stack-flute.vals[137] ~
+stack-flute.vals[138] stack-flute.vals[139] stack-flute.vals[140] ~
+stack-flute.vals[141] stack-flute.vals[142] stack-flute.vals[143] ~
+stack-flute.rtit[14] stack-flute.row-value[14] stack-flute.vals[144] ~
+stack-flute.vals[145] stack-flute.vals[146] stack-flute.vals[147] ~
+stack-flute.vals[148] stack-flute.vals[149] stack-flute.vals[150] ~
 stack-flute.row-value[15] stack-flute.vals[151] stack-flute.vals[152] ~
 stack-flute.vals[153] stack-flute.vals[154] stack-flute.vals[155] ~
 stack-flute.vals[156] stack-flute.vals[157] stack-flute.vals[158] ~
@@ -672,19 +672,7 @@ DEFINE FRAME F-Main
      stack-flute.vals[110] AT ROW 12.67 COL 128 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     stack-flute.vals[113] AT ROW 13.62 COL 43 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     stack-flute.vals[117] AT ROW 13.62 COL 92 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     stack-flute.vals[119] AT ROW 13.62 COL 116 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     stack-flute.vals[120] AT ROW 13.62 COL 128 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     stack-flute.rtit[11] AT ROW 13.71 COL 3 NO-LABEL
+    stack-flute.rtit[11] AT ROW 13.71 COL 3 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
      stack-flute.row-value[11] AT ROW 13.71 COL 5 COLON-ALIGNED NO-LABEL
@@ -696,6 +684,9 @@ DEFINE FRAME F-Main
      stack-flute.vals[112] AT ROW 13.71 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
+     stack-flute.vals[113] AT ROW 13.71 COL 43 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
      stack-flute.vals[114] AT ROW 13.71 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
@@ -705,25 +696,19 @@ DEFINE FRAME F-Main
      stack-flute.vals[116] AT ROW 13.71 COL 80 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
+     stack-flute.vals[117] AT ROW 13.71 COL 92 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
      stack-flute.vals[118] AT ROW 13.71 COL 103 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     stack-flute.vals[127] AT ROW 14.57 COL 92 COLON-ALIGNED NO-LABEL
+     stack-flute.vals[119] AT ROW 13.71 COL 116 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     stack-flute.vals[128] AT ROW 14.57 COL 103 COLON-ALIGNED NO-LABEL
+     stack-flute.vals[120] AT ROW 13.71 COL 128 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     stack-flute.vals[129] AT ROW 14.57 COL 116 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     stack-flute.vals[130] AT ROW 14.57 COL 128 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     stack-flute.vals[123] AT ROW 14.62 COL 43 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     stack-flute.rtit[12] AT ROW 14.71 COL 3 NO-LABEL
+    stack-flute.rtit[12] AT ROW 14.71 COL 3 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
      stack-flute.row-value[12] AT ROW 14.71 COL 5 COLON-ALIGNED NO-LABEL
@@ -735,6 +720,22 @@ DEFINE FRAME F-Main
      stack-flute.vals[122] AT ROW 14.71 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
+     stack-flute.vals[123] AT ROW 14.71 COL 43 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+     stack-flute.vals[124] AT ROW 14.71 COL 55 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+     stack-flute.vals[125] AT ROW 14.71 COL 68 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+     
+     stack-flute.vals[126] AT ROW 14.71 COL 80 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+     stack-flute.vals[127] AT ROW 14.71 COL 92 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -742,22 +743,13 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     stack-flute.vals[124] AT ROW 14.71 COL 55 COLON-ALIGNED NO-LABEL
+     stack-flute.vals[128] AT ROW 14.71 COL 103 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     stack-flute.vals[125] AT ROW 14.71 COL 68 COLON-ALIGNED NO-LABEL
+     stack-flute.vals[129] AT ROW 14.71 COL 116 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     stack-flute.vals[126] AT ROW 14.71 COL 80 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     stack-flute.vals[139] AT ROW 15.57 COL 116 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     stack-flute.vals[140] AT ROW 15.57 COL 128 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     stack-flute.vals[133] AT ROW 15.62 COL 43 COLON-ALIGNED NO-LABEL
+     stack-flute.vals[130] AT ROW 14.71 COL 128 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      stack-flute.rtit[13] AT ROW 15.71 COL 3 NO-LABEL
@@ -772,7 +764,14 @@ DEFINE FRAME F-Main
      stack-flute.vals[132] AT ROW 15.71 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
+     stack-flute.vals[133] AT ROW 15.71 COL 43 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+    
      stack-flute.vals[134] AT ROW 15.71 COL 55 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+     stack-flute.vals[135] AT ROW 15.71 COL 68 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      stack-flute.vals[136] AT ROW 15.71 COL 80 COLON-ALIGNED NO-LABEL
@@ -784,19 +783,13 @@ DEFINE FRAME F-Main
      stack-flute.vals[138] AT ROW 15.71 COL 103 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     stack-flute.vals[135] AT ROW 15.76 COL 68 COLON-ALIGNED NO-LABEL
+     stack-flute.vals[139] AT ROW 15.71 COL 116 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     stack-flute.vals[149] AT ROW 16.57 COL 116 COLON-ALIGNED NO-LABEL
+     stack-flute.vals[140] AT ROW 15.71 COL 128 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     stack-flute.vals[150] AT ROW 16.57 COL 128 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     stack-flute.vals[143] AT ROW 16.62 COL 43 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     stack-flute.rtit[14] AT ROW 16.71 COL 3 NO-LABEL
+    stack-flute.rtit[14] AT ROW 16.71 COL 3 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
      stack-flute.row-value[14] AT ROW 16.71 COL 5 COLON-ALIGNED NO-LABEL
@@ -808,6 +801,10 @@ DEFINE FRAME F-Main
      stack-flute.vals[142] AT ROW 16.71 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
+     stack-flute.vals[143] AT ROW 16.71 COL 43 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+     
      stack-flute.vals[144] AT ROW 16.71 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
@@ -817,6 +814,12 @@ DEFINE FRAME F-Main
      stack-flute.vals[146] AT ROW 16.71 COL 80 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
+     stack-flute.vals[147] AT ROW 16.71 COL 92 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+     stack-flute.vals[148] AT ROW 16.71 COL 103 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -824,12 +827,15 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     stack-flute.vals[147] AT ROW 16.71 COL 92 COLON-ALIGNED NO-LABEL
+     stack-flute.vals[149] AT ROW 16.71 COL 116 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     stack-flute.vals[148] AT ROW 16.71 COL 103 COLON-ALIGNED NO-LABEL
+     stack-flute.vals[150] AT ROW 16.71 COL 128 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
+     stack-flute.rtit[15] AT ROW 17.71 COL 3 NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1
      stack-flute.row-value[15] AT ROW 17.67 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -859,13 +865,11 @@ DEFINE FRAME F-Main
           SIZE 9.2 BY 1
      stack-flute.vals[159] AT ROW 17.67 COL 116 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
+          SIZE 9.2 BY 1      
      stack-flute.vals[160] AT ROW 17.67 COL 128 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     stack-flute.rtit[15] AT ROW 17.71 COL 3 NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
+     
      RECT-1 AT ROW 1 COL 1
      "TEST" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 3.14 COL 9

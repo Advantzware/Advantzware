@@ -114,7 +114,7 @@ rs-man-pur Btn_OK Btn_Cancel
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCAD#Lookup 
-     IMAGE-UP FILE "images/find.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/find.bmp":U
      LABEL "" 
      SIZE 4.4 BY 1.38.
 

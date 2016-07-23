@@ -87,9 +87,10 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_list 
-     IMAGE-UP FILE "images/print-u.bmp":U NO-FOCUS
-     LABEL "" 
-     SIZE 7.8 BY 1.81.
+     IMAGE-UP FILE "Graphics/32x32/printer.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "List" 
+     SIZE 7.8 BY 1.81 TOOLTIP "List".
 
 
 /* ************************  Frame Definitions  *********************** */

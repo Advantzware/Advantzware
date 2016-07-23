@@ -61,10 +61,10 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_dept2 
-     IMAGE-UP FILE "images/rejnotes.jpg":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/calendar_clock.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
-     SIZE 8 BY 1.81 TOOLTIP "Notes".
+     SIZE 8 BY 1.81 TOOLTIP "Date Change Notes".
 
 
 /* ************************  Frame Definitions  *********************** */

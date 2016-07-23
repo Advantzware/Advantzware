@@ -98,8 +98,8 @@ oe-boll.s-code get-cost() @ li-cost
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find printBOL printSBOL 
+&Scoped-Define ENABLED-OBJECTS printBOL printSBOL Browser-Table RECT-4 ~
+browse-order auto_find Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order FI_moveCol auto_find 
 
 /* Custom List Definitions                                              */
@@ -129,12 +129,14 @@ DEFINE BUTTON Btn_Clear_Find
      FONT 4.
 
 DEFINE BUTTON printBOL 
-     IMAGE-UP FILE "images/printbol.bmp":U
+     IMAGE-UP FILE "Graphics/32x32/printer_gearwheel.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 9 BY 2.14 TOOLTIP "Print BOL".
 
 DEFINE BUTTON printSBOL 
-     IMAGE-UP FILE "images/signbol.bmp":U
+     IMAGE-UP FILE "Graphics/32x32/document_check_edit.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 9 BY 2.14 TOOLTIP "Print BOL".
 
@@ -202,6 +204,8 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     printBOL AT ROW 18.62 COL 131
+     printSBOL AT ROW 18.62 COL 141
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 17.43 COL 6 HELP
@@ -211,8 +215,6 @@ DEFINE FRAME F-Main
           "Enter Auto Find Value"
      Btn_Clear_Find AT ROW 17.43 COL 136 HELP
           "CLEAR AUTO FIND Value"
-     printBOL AT ROW 18.62 COL 131
-     printSBOL AT ROW 18.62 COL 141
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 17.43 COL 2
      RECT-4 AT ROW 17.19 COL 1
@@ -275,7 +277,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.

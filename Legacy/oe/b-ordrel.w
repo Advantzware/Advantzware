@@ -349,7 +349,7 @@ FUNCTION get-tot-qty RETURNS DECIMAL
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCalendar 
-     IMAGE-UP FILE "schedule/images/calendar.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY .86 TOOLTIP "PopUp Calendar".
 
@@ -2379,7 +2379,7 @@ END.
 
 /* neet to complete  =======
 if oereordr-log then do:  
-   find first itemfg {sys/look/itemfgrl.w}
+   find first itemfg {sys/look/itemfgrlW.i}
                  and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
    if avail itemfg then run oe/d-fgqty.w  /*oe/fg-qtys.p*/  (recid(itemfg)).
 end.  

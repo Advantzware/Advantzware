@@ -308,8 +308,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("images\progress":U) THEN
-    MESSAGE "Unable to load icon: images\progress"
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -1425,7 +1425,7 @@ PROCEDURE run-process :
        kef.leaf-w    = 0
        kef.leaf-l    = 0.
 
-    for each reftable {ce/est-mrpl.w ef} no-lock:
+    for each reftable {ce/est-mrpl.i ef} no-lock:
       create kref.
       buffer-copy reftable except rec_key to kref
       assign

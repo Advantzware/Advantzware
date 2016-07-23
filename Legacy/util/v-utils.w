@@ -65,7 +65,7 @@ DEFINE QUERY external_tables FOR reftable.
 reftable.dscr 
 &Scoped-define ENABLED-TABLES reftable
 &Scoped-define FIRST-ENABLED-TABLE reftable
-&Scoped-Define ENABLED-OBJECTS RECT-1 btnRun 
+&Scoped-Define ENABLED-OBJECTS btnRun RECT-1 
 &Scoped-Define DISPLAYED-FIELDS reftable.loc reftable.code reftable.code2 ~
 reftable.dscr 
 &Scoped-define DISPLAYED-TABLES reftable
@@ -106,7 +106,8 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnRun 
-     IMAGE-UP FILE "images/run.ico":U
+     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Run" 
      SIZE 7 BY 1.67.
 
@@ -118,6 +119,7 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnRun AT ROW 3.62 COL 17
      reftable.loc AT ROW 1.24 COL 15 COLON-ALIGNED HELP
           "Enter Utility Name"
           LABEL "Utility" FORMAT "x(30)"
@@ -136,7 +138,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 76 BY 1
           BGCOLOR 15 
-     btnRun AT ROW 3.62 COL 17
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 

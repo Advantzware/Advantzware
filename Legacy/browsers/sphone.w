@@ -93,8 +93,8 @@ prgmxref.prgmname
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table Btn_Search RECT-4 auto_find ~
-Btn_Clear_Find Btn_Run word_search 
+&Scoped-Define ENABLED-OBJECTS Btn_Run Btn_Search Browser-Table RECT-4 ~
+auto_find Btn_Clear_Find word_search 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find word_search 
 
 /* Custom List Definitions                                              */
@@ -115,14 +115,16 @@ DEFINE BUTTON Btn_Clear_Find
      FONT 4.
 
 DEFINE BUTTON Btn_Run 
-     IMAGE-UP FILE "images\run":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Run Program".
 
 DEFINE BUTTON Btn_Search 
-     IMAGE-UP FILE "images\prospy":U NO-FOCUS
-     LABEL "" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Notes Text Search".
+     IMAGE-UP FILE "Graphics/32x32/document_view.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Search" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Search".
 
 DEFINE VARIABLE word_search AS CHARACTER 
      VIEW-AS EDITOR
@@ -183,16 +185,16 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     Btn_Run AT ROW 18.86 COL 137
+     Btn_Search AT ROW 18.86 COL 1
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     Btn_Search AT ROW 18.86 COL 1
      browse-order AT ROW 17.67 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
      auto_find AT ROW 17.67 COL 72 COLON-ALIGNED HELP
           "Enter Auto Find Value"
      Btn_Clear_Find AT ROW 17.67 COL 131 HELP
           "CLEAR AUTO FIND Value"
-     Btn_Run AT ROW 18.86 COL 137
      word_search AT ROW 18.86 COL 9 HELP
           "Enter Text to Search using '&' as 'AND' and/or '!' as 'OR'" NO-LABEL
      "By:" VIEW-AS TEXT
@@ -358,7 +360,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Search
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Search B-table-Win
-ON CHOOSE OF Btn_Search IN FRAME F-Main
+ON CHOOSE OF Btn_Search IN FRAME F-Main /* Search */
 DO:
   ASSIGN word_search.
   APPLY "VALUE-CHANGED" TO browse-order IN FRAME {&FRAME-NAME}.

@@ -56,8 +56,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_attvinv 
-     IMAGE-UP FILE "images/pushpin.ico":U
-     IMAGE-INSENSITIVE FILE "images/badsmo":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/document_attachment.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Attachment" 
      SIZE 7.8 BY 1.81 TOOLTIP "Customer Attachments".
 
@@ -211,9 +211,9 @@ PROCEDURE PushPin-Image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-attach THEN
-         SELECT_attvinv:LOAD-IMAGE("images/pushpin.ico").
+         SELECT_attvinv:LOAD-IMAGE("Graphics/32x32/pin2.ico").
       ELSE
-         SELECT_attvinv:LOAD-IMAGE("images/pushpiny.ico").
+         SELECT_attvinv:LOAD-IMAGE("Graphics/32x32/pin2_star.ico").
    END.
 END PROCEDURE.
 

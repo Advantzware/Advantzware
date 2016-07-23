@@ -88,11 +88,11 @@ DEFINE VARIABLE prgmTitle AS CHARACTER FORMAT "X(256)":U
      SIZE 50 BY .62 NO-UNDO.
 
 DEFINE IMAGE IMAGE-1
-     FILENAME "images/asi4.ico":U
+     FILENAME "Graphics/asiicon.ico":U
      SIZE 6.6 BY 1.52.
 
 DEFINE IMAGE screenImage
-     FILENAME "nosweat/userscreen.jpg":U
+     FILENAME "Graphics\userscreen.jpg":U
      SIZE 56 BY 9.76.
 
 DEFINE RECTANGLE RECT-1

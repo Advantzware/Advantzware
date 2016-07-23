@@ -65,9 +65,10 @@ in-file-name
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bt-search-file 
-     IMAGE-UP FILE "images/browse-u.bmp":U
-     LABEL "" 
-     SIZE 8 BY 1.43.
+     IMAGE-UP FILE "Graphics/32x32/document_view.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Search" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Search".
 
 DEFINE BUTTON btn-cancel AUTO-GO 
      LABEL "Ca&ncel" 
