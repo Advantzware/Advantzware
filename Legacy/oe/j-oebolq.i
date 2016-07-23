@@ -71,8 +71,8 @@ ELSE
 IF fi_cust-no NE "" THEN DO:
   &SCOPED-DEFINE open-query         ~
       OPEN QUERY {&browse-name}     ~
-        {&for-each11}                ~
-            /* USE-INDEX cust */ NO-LOCK, ~
+        {&for-each1}                ~
+            USE-INDEX cust NO-LOCK, ~
             {&for-each2},           ~
             {&for-each3} 
 
