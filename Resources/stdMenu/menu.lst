@@ -328,6 +328,7 @@ jc-ctrl. hf est
 prod. hf est
 loc. hf est
 w-wipmt. hf est
+rejctcdj. hf est
 q file est
 w-jobsch. q
 sbView. q
@@ -549,6 +550,8 @@ s8 s est
 sys-ctrl. s8 est
 w-head. s8 est
 utlookmn. s8 est
+wNewLic. s8 est
+wUserCtrl. s8 est
 custproc. s est
 u-fntclr. s est
 s11 s est
