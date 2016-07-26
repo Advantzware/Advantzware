@@ -51,8 +51,8 @@ def var v-terms like oe-ord.terms-d NO-UNDO.
 def var v-frt-terms as char format "x(10)" no-undo.
 def var v-zone like carr-mtx.del-zone no-undo.
 DEF VAR v-pal AS INT NO-UNDO.
-DEF VAR v-wgt-55 AS DEC NO-UNDO.
 DEF VAR v-wgt-70 AS DEC NO-UNDO.
+DEF VAR v-wgt-100 AS DEC NO-UNDO.
 
 def workfile w2 no-undo
     field cases            as   int format ">9"
@@ -72,8 +72,8 @@ DEF VAR v-prepaid AS cha NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
  
 find first sys-ctrl
       where sys-ctrl.company eq cocode
@@ -323,8 +323,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
           /*========*/
           ln-cnt = ln-cnt + 4.          
      END. */
-     ASSIGN v-wgt-55 = 0
-            v-wgt-70 = 0.
+     ASSIGN v-wgt-70 = 0
+            v-wgt-100 = 0.
      FOR EACH tt-boll,
          first xoe-bolh where xoe-bolh.b-no eq tt-boll.b-no no-lock,
          first itemfg where itemfg.company eq tt-boll.company
@@ -335,8 +335,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
          BY tt-boll.line
          BY tt-boll.cases DESC:                 
          ASSIGN v-tot-wt = v-tot-wt + tt-boll.weight.
-         IF itemfg.frt-class = "70" THEN v-wgt-70 = v-wgt-70 + tt-boll.weight.
-         ELSE v-wgt-55 = v-wgt-55 + tt-boll.weight.
+         IF itemfg.frt-class = "100" THEN v-wgt-100 = v-wgt-100 + tt-boll.weight.
+         ELSE v-wgt-70 = v-wgt-70 + tt-boll.weight.
 
          ln-cnt = ln-cnt + 3.
          if itemfg.isaset AND v-print-components then
@@ -376,11 +376,11 @@ for each xxreport where xxreport.term-id eq v-term-id,
   PUT "<R47><C50><#8>"
       "<=8><FROM><R+4><C+30><RECT> " 
       /*"<=8><R+1> Total Pallets      :" /*oe-bolh.tot-pallets*/ v-tot-palls FORM ">,>>>,>>9"*/
-      "<=8> Total Class 55 Weight:" v-wgt-55 FORM ">>>>,>>9"
-      "<=8><R+1> Total Class 70 Weight:" v-wgt-70 FORM ">>>>,>>9"
+      "<=8> Total Class 70 Weight:" v-wgt-70 FORM ">,>>>,>>9"
+      "<=8><R+1> Total Class 100 Weight:" v-wgt-100 FORM ">>>>,>>9"
       "<=8><R+2><FROM><C+30><LINE>"
-      "<=8><R+2> Total Cases          :" v-tot-cases FORM ">>>>,>>9"
-      "<=8><R+3> Total weight         :" v-tot-wt FORM ">>>>,>>9".
+      "<=8><R+2> Total Cases          :" v-tot-cases FORM ">,>>>,>>9"
+      "<=8><R+3> Total weight         :" v-tot-wt FORM ">,>>>,>>9".
 
 CASE v-frt-class:
     WHEN "A" THEN v-frt-class = v-frt-class + "                                 55".
@@ -411,9 +411,9 @@ PUT "<FBook Antiqua><R45><C1><P12><B>     Shipping Instructions: </B> <P9> " SKI
     "<=7><R+8><C9>CLASS   <C42>DESCRIPTION OF ARTICLES" SKIP
     "<C1><FROM><C80><LINE> "   SKIP
     /*v-frt-class FORM "x(40)" AT 10 */
-    "<=7><R+9><C10>55 <C36>Item #29280-sub 4, KD, other than corrugated, in packages" SKIP    
+    "<=7><R+9><C10>70 (as FAK 55) <C36>Item #29280-sub 8, KD, other than corrugated, in packages" SKIP    
     "<C1><FROM><C80><LINE> "   SKIP
-    "<=7><R+10><C10>70 <C36>Item #29275-sub 4, KD, corrugated, in packages" SKIP
+    "<=7><R+10><C10>100 (as FAK 55) <C36>Item #29275-sub 4, KD, corrugated, in packages" SKIP
     "<C1><FROM><C80><LINE> "   SKIP
     .
 
