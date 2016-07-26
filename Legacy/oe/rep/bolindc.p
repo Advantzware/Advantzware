@@ -376,11 +376,11 @@ for each xxreport where xxreport.term-id eq v-term-id,
   PUT "<R47><C50><#8>"
       "<=8><FROM><R+4><C+30><RECT> " 
       /*"<=8><R+1> Total Pallets      :" /*oe-bolh.tot-pallets*/ v-tot-palls FORM ">,>>>,>>9"*/
-      "<=8> Total Class 70 Weight:" v-wgt-70 FORM ">,>>>,>>9"
+      "<=8> Total Class 70 Weight :" v-wgt-70 FORM ">>>>,>>9"
       "<=8><R+1> Total Class 100 Weight:" v-wgt-100 FORM ">>>>,>>9"
       "<=8><R+2><FROM><C+30><LINE>"
-      "<=8><R+2> Total Cases          :" v-tot-cases FORM ">,>>>,>>9"
-      "<=8><R+3> Total weight         :" v-tot-wt FORM ">,>>>,>>9".
+      "<=8><R+2> Total Cases           :" v-tot-cases FORM ">>>>,>>9"
+      "<=8><R+3> Total weight          :" v-tot-wt FORM ">>>>,>>9".
 
 CASE v-frt-class:
     WHEN "A" THEN v-frt-class = v-frt-class + "                                 55".
