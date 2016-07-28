@@ -1,7 +1,6 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
@@ -106,10 +105,10 @@ DEFINE BUFFER bPendingJob FOR pendingJob.
     ~{&OPEN-QUERY-pendingJob}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-5 RECT-4 btnPrint ~
-btnComplete btnMoveResource btnRefresh jobPhrase dateTime jobID pendingJob ~
-newDate btnCalendar newHour newMinute newAMPM btnCurrentDateTime gapDay ~
-gapHour gapMinute gapTime setDateTimeOptions btnSetDateTime ~
+&Scoped-Define ENABLED-OBJECTS btnPrint btnComplete btnMoveResource ~
+btnRefresh RECT-1 RECT-2 RECT-3 RECT-5 RECT-4 jobPhrase dateTime jobID ~
+pendingJob newDate btnCalendar newHour newMinute newAMPM btnCurrentDateTime ~
+gapDay gapHour gapMinute gapTime setDateTimeOptions btnSetDateTime ~
 btnSelectUnselect btnClearSelections setPlacementOptions btnScheduleJob ~
 instructions4Steps btn4Steps 
 &Scoped-Define DISPLAYED-OBJECTS jobPhrase dateTime newDate newHour ~
@@ -315,31 +314,31 @@ DEFINE VARIABLE setPlacementOptions AS INTEGER INITIAL 1
      BGCOLOR 2 FGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 149.6 BY 1.19.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 30 BY 3.81
      BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 30 BY 3.1
      BGCOLOR 9 .
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 30 BY 2.38
      BGCOLOR 14 .
 
 DEFINE RECTANGLE RECT-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 30 BY 4.76
      BGCOLOR 2 .
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 30 BY 6.19
      BGCOLOR 12 .
 
@@ -361,7 +360,7 @@ DEFINE BROWSE jobID
       jobID.dueDate FORMAT '99/99/9999' LABEL 'Due' LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 39 BY 21.19 ROW-HEIGHT-CHARS .52.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 39 BY 21.19.
 
 DEFINE BROWSE pendingJob
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS pendingJob sObject _FREEFORM
@@ -378,7 +377,7 @@ DEFINE BROWSE pendingJob
   */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 78.6 BY 21.19 ROW-HEIGHT-CHARS .52.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 78.6 BY 21.19.
 
 
 /* ************************  Frame Definitions  *********************** */

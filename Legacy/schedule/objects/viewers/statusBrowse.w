@@ -1,7 +1,7 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
+          jobs             PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
@@ -122,7 +122,7 @@ DEFINE BUTTON btnExit
      BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 149.6 BY 1.19.
 
 /* Query definitions                                                    */
@@ -155,7 +155,7 @@ DEFINE BROWSE browseJob
   jobStatus.jobStatus[14]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 149.6 BY 21.19 ROW-HEIGHT-CHARS .6.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 149.6 BY 21.19.
 
 
 /* ************************  Frame Definitions  *********************** */

@@ -577,7 +577,7 @@ PROCEDURE pGetCRM :
             ttContacts.applyAction = YES.
         ASSIGN
             ttContacts.phoneAttention = phone.attention
-            ttContacts.phoneCityCode  = phone.fax_city_code
+            ttContacts.phoneCityCode  = phone.phone_city_code
             ttContacts.phonePhone     = phone.phone
             ttContacts.phoneExt       = phone.phone_ext
             ttContacts.phoneEmail     = phone.e_mail
