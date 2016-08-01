@@ -1013,7 +1013,7 @@ for each job-hdr NO-LOCK
                     wrk-film.bnum SPACE(3)
                     string(wrk-film.leaf-l) + "x" + string(wrk-film.leaf-w)
                     format "x(23)" SPACE(10)
-                   STRING( ( wrk-film.leaf-l + 1) * (IF AVAIL job-mch THEN job-mch.run-qty ELSE 0) / 12) SPACE(2)
+                   STRING( ( wrk-film.leaf-l + 1) * (IF AVAIL job-mch THEN job-mch.run-qty ELSE 0) / 12) SPACE(3)
                    STRING((IF AVAIL job-mch THEN job-mch.run-qty ELSE 0) * (wrk-film.leaf-l + 1) * ( wrk-film.leaf-w + 1) /
                     (IF AVAIL ITEM THEN ITEM.sqin-lb ELSE 0) )
                     with stream-io width 170 no-labels no-box frame film.
@@ -1297,7 +1297,7 @@ for each job-hdr NO-LOCK
               eb.layer-pad  AT 18 /* tray */
               v-job-qty-unit-per-int  AT 40
               eb.cas-no FORMAT "X(15)" AT 54 /* cases# */
-              eb.cas-cnt AT 77  /* qty per case */
+              eb.cas-cnt FORMAT "->>>>>9" AT 75  /* qty per case */
               eb.tr-no   AT 90 /* Pallet */ 
               (IF AVAIL itemfg THEN itemfg.prod-not ELSE "") FORMAT "X(20)" AT 106 /* packing spacs*/ SKIP .
                
