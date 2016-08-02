@@ -46,6 +46,14 @@ IF AVAIL ar-invl THEN DO:
                             ip-qty,
                             YES,
                             OUTPUT op-cost).
+  IF ip-type EQ 4 THEN
+    RUN sys/inc/bordcostM.p (ip-job-no,
+                            ip-job-no2,                            
+                            ar-invl.i-no,
+                            v-bol-no,
+                            ip-qty,
+                            YES,
+                            OUTPUT op-cost).
 
   IF op-cost EQ ? THEN op-cost = 0.
 
