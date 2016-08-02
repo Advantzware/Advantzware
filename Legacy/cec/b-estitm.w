@@ -5138,7 +5138,8 @@ PROCEDURE local-assign-record :
   DEF VAR v-count AS INT NO-UNDO.
   DEF VAR v-w-array AS DEC EXTENT 30 NO-UNDO.  
   DEF VAR cNewRep AS CHAR NO-UNDO.
-
+  DEFINE VARIABLE is2PieceBox AS LOG NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
    lv-hld-cust   = eb.cust-no
@@ -5152,7 +5153,8 @@ PROCEDURE local-assign-record :
    lv-hld-len    = eb.len
    lv-hld-dep    = eb.dep
    lv-hld-style  = eb.style
-   lv-hld-board  = ef.board.
+   lv-hld-board  = ef.board
+   is2PieceBox = no.
 
   {est/blankcp2.i}
 
@@ -5171,6 +5173,14 @@ PROCEDURE local-assign-record :
   FIND CURRENT eb EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
   viEQtyPrev = eb.eqty.
+  
+  IF est.est-type EQ 6 AND can-find(bf-eb WHERE bf-eb.company = est.company AND bf-eb.est-no = est.est-no AND bf-eb.blank-no > 0)
+     AND can-find(FIRST b-eb WHERE b-eb.company = est.company AND b-eb.est-no = est.est-no AND b-eb.form-no = 0 and
+                           b-eb.part-no = eb.part-no AND b-eb.stock-no = eb.stock-no AND b-eb.part-dscr1 = eb.part-dscr1
+                           AND b-eb.len = eb.len AND b-eb.wid = eb.wid AND b-eb.dep = eb.dep)
+              /* OR  (est.est-type EQ 5 AND eb.yld-qty GE 2) */   
+  THEN ASSIGN is2PieceBox = YES.
+       
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -5558,6 +5568,20 @@ PROCEDURE local-assign-record :
   IF eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN
       RUN copy-2-form-zero.
 
+  IF is2PieceBox THEN DO:
+     FIND b-eb WHERE b-eb.company = est.company AND b-eb.est-no = est.est-no AND b-eb.form-no = 0 AND b-eb.blank-no = 0 EXCLUSIVE-LOCK.
+     ASSIGN b-eb.stock-no = eb.stock-no
+            b-eb.part-no = eb.part-no
+            b-eb.part-dscr1 = eb.part-dscr1
+            b-eb.part-dscr2 = eb.part-dscr2
+            b-eb.procat = eb.procat
+            b-eb.len = eb.len
+            b-eb.wid = eb.wid
+            b-eb.dep = eb.dep
+            .         
+     RELEASE b-eb.       
+  END.
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
