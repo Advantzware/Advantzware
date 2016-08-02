@@ -864,7 +864,7 @@ PROCEDURE upd-2box :
            eb.len = bf-eb.len
            eb.wid = bf-eb.wid
            eb.dep = bf-eb.dep
-           eb.pur-man = NO
+           /* eb.pur-man = NO */
            .
   END.
 
