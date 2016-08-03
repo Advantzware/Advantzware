@@ -46,6 +46,8 @@ DEF VAR period_pos AS INTEGER NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
 DEF VAR v-check-page AS LOG INIT NO NO-UNDO .
 DEF VAR v-file-name AS CHAR NO-UNDO .
+DEFINE VARIABLE ou-log like sys-ctrl.log-fld INIT NO no-undo.
+DEFINE VARIABLE ou-cust-int AS INT NO-UNDO .
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -428,7 +430,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                             OUTPUT lActive).
    END.
  
-{sys/inc/custlistform.i "v-file-name" }
+RUN sys/inc/custlistform.p (INPUT v-file-name , INPUT cocode , OUTPUT ou-log , OUTPUT ou-cust-int) .
 {sys/inc/chblankcust.i "v-file-name"}
     IF ou-cust-int = 0 THEN
         custcount = "".

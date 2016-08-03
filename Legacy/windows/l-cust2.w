@@ -51,7 +51,8 @@ DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
 DEF VAR period_pos AS INTEGER NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
 DEF VAR v-check-page AS LOG INIT NO NO-UNDO .
-/*def var ou-log like sys-ctrl.log-fld INIT NO no-undo.*/
+DEFINE VARIABLE ou-log like sys-ctrl.log-fld INIT NO no-undo.
+DEFINE VARIABLE ou-cust-int AS INT NO-UNDO .
 DEF VAR v-file-name AS CHAR NO-UNDO .
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
@@ -476,7 +477,8 @@ END.
                             OUTPUT lActive).
      END.
  END.
-{sys/inc/custlistform.i "v-file-name" }
+/*{sys/inc/custlistform.i "v-file-name" }*/
+  RUN sys/inc/custlistform.p (INPUT v-file-name , INPUT cocode , OUTPUT ou-log , OUTPUT ou-cust-int) .
 {sys/inc/chblankcust.i "v-file-name"}
     IF ou-cust-int = 0 THEN
         custcount = "".
