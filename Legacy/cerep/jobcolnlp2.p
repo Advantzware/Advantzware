@@ -186,7 +186,9 @@ DEF VAR v-ink1 AS cha EXTENT 100 NO-UNDO.
 DEF VAR v-ink2 AS cha EXTENT 100 NO-UNDO.
 DEF VAR lv-mat-dept-list AS cha INIT "FB,FS,WN,WS,GL" NO-UNDO.
 DEF VAR v-mat-for-mach AS cha NO-UNDO.
-DEF BUFFER xjob-mat FOR job-mat.
+DEF BUFFER xjob-mat FOR job-mat. 
+DEF BUFFER bf-job-mat FOR job-mat. 
+DEFINE VARIABLE v-layer-qty AS DECIMAL NO-UNDO .
 DEF VAR v-fgitm AS cha FORM "x(15)" EXTENT 10 NO-UNDO.
 DEF VAR v-fgdsc LIKE eb.part-dscr1 EXTENT 10 NO-UNDO.
 DEF VAR v-fgqty LIKE job-hdr.qty EXTENT 10 FORM ">>,>>>,>>>" NO-UNDO.
@@ -1276,6 +1278,16 @@ FOR  EACH job-hdr NO-LOCK
                    " <B>#AR:</B>"    STRING(eb.num-len)       STRING(eb.t-wid)  AT 21.
 
             PUT v-fill AT 1 SKIP "<B><P12> F I N I S H I N G</B><P9>" SKIP.
+
+            FIND FIRST bf-job-mat NO-LOCK WHERE bf-job-mat.company EQ job.company 
+                   AND bf-job-mat.job EQ job.job 
+                   AND bf-job-mat.job-no EQ job.job-no 
+                   AND bf-job-mat.job-no2 EQ job.job-no2
+                   AND bf-job-mat.frm EQ eb.form-no
+                   AND bf-job-mat.rm-i-no EQ eb.layer-pad  NO-ERROR .
+            
+                ASSIGN
+                    v-layer-qty = IF AVAIL bf-job-mat THEN bf-job-mat.qty ELSE 0 .
            
            FIND item WHERE
                 item.company = eb.company AND
@@ -1285,7 +1297,7 @@ FOR  EACH job-hdr NO-LOCK
 
            ASSIGN 
               v-lp-dep = IF AVAIL item THEN ITEM.case-d ELSE 0 
-              v-lp-qty = IF AVAIL item THEN ITEM.box-case ELSE 0.
+              v-lp-qty = IF AVAIL item THEN ITEM.box-case ELSE 0 .
 
           /*IF FIRST-OF(eb.form-no) THEN
              PUT 
@@ -1343,6 +1355,11 @@ FOR  EACH job-hdr NO-LOCK
           IF v-dc-out EQ 0 THEN
              v-dc-out = 1.
 
+          FIND FIRST ITEM NO-LOCK
+                WHERE item.company EQ cocode
+                  AND item.i-no    EQ eb.cas-no
+                  NO-ERROR.
+
           PUT "<P9><B> UNIT SIZE   Flat:</B>"  STRING(eb.t-len) + " x " + string(eb.t-wid * v-dc-only-out)  FORMAT "x(19)"
               "<B>Finished:</B> "  STRING(eb.len) + " x " + string(eb.wid) FORMAT "X(19)"
               "<B>UP#:</B>" v-dc-out SPACE(4)
@@ -1350,19 +1367,19 @@ FOR  EACH job-hdr NO-LOCK
               "<B>Style:</B> " eb.style  SKIP
 
               "<B> Packaging: " SKIP
-              " Tray # </B>" eb.layer-pad FORMAT "x(15)"
+              " Tray #: </B>" eb.layer-pad FORMAT "x(15)"
               "<C20><B>Size: </B>"  STRING(eb.lp-len) + "x" + string(eb.lp-wid) + "x" + string(v-lp-dep)  FORMAT "x(27)"
-              "<C40><B>Qty per tray:</B>"   v-unit-per-int
-              "<C60><B># of trays:</B>"  v-lp-qty  FORMAT "->>>>>>9"  SKIP 
+              "<C40><B>Qty per tray:</B>"   v-lp-qty FORMAT "->>>>>9"
+              "<C60><B># of trays:</B>"   v-layer-qty FORMAT "->>>>>>9.9<<"  SKIP 
 
               "<B> Case #: </B>"   eb.cas-no
               "<C20><B>Size: </B>"    STRING(eb.cas-len) + "x" + STRING(eb.cas-wid) + "x" + STRING(eb.cas-dep) FORMAT "x(27)"
-              "<C40><B>Qty. per case:</B>"   eb.cas-cnt
-              "<C60><B># of trays per case:</B>" v-job-qty-boxes-code-int  FORMAT "->>>>>>9"  SKIP
+              "<C40><B>Qty per case:</B>"   eb.cas-cnt FORMAT "->>>>>9"
+              "<C60><B># of Cases:</B>"( IF AVAILABLE ITEM THEN STRING(ITEM.box-case,"->,>>>,>>9") ELSE "") /*v-job-qty-boxes-code-int*/  FORMAT "x(10)"  SKIP
 
               "<B> Pallet:</B> " eb.tr-no
               "<C20><B>Shrink Wrap: </B>" STRING(v-shrink-wrap,"Y/N")  
-              "<C40><B>Packing Specs: </B>" (IF AVAIL itemfg THEN  itemfg.prod-no ELSE "") SKIP .
+              "<C40><B>Packing Specs: </B>" (IF AVAIL itemfg THEN  itemfg.prod-no ELSE "") FORMAT "x(20)" SKIP .
 
 
           /*PUT " Flat" "Finished"  AT 22 "Tray#" AT 33 eb.layer-pad FORMAT "x(10)"
