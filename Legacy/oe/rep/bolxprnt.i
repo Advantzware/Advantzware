@@ -77,7 +77,7 @@ for each report where report.term-id eq v-term-id,
        and oe-ordl.i-no    eq report.key-01
        no-lock no-error.
 
-  IF LAST-OF(report.key-01) THEN do:
+  IF LAST(report.key-01) THEN do:
       IF v-printline >= 40 THEN DO:
           v-printline = 0.
           PAGE {1}.
