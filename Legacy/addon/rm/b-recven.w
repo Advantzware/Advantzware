@@ -68,6 +68,8 @@ DEF VAR lv-setup AS DEC NO-UNDO.
 DEF VAR lv-entry-qty AS DEC NO-UNDO.
 DEF VAR lv-entry-qty-uom AS CHAR NO-UNDO.
 DEF VAR v-post-date AS DATE INIT TODAY NO-UNDO.
+DEFINE VARIABLE cSSScanVendor AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO .
 
 &scoped-define fld-name-1 loadtag.misc-char[1]
 &scoped-define SORTBY-PHRASE BY {&fld-name-1}
@@ -119,6 +121,15 @@ DO TRANSACTION:
   {sys/inc/postdate.i}
   {sys/inc/rmpostgl.i}
 END.
+RUN sys/ref/nk1look.p (INPUT cocode,
+                        INPUT "SSScanVendor",
+                        INPUT "C",
+                        INPUT NO,
+                        INPUT NO,
+                        INPUT "",
+                        INPUT "",
+                        OUTPUT cSSScanVendor,
+                        OUTPUT lFound).
 
 DEFINE VARIABLE lv-do-what AS CHAR INIT "Receipt" NO-UNDO.
 
@@ -176,15 +187,16 @@ DEF TEMP-TABLE tt-mat NO-UNDO FIELD frm LIKE job-mat.frm
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table rm-rctd.r-no rm-rctd.tag ~
-loadtag.misc-char[1] rm-rctd.loc rm-rctd.loc-bin rm-rctd.rct-date ~
+loadtag.misc-char[1] loadtag.misc-char[2] rm-rctd.loc rm-rctd.loc-bin rm-rctd.rct-date ~
 rm-rctd.po-no rm-rctd.job-no rm-rctd.job-no2 rm-rctd.s-num rm-rctd.i-no ~
 rm-rctd.i-name rm-rctd.qty rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom ~
 calc-ext-cost() @ ext-cost display-dimension('W') @ lv-po-wid ~
 display-dimension('L') @ lv-po-len rm-rctd.user-id 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.tag ~
-rm-rctd.loc rm-rctd.loc-bin rm-rctd.i-no rm-rctd.qty 
-&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rctd
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rctd
+loadtag.misc-char[2] rm-rctd.loc rm-rctd.loc-bin rm-rctd.i-no rm-rctd.qty 
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table loadtag rm-rctd 
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table loadtag
+&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH rm-rctd WHERE ~{&KEY-PHRASE} ~
       AND rm-rctd.company EQ cocode ~
 AND rm-rctd.rita-code EQ "R" ~
@@ -298,6 +310,8 @@ DEFINE BROWSE Browser-Table
       rm-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U LABEL-BGCOLOR 14
       loadtag.misc-char[1] COLUMN-LABEL "Vendor Tag #" FORMAT "x(21)":U
             WIDTH 30 LABEL-BGCOLOR 14
+      loadtag.misc-char[2] COLUMN-LABEL "RM Lot #" FORMAT "x(21)":U
+            WIDTH 20 
       rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U LABEL-BGCOLOR 14
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
@@ -323,6 +337,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.user-id COLUMN-LABEL "User ID" FORMAT "x(8)":U WIDTH 15
   ENABLE
       rm-rctd.tag
+      loadtag.misc-char[2]
       rm-rctd.loc
       rm-rctd.loc-bin
       rm-rctd.i-no
@@ -414,6 +429,13 @@ ASSIGN
 
 ASSIGN 
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
+IF cSSScanVendor = "RMLot" THEN
+    ASSIGN 
+    loadtag.misc-char[2]:VISIBLE IN BROWSE Browser-Table = TRUE.
+ELSE
+    ASSIGN 
+        loadtag.misc-char[2]:VISIBLE IN BROWSE Browser-Table = FALSE.
 
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -829,6 +851,7 @@ DO:
            rm-rctd.s-num:SCREEN-VALUE = STRING(bpo-ordl.s-num).
         
         loadtag.misc-char[1]:SCREEN-VALUE = loadtag.misc-char[1].
+        loadtag.misc-char[2]:SCREEN-VALUE = loadtag.misc-char[2].
 
         APPLY "leave" TO rm-rctd.i-no IN BROWSE {&browse-name}.
         
@@ -1587,7 +1610,10 @@ PROCEDURE create-rec-from-vend-tag :
       
       RUN leave-tag-proc(INPUT ip-rec-qty).
 
-      APPLY "ENTRY" TO rm-rctd.loc IN BROWSE {&browse-name}.
+      IF cSSScanVendor = "RMLot" THEN
+          APPLY "ENTRY" TO loadtag.misc-char[2] IN BROWSE {&browse-name}.
+      ELSE
+         APPLY "ENTRY" TO rm-rctd.loc IN BROWSE {&browse-name}.
    END.
    ELSE
    DO:
@@ -1816,7 +1842,11 @@ PROCEDURE create-rec-from-vend-tag :
         IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ("row-changed").
         RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
         RUN auto-save IN WIDGET-HANDLE(char-hdl).
-        APPLY "entry" TO rm-rctd.loc IN BROWSE {&BROWSE-NAME}.
+
+        IF cSSScanVendor = "RMLot" THEN
+          APPLY "ENTRY" TO loadtag.misc-char[2] IN BROWSE {&browse-name}.
+        ELSE
+          APPLY "entry" TO rm-rctd.loc IN BROWSE {&BROWSE-NAME}.
         
       END.
       
@@ -2945,9 +2975,9 @@ PROCEDURE po-cost :
       LEAVE.
 
    assign
-      lv-qty-uom  = po-ordl.pr-qty-uom
-      v-len = po-ordl.s-len
-      v-wid = po-ordl.s-wid
+      lv-qty-uom  = IF AVAIL po-ordl THEN po-ordl.pr-qty-uom ELSE ""
+      v-len = IF AVAIL po-ordl THEN po-ordl.s-len ELSE 0
+      v-wid = IF AVAIL po-ordl THEN po-ordl.s-wid ELSE 0
       v-bwt = 0.
 
    {rm/pol-dims.i}
@@ -2964,6 +2994,8 @@ PROCEDURE po-cost :
                            input v-dep,
                            INPUT DEC(rm-rctd.qty:screen-value in browse {&browse-name}),
                            output lv-out-qty).
+
+  IF AVAIL po-ordl THEN do:
 
    FIND FIRST po-ord WHERE
         po-ord.company EQ cocode AND
@@ -2992,6 +3024,7 @@ PROCEDURE po-cost :
    RUN convert-vend-comp-curr(INPUT-OUTPUT lv-setup).     
 
    rm-rctd.cost:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(lv-cost).
+  END. /* avail po-ordl */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
