@@ -2154,7 +2154,7 @@ PROCEDURE output-to-mail :
                                    NO-LOCK NO-ERROR.
                          vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
                   END.
-                  vShipToNo = ar-inv.ship-id.
+                  vShipToNo = b-ar-inv.ship-id.
                   RUN GenerateEmail(b-ar-inv.cust-no).
                END.
            END.
