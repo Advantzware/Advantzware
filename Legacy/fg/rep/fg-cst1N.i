@@ -104,32 +104,9 @@
     IF LAST-OF({2}) THEN DO: 
       v-tot-per = v-tot-ext[1] / v-tot-msf[1].
       IF v-tot-per EQ ? THEN v-tot-per = 0.
-
-     /* DISPLAY itemfg.cust-no
-              itemfg.i-no
-              itemfg.part-no
-              tt-fg-bin.loc     WHEN AVAIL tt-fg-bin
-              v-tot-qty[1]
-              v-tot-msf[1]
-              v-tot-cst[1]
-              v-tot-ext[1]
-              v-tot-per
-          WITH FRAME itemx.
-
-      DOWN WITH FRAME itemx.
-
-      IF v-excel THEN  
-        PUT STREAM excel UNFORMATTED
-            '"' itemfg.cust-no '",' 
-            '"' itemfg.i-no '",' 
-            '"' itemfg.part-no '",'
-            '"' (IF AVAIL tt-fg-bin THEN tt-fg-bin.loc ELSE "") '",'
-            '"' v-tot-qty[1] '",'
-            '"' v-tot-msf[1] '",'
-            '"' v-tot-cst[1] '",'
-            '"' v-tot-ext[1] '",'
-            '"' v-tot-per '",'
-            SKIP.*/
+      FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode
+                      AND cust.cust-no EQ itemfg.cust-no NO-ERROR .
+     
       ASSIGN cDisplay = ""
           cTmpField = ""
           cVarValue = ""
@@ -147,6 +124,7 @@
               WHEN "tot-cost"  THEN cVarValue = string(v-tot-cst[1],"->>,>>>,>>9.99").
               WHEN "tot-sal" THEN cVarValue = string(v-tot-ext[1],"->>>>,>>>,>>9.99").
               WHEN "msf"  THEN cVarValue = string(v-tot-per,"->>>9.99<<<")  .
+              WHEN "cust-name"  THEN cVarValue = IF AVAIL cust THEN string(cust.NAME,"x(30)") ELSE ""  .
               
           END CASE.
 
@@ -237,7 +215,7 @@
               WHEN "tot-cost"  THEN cVarValue = string(v-tot-cst[3],"->>,>>>,>>9.99").
               WHEN "tot-sal" THEN cVarValue = string(v-tot-ext[3],"->>>>,>>>,>>9.99").
               WHEN "msf"  THEN cVarValue = string(v-tot-per,"->>>9.99<<<")  .
-              
+              WHEN "cust-name"  THEN cVarValue =  ""  .
           END CASE.
 
           cExcelVarValue = cVarValue.
