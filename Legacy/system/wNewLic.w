@@ -234,9 +234,12 @@ ON CHOOSE OF btAccept /* Advantzware License Code Entry */
             IF iSite EQ  sys-ctrl.int-fld 
                 AND iNumUsers = asi._license._Lic-ValidUsers THEN 
             DO:
-                FOR EACH module EXCLUSIVE-LOCK WHERE module.expire-date LT dExpireDate:
+                FOR EACH module EXCLUSIVE-LOCK WHERE 
+                     (module.expire-date LT dExpireDate 
+                     OR module.expire-date EQ ?):
                     module.expire-date = dExpireDate.
-                END.
+                END.                
+                  
                 MESSAGE "The new license code has been accepted."
                     VIEW-AS ALERT-BOX.
             END.
