@@ -1,4 +1,4 @@
-/* pOpenOrderReport.i - auto generated 05.22.2016 @  9:53:41 pm from aoa/aoaParam.w */
+/* pOpenOrderReport.i - auto generated 08.06.2016 @  6:31:15 pm from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
@@ -38,14 +38,14 @@
     DEFINE VARIABLE cStartSalesRep AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndSalesRep AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrimarySort AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPrimarySort-2 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobStatus AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimarySort-2 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOrderStatus AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cWIPQty AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSubRpt_PrintJobQtyDetails AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lDropOrderUnderrun AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lIncludeZeroQtyActReleaseQty AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIncludeZeroOrderBalanceItems AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIncludeZeroQtyActReleaseQty AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIncludeJobsQOH AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIncludeZeroQtyWIPItems AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIncludeInactiveItems AS LOGICAL NO-UNDO.
@@ -94,14 +94,14 @@
         cStartSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svStartSalesRep")
         cEndSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svEndSalesRep")
         cPrimarySort = DYNAMIC-FUNCTION("fGetParamValue","svPrimarySort")
-        cPrimarySort-2 = DYNAMIC-FUNCTION("fGetParamValue","svPrimarySort-2")
         cJobStatus = DYNAMIC-FUNCTION("fGetParamValue","svJobStatus")
+        cPrimarySort-2 = DYNAMIC-FUNCTION("fGetParamValue","svPrimarySort-2")
         cOrderStatus = DYNAMIC-FUNCTION("fGetParamValue","svOrderStatus")
         cWIPQty = DYNAMIC-FUNCTION("fGetParamValue","svWIPQty")
         lSubRpt_PrintJobQtyDetails = DYNAMIC-FUNCTION("fGetParamValue","svSubRpt_PrintJobQtyDetails") EQ "yes"
         lDropOrderUnderrun = DYNAMIC-FUNCTION("fGetParamValue","svDropOrderUnderrun") EQ "yes"
-        lIncludeZeroQtyActReleaseQty = DYNAMIC-FUNCTION("fGetParamValue","svIncludeZeroQtyActReleaseQty") EQ "yes"
         lIncludeZeroOrderBalanceItems = DYNAMIC-FUNCTION("fGetParamValue","svIncludeZeroOrderBalanceItems") EQ "yes"
+        lIncludeZeroQtyActReleaseQty = DYNAMIC-FUNCTION("fGetParamValue","svIncludeZeroQtyActReleaseQty") EQ "yes"
         lIncludeJobsQOH = DYNAMIC-FUNCTION("fGetParamValue","svIncludeJobsQOH") EQ "yes"
         lIncludeZeroQtyWIPItems = DYNAMIC-FUNCTION("fGetParamValue","svIncludeZeroQtyWIPItems") EQ "yes"
         lIncludeInactiveItems = DYNAMIC-FUNCTION("fGetParamValue","svIncludeInactiveItems") EQ "yes"

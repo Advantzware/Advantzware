@@ -1,4 +1,4 @@
-/* pOrdersBookedByOrderNo.i - auto generated 05.22.2016 @  8:25:57 pm from aoa/aoaParam.w */
+/* pOrdersBookedByOrderNo.i - auto generated 08.06.2016 @  6:31:43 pm from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.

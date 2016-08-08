@@ -49,13 +49,13 @@ CREATE WIDGET-POOL.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList svAllCustNo ~
 svStartCustNo svEndCustNo svStartOrderDate btnCalendar-1 ~
-svStartOrdDateOption svEndOrderDate btnCalendar-2 svEndOrdDateOption ~
+svStartOrderDateOption svEndOrderDate btnCalendar-2 svEndOrderDateOption ~
 svAllSalesRep svStartSalesRep svEndSalesRep svAllProdCategory ~
 svStartProdCategory svEndProdCategory svMiscChg svPageRep svSetCom svRepTot ~
 svRelOrd svUnder svUnderValue svOver svOverValue 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
 startCustName svStartCustNo endCustName svEndCustNo svStartOrderDate ~
-svStartOrdDateOption svEndOrderDate svEndOrdDateOption svAllSalesRep ~
+svStartOrderDateOption svEndOrderDate svEndOrderDateOption svAllSalesRep ~
 svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
 svAllProdCategory svStartProdCategory startProdCategoryName ~
 svEndProdCategory endProdCategoryName svMiscChg svPageRep svSetCom svRepTot ~
@@ -88,13 +88,13 @@ DEFINE BUTTON btnCustList
      LABEL "Preview" 
      SIZE 9.8 BY .95.
 
-DEFINE VARIABLE svEndOrdDateOption AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE svEndOrderDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svStartOrdDateOption AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE svStartOrderDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
@@ -252,12 +252,12 @@ DEFINE FRAME F-Main
      svStartOrderDate AT ROW 8.62 COL 22 COLON-ALIGNED HELP
           "Enter Start Order Date" WIDGET-ID 84
      btnCalendar-1 AT ROW 8.62 COL 39 WIDGET-ID 76
-     svStartOrdDateOption AT ROW 8.62 COL 42 COLON-ALIGNED HELP
+     svStartOrderDateOption AT ROW 8.62 COL 42 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 86
      svEndOrderDate AT ROW 9.81 COL 22 COLON-ALIGNED HELP
           "Enter End Order Date" WIDGET-ID 80
      btnCalendar-2 AT ROW 9.81 COL 39 WIDGET-ID 78
-     svEndOrdDateOption AT ROW 9.81 COL 42 COLON-ALIGNED HELP
+     svEndOrderDateOption AT ROW 9.81 COL 42 COLON-ALIGNED HELP
           "Select End Order Date Option" NO-LABEL WIDGET-ID 82
      svAllSalesRep AT ROW 11.71 COL 24 HELP
           "All Sales Reps?" WIDGET-ID 58
@@ -288,11 +288,11 @@ DEFINE FRAME F-Main
      svOver AT ROW 23.38 COL 59.8 WIDGET-ID 102
      svOverValue AT ROW 23.38 COL 82.6 COLON-ALIGNED HELP
           "Enter Beginning Prod Category#" NO-LABEL WIDGET-ID 106
-     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
-          SIZE 67 BY .95 AT ROW 24.95 COL 22 WIDGET-ID 108
      "Note: Profit Includes Estimate Markups and Commissions." VIEW-AS TEXT
           SIZE 60 BY .71 AT ROW 26 COL 23.4 WIDGET-ID 110
           FGCOLOR 1 
+     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
+          SIZE 67 BY .95 AT ROW 24.95 COL 22 WIDGET-ID 108
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -497,22 +497,22 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndOrdDateOption
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndOrdDateOption sObject
-ON VALUE-CHANGED OF svEndOrdDateOption IN FRAME F-Main
+&Scoped-define SELF-NAME svEndOrderDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndOrderDate sObject
+ON HELP OF svEndOrderDate IN FRAME F-Main /* End Order Date */
 DO:
-    {aoa/tDateOption.i &dateObject=svEndOrderDate &btnCalendar=2}
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndOrderDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndOrderDate sObject
-ON HELP OF svEndOrderDate IN FRAME F-Main /* End Order Date */
+&Scoped-define SELF-NAME svEndOrderDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndOrderDateOption sObject
+ON VALUE-CHANGED OF svEndOrderDateOption IN FRAME F-Main
 DO:
-  {methods/calendar.i}
+    {aoa/tDateOption.i &dateObject=svEndOrderDate &btnCalendar=2}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -564,22 +564,22 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartOrdDateOption
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartOrdDateOption sObject
-ON VALUE-CHANGED OF svStartOrdDateOption IN FRAME F-Main
+&Scoped-define SELF-NAME svStartOrderDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartOrderDate sObject
+ON HELP OF svStartOrderDate IN FRAME F-Main /* Start Order Date */
 DO:
-    {aoa/tDateOption.i &dateObject=svStartOrderDate &btnCalendar=1}
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartOrderDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartOrderDate sObject
-ON HELP OF svStartOrderDate IN FRAME F-Main /* Start Order Date */
+&Scoped-define SELF-NAME svStartOrderDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartOrderDateOption sObject
+ON VALUE-CHANGED OF svStartOrderDateOption IN FRAME F-Main
 DO:
-  {methods/calendar.i}
+    {aoa/tDateOption.i &dateObject=svStartOrderDate &btnCalendar=1}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -676,8 +676,8 @@ PROCEDURE pInitialize :
         APPLY "LEAVE":U TO svStartCustNo.
         APPLY "LEAVE":U TO svEndCustNo.
         
-        APPLY "VALUE-CHANGED":U TO svStartOrdDateOption.
-        APPLY "VALUE-CHANGED":U TO svEndOrdDateOption.
+        APPLY "VALUE-CHANGED":U TO svStartOrderDateOption.
+        APPLY "VALUE-CHANGED":U TO svEndOrderDateOption.
 
         APPLY "VALUE-CHANGED":U TO svAllSalesRep.
         APPLY "LEAVE":U TO svStartSalesRep.
@@ -706,8 +706,8 @@ PROCEDURE pPopulateOptions :
         ASSIGN
             hContainer = iphContainer
             .
-        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartOrdDateOption:HANDLE).
-        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndOrdDateOption:HANDLE).
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartOrderDateOption:HANDLE).
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndOrderDateOption:HANDLE).
         
     END.
 

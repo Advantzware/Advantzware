@@ -523,7 +523,7 @@ DEFINE VARIABLE svStartReceiptDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50
      SIZE 15.6 BY 1.
 
 DEFINE VARIABLE svStartSalesRep AS CHARACTER FORMAT "X(3)" 
-     LABEL "Start Sales Rep#" 
+     LABEL "Start Sales Rep" 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1.
 
@@ -1739,7 +1739,7 @@ END.
 
 &Scoped-define SELF-NAME svStartSalesRep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartSalesRep sObject
-ON LEAVE OF svStartSalesRep IN FRAME F-Main /* Start Sales Rep# */
+ON LEAVE OF svStartSalesRep IN FRAME F-Main /* Start Sales Rep */
 DO:
     startSalesRepName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.

@@ -18,6 +18,63 @@
 
 /* ***************************  Definitions  ************************** */
 
+/* Aged Receivables.rpa */
+DEFINE TEMP-TABLE ttAgedReceivables NO-UNDO
+    {aoaAppSrv/ttFields.i}
+    FIELD custNo      AS CHARACTER LABEL "Customer"        FORMAT "x(8)" 
+    FIELD custName    AS CHARACTER LABEL "Customer Name"   FORMAT "x(30)"
+    FIELD contact     AS CHARACTER LABEL "Contact"         FORMAT "x(15)"
+    FIELD salesRep    AS CHARACTER LABEL "Sales Rep"       FORMAT "x(25)"
+    FIELD terms       AS CHARACTER LABEL "Terms"           FORMAT "x(8)"
+    FIELD address1    AS CHARACTER LABEL "Address1"        FORMAT "x(30)"
+    FIELD address2    AS CHARACTER LABEL "Address2"        FORMAT "x(30)"
+    FIELD city        AS CHARACTER LABEL "City"            FORMAT "x(15)"
+    FIELD state       AS CHARACTER LABEL "State"           FORMAT "x(5)"
+    FIELD zip         AS CHARACTER LABEL "Zip"             FORMAT "x(8)"
+    FIELD creditLimit AS DECIMAL   LABEL "Credit Lim"      FORMAT "->>,>>>,>>9.99"
+    FIELD phone       AS CHARACTER LABEL "Phone"           FORMAT "x(13)"
+    FIELD fax         AS CHARACTER LABEL "Fax"             FORMAT "x(12)"
+    FIELD checkMemo   AS CHARACTER LABEL "Check/Memo"      FORMAT "x(10)"
+    FIELD daysOld     AS INTEGER   LABEL "Days Old"        FORMAT "->>>>>>>9"
+    FIELD vType       AS CHARACTER LABEL "Type"            FORMAT "x(4)"
+    FIELD invoiceNo   AS INTEGER   LABEL "Invoice"         FORMAT ">>>>>>>>9"
+    FIELD invoiceDate AS DATE      LABEL "Inv Date"       
+    FIELD amount      AS DECIMAL   LABEL "Amount"          FORMAT "->,>>>,>>>,>>9.99"
+    FIELD vCurrent    AS DECIMAL   LABEL "Current"         FORMAT "->,>>>,>>>,>>9.99"
+    FIELD adtp        AS INTEGER   LABEL "Adtp"            FORMAT "->,>>9"
+    FIELD td          AS INTEGER   LABEL "Td"              FORMAT "->,>>9"
+    FIELD periodDay1  AS DECIMAL   LABEL "Period Day1"     FORMAT "->,>>>,>>>,>>9.99"
+    FIELD periodDay2  AS DECIMAL   LABEL "Period Day2"     FORMAT "->,>>>,>>>,>>9.99"
+    FIELD periodDay3  AS DECIMAL   LABEL "Period Day3"     FORMAT "->,>>>,>>>,>>9.99"
+    FIELD custPoNo    AS CHARACTER LABEL "Customer PoNo"   FORMAT "x(15)"
+    FIELD jobNo       AS CHARACTER LABEL "Job No "         FORMAT "x(9)"
+    FIELD invoiceNote AS CHARACTER LABEL "Invoice Note"    FORMAT "x(500)"
+    FIELD collNote    AS CHARACTER LABEL "Collection Note" FORMAT "x(500)"
+    .
+    
+DEFINE TEMP-TABLE tt-cust NO-UNDO
+    FIELD curr-code LIKE cust.curr-code
+    FIELD sorter    LIKE cust.cust-no
+    FIELD row-id    AS   ROWID
+        INDEX tt-cust curr-code sorter
+        .
+
+DEFINE TEMP-TABLE tt-inv NO-UNDO
+    FIELD sorter LIKE ar-inv.inv-no
+    FIELD inv-no LIKE ar-inv.inv-no
+    FIELD row-id AS   ROWID
+        INDEX tt-inv sorter inv-no
+        .
+
+DEFINE TEMP-TABLE tt-factored
+    FIELD company LIKE reftable.company
+    FIELD i-no    LIKE itemfg.i-no
+    FIELD x-no    LIKE ar-invl.x-no
+        INDEX i1 i-no
+        INDEX i2 x-no
+        .
+/* Aged Receivables.rpa */
+
 /* Cash Receipt By SalesRep Name.rpa */
 DEFINE TEMP-TABLE ttCashReceiptBySalesRepName NO-UNDO
     {aoaAppSrv/ttFields.i}
@@ -111,6 +168,19 @@ DEFINE TEMP-TABLE ttCommissionCashReceipt NO-UNDO
 
 /* ************************  Function Prototypes ********************** */
 
+&IF DEFINED(EXCLUDE-fAgedReceivables) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAgedReceivables Procedure 
+FUNCTION fAgedReceivables RETURNS HANDLE
+    ( ipcCompany AS CHARACTER,
+      ipiBatch   AS INTEGER,
+      ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-fCashReceiptBySalesRepName) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCashReceiptBySalesRepName Procedure 
@@ -185,6 +255,26 @@ FUNCTION fGetTableHandle RETURNS HANDLE
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-pAgedReceivables) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAgedReceivables Procedure 
+PROCEDURE pAgedReceivables :
+/*------------------------------------------------------------------------------
+  Purpose:     Aged Receivables.rpa
+  Parameters:  Company, Batch Seq, User ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/pAgedReceivables.i}
+
+    {aoaAppSrv/pAgedReceivablesLogic.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-pBuildCustList) = 0 &THEN
 
@@ -865,7 +955,81 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pGetTrendDays) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTrendDays Procedure 
+PROCEDURE pGetTrendDays :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiTrendDays AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTrendDays AS INTEGER NO-UNDO.
+
+    DEFINE BUFFER bARInv FOR ar-inv.
+
+    DEFINE VARIABLE iDays    AS   INTEGER      NO-UNDO.
+    DEFINE VARIABLE iInvs    AS   INTEGER      NO-UNDO.
+    DEFINE VARIABLE dAvgDays LIKE cust.avg-pay NO-UNDO.
+
+    /* If zero trend days, then abort calculation. */
+    IF ipiTrendDays = 0 THEN RETURN.
+
+    ASSIGN
+        iDays = 0
+        iInvs = 0.
+
+    FOR EACH bARInv NO-LOCK
+        WHERE bARInv.company  EQ cust.company
+          AND bARInv.posted   EQ YES
+          AND bARInv.cust-no  EQ cust.cust-no
+          AND bARInv.due      LE 0
+          AND bARInv.pay-date GE (TODAY - ipiTrendDays)
+        USE-INDEX posted-due
+        :
+        ASSIGN
+            iDays = iDays + (bARInv.pay-date - bARInv.inv-date)
+            iInvs = iInvs + 1.
+    END. /*  each barinv */
+    
+    ASSIGN dAvgDays = iDays / iInvs. 
+  
+    IF dAvgDays LT 1 OR dAvgDays EQ ? THEN dAvgDays = 1.
+    ASSIGN opiTrendDays = (cust.avg-pay - dAvgDays).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 /* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fAgedReceivables) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAgedReceivables Procedure 
+FUNCTION fAgedReceivables RETURNS HANDLE
+    ( ipcCompany AS CHARACTER,
+      ipiBatch   AS INTEGER,
+      ipcUserID  AS CHARACTER ) :
+  /*------------------------------------------------------------------------------
+    Purpose:  Commission Cash Receipt.rpa
+      Notes:  
+  ------------------------------------------------------------------------------*/
+      EMPTY TEMP-TABLE ttAgedReceivables.
+
+      RUN pAgedReceivables (ipcCompany, ipiBatch, ipcUserID).
+
+      RETURN TEMP-TABLE ttAgedReceivables :HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-fCashReceiptBySalesRepName) = 0 &THEN
 
@@ -925,6 +1089,8 @@ FUNCTION fGetTableHandle RETURNS HANDLE
     Notes:  
 ------------------------------------------------------------------------------*/
     CASE ipcProgramID:
+        WHEN "r-araged." THEN
+        RETURN TEMP-TABLE ttAgedReceivables:HANDLE.
         /* Cash Receipt By SalesRep Name.rpa */
         WHEN "r-cashs2." THEN
         RETURN TEMP-TABLE ttCashReceiptBySalesRepName:HANDLE.
