@@ -39,7 +39,7 @@ def temp-table tt-sys-val field name like sys-ctrl.name
                           field name-val as cha.
 {custom/globdefs.i}
 
-{sys/ref/sys-ctrl.i}
+{sys/ref/sys-ctrlL.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
