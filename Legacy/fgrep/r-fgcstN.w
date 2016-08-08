@@ -87,11 +87,11 @@ DEF NEW SHARED VAR cslist AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Customer,FG Item#,Cust Part#,Whse,Total Qty,Total MSF," +
-                            "Total Cost,Total Sell Value,$$$/MSF" 
+                            "Total Cost,Total Sell Value,$$$/MSF,Customer Name" 
        cFieldListToSelect = "cust-no,fgitem,custpart,whse,tot-qty,tot-msf," +
-                            "tot-cost,tot-sal,msf" 
-       cFieldLength = "8,15,15,6,14,12," + "14,16,11"
-       cFieldType = "c,c,c,c,i,i," + "i,i,i" 
+                            "tot-cost,tot-sal,msf,cust-name" 
+       cFieldLength = "8,15,15,6,14,12," + "14,16,11,30"
+       cFieldType = "c,c,c,c,i,i," + "i,i,i,c" 
     .
 
 {sys/inc/ttRptSel.i}

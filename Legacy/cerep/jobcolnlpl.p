@@ -1082,7 +1082,7 @@ for each job-hdr NO-LOCK
 
           IF FIRST-OF(eb.form-no) THEN
              PUT 
-               "<P9><B> UNIT SIZE                      Packaging       Size                   Units Per        QTY Trays Per case     Speed(UPH)   Case wt     Style</B>" SKIP.
+               "<P9><B> UNIT SIZE                      Packaging       Size                    Units Per       QTY Trays Per case     Speed(UPH)   Case wt     Style</B>" SKIP.
 
           IF eb.lp-up NE 0 THEN
           DO:
@@ -1124,7 +1124,7 @@ for each job-hdr NO-LOCK
 
           PUT " Flat" "Finished"  AT 22 "Tray#" AT 33 eb.layer-pad FORMAT "x(10)"
                string(eb.lp-len) + "x" + string(eb.lp-wid) + "x" + string(v-lp-dep)  FORMAT "x(27)" AT 49
-               v-unit-per-int   AT 76
+               v-unit-per-int   AT 76 FORMAT ">>>>>9"
                v-job-qty-unit-per-int AT 85 FORM ">>>>9"
                STRING(v-lp-qty,">>>>9") AT 93
                v-dc-gl-speed    AT 111
@@ -1134,7 +1134,7 @@ for each job-hdr NO-LOCK
                space(1) STRING(eb.len) + " x " + string(eb.wid) FORMAT "X(19)"
                "case#" AT 33 eb.cas-no FORMAT "X(10)"
                STRING(eb.cas-len) + "x" + STRING(eb.cas-wid) + "x" + STRING(eb.cas-dep) FORMAT "x(27)" AT 49     
-               eb.cas-cnt    AT 76 
+               eb.cas-cnt    AT 76 FORMAT ">>>>>9"
                v-job-qty-boxes-code-int AT 85 FORM ">>>>9"
                "Act"  AT 100    SPACE (1) "A"   
                "Sample On ctn"  AT 109 SPACE (1) "Y"   SKIP 

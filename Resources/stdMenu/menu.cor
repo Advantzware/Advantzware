@@ -1,7 +1,6 @@
 mainmenu mainmenu est
 file mainmenu est
 a file est
-w-est. a est
 w-estc. a est
 w-quote. a est
 copyest. a est
@@ -21,7 +20,6 @@ r-quolst. ar
 r-estmar. ar
 af a est
 mach. af est
-stylef. af est
 stylec. af est
 boxdes. af est
 st-pattn. af est
@@ -152,7 +150,6 @@ r-inkglu. cr
 r-rmroll. cr
 r-rmbrd. cr
 cf c est
-item. cf est
 w-item. cf est
 procat. cf est
 costtype. cf est
@@ -328,6 +325,7 @@ jc-ctrl. hf est
 prod. hf est
 loc. hf est
 w-wipmt. hf est
+rejctcdj. hf est
 q file est
 w-jobsch. q
 sbView. q
@@ -549,6 +547,8 @@ s8 s est
 sys-ctrl. s8 est
 w-head. s8 est
 utlookmn. s8 est
+wNewLic. s8 est
+wUserCtrl. s8 est
 custproc. s est
 u-fntclr. s est
 s11 s est

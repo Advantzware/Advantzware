@@ -30,6 +30,8 @@ def output param ls-add-what as cha no-undo.
 
 def SHARED var cocode     as   char  format "x(3)"  no-undo.
 
+{sys/inc/cadcam.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -47,7 +49,7 @@ def SHARED var cocode     as   char  format "x(3)"  no-undo.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-25 Btn_itm Btn_itm-cad Btn_tandem ~
+&Scoped-Define ENABLED-OBJECTS RECT-25 Btn_itm /*Btn_itm-cad*/ Btn_tandem ~
 Btn_set Btn_frm-out Btn_est Btn_est-2 Btn_Cancel 
 
 /* Custom List Definitions                                              */
@@ -167,6 +169,13 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        Btn_part:HIDDEN IN FRAME D-Dialog           = TRUE.
+
+IF cadcam-log = NO THEN
+    ASSIGN
+        Btn_itm-cad:SENSITIVE IN FRAME D-Dialog         = NO .
+ELSE
+    ASSIGN 
+        Btn_itm-cad:SENSITIVE IN FRAME D-Dialog         = YES .
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -395,7 +404,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE RECT-25 Btn_itm Btn_itm-cad Btn_tandem Btn_set Btn_frm-out Btn_est 
+  ENABLE RECT-25 Btn_itm /*Btn_itm-cad*/ Btn_tandem Btn_set Btn_frm-out Btn_est 
          Btn_est-2 Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.

@@ -77,11 +77,21 @@ for each report where report.term-id eq v-term-id,
        and oe-ordl.i-no    eq report.key-01
        no-lock no-error.
 
-  IF v-printline >= 36 THEN DO:
-     v-printline = 0.
-     PAGE {1}.
-     {oe/rep/bolxprn2.i}
+  IF LAST(report.key-01) THEN do:
+      IF v-printline >= 40 THEN DO:
+          v-printline = 0.
+          PAGE {1}.
+          {oe/rep/bolxprn2.i}
+      END.
   END.
+  ELSE
+      IF v-printline >= 44 THEN DO:
+          v-printline = 0.
+          PAGE {1}.
+          {oe/rep/bolxprn2.i}
+      END.
+
+          
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
@@ -108,7 +118,7 @@ for each report where report.term-id eq v-term-id,
         ELSE
         if i eq 4 then v-part-dscr = oe-ordl.part-dscr2.
              
-        IF v-printline >= 38 THEN DO:
+        IF v-printline >= 46 THEN DO:
           v-printline = 0.
           PAGE {1}.
           {oe/rep/bolxprn2.i}
@@ -163,7 +173,7 @@ for each report where report.term-id eq v-term-id,
                  IF notes.note_text <> "" THEN
                     DO i = 1 TO v-tmp-lines:
 
-                       IF v-printline >= 38 THEN DO:
+                       IF v-printline >= 46 THEN DO:
                           v-printline = 0.
                           PAGE {1}.
                           {oe/rep/bolxprn2.i}
@@ -220,7 +230,7 @@ for each report where report.term-id eq v-term-id,
             {SYS/INC/ROUNDUP.I v-tmp-lines}
             IF notes.note_text <> "" THEN
                DO i = 1 TO v-tmp-lines:
-                  IF v-printline >= 38 THEN DO:
+                  IF v-printline >= 46 THEN DO:
                      v-printline = 0.
                      PAGE {1}.
                      {oe/rep/bolxprn2.i}

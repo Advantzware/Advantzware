@@ -1352,12 +1352,12 @@ FOR  EACH job-hdr NO-LOCK
               "<B> Packaging: " SKIP
               " Tray # </B>" eb.layer-pad FORMAT "x(15)"
               "<C20><B>Size: </B>"  STRING(eb.lp-len) + "x" + string(eb.lp-wid) + "x" + string(v-lp-dep)  FORMAT "x(27)"
-              "<C40><B>Qty per tray:</B>"   v-unit-per-int
+              "<C40><B>Qty per tray:</B>"   v-unit-per-int FORMAT "->>>>>9"
               "<C60><B># of trays:</B>"  v-lp-qty  FORMAT "->>>>>>9"  SKIP 
 
               "<B> Case #: </B>"   eb.cas-no
               "<C20><B>Size: </B>"    STRING(eb.cas-len) + "x" + STRING(eb.cas-wid) + "x" + STRING(eb.cas-dep) FORMAT "x(27)"
-              "<C40><B>Qty. per case:</B>"   eb.cas-cnt
+              "<C40><B>Qty per case:</B>"   eb.cas-cnt FORMAT "->>>>>9"
               "<C60><B># of trays per case:</B>" v-job-qty-boxes-code-int  FORMAT "->>>>>>9"  SKIP
 
               "<B> Pallet:</B> " eb.tr-no

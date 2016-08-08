@@ -258,7 +258,7 @@ PUT "<#1><FGCOLOR=RED><B><LINECOLOR=RED><R3><C65><From><R10><C65><Line><||6>"
     "<=1>" .
 
 format header
-       "<FGCOLOR=RED><B>  S.O<FGCOLOR=BLACK>" v-job-no FORM "X(6)"       
+       "<FGCOLOR=RED><B>  S.O<FGCOLOR=BLACK>" v-job-no + "-" + STRING(v-job-no2,"99") FORM "X(9)"         
        "<FGCOLOR=RED>  ORDER<FGCOLOR=BLACK>" v-ord-no
        "<FGCOLOR=RED>  EST#<FGCOLOR=BLACK>" trim(v-est-no) FORM "x(8)"  "<FGCOLOR=RED>  DATE<FGCOLOR=BLACK>" TODAY
        "<FGCOLOR=RED>  PO<FGCOLOR=BLACK>" v-po-no "<FGCOLOR=RED>DEL<FGCOLOR=BLACK>" v-del-date SKIP
@@ -1039,7 +1039,7 @@ END.
                    PUT v-ink2[j] FORM "x(40)" SKIP.
              END.             
              
-             PUT "<FGCOLOR=RED><=5><C41> ORIG NEGATIVES<FGCOLOR=BLACK> " tt-keyst.tt-negs FORM "x(25)" SKIP
+             PUT "<FGCOLOR=RED><=5><C41> DIGITAL FILE<FGCOLOR=BLACK> " tt-keyst.tt-negs FORM "x(25)" SKIP
                   "<FGCOLOR=RED><C41> PLATES<FGCOLOR=BLACK> " tt-keyst.tt-plate2 FORM "x(25)" /*eb.plate-no*/ SKIP
                   "<FGCOLOR=RED><C41> DIES<FGCOLOR=BLACK> " tt-keyst.tt-die2 FORM "x(25)" /*eb.die-no*/ SKIP
                   "<FGCOLOR=RED><C41> COPY<FGCOLOR=BLACK> " tt-keyst.tt-COPY FORM "x(25)" SKIP
