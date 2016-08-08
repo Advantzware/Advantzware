@@ -234,9 +234,7 @@ ON CHOOSE OF btAccept /* Advantzware License Code Entry */
             IF iSite EQ  sys-ctrl.int-fld 
                 AND iNumUsers = asi._license._Lic-ValidUsers THEN 
             DO:
-                FOR EACH module EXCLUSIVE-LOCK WHERE 
-                     (module.expire-date LT dExpireDate 
-                     OR module.expire-date EQ ?):
+                FOR EACH module EXCLUSIVE-LOCK WHERE:
                     module.expire-date = dExpireDate.
                 END.                
                   
