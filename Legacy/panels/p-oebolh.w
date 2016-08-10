@@ -292,6 +292,8 @@ DO:
     def var char-hdl as cha no-undo.
     run get-link-handle in adm-broker-hdl(this-procedure,"tableio-target", output char-hdl).
     run release-update in widget-handle(char-hdl).
+    
+        btn-release:LABEL = IF btn-release:LABEL EQ "Rel&ease" THEN "Hold" ELSE "Rel&ease" .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -426,6 +428,7 @@ PROCEDURE local-initialize :
   ------------------------------------------------------------------------*/
 
   DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cCheck-rel     AS CHARACTER NO-UNDO.
   
   /* Insert pre-dispatch code here. */ 
 
@@ -463,6 +466,17 @@ PROCEDURE local-initialize :
      THEN RUN notify ('enable-fields, TABLEIO-TARGET':U).
   /* otherwise disable in case they were already enabled during initialization*/
   ELSE RUN notify('disable-fields, TABLEIO-TARGET':U). 
+
+   run get-link-handle in adm-broker-hdl(this-procedure,"tableio-target", output char-hdl).
+   run check-release-update in widget-handle(char-hdl) (OUTPUT cCheck-rel).
+
+   DO WITH FRAME {&FRAME-NAME}:
+       IF cCheck-rel EQ "H" THEN
+           btn-release:LABEL = "Rel&ease" .
+       ELSE
+           btn-release:LABEL =  "Hold" .
+   END.
+
 
 END PROCEDURE.
 
