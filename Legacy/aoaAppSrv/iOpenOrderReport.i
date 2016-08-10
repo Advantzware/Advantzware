@@ -54,8 +54,8 @@
       END.
     END.
  
-      /*IF dtDueDate LT begin_due-date OR
-         dtDueDate GT end_due-date THEN NEXT.*/
+      IF dtDueDate LT dtStartDueDate OR
+         dtDueDate GT dtEndDueDate THEN NEXT.
       
       assign
        lOrderLine    = yes

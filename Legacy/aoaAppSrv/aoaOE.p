@@ -69,6 +69,7 @@ DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
     FIELD ton          AS DECIMAL   LABEL "Ton"            FORMAT "->>,>>9.99"
     FIELD vUserID      AS CHARACTER LABEL "Id"             FORMAT "x(8)"
     FIELD custPartNo   AS CHARACTER LABEL "Cust Part"      FORMAT "x(15)" 
+    FIELD dieNo        AS CHARACTER LABEL "Die No"         FORMAT "x(15)"
     .
 
 DEFINE TEMP-TABLE wkrecap NO-UNDO    /* recap by product category */
@@ -127,22 +128,22 @@ DEFINE TEMP-TABLE ttOrderAcknowledgements NO-UNDO
     FIELD contact       AS CHARACTER LABEL "Contact"            FORMAT "x(30)"
     FIELD ordDate       AS DATE      LABEL "Order Date"         FORMAT 99/99/9999
     FIELD custPONo      AS CHARACTER LABEL "Customer PO"        FORMAT "x(15)"
-    FIELD CustName      As CHARACTER LABEL "Bill Customer Name" FORMAT "x(30)"
+    FIELD CustName      AS CHARACTER LABEL "Bill Customer Name" FORMAT "x(30)"
     FIELD add1          AS CHARACTER LABEL "BillAddress1"       FORMAT "x(30)"
     FIELD add2          AS CHARACTER LABEL "BillAddress2"       FORMAT "x(30)"
     FIELD city          AS CHARACTER LABEL "Billcity"           FORMAT "x(15)"
     FIELD state         AS CHARACTER LABEL "Billstate"          FORMAT "x(5)"
     FIELD zip           AS CHARACTER LABEL "Billzip"            FORMAT "x(8)"
-    FIELD soldcustName  As CHARACTER LABEL "ShipCustomer Name"  FORMAT "x(30)"
+    FIELD soldcustName  AS CHARACTER LABEL "ShipCustomer Name"  FORMAT "x(30)"
     FIELD soldAdd1      AS CHARACTER LABEL "ShipAddress1"       FORMAT "x(30)"
     FIELD soldAdd2      AS CHARACTER LABEL "ShipAddress2"       FORMAT "x(30)"
     FIELD soldCity      AS CHARACTER LABEL "Shipcity"           FORMAT "x(15)"
     FIELD soldState     AS CHARACTER LABEL "ShipState"          FORMAT "x(5)"
     FIELD soldZip       AS CHARACTER LABEL "ShipZip"            FORMAT "x(8)"
-    FIELD reqDate       As DATE      LABEL "Req Date"           FORMAT 99/99/9999
-    FIELD fob           As CHARACTER LABEL "FOB"                FORMAT "x(11)"
-    FIELD shipVia       As CHARACTER LABEL "Ship Via"           FORMAT "x(30)"
-    FIELD terms         As CHARACTER LABEL "Terms"              FORMAT "x(30)"
+    FIELD reqDate       AS DATE      LABEL "Req Date"           FORMAT 99/99/9999
+    FIELD fob           AS CHARACTER LABEL "FOB"                FORMAT "x(11)"
+    FIELD shipVia       AS CHARACTER LABEL "Ship Via"           FORMAT "x(30)"
+    FIELD terms         AS CHARACTER LABEL "Terms"              FORMAT "x(30)"
     FIELD salesRep      AS CHARACTER LABEL "Sales Rep"          FORMAT "x(10)"
     FIELD quoteNo       AS INTEGER   LABEL "Quote No"           FORMAT ">>>>>>>"
     FIELD custPartNo    AS CHARACTER LABEL "Customer Part"      FORMAT "x(15)"
@@ -168,7 +169,7 @@ DEFINE TEMP-TABLE ttOrderAcknowledgements NO-UNDO
     FIELD csr           AS CHARACTER LABEL "CSR"                FORMAT "x(8)"
     FIELD over          AS DECIMAL   LABEL "Over"               FORMAT ">>9.99"
     FIELD under         AS DECIMAL   LABEL "Under"              FORMAT ">>9.99"
-    FIELD poOrder       AS CHAR      LABEL "Purchase Order"     FORMAT "x(15)"
+    FIELD poOrder       AS CHARACTER      LABEL "Purchase Order"     FORMAT "x(15)"
     FIELD mfgDate       AS DATE      LABEL "Requested Mfg Date" FORMAT 99/99/9999
     FIELD frtCharge     AS CHARACTER LABEL "Freight Charge"     FORMAT "x(8)"
     FIELD pallet        AS DECIMAL   LABEL "Pallet"             FORMAT ">>>,>>9.99<<<<"
@@ -393,26 +394,26 @@ PROCEDURE build-tt :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAM ip-date         AS DATE               NO-UNDO.
-    DEF INPUT PARAM ip-recid        AS RECID              NO-UNDO.
-    DEF INPUT PARAM ip-cPrimarySort AS CHARACTER          NO-UNDO.
-    DEF INPUT PARAM ip-sort         AS CHARACTER          NO-UNDO.
-    DEF VAR lv-due-date             LIKE oe-ordl.req-date NO-UNDO.
-    DEF VAR lv-due-date2            LIKE oe-ordl.req-date NO-UNDO.
-    DEF VAR v-po-no                 LIKE oe-ord.po-no     NO-UNDO.
-    DEF VAR dShipQty                AS DECIMAL            NO-UNDO.
+    DEFINE INPUT PARAMETER ip-date         AS DATE               NO-UNDO.
+    DEFINE INPUT PARAMETER ip-recid        AS RECID              NO-UNDO.
+    DEFINE INPUT PARAMETER ip-cPrimarySort AS CHARACTER          NO-UNDO.
+    DEFINE INPUT PARAMETER ip-sort         AS CHARACTER          NO-UNDO.
+    DEFINE VARIABLE lv-due-date             LIKE oe-ordl.req-date NO-UNDO.
+    DEFINE VARIABLE lv-due-date2            LIKE oe-ordl.req-date NO-UNDO.
+    DEFINE VARIABLE v-po-no                 LIKE oe-ord.po-no     NO-UNDO.
+    DEFINE VARIABLE dShipQty                AS DECIMAL            NO-UNDO.
     
-    DEF BUFFER b-ar-invl FOR ar-invl.
-    DEF BUFFER b-inv-head FOR inv-head.
-    DEF BUFFER b-inv-line FOR inv-line.
-    DEF BUFFER b-oe-rell FOR oe-rell.
-    DEF BUFFER bf-oe-boll FOR oe-boll.
+    DEFINE BUFFER b-ar-invl FOR ar-invl.
+    DEFINE BUFFER b-inv-head FOR inv-head.
+    DEFINE BUFFER b-inv-line FOR inv-line.
+    DEFINE BUFFER b-oe-rell FOR oe-rell.
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
    
     v-po-no = oe-ordl.po-no.
     CREATE tt-report.
     FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ oe-ordl.company
         AND itemfg.i-no EQ oe-ordl.i-no NO-ERROR.
-    IF AVAIL itemfg THEN tt-report.cad-no = itemfg.cad-no.
+    IF AVAILABLE itemfg THEN tt-report.cad-no = itemfg.cad-no.
 
     IF tt-report.cad-no EQ "" THEN DO:
         RELEASE eb.
@@ -422,23 +423,24 @@ PROCEDURE build-tt :
             AND eb.stock-no EQ oe-ordl.i-no
             AND eb.cad-no   NE ""
             USE-INDEX est-no NO-ERROR.
-        IF NOT AVAIL eb THEN
+        IF NOT AVAILABLE eb THEN
             FIND FIRST eb NO-LOCK WHERE eb.company  EQ oe-ordl.company
             AND eb.stock-no EQ oe-ordl.i-no
             AND eb.cad-no   NE ""
             USE-INDEX stock NO-ERROR.
-        IF AVAIL eb THEN tt-report.cad-no = eb.cad-no.
+        IF AVAILABLE eb THEN tt-report.cad-no = eb.cad-no.
     END. /*IF tt-report.cad-no*/
     RELEASE eb.
 
     IF TRIM(oe-ordl.est-no) NE "" THEN DO:
-        FIND FIRST eb NO-LOCK WHERE eb.company  EQ oe-ordl.company AND
+        FIND FIRST eb NO-LOCK 
+            WHERE eb.company  EQ oe-ordl.company AND
             eb.est-no   EQ oe-ordl.est-no AND
             eb.stock-no EQ oe-ordl.i-no AND
             eb.form-no  EQ oe-ordl.form-no AND
             eb.blank-no EQ oe-ordl.blank-no
             NO-ERROR.
-        IF AVAIL eb THEN DO:
+        IF AVAILABLE eb THEN DO:
             ASSIGN
                 tt-report.unit-count = eb.cas-cnt
                 tt-report.units-pallet = eb.cas-pal.
@@ -449,26 +451,26 @@ PROCEDURE build-tt :
     ASSIGN
         tt-report.term-id  = ""
         tt-report.key-01   = IF ip-cPrimarySort EQ "Due Date" OR ip-cPrimarySort EQ "Rel Date" THEN
-            STRING(YEAR(lv-due-date),"9999") +
-            STRING(MONTH(lv-due-date),"99")  +
-            STRING(DAY(lv-due-date),"99")
-            ELSE
-                IF ip-cPrimarySort EQ "Salesman" THEN oe-ordl.s-man[1]
-                ELSE ""
-                    tt-report.key-02   = oe-ord.cust-no
-                    tt-report.key-03   = IF ip-sort EQ "PO" THEN v-po-no
-                        ELSE 
-                            IF ip-sort EQ "It" THEN
+                             STRING(YEAR(lv-due-date),"9999") +
+                             STRING(MONTH(lv-due-date),"99")  +
+                             STRING(DAY(lv-due-date),"99")
+                             ELSE
+                             IF ip-cPrimarySort EQ "Salesman" THEN oe-ordl.s-man[1]
+                             ELSE ""
+                             tt-report.key-02   = oe-ord.cust-no
+                             tt-report.key-03   = IF ip-sort EQ "PO" THEN v-po-no
+                             ELSE 
+                             IF ip-sort EQ "It" THEN
                                 (STRING(oe-ordl.i-no,"x(15)") + v-po-no)
-                            ELSE IF ip-sort EQ "Cu" THEN
+                             ELSE IF ip-sort EQ "Cu" THEN
                                 (STRING(oe-ordl.part-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))
-                            ELSE IF ip-sort EQ "FG" THEN
+                             ELSE IF ip-sort EQ "FG" THEN
                                 (STRING(oe-ordl.i-name,"x(30)") + STRING(oe-ord.ord-no,"99999999999"))
-                            ELSE IF ip-sort EQ "Or" THEN
+                             ELSE IF ip-sort EQ "Or" THEN
                                 (STRING(oe-ord.ord-no,"99999999999") + oe-ordl.part-no)
-                            ELSE IF ip-sort EQ "CA" THEN
+                             ELSE IF ip-sort EQ "CA" THEN
                                 (STRING(tt-report.cad-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))
-                            ELSE
+                             ELSE
                                 (STRING(YEAR(lv-due-date),"9999") +
                                  STRING(MONTH(lv-due-date),"99")  +
                                  STRING(DAY(lv-due-date),"99")    +
@@ -487,15 +489,19 @@ PROCEDURE build-tt :
                                     tt-report.due-date = lv-due-date
                                     /*v-ordl             = NO*/ .
                                                 
-    FIND b-ar-invl NO-LOCK WHERE RECID(b-ar-invl) EQ ip-recid NO-ERROR.
-    IF AVAIL b-ar-invl THEN
+    FIND b-ar-invl NO-LOCK 
+     WHERE RECID(b-ar-invl) EQ ip-recid NO-ERROR.
+
+    IF AVAILABLE b-ar-invl THEN
         ASSIGN
         tt-report.q-shp  = b-ar-invl.ship-qty
         tt-report.inv    = YES
         tt-report.inv-no = b-ar-invl.inv-no.
-    FIND b-inv-line  NO-LOCK WHERE RECID(b-inv-line) EQ ip-recid NO-ERROR.
 
-    IF AVAIL b-inv-line THEN DO:
+    FIND b-inv-line  NO-LOCK WHERE 
+    RECID(b-inv-line) EQ ip-recid NO-ERROR.
+
+    IF AVAILABLE b-inv-line THEN DO:
         FIND FIRST b-inv-head NO-LOCK WHERE b-inv-head.r-no EQ b-inv-line.r-no NO-ERROR.
         ASSIGN
             tt-report.q-shp  = b-inv-line.ship-qty
@@ -506,7 +512,7 @@ PROCEDURE build-tt :
     FIND b-oe-rell NO-LOCK WHERE RECID(b-oe-rell) EQ ip-recid NO-ERROR.
 
     IF NOT tt-report.inv THEN DO:
-        IF AVAIL b-oe-rell THEN tt-report.q-rel = b-oe-rell.qty.
+        IF AVAILABLE b-oe-rell THEN tt-report.q-rel = b-oe-rell.qty.
     END. /*IF NOT tt-report.inv*/
     
 END PROCEDURE.
@@ -531,13 +537,13 @@ PROCEDURE pBOLPackingList :
 
     /* subject business logic */
     FOR EACH oe-bolh NO-LOCK
-        WHERE oe-bolh.company EQ ipcCompany
-          AND oe-bolh.bol-no  GE iStartBOL
-          AND oe-bolh.bol-no  LE iEndBOL
+        WHERE oe-bolh.company  EQ ipcCompany
+          AND oe-bolh.bol-no   GE iStartBOL
+          AND oe-bolh.bol-no   LE iEndBOL
           AND oe-bolh.bol-date GE dtStartBOLDate
           AND oe-bolh.bol-date LE dtEndBOLDate
-          AND oe-bolh.cust-no GE cStartCustNo
-          AND oe-bolh.cust-no LE cEndCustNo,
+          AND oe-bolh.cust-no  GE cStartCustNo
+          AND oe-bolh.cust-no  LE cEndCustNo,
         EACH oe-boll NO-LOCK
         WHERE oe-boll.company EQ oe-bolh.company
           AND oe-boll.b-no    EQ oe-bolh.b-no
@@ -650,24 +656,24 @@ PROCEDURE pCalcPoMSF :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF OUTPUT PARAM opTotalMsf AS DEC                  NO-UNDO.
+    DEFINE OUTPUT PARAMETER opTotalMsf AS DECIMAL                NO-UNDO.
 
-    DEF VAR v-basis-w   AS DEC                          NO-UNDO. /* for po/po-adder2.p */
-    DEF VAR v-len       LIKE po-ordl.s-len              NO-UNDO.
-    DEF VAR v-wid       LIKE po-ordl.s-wid              NO-UNDO.
-    DEF VAR v-dep       LIKE po-ordl.s-len              NO-UNDO.
-    DEF VAR v-ord-qty   LIKE po-ordl.ord-qty            NO-UNDO.
-    DEF VAR lv-orig-uom AS cha                          NO-UNDO.
-    DEF var factor#     AS DECIMAL                      NO-UNDO.
-    DEF VAR ll-ea       AS LOG INIT NO                  NO-UNDO.
-    DEF VAR lv-uom      LIKE po-ordl.pr-qty-uom INIT NO NO-UNDO.
-    DEF VAR fg-uom-list AS CHAR                         NO-UNDO.
-    DEF VAR v-out-qty   AS INT                          NO-UNDO.
+    DEFINE VARIABLE dv-basis-w   AS DECIMAL                      NO-UNDO. /* for po/po-adder2.p */
+    DEFINE VARIABLE dv-len       LIKE po-ordl.s-len              NO-UNDO.
+    DEFINE VARIABLE dv-wid       LIKE po-ordl.s-wid              NO-UNDO.
+    DEFINE VARIABLE dv-dep       LIKE po-ordl.s-len              NO-UNDO.
+    DEFINE VARIABLE iv-ord-qty   LIKE po-ordl.ord-qty            NO-UNDO.
+    DEFINE VARIABLE clv-orig-uom AS CHARACTER                    NO-UNDO.
+    DEFINE VARIABLE factor#      AS DECIMAL                      NO-UNDO.
+    DEFINE VARIABLE ll-ea        AS LOG INIT NO                  NO-UNDO.
+    DEFINE VARIABLE ilv-uom      LIKE po-ordl.pr-qty-uom INITIAL NO NO-UNDO.
+    DEFINE VARIABLE cfg-uom-list AS CHARACTER                    NO-UNDO.
+    DEFINE VARIABLE iv-out-qty    AS INTEGER                       NO-UNDO.
     
     FIND sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name EQ "poprint" 
         NO-ERROR.
-    factor# = IF AVAIL sys-ctrl AND CAN-DO("Premier,Middlesx,16th's",sys-ctrl.char-fld) THEN .16 ELSE 1.
+    factor# = IF AVAILABLE sys-ctrl AND CAN-DO("Premier,Middlesx,16th's",sys-ctrl.char-fld) THEN .16 ELSE 1.
     {ce/msfcalc.i}
     
     FIND FIRST item
@@ -675,38 +681,38 @@ PROCEDURE pCalcPoMSF :
         AND item.i-no EQ po-ordl.i-no
         NO-ERROR.
     ASSIGN
-        v-basis-w   = IF AVAIL item THEN item.basis-w ELSE v-basis-w
-        v-dep       = IF AVAIL item THEN item.s-dep ELSE v-dep
-        v-len       = (po-ordl.s-len)
-        v-wid       = (po-ordl.s-wid)
-        v-ord-qty   = (po-ordl.ord-qty)
-        lv-orig-uom = po-ordl.pr-qty-uom 
-        {po/calc10.i v-len} 
-        {po/calc10.i v-wid}.
-    IF NOT AVAIL item THEN
+        dv-basis-w   = IF AVAILABLE item THEN item.basis-w ELSE dv-basis-w
+        dv-dep       = IF AVAILABLE item THEN item.s-dep ELSE dv-dep
+        dv-len       = (po-ordl.s-len)
+        dv-wid       = (po-ordl.s-wid)
+        iv-ord-qty   = (po-ordl.ord-qty)
+        clv-orig-uom = po-ordl.pr-qty-uom 
+        {po/calc10.i dv-len} 
+        {po/calc10.i dv-wid}.
+    IF NOT AVAILABLE item THEN
     FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode
         AND itemfg.i-no EQ po-ordl.i-no
         NO-ERROR.
-    IF AVAIL itemfg THEN
+    IF AVAILABLE itemfg THEN
         RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom, OUTPUT ll-ea).
-    IF ll-ea THEN ASSIGN lv-uom = po-ordl.pr-qty-uom. 
+    IF ll-ea THEN ASSIGN ilv-uom = po-ordl.pr-qty-uom. 
 
-    IF v-len EQ 0 AND AVAIL ITEM AND
+    IF dv-len EQ 0 AND AVAILABLE ITEM AND
         ITEM.i-code EQ "R" AND item.r-wid GT 0 THEN DO:
-        v-len = 12.
-        IF lv-orig-uom EQ "ROLL" THEN DO:
+        dv-len = 12.
+        IF clv-orig-uom EQ "ROLL" THEN DO:
             FIND FIRST uom NO-LOCK WHERE uom.uom EQ "ROLL" NO-ERROR.
-            IF AVAIL uom THEN ASSIGN v-ord-qty = v-ord-qty * uom.mult.
-        END.  /*IF lv-orig-uom*/ 
-    END.  /*IF v-len EQ 0*/
+            IF AVAILABLE uom THEN ASSIGN iv-ord-qty = iv-ord-qty * uom.mult.
+        END.  /*IF clv-orig-uom*/ 
+    END.  /*IF dv-len EQ 0*/
 
-    RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
+    RUN sys/ref/uom-fg.p (?, OUTPUT cfg-uom-list).
 
     IF po-ordl.pr-qty-uom{2} EQ "EA" OR
         (NOT po-ordl.item-type AND
-         LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) GT 0) THEN
-        opTotalMsf = IF v-corr THEN ((v-len * v-wid * .007 * DEC(po-ordl.ord-qty{2})) / 1000)
-            ELSE ((((v-len * v-wid) / 144) * DEC(po-ordl.ord-qty{2})) / 1000).
+         LOOKUP(po-ordl.pr-qty-uom,cfg-uom-list) GT 0) THEN
+        opTotalMsf = IF v-corr THEN ((dv-len * dv-wid * .007 * DEC(po-ordl.ord-qty{2})) / 1000)
+            ELSE ((((dv-len * dv-wid) / 144) * DEC(po-ordl.ord-qty{2})) / 1000).
                  ELSE DO:
                      /*convert whatever the UOM is into "EACH" first*/
                      opTotalMsf = 0.
@@ -714,19 +720,19 @@ PROCEDURE pCalcPoMSF :
                          opTotalMsf = 0.
                          RUN sys/ref/convquom.p(po-ordl.pr-qty-uom,
                                                 "EA",
-                                                v-basis-w,
-                                                v-len,
-                                                v-wid,
-                                                v-dep,
-                                                v-ord-qty,
-                                                OUTPUT v-out-qty).
+                                                dv-basis-w,
+                                                dv-len,
+                                                dv-wid,
+                                                dv-dep,
+                                                iv-ord-qty,
+                                                OUTPUT iv-out-qty).
                          /*now convert from "EACH" into MSF*/   
                          opTotalMsf = IF v-corr THEN
-                             ((v-len * v-wid * .007 * v-out-qty) / 1000)
+                             ((dv-len * dv-wid * .007 * iv-out-qty) / 1000)
                              ELSE
-                                 ((((v-len * v-wid) / 144) * v-out-qty) / 1000).
+                                 ((((dv-len * dv-wid) / 144) * iv-out-qty) / 1000).
                                  IF po-ordl.pr-qty-uom EQ "ROLL" THEN
-                                     opTotalMsf = OpTotalMsf * (12 / v-len).
+                                     opTotalMsf = OpTotalMsf * (12 / dv-len).
                      END.  /*IF po-ordl.pr-qty-uom NE "EA"*/
                  END.  /*else do:*/ 
 
@@ -748,14 +754,14 @@ PROCEDURE pCalcQOH :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE vdat     AS   DATE    NO-UNDO.
-    DEFINE VARIABLE v-curr   AS   LOGICAL NO-UNDO.
-    DEFINE VARIABLE v-q-or-v AS   LOGICAL NO-UNDO.
+    DEFINE VARIABLE dtvdat     AS   DATE    NO-UNDO.
+    DEFINE VARIABLE lv-curr    AS   LOGICAL NO-UNDO.
+    DEFINE VARIABLE lv-q-or-v  AS   LOGICAL NO-UNDO.
     
     ASSIGN
-        vdat     = TODAY
-        v-curr   = YES
-        v-q-or-v = YES.
+        dtvdat     = TODAY
+        lv-curr    = YES
+        lv-q-or-v  = YES.
 
     FOR EACH itemfg NO-LOCK
         WHERE itemfg.company EQ ipcCompany
@@ -787,8 +793,8 @@ Notes:
     {aoaAppSrv/pOpenOrderReport.i}
     
     /* local variables */
-    DEFINE VARIABLE lInc       AS    LOGICAL          NO-UNDO INIT YES.
-    DEFINE VARIABLE cStat      AS    CHARACTER        NO-UNDO INIT "A".
+    DEFINE VARIABLE lInc       AS    LOGICAL          NO-UNDO INITIAL YES.
+    DEFINE VARIABLE cStat      AS    CHARACTER        NO-UNDO INITIAL "A".
     DEFINE VARIABLE iBalQty    AS    INTEGER          NO-UNDO.
     DEFINE VARIABLE iQOH       LIKE  itemfg.q-onh     NO-UNDO.
     DEFINE VARIABLE iQtyShp    LIKE  iQOH             NO-UNDO.
@@ -808,7 +814,8 @@ Notes:
     ASSIGN
         cStartJobNo = FILL(" ",6 - LENGTH(TRIM(cStartJobNo))) + TRIM(cStartJobNo) + STRING(INT(iStartJobNo2),"99")
         cEndJobNo   = FILL(" ",6 - LENGTH(TRIM(cEndJobNo))) + TRIM(cEndJobNo) + STRING(INT(iEndJobNo2),"99") 
-        cStat       = SUBSTR(cJobStatus,1,1) .
+        cStat       = SUBSTR(cJobStatus,1,1) 
+        cSort       = cPrimarySort-2 .
 
     FIND FIRST oe-ctrl NO-LOCK
          WHERE oe-ctrl.company EQ ipcCompany
@@ -822,12 +829,11 @@ Notes:
           AND oe-ord.ord-date LE dtEndOrderDate
           AND oe-ord.user-id  GE cStartUserID
           AND oe-ord.user-id  LE cEndUserID
-          AND (cOrderStatus   EQ "A"
-           OR (oe-ord.opened  EQ TRUE
-          AND cOrderStatus    EQ "O")
-           OR (oe-ord.opened  EQ FALSE
-          AND cOrderStatus EQ "C"))
+          AND (cOrderStatus   EQ "A" 
+           OR (oe-ord.opened AND cOrderStatus    EQ "O")
+           OR (NOT oe-ord.opened AND cOrderStatus EQ "C"))
         USE-INDEX ordate,
+
         EACH oe-ordl OF oe-ord NO-LOCK
         WHERE oe-ordl.i-no     GE cStartItemNo
           AND oe-ordl.i-no     LE cEndItemNo
@@ -851,8 +857,10 @@ Notes:
         {aoaAppSrv/iOpenOrderReport.i}
     END. /*  each oe-ord  */
 
-    FOR EACH tt-report NO-LOCK WHERE tt-report.term-id EQ "",
-        FIRST oe-ordl NO-LOCK WHERE ROWID(oe-ordl) EQ tt-report.row-id,
+    FOR EACH tt-report NO-LOCK 
+       WHERE tt-report.term-id EQ "",
+        FIRST oe-ordl NO-LOCK 
+        WHERE ROWID(oe-ordl) EQ tt-report.row-id,
         FIRST oe-ord OF oe-ordl 
         BREAK BY tt-report.row-id
         BY tt-report.key-07:
@@ -878,16 +886,18 @@ Notes:
             END. /*  end of for each tt-fg-bin */
 
             IF lIncludeJobsQOH THEN
-            FOR EACH job-hdr NO-LOCK WHERE job-hdr.company  EQ oe-ordl.company
-                AND job-hdr.ord-no   EQ oe-ordl.ord-no
-                AND job-hdr.i-no     EQ oe-ordl.i-no
-                AND (job-hdr.job-no  NE oe-ordl.job-no OR
-                     job-hdr.job-no2 NE oe-ordl.job-no2)
+            FOR EACH job-hdr NO-LOCK 
+                WHERE job-hdr.company  EQ oe-ordl.company
+                AND job-hdr.ord-no     EQ oe-ordl.ord-no
+                AND job-hdr.i-no       EQ oe-ordl.i-no
+                AND (job-hdr.job-no    NE oe-ordl.job-no OR
+                     job-hdr.job-no2   NE oe-ordl.job-no2)
                 BREAK BY job-hdr.job-no
                 BY job-hdr.job-no2
                 BY job-hdr.i-no:
                 IF FIRST-OF(job-hdr.i-no) THEN
-                FOR EACH tt-fg-bin WHERE tt-fg-bin.company EQ job-hdr.company
+                FOR EACH tt-fg-bin 
+                    WHERE tt-fg-bin.company EQ job-hdr.company
                     AND tt-fg-bin.i-no    EQ job-hdr.i-no
                     AND tt-fg-bin.job-no  EQ job-hdr.job-no
                     AND tt-fg-bin.job-no2 EQ job-hdr.job-no2:
@@ -906,10 +916,12 @@ Notes:
                 ASSIGN
                     dJobQty = 0
                     dRecQty = 0.
-                FIND FIRST job NO-LOCK WHERE job.company EQ ipcCompany AND job.job-no  EQ oe-ordl.job-no AND
-                    job.job-no2 EQ oe-ordl.job-no2
-                    NO-ERROR.
-                IF AVAIL job THEN DO:
+                FIND FIRST job NO-LOCK 
+                     WHERE job.company EQ ipcCompany AND 
+                           job.job-no  EQ oe-ordl.job-no AND
+                           job.job-no2 EQ oe-ordl.job-no2
+                     NO-ERROR.
+                IF AVAILABLE job THEN DO:
                     IF NOT job.opened THEN
                         tt-report.q-wip = 0.
                     ELSE DO:
@@ -923,9 +935,11 @@ Notes:
                             dJobQty = dJobQty + job-hdr.qty.
                         END.  /* end of for each job-hdr */
 
-                        FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ job.company AND itemfg.i-no EQ oe-ordl.i-no NO-ERROR.
+                        FIND FIRST itemfg NO-LOCK 
+                             WHERE itemfg.company EQ job.company AND
+                                   itemfg.i-no    EQ oe-ordl.i-no NO-ERROR.
 
-                        IF AVAIL itemfg THEN DO:
+                        IF AVAILABLE itemfg THEN DO:
                             IF itemfg.isaset AND itemfg.alloc THEN
                             FOR EACH fg-act FIELDS(qty) NO-LOCK WHERE
                                 fg-act.company EQ job.company AND
@@ -970,18 +984,20 @@ Notes:
         ELSE DELETE tt-report.
     END. /*FOR EACH tt-report*/
     
-    FOR EACH tt-report NO-LOCK WHERE tt-report.term-id EQ ""
-        AND tt-report.cad-no  GE cStartCAD 
-        AND tt-report.cad-no  LE cEndCAD   
+    FOR EACH tt-report NO-LOCK 
+       WHERE tt-report.term-id EQ ""
+        AND tt-report.cad-no   GE cStartCAD 
+        AND tt-report.cad-no   LE cEndCAD   
         AND (lIncludeZeroQtyWIPItems OR tt-report.q-wip GT 0)
         AND (lIncludeZeroQtyActReleaseQty OR tt-report.q-avl GT 0 OR tt-report.q-rel GT 0) ,
         FIRST itemfg
         WHERE itemfg.company EQ ipcCompany
-        AND itemfg.i-no    EQ tt-report.key-06 ,
+        AND itemfg.i-no      EQ tt-report.key-06 ,
         FIRST cust NO-LOCK
         WHERE cust.company EQ ipcCompany
-        AND cust.cust-no EQ tt-report.key-02 ,
-        FIRST oe-ordl NO-LOCK WHERE ROWID(oe-ordl) EQ tt-report.row-id ,
+        AND cust.cust-no   EQ tt-report.key-02 ,
+        FIRST oe-ordl NO-LOCK 
+        WHERE ROWID(oe-ordl) EQ tt-report.row-id ,
         FIRST oe-ord OF oe-ordl 
         BREAK BY tt-report.key-01
         BY tt-report.key-02
@@ -993,25 +1009,26 @@ Notes:
         BY tt-report.key-07:
         ASSIGN dtDueDate2 = ? .
          
-        FOR EACH oe-rel NO-LOCK WHERE oe-rel.company EQ oe-ordl.company
+        FOR EACH oe-rel NO-LOCK 
+           WHERE oe-rel.company EQ oe-ordl.company
             AND oe-rel.ord-no  EQ oe-ordl.ord-no
             AND oe-rel.i-no    EQ oe-ordl.i-no
             AND oe-rel.line    EQ oe-ordl.line
-            BY oe-rel.rel-date DESC:
-            dtDueDate2 = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
+            BY oe-rel.rel-date DESCENDING:
+            dtDueDate2 = IF AVAILABLE oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
             LEAVE.
         END. /* end of for each oe-rel */
 
         CREATE ttOpenOrderReport.
         ASSIGN
-            ttOpenOrderReport.salesRep    = IF AVAIL oe-ordl THEN STRING(oe-ordl.s-man[1]) ELSE ""
+            ttOpenOrderReport.salesRep    = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.s-man[1]) ELSE ""
             ttOpenOrderReport.custNo      = STRING(cust.cust-no)
             ttOpenOrderReport.lineDueDate = oe-ordl.req-date
             ttOpenOrderReport.relDueDate  = dtDueDate2 
-            ttOpenOrderReport.custPartNo  = IF AVAIL oe-ordl THEN STRING(oe-ordl.part-no) ELSE "" 
-            ttOpenOrderReport.fgItemName  = IF AVAIL oe-ordl THEN STRING(oe-ordl.i-name) ELSE "" 
-            ttOpenOrderReport.fgItemNo    = IF AVAIL oe-ordl THEN STRING(oe-ordl.i-no) ELSE "" 
-            ttOpenOrderReport.orderNo     = IF AVAIL oe-ordl THEN (oe-ordl.ord-no) ELSE 0 
+            ttOpenOrderReport.custPartNo  = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.part-no) ELSE "" 
+            ttOpenOrderReport.fgItemName  = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-name) ELSE "" 
+            ttOpenOrderReport.fgItemNo    = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-no) ELSE "" 
+            ttOpenOrderReport.orderNo     = IF AVAILABLE oe-ordl THEN (oe-ordl.ord-no) ELSE 0 
             ttOpenOrderReport.cadNo       = STRING(tt-report.cad-no) 
             ttOpenOrderReport.poNo        = STRING(tt-report.po-no)
             ttOpenOrderReport.qtyOrd      = oe-ordl.qty 
@@ -1062,38 +1079,39 @@ Notes:
     {aoaAppSrv/pOrdersBooked.i}
 
     /* local variables */
-    DEFINE VARIABLE i             AS   INTEGER            NO-UNDO.
-    DEFINE VARIABLE J             AS   INTEGER            NO-UNDO.
-    DEFINE VARIABLE K             AS   INTEGER            NO-UNDO.
-    DEFINE VARIABLE ii            LIKE i                  NO-UNDO.
-    DEFINE VARIABLE cv-code       AS   CHARACTER          NO-UNDO.
-    DEFINE VARIABLE lPrt-Sqft     AS   LOGICAL INIT YES   NO-UNDO.
-    DEFINE VARIABLE dtMdate       AS   DATE               NO-UNDO.
-    DEFINE VARIABLE i-per-days    AS   INTEGER EXTENT 2   NO-UNDO INIT 0.
-    DEFINE VARIABLE v-n-lines     AS   INTEGER            NO-UNDO.
-    DEFINE VARIABLE cSalesRep     AS   CHARACTER          NO-UNDO.
-    DEFINE VARIABLE lExclude      AS   LOGICAL            NO-UNDO.
-    DEFINE VARIABLE lMisc         AS   LOGICAL            NO-UNDO.
-    DEFINE VARIABLE dPriceAmount  LIKE oe-ord.t-revenue   NO-UNDO.
-    DEFINE VARIABLE dPct          AS   DECIMAL            NO-UNDO.
-    DEFINE VARIABLE dTotalSqft    LIKE itemfg.t-sqft      NO-UNDO.
-    DEFINE VARIABLE dTotTons      AS   DECIMAL            NO-UNDO.
-    DEFINE VARIABLE dOrdQty       LIKE oe-ordl.qty        NO-UNDO.
-    DEFINE VARIABLE dMsfPrice     AS   DECIMAL            NO-UNDO.
-    DEFINE VARIABLE dPricePerTon  AS   DECIMAL            NO-UNDO.
-    DEFINE VARIABLE dRevenue      LIKE oe-ordl.t-price    NO-UNDO.
-    DEFINE VARIABLE dProfitPer    AS   DECIMAL            NO-UNDO.
-    DEFINE VARIABLE dMargin       AS   DECIMAL            NO-UNDO.
-    DEFINE VARIABLE cSalesName    LIKE sman.sname.
-    DEFINE VARIABLE v             AS   INTEGER            NO-UNDO.
-    DEFINE VARIABLE qm            AS   DECIMAL            NO-UNDO.
-    DEFINE VARIABLE tb_sortby     AS   LOGICAL INIT NO    NO-UNDO.
-    DEFINE VARIABLE dtTrandate    LIKE dtStartOrderDate   NO-UNDO.
+    DEFINE VARIABLE i             AS   INTEGER             NO-UNDO.
+    DEFINE VARIABLE J             AS   INTEGER             NO-UNDO.
+    DEFINE VARIABLE K             AS   INTEGER             NO-UNDO.
+    DEFINE VARIABLE ii            LIKE i                   NO-UNDO.
+    DEFINE VARIABLE cv-code       AS   CHARACTER           NO-UNDO.
+    DEFINE VARIABLE lPrt-Sqft     AS   LOGICAL INITIAL YES NO-UNDO.
+    DEFINE VARIABLE dtMdate       AS   DATE                NO-UNDO.
+    DEFINE VARIABLE i-per-days    AS   INTEGER EXTENT 2    NO-UNDO INITIAL 0.
+    DEFINE VARIABLE v-n-lines     AS   INTEGER             NO-UNDO.
+    DEFINE VARIABLE cSalesRep     AS   CHARACTER           NO-UNDO.
+    DEFINE VARIABLE lExclude      AS   LOGICAL             NO-UNDO.
+    DEFINE VARIABLE lMisc         AS   LOGICAL             NO-UNDO.
+    DEFINE VARIABLE dPriceAmount  LIKE oe-ord.t-revenue    NO-UNDO.
+    DEFINE VARIABLE dPct          AS   DECIMAL             NO-UNDO.
+    DEFINE VARIABLE dTotalSqft    LIKE itemfg.t-sqft       NO-UNDO.
+    DEFINE VARIABLE dTotTons      AS   DECIMAL             NO-UNDO.
+    DEFINE VARIABLE dOrdQty       LIKE oe-ordl.qty         NO-UNDO.
+    DEFINE VARIABLE dMsfPrice     AS   DECIMAL             NO-UNDO.
+    DEFINE VARIABLE dPricePerTon  AS   DECIMAL             NO-UNDO.
+    DEFINE VARIABLE dRevenue      LIKE oe-ordl.t-price     NO-UNDO.
+    DEFINE VARIABLE dProfitPer    AS   DECIMAL             NO-UNDO.
+    DEFINE VARIABLE dMargin       AS   DECIMAL             NO-UNDO.
+    DEFINE VARIABLE cSalesName    LIKE sman.sname.       
+    DEFINE VARIABLE v             AS   INTEGER             NO-UNDO.
+    DEFINE VARIABLE qm            AS   DECIMAL             NO-UNDO.
+    DEFINE VARIABLE tb_sortby     AS   LOGICAL INIT NO     NO-UNDO.
+    DEFINE VARIABLE dtTrandate    LIKE dtStartOrderDate    NO-UNDO.
     
-    DEF BUFFER b-itemfg FOR itemfg.
+    DEFINE BUFFER b-itemfg FOR itemfg.
     FIND FIRST w-data NO-ERROR.    
 
-    FIND FIRST ce-ctrl NO-LOCK WHERE ce-ctrl.company EQ ipcCompany.
+    FIND FIRST ce-ctrl NO-LOCK 
+         WHERE ce-ctrl.company EQ ipcCompany.
     
     FIND FIRST period NO-LOCK
         WHERE period.company EQ ipcCompany
@@ -1109,7 +1127,9 @@ Notes:
         AND oe-ord.ord-date LE dtEndOrderDate
         AND oe-ord.type     NE "T"
         AND oe-ord.stat     NE "D"
-        BY oe-ord.company BY oe-ord.ord-date BY oe-ord.ord-no:
+        BY oe-ord.company 
+        BY oe-ord.ord-date 
+        BY oe-ord.ord-no:
         
         IF lRelOrd THEN DO:
             IF oe-ord.TYPE EQ "T" THEN NEXT.
@@ -1137,7 +1157,7 @@ Notes:
             AND itemfg.procat  GE  cStartProdCategory
             AND itemfg.procat  LE cEndProdCategory
             BREAK BY oe-ordl.line:
-            lExclude = yes.
+            lExclude = YES.
             
             DO i = 1 TO 3:
                 IF lExclude 
@@ -1177,17 +1197,18 @@ Notes:
                     dTotalSqft = itemfg.t-sqft * dOrdQty / 1000
                     dTotTons = itemfg.weight-100 * dOrdQty / 100 / 2000
                     dPriceAmount  = oe-ordl.t-price * dPct.
-                FIND FIRST wkrecap WHERE wkrecap.procat EQ IF AVAIL itemfg THEN itemfg.procat ELSE ? NO-ERROR.
-                IF NOT AVAIL wkrecap THEN DO:
+                FIND FIRST wkrecap NO-LOCK
+                     WHERE wkrecap.procat EQ IF AVAILABLE itemfg THEN itemfg.procat ELSE ? NO-ERROR.
+                IF NOT AVAILABLE wkrecap THEN DO:
                     CREATE wkrecap.
                     ASSIGN
-                        wkrecap.procat     = IF AVAIL itemfg THEN itemfg.procat ELSE ?
+                        wkrecap.procat     = IF AVAILABLE itemfg THEN itemfg.procat ELSE ?
                         wkrecap.num-of-ord = wkrecap.num-of-ord + 1.
                 END.  /*if not avail wkrecap*/
                 ELSE wkrecap.num-of-ord = wkrecap.num-of-ord + 1.
                 j = IF oe-ord.ord-date GE  dtStartOrderDate 
                     AND oe-ord.ord-date LE  dtEndOrderDate THEN 1 ELSE 2.
-               k = IF AVAIL period AND oe-ord.ord-date GE period.pst  
+               k = IF AVAILABLE period AND oe-ord.ord-date GE period.pst  
                    AND oe-ord.ord-date LE period.pend THEN 2 ELSE 1.
                IF j LE k THEN DO ii = j TO k:
                    ASSIGN
@@ -1202,7 +1223,7 @@ Notes:
                 IF oe-ord.ord-date GE  dtStartOrderDate 
                     AND oe-ord.ord-date LE  dtEndOrderDate THEN
                     i-per-days[1] = i-per-days[1] + 1.
-                IF AVAIL period AND oe-ord.ord-date GE period.pst  
+                IF AVAILABLE period AND oe-ord.ord-date GE period.pst  
                     AND oe-ord.ord-date LE period.pend THEN
                     i-per-days[2] = i-per-days[2] + 1.
             END.  /*if oe-ord.ord-date ne dtMdate then do:*/
@@ -1250,7 +1271,7 @@ Notes:
                         dPct = oe-ordm.s-pct[i] / 100
                         dPriceAmount = oe-ordm.amt * dPct.
                     FIND FIRST wkrecap NO-LOCK WHERE wkrecap.procat EQ "P/M" NO-ERROR.
-                    IF NOT AVAIL wkrecap THEN DO:
+                    IF NOT AVAILABLE wkrecap THEN DO:
                         CREATE wkrecap.
                         ASSIGN
                             wkrecap.procat     = "P/M"
@@ -1259,7 +1280,7 @@ Notes:
                     ELSE wkrecap.num-of-ord = wkrecap.num-of-ord + 1.
                     j = IF oe-ord.ord-date GE dtStartOrderDate 
                         AND oe-ord.ord-date LE dtEndOrderDate THEN 1 ELSE 2.
-                    k = IF AVAIL period AND oe-ord.ord-date GE period.pst  
+                    k = IF AVAILABLE period AND oe-ord.ord-date GE period.pst  
                         AND oe-ord.ord-date LE period.pend THEN 2 ELSE 1.
                     /* We cannot disturb loop variable i from within loop,so use ii: */
 
@@ -1274,7 +1295,7 @@ Notes:
         BREAK BY tt-report.key-01 BY tt-report.key-02:
         FIND FIRST oe-ordm NO-LOCK
             WHERE RECID(oe-ordm) EQ tt-report.rec-id NO-ERROR.
-        IF AVAIL oe-ordm THEN DO:
+        IF AVAILABLE oe-ordm THEN DO:
             FIND FIRST oe-ord OF oe-ordm NO-LOCK.
             ASSIGN
                 i            = INT(tt-report.key-03)
@@ -1286,7 +1307,8 @@ Notes:
                 .
         END.  /*if avail oe-ordm then do:*/
         ELSE DO:
-            FIND FIRST oe-ordl NO-LOCK WHERE RECID(oe-ordl) EQ tt-report.rec-id NO-ERROR.
+            FIND FIRST oe-ordl NO-LOCK 
+            WHERE RECID(oe-ordl) EQ tt-report.rec-id NO-ERROR.
             ASSIGN
                 i             = INT(tt-report.key-03)
                 dPct          = oe-ordl.s-pct[i] / 100
@@ -1321,13 +1343,14 @@ Notes:
     FOR EACH tt-report WHERE tt-report.term-id EQ ""
         BREAK BY tt-report.key-01 BY tt-report.key-02:
         {aoaAppSrv/iOrdersBooked.i}
-        FIND FIRST oe-ordl NO-LOCK WHERE RECID(oe-ordl) EQ tt-report.rec-id NO-ERROR.
+        FIND FIRST oe-ordl NO-LOCK 
+         WHERE RECID(oe-ordl) EQ tt-report.rec-id NO-ERROR.
         IF FIRST-OF(tt-report.key-01) THEN DO:
             FIND FIRST sman NO-LOCK
                 WHERE sman.company EQ ipcCompany
                 AND sman.sman      EQ w-data.sman
                 NO-ERROR.
-            cSalesName = IF AVAIL sman THEN sman.sname
+            cSalesName = IF AVAILABLE sman THEN sman.sname
                 ELSE "* NOT IN SALES REP FILE *".
         END.  /*IF FIRST-OF(tt-report.key-01) THEN DO:*/
         FIND FIRST oe-ord NO-LOCK
@@ -1350,6 +1373,17 @@ Notes:
             w-data.t-tons (TOTAL BY tt-report.key-01)
             dRevenue      (TOTAL BY tt-report.key-01)
             w-data.cost   (TOTAL BY tt-report.key-01).
+
+        IF AVAILABLE oe-ordl THEN do:
+            FIND FIRST itemfg NO-LOCK
+                WHERE itemfg.company EQ cocode
+                AND itemfg.i-no    EQ oe-ordl.i-no NO-ERROR.
+            
+            FIND FIRST eb NO-LOCK WHERE eb.company EQ cocode
+                AND eb.est-no  EQ oe-ordl.est-no
+                AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
+        END. /* avail oe-ordl  */
+
         /*==== new with selectable columns ====*/
         IF lUnder AND lOver THEN DO:
             IF dProfitPer GE iUnderValue AND dProfitPer LE iOverValue THEN NEXT.
@@ -1369,8 +1403,8 @@ Notes:
             ttOrdersBooked.orderNo      =   w-data.ord-no                      
             ttOrdersBooked.custName     =   cust.name                   
             ttOrdersBooked.custNo       =   cust.cust-no
-            ttOrdersBooked.salesRep     =   IF AVAIL sman THEN sman.sman ELSE ""
-            ttOrdersBooked.salesRepName =   IF AVAIL sman THEN sman.sname ELSE "" 
+            ttOrdersBooked.salesRep     =   IF AVAILABLE sman THEN sman.sman ELSE ""
+            ttOrdersBooked.salesRepName =   IF AVAILABLE sman THEN sman.sname ELSE "" 
             ttOrdersBooked.commPer      =   w-data.comm                      
             ttOrdersBooked.prodCode     =   w-data.procat 
             ttOrdersBooked.fgItemNo     =   oe-ordl.i-no                       
@@ -1386,6 +1420,7 @@ Notes:
             ttOrdersBooked.ton          =   dPricePerTon  
             ttOrdersBooked.vUserID      =   oe-ord.user-id                  
             ttOrdersBooked.custPartNo   =   oe-ordl.part-no
+            ttOrdersBooked.dieNo        =   IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN STRING(itemfg.die-no,"x(15)") ELSE IF AVAILABLE eb THEN STRING(eb.die-no,"x(15)") ELSE "" .
             . 
         DELETE w-data.
         DELETE tt-report.
@@ -1408,43 +1443,43 @@ Parameters:  Company, Batch Seq, User ID
 Notes:       
 ------------------------------------------------------------------------------*/
     {aoaAppSrv/pOrdersBookedByOrderNo.i}
-    
+
     /* local variables */
     cocode = ipcCompany .
-    DEFINE VARIABLE v-ord-qty        AS   LOGICAL  INIT YES.
-    DEFINE VARIABLE v-tot-ord        AS   DECIMAL  EXTENT 2.
-    DEFINE VARIABLE v-tax-rate       AS   DECIMAL .
-    DEFINE VARIABLE v-ship           AS   LOGICAL INIT NO.
-    DEFINE VARIABLE v-tot-tax        LIKE oe-ord.tax.
-    DEFINE VARIABLE v-tot-freight    LIKE oe-ord.t-freight.
-    DEFINE VARIABLE v-qty-lft        LIKE oe-ordl.qty.
-    DEFINE VARIABLE v-ext-price      LIKE oe-ordl.t-price.
-    DEFINE VARIABLE v-prt-cont       AS   LOGICAL INIT NO.
-    DEFINE VARIABLE v-margin         AS   DECIMAL.
-    DEFINE VARIABLE v-margin-tot     AS   DECIMAL .
-    DEFINE VARIABLE v-ext-cost       AS   DECIMAL.
-    DEFINE VARIABLE v-orderedMsf     AS   DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-jobShipQty     AS   INTEGER NO-UNDO.
-    DEFINE VARIABLE v-boardProfit    AS   DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-boardPO        AS   INTEGER NO-UNDO.
-    DEFINE VARIABLE v-boardpoQty     AS   INTEGER NO-UNDO.
-    DEFINE VARIABLE v-boardCost      AS   DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-boardTotalCost AS   DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-boardTotalQty  AS   INTEGER NO-UNDO.
-    DEFINE VARIABLE v-Order%Profit   AS   DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-MSFRec         AS   DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-FGShipDate     AS   DATE    NO-UNDO.
-    DEFINE VARIABLE v-PORecDate      AS   DATE    NO-UNDO.
-    DEFINE VARIABLE v-FGExtPrice     AS   DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-PORecCost      AS   DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-ProfitSold$    AS   DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-ProfitSold%    AS   DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-UnitsBoard     AS   INTEGER NO-UNDO.
-    DEFINE VARIABLE v-UnitLoss$      AS   DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-Loss%          AS   DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-bol#           AS   INTEGER NO-UNDO.
-    DEFINE VARIABLE v-inv#           AS   INTEGER NO-UNDO.
-    DEFINE BUFFER   b-oe-ordl        FOR oe-ordl.
+    DEFINE VARIABLE lv-ord-qty        AS   LOGICAL  INITIAL YES.
+    DEFINE VARIABLE dv-tot-ord        AS   DECIMAL  EXTENT 2.
+    DEFINE VARIABLE dv-tax-rate       AS   DECIMAL .
+    DEFINE VARIABLE lv-ship           AS   LOGICAL INITIAL NO.
+    DEFINE VARIABLE dv-tot-tax        LIKE oe-ord.tax.
+    DEFINE VARIABLE dv-tot-freight    LIKE oe-ord.t-freight.
+    DEFINE VARIABLE iv-qty-lft        LIKE oe-ordl.qty.
+    DEFINE VARIABLE dv-ext-price      LIKE oe-ordl.t-price.
+    DEFINE VARIABLE lv-prt-cont       AS   LOGICAL INITIAL NO.
+    DEFINE VARIABLE dv-margin         AS   DECIMAL.
+    DEFINE VARIABLE dv-margin-tot     AS   DECIMAL .
+    DEFINE VARIABLE dv-ext-cost       AS   DECIMAL.
+    DEFINE VARIABLE dv-orderedMsf     AS   DECIMAL NO-UNDO.
+    DEFINE VARIABLE iv-jobShipQty     AS   INTEGER NO-UNDO.
+    DEFINE VARIABLE dv-boardProfit    AS   DECIMAL NO-UNDO.
+    DEFINE VARIABLE iv-boardPO        AS   INTEGER NO-UNDO.
+    DEFINE VARIABLE iv-boardpoQty     AS   INTEGER NO-UNDO.
+    DEFINE VARIABLE dv-boardCost      AS   DECIMAL NO-UNDO.
+    DEFINE VARIABLE dv-boardTotalCost AS   DECIMAL NO-UNDO.
+    DEFINE VARIABLE iv-boardTotalQty  AS   INTEGER NO-UNDO.
+    DEFINE VARIABLE dv-Order%Profit   AS   DECIMAL NO-UNDO.
+    DEFINE VARIABLE dv-MSFRec         AS   DECIMAL NO-UNDO.
+    DEFINE VARIABLE dtv-FGShipDate    AS   DATE    NO-UNDO.
+    DEFINE VARIABLE dt-PORecDate      AS   DATE    NO-UNDO.
+    DEFINE VARIABLE dv-FGExtPrice     AS   DECIMAL NO-UNDO.
+    DEFINE VARIABLE dv-PORecCost      AS   DECIMAL NO-UNDO.
+    DEFINE VARIABLE dv-ProfitSold$    AS   DECIMAL NO-UNDO.
+    DEFINE VARIABLE dv-ProfitSold%    AS   DECIMAL NO-UNDO.
+    DEFINE VARIABLE iv-UnitsBoard     AS   INTEGER NO-UNDO.
+    DEFINE VARIABLE dv-UnitLoss$      AS   DECIMAL NO-UNDO.
+    DEFINE VARIABLE dv-Loss%          AS   DECIMAL NO-UNDO.
+    DEFINE VARIABLE iv-bol#           AS   INTEGER NO-UNDO.
+    DEFINE VARIABLE iv-inv#           AS   INTEGER NO-UNDO.
+    DEFINE BUFFER   b-oe-ordl         FOR oe-ordl.
 
     
     FOR EACH oe-ord NO-LOCK
@@ -1455,7 +1490,7 @@ Notes:
         AND oe-ord.cust-no  LE cEndCustNo
         AND oe-ord.ord-date GE dtStartOrderDate
         AND oe-ord.ord-date LE dtEndOrderDate
-        AND oe-ord.stat         NE "D"
+        AND oe-ord.stat     NE "D"
         AND oe-ord.type     NE "T"
         USE-INDEX ord-no ,
         FIRST b-oe-ordl NO-LOCK
@@ -1464,8 +1499,9 @@ Notes:
         AND b-oe-ordl.i-no    GE cStartItemNo
         AND b-oe-ordl.i-no    LE cEndItemNo
         ,
-        FIRST cust NO-LOCK WHERE (cust.company EQ ipcCompany) AND cust.cust-no EQ oe-ord.cust-no BREAK BY oe-ord.ord-no:
-        v-tot-ord[1] = 0.
+        FIRST cust NO-LOCK WHERE (cust.company EQ ipcCompany) 
+        AND cust.cust-no EQ oe-ord.cust-no BREAK BY oe-ord.ord-no:
+        dv-tot-ord[1] = 0.
 
         FOR EACH oe-ordl NO-LOCK
             WHERE oe-ordl.company EQ oe-ord.company
@@ -1475,34 +1511,34 @@ Notes:
             BREAK BY oe-ordl.ord-no:
             IF NOT FIRST(oe-ordl.ord-no) AND FIRST-OF(oe-ordl.ord-no) THEN PUT SKIP(1).
             ASSIGN
-                v-ship      = oe-ordl.stat NE "I" AND oe-ordl.stat NE "B"
-                v-qty-lft   = oe-ordl.qty - (IF v-ord-qty THEN 0 ELSE oe-ordl.inv-qty)
-                v-ext-price = 0.
-            IF v-qty-lft LT 0 THEN v-qty-lft = 0.
+                lv-ship      = oe-ordl.stat NE "I" AND oe-ordl.stat NE "B"
+                iv-qty-lft   = oe-ordl.qty - (IF lv-ord-qty THEN 0 ELSE oe-ordl.inv-qty)
+                dv-ext-price = 0.
+            IF iv-qty-lft LT 0 THEN iv-qty-lft = 0.
             FIND FIRST itemfg NO-LOCK WHERE (itemfg.company EQ ipcCompany ) 
                 AND itemfg.i-no EQ oe-ordl.i-no NO-ERROR  .
 
                 RUN  oe/GetPriceTotal.p(INPUT oe-ordl.qty, INPUT oe-ordl.price, INPUT oe-ordl.pr-uom,
-                                        INPUT ( IF AVAIL itemfg THEN itemfg.case-count ELSE 0),
+                                        INPUT ( IF AVAILABLE itemfg THEN itemfg.case-count ELSE 0),
                                         INPUT oe-ordl.disc,
-                                        OUTPUT v-ext-price).  /* task 01241601 */ 
-            v-tot-freight = v-tot-freight +
-                (ROUND(oe-ordl.t-freight / oe-ordl.qty, 2) * v-qty-lft).
+                                        OUTPUT dv-ext-price).  /* task 01241601 */ 
+            dv-tot-freight = dv-tot-freight +
+                (ROUND(oe-ordl.t-freight / oe-ordl.qty, 2) * iv-qty-lft).
             /** CALCULATE TAX CHARGES **/
-            IF oe-ordl.tax AND v-tax-rate GT 0 THEN
-                v-tot-tax = v-tot-tax + ROUND((v-ext-price * v-tax-rate) / 100,2).
-            /*if v-prt-cont then */
+            IF oe-ordl.tax AND dv-tax-rate GT 0 THEN
+                dv-tot-tax = dv-tot-tax + ROUND((dv-ext-price * dv-tax-rate) / 100,2).
+            /*if lv-prt-cont then */
             ASSIGN
-                v-ext-cost = (oe-ordl.cost * oe-ordl.qty) / 1000
-                v-margin = v-ext-price - v-ext-cost.
+                dv-ext-cost = (oe-ordl.cost * oe-ordl.qty) / 1000
+                dv-margin = dv-ext-price - dv-ext-cost.
             ASSIGN 
-                v-boardTotalQty  = 0
-                v-boardPo        = 0
-                v-boardPOQty     = 0
-                v-boardCost      = 0
-                v-boardTotalCost = 0
-                v-boardProfit    = 0
-                v-OrderedMSF     = 0
+                iv-boardTotalQty  = 0
+                iv-boardPO        = 0
+                iv-boardpoQty     = 0
+                dv-boardCost      = 0
+                dv-boardTotalCost = 0
+                dv-boardProfit    = 0
+                dv-orderedMsf     = 0
                 .
             IF oe-ordl.po-no-po NE 0 THEN DO:
                 FIND FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ oe-ordl.company 
@@ -1511,15 +1547,15 @@ Notes:
                     AND po-ordl.job-no EQ oe-ordl.job-no AND po-ordl.job-no2 EQ oe-ordl.job-no2)   
                     OR (po-ordl.item-type EQ NO AND po-ordl.i-no EQ oe-ordl.i-no)) NO-ERROR.
                 ASSIGN
-                    v-boardTotalQty  = IF AVAIL po-ordl THEN po-ordl.t-rec-qty ELSE 0
-                    v-boardPO        = IF AVAIL oe-ordl THEN oe-ordl.po-no-po  ELSE 0
-                    v-boardPoQty     = IF AVAIL po-ordl THEN po-ordl.ord-qty   ELSE 0
-                    v-boardCost      = IF AVAIL po-ordl THEN po-ordl.cost      ELSE 0
-                    v-boardTotalCost = IF AVAIL po-ordl THEN po-ordl.t-cost    ELSE 0
+                    iv-boardTotalQty  = IF AVAILABLE po-ordl THEN po-ordl.t-rec-qty ELSE 0
+                    iv-boardPO        = IF AVAILABLE oe-ordl THEN oe-ordl.po-no-po  ELSE 0
+                    iv-boardpoQty     = IF AVAILABLE po-ordl THEN po-ordl.ord-qty   ELSE 0
+                    dv-boardCost      = IF AVAILABLE po-ordl THEN po-ordl.cost      ELSE 0
+                    dv-boardTotalCost = IF AVAILABLE po-ordl THEN po-ordl.t-cost    ELSE 0
                     .
-               RUN pCalcPoMSF (OUTPUT v-OrderedMSF).
-               IF v-OrderedMSF EQ ? THEN v-OrderedMSF = 0.
-               v-PORecDate = ?.
+               RUN pCalcPoMSF (OUTPUT dv-orderedMsf).
+               IF dv-orderedMsf EQ ? THEN dv-orderedMsf = 0.
+               dt-PORecDate = ?.
 
                IF oe-ordl.po-no-po NE 0 THEN
                FOR EACH fg-rcpth NO-LOCK WHERE fg-rcpth.company EQ oe-ordl.company 
@@ -1529,18 +1565,18 @@ Notes:
                    AND fg-rcpth.po-no EQ STRING(oe-ordl.po-no-po),
                    EACH fg-rdtlh NO-LOCK WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
                    AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code BY fg-rcpth.trans-date:      
-                   ASSIGN v-PORecDate = fg-rcpth.trans-date.
+                   ASSIGN dt-PORecDate = fg-rcpth.trans-date.
                    LEAVE.
                END.  /* end of for each fg-rcpth */
 
             END.  /*IF oe-ordl.po-no-po*/
-            v-boardProfit = v-ext-price - v-boardTotalCost .
+            dv-boardProfit = dv-ext-price - dv-boardTotalCost .
 
             FIND itemfg NO-LOCK WHERE itemfg.company  EQ ipcCompany 
                 AND itemfg.i-no EQ oe-ordl.i-no NO-ERROR.
             ASSIGN
-                v-jobShipQty = 0
-                v-FGShipDate = ?.
+                iv-jobShipQty  = 0
+                dtv-FGShipDate = ?.
 
             IF oe-ordl.job-no NE "" THEN
             FOR EACH fg-rcpth OF itemfg NO-LOCK WHERE fg-rcpth.rita-code EQ "S"
@@ -1554,8 +1590,8 @@ Notes:
                 AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code 
                 BY fg-rcpth.trans-date:      
                 ASSIGN
-                    v-jobShipQty = v-jobShipQty + fg-rdtlh.qty
-                    v-FGShipDate = IF v-FGShipDate EQ ? THEN fg-rcpth.trans-date ELSE v-FGShipDate.
+                    iv-jobShipQty  = iv-jobShipQty + fg-rdtlh.qty
+                    dtv-FGShipDate = IF dtv-FGShipDate EQ ? THEN fg-rcpth.trans-date ELSE dtv-FGShipDate.
             END.  /* end of for each fg-rcpth */ 
 
             IF (oe-ordl.po-no-po NE 0 AND
@@ -1577,44 +1613,43 @@ Notes:
             FIND FIRST oe-boll NO-LOCK WHERE oe-boll.company EQ oe-ordl.company 
                 AND oe-boll.ord-no EQ oe-ordl.ord-no
                 AND oe-boll.i-no EQ oe-ordl.i-no NO-ERROR.
-            v-bol# = IF AVAIL oe-boll THEN oe-boll.bol-no ELSE 0.
+            iv-bol# = IF AVAILABLE oe-boll THEN oe-boll.bol-no ELSE 0.
 
             FIND FIRST ar-invl NO-LOCK WHERE ar-invl.company EQ oe-ordl.company
                 AND ar-invl.ord-no EQ oe-ordl.ord-no
                 AND ar-invl.i-no EQ oe-ordl.i-no NO-ERROR.
-            v-inv# = IF AVAIL ar-invl THEN ar-invl.inv-no ELSE 0.
+            iv-inv# = IF AVAILABLE ar-invl THEN ar-invl.inv-no ELSE 0.
 
-            IF v-inv# EQ 0  THEN DO:
+            IF iv-inv# EQ 0  THEN DO:
                 FIND FIRST inv-line NO-LOCK WHERE inv-line.company EQ oe-ordl.company
                     AND inv-line.ord-no EQ oe-ordl.ord-no
                     AND inv-line.i-no EQ oe-ordl.i-no NO-ERROR.
-                v-inv# = IF AVAIL inv-line THEN inv-line.inv-no ELSE 0.
-            END.  /*IF v-inv# = 0 */
+                iv-inv# = IF AVAILABLE inv-line THEN inv-line.inv-no ELSE 0.
+            END.  /*IF iv-inv# = 0 */
             ASSIGN
-                v-Order%Profit = v-boardProfit / v-ext-price
-                v-MSFRec       = v-orderedMsf / v-boardpoQty * v-boardTotalQty              
-                v-FGExtPrice   = oe-ordl.price / 1000 * v-jobShipQty
-                v-PORecCost    = v-boardTotalCost / v-boardpoQty * v-boardTotalQty
-                v-ProfitSold$  = v-FGExtPrice - v-PORecCost 
-                v-ProfitSold%  = v-ProfitSold$ / v-FGExtPrice
-                v-UnitsBoard   = v-qty-lft / v-boardpoQty
-                v-UnitLoss$    = v-boardTotalQty * v-UnitsBoard - v-jobShipQty
-                v-Loss%        = v-UnitLoss$ / (v-boardTotalQty * v-UnitsBoard )
+                dv-Order%Profit = dv-boardProfit / dv-ext-price
+                dv-MSFRec       = dv-orderedMsf / iv-boardpoQty * iv-boardTotalQty              
+                dv-FGExtPrice   = oe-ordl.price / 1000 * iv-jobShipQty
+                dv-PORecCost    = dv-boardTotalCost / iv-boardpoQty * iv-boardTotalQty
+                dv-ProfitSold$  = dv-FGExtPrice - dv-PORecCost 
+                dv-ProfitSold%  = dv-ProfitSold$ / dv-FGExtPrice
+                iv-UnitsBoard   = iv-qty-lft / iv-boardpoQty
+                dv-UnitLoss$    = iv-boardTotalQty * iv-UnitsBoard - iv-jobShipQty
+                dv-Loss%        = dv-UnitLoss$ / (iv-boardTotalQty * iv-UnitsBoard )
                 .
-            IF v-Order%Profit  EQ ? THEN v-Order%Profit = 0.
-            IF v-MSFRec        EQ ? THEN v-MSFRec = 0.
-            IF v-PORecCost     EQ ? THEN v-PORecCost = 0.
-            IF v-ProfitSold$   EQ ? THEN v-ProfitSold$ = 0.
-            IF v-ProfitSold%   EQ ? THEN v-ProfitSold% = 0.
-            IF v-UnitsBoard    EQ ? THEN v-UnitsBoard = 0.
-            IF v-UnitLoss$     EQ ? THEN v-UnitLoss$ = 0.
-            IF v-Loss%         EQ ? THEN v-Loss% = 0.
+            IF dv-Order%Profit  EQ ? THEN dv-Order%Profit = 0.
+            IF dv-MSFRec        EQ ? THEN dv-MSFRec = 0.
+            IF dv-PORecCost     EQ ? THEN dv-PORecCost = 0.
+            IF dv-ProfitSold$   EQ ? THEN dv-ProfitSold$ = 0.
+            IF dv-ProfitSold%   EQ ? THEN dv-ProfitSold% = 0.
+            IF iv-UnitsBoard    EQ ? THEN iv-UnitsBoard = 0.
+            IF dv-UnitLoss$     EQ ? THEN dv-UnitLoss$ = 0.
+            IF dv-Loss%         EQ ? THEN dv-Loss% = 0.
 
             PUT UNFORMATTED "ttOrdersBookedByOrderNo" SKIP.
 
             CREATE ttOrdersBookedByOrderNo .
             ASSIGN
-                /* ttOrdersBookedByOrderNo.rowType          =*/
                 ttOrdersBookedByOrderNo.orderNo          = oe-ord.ord-no         
                 ttOrdersBookedByOrderNo.estNo            = oe-ordl.est-no        
                 ttOrdersBookedByOrderNo.jobNo            = oe-ordl.job-no        
@@ -1623,38 +1658,38 @@ Notes:
                 ttOrdersBookedByOrderNo.custName         = oe-ord.cust-name      
                 ttOrdersBookedByOrderNo.fgItem           = oe-ordl.i-no          
                 ttOrdersBookedByOrderNo.fgItemName       = oe-ordl.i-name        
-                ttOrdersBookedByOrderNo.fgOrderQty       = v-qty-lft             
+                ttOrdersBookedByOrderNo.fgOrderQty       = iv-qty-lft             
                 ttOrdersBookedByOrderNo.fgCost           = oe-ordl.cost          
                 ttOrdersBookedByOrderNo.price            = oe-ordl.price         
                 ttOrdersBookedByOrderNo.uom              = oe-ordl.pr-uom        
-                ttOrdersBookedByOrderNo.extPrice         = v-ext-price           
-                ttOrdersBookedByOrderNo.fgItemProfit     = v-margin              
-                ttOrdersBookedByOrderNo.poMsf            = v-orderedMsf          
-                ttOrdersBookedByOrderNo.fgShipped        = v-jobShipQty          
-                ttOrdersBookedByOrderNo.poProfit         = v-boardProfit         
-                ttOrdersBookedByOrderNo.poNo             = v-boardPO             
-                ttOrdersBookedByOrderNo.poQty            = v-boardpoQty          
-                ttOrdersBookedByOrderNo.poCost           = v-boardCost           
-                ttOrdersBookedByOrderNo.poTotalCost      = v-boardTotalCost      
-                ttOrdersBookedByOrderNo.poReceived       = v-boardTotalQty       
-                ttOrdersBookedByOrderNo.orderProfit      = v-Order%Profit        
-                ttOrdersBookedByOrderNo.msfReceived      = v-MSFRec              
-                ttOrdersBookedByOrderNo.fgShipDate       = v-FGShipDate          
-                ttOrdersBookedByOrderNo.poRecDate        = v-PORecDate           
-                ttOrdersBookedByOrderNo.fgExtPrice       = v-FGExtPrice          
-                ttOrdersBookedByOrderNo.poRecCost        = v-PORecCost           
-                ttOrdersBookedByOrderNo.profSold         = v-ProfitSold$         
-                ttOrdersBookedByOrderNo.profSoldp        = v-ProfitSold%         
-                ttOrdersBookedByOrderNo.unitBoard        = v-UnitsBoard          
-                ttOrdersBookedByOrderNo.unitWaste        = v-UnitLoss$           
-                ttOrdersBookedByOrderNo.lossp            = v-Loss%               
-                ttOrdersBookedByOrderNo.bolNo            = v-bol#                
-                ttOrdersBookedByOrderNo.invoiceNo        = v-inv#  .
+                ttOrdersBookedByOrderNo.extPrice         = dv-ext-price           
+                ttOrdersBookedByOrderNo.fgItemProfit     = dv-margin              
+                ttOrdersBookedByOrderNo.poMsf            = dv-orderedMsf          
+                ttOrdersBookedByOrderNo.fgShipped        = iv-jobShipQty          
+                ttOrdersBookedByOrderNo.poProfit         = dv-boardProfit         
+                ttOrdersBookedByOrderNo.poNo             = iv-boardPO             
+                ttOrdersBookedByOrderNo.poQty            = iv-boardpoQty          
+                ttOrdersBookedByOrderNo.poCost           = dv-boardCost           
+                ttOrdersBookedByOrderNo.poTotalCost      = dv-boardTotalCost      
+                ttOrdersBookedByOrderNo.poReceived       = iv-boardTotalQty       
+                ttOrdersBookedByOrderNo.orderProfit      = dv-Order%Profit        
+                ttOrdersBookedByOrderNo.msfReceived      = dv-MSFRec              
+                ttOrdersBookedByOrderNo.fgShipDate       = dtv-FGShipDate          
+                ttOrdersBookedByOrderNo.poRecDate        = dt-PORecDate           
+                ttOrdersBookedByOrderNo.fgExtPrice       = dv-FGExtPrice          
+                ttOrdersBookedByOrderNo.poRecCost        = dv-PORecCost           
+                ttOrdersBookedByOrderNo.profSold         = dv-ProfitSold$         
+                ttOrdersBookedByOrderNo.profSoldp        = dv-ProfitSold%         
+                ttOrdersBookedByOrderNo.unitBoard        = iv-UnitsBoard          
+                ttOrdersBookedByOrderNo.unitWaste        = dv-UnitLoss$           
+                ttOrdersBookedByOrderNo.lossp            = dv-Loss%               
+                ttOrdersBookedByOrderNo.bolNo            = iv-bol#                
+                ttOrdersBookedByOrderNo.invoiceNo        = iv-inv#  .
             /*===== end of new ===== */
-            IF v-prt-cont THEN DO:
-                IF v-margin NE ? THEN v-margin-tot = v-margin-tot + v-margin.
-            END.  /*IF v-prt-cont*/
-            v-tot-ord[1] = v-tot-ord[1] + v-ext-price.
+            IF lv-prt-cont THEN DO:
+                IF dv-margin NE ? THEN dv-margin-tot = dv-margin-tot + dv-margin.
+            END.  /*IF lv-prt-cont*/
+            dv-tot-ord[1] = dv-tot-ord[1] + dv-ext-price.
         END.  /* each oe-ordl */
 
         IF lPrintMiscCharges THEN
@@ -1662,14 +1697,15 @@ Notes:
             AND oe-ordm.ord-no  EQ oe-ord.ord-no
             BREAK BY oe-ordm.ord-no:
             IF oe-ordm.bill EQ "Y" THEN DO:
-                v-tot-ord[1] = v-tot-ord[1] + oe-ordm.amt.
-            IF oe-ordm.tax AND v-tax-rate EQ 0 THEN
-              v-tot-tax = v-tot-tax + ROUND((oe-ordm.amt * v-tax-rate) / 100,2).
+                dv-tot-ord[1] = dv-tot-ord[1] + oe-ordm.amt.
+            IF oe-ordm.tax AND dv-tax-rate EQ 0 THEN
+              dv-tot-tax = dv-tot-tax + ROUND((oe-ordm.amt * dv-tax-rate) / 100,2).
             END.  /*IF oe-ordm.tax*/
         END.  /* each oe-ordm */   
 
-        v-tot-ord[2] = v-tot-ord[2] + v-tot-ord[1].    
+        dv-tot-ord[2] = dv-tot-ord[2] + dv-tot-ord[1].    
     END.  /* each oe-ord */ 
+
 
 END PROCEDURE.
 
