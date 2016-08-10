@@ -93,6 +93,7 @@ def TEMP-TABLE w-lo NO-UNDO
 def new shared buffer xjob-hdr for job-hdr.
 
 def buffer b-eb for eb.
+def buffer bff-eb for eb.
 
 def new shared workfile wrk-op
   field m-dscr like est-op.m-dscr
@@ -187,6 +188,7 @@ DEF VAR v-po-no LIKE oe-ordl.po-no NO-UNDO.
 DEF VAR lv-mat-dept-list AS cha INIT "FB,FS,WN,WS,GL" NO-UNDO.
 DEF VAR v-mat-for-mach AS cha NO-UNDO.
 DEF BUFFER xjob-mat FOR job-mat.
+DEF BUFFER bf-job-mat FOR job-mat.
 DEF VAR v-fgitm AS cha FORM "x(15)" EXTENT 10 NO-UNDO.
 DEF VAR v-fgdsc LIKE eb.part-dscr1 EXTENT 10 NO-UNDO.
 DEF VAR v-fgqty LIKE job-hdr.qty EXTENT 10 FORM ">>,>>>,>>>" NO-UNDO.
@@ -1229,14 +1231,27 @@ for each job-hdr NO-LOCK
            ASSIGN 
               v-lp-dep = if avail item then ITEM.case-d ELSE 0 
               v-lp-qty = if avail item THEN ITEM.box-case ELSE 0.
-    
-          IF FIRST-OF(eb.form-no) THEN
-             PUT 
-                "<P9><B> F/B             Tray #          Qty per tray        Case #          Qty per case        Pallet          Packing Specs </B>" SKIP.
 
-          IF eb.lp-up NE 0 THEN
+          FOR EACH bff-eb NO-LOCK WHERE bff-eb.company EQ eb.company
+                                AND bff-eb.est-no  EQ eb.est-no
+                                AND bff-eb.form-no EQ eb.form-no BREAK BY bff-eb.form-no :
+
+               FIND FIRST bf-job-mat NO-LOCK WHERE bf-job-mat.company EQ job.company 
+                   AND bf-job-mat.job EQ job.job 
+                   AND bf-job-mat.job-no EQ job.job-no 
+                   AND bf-job-mat.job-no2 EQ job.job-no2
+                   AND bf-job-mat.frm EQ bff-eb.form-no
+                   AND bf-job-mat.blank-no EQ bff-eb.blank-no
+                   AND bf-job-mat.rm-i-no EQ  bff-eb.cas-no  NO-ERROR .
+   
+
+          IF FIRST-OF(bff-eb.form-no) THEN
+             PUT 
+                "<P9><B> F/B             Tray #          Qty per tray        Case #                Qty   Qty per case        Pallet          Packing Specs </B>" SKIP.
+
+          IF bff-eb.lp-up NE 0 THEN
           DO:
-             v-unit-per-dec = eb.cas-cnt / eb.lp-up.
+             v-unit-per-dec = bff-eb.cas-cnt / bff-eb.lp-up.
              {sys/inc/roundup.i v-unit-per-dec}
              v-unit-per-int = INT(v-unit-per-dec).
           END.
@@ -1252,7 +1267,7 @@ for each job-hdr NO-LOCK
           ELSE
              v-job-qty-unit-per-int = 0.
 
-          IF eb.cas-cnt NE 0 THEN
+          IF bff-eb.cas-cnt NE 0 THEN
           DO:
              v-job-qty-boxes-code-dec = v-job-qty / eb.cas-cnt.
              {sys/inc/roundup.i v-job-qty-boxes-code-dec}
@@ -1262,13 +1277,13 @@ for each job-hdr NO-LOCK
              v-job-qty-boxes-code-int = 0.
 
           FIND FIRST itemfg WHERE
-               itemfg.company = eb.company AND
-               itemfg.i-no = eb.stock-no
+               itemfg.company = bff-eb.company AND
+               itemfg.i-no = bff-eb.stock-no
                NO-LOCK NO-ERROR.
 
           IF AVAIL itemfg THEN
           DO:
-             v-cas-wt = (itemfg.weight-100 / 100) * eb.cas-cnt.
+             v-cas-wt = (itemfg.weight-100 / 100) * bff-eb.cas-cnt.
           END.
 
           FIND FIRST tt-sample-ctn WHERE
@@ -1291,15 +1306,16 @@ for each job-hdr NO-LOCK
                                est-op.company EQ job-hdr.company AND
                                est-op.est-no EQ est.est-no AND
                                est-op.dept = "SW").
-          PUT v-job-no + "-" + trim(string(eb.form-no,">>9")) + 
-                    trim(string(eb.blank-no,">>9")) FORM "x(11)"
+          PUT v-job-no + "-" + trim(string(bff-eb.form-no,">>9")) + 
+                    trim(string(bff-eb.blank-no,">>9")) FORM "x(11)"
 
-              eb.layer-pad  AT 18 /* tray */
+              bff-eb.layer-pad  AT 18 /* tray */
               v-job-qty-unit-per-int  AT 40
-              eb.cas-no FORMAT "X(15)" AT 54 /* cases# */
-              eb.cas-cnt FORMAT "->>>>>9" AT 75  /* qty per case */
-              eb.tr-no   AT 90 /* Pallet */ 
-              (IF AVAIL itemfg THEN itemfg.prod-not ELSE "") FORMAT "X(20)" AT 106 /* packing spacs*/ SKIP .
+              bff-eb.cas-no FORMAT "X(15)" AT 54 /* cases# */
+              (IF AVAIL bf-job-mat THEN string(bf-job-mat.qty,"->>>>>>9.9<") ELSE "") FORMAT "x(11)"
+              bff-eb.cas-cnt FORMAT "->>>>>9" AT 87  /* qty per case */
+              bff-eb.tr-no   AT 102 /* Pallet */ 
+              (IF AVAIL itemfg THEN itemfg.prod-not ELSE "") FORMAT "X(20)" AT 118 /* packing spacs*/ SKIP .
                
               RELEASE itemfg.
          /* PUT " Flat" "Finished"  AT 22 "Tray#" AT 33 eb.layer-pad FORMAT "x(10)"
@@ -1321,14 +1337,16 @@ for each job-hdr NO-LOCK
                "<B> Units/Shts UPS: </B>" v-dc-out
                "Pallet"  AT 40 space(1) eb.tr-no
                "Shrink wrap"  AT 116 SPACE (1) v-shrink-wrap.*/
-           put v-fill at 1 skip.
+           
+          END.  /* each bff-eb */
 
-             
-          END. /* last-of(eb.form-no) */
+          put v-fill at 1 skip.
+
+         END. /* last-of(eb.form-no) */
           
-        end. /* each eb */
-      end. /* each ef */
-      end. /* first job-no */
+        END. /* each eb */
+      END. /* each ef */
+     END. /* first job-no */
 
       if last-of(job-hdr.frm) then do:
          IF s-run-speed THEN
