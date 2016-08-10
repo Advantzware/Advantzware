@@ -1984,6 +1984,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-release-update V-table-Win 
+PROCEDURE check-release-update :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER cCheck-rel AS CHARACTER NO-UNDO .
+
+    FIND CURRENT oe-bolh.
+
+    IF AVAIL oe-bolh THEN
+        ASSIGN
+        cCheck-rel = oe-bolh.stat .
+  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
