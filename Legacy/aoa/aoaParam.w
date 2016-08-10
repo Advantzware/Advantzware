@@ -40,6 +40,7 @@ DEFINE INPUT PARAMETER ipcParamStr AS CHARACTER NO-UNDO.
 
 {aoa/aoaParamDefs.i}
 
+DEFINE VARIABLE hParamFrame      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hAppSrv          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrinterFile     AS CHARACTER NO-UNDO.
@@ -366,6 +367,23 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 149 BY 18.05.
 
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
+     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
+     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 40 BY 10.48
+         TITLE "Show/Hide Sections" WIDGET-ID 300.
+
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
      btnDefault AT ROW 1.71 COL 32 HELP
@@ -388,23 +406,6 @@ DEFINE FRAME frameColumns
          AT COL 82 ROW 1
          SIZE 67 BY 10.48
          TITLE "Report Columns" WIDGET-ID 200.
-
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
-     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
-     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
-     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 40 BY 10.48
-         TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1122,7 +1123,6 @@ PROCEDURE local-create-objects :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pSetWinSize.
-  RUN pShowBatchObjs.
   
 END PROCEDURE.
 
@@ -1157,6 +1157,8 @@ PROCEDURE local-enable :
       ENABLE btnScheduler WITH FRAME {&FRAME-NAME}.
       RUN pGetUserPrint.
   END.
+
+  RUN pShowBatchObjs.
 
 END PROCEDURE.
 
@@ -1955,29 +1957,30 @@ PROCEDURE pSetWinSize :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hParamFrame AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE iWidth      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iHeight AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iWidth  AS INTEGER NO-UNDO.
 
     RUN get-attribute IN h_aoaParam ('adm-object-handle':U).
     hParamFrame = WIDGET-HANDLE(RETURN-VALUE).
 
     IF NOT VALID-HANDLE(hParamFrame) THEN RETURN.
 
-    IF aoaColumns THEN
-    iWidth = FRAME frameShow:WIDTH-PIXELS + 5
-           + FRAME frameColumns:WIDTH-PIXELS + 5.
-    
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
+            iWidth                                    = FRAME frameShow:WIDTH-PIXELS + 5
+                                                      + FRAME frameColumns:WIDTH-PIXELS + 5
+            {&WINDOW-NAME}:WIDTH-PIXELS               = hParamFrame:WIDTH-PIXELS + 5 + iWidth
             {&WINDOW-NAME}:HEIGHT-PIXELS              = hParamFrame:HEIGHT-PIXELS + 5
                                                       + btnView:HEIGHT-PIXELS + 5
-            {&WINDOW-NAME}:WIDTH-PIXELS               = hParamFrame:WIDTH-PIXELS + 5 + iWidth
             {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS      = {&WINDOW-NAME}:HEIGHT-PIXELS
             {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS       = {&WINDOW-NAME}:WIDTH-PIXELS
             FRAME {&FRAME-NAME}:WIDTH-PIXELS          = {&WINDOW-NAME}:WIDTH-PIXELS
             FRAME {&FRAME-NAME}:HEIGHT-PIXELS         = {&WINDOW-NAME}:HEIGHT-PIXELS
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+            FRAME frameShow:X                         = hParamFrame:WIDTH-PIXELS + 5
+            FRAME frameShow:Y                         = hParamFrame:Y
+            FRAME frameShow:HIDDEN                    = FALSE
             btnScheduler:Y                            = hParamFrame:HEIGHT-PIXELS + 5
             btnShowBatch:Y                            = hParamFrame:HEIGHT-PIXELS + 5
             btnExcel:Y                                = hParamFrame:HEIGHT-PIXELS + 5
@@ -1989,44 +1992,45 @@ PROCEDURE pSetWinSize :
             btnExcel:X                                = btnCancel:X - ((btnCancel:X
                                                       - (btnShowBatch:X + btnShowBatch:WIDTH-PIXELS)) / 2)
                                                       - btnExcel:WIDTH-PIXELS / 2
+            iHeight                                   = FRAME frameShow:HEIGHT-PIXELS
             .
 
-        IF aoaColumns THEN DO:
-            ASSIGN
-                FRAME frameColumns:HEIGHT-PIXELS         = MAXIMUM(FRAME frameShow:HEIGHT-PIXELS,
-                                                                   hParamFrame:HEIGHT-PIXELS / 2)
-                FRAME frameColumns:VIRTUAL-HEIGHT-PIXELS = FRAME frameColumns:HEIGHT-PIXELS
-                svAvailableColumns:HEIGHT-PIXELS         = FRAME frameColumns:HEIGHT-PIXELS - 40
-                svSelectedColumns:HEIGHT-PIXELS          = svAvailableColumns:HEIGHT-PIXELS
-                FRAME frameShow:X                        = hParamFrame:WIDTH-PIXELS + 5
-                FRAME frameShow:Y                        = hParamFrame:Y
-                FRAME frameShow:HIDDEN                   = FALSE
-                FRAME frameColumns:X                     = hParamFrame:WIDTH-PIXELS + 5
-                                                         + FRAME frameShow:WIDTH-PIXELS + 5
-                FRAME frameColumns:Y                     = hParamFrame:Y
-                FRAME frameColumns:HIDDEN                = FALSE
-                BROWSE browseParamValue:X                = FRAME frameColumns:X
-                BROWSE browseParamValue:Y                = FRAME frameColumns:HEIGHT-PIXELS + 5
-                BROWSE browseParamValue:HEIGHT-PIXELS    = hParamFrame:HEIGHT-PIXELS
-                                                         - FRAME frameColumns:HEIGHT-PIXELS
-                                                         + btnSave:HEIGHT-PIXELS
-                BROWSE browseParamValue:HIDDEN           = FALSE
-                BROWSE browseUserPrint:X                 = FRAME frameShow:X
-                BROWSE browseUserPrint:Y                 = BROWSE browseParamValue:Y
-                BROWSE browseUserPrint:HEIGHT-PIXELS     = BROWSE browseParamValue:HEIGHT-PIXELS
-                                                         - btnSave:HEIGHT-PIXELS - 5
-                BROWSE browseUserPrint:HIDDEN            = FALSE
-                btnSave:Y                                = btnView:Y
-                btnApply:Y                               = btnView:Y
-                btnDelete:Y                              = btnView:Y
-                btnSave:X                                = FRAME frameShow:X
-                                                         + FRAME frameShow:WIDTH-PIXELS
-                                                         - btnDelete:WIDTH-PIXELS - 15
-                btnApply:X                               = btnSave:X - btnSave:WIDTH-PIXELS - 2
-                btnDelete:X                              = btnApply:X - btnApply:WIDTH-PIXELS - 2
-                .
-            ENABLE {&batchObjects}.
-        END. /* if aoacolumns */
+        IF aoaColumns THEN
+        ASSIGN
+            iHeight                                  = MAXIMUM(iHeight, hParamFrame:HEIGHT-PIXELS / 2)
+            FRAME frameColumns:HEIGHT-PIXELS         = iHeight
+            FRAME frameColumns:VIRTUAL-HEIGHT-PIXELS = FRAME frameColumns:HEIGHT-PIXELS
+            svAvailableColumns:HEIGHT-PIXELS         = FRAME frameColumns:HEIGHT-PIXELS - 40
+            svSelectedColumns:HEIGHT-PIXELS          = svAvailableColumns:HEIGHT-PIXELS
+            FRAME frameColumns:X                     = hParamFrame:WIDTH-PIXELS + 5
+                                                     + FRAME frameShow:WIDTH-PIXELS + 5
+            FRAME frameColumns:Y                     = hParamFrame:Y
+            FRAME frameColumns:HIDDEN                = FALSE
+            .
+        
+        ASSIGN
+            BROWSE browseUserPrint:X                 = FRAME frameShow:X
+            BROWSE browseUserPrint:Y                 = FRAME frameShow:Y + iHeight + 5
+            BROWSE browseUserPrint:HEIGHT-PIXELS     = hParamFrame:HEIGHT-PIXELS
+                                                     - iHeight - 5
+            BROWSE browseUserPrint:HIDDEN            = FALSE
+            BROWSE browseParamValue:X                = BROWSE browseUserPrint:X
+                                                     + BROWSE browseUserPrint:WIDTH-PIXELS + 5
+            BROWSE browseParamValue:Y                = BROWSE browseUserPrint:Y
+            BROWSE browseParamValue:HEIGHT-PIXELS    = hParamFrame:HEIGHT-PIXELS
+                                                     - iHeight
+                                                     + btnSave:HEIGHT-PIXELS
+            BROWSE browseParamValue:HIDDEN           = FALSE
+            btnSave:Y                                = btnView:Y
+            btnApply:Y                               = btnView:Y
+            btnDelete:Y                              = btnView:Y
+            btnSave:X                                = FRAME frameShow:X
+                                                     + FRAME frameShow:WIDTH-PIXELS
+                                                     - btnDelete:WIDTH-PIXELS - 15
+            btnApply:X                               = btnSave:X - btnSave:WIDTH-PIXELS - 2
+            btnDelete:X                              = btnApply:X - btnApply:WIDTH-PIXELS - 2
+            .
+        ENABLE {&batchObjects}.
     END. /* with frame  */
 
 END PROCEDURE.
@@ -2053,6 +2057,14 @@ PROCEDURE pShowBatchObjs :
                 FRAME frameColumns:HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS - 5
                 svAvailableColumns:HEIGHT-PIXELS = FRAME frameColumns:HEIGHT-PIXELS - 40
                 svSelectedColumns:HEIGHT-PIXELS  = svAvailableColumns:HEIGHT-PIXELS
+                .
+            IF aoaColumns EQ NO THEN
+            ASSIGN
+                FRAME {&FRAME-NAME}:WIDTH-PIXELS         = hParamFrame:WIDTH-PIXELS + 5
+                                                         + FRAME frameShow:WIDTH-PIXELS + 5
+                FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = FRAME {&FRAME-NAME}:WIDTH-PIXELS
+                {&WINDOW-NAME}:WIDTH-PIXELS              = FRAME {&FRAME-NAME}:WIDTH-PIXELS
+                {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS      = FRAME {&FRAME-NAME}:WIDTH-PIXELS
                 .
         END. /* else */
     END. /* do with frame */

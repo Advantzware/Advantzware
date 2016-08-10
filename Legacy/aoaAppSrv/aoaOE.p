@@ -451,26 +451,26 @@ PROCEDURE build-tt :
     ASSIGN
         tt-report.term-id  = ""
         tt-report.key-01   = IF ip-cPrimarySort EQ "Due Date" OR ip-cPrimarySort EQ "Rel Date" THEN
-            STRING(YEAR(lv-due-date),"9999") +
-            STRING(MONTH(lv-due-date),"99")  +
-            STRING(DAY(lv-due-date),"99")
-            ELSE
-                IF ip-cPrimarySort EQ "Salesman" THEN oe-ordl.s-man[1]
-                ELSE ""
-                    tt-report.key-02   = oe-ord.cust-no
-                    tt-report.key-03   = IF ip-sort EQ "PO" THEN v-po-no
-                        ELSE 
-                            IF ip-sort EQ "It" THEN
+                             STRING(YEAR(lv-due-date),"9999") +
+                             STRING(MONTH(lv-due-date),"99")  +
+                             STRING(DAY(lv-due-date),"99")
+                             ELSE
+                             IF ip-cPrimarySort EQ "Salesman" THEN oe-ordl.s-man[1]
+                             ELSE ""
+                             tt-report.key-02   = oe-ord.cust-no
+                             tt-report.key-03   = IF ip-sort EQ "PO" THEN v-po-no
+                             ELSE 
+                             IF ip-sort EQ "It" THEN
                                 (STRING(oe-ordl.i-no,"x(15)") + v-po-no)
-                            ELSE IF ip-sort EQ "Cu" THEN
+                             ELSE IF ip-sort EQ "Cu" THEN
                                 (STRING(oe-ordl.part-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))
-                            ELSE IF ip-sort EQ "FG" THEN
+                             ELSE IF ip-sort EQ "FG" THEN
                                 (STRING(oe-ordl.i-name,"x(30)") + STRING(oe-ord.ord-no,"99999999999"))
-                            ELSE IF ip-sort EQ "Or" THEN
+                             ELSE IF ip-sort EQ "Or" THEN
                                 (STRING(oe-ord.ord-no,"99999999999") + oe-ordl.part-no)
-                            ELSE IF ip-sort EQ "CA" THEN
+                             ELSE IF ip-sort EQ "CA" THEN
                                 (STRING(tt-report.cad-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))
-                            ELSE
+                             ELSE
                                 (STRING(YEAR(lv-due-date),"9999") +
                                  STRING(MONTH(lv-due-date),"99")  +
                                  STRING(DAY(lv-due-date),"99")    +
@@ -489,13 +489,17 @@ PROCEDURE build-tt :
                                     tt-report.due-date = lv-due-date
                                     /*v-ordl             = NO*/ .
                                                 
-    FIND b-ar-invl NO-LOCK WHERE RECID(b-ar-invl) EQ ip-recid NO-ERROR.
+    FIND b-ar-invl NO-LOCK 
+     WHERE RECID(b-ar-invl) EQ ip-recid NO-ERROR.
+
     IF AVAILABLE b-ar-invl THEN
         ASSIGN
         tt-report.q-shp  = b-ar-invl.ship-qty
         tt-report.inv    = YES
         tt-report.inv-no = b-ar-invl.inv-no.
-    FIND b-inv-line  NO-LOCK WHERE RECID(b-inv-line) EQ ip-recid NO-ERROR.
+
+    FIND b-inv-line  NO-LOCK WHERE 
+    RECID(b-inv-line) EQ ip-recid NO-ERROR.
 
     IF AVAILABLE b-inv-line THEN DO:
         FIND FIRST b-inv-head NO-LOCK WHERE b-inv-head.r-no EQ b-inv-line.r-no NO-ERROR.
@@ -533,13 +537,13 @@ PROCEDURE pBOLPackingList :
 
     /* subject business logic */
     FOR EACH oe-bolh NO-LOCK
-        WHERE oe-bolh.company EQ ipcCompany
-          AND oe-bolh.bol-no  GE iStartBOL
-          AND oe-bolh.bol-no  LE iEndBOL
+        WHERE oe-bolh.company  EQ ipcCompany
+          AND oe-bolh.bol-no   GE iStartBOL
+          AND oe-bolh.bol-no   LE iEndBOL
           AND oe-bolh.bol-date GE dtStartBOLDate
           AND oe-bolh.bol-date LE dtEndBOLDate
-          AND oe-bolh.cust-no GE cStartCustNo
-          AND oe-bolh.cust-no LE cEndCustNo,
+          AND oe-bolh.cust-no  GE cStartCustNo
+          AND oe-bolh.cust-no  LE cEndCustNo,
         EACH oe-boll NO-LOCK
         WHERE oe-boll.company EQ oe-bolh.company
           AND oe-boll.b-no    EQ oe-bolh.b-no
@@ -652,19 +656,19 @@ PROCEDURE pCalcPoMSF :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opTotalMsf AS DECIMAL                  NO-UNDO.
+    DEFINE OUTPUT PARAMETER opTotalMsf AS DECIMAL                NO-UNDO.
 
-    DEFINE VARIABLE v-basis-w   AS DECIMAL                          NO-UNDO. /* for po/po-adder2.p */
-    DEFINE VARIABLE v-len       LIKE po-ordl.s-len              NO-UNDO.
-    DEFINE VARIABLE v-wid       LIKE po-ordl.s-wid              NO-UNDO.
-    DEFINE VARIABLE v-dep       LIKE po-ordl.s-len              NO-UNDO.
-    DEFINE VARIABLE v-ord-qty   LIKE po-ordl.ord-qty            NO-UNDO.
-    DEFINE VARIABLE lv-orig-uom AS cha                          NO-UNDO.
-    DEFINE VARIABLE factor#     AS DECIMAL                      NO-UNDO.
-    DEFINE VARIABLE ll-ea       AS LOG INIT NO                  NO-UNDO.
-    DEFINE VARIABLE lv-uom      LIKE po-ordl.pr-qty-uom INIT NO NO-UNDO.
-    DEFINE VARIABLE cfg-uom-list AS CHARACTER                         NO-UNDO.
-    DEFINE VARIABLE v-out-qty   AS INTEGER                          NO-UNDO.
+    DEFINE VARIABLE dv-basis-w   AS DECIMAL                      NO-UNDO. /* for po/po-adder2.p */
+    DEFINE VARIABLE dv-len       LIKE po-ordl.s-len              NO-UNDO.
+    DEFINE VARIABLE dv-wid       LIKE po-ordl.s-wid              NO-UNDO.
+    DEFINE VARIABLE dv-dep       LIKE po-ordl.s-len              NO-UNDO.
+    DEFINE VARIABLE iv-ord-qty   LIKE po-ordl.ord-qty            NO-UNDO.
+    DEFINE VARIABLE clv-orig-uom AS CHARACTER                    NO-UNDO.
+    DEFINE VARIABLE factor#      AS DECIMAL                      NO-UNDO.
+    DEFINE VARIABLE ll-ea        AS LOG INIT NO                  NO-UNDO.
+    DEFINE VARIABLE ilv-uom      LIKE po-ordl.pr-qty-uom INITIAL NO NO-UNDO.
+    DEFINE VARIABLE cfg-uom-list AS CHARACTER                    NO-UNDO.
+    DEFINE VARIABLE iv-out-qty    AS INTEGER                       NO-UNDO.
     
     FIND sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name EQ "poprint" 
@@ -677,38 +681,38 @@ PROCEDURE pCalcPoMSF :
         AND item.i-no EQ po-ordl.i-no
         NO-ERROR.
     ASSIGN
-        v-basis-w   = IF AVAILABLE item THEN item.basis-w ELSE v-basis-w
-        v-dep       = IF AVAILABLE item THEN item.s-dep ELSE v-dep
-        v-len       = (po-ordl.s-len)
-        v-wid       = (po-ordl.s-wid)
-        v-ord-qty   = (po-ordl.ord-qty)
-        lv-orig-uom = po-ordl.pr-qty-uom 
-        {po/calc10.i v-len} 
-        {po/calc10.i v-wid}.
+        dv-basis-w   = IF AVAILABLE item THEN item.basis-w ELSE dv-basis-w
+        dv-dep       = IF AVAILABLE item THEN item.s-dep ELSE dv-dep
+        dv-len       = (po-ordl.s-len)
+        dv-wid       = (po-ordl.s-wid)
+        iv-ord-qty   = (po-ordl.ord-qty)
+        clv-orig-uom = po-ordl.pr-qty-uom 
+        {po/calc10.i dv-len} 
+        {po/calc10.i dv-wid}.
     IF NOT AVAILABLE item THEN
     FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode
         AND itemfg.i-no EQ po-ordl.i-no
         NO-ERROR.
     IF AVAILABLE itemfg THEN
         RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom, OUTPUT ll-ea).
-    IF ll-ea THEN ASSIGN lv-uom = po-ordl.pr-qty-uom. 
+    IF ll-ea THEN ASSIGN ilv-uom = po-ordl.pr-qty-uom. 
 
-    IF v-len EQ 0 AND AVAILABLE ITEM AND
+    IF dv-len EQ 0 AND AVAILABLE ITEM AND
         ITEM.i-code EQ "R" AND item.r-wid GT 0 THEN DO:
-        v-len = 12.
-        IF lv-orig-uom EQ "ROLL" THEN DO:
+        dv-len = 12.
+        IF clv-orig-uom EQ "ROLL" THEN DO:
             FIND FIRST uom NO-LOCK WHERE uom.uom EQ "ROLL" NO-ERROR.
-            IF AVAILABLE uom THEN ASSIGN v-ord-qty = v-ord-qty * uom.mult.
-        END.  /*IF lv-orig-uom*/ 
-    END.  /*IF v-len EQ 0*/
+            IF AVAILABLE uom THEN ASSIGN iv-ord-qty = iv-ord-qty * uom.mult.
+        END.  /*IF clv-orig-uom*/ 
+    END.  /*IF dv-len EQ 0*/
 
     RUN sys/ref/uom-fg.p (?, OUTPUT cfg-uom-list).
 
     IF po-ordl.pr-qty-uom{2} EQ "EA" OR
         (NOT po-ordl.item-type AND
          LOOKUP(po-ordl.pr-qty-uom,cfg-uom-list) GT 0) THEN
-        opTotalMsf = IF v-corr THEN ((v-len * v-wid * .007 * DEC(po-ordl.ord-qty{2})) / 1000)
-            ELSE ((((v-len * v-wid) / 144) * DEC(po-ordl.ord-qty{2})) / 1000).
+        opTotalMsf = IF v-corr THEN ((dv-len * dv-wid * .007 * DEC(po-ordl.ord-qty{2})) / 1000)
+            ELSE ((((dv-len * dv-wid) / 144) * DEC(po-ordl.ord-qty{2})) / 1000).
                  ELSE DO:
                      /*convert whatever the UOM is into "EACH" first*/
                      opTotalMsf = 0.
@@ -716,19 +720,19 @@ PROCEDURE pCalcPoMSF :
                          opTotalMsf = 0.
                          RUN sys/ref/convquom.p(po-ordl.pr-qty-uom,
                                                 "EA",
-                                                v-basis-w,
-                                                v-len,
-                                                v-wid,
-                                                v-dep,
-                                                v-ord-qty,
-                                                OUTPUT v-out-qty).
+                                                dv-basis-w,
+                                                dv-len,
+                                                dv-wid,
+                                                dv-dep,
+                                                iv-ord-qty,
+                                                OUTPUT iv-out-qty).
                          /*now convert from "EACH" into MSF*/   
                          opTotalMsf = IF v-corr THEN
-                             ((v-len * v-wid * .007 * v-out-qty) / 1000)
+                             ((dv-len * dv-wid * .007 * iv-out-qty) / 1000)
                              ELSE
-                                 ((((v-len * v-wid) / 144) * v-out-qty) / 1000).
+                                 ((((dv-len * dv-wid) / 144) * iv-out-qty) / 1000).
                                  IF po-ordl.pr-qty-uom EQ "ROLL" THEN
-                                     opTotalMsf = OpTotalMsf * (12 / v-len).
+                                     opTotalMsf = OpTotalMsf * (12 / dv-len).
                      END.  /*IF po-ordl.pr-qty-uom NE "EA"*/
                  END.  /*else do:*/ 
 
@@ -750,14 +754,14 @@ PROCEDURE pCalcQOH :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE vdat     AS   DATE    NO-UNDO.
-    DEFINE VARIABLE v-curr   AS   LOGICAL NO-UNDO.
-    DEFINE VARIABLE v-q-or-v AS   LOGICAL NO-UNDO.
+    DEFINE VARIABLE dtvdat     AS   DATE    NO-UNDO.
+    DEFINE VARIABLE lv-curr    AS   LOGICAL NO-UNDO.
+    DEFINE VARIABLE lv-q-or-v  AS   LOGICAL NO-UNDO.
     
     ASSIGN
-        vdat     = TODAY
-        v-curr   = YES
-        v-q-or-v = YES.
+        dtvdat     = TODAY
+        lv-curr    = YES
+        lv-q-or-v  = YES.
 
     FOR EACH itemfg NO-LOCK
         WHERE itemfg.company EQ ipcCompany
@@ -882,16 +886,18 @@ Notes:
             END. /*  end of for each tt-fg-bin */
 
             IF lIncludeJobsQOH THEN
-            FOR EACH job-hdr NO-LOCK WHERE job-hdr.company  EQ oe-ordl.company
-                AND job-hdr.ord-no   EQ oe-ordl.ord-no
-                AND job-hdr.i-no     EQ oe-ordl.i-no
-                AND (job-hdr.job-no  NE oe-ordl.job-no OR
-                     job-hdr.job-no2 NE oe-ordl.job-no2)
+            FOR EACH job-hdr NO-LOCK 
+                WHERE job-hdr.company  EQ oe-ordl.company
+                AND job-hdr.ord-no     EQ oe-ordl.ord-no
+                AND job-hdr.i-no       EQ oe-ordl.i-no
+                AND (job-hdr.job-no    NE oe-ordl.job-no OR
+                     job-hdr.job-no2   NE oe-ordl.job-no2)
                 BREAK BY job-hdr.job-no
                 BY job-hdr.job-no2
                 BY job-hdr.i-no:
                 IF FIRST-OF(job-hdr.i-no) THEN
-                FOR EACH tt-fg-bin WHERE tt-fg-bin.company EQ job-hdr.company
+                FOR EACH tt-fg-bin 
+                    WHERE tt-fg-bin.company EQ job-hdr.company
                     AND tt-fg-bin.i-no    EQ job-hdr.i-no
                     AND tt-fg-bin.job-no  EQ job-hdr.job-no
                     AND tt-fg-bin.job-no2 EQ job-hdr.job-no2:
@@ -1644,7 +1650,6 @@ Notes:
 
             CREATE ttOrdersBookedByOrderNo .
             ASSIGN
-                /* ttOrdersBookedByOrderNo.rowType          =*/
                 ttOrdersBookedByOrderNo.orderNo          = oe-ord.ord-no         
                 ttOrdersBookedByOrderNo.estNo            = oe-ordl.est-no        
                 ttOrdersBookedByOrderNo.jobNo            = oe-ordl.job-no        
