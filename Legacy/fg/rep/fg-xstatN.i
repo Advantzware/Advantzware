@@ -21,14 +21,14 @@ DEFINE VARIABLE chrPrice  AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE chrTotV   AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE chrSman   AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE chrTransDte AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE v-prodqty AS DEC NO-UNDO.
-DEFINE VARIABLE v-prodqty2 AS DEC NO-UNDO .
-DEF VARIABLE cSlsRep AS CHAR NO-UNDO .
+DEFINE VARIABLE v-prodqty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-prodqty2 AS DECIMAL NO-UNDO .
+DEFINE VARIABLE cSlsRep AS CHARACTER NO-UNDO .
 DEFINE VARIABLE decPrice    AS DECIMAL    NO-UNDO.
 
-DEF VAR v-shipto AS CHAR NO-UNDO .
-DEF VAR v-shipto-name AS CHAR NO-UNDO .
-DEF VAR v-fg-lot AS CHAR NO-UNDO .
+DEFINE VARIABLE v-shipto AS CHARACTER NO-UNDO .
+DEFINE VARIABLE v-shipto-name AS CHARACTER NO-UNDO .
+DEFINE VARIABLE v-fg-lot AS CHARACTER NO-UNDO .
 
 ASSIGN 
           v-shipto = ""
@@ -52,7 +52,7 @@ FOR EACH ttCustList
           AND shipto.cust-no EQ cust.cust-no
           NO-LOCK NO-ERROR .
 
-      IF AVAIL shipto THEN
+      IF AVAILABLE shipto THEN
           ASSIGN 
           v-shipto = shipto.ship-id
           v-shipto-name =  shipto.ship-name .
@@ -114,7 +114,7 @@ FOR EACH ttCustList
                END.
               
                v-sales-rep = "" .
-               IF AVAIL cust AND cust.ACTIVE NE "X" AND cSlsRep EQ "" THEN DO:
+               IF AVAILABLE cust AND cust.ACTIVE NE "X" AND cSlsRep EQ "" THEN DO:
                  FOR EACH cust-part WHERE cust-part.company = itemfg.company   
                      AND cust-part.i-no = itemfg.i-no
                      AND cust-part.cust-no EQ cust.cust-no
@@ -126,21 +126,21 @@ FOR EACH ttCustList
                      IF cust-part.spare-char-1 NE "" THEN DO:
                          FIND FIRST sman WHERE sman.company = itemfg.company
                              AND sman.sman = cust-part.spare-char-1 NO-LOCK NO-ERROR.
-                         IF AVAIL sman THEN v-sales-rep = sman.sman.
+                         IF AVAILABLE sman THEN v-sales-rep = sman.sman.
                          LEAVE .
                      END.
                   END. /* end of cust-part */
          
-                  IF AVAIL cust AND v-sales-rep EQ "" THEN DO:
+                  IF AVAILABLE cust AND v-sales-rep EQ "" THEN DO:
                       FIND FIRST sman WHERE sman.company = cust.company
                           AND sman.sman = cust.sman NO-LOCK NO-ERROR.
-                      IF cSlsRep EQ "" AND AVAIL sman THEN v-sales-rep = sman.sman.
+                      IF cSlsRep EQ "" AND AVAILABLE sman THEN v-sales-rep = sman.sman.
                   END.
                END.
                ELSE DO:
                    FIND FIRST sman WHERE sman.company = cust.company
                        AND sman.sman = cust.sman NO-LOCK NO-ERROR.
-                   IF cSlsRep EQ "" AND AVAIL sman THEN v-sales-rep = sman.sman.
+                   IF cSlsRep EQ "" AND AVAILABLE sman THEN v-sales-rep = sman.sman.
                END.
 
                IF v-sales-rep EQ "" AND cSlsRep GT "" THEN 
@@ -163,7 +163,7 @@ FOR EACH ttCustList
                      AND job-hdr.job-no = oe-ordl.job-no
                      AND job-hdr.i-no   = oe-ordl.i-no NO-LOCK NO-ERROR.
 
-                 IF AVAIL job-hdr THEN
+                 IF AVAILABLE job-hdr THEN
                      ASSIGN
                      vtot-costm = job-hdr.std-mat-cost + job-hdr.std-lab-cost + job-hdr.std-fix-cost 
                                     + job-hdr.std-var-cost 
@@ -203,12 +203,12 @@ FOR EACH ttCustList
                             ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
                        NO-LOCK NO-ERROR.
               
-                 IF AVAIL ref-lot-no THEN
+                 IF AVAILABLE ref-lot-no THEN
                    ASSIGN tt-oe-rel.lot-no = ref-lot-no.CODE.
 
                  v-prodqty2 = 0 .
                  
-                 IF AVAIL tt-oe-rel AND tt-oe-rel.lot-no NE "" THEN DO:
+                 IF AVAILABLE tt-oe-rel AND tt-oe-rel.lot-no NE "" THEN DO:
                      FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK
                         WHERE fg-rcpth.company EQ oe-ordl.company
                        /* AND fg-rcpth.job-no EQ oe-ordl.job-no
@@ -238,10 +238,10 @@ FOR EACH ttCustList
                      END.*/
                  END. 
                  
-                  IF AVAIL oe-relh  THEN 
+                  IF AVAILABLE oe-relh  THEN 
                       ASSIGN  tt-oe-rel.rel-no   = oe-relh.release#.
 
-                  IF AVAIL reftable THEN DO:                                /*Task# 12021301*/
+                  IF AVAILABLE reftable THEN DO:                                /*Task# 12021301*/
                       IF LOOKUP(reftable.code, "S,I,L") GT 0 THEN
                           tt-oe-rel.link-no = tt-oe-rel.link-no.
                       ELSE DO:
@@ -365,7 +365,7 @@ FOR EACH ttCustList
                                        AND fg-rcpth.job-no  = oe-ordl.job-no 
                                        AND fg-rcpth.job-no2 = oe-ordl.job-no2
                                        NO-LOCK
-                                       BREAK BY fg-rcpth.trans-date DESC:
+                                       BREAK BY fg-rcpth.trans-date DESCENDING:
                                        trans-date = fg-rcpth.trans-date.
                                        LEAVE.
                                   END.
@@ -425,8 +425,8 @@ FOR EACH ttCustList
                                     IF oe-ordl.est-no NE "" THEN
                                         FOR EACH quotehd WHERE quotehd.company = itemfg.company AND
                                         quotehd.loc = locode AND
-                                        quotehd.est-no = oe-ordl.est-no NO-LOCK  BY quo-date DESC:
-                                        v-rfq = IF AVAIL quotehd AND quotehd.rfq <> "0" THEN quotehd.rfq ELSE "".
+                                        quotehd.est-no = oe-ordl.est-no NO-LOCK  BY quo-date DESCENDING:
+                                        v-rfq = IF AVAILABLE quotehd AND quotehd.rfq <> "0" THEN quotehd.rfq ELSE "".
                                        LEAVE.
                                     END.  /* Task 11221301 */
                                     
@@ -445,7 +445,7 @@ FOR EACH ttCustList
                                    BUFFER boe-ordl:FIND-BY-ROWID(ROWID(oe-ordl), NO-LOCK) .
                                    BUFFER bcust:FIND-BY-ROWID(ROWID(cust), NO-LOCK) .
                                    FIND FIRST tt-oe-rel NO-LOCK NO-ERROR.
-                                   IF AVAIL tt-oe-rel THEN ASSIGN v-row-id = ROWID(tt-oe-rel) .
+                                   IF AVAILABLE tt-oe-rel THEN ASSIGN v-row-id = ROWID(tt-oe-rel) .
                                    DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                                        cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                        IF INDEX(cTmpField,".") > 0 THEN DO:
@@ -463,8 +463,8 @@ FOR EACH ttCustList
                                        ELSE DO:            
                                            CASE cTmpField:               
                                                  WHEN "v-job-no" THEN cVarValue = v-job-no.
-                                                 WHEN "v-rel#" THEN cvarValue = IF AVAIL tt-oe-rel AND tt-oe-rel.link-no <> 0 THEN STRING(tt-oe-rel.link-no) ELSE "" .                   /*Task# 12021301*/
-                                                 WHEN "v-relDate" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.rel-date) ELSE "".
+                                                 WHEN "v-rel#" THEN cvarValue = IF AVAILABLE tt-oe-rel AND tt-oe-rel.link-no <> 0 THEN STRING(tt-oe-rel.link-no) ELSE "" .                   /*Task# 12021301*/
+                                                 WHEN "v-relDate" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.rel-date) ELSE "".
                                                  WHEN "v-relQty" THEN cVarValue = /*IF AVAIL tt-oe-rel THEN string(tt-oe-rel.tot-qty,"->>>>>>,>>9") ELSE ""*/
                                                                                     STRING(v-qty-allo,"->>>>>>,>>9") .
                                                  WHEN "v-rctDate" THEN cVarValue = IF trans-date <> ? THEN STRING(trans-date, "99/99/99") ELSE "".
@@ -478,17 +478,18 @@ FOR EACH ttCustList
                                                  WHEN "qty-bal" THEN cVarValue = STRING(oe-ordl.qty - li-ship-qty ,"->>>>>,>>9").
                                                  WHEN "ord-date" THEN cVarValue = IF oe-ord.ord-date <> ? THEN STRING(oe-ord.ord-date,"99/99/99") ELSE "" .
                                                  WHEN "ship-date" THEN cVarValue = IF ship-date <> ? THEN STRING(ship-date,"99/99/99") ELSE "" .
-                                                 WHEN "relqty" THEN cVarValue = (IF rd_smry-dtl = "D" AND AVAIL tt-oe-rel  THEN STRING(tt-oe-rel.tot-qty,"->>>>>>,>>9") ELSE STRING(v-summ-temp,"->>>>>>,>>9") ) .
+                                                 WHEN "relqty" THEN cVarValue = (IF rd_smry-dtl = "D" AND AVAILABLE tt-oe-rel  THEN STRING(tt-oe-rel.tot-qty,"->>>>>>,>>9") ELSE STRING(v-summ-temp,"->>>>>>,>>9") ) .
                                                  WHEN "loc" THEN cVarValue = STRING(fg-bin.loc,"x(5)").
-                                                 WHEN "relpo" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.po-no) ELSE "".
-                                                 WHEN "rellot" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.lot-no) ELSE "".
-                                                 WHEN "prodqty" THEN cVarValue = (IF rd_smry-dtl = "D" AND AVAIL tt-oe-rel  THEN STRING(tt-oe-rel.qty,"->>>,>>>,>>>,>>9") ELSE STRING(v-prodqty,"->>>,>>>,>>>,>>9")) .
+                                                 WHEN "relpo" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.po-no) ELSE "".
+                                                 WHEN "rellot" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.lot-no) ELSE "".
+                                                 WHEN "prodqty" THEN cVarValue = (IF rd_smry-dtl = "D" AND AVAILABLE tt-oe-rel  THEN STRING(tt-oe-rel.qty,"->>>,>>>,>>>,>>9") ELSE STRING(v-prodqty,"->>>,>>>,>>>,>>9")) .
                                                  WHEN "sman" THEN cVarValue = STRING(v-sales-rep).
                                                  WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
                                                  WHEN "shipto" THEN cVarValue = v-shipto .
                                                  WHEN "shipname" THEN cVarValue = v-shipto-name  .
                                                  WHEN "fac-costm" THEN cVarValue = STRING(vtot-costm,"->>,>>>,>>9.99")  .
                                                  WHEN "tot-fac-cost" THEN cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh * vtot-costm ,"->>>>,>>>,>>9.99")  ELSE "" .
+                                                 WHEN "ord-price" THEN cVarValue = STRING( oe-ordl.price,"->>>,>>9.99") .
                                                  WHEN "on-hand-cost" THEN DO: 
                                                      cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh / 1000 * vtot-costm ,"->,>>>,>>9.99") ELSE "" .
                                                  END.
@@ -554,8 +555,8 @@ FOR EACH ttCustList
                 WHEN "oe-ordl.part-no" THEN cVarValue = "".
                 WHEN "oe-ordl.i-name" THEN cVarValue = "".
                 WHEN "v-job-no" THEN cVarValue = "".
-                WHEN "v-rel#" THEN cvarValue = IF AVAIL tt-oe-rel AND tt-oe-rel.link-no <> 0 THEN STRING(tt-oe-rel.link-no) ELSE "" .
-                WHEN "v-relDate" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.rel-date) ELSE "".
+                WHEN "v-rel#" THEN cvarValue = IF AVAILABLE tt-oe-rel AND tt-oe-rel.link-no <> 0 THEN STRING(tt-oe-rel.link-no) ELSE "" .
+                WHEN "v-relDate" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.rel-date) ELSE "".
                 WHEN "v-relQty" THEN cVarValue = /*IF AVAIL tt-oe-rel THEN string(tt-oe-rel.tot-qty,"->>>>>>,>>9") ELSE ""*/
                                                  STRING(v-qty-allo,"->>>>>>,>>9") .
                 WHEN "v-rctDate" THEN cVarValue = IF trans-date <> ? THEN STRING(trans-date, "99/99/99") ELSE "".
@@ -563,17 +564,18 @@ FOR EACH ttCustList
                 WHEN "li-ship-qty" THEN cVarValue = STRING(li-ship-qty,"->>>>>>,>>9").
                 WHEN "v-qty-ord" THEN cVarValue = STRING(oe-ordl.qty,"->>>>>>,>>9").
                 WHEN "v-price" THEN cVarValue = STRING(itemfg.sell-price,"->>>,>>9.99").
+                WHEN "ord-price" THEN cVarValue = STRING( oe-ordl.price,"->>>,>>9.99") .
                 WHEN "v-ext" THEN cVarValue = STRING(v-ext-job,"->>>,>>>,>>9.99").
                 WHEN "v-rfq" THEN cVarValue = STRING(v-rfq,"x(10)").
                 WHEN "qty-pro" THEN cVarValue = STRING(qty-prod,"->>>>>,>>9").
                 WHEN "qty-bal" THEN cVarValue = STRING(oe-ordl.qty - li-ship-qty ,"->>>>>,>>9").
                 WHEN "ord-date" THEN cVarValue = IF oe-ord.ord-date <> ? THEN STRING(oe-ord.ord-date,"99/99/99") ELSE "" .
                 WHEN "ship-date" THEN cVarValue = IF ship-date <> ? THEN STRING(ship-date,"99/99/99") ELSE "" .
-                WHEN "relqty" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.tot-qty,"->>>>>>,>>9") ELSE "".
+                WHEN "relqty" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.tot-qty,"->>>>>>,>>9") ELSE "".
                 WHEN "loc" THEN cVarValue = "" .
-                WHEN "relpo" THEN cVarValue =  IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.po-no) ELSE "".
-                WHEN "rellot" THEN cVarValue =  IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.lot-no) ELSE "".
-                WHEN "prodqty" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.qty,"->>>,>>>,>>>,>>9") ELSE "". 
+                WHEN "relpo" THEN cVarValue =  IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.po-no) ELSE "".
+                WHEN "rellot" THEN cVarValue =  IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.lot-no) ELSE "".
+                WHEN "prodqty" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.qty,"->>>,>>>,>>>,>>9") ELSE "". 
                 WHEN "fg-lot" THEN cVarValue = "" .
                 WHEN "shipto" THEN cVarValue = "".
                 WHEN "shipname" THEN cVarValue = "" . 
@@ -622,7 +624,7 @@ FOR EACH ttCustList
                                      AND uom.mult NE 0
                                    NO-LOCK NO-ERROR.
 
-                    v-ext = v-qty-onh * oe-ordl.price / (IF AVAIL uom THEN uom.mult ELSE 1000).
+                    v-ext = v-qty-onh * oe-ordl.price / (IF AVAILABLE uom THEN uom.mult ELSE 1000).
                 END.              
            /* END.*/
             /*if first-of(oe-ordl.job-no) or first-of(oe-ordl.job-no2) then*/
@@ -650,7 +652,7 @@ FOR EACH ttCustList
                            AND fg-rcpth.job-no  = oe-ordl.job-no 
                            AND fg-rcpth.job-no2 = oe-ordl.job-no2
                              NO-LOCK
-                             BREAK BY fg-rcpth.trans-date DESC:
+                             BREAK BY fg-rcpth.trans-date DESCENDING:
                  trans-date = fg-rcpth.trans-date.
                  LEAVE.
             END.
@@ -703,8 +705,8 @@ FOR EACH ttCustList
             IF oe-ordl.est-no NE "" THEN
                 FOR EACH quotehd WHERE quotehd.company = itemfg.company AND
                                    quotehd.loc = locode AND
-                                   quotehd.est-no = oe-ordl.est-no NO-LOCK  BY quo-date DESC:
-                v-rfq = IF AVAIL quotehd AND quotehd.rfq <> "0" THEN quotehd.rfq ELSE "".
+                                   quotehd.est-no = oe-ordl.est-no NO-LOCK  BY quo-date DESCENDING:
+                v-rfq = IF AVAILABLE quotehd AND quotehd.rfq <> "0" THEN quotehd.rfq ELSE "".
                 LEAVE.
                 END.  /* Task 11221301 */
 
@@ -723,7 +725,7 @@ FOR EACH ttCustList
         BUFFER boe-ordl:FIND-BY-ROWID(ROWID(oe-ordl), NO-LOCK) .
         BUFFER bcust:FIND-BY-ROWID(ROWID(cust), NO-LOCK) .
         FIND FIRST tt-oe-rel NO-LOCK NO-ERROR.
-        IF AVAIL tt-oe-rel THEN ASSIGN v-row-id = ROWID(tt-oe-rel) .
+        IF AVAILABLE tt-oe-rel THEN ASSIGN v-row-id = ROWID(tt-oe-rel) .
     DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
        cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
        IF INDEX(cTmpField,".") > 0 THEN DO:
@@ -740,8 +742,8 @@ FOR EACH ttCustList
        ELSE DO:            
             CASE cTmpField:               
                 WHEN "v-job-no" THEN cVarValue = v-job-no.
-                WHEN "v-rel#" THEN cvarValue = IF AVAIL tt-oe-rel AND tt-oe-rel.link-no <> 0 THEN STRING(tt-oe-rel.link-no) ELSE "" .                   /*Task# 12021301*/
-                WHEN "v-relDate" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.rel-date) ELSE "".
+                WHEN "v-rel#" THEN cvarValue = IF AVAILABLE tt-oe-rel AND tt-oe-rel.link-no <> 0 THEN STRING(tt-oe-rel.link-no) ELSE "" .                   /*Task# 12021301*/
+                WHEN "v-relDate" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.rel-date) ELSE "".
                 WHEN "v-relQty" THEN cVarValue = /*IF AVAIL tt-oe-rel THEN string(tt-oe-rel.tot-qty,"->>>>>>,>>9") ELSE ""*/
                                                  STRING(v-qty-allo,"->>>>>>,>>9") .
                 WHEN "v-rctDate" THEN cVarValue = IF trans-date <> ? THEN STRING(trans-date, "99/99/99") ELSE "".
@@ -749,16 +751,17 @@ FOR EACH ttCustList
                 WHEN "li-ship-qty" THEN cVarValue = STRING(li-ship-qty,"->>>>>>,>>9").
                 WHEN "v-qty-ord" THEN cVarValue = STRING(oe-ordl.qty,"->>>>>>,>>9").
                 WHEN "v-price" THEN cVarValue = STRING(oe-ordl.price,"->>>,>>9.99").
+                WHEN "ord-price" THEN cVarValue = STRING( oe-ordl.price,"->>>,>>9.99") .
                 WHEN "v-ext" THEN cVarValue = STRING(v-ext,"->>>,>>>,>>9.99").
                 WHEN "v-rfq" THEN cVarValue = STRING(v-rfq,"x(10)").
                 WHEN "qty-pro" THEN cVarValue = STRING(qty-prod,"->>>>>,>>9").
                 WHEN "qty-bal" THEN cVarValue = STRING(oe-ordl.qty - li-ship-qty ,"->>>>>,>>9").
                 WHEN "ord-date" THEN cVarValue = IF oe-ord.ord-date <> ? THEN STRING(oe-ord.ord-date,"99/99/99") ELSE "" .
                 WHEN "ship-date" THEN cVarValue = IF ship-date <> ? THEN STRING(ship-date,"99/99/99") ELSE "" .
-                WHEN "relqty" THEN cVarValue = (IF rd_smry-dtl = "D" AND AVAIL tt-oe-rel THEN STRING(tt-oe-rel.tot-qty,"->>>>>>,>>9") ELSE STRING(v-summ-temp,"->>>>>>,>>9") ) .
+                WHEN "relqty" THEN cVarValue = (IF rd_smry-dtl = "D" AND AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.tot-qty,"->>>>>>,>>9") ELSE STRING(v-summ-temp,"->>>>>>,>>9") ) .
                 WHEN "loc" THEN cVarValue = STRING(itemfg.loc,"x(5)").   
-                WHEN "relpo" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.po-no) ELSE "".
-                WHEN "rellot" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.lot-no) ELSE "".
+                WHEN "relpo" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.po-no) ELSE "".
+                WHEN "rellot" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.lot-no) ELSE "".
                 WHEN "prodqty" THEN cVarValue = STRING(v-prodqty,"->>>,>>>,>>>,>>9") .
                 WHEN "sman" THEN cVarValue = STRING(v-sales-rep).
                 WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
@@ -803,7 +806,7 @@ FOR EACH ttCustList
                 WHEN "oe-ordl.part-no" THEN cVarValue = "".
                 WHEN "oe-ordl.i-name" THEN cVarValue = "".
                 WHEN "v-job-no" THEN cVarValue = "".
-                WHEN "v-rel#" THEN cvarValue = IF AVAIL tt-oe-rel AND tt-oe-rel.link-no <> 0 THEN STRING(tt-oe-rel.link-no) ELSE "" .
+                WHEN "v-rel#" THEN cvarValue = IF AVAILABLE tt-oe-rel AND tt-oe-rel.link-no <> 0 THEN STRING(tt-oe-rel.link-no) ELSE "" .
                 WHEN "v-relDate" THEN cVarValue = STRING(tt-oe-rel.rel-date).
                 WHEN "v-relQty" THEN cVarValue = /*IF AVAIL tt-oe-rel THEN string(tt-oe-rel.tot-qty,"->>>>>>,>>9") ELSE ""*/
                                                  STRING(v-qty-allo,"->>>>>>,>>9") .
@@ -812,6 +815,7 @@ FOR EACH ttCustList
                 WHEN "li-ship-qty" THEN cVarValue = STRING(li-ship-qty,"->>>>>>,>>9").
                 WHEN "v-qty-ord" THEN cVarValue = STRING(oe-ordl.qty,"->>>>>>,>>9").
                 WHEN "v-price" THEN cVarValue = STRING(oe-ordl.price,"->>>,>>9.99").
+                WHEN "ord-price" THEN cVarValue = STRING( oe-ordl.price,"->>>,>>9.99") .
                 WHEN "v-ext" THEN cVarValue = STRING(v-ext,"->>>,>>>,>>9.99").
                 WHEN "v-rfq" THEN cVarValue = STRING(v-rfq,"x(10)").
                 WHEN "qty-pro" THEN cVarValue = STRING(qty-prod,"->>>>>,>>9").
@@ -1003,8 +1007,8 @@ FOR EACH ttCustList
             IF oe-ordl.est-no NE "" THEN
                 FOR EACH quotehd WHERE quotehd.company = itemfg.company AND
                                    quotehd.loc = locode AND
-                                   quotehd.est-no = oe-ordl.est-no NO-LOCK  BY quo-date DESC:
-                v-rfq = IF AVAIL quotehd AND quotehd.rfq <> "0" THEN quotehd.rfq ELSE "".
+                                   quotehd.est-no = oe-ordl.est-no NO-LOCK  BY quo-date DESCENDING:
+                v-rfq = IF AVAILABLE quotehd AND quotehd.rfq <> "0" THEN quotehd.rfq ELSE "".
                 LEAVE.
                 END.  /* Task 11221301 */
 
@@ -1023,7 +1027,7 @@ FOR EACH ttCustList
         BUFFER boe-ordl:FIND-BY-ROWID(ROWID(oe-ordl), NO-LOCK) .
         BUFFER bcust:FIND-BY-ROWID(ROWID(cust), NO-LOCK) .
         FIND FIRST tt-oe-rel NO-LOCK NO-ERROR.
-        IF AVAIL tt-oe-rel THEN ASSIGN v-row-id = ROWID(tt-oe-rel) .
+        IF AVAILABLE tt-oe-rel THEN ASSIGN v-row-id = ROWID(tt-oe-rel) .
     DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
        cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
        IF INDEX(cTmpField,".") > 0 THEN DO:
@@ -1040,8 +1044,8 @@ FOR EACH ttCustList
        ELSE DO:            
             CASE cTmpField:               
                 WHEN "v-job-no" THEN cVarValue = v-job-no.
-                WHEN "v-rel#" THEN cvarValue = IF AVAIL tt-oe-rel AND tt-oe-rel.link-no <> 0 THEN STRING(tt-oe-rel.link-no) ELSE "" .                   /*Task# 12021301*/
-                WHEN "v-relDate" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.rel-date) ELSE "".
+                WHEN "v-rel#" THEN cvarValue = IF AVAILABLE tt-oe-rel AND tt-oe-rel.link-no <> 0 THEN STRING(tt-oe-rel.link-no) ELSE "" .                   /*Task# 12021301*/
+                WHEN "v-relDate" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.rel-date) ELSE "".
                 WHEN "v-relQty" THEN cVarValue = /*IF AVAIL tt-oe-rel THEN string(tt-oe-rel.tot-qty,"->>>>>>,>>9") ELSE ""*/
                                                  STRING(v-qty-allo,"->>>>>>,>>9") .
                 WHEN "v-rctDate" THEN cVarValue = IF trans-date <> ? THEN STRING(trans-date, "99/99/99") ELSE "".
@@ -1049,6 +1053,7 @@ FOR EACH ttCustList
                 WHEN "li-ship-qty" THEN cVarValue = STRING(li-ship-qty,"->>>>>>,>>9").
                 WHEN "v-qty-ord" THEN cVarValue = STRING(oe-ordl.qty,"->>>>>>,>>9").
                 WHEN "v-price" THEN cVarValue = STRING(itemfg.sell-price,"->>>,>>9.99").
+                WHEN "ord-price" THEN cVarValue = STRING( oe-ordl.price,"->>>,>>9.99") .
                 WHEN "v-ext" THEN cVarValue = STRING(v-ext-job,"->>>,>>>,>>9.99").
                 WHEN "v-rfq" THEN cVarValue = STRING(v-rfq,"x(10)").
                 WHEN "qty-pro" THEN cVarValue = STRING(qty-prod,"->>>>>,>>9").
@@ -1057,8 +1062,8 @@ FOR EACH ttCustList
                 WHEN "ship-date" THEN cVarValue = IF ship-date <> ? THEN STRING(ship-date,"99/99/99") ELSE "" .
                 WHEN "relqty" THEN cVarValue = STRING(v-summ-temp,"->>>>>>,>>9") .
                 WHEN "loc" THEN cVarValue = STRING(fg-bin.loc,"x(5)").
-                WHEN "relpo" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.po-no) ELSE "".
-                WHEN "rellot" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.lot-no) ELSE "".
+                WHEN "relpo" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.po-no) ELSE "".
+                WHEN "rellot" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.lot-no) ELSE "".
                 WHEN "prodqty" THEN cVarValue = STRING(v-prodqty,"->>>,>>>,>>>,>>9") .
                 WHEN "sman" THEN cVarValue = STRING(v-sales-rep).
                 WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
@@ -1132,7 +1137,7 @@ FOR EACH ttCustList
                                      AND uom.mult NE 0
                                    NO-LOCK NO-ERROR.
 
-                    v-ext = v-qty-onh * oe-ordl.price / (IF AVAIL uom THEN uom.mult ELSE 1000).
+                    v-ext = v-qty-onh * oe-ordl.price / (IF AVAILABLE uom THEN uom.mult ELSE 1000).
                 END.              
            /* END.*/
             /*if first-of(oe-ordl.job-no) or first-of(oe-ordl.job-no2) then*/
@@ -1213,8 +1218,8 @@ FOR EACH ttCustList
             IF oe-ordl.est-no NE "" THEN
                 FOR EACH quotehd WHERE quotehd.company = itemfg.company AND
                                    quotehd.loc = locode AND
-                                   quotehd.est-no = oe-ordl.est-no NO-LOCK  BY quo-date DESC:
-                v-rfq = IF AVAIL quotehd AND quotehd.rfq <> "0" THEN quotehd.rfq ELSE "".
+                                   quotehd.est-no = oe-ordl.est-no NO-LOCK  BY quo-date DESCENDING:
+                v-rfq = IF AVAILABLE quotehd AND quotehd.rfq <> "0" THEN quotehd.rfq ELSE "".
                 LEAVE.
                 END.  /* Task 11221301 */
 
@@ -1233,7 +1238,7 @@ FOR EACH ttCustList
         BUFFER boe-ordl:FIND-BY-ROWID(ROWID(oe-ordl), NO-LOCK) .
         BUFFER bcust:FIND-BY-ROWID(ROWID(cust), NO-LOCK) .
         FIND FIRST tt-oe-rel NO-LOCK NO-ERROR.
-        IF AVAIL tt-oe-rel THEN ASSIGN v-row-id = ROWID(tt-oe-rel) .
+        IF AVAILABLE tt-oe-rel THEN ASSIGN v-row-id = ROWID(tt-oe-rel) .
     DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
        cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
        IF INDEX(cTmpField,".") > 0 THEN DO:
@@ -1250,8 +1255,8 @@ FOR EACH ttCustList
        ELSE DO:            
             CASE cTmpField:               
                 WHEN "v-job-no" THEN cVarValue = v-job-no.
-                WHEN "v-rel#" THEN cvarValue = IF AVAIL tt-oe-rel AND tt-oe-rel.link-no <> 0 THEN STRING(tt-oe-rel.link-no) ELSE "" .                   /*Task# 12021301*/
-                WHEN "v-relDate" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.rel-date) ELSE "".
+                WHEN "v-rel#" THEN cvarValue = IF AVAILABLE tt-oe-rel AND tt-oe-rel.link-no <> 0 THEN STRING(tt-oe-rel.link-no) ELSE "" .                   /*Task# 12021301*/
+                WHEN "v-relDate" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.rel-date) ELSE "".
                 WHEN "v-relQty" THEN cVarValue = /*IF AVAIL tt-oe-rel THEN string(tt-oe-rel.tot-qty,"->>>>>>,>>9") ELSE ""*/
                                                  STRING(v-qty-allo,"->>>>>>,>>9") .
                 WHEN "v-rctDate" THEN cVarValue = IF trans-date <> ? THEN STRING(trans-date, "99/99/99") ELSE "".
@@ -1259,6 +1264,7 @@ FOR EACH ttCustList
                 WHEN "li-ship-qty" THEN cVarValue = STRING(li-ship-qty,"->>>>>>,>>9").
                 WHEN "v-qty-ord" THEN cVarValue = STRING(oe-ordl.qty,"->>>>>>,>>9").
                 WHEN "v-price" THEN cVarValue = STRING(oe-ordl.price,"->>>,>>9.99").
+                WHEN "ord-price" THEN cVarValue = STRING( oe-ordl.price,"->>>,>>9.99") .
                 WHEN "v-ext" THEN cVarValue = STRING(v-ext,"->>>,>>>,>>9.99").
                 WHEN "v-rfq" THEN cVarValue = STRING(v-rfq,"x(10)").
                 WHEN "qty-pro" THEN cVarValue = STRING(qty-prod,"->>>>>,>>9").
@@ -1267,8 +1273,8 @@ FOR EACH ttCustList
                 WHEN "ship-date" THEN cVarValue = IF ship-date <> ? THEN STRING(ship-date,"99/99/99") ELSE "" .
                 WHEN "relqty" THEN cVarValue = STRING(v-summ-temp,"->>>>>>,>>9") .
                 WHEN "loc" THEN cVarValue = STRING(itemfg.loc,"x(5)"). 
-                WHEN "relpo" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.po-no) ELSE "".
-                WHEN "rellot" THEN cVarValue = IF AVAIL tt-oe-rel THEN STRING(tt-oe-rel.lot-no) ELSE "".
+                WHEN "relpo" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.po-no) ELSE "".
+                WHEN "rellot" THEN cVarValue = IF AVAILABLE tt-oe-rel THEN STRING(tt-oe-rel.lot-no) ELSE "".
                 WHEN "prodqty" THEN cVarValue = STRING(v-prodqty,"->>>,>>>,>>>,>>9") .  
                 WHEN "sman" THEN cVarValue = STRING(v-sales-rep).
                 WHEN "fg-lot" THEN cVarValue = IF v-fg-lot NE "" THEN STRING(v-fg-lot) ELSE "".
@@ -1340,6 +1346,7 @@ FOR EACH ttCustList
                 WHEN "li-ship-qty" THEN cVarValue = STRING(v-tot-ship,"->>>>>>,>>9").
                 WHEN "v-qty-ord" THEN cVarValue = STRING(v-tot-ord,"->>>>>>,>>9").
                 WHEN "v-price" THEN cVarValue = "".
+                WHEN "ord-price" THEN cVarValue = "" .
                 WHEN "v-ext" THEN cVarValue = STRING(v-tot-ext,"->>>,>>>,>>9.99").
                 WHEN "v-rfq" THEN cVarValue = "".
                 WHEN "qty-pro" THEN cVarValue = "".
@@ -1406,6 +1413,7 @@ ASSIGN cDisplay = ""                                                    /*Task# 
                 WHEN "li-ship-qty" THEN cVarValue = STRING(v-grand-tot-ship,"->>>>>>,>>9").
                 WHEN "v-qty-ord" THEN cVarValue = STRING(v-grand-tot-ord,"->>>>>>,>>9").
                 WHEN "v-price" THEN cVarValue = "".
+                WHEN "ord-price" THEN cVarValue = "" .
                 WHEN "v-ext" THEN cVarValue = STRING(v-grand-tot-ext,"->>>,>>>,>>9.99").
                 WHEN "v-rfq" THEN cVarValue = "".
                 WHEN "qty-pro" THEN cVarValue = "".
