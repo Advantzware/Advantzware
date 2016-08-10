@@ -3448,6 +3448,12 @@ DEFINE VARIABLE dTotalI AS DEC     NO-UNDO.
           AND rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
           AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
         NO-ERROR.
+     IF NOT AVAIL rm-bin THEN DO:
+         MESSAGE "Tag # does not exist in the Bin File..."
+             VIEW-AS ALERT-BOX ERROR.
+         APPLY "entry" TO rm-rctd.tag IN BROWSE {&BROWSE-NAME}.
+         RETURN ERROR.
+     END.
      FOR EACH bf-rm-rctd 
           WHERE bf-rm-rctd.company EQ cocode
             AND bf-rm-rctd.rita-code EQ "I"                    
