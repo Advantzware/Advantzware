@@ -169,7 +169,7 @@ DEFINE TEMP-TABLE ttOrderAcknowledgements NO-UNDO
     FIELD csr           AS CHARACTER LABEL "CSR"                FORMAT "x(8)"
     FIELD over          AS DECIMAL   LABEL "Over"               FORMAT ">>9.99"
     FIELD under         AS DECIMAL   LABEL "Under"              FORMAT ">>9.99"
-    FIELD poOrder       AS CHARACTER      LABEL "Purchase Order"     FORMAT "x(15)"
+    FIELD poOrder       AS CHARACTER LABEL "Purchase Order"     FORMAT "x(15)"
     FIELD mfgDate       AS DATE      LABEL "Requested Mfg Date" FORMAT 99/99/9999
     FIELD frtCharge     AS CHARACTER LABEL "Freight Charge"     FORMAT "x(8)"
     FIELD pallet        AS DECIMAL   LABEL "Pallet"             FORMAT ">>>,>>9.99<<<<"
@@ -260,8 +260,8 @@ DEFINE TEMP-TABLE tt-fg-bin NO-UNDO LIKE fg-bin.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Procedure
-&Scoped-define DB-AWARE no
+&SCOPED-DEFINE PROCEDURE-TYPE PROCEDURE
+&SCOPED-DEFINE DB-AWARE no
 
 
 
@@ -273,7 +273,7 @@ DEFINE TEMP-TABLE tt-fg-bin NO-UNDO LIKE fg-bin.
 
 &IF DEFINED(EXCLUDE-fBOLPackingList) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fBOLPackingList Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fBOLPackingList PROCEDURE 
 FUNCTION fBOLPackingList RETURNS HANDLE
   ( ipcCompany AS CHARACTER,
     ipiBatch   AS INTEGER,
@@ -286,7 +286,7 @@ FUNCTION fBOLPackingList RETURNS HANDLE
 
 &IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTableHandle Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTableHandle PROCEDURE 
 FUNCTION fGetTableHandle RETURNS HANDLE
   ( ipcProgramID AS CHARACTER )  FORWARD.
 
@@ -297,7 +297,7 @@ FUNCTION fGetTableHandle RETURNS HANDLE
 
 &IF DEFINED(EXCLUDE-fOpenOrderReport) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOpenOrderReport Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOpenOrderReport PROCEDURE 
 FUNCTION fOpenOrderReport RETURNS HANDLE
     ( ipcCompany AS CHARACTER,
       ipiBatch   AS INTEGER,
@@ -310,7 +310,7 @@ FUNCTION fOpenOrderReport RETURNS HANDLE
 
 &IF DEFINED(EXCLUDE-fOrderAcknowledgements) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOrderAcknowledgements Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOrderAcknowledgements PROCEDURE 
 FUNCTION fOrderAcknowledgements RETURNS HANDLE
     ( ipcCompany AS CHARACTER,
       ipiBatch   AS INTEGER,
@@ -323,7 +323,7 @@ FUNCTION fOrderAcknowledgements RETURNS HANDLE
 
 &IF DEFINED(EXCLUDE-fOrdersBooked) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOrdersBooked Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOrdersBooked PROCEDURE 
 FUNCTION fOrdersBooked RETURNS HANDLE
     ( ipcCompany AS CHARACTER,
       ipiBatch   AS INTEGER,
@@ -336,7 +336,7 @@ FUNCTION fOrdersBooked RETURNS HANDLE
 
 &IF DEFINED(EXCLUDE-fOrdersBookedByOrderNo) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOrdersBookedByOrderNo Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOrdersBookedByOrderNo PROCEDURE 
 FUNCTION fOrdersBookedByOrderNo RETURNS HANDLE
     ( ipcCompany AS CHARACTER,
       ipiBatch   AS INTEGER,
@@ -374,7 +374,7 @@ FUNCTION fOrdersBookedByOrderNo RETURNS HANDLE
  
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK PROCEDURE 
 
 
 /* ***************************  Main Block  *************************** */
@@ -387,17 +387,17 @@ FUNCTION fOrdersBookedByOrderNo RETURNS HANDLE
 
 &IF DEFINED(EXCLUDE-build-tt) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-tt Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-tt PROCEDURE 
 PROCEDURE build-tt :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-date         AS DATE               NO-UNDO.
-    DEFINE INPUT PARAMETER ip-recid        AS RECID              NO-UNDO.
-    DEFINE INPUT PARAMETER ip-cPrimarySort AS CHARACTER          NO-UNDO.
-    DEFINE INPUT PARAMETER ip-sort         AS CHARACTER          NO-UNDO.
+    DEFINE INPUT PARAMETER ip-date          AS DATE               NO-UNDO.
+    DEFINE INPUT PARAMETER ip-recid         AS RECID              NO-UNDO.
+    DEFINE INPUT PARAMETER ip-cPrimarySort  AS CHARACTER          NO-UNDO.
+    DEFINE INPUT PARAMETER ip-sort          AS CHARACTER          NO-UNDO.
     DEFINE VARIABLE lv-due-date             LIKE oe-ordl.req-date NO-UNDO.
     DEFINE VARIABLE lv-due-date2            LIKE oe-ordl.req-date NO-UNDO.
     DEFINE VARIABLE v-po-no                 LIKE oe-ord.po-no     NO-UNDO.
@@ -502,14 +502,16 @@ PROCEDURE build-tt :
     RECID(b-inv-line) EQ ip-recid NO-ERROR.
 
     IF AVAILABLE b-inv-line THEN DO:
-        FIND FIRST b-inv-head NO-LOCK WHERE b-inv-head.r-no EQ b-inv-line.r-no NO-ERROR.
+        FIND FIRST b-inv-head NO-LOCK
+             WHERE b-inv-head.r-no EQ b-inv-line.r-no NO-ERROR.
         ASSIGN
             tt-report.q-shp  = b-inv-line.ship-qty
             tt-report.inv    = YES
             tt-report.inv-no = b-inv-head.inv-no.
     END. /*IF AVAIL b-inv-line*/
 
-    FIND b-oe-rell NO-LOCK WHERE RECID(b-oe-rell) EQ ip-recid NO-ERROR.
+    FIND b-oe-rell NO-LOCK WHERE 
+      RECID(b-oe-rell) EQ ip-recid NO-ERROR.
 
     IF NOT tt-report.inv THEN DO:
         IF AVAILABLE b-oe-rell THEN tt-report.q-rel = b-oe-rell.qty.
@@ -524,7 +526,7 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-pBOLPackingList) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBOLPackingList Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBOLPackingList PROCEDURE 
 PROCEDURE pBOLPackingList :
 /*------------------------------------------------------------------------------
   Purpose:     BOL Packing List.rpa
@@ -668,7 +670,7 @@ PROCEDURE pCalcPoMSF :
     DEFINE VARIABLE ll-ea        AS LOG INIT NO                  NO-UNDO.
     DEFINE VARIABLE ilv-uom      LIKE po-ordl.pr-qty-uom INITIAL NO NO-UNDO.
     DEFINE VARIABLE cfg-uom-list AS CHARACTER                    NO-UNDO.
-    DEFINE VARIABLE iv-out-qty    AS INTEGER                       NO-UNDO.
+    DEFINE VARIABLE iv-out-qty    AS INTEGER                     NO-UNDO.
     
     FIND sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name EQ "poprint" 
@@ -1208,9 +1210,9 @@ Notes:
                 ELSE wkrecap.num-of-ord = wkrecap.num-of-ord + 1.
                 j = IF oe-ord.ord-date GE  dtStartOrderDate 
                     AND oe-ord.ord-date LE  dtEndOrderDate THEN 1 ELSE 2.
-               k = IF AVAILABLE period AND oe-ord.ord-date GE period.pst  
+                k = IF AVAILABLE period AND oe-ord.ord-date GE period.pst  
                    AND oe-ord.ord-date LE period.pend THEN 2 ELSE 1.
-               IF j LE k THEN DO ii = j TO k:
+                IF j LE k THEN DO ii = j TO k:
                    ASSIGN
                        wkrecap.t-sqft[ii]  = wkrecap.t-sqft[ii] + dTotalSqft
                        wkrecap.t-tons[ii]  = wkrecap.t-tons[ii] + dTotTons
@@ -1397,9 +1399,8 @@ Notes:
 
         PUT UNFORMATTED "ttOrdersBooked" SKIP.
         CREATE ttOrdersBooked.
-        ASSIGN 
-            /*ttOrdersBooked.rowtype    =   oe-ord.due-date*/              
-            ttOrdersBooked.dueDate      =   oe-ord.due-date                    
+        ASSIGN                          
+            ttOrdersBooked.dueDate      =   IF AVAIL oe-ord THEN oe-ord.due-date ELSE 01/01/0001                   
             ttOrdersBooked.orderNo      =   w-data.ord-no                      
             ttOrdersBooked.custName     =   cust.name                   
             ttOrdersBooked.custNo       =   cust.cust-no
@@ -1407,7 +1408,7 @@ Notes:
             ttOrdersBooked.salesRepName =   IF AVAILABLE sman THEN sman.sname ELSE "" 
             ttOrdersBooked.commPer      =   w-data.comm                      
             ttOrdersBooked.prodCode     =   w-data.procat 
-            ttOrdersBooked.fgItemNo     =   oe-ordl.i-no                       
+            ttOrdersBooked.fgItemNo     =   IF AVAIL oe-ordl THEN oe-ordl.i-no ELSE ""                      
             ttOrdersBooked.fgItemName   =   w-data.item-n                      
             ttOrdersBooked.qtyOrdEa     =   w-data.qty                         
             ttOrdersBooked.sqFit        =   w-data.sqft                     
@@ -1418,8 +1419,8 @@ Notes:
             ttOrdersBooked.profitPer    =   dProfitPer                       
             ttOrdersBooked.totalTons    =   w-data.t-tons                          
             ttOrdersBooked.ton          =   dPricePerTon  
-            ttOrdersBooked.vUserID      =   oe-ord.user-id                  
-            ttOrdersBooked.custPartNo   =   oe-ordl.part-no
+            ttOrdersBooked.vUserID      =   IF AVAIL oe-ord THEN oe-ord.user-id ELSE ""                 
+            ttOrdersBooked.custPartNo   =   IF AVAIL oe-ordl THEN oe-ordl.part-no ELSE ""
             ttOrdersBooked.dieNo        =   IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN STRING(itemfg.die-no,"x(15)") ELSE IF AVAILABLE eb THEN STRING(eb.die-no,"x(15)") ELSE "" .
             . 
         DELETE w-data.
@@ -1479,8 +1480,8 @@ Notes:
     DEFINE VARIABLE dv-Loss%          AS   DECIMAL NO-UNDO.
     DEFINE VARIABLE iv-bol#           AS   INTEGER NO-UNDO.
     DEFINE VARIABLE iv-inv#           AS   INTEGER NO-UNDO.
-    DEFINE BUFFER   b-oe-ordl         FOR oe-ordl.
 
+    DEFINE BUFFER   b-oe-ordl         FOR oe-ordl.
     
     FOR EACH oe-ord NO-LOCK
         WHERE oe-ord.company EQ ipcCompany
@@ -1638,13 +1639,13 @@ Notes:
                 dv-Loss%        = dv-UnitLoss$ / (iv-boardTotalQty * iv-UnitsBoard )
                 .
             IF dv-Order%Profit  EQ ? THEN dv-Order%Profit = 0.
-            IF dv-MSFRec        EQ ? THEN dv-MSFRec = 0.
-            IF dv-PORecCost     EQ ? THEN dv-PORecCost = 0.
-            IF dv-ProfitSold$   EQ ? THEN dv-ProfitSold$ = 0.
-            IF dv-ProfitSold%   EQ ? THEN dv-ProfitSold% = 0.
-            IF iv-UnitsBoard    EQ ? THEN iv-UnitsBoard = 0.
-            IF dv-UnitLoss$     EQ ? THEN dv-UnitLoss$ = 0.
-            IF dv-Loss%         EQ ? THEN dv-Loss% = 0.
+            IF dv-MSFRec        EQ ? THEN dv-MSFRec       = 0.
+            IF dv-PORecCost     EQ ? THEN dv-PORecCost    = 0.
+            IF dv-ProfitSold$   EQ ? THEN dv-ProfitSold$  = 0.
+            IF dv-ProfitSold%   EQ ? THEN dv-ProfitSold%  = 0.
+            IF iv-UnitsBoard    EQ ? THEN iv-UnitsBoard   = 0.
+            IF dv-UnitLoss$     EQ ? THEN dv-UnitLoss$    = 0.
+            IF dv-Loss%         EQ ? THEN dv-Loss%        = 0.
 
             PUT UNFORMATTED "ttOrdersBookedByOrderNo" SKIP.
 
