@@ -1993,13 +1993,10 @@ PROCEDURE check-release-update :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER cCheck-rel AS CHARACTER NO-UNDO .
-
-    FIND CURRENT oe-bolh.
-
+    
     IF AVAIL oe-bolh THEN
         ASSIGN
         cCheck-rel = oe-bolh.stat .
-  
 
 END PROCEDURE.
 
