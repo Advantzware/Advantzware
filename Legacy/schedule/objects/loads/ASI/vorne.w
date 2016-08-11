@@ -287,11 +287,11 @@ DEFINE FRAME DEFAULT-FRAME
           "Click to Cancel and Exit"
      "Type:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 7.67 COL 12
-     "Employee Login:" VIEW-AS TEXT
-          SIZE 16 BY .81 AT ROW 8.86 COL 2
      "Select Shift to Post ... Enter Date Range" VIEW-AS TEXT
           SIZE 49 BY .62 AT ROW 1.24 COL 2
           FONT 6
+     "Employee Login:" VIEW-AS TEXT
+          SIZE 16 BY .81 AT ROW 8.86 COL 2
      RECT-1 AT ROW 6 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
