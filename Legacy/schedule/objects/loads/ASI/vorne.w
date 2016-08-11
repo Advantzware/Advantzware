@@ -1444,7 +1444,7 @@ PROCEDURE vorneSummary :
     IF ttblVorne.deleteFlag THEN NEXT.
 
     IF FIRST-OF(ttblVorne.vorneJob) THEN DO:
-      lvTime = ttblVorne.vorneStartTime.
+      lvTime = ?.
       FIND FIRST ttblJob
            WHERE ttblJob.resource EQ ttblVorne.vorneResource
              AND ttblJob.job EQ ttblVorne.vorneJob NO-ERROR.
@@ -1461,13 +1461,16 @@ PROCEDURE vorneSummary :
       IF NOT AVAILABLE job-mch THEN NEXT.
     END. /* first-of job */
 
+    IF lvTime EQ ? THEN
+    lvTime = ttblVorne.vorneStartTime.
+    /*
     ASSIGN
       ttblVorne.vorneDuration = ttblVorne.vorneEndTime - ttblVorne.vorneStartTime
       ttblVorne.vorneStartTime = lvTime
       ttblVorne.vorneEndTime = ttblVorne.vorneStartTime + ttblVorne.vorneDuration
       lvTime = ttblVorne.vorneEndTime
       .
-    
+    */
     CREATE machtran.
     ASSIGN
       machtran.company = job-mch.company
