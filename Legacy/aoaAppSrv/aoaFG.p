@@ -37,8 +37,17 @@ DEFINE TEMP-TABLE ttCustomerInventory NO-UNDO
     FIELD xxSort2     AS CHARACTER          LABEL "Sort 2"       FORMAT "x(500)"
         INDEX sortBy IS PRIMARY rowType xxSort1 xxSort2
         .
-{sys/ref/CustList.i NEW}
 /* Customer Inventory.rpa */
+
+/* Inventory Value.rpa */
+DEFINE TEMP-TABLE ttInventoryValue NO-UNDO
+    {aoaAppSrv/ttFields.i}
+    FIELD xxSort AS CHARACTER LABEL "Sort" FORMAT "x(500)"
+        INDEX sortBy IS PRIMARY rowType xxSort
+        .
+/* Inventory Value.rpa */
+
+{sys/ref/CustList.i NEW}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -77,6 +86,19 @@ FUNCTION fCustomerInventory RETURNS HANDLE
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTableHandle Procedure 
 FUNCTION fGetTableHandle RETURNS HANDLE
   ( ipcProgramID AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fInventoryValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fInventoryValue Procedure 
+FUNCTION fInventoryValue RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -264,6 +286,28 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pInventoryValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInventoryValue Procedure 
+PROCEDURE pInventoryValue :
+/*------------------------------------------------------------------------------
+  Purpose:     Inventory Value.rpa
+  Parameters:  Company, Batch Seq, User ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/pInventoryValue.i}
+
+    /* local variables */
+
+    /* subject business logic */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fCustomerInventory) = 0 &THEN
@@ -278,15 +322,6 @@ FUNCTION fCustomerInventory RETURNS HANDLE
     Notes:  
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttCustomerInventory.
-
-    OUTPUT TO "aoaFG.log" APPEND.
-    PUT UNFORMATTED
-        "[" NOW "] fCustomerInventory" SKIP
-        "[" NOW "]" ipcCompany SKIP
-        "[" NOW "]" ipiBatch SKIP
-        "[" NOW "]" ipcUserID SKIP(1)
-        .
-    OUTPUT CLOSE.
 
     RUN pCustomerInventory (ipcCompany, ipiBatch, ipcUserID).
 
@@ -312,7 +347,34 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Customer Inventory.rpa */
         WHEN "r-cusinv." THEN
         RETURN TEMP-TABLE ttCustomerInventory:HANDLE.
+        /* Inventory Value.rpa */
+        WHEN "r-fgohbb." THEN
+        RETURN TEMP-TABLE ttInventoryValue:HANDLE.
     END CASE.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fInventoryValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fInventoryValue Procedure 
+FUNCTION fInventoryValue RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Inventory Value.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttInventoryValue.
+
+    RUN pInventoryValue (ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttInventoryValue:HANDLE .
 
 END FUNCTION.
 

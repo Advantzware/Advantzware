@@ -64,11 +64,9 @@ DEFINE TEMP-TABLE ttParamValue NO-UNDO
         INDEX paramOrder IS PRIMARY paramOrder
     .
 
-IF aoaColumns THEN DO:
-    RUN aoaAppSrv\aoaBin.p PERSISTENT SET hAppSrv.
-    SESSION:ADD-SUPER-PROCEDURE (hAppSrv).
-    RUN VALUE("aoaAppSrv/" + ENTRY(1,aoaParam,"/") + ".p") PERSISTENT SET hAppSrv.
-END.
+RUN aoaAppSrv\aoaBin.p PERSISTENT SET hAppSrv.
+SESSION:ADD-SUPER-PROCEDURE (hAppSrv).
+RUN VALUE("aoaAppSrv/" + ENTRY(1,aoaParam,"/") + ".p") PERSISTENT SET hAppSrv.
 
 DEFINE BUFFER bUserPrint FOR user-print.
 
@@ -121,7 +119,7 @@ DEFINE BUFFER bUserPrint FOR user-print.
 &Scoped-Define ENABLED-OBJECTS btnCancel btnView 
 
 /* Custom List Definitions                                              */
-/* ScheduleFields,showFields,batchObjects,batchShowHide,List-5,List-6   */
+/* ScheduleFields,showFields,batchObjects,batchShowHide,columnObjects,List-6 */
 &Scoped-define showFields svShowAll svShowReportHeader svShowParameters ~
 svShowPageHeader svShowGroupHeader svShowGroupFooter svShowPageFooter ~
 svShowReportFooter 
@@ -129,6 +127,8 @@ svShowReportFooter
 btnSave browseUserPrint browseParamValue 
 &Scoped-define batchShowHide btnDelete btnApply btnSave browseUserPrint ~
 browseParamValue 
+&Scoped-define columnObjects btnDefault btnAdd btnRemoveColumn btnMoveUp ~
+btnMoveDown 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -475,10 +475,16 @@ ASSIGN FRAME frameColumns:FRAME = FRAME paramFrame:HANDLE
 ASSIGN 
        FRAME frameColumns:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnAdd IN FRAME frameColumns
+   5                                                                    */
+/* SETTINGS FOR BUTTON btnDefault IN FRAME frameColumns
+   5                                                                    */
 /* SETTINGS FOR BUTTON btnMoveDown IN FRAME frameColumns
-   NO-ENABLE                                                            */
+   NO-ENABLE 5                                                          */
 /* SETTINGS FOR BUTTON btnMoveUp IN FRAME frameColumns
-   NO-ENABLE                                                            */
+   NO-ENABLE 5                                                          */
+/* SETTINGS FOR BUTTON btnRemoveColumn IN FRAME frameColumns
+   5                                                                    */
 /* SETTINGS FOR FRAME frameShow
    NOT-VISIBLE                                                          */
 ASSIGN 
@@ -1147,18 +1153,23 @@ PROCEDURE local-enable :
 
   RUN pGetParamValues (?).
   
-  IF aoaColumns THEN RUN pGetColumns.
+  IF aoaType EQ "Report" THEN RUN pGetColumns.
 
   RUN pParamValuesOverride IN h_aoaParam NO-ERROR.
 
   RUN pInitialize IN h_aoaParam (THIS-PROCEDURE) NO-ERROR.
 
-  IF aoaType EQ "report" THEN DO:
+  IF aoaType EQ "Report" THEN DO:
       ENABLE btnScheduler WITH FRAME {&FRAME-NAME}.
       RUN pGetUserPrint.
   END.
 
   RUN pShowBatchObjs.
+
+  IF NOT aoaColumns THEN DO WITH FRAME frameColumns:
+      DISABLE svAvailableColumns svSelectedColumns.
+      HIDE {&columnObjects}.
+  END.
 
 END PROCEDURE.
 
@@ -1563,16 +1574,16 @@ PROCEDURE pGetColumns :
             svAvailableColumns:ADD-LAST(hTable:BUFFER-FIELD(idx):LABEL,
                                         hTable:BUFFER-FIELD(idx):NAME).
         END.
-        IF cSelectedColumns NE "" THEN
-        DO idx = 1 TO NUM-ENTRIES(cSelectedColumns):
-            svAvailableColumns:SCREEN-VALUE = ENTRY(idx,cSelectedColumns) NO-ERROR.
-            APPLY "CHOOSE":U TO btnAdd.
-        END. /* do idx */
-        ELSE
+        IF cSelectedColumns EQ "" OR NOT aoaColumns THEN
         ASSIGN
             svSelectedColumns:LIST-ITEM-PAIRS  = svAvailableColumns:LIST-ITEM-PAIRS
             svAvailableColumns:LIST-ITEM-PAIRS = ?
             .
+        ELSE
+        DO idx = 1 TO NUM-ENTRIES(cSelectedColumns):
+            svAvailableColumns:SCREEN-VALUE = ENTRY(idx,cSelectedColumns) NO-ERROR.
+            APPLY "CHOOSE":U TO btnAdd.
+        END. /* do idx */
     END. /* valid happsrv */
 
 END PROCEDURE.
@@ -1966,9 +1977,10 @@ PROCEDURE pSetWinSize :
     IF NOT VALID-HANDLE(hParamFrame) THEN RETURN.
 
     DO WITH FRAME {&FRAME-NAME}:
+        IF aoaType EQ "Report" THEN
+        iWidth = FRAME frameShow:WIDTH-PIXELS + 5 + FRAME frameColumns:WIDTH-PIXELS + 5.
+
         ASSIGN
-            iWidth                                    = FRAME frameShow:WIDTH-PIXELS + 5
-                                                      + FRAME frameColumns:WIDTH-PIXELS + 5
             {&WINDOW-NAME}:WIDTH-PIXELS               = hParamFrame:WIDTH-PIXELS + 5 + iWidth
             {&WINDOW-NAME}:HEIGHT-PIXELS              = hParamFrame:HEIGHT-PIXELS + 5
                                                       + btnView:HEIGHT-PIXELS + 5
@@ -1978,59 +1990,57 @@ PROCEDURE pSetWinSize :
             FRAME {&FRAME-NAME}:HEIGHT-PIXELS         = {&WINDOW-NAME}:HEIGHT-PIXELS
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-            FRAME frameShow:X                         = hParamFrame:WIDTH-PIXELS + 5
-            FRAME frameShow:Y                         = hParamFrame:Y
-            FRAME frameShow:HIDDEN                    = FALSE
-            btnScheduler:Y                            = hParamFrame:HEIGHT-PIXELS + 5
-            btnShowBatch:Y                            = hParamFrame:HEIGHT-PIXELS + 5
-            btnExcel:Y                                = hParamFrame:HEIGHT-PIXELS + 5
-            btnCancel:Y                               = hParamFrame:HEIGHT-PIXELS + 5
             btnView:Y                                 = hParamFrame:HEIGHT-PIXELS + 5
-            btnShowBatch:X                            = btnScheduler:X + btnScheduler:WIDTH-PIXELS + 2
+            btnCancel:Y                               = hParamFrame:HEIGHT-PIXELS + 5
             btnView:X                                 = hParamFrame:WIDTH-PIXELS - btnView:WIDTH-PIXELS
             btnCancel:X                               = btnView:X - btnCancel:WIDTH-PIXELS - 2
-            btnExcel:X                                = btnCancel:X - ((btnCancel:X
-                                                      - (btnShowBatch:X + btnShowBatch:WIDTH-PIXELS)) / 2)
-                                                      - btnExcel:WIDTH-PIXELS / 2
-            iHeight                                   = FRAME frameShow:HEIGHT-PIXELS
             .
 
-        IF aoaColumns THEN
-        ASSIGN
-            iHeight                                  = MAXIMUM(iHeight, hParamFrame:HEIGHT-PIXELS / 2)
-            FRAME frameColumns:HEIGHT-PIXELS         = iHeight
-            FRAME frameColumns:VIRTUAL-HEIGHT-PIXELS = FRAME frameColumns:HEIGHT-PIXELS
-            svAvailableColumns:HEIGHT-PIXELS         = FRAME frameColumns:HEIGHT-PIXELS - 40
-            svSelectedColumns:HEIGHT-PIXELS          = svAvailableColumns:HEIGHT-PIXELS
-            FRAME frameColumns:X                     = hParamFrame:WIDTH-PIXELS + 5
-                                                     + FRAME frameShow:WIDTH-PIXELS + 5
-            FRAME frameColumns:Y                     = hParamFrame:Y
-            FRAME frameColumns:HIDDEN                = FALSE
-            .
-        
-        ASSIGN
-            BROWSE browseUserPrint:X                 = FRAME frameShow:X
-            BROWSE browseUserPrint:Y                 = FRAME frameShow:Y + iHeight + 5
-            BROWSE browseUserPrint:HEIGHT-PIXELS     = hParamFrame:HEIGHT-PIXELS
-                                                     - iHeight - 5
-            BROWSE browseUserPrint:HIDDEN            = FALSE
-            BROWSE browseParamValue:X                = BROWSE browseUserPrint:X
-                                                     + BROWSE browseUserPrint:WIDTH-PIXELS + 5
-            BROWSE browseParamValue:Y                = BROWSE browseUserPrint:Y
-            BROWSE browseParamValue:HEIGHT-PIXELS    = hParamFrame:HEIGHT-PIXELS
-                                                     - iHeight
-                                                     + btnSave:HEIGHT-PIXELS
-            BROWSE browseParamValue:HIDDEN           = FALSE
-            btnSave:Y                                = btnView:Y
-            btnApply:Y                               = btnView:Y
-            btnDelete:Y                              = btnView:Y
-            btnSave:X                                = FRAME frameShow:X
-                                                     + FRAME frameShow:WIDTH-PIXELS
-                                                     - btnDelete:WIDTH-PIXELS - 15
-            btnApply:X                               = btnSave:X - btnSave:WIDTH-PIXELS - 2
-            btnDelete:X                              = btnApply:X - btnApply:WIDTH-PIXELS - 2
-            .
-        ENABLE {&batchObjects}.
+        IF aoaType EQ "Report" THEN DO:
+            ASSIGN
+                FRAME frameShow:X                        = hParamFrame:WIDTH-PIXELS + 5
+                FRAME frameShow:Y                        = hParamFrame:Y
+                FRAME frameShow:HIDDEN                   = FALSE
+                btnScheduler:Y                           = hParamFrame:HEIGHT-PIXELS + 5
+                btnShowBatch:Y                           = hParamFrame:HEIGHT-PIXELS + 5
+                btnExcel:Y                               = hParamFrame:HEIGHT-PIXELS + 5
+                btnShowBatch:X                           = btnScheduler:X + btnScheduler:WIDTH-PIXELS + 2
+                btnExcel:X                               = btnCancel:X - ((btnCancel:X
+                                                         - (btnShowBatch:X + btnShowBatch:WIDTH-PIXELS)) / 2)
+                                                         - btnExcel:WIDTH-PIXELS / 2
+                iHeight                                  = FRAME frameShow:HEIGHT-PIXELS
+                iHeight                                  = MAXIMUM(iHeight, hParamFrame:HEIGHT-PIXELS / 2)
+                FRAME frameColumns:HEIGHT-PIXELS         = iHeight
+                FRAME frameColumns:VIRTUAL-HEIGHT-PIXELS = FRAME frameColumns:HEIGHT-PIXELS
+                svAvailableColumns:HEIGHT-PIXELS         = FRAME frameColumns:HEIGHT-PIXELS - 40
+                svSelectedColumns:HEIGHT-PIXELS          = svAvailableColumns:HEIGHT-PIXELS
+                FRAME frameColumns:X                     = hParamFrame:WIDTH-PIXELS + 5
+                                                         + FRAME frameShow:WIDTH-PIXELS + 5
+                FRAME frameColumns:Y                     = hParamFrame:Y
+                FRAME frameColumns:HIDDEN                = FALSE
+                BROWSE browseUserPrint:X                 = FRAME frameShow:X
+                BROWSE browseUserPrint:Y                 = FRAME frameShow:Y + iHeight + 5
+                BROWSE browseUserPrint:HEIGHT-PIXELS     = hParamFrame:HEIGHT-PIXELS
+                                                         - iHeight - 5
+                BROWSE browseUserPrint:HIDDEN            = FALSE
+                BROWSE browseParamValue:X                = BROWSE browseUserPrint:X
+                                                         + BROWSE browseUserPrint:WIDTH-PIXELS + 5
+                BROWSE browseParamValue:Y                = BROWSE browseUserPrint:Y
+                BROWSE browseParamValue:HEIGHT-PIXELS    = hParamFrame:HEIGHT-PIXELS
+                                                         - iHeight
+                                                         + btnSave:HEIGHT-PIXELS
+                BROWSE browseParamValue:HIDDEN           = FALSE
+                btnSave:Y                                = btnView:Y
+                btnApply:Y                               = btnView:Y
+                btnDelete:Y                              = btnView:Y
+                btnSave:X                                = FRAME frameShow:X
+                                                         + FRAME frameShow:WIDTH-PIXELS
+                                                         - btnDelete:WIDTH-PIXELS - 15
+                btnApply:X                               = btnSave:X - btnSave:WIDTH-PIXELS - 2
+                btnDelete:X                              = btnApply:X - btnApply:WIDTH-PIXELS - 2
+                .
+            ENABLE {&batchObjects}.
+        END. /* report */
     END. /* with frame  */
 
 END PROCEDURE.
@@ -2057,14 +2067,6 @@ PROCEDURE pShowBatchObjs :
                 FRAME frameColumns:HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS - 5
                 svAvailableColumns:HEIGHT-PIXELS = FRAME frameColumns:HEIGHT-PIXELS - 40
                 svSelectedColumns:HEIGHT-PIXELS  = svAvailableColumns:HEIGHT-PIXELS
-                .
-            IF aoaColumns EQ NO THEN
-            ASSIGN
-                FRAME {&FRAME-NAME}:WIDTH-PIXELS         = hParamFrame:WIDTH-PIXELS + 5
-                                                         + FRAME frameShow:WIDTH-PIXELS + 5
-                FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = FRAME {&FRAME-NAME}:WIDTH-PIXELS
-                {&WINDOW-NAME}:WIDTH-PIXELS              = FRAME {&FRAME-NAME}:WIDTH-PIXELS
-                {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS      = FRAME {&FRAME-NAME}:WIDTH-PIXELS
                 .
         END. /* else */
     END. /* do with frame */
@@ -2380,6 +2382,22 @@ FUNCTION fSetDescription RETURNS CHARACTER
                    AND itemfg.i-no    EQ ipObject:SCREEN-VALUE
                  NO-ERROR.
             IF AVAILABLE itemfg THEN cDescription = itemfg.i-dscr.
+        END.
+        WHEN "svStartLoc" OR WHEN "svEndLoc" THEN DO:
+            cRange = REPLACE(cRange,"Loc","").
+            FIND FIRST loc NO-LOCK
+                 WHERE loc.company EQ aoaCompany
+                   AND loc.loc     EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE cust THEN cDescription = cust.name.
+        END.
+        WHEN "svStartLocBin" OR WHEN "svEndLocBin" THEN DO:
+            cRange = REPLACE(cRange,"LocBin","").
+            FIND FIRST cust NO-LOCK
+                 WHERE cust.company EQ aoaCompany
+                   AND cust.cust-no EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE cust THEN cDescription = cust.name.
         END.
         WHEN "svStartMachine" OR WHEN "svEndMachine" THEN DO:
             cRange = REPLACE(cRange,"Machine","").

@@ -3,6 +3,7 @@
 "DC" "Machine Productivity" "machprod." "DE3"
 "DC" "Production Analysis" "r-prodlys." "DE2"
 "FG" "Customer Inventory" "r-cusinv." "IL12"
+"FG" "Inventory Value" "r-fgohbb." "IR2"
 "OE" "BOL Packing List" "bolpcklst." "OS9"
 "TS" "Machine Transaction Summary" "mtransum." "TR15"
 "TS" "Machine Transactions" "r-mchtrn." "TR3"
