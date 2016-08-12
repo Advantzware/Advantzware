@@ -60,7 +60,7 @@ lSSBolEmailPassed = FALSE.
          ls-to-list = ls-to-list + comma(ls-to-list) + asinos.users.image_filename.
 
       FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode AND cust.cust-no EQ oe-ord.cust-no NO-ERROR.
-      IF cust.active EQ 'E' THEN
+      IF AVAIL cust AND cust.active EQ 'E' THEN
          FOR EACH asinos.phone NO-LOCK
              WHERE asinos.phone.table_rec_key EQ cust.rec_key
              BREAK BY asinos.phone.e_mail:
@@ -74,7 +74,7 @@ lSSBolEmailPassed = FALSE.
              ls-to-list = ls-to-list + comma(ls-to-list) + asinos.phone.e_mail.
          END. /* each phone */
       ELSE
-         IF cust.active EQ 'X' THEN
+         IF AVAIL cust AND cust.active EQ 'X' THEN
             ls-to-list = ls-to-list + comma(ls-to-list) + cust.email.
 
       IF FIRST-OF(tt-email.done-what) THEN DO:
