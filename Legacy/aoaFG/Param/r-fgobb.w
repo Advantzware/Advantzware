@@ -52,19 +52,19 @@ svAsOfDateOption svCustList btnCustList svAllCustNo svStartCustNo ~
 svEndCustNo svAllLoc svStartLoc svEndLoc svAllLocBin svStartLocBin ~
 svEndLocBin svAllItemNo svStartItemNo svEndItemNo svAllProdCategory ~
 svStartProdCategory svEndProdCategory svAllSalesRep svStartSalesRep ~
-svEndSalesRep svPrintSetComponentsOnly svIncludeCustomerOwnerdWarehouse ~
-svSort svOnlyCustomerOwnedWarehouse svIncludeZeroBalance ~
-svPrintSummaryByBinQty svIncludeInactiveItems 
+svEndSalesRep svSort svPrintSetAndComponentsOnly svIncludeZeroBalance ~
+svIncludeCustomerOwnerdWarehouse svPrintSummaryByBinQty ~
+svOnlyCustomerOwnedWarehouse svIncludeInactiveItems svPrintCost svDLMATOnly 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svAsOfDate svAsOfDateOption ~
 svCustList svAllCustNo svStartCustNo startCustName svEndCustNo endCustName ~
 svAllLoc svStartLoc startLocName svEndLoc endLocName svAllLocBin ~
 svStartLocBin svEndLocBin svAllItemNo svStartItemNo startItemName ~
 svEndItemNo endItemName svAllProdCategory svStartProdCategory ~
 startProdCategoryName svEndProdCategory endProdCategoryName svAllSalesRep ~
-svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
-svPrintSetComponentsOnly svIncludeCustomerOwnerdWarehouse svSort ~
-svOnlyCustomerOwnedWarehouse svIncludeZeroBalance svPrintSummaryByBinQty ~
-svIncludeInactiveItems 
+svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName svSort ~
+svPrintSetAndComponentsOnly svIncludeZeroBalance ~
+svIncludeCustomerOwnerdWarehouse svPrintSummaryByBinQty ~
+svOnlyCustomerOwnedWarehouse svIncludeInactiveItems svPrintCost svDLMATOnly 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -205,14 +205,14 @@ DEFINE VARIABLE svStartSalesRep AS CHARACTER FORMAT "X(3)"
      SIZE 8 BY 1.
 
 DEFINE VARIABLE svSort AS CHARACTER 
-     VIEW-AS RADIO-SET VERTICAL
+     VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Customer", "Customer",
 "FG Item", "FG Item",
 "Part", "Part",
 "Product Category", "Product Category",
 "Whs/Bin", "Whs/Bin"
-     SIZE 20 BY 5.71 NO-UNDO.
+     SIZE 70 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
@@ -249,6 +249,11 @@ DEFINE VARIABLE svCustList AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY .95 NO-UNDO.
 
+DEFINE VARIABLE svDLMATOnly AS LOGICAL INITIAL no 
+     LABEL "If Yes - DL/MAT Only?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY 1 NO-UNDO.
+
 DEFINE VARIABLE svIncludeCustomerOwnerdWarehouse AS LOGICAL INITIAL no 
      LABEL "Include Customer Ownerd Warehouse?" 
      VIEW-AS TOGGLE-BOX
@@ -269,7 +274,12 @@ DEFINE VARIABLE svOnlyCustomerOwnedWarehouse AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 38 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svPrintSetComponentsOnly AS LOGICAL INITIAL no 
+DEFINE VARIABLE svPrintCost AS LOGICAL INITIAL no 
+     LABEL "Print Cost?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svPrintSetAndComponentsOnly AS LOGICAL INITIAL no 
      LABEL "Print Set and Components Only?" 
      VIEW-AS TOGGLE-BOX
      SIZE 35 BY 1 NO-UNDO.
@@ -337,33 +347,37 @@ DEFINE FRAME F-Main
      svEndSalesRep AT ROW 28.38 COL 23 COLON-ALIGNED HELP
           "Enter Ending Sales Rep" WIDGET-ID 110
      endSalesRepName AT ROW 28.38 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 104
-     svPrintSetComponentsOnly AT ROW 30.05 COL 25 HELP
-          "Select to Print Set and Components Only" WIDGET-ID 88
-     svIncludeCustomerOwnerdWarehouse AT ROW 31.24 COL 25 HELP
-          "Select to Include Customer Ownerd Warehouse" WIDGET-ID 252
-     svSort AT ROW 31.24 COL 66 HELP
+     svSort AT ROW 30.05 COL 25 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 84
+     svPrintSetAndComponentsOnly AT ROW 31.48 COL 25 HELP
+          "Select to Print Set and Components Only" WIDGET-ID 88
+     svIncludeZeroBalance AT ROW 31.48 COL 66 HELP
+          "Select to Include Zero Balance" WIDGET-ID 256
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 85.8 BY 37.14.
+         SIZE 94.8 BY 36.24.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     svOnlyCustomerOwnedWarehouse AT ROW 32.43 COL 25 HELP
-          "Select to Only Customer Owned Warehouse" WIDGET-ID 254
-     svIncludeZeroBalance AT ROW 33.62 COL 25 HELP
-          "Select to Include Zero Balance" WIDGET-ID 256
-     svPrintSummaryByBinQty AT ROW 34.81 COL 25 HELP
+     svIncludeCustomerOwnerdWarehouse AT ROW 32.67 COL 25 HELP
+          "Select to Include Customer Ownerd Warehouse" WIDGET-ID 252
+     svPrintSummaryByBinQty AT ROW 32.67 COL 66 HELP
           "Select to Print Summary By Bin Qty" WIDGET-ID 258
-     svIncludeInactiveItems AT ROW 36 COL 25 HELP
+     svOnlyCustomerOwnedWarehouse AT ROW 33.86 COL 25 HELP
+          "Select to Only Customer Owned Warehouse" WIDGET-ID 254
+     svIncludeInactiveItems AT ROW 33.86 COL 66 HELP
           "Select to Include Inactive Items" WIDGET-ID 260
+     svPrintCost AT ROW 35.05 COL 25 HELP
+          "Select to Print Cost" WIDGET-ID 262
+     svDLMATOnly AT ROW 35.05 COL 66 HELP
+          "Select to If Yes - DL/MAT Only" WIDGET-ID 264
      "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 30.05 COL 66 WIDGET-ID 90
+          SIZE 8 BY 1 AT ROW 30.05 COL 16 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 85.8 BY 37.14
+         SIZE 94.8 BY 36.24
          TITLE "Report Parameters".
 
 
@@ -393,8 +407,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 37.14
-         WIDTH              = 85.8.
+         HEIGHT             = 36.24
+         WIDTH              = 94.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

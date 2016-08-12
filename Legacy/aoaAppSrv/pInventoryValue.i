@@ -1,4 +1,4 @@
-/* pInventoryValue.i - auto generated 08.11.2016 @  8:26:25 pm from aoa/aoaParam.w */
+/* pInventoryValue.i - auto generated 08.11.2016 @  9:21:25 pm from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
@@ -26,13 +26,15 @@
     DEFINE VARIABLE lAllSalesRep AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cStartSalesRep AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndSalesRep AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lPrintSetComponentsOnly AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lIncludeCustomerOwnerdWarehouse AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cSort AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lOnlyCustomerOwnedWarehouse AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPrintSetAndComponentsOnly AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIncludeZeroBalance AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIncludeCustomerOwnerdWarehouse AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lPrintSummaryByBinQty AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lOnlyCustomerOwnedWarehouse AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIncludeInactiveItems AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPrintCost AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lDLMATOnly AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 
@@ -63,13 +65,15 @@
         lAllSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svAllSalesRep") EQ "yes"
         cStartSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svStartSalesRep")
         cEndSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svEndSalesRep")
-        lPrintSetComponentsOnly = DYNAMIC-FUNCTION("fGetParamValue","svPrintSetComponentsOnly") EQ "yes"
-        lIncludeCustomerOwnerdWarehouse = DYNAMIC-FUNCTION("fGetParamValue","svIncludeCustomerOwnerdWarehouse") EQ "yes"
         cSort = DYNAMIC-FUNCTION("fGetParamValue","svSort")
-        lOnlyCustomerOwnedWarehouse = DYNAMIC-FUNCTION("fGetParamValue","svOnlyCustomerOwnedWarehouse") EQ "yes"
+        lPrintSetAndComponentsOnly = DYNAMIC-FUNCTION("fGetParamValue","svPrintSetAndComponentsOnly") EQ "yes"
         lIncludeZeroBalance = DYNAMIC-FUNCTION("fGetParamValue","svIncludeZeroBalance") EQ "yes"
+        lIncludeCustomerOwnerdWarehouse = DYNAMIC-FUNCTION("fGetParamValue","svIncludeCustomerOwnerdWarehouse") EQ "yes"
         lPrintSummaryByBinQty = DYNAMIC-FUNCTION("fGetParamValue","svPrintSummaryByBinQty") EQ "yes"
+        lOnlyCustomerOwnedWarehouse = DYNAMIC-FUNCTION("fGetParamValue","svOnlyCustomerOwnedWarehouse") EQ "yes"
         lIncludeInactiveItems = DYNAMIC-FUNCTION("fGetParamValue","svIncludeInactiveItems") EQ "yes"
+        lPrintCost = DYNAMIC-FUNCTION("fGetParamValue","svPrintCost") EQ "yes"
+        lDLMATOnly = DYNAMIC-FUNCTION("fGetParamValue","svDLMATOnly") EQ "yes"
         cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
         cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
         .
