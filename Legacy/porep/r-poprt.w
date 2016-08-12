@@ -36,7 +36,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR list-name AS cha NO-UNDO.
+DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -53,36 +53,36 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
-DEF VAR v-program         AS CHAR NO-UNDO.
-DEF VAR is-xprint-form    AS LOG  NO-UNDO.
-DEF VAR ls-fax-file       AS CHAR NO-UNDO.
-DEF VAR lv-multi-faxout   AS LOG  NO-UNDO.
-DEF VAR lv-fax-image      AS CHAR NO-UNDO.
-DEF VAR lv-pdf-file       AS CHAR NO-UNDO.
-DEF VAR lv-exp-form-list  AS CHAR NO-UNDO INIT "CorrTrim,Alliance,HRMS,CorSuply,Corr-U-KraftII,GP,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,iPaper".
-DEF VAR lv-exp-prog-list  AS CHAR NO-UNDO INIT "po-ctexp,po-alexp,po-hrexp,po-csexp,po-ckexp,po-gpexp,po-kwexp,po-smurfi,po-ccexp,po-prexp,po-alnceexp,po-ipaper".
-DEF VAR vcDefaultForm     AS CHAR NO-UNDO.
-DEF VAR lv-fax-type       AS CHAR NO-UNDO.
-DEF VAR lv-attachments    AS LOG  NO-UNDO.
-DEF TEMP-TABLE w-export NO-UNDO
-    FIELD w-exp-prog   AS CHAR.
+DEFINE VARIABLE v-program         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE is-xprint-form    AS LOG  NO-UNDO.
+DEFINE VARIABLE ls-fax-file       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-multi-faxout   AS LOG  NO-UNDO.
+DEFINE VARIABLE lv-fax-image      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-pdf-file       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-exp-form-list  AS CHARACTER NO-UNDO INIT "CorrTrim,Alliance,HRMS,CorSuply,Corr-U-KraftII,GP,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,iPaper".
+DEFINE VARIABLE lv-exp-prog-list  AS CHARACTER NO-UNDO INIT "po-ctexp,po-alexp,po-hrexp,po-csexp,po-ckexp,po-gpexp,po-kwexp,po-smurfi,po-ccexp,po-prexp,po-alnceexp,po-ipaper".
+DEFINE VARIABLE vcDefaultForm     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-fax-type       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-attachments    AS LOG  NO-UNDO.
+DEFINE TEMP-TABLE w-export NO-UNDO
+    FIELD w-exp-prog   AS CHARACTER.
 
 {po/po-print.i NEW}
 {custom/xprint.i}
-DEF NEW SHARED VAR s-group-notes AS LOG NO-UNDO.
-DEF NEW SHARED VAR s-print-prices AS LOG NO-UNDO.
+DEFINE NEW SHARED VARIABLE s-group-notes AS LOG NO-UNDO.
+DEFINE NEW SHARED VARIABLE s-print-prices AS LOG NO-UNDO.
 
 /* Variables defined for Excel */
 /* Build a Table to keep sequence of pdf files */
 
 DEFINE NEW SHARED 
        TEMP-TABLE tt-filelist
-            FIELD tt-FileCtr  AS INT
-            FIELD tt-FileName AS CHAR
+            FIELD tt-FileCtr  AS INTEGER
+            FIELD tt-FileName AS CHARACTER
             INDEX filelist    IS PRIMARY TT-FILECTR.
 
 /* Output selection for the report */
-DEFINE NEW SHARED VARIABLE LvOutputSelection AS CHAR NO-UNDO.
+DEFINE NEW SHARED VARIABLE LvOutputSelection AS CHARACTER NO-UNDO.
 
 DO TRANSACTION:
   {sys/inc/poexport.i}
@@ -92,13 +92,13 @@ END.
 DEFINE BUFFER b1-po-ord   FOR po-ord.
 
 /* gdm - 11190804 */
-DEF BUFFER bf-attach FOR attach.
+DEFINE BUFFER bf-attach FOR attach.
 
 /* Variables */
 DEFINE VARIABLE vcErrorMsg AS CHARACTER  NO-UNDO.
-DEF VAR cRtnChar AS CHAR NO-UNDO.
-DEF VAR llRecFound AS LOG NO-UNDO.
-DEF VAR poPaperClip-log AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE llRecFound AS LOG NO-UNDO.
+DEFINE VARIABLE poPaperClip-log AS LOG NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "POPaperClip", "L", NO, NO, "", "", 
                           OUTPUT cRtnChar, OUTPUT llRecFound).
 IF llRecFound THEN
@@ -151,7 +151,7 @@ FUNCTION AttachmentExists RETURNS LOGICAL
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -317,11 +317,11 @@ DEFINE FRAME FRAME-A
      tb_score-types AT ROW 11.71 COL 10.6
      tb_metric AT ROW 12.67 COL 10.6
      tb_print-prices AT ROW 13.62 COL 10.6
-     rd-dest AT ROW 15.76 COL 6 NO-LABEL
-     lv-ornt AT ROW 16 COL 31 NO-LABEL
+     rd-dest AT ROW 15.76 COL 6 NO-LABELS
+     lv-ornt AT ROW 16 COL 31 NO-LABELS
      lines-per-page AT ROW 16 COL 84 COLON-ALIGNED
      lv-font-no AT ROW 17.91 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 18.86 COL 28 COLON-ALIGNED NO-LABEL
+     lv-font-name AT ROW 18.86 COL 28 COLON-ALIGNED NO-LABELS
      td-show-parm AT ROW 21.48 COL 31
      btn-ok AT ROW 23.62 COL 22
      btn-cancel AT ROW 23.62 COL 61
@@ -618,7 +618,7 @@ DO:
                         AND sys-ctrl-shipto.char-fld > '' 
                       NO-LOCK NO-ERROR.
             
-                 IF AVAIL sys-ctrl-shipto THEN
+                 IF AVAILABLE sys-ctrl-shipto THEN
                  DO:
                     RUN SetPOPrintForm (sys-ctrl-shipto.char-fld) .
                     v-print-fmt = sys-ctrl-shipto.char-fld.
@@ -638,7 +638,7 @@ DO:
             END. /*FOR EACH*/
          ELSE
             MESSAGE "No Purchase Orders Were Printed."
-                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
      END.
   ELSE
      DO:
@@ -671,7 +671,7 @@ DO:
    IF begin_po-no = END_po-no THEN DO:
      FIND FIRST po-ord WHERE po-ord.company = g_company
                          AND po-ord.po-no  = begin_po-no NO-LOCK NO-ERROR.
-     IF AVAIL po-ord THEN ASSIGN begin_vend-no:SCREEN-VALUE = po-ord.vend-no
+     IF AVAILABLE po-ord THEN ASSIGN begin_vend-no:SCREEN-VALUE = po-ord.vend-no
                                  end_vend-no:SCREEN-VALUE = po-ord.vend-no.
    END.
 END.
@@ -706,7 +706,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
@@ -909,7 +909,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-DEF VAR li-lineperpage AS INT NO-UNDO.
+DEFINE VARIABLE li-lineperpage AS INTEGER NO-UNDO.
 
 SESSION:DATA-ENTRY-RETURN = YES.
 {sys/inc/f3helpw.i}
@@ -941,7 +941,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name    EQ "POPRINT"
       NO-LOCK NO-ERROR.
-  IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
+  IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
     CREATE sys-ctrl.
     ASSIGN
      sys-ctrl.company  = cocode
@@ -968,7 +968,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
 
-  IF AVAIL users AND users.user_program[2] NE "" THEN
+  IF AVAILABLE users AND users.user_program[2] NE "" THEN
      init-dir = users.user_program[2].
   ELSE
      init-dir = "c:\tmp".
@@ -1014,6 +1014,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
             tb_print-prices:SENSITIVE = NO.
 
+    IF v-print-fmt EQ "Metro" THEN
+        ASSIGN tb_print-terms:SENSITIVE = NO .
+
     IF NOT poPaperClip-log THEN 
         ASSIGN tb_attachments:SCREEN-VALUE = "NO"
                tb_attachments:SENSITIVE    = NO.
@@ -1039,7 +1042,7 @@ PROCEDURE create-export :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-export AS CHAR NO-UNDO.
+  DEFINE INPUT PARAMETER ip-export AS CHARACTER NO-UNDO.
 
 
   CREATE w-export.
@@ -1107,14 +1110,14 @@ PROCEDURE GenerateReport :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEFINE INPUT PARAMETER ip-begin-vend-no AS CHAR NO-UNDO.
-  DEFINE INPUT PARAMETER ip-end-vend-no AS CHAR NO-UNDO.
+  DEFINE INPUT PARAMETER ip-begin-vend-no AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ip-end-vend-no AS CHARACTER NO-UNDO.
 
   /* gdm - 11190804 */
-  DEFINE VARIABLE v-outfile AS CHAR NO-UNDO.
+  DEFINE VARIABLE v-outfile AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lcSubject AS CHARACTER   NO-UNDO.
   DEFINE BUFFER bf-po-ord FOR po-ord.
-  DEF VAR llAttachExists AS LOG NO-UNDO.
+  DEFINE VARIABLE llAttachExists AS LOG NO-UNDO.
   SESSION:SET-WAIT-STATE ("").
   llAttachExists = NO.
 
@@ -1159,7 +1162,7 @@ PROCEDURE GenerateReport :
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name    EQ "POPaperClip" 
           AND sys-ctrl.log-fld EQ YES NO-ERROR.
-      IF AVAIL sys-ctrl OR lv-attachments THEN DO:        
+      IF AVAILABLE sys-ctrl OR lv-attachments THEN DO:        
 
         FOR EACH bf-attach NO-LOCK
             WHERE bf-attach.company EQ cocode
@@ -1169,7 +1172,7 @@ PROCEDURE GenerateReport :
           IF bf-attach.est-no GT "" THEN DO:
             FIND FIRST bf-po-ord WHERE TRIM(STRING(bf-po-ord.po-no)) EQ bf-attach.est-no
               NO-LOCK NO-ERROR.
-            IF NOT AVAIL bf-po-ord THEN
+            IF NOT AVAILABLE bf-po-ord THEN
               NEXT.
             IF bf-attach.rec_key NE bf-po-ord.rec_key THEN
               NEXT.
@@ -1178,7 +1181,7 @@ PROCEDURE GenerateReport :
         END.
         IF llAttachExists THEN DO:
 
-            IF AVAIL sys-ctrl AND sys-ctrl.int-fld EQ 1 THEN DO:
+            IF AVAILABLE sys-ctrl AND sys-ctrl.int-fld EQ 1 THEN DO:
                 v-outfile = "".
                 FOR EACH bf-attach NO-LOCK
                     WHERE bf-attach.company EQ cocode
@@ -1187,7 +1190,7 @@ PROCEDURE GenerateReport :
                     IF bf-attach.est-no GT "" THEN DO:
                       FIND FIRST bf-po-ord WHERE TRIM(STRING(bf-po-ord.po-no)) EQ bf-attach.est-no
                         NO-LOCK NO-ERROR.
-                        IF NOT AVAIL bf-po-ord THEN
+                        IF NOT AVAILABLE bf-po-ord THEN
                           NEXT.
                         IF bf-attach.rec_key NE bf-po-ord.rec_key THEN
                           NEXT.
@@ -1276,10 +1279,10 @@ PROCEDURE help-po-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-type AS INT NO-UNDO.
+  DEFINE INPUT PARAMETER ip-type AS INTEGER NO-UNDO.
 
-  DEF VAR char-val AS cha NO-UNDO.
-  DEF VAR lv-po-no AS CHAR NO-UNDO.
+  DEFINE VARIABLE char-val AS cha NO-UNDO.
+  DEFINE VARIABLE lv-po-no AS CHARACTER NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1331,8 +1334,8 @@ PROCEDURE output-to-fax-prt :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR lv-file-name AS cha FORM "x(60)" NO-UNDO.
-  DEF VAR lv-xpr-file AS cha FORM "x(60)" NO-UNDO.
+ DEFINE VARIABLE lv-file-name AS cha FORM "x(60)" NO-UNDO.
+  DEFINE VARIABLE lv-xpr-file AS cha FORM "x(60)" NO-UNDO.
 
   IF is-xprint-form THEN DO:
      FILE-INFO:FILE-NAME = list-name.
@@ -1439,8 +1442,8 @@ PROCEDURE run-report :
 /* Purchase Order Print Program - P/O Module                                  */
 /* -------------------------------------------------------------------------- */
 
-  DEFINE INPUT PARAM icVendNo AS CHAR NO-UNDO.
-  DEFINE INPUT PARAM ip-sys-ctrl-shipto AS LOG NO-UNDO.
+  DEFINE INPUT PARAMETER icVendNo AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
   {sys/form/r-top.i}
   
@@ -1480,7 +1483,7 @@ PROCEDURE run-report :
          WHERE sys-ctrl.company EQ cocode
            AND sys-ctrl.name    EQ "FAXSOFT"  NO-LOCK NO-ERROR.
   
-    IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
+    IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
   
       CREATE sys-ctrl.
       
@@ -1559,7 +1562,7 @@ PROCEDURE run-report :
          WHERE vend.company   EQ reftable.company
            AND vend.vend-no   EQ reftable.code
            AND vend.po-export EQ "" NO-ERROR.
-    IF AVAIL vend THEN vend.po-export = reftable.dscr.
+    IF AVAILABLE vend THEN vend.po-export = reftable.dscr.
     DELETE reftable.
   END.
  
@@ -1609,7 +1612,7 @@ PROCEDURE SetGlobalVariables :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-po-ord-no AS INT NO-UNDO.
+  DEFINE INPUT PARAMETER ip-po-ord-no AS INTEGER NO-UNDO.
 
   IF LOOKUP(v-print-fmt,"Pacific,Xprint,StClair,Boss,PeachTree,Xprint2,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
     THEN is-xprint-form = YES.
@@ -1640,7 +1643,7 @@ PROCEDURE SetPOPrintForm :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEFINE INPUT PARAM icPrintFormat  AS CHAR NO-UNDO.
+  DEFINE INPUT PARAMETER icPrintFormat  AS CHARACTER NO-UNDO.
 
   v-print-fmt = icPrintFormat.
 
@@ -1709,14 +1712,14 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-frame-hdl AS HANDLE NO-UNDO.
-  DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
-  DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
-  DEF VAR lv-field2-hdl AS HANDLE NO-UNDO.
-  DEF VAR parm-fld-list AS cha NO-UNDO.
-  DEF VAR parm-lbl-list AS cha NO-UNDO.
-  DEF VAR i AS INT NO-UNDO.
-  DEF VAR lv-label AS cha.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS cha NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label AS cha.
   
   lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE.
   lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
@@ -1794,7 +1797,7 @@ FUNCTION AttachmentExists RETURNS LOGICAL
 
             MESSAGE 'Failed to rename attachment file.' SKIP
                     'OS-ERROR: ' OS-ERROR
-              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+              VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
 
             RETURN FALSE.
           END.
@@ -1808,7 +1811,7 @@ FUNCTION AttachmentExists RETURNS LOGICAL
 
       IF SEARCH (lv-pdf-file) = ? THEN DO:
         MESSAGE 'Attachment File: ' lv-pdf-file ' is missing.'
-          VIEW-AS ALERT-BOX INFO BUTTONS OK.
+          VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
         RETURN FALSE.
       END.
     END.

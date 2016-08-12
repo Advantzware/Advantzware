@@ -2,102 +2,107 @@
 /* Purchase Order XPrint Program for N-K-POPRINT = metro */
 /* -------------------------------------------------------------------------- */
 
-DEF INPUT PARAMETER ip-multi-faxout AS LOG NO-UNDO. /* fax multiple recipents or single */
-DEF INPUT PARAM  ip-lines-per-page AS INT NO-UNDO.
-DEF STREAM st-fax.
+DEFINE INPUT PARAMETER ip-multi-faxout AS LOG NO-UNDO. /* fax multiple recipents or single */
+DEFINE INPUT PARAMETER  ip-lines-per-page AS INTEGER NO-UNDO.
+DEFINE STREAM st-fax.
 
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
 
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
+DEFINE BUFFER b-ref1  FOR reftable.
+DEFINE BUFFER b-ref2  FOR reftable.
 
 {po/po-print.i}
 
-def var v-wid like po-ordl.s-wid format ">>9.9999" no-undo.
-def var v-len like po-ordl.s-len format ">>9.9999" no-undo.
-def var pol-counter as int no-undo.
-def var save_id as recid.
-def var time_stamp as char.
-def var v-exp-limit as int no-undo init 10.
-def var v-line-number as int.
-def var v-page-counter as int format ">>9".
-def var v-lines-to-skip as int.
-def var v-sname like shipto.ship-name.
-def var v-saddr like shipto.ship-addr.
-def var v-scity like shipto.ship-city.
-def var v-sstate like shipto.ship-state.
-def var v-szip like shipto.ship-zip.
-def var v-po-type as char format "x(10)".
-def var v-freight-dscr as char format "x(7)".
-def var v-change-dscr as char format "x(7)".
-def var v-dash-line as char format "x(80)" extent 3.
-def var v-adders as log.
-def var xg-flag as log init no no-undo.
-def var v-space as log init yes.
-def var len-score as char.
-def buffer xjob-mat for job-mat.
-def buffer xitem for item.
-def var same-score as ch no-undo.
-def var v-test-scr as log no-undo.
-def var v-hdr as char format "x(15)" initial "" no-undo.
-def var v-ino-job as char format "x(15)" initial "" no-undo.
-def var v-change-ord as char format "x(35)" initial "" no-undo.
-DEF VAR v-tmp-lines AS DEC NO-UNDO.
-DEF VAR v-inst-lines AS INT NO-UNDO.
-DEF VAR v-inst AS cha FORM "x(80)" EXTENT 4 NO-UNDO.
-DEF VAR lv-tot-pg AS INT NO-UNDO.
-DEF VAR ln-cnt AS INT NO-UNDO.
-DEF VAR lv-pg-num AS INT NO-UNDO.
+DEFINE VARIABLE v-wid LIKE po-ordl.s-wid FORMAT ">>9.9999" NO-UNDO.
+DEFINE VARIABLE v-len LIKE po-ordl.s-len FORMAT ">>9.9999" NO-UNDO.
+DEFINE VARIABLE pol-counter AS INTEGER NO-UNDO.
+DEFINE VARIABLE save_id AS RECID.
+DEFINE VARIABLE time_stamp AS CHARACTER.
+DEFINE VARIABLE v-exp-limit AS INTEGER NO-UNDO INIT 10.
+DEFINE VARIABLE v-line-number AS INTEGER.
+DEFINE VARIABLE v-page-counter AS INTEGER FORMAT ">>9".
+DEFINE VARIABLE v-lines-to-skip AS INTEGER.
+DEFINE VARIABLE v-sname LIKE shipto.ship-name.
+DEFINE VARIABLE v-saddr LIKE shipto.ship-addr.
+DEFINE VARIABLE v-scity LIKE shipto.ship-city.
+DEFINE VARIABLE v-sstate LIKE shipto.ship-state.
+DEFINE VARIABLE v-szip LIKE shipto.ship-zip.
+DEFINE VARIABLE v-po-type AS CHARACTER FORMAT "x(10)".
+DEFINE VARIABLE v-freight-dscr AS CHARACTER FORMAT "x(7)".
+DEFINE VARIABLE v-change-dscr AS CHARACTER FORMAT "x(7)".
+DEFINE VARIABLE v-dash-line AS CHARACTER FORMAT "x(80)" EXTENT 3.
+DEFINE VARIABLE v-adders AS LOG.
+DEFINE VARIABLE xg-flag AS LOG INIT NO NO-UNDO.
+DEFINE VARIABLE v-space AS LOG INIT YES.
+DEFINE VARIABLE len-score AS CHARACTER.
+DEFINE BUFFER xjob-mat FOR job-mat.
+DEFINE BUFFER xitem FOR item.
+DEFINE VARIABLE same-score AS ch NO-UNDO.
+DEFINE VARIABLE v-test-scr AS LOG NO-UNDO.
+DEFINE VARIABLE v-hdr AS CHARACTER FORMAT "x(15)" INITIAL "" NO-UNDO.
+DEFINE VARIABLE v-ino-job AS CHARACTER FORMAT "x(15)" INITIAL "" NO-UNDO.
+DEFINE VARIABLE v-change-ord AS CHARACTER FORMAT "x(35)" INITIAL "" NO-UNDO.
+DEFINE VARIABLE v-tmp-lines AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-inst-lines AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-inst AS cha FORM "x(80)" EXTENT 4 NO-UNDO.
+DEFINE VARIABLE lv-tot-pg AS INTEGER NO-UNDO.
+DEFINE VARIABLE ln-cnt AS INTEGER NO-UNDO.
+DEFINE VARIABLE lv-pg-num AS INTEGER NO-UNDO.
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-setup FOR reftable.
+DEFINE BUFFER b-cost FOR reftable.
+DEFINE BUFFER b-qty FOR reftable.
+DEFINE BUFFER b-setup FOR reftable.
 
-DEF TEMP-TABLE tt-eiv NO-UNDO
-    FIELD run-qty AS DEC DECIMALS 3 EXTENT 20
-    FIELD run-cost AS DEC DECIMALS 4 EXTENT 20
-    FIELD setups AS DEC DECIMALS 2 EXTENT 20.
+DEFINE TEMP-TABLE tt-eiv NO-UNDO
+    FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
+    FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20
+    FIELD setups AS DECIMAL DECIMALS 2 EXTENT 20.
 
 
 /* === with xprint ====*/
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
+DEFINE VARIABLE ls-image1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS CHARACTER FORM "x(60)" NO-UNDO.    
+DEFINE VARIABLE ls-image2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-full-img2 AS CHARACTER FORM "x(150)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\metro.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+ASSIGN ls-image2 = "images\GPI Terms and Conditions 8-6-2014-page-001.jpg"
+       FILE-INFO:FILE-NAME = ls-image2
+       ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".
 
-DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-contact AS cha FORM "x(20)" NO-UNDO .
+DEFINE VARIABLE v-tel AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-fax AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-contact AS cha FORM "x(20)" NO-UNDO .
 
-DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-line-total AS DEC NO-UNDO.
-DEF VAR v-quo-total AS DEC NO-UNDO.
-def var v-t-tax      as   dec extent 3 NO-UNDO.
-def var v-bot-lab    as   char format "x(63)" extent 3 NO-UNDO.
-DEF VAR v-q-no LIKE oe-ord.q-no NO-UNDO.
-DEF VAR v-printline AS INT NO-UNDO.
-DEF VAR v-basis-w AS DEC NO-UNDO.
-DEF VAR v-dep AS DEC NO-UNDO.
-DEF VAR v-qty LIKE po-ordl.ord-qty NO-UNDO.
-DEF VAR v-tot-sqft AS DEC NO-UNDO.
-DEF VAR v-vend-item AS cha NO-UNDO.
-def var v-adder AS cha FORM "x(15)" extent 5 no-undo.
-def var v-num-add as int initial 0 no-undo.
-DEF VAR v-job-no AS cha NO-UNDO.
-DEF VAR v-cost AS DEC NO-UNDO.
-DEF VAR v-setup AS DEC NO-UNDO.
-DEF VAR lv-item-rec AS cha NO-UNDO.
-DEF VAR lv-got-return AS int NO-UNDO.
-v-dash-line = fill ("_",80).
+DEFINE VARIABLE v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-line-total AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-quo-total AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-t-tax      AS   DECIMAL EXTENT 3 NO-UNDO.
+DEFINE VARIABLE v-bot-lab    AS   CHARACTER FORMAT "x(63)" EXTENT 3 NO-UNDO.
+DEFINE VARIABLE v-q-no LIKE oe-ord.q-no NO-UNDO.
+DEFINE VARIABLE v-printline AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-basis-w AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-dep AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-qty LIKE po-ordl.ord-qty NO-UNDO.
+DEFINE VARIABLE v-tot-sqft AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-vend-item AS cha NO-UNDO.
+DEFINE VARIABLE v-adder AS cha FORM "x(15)" EXTENT 5 NO-UNDO.
+DEFINE VARIABLE v-num-add AS INTEGER INITIAL 0 NO-UNDO.
+DEFINE VARIABLE v-job-no AS cha NO-UNDO.
+DEFINE VARIABLE v-cost AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-setup AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lv-item-rec AS cha NO-UNDO.
+DEFINE VARIABLE lv-got-return AS INTEGER NO-UNDO.
+v-dash-line = FILL ("_",80).
 
 /*==============*/
-DEF VAR lv-file-name AS cha FORM "x(60)" NO-UNDO.
+DEFINE VARIABLE lv-file-name AS cha FORM "x(60)" NO-UNDO.
 OS-CREATE-DIR VALUE("c:\temp\fax") NO-ERROR.
 IF ip-multi-faxout THEN DO:
 
@@ -113,11 +118,11 @@ END.
 
 {po/po-print.f}
 
-assign v-hdr = "VEND ITEM".
+ASSIGN v-hdr = "VEND ITEM".
        
-find first company where company.company eq cocode NO-LOCK. 
-if avail company then
-assign
+FIND FIRST company WHERE company.company EQ cocode NO-LOCK. 
+IF AVAILABLE company THEN
+ASSIGN
  v-sname     = company.name
  v-saddr [1] = company.addr [1]
  v-saddr [2] = company.addr [2]
@@ -139,8 +144,8 @@ assign
           po-ordl.company EQ po-ord.company AND
           po-ordl.po-no EQ po-ord.po-no) THEN NEXT.        
 
-        find first vend where vend.company eq po-ord.company 
-                  and vend.vend-no eq po-ord.vend-no no-lock no-error.
+        FIND FIRST vend WHERE vend.company EQ po-ord.company 
+                  AND vend.vend-no EQ po-ord.vend-no NO-LOCK NO-ERROR.
 
         IF ip-multi-faxout AND FIRST-OF(po-ord.vend-no) THEN DO:
            OUTPUT CLOSE.
@@ -149,47 +154,47 @@ assign
            OUTPUT STREAM st-fax TO value("c:\temp\fax\fx" + po-ord.vend-no + ".txt").
            PUT STREAM st-fax UNFORMATTED "FAX#:" STRING(vend.fax-area,"x(3)") + STRING(vend.fax,"xxxxxxx") SKIP.
            PUT CONTROL "<PRINT=NO>".       
-           PUT UNFORMATTED "<EXPORT=c:\temp\fax\fx" trim(vend.vend-no) ".tif,BW>" .
+           PUT UNFORMATTED "<EXPORT=c:\temp\fax\fx" TRIM(vend.vend-no) ".tif,BW>" .
            /*
            PUT "FAX#:" cust.fax SKIP.*/
         END.
 
-      if po-ord.type eq "D" then
-        assign v-sname     = po-ord.ship-name
+      IF po-ord.type EQ "D" THEN
+        ASSIGN v-sname     = po-ord.ship-name
                v-saddr[1]  = po-ord.ship-addr[1]
                v-saddr[2]  = po-ord.ship-addr[2]
                v-scity     = po-ord.ship-city
                v-sstate    = po-ord.ship-state
-               v-szip      = IF length(po-ord.ship-zip) > 5 THEN string(po-ord.ship-zip,"xxxxx-xxxx")
+               v-szip      = IF LENGTH(po-ord.ship-zip) > 5 THEN STRING(po-ord.ship-zip,"xxxxx-xxxx")
                              ELSE po-ord.ship-zip.
 
       {po/exportpo.i}
 
-      assign v-page-counter  = 1
+      ASSIGN v-page-counter  = 1
              v-change-ord    = "".
 
-      if po-ord.stat eq "N" then
-        assign po-ord.stat = "O".
+      IF po-ord.stat EQ "N" THEN
+        ASSIGN po-ord.stat = "O".
 /*        
       else
       if po-ord.stat eq "U" then
         v-change-ord = "(CHANGED ORDER ONLY)".
 */
-      find first terms where terms.t-code eq po-ord.terms no-lock no-error.
-      find first carrier where carrier.company eq po-ord.company 
-                           and carrier.carrier eq po-ord.carrier no-lock no-error.
+      FIND FIRST terms WHERE terms.t-code EQ po-ord.terms NO-LOCK NO-ERROR.
+      FIND FIRST carrier WHERE carrier.company EQ po-ord.company 
+                           AND carrier.carrier EQ po-ord.carrier NO-LOCK NO-ERROR.
 
-      if po-ord.type eq "R" then
-        assign v-po-type = "Regular".
-      else
-        assign v-po-type = "Drop Ship".
+      IF po-ord.type EQ "R" THEN
+        ASSIGN v-po-type = "Regular".
+      ELSE
+        ASSIGN v-po-type = "Drop Ship".
 
-      if po-ord.frt-pay eq "P" then
-        assign v-freight-dscr = "Prepaid".
-      else if po-ord.frt-pay eq "C" then
-        assign v-freight-dscr = "Collect".
-      else
-        assign v-freight-dscr = "Bill".
+      IF po-ord.frt-pay EQ "P" THEN
+        ASSIGN v-freight-dscr = "Prepaid".
+      ELSE IF po-ord.frt-pay EQ "C" THEN
+        ASSIGN v-freight-dscr = "Collect".
+      ELSE
+        ASSIGN v-freight-dscr = "Bill".
 
 /*FORM HEADER SKIP*/
       v-printline = 0.
@@ -198,13 +203,13 @@ assign
       /*========*/
       lv-tot-pg = 1.
       ln-cnt = 0.
-      for each po-ordl WHERE
+      FOR EACH po-ordl WHERE
           po-ordl.company EQ po-ord.company AND
           po-ordl.po-no EQ po-ord.po-no NO-LOCK :
-          find item where item.company eq po-ordl.company
-                    and item.i-no    eq po-ordl.i-no
-                    and po-ordl.item-type
-                  no-lock no-error.
+          FIND item WHERE item.company EQ po-ordl.company
+                    AND item.i-no    EQ po-ordl.i-no
+                    AND po-ordl.item-type
+                  NO-LOCK NO-ERROR.
 
           FIND FIRST itemfg WHERE itemfg.company = po-ordl.company
                             AND itemfg.i-no = po-ordl.i-no NO-LOCK NO-ERROR.
@@ -226,7 +231,7 @@ assign
                v-inst-lines = v-inst-lines + v-tmp-lines. 
             END.
           END.
-          if v-inst-lines gt 0 then v-inst-lines = v-inst-lines + 1.
+          IF v-inst-lines GT 0 THEN v-inst-lines = v-inst-lines + 1.
           ln-cnt = ln-cnt + v-inst-lines.
        
           /* === spec note print */
@@ -235,8 +240,8 @@ assign
                    v-inst-lines = 0
                    lv-item-rec = "".
 
-            lv-item-rec = IF po-ordl.item-type AND AVAIL ITEM THEN ITEM.rec_key
-                      ELSE IF AVAIL itemfg THEN itemfg.rec_key
+            lv-item-rec = IF po-ordl.item-type AND AVAILABLE ITEM THEN ITEM.rec_key
+                      ELSE IF AVAILABLE itemfg THEN itemfg.rec_key
                       ELSE "".
             IF lv-item-rec <> "" THEN DO:
                FOR EACH notes WHERE notes.rec_key = lv-item-rec AND 
@@ -247,7 +252,7 @@ assign
                      v-inst-lines = v-inst-lines + v-tmp-lines. 
                    END.
                END.
-               if v-inst-lines gt 0 then v-inst-lines = v-inst-lines + 1.
+               IF v-inst-lines GT 0 THEN v-inst-lines = v-inst-lines + 1.
                ln-cnt = ln-cnt + v-inst-lines .
             END.
           END.
@@ -262,33 +267,33 @@ assign
               v-inst-lines = v-inst-lines + v-tmp-lines. 
            END.
       END.
-      if v-inst-lines gt 0 then v-inst-lines = v-inst-lines + 1.
+      IF v-inst-lines GT 0 THEN v-inst-lines = v-inst-lines + 1.
       ln-cnt = ln-cnt + v-inst-lines.     
                
       lv-tot-pg = lv-tot-pg + TRUNC( ln-cnt / 25,0) .  /* 23->47 25 po detail lines */
       /*  end of getting total page per po */
 
-      for each po-ordl WHERE
+      FOR EACH po-ordl WHERE
           po-ordl.company EQ po-ord.company AND
-          po-ordl.po-no EQ po-ord.po-no by po-ordl.line:
-        assign xg-flag = no.
-        if not v-printde-po and po-ordl.deleted then next.
-        assign v-change-dscr = "".
+          po-ordl.po-no EQ po-ord.po-no BY po-ordl.line:
+        ASSIGN xg-flag = NO.
+        IF NOT v-printde-po AND po-ordl.deleted THEN NEXT.
+        ASSIGN v-change-dscr = "".
 
-        if po-ordl.stat eq "A" THEN ASSIGN v-change-dscr = "Added".
-        else if po-ordl.stat eq "U" THEN assign v-change-dscr = "Updated".
-        else if po-ordl.stat eq "O" THEN assign v-change-dscr = "Open".
-        else if po-ordl.stat eq "P" then assign v-change-dscr = "Partial".
-        else if po-ordl.stat eq "C" then assign v-change-dscr = "Closed".
+        IF po-ordl.stat EQ "A" THEN ASSIGN v-change-dscr = "Added".
+        ELSE IF po-ordl.stat EQ "U" THEN ASSIGN v-change-dscr = "Updated".
+        ELSE IF po-ordl.stat EQ "O" THEN ASSIGN v-change-dscr = "Open".
+        ELSE IF po-ordl.stat EQ "P" THEN ASSIGN v-change-dscr = "Partial".
+        ELSE IF po-ordl.stat EQ "C" THEN ASSIGN v-change-dscr = "Closed".
 
-        if po-ordl.deleted eq yes then   assign v-change-dscr = "Deleted".
+        IF po-ordl.deleted EQ YES THEN   ASSIGN v-change-dscr = "Deleted".
 
-        assign v-ino-job = po-ordl.vend-i-no.
+        ASSIGN v-ino-job = po-ordl.vend-i-no.
         
-        find item where item.company eq po-ordl.company
-                    and item.i-no    eq po-ordl.i-no
-                    and po-ordl.item-type
-                  no-lock no-error.
+        FIND item WHERE item.company EQ po-ordl.company
+                    AND item.i-no    EQ po-ordl.i-no
+                    AND po-ordl.item-type
+                  NO-LOCK NO-ERROR.
         v-vend-item = (IF (AVAIL ITEM AND ITEM.vend-no = po-ord.vend) THEN ITEM.vend-item ELSE "")
                         +
                       (IF (AVAIL ITEM AND ITEM.vend2-no = po-ord.vend) THEN (" " + ITEM.vend2-item) ELSE "").
@@ -298,7 +303,7 @@ assign
 
 
         IF v-printline > 47 THEN DO:         
-           PUT "<R63><C70>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
+           PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg + 1) FORM "x(20)" .
            PAGE.
            v-printline = 0.
            {po/po-metro.i}
@@ -324,35 +329,35 @@ assign
            PUT po-ordl.dscr[1] AT 25 SKIP.    
                 
         v-printline = v-printline + 3.
-        assign v-line-number = v-line-number + 4.
+        ASSIGN v-line-number = v-line-number + 4.
   
         FIND FIRST itemfg WHERE itemfg.company = po-ordl.company
                             AND itemfg.i-no = po-ordl.i-no NO-LOCK NO-ERROR.
 
         IF v-vend-item <> "" THEN DO:
-           PUT trim(po-ord.vend) AT 25 "Item#: " v-vend-item FORMAT "x(15)" SKIP.
+           PUT TRIM(po-ord.vend) AT 25 "Item#: " v-vend-item FORMAT "x(15)" SKIP.
            v-line-number = v-line-number + 1.
            v-printline = v-printline + 1.
         END.
 
-        RUN calc-cost (recid(po-ordl),OUTPUT v-cost,OUTPUT v-setup).            
+        RUN calc-cost (RECID(po-ordl),OUTPUT v-cost,OUTPUT v-setup).            
 
-        IF AVAIL ITEM AND ITEM.mat-type = "C" THEN
-            put "W: " at 25 v-wid space(2) "L: " v-len  SPACE(2)
+        IF AVAILABLE ITEM AND ITEM.mat-type = "C" THEN
+            PUT "W: " AT 25 v-wid SPACE(2) "L: " v-len  SPACE(2)
                 "D: " ITEM.case-d FORM ">>>9.99<<".
         ELSE
-        put "W: " at 25 v-wid space(2) "L: " v-len  
+        PUT "W: " AT 25 v-wid SPACE(2) "L: " v-len  
                  "                          " 
           /*      STRING(v-cost) + " " + po-ordl.pr-uom + " $" +
                 STRING(v-setup) + "SETUP" FORM "x(25)"   
                  v-adder[5] AT 78  */
                /* space(2) v-vend-item FORM "x(20)" */  .
             
-            assign v-line-number = v-line-number + 1
+            ASSIGN v-line-number = v-line-number + 1
                    v-printline = v-printline + 1.       
 
-        put skip(1).
-        assign v-line-number = v-line-number + 1.
+        PUT SKIP(1).
+        ASSIGN v-line-number = v-line-number + 1.
         v-printline = v-printline + 1.
       /* calc total sq feet */
     
@@ -364,7 +369,7 @@ assign
         WHERE ITEM.company EQ po-ord.company
           AND ITEM.i-no    EQ po-ordl.i-no
         NO-LOCK NO-ERROR.
-    IF AVAIL ITEM THEN
+    IF AVAILABLE ITEM THEN
       ASSIGN
        v-basis-w = item.basis-w
        v-dep     = item.s-dep.
@@ -399,7 +404,7 @@ assign
                                      ELSE "" .              
            
            IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
-           THEN do:
+           THEN DO:
                   lv-got-return = lv-got-return + 1.
                   j = i.        
            END.
@@ -408,14 +413,14 @@ assign
     v-printline = v-printline + /* IF k < 5 THEN 4 ELSE*/  k.
 
     IF v-printline > 47 THEN DO:         
-           PUT "<R63><C70>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
+           PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg + 1) FORM "x(20)" .
               PUT "<FBook Antiqua>"
               /*    "<R56><C1><From><R56><C35><LINE>"
                   "<R55><C1>X"
                   "<R56><C5>Authorized Signature" */
                   "<R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
-                  " Acknowledge this order verifying price, freight terms, quantity, and delivery date." SKIP
-                  " INVOICES WILL BE PAID ACCORDING TO THIS PURCHASE ORDER ONLY!" SKIP
+                  "   – see attached page." SKIP
+                  "" SKIP
                   SKIP.    
            PAGE.
            v-printline = 0.
@@ -434,8 +439,8 @@ assign
                v-inst-lines = 0
                lv-item-rec = "".
 
-        lv-item-rec = IF po-ordl.item-type AND AVAIL ITEM THEN ITEM.rec_key
-                      ELSE IF AVAIL itemfg THEN itemfg.rec_key
+        lv-item-rec = IF po-ordl.item-type AND AVAILABLE ITEM THEN ITEM.rec_key
+                      ELSE IF AVAILABLE itemfg THEN itemfg.rec_key
                       ELSE "".
         IF lv-item-rec <> "" THEN DO:
            FOR EACH notes WHERE notes.rec_key = lv-item-rec AND 
@@ -446,17 +451,17 @@ assign
                 v-inst-lines = v-inst-lines + v-tmp-lines. 
               END.
            END.
-           if v-inst-lines gt 0 then v-inst-lines = v-inst-lines + 1.
+           IF v-inst-lines GT 0 THEN v-inst-lines = v-inst-lines + 1.
            v-printline = v-printline + v-inst-lines .
            IF v-printline > 47 THEN DO:         
-              PUT "<R63><C70>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
+              PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg + 1) FORM "x(20)" .
               PUT "<FBook Antiqua>"
                  /* "<R56><C1><From><R56><C35><LINE>"
                   "<R55><C1>X"
                   "<R56><C5>Authorized Signature" */
                   "<R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
-                  " Acknowledge this order verifying price, freight terms, quantity, and delivery date." SKIP
-                  " INVOICES WILL BE PAID ACCORDING TO THIS PURCHASE ORDER ONLY!" SKIP
+                  "   – see attached page." SKIP
+                  "" SKIP
                   SKIP.     
             
               PAGE.
@@ -482,7 +487,7 @@ assign
                                      ELSE "" .              
            
                   IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
-                  THEN do:
+                  THEN DO:
                      lv-got-return = lv-got-return + 1.
                      j = i.        
                   END.
@@ -493,7 +498,7 @@ assign
                   PUT {1} substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(80)" v-printline v-tmp-lines i SKIP.              
                   v-printline = v-printline + 1.
                END.*/
-           end.
+           END.
            DO i = 1 TO 4:
               IF v-inst[i] <> "" THEN PUT {1} v-inst[i] FORM "x(82)"  SKIP.              
            END.
@@ -501,17 +506,17 @@ assign
      END.
      /* === end of specnote print */
 
-  end. /* for each po-ordl record */
+  END. /* for each po-ordl record */
   
        IF v-printline > 47 THEN DO:                  
-          PUT "<R63><C70>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
+          PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg + 1) FORM "x(20)" .
               PUT "<FBook Antiqua>"
               /*    "<R56><C1><From><R56><C35><LINE>"
                   "<R55><C1>X"
                   "<R56><C5>Authorized Signature" */
                   "<R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
-                  " Acknowledge this order verifying price, freight terms, quantity, and delivery date." SKIP
-                  " INVOICES WILL BE PAID ACCORDING TO TIS PURCHASE ORDER ONLY!" SKIP
+                  "   – see attached page." SKIP
+                  " " SKIP
                   SKIP.     
           PAGE.
           v-printline = 0.
@@ -526,15 +531,15 @@ assign
                    /*PUT substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(80)" SKIP.              
                    v-printline = v-printline + 1.                                           */
                    IF i < 5  THEN  /* display upto 4 lines */
-                       ASSIGN v-inst[i] =  substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80)
+                       ASSIGN v-inst[i] =  SUBSTRING(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80)
                               v-printline = v-printline + 1.
                    ELSE LEAVE.
                 END.
 
-   end.
+   END.
   
        IF v-printline > 47 THEN DO:                  
-           PUT "<R63><C70>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
+           PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg + 1) FORM "x(20)" .
            PUT "<FBook Antiqua>"
                   "<R56><C1><From><R56><C35><LINE>"
                   "<R55><C1>X"
@@ -563,46 +568,52 @@ assign
                 /*v-bot-lab[2] */
     "<=8><R+4> Grand Total:" po-ord.t-cost FORM "->>>,>>9.99" 
     /*"<=8><R+5><C+10>Page " string(PAGE-NUM,">>9") + " of <#Pages>"  FORM "x(20)"   */
-    "<=8><R+5><C+10>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
+    "<=8><R+5><C+10>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg + 1) FORM "x(20)" .
 
 PUT "<FBook Antiqua>"
     "<R56><C1><From><R56><C35><LINE>"
     "<R55><C1>X"
     "<R56><C5>Authorized Signature"
     "<R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
-     " Acknowledge this order verifying price, freight terms, quantity, and delivery date." SKIP
-     " INVOICES WILL BE PAID ACCORDING TO THIS PURCHASE ORDER ONLY!" SKIP
+     "   – see attached page." SKIP
+     " " SKIP
      SKIP.     
-     
-IF last-of(po-ord.po-no) THEN lv-pg-num = PAGE-NUM.
-v-printline = v-printline + 6.
-IF v-printline <= page-size THEN PUT SKIP(74 - v-printline).
 
-end. /* for each po-ord record */.
+ PAGE.
+ PUT "<FCourier New>"   SKIP
+       "<C4><R1><#1><R+110><C+77>"    /* larger */
+         "<IMAGE#1=" ls-full-img2  SKIP  .  
+
+     
+IF LAST-OF(po-ord.po-no) THEN lv-pg-num = PAGE-NUMBER.
+v-printline = v-printline + 6.
+IF v-printline <= PAGE-SIZE THEN PUT SKIP(74 - v-printline).
+
+END. /* for each po-ord record */.
 
 /* END ---------------------------- Copr. 1992 - 1994  Advanced Software Inc. */
 
 
 PROCEDURE calc-cost:
 
- DEF INPUT PARAM ip-recid AS recid NO-UNDO.
- DEF OUTPUT PARAM op-cost AS DEC NO-UNDO.
- DEF OUTPUT PARAM op-setup AS DEC NO-UNDO.
- DEF VAR vv-qty  AS DEC NO-UNDO.
- DEF VAR vv-cost AS DEC NO-UNDO.
+ DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
+ DEFINE OUTPUT PARAMETER op-cost AS DECIMAL NO-UNDO.
+ DEFINE OUTPUT PARAMETER op-setup AS DECIMAL NO-UNDO.
+ DEFINE VARIABLE vv-qty  AS DECIMAL NO-UNDO.
+ DEFINE VARIABLE vv-cost AS DECIMAL NO-UNDO.
  
- DEF VAR vv-setup AS dec NO-UNDO.
- DEF VAR li AS INT NO-UNDO.
+ DEFINE VARIABLE vv-setup AS DECIMAL NO-UNDO.
+ DEFINE VARIABLE li AS INTEGER NO-UNDO.
 
- DEF VAR vv-basis-w AS DEC NO-UNDO.
+ DEFINE VARIABLE vv-basis-w AS DECIMAL NO-UNDO.
  /*DEF VAR v-len AS DEC NO-UNDO.
  DEF VAR v-wid AS DEC NO-UNDO. */
- DEF VAR vv-dep AS DEC NO-UNDO.
+ DEFINE VARIABLE vv-dep AS DECIMAL NO-UNDO.
  
- DEF VAR v-ord-qty AS dec NO-UNDO.
+ DEFINE VARIABLE v-ord-qty AS DECIMAL NO-UNDO.
 
- DEF BUFFER b-po-ordl FOR po-ordl.
- DEF BUFFER b-po-ord FOR po-ord.
+ DEFINE BUFFER b-po-ordl FOR po-ordl.
+ DEFINE BUFFER b-po-ord FOR po-ord.
  
  FIND b-po-ordl WHERE RECID(b-po-ordl) = ip-recid NO-LOCK .
  FIND FIRST b-po-ord WHERE
@@ -622,20 +633,20 @@ PROCEDURE calc-cost:
          AND e-item.i-no    EQ b-po-ordl.i-no
        NO-LOCK NO-ERROR.
 
-   IF AVAIL e-item THEN
+   IF AVAILABLE e-item THEN
    FIND FIRST e-item-vend OF e-item
        WHERE e-item-vend.vend-no EQ b-po-ord.vend-no
        NO-LOCK NO-ERROR.
 
-   IF AVAIL e-item-vend THEN DO:
+   IF AVAILABLE e-item-vend THEN DO:
      FIND FIRST ITEM
          WHERE ITEM.company EQ cocode
            AND ITEM.i-no    EQ b-po-ordl.i-no
          NO-LOCK NO-ERROR.
 
      ASSIGN
-      vv-basis-w = IF AVAIL ITEM THEN ITEM.basis-w ELSE vv-basis-w
-      vv-dep     = IF AVAIL ITEM THEN ITEM.s-dep ELSE vv-dep
+      vv-basis-w = IF AVAILABLE ITEM THEN ITEM.basis-w ELSE vv-basis-w
+      vv-dep     = IF AVAILABLE ITEM THEN ITEM.s-dep ELSE vv-dep
       vv-cost    = (b-po-ordl.cost)
       vv-qty     = (b-po-ordl.ord-qty).
 
@@ -663,7 +674,7 @@ PROCEDURE calc-cost:
           b-qty.code2   = e-item-vend.vend-no
           NO-LOCK NO-ERROR.
      
-     IF AVAIL b-qty THEN
+     IF AVAILABLE b-qty THEN
      DO:
         FIND FIRST b-cost WHERE
              b-cost.reftable = "vend-cost" AND
