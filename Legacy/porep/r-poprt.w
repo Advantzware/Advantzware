@@ -1013,10 +1013,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF v-print-fmt NE "Indiana" THEN
      ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
             tb_print-prices:SENSITIVE = NO.
-
-    IF v-print-fmt EQ "Metro" THEN
-        ASSIGN tb_print-terms:SENSITIVE = NO .
-
+    
     IF NOT poPaperClip-log THEN 
         ASSIGN tb_attachments:SCREEN-VALUE = "NO"
                tb_attachments:SENSITIVE    = NO.

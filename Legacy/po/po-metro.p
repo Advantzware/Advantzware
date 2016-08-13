@@ -201,7 +201,11 @@ ASSIGN
       {po/po-metro.i}
         
       /*========*/
-      lv-tot-pg = 1.
+      IF v-print-terms THEN
+          lv-tot-pg = 2.
+      ELSE
+          lv-tot-pg = 1.
+
       ln-cnt = 0.
       FOR EACH po-ordl WHERE
           po-ordl.company EQ po-ord.company AND
@@ -303,7 +307,7 @@ ASSIGN
 
 
         IF v-printline > 47 THEN DO:         
-           PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg + 1) FORM "x(20)" .
+           PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg ) FORM "x(20)" .
            PAGE.
            v-printline = 0.
            {po/po-metro.i}
@@ -413,12 +417,14 @@ ASSIGN
     v-printline = v-printline + /* IF k < 5 THEN 4 ELSE*/  k.
 
     IF v-printline > 47 THEN DO:         
-           PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg + 1) FORM "x(20)" .
+           PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
               PUT "<FBook Antiqua>"
               /*    "<R56><C1><From><R56><C35><LINE>"
                   "<R55><C1>X"
                   "<R56><C5>Authorized Signature" */
-                  "<R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
+                  "<R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP .
+               IF v-print-terms THEN
+                  PUT
                   "   – see attached page." SKIP
                   "" SKIP
                   SKIP.    
@@ -454,12 +460,14 @@ ASSIGN
            IF v-inst-lines GT 0 THEN v-inst-lines = v-inst-lines + 1.
            v-printline = v-printline + v-inst-lines .
            IF v-printline > 47 THEN DO:         
-              PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg + 1) FORM "x(20)" .
+              PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg ) FORM "x(20)" .
               PUT "<FBook Antiqua>"
                  /* "<R56><C1><From><R56><C35><LINE>"
                   "<R55><C1>X"
                   "<R56><C5>Authorized Signature" */
-                  "<R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
+                  "<R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP.
+              IF v-print-terms THEN
+                  PUT
                   "   – see attached page." SKIP
                   "" SKIP
                   SKIP.     
@@ -509,12 +517,14 @@ ASSIGN
   END. /* for each po-ordl record */
   
        IF v-printline > 47 THEN DO:                  
-          PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg + 1) FORM "x(20)" .
+          PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg ) FORM "x(20)" .
               PUT "<FBook Antiqua>"
               /*    "<R56><C1><From><R56><C35><LINE>"
                   "<R55><C1>X"
                   "<R56><C5>Authorized Signature" */
-                  "<R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
+                  "<R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP .
+              IF v-print-terms THEN
+                  PUT
                   "   – see attached page." SKIP
                   " " SKIP
                   SKIP.     
@@ -539,7 +549,7 @@ ASSIGN
    END.
   
        IF v-printline > 47 THEN DO:                  
-           PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg + 1) FORM "x(20)" .
+           PUT "<R63><C70>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg ) FORM "x(20)" .
            PUT "<FBook Antiqua>"
                   "<R56><C1><From><R56><C35><LINE>"
                   "<R55><C1>X"
@@ -568,21 +578,24 @@ ASSIGN
                 /*v-bot-lab[2] */
     "<=8><R+4> Grand Total:" po-ord.t-cost FORM "->>>,>>9.99" 
     /*"<=8><R+5><C+10>Page " string(PAGE-NUM,">>9") + " of <#Pages>"  FORM "x(20)"   */
-    "<=8><R+5><C+10>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg + 1) FORM "x(20)" .
+    "<=8><R+5><C+10>Page " STRING(PAGE-NUMBER - lv-pg-num,">>9") + " of " + string(lv-tot-pg ) FORM "x(20)" .
 
 PUT "<FBook Antiqua>"
     "<R56><C1><From><R56><C35><LINE>"
     "<R55><C1>X"
     "<R56><C5>Authorized Signature"
-    "<R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
-     "   – see attached page." SKIP
-     " " SKIP
-     SKIP.     
-
- PAGE.
- PUT "<FCourier New>"   SKIP
+    "<R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP .
+  IF v-print-terms THEN DO:
+    PUT "   – see attached page." SKIP
+        " " SKIP
+        SKIP.     
+   PAGE.
+   PUT "<FCourier New>"   SKIP
        "<C4><R1><#1><R+110><C+77>"    /* larger */
-         "<IMAGE#1=" ls-full-img2  SKIP  .  
+       "<IMAGE#1=" ls-full-img2  SKIP  . 
+  END.
+
+   
 
      
 IF LAST-OF(po-ord.po-no) THEN lv-pg-num = PAGE-NUMBER.
