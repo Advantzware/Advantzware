@@ -1821,7 +1821,7 @@ PROCEDURE SetInvForm :
              v-program      = "ar/rep/invpacif.p"
              lines-per-page = 66
              is-xprint-form = YES.
-       WHEN "Xprint" THEN
+       WHEN "Xprint" OR WHEN "invprint 1" OR WHEN "invprint 2" THEN
           ASSIGN
              v-program = "ar/rep/invxprnt.p"
              lines-per-page = 66
@@ -2203,6 +2203,7 @@ PROCEDURE SetInvForm :
 
    IF icFormName = "BOXTECH" THEN
       lv-prt-bypass = YES.
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
