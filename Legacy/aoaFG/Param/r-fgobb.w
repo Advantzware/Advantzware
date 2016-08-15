@@ -47,24 +47,26 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svAsOfDate btnCalendar-1 ~
-svAsOfDateOption svCustList btnCustList svAllCustNo svStartCustNo ~
-svEndCustNo svAllLoc svStartLoc svEndLoc svAllLocBin svStartLocBin ~
-svEndLocBin svAllItemNo svStartItemNo svEndItemNo svAllProdCategory ~
-svStartProdCategory svEndProdCategory svAllSalesRep svStartSalesRep ~
-svEndSalesRep svSort svPrintSetAndComponentsOnly svIncludeZeroBalance ~
-svIncludeCustomerOwnerdWarehouse svPrintSummaryByBinQty ~
-svOnlyCustomerOwnedWarehouse svIncludeInactiveItems svPrintCost svDLMATOnly 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svAsOfDate svAsOfDateOption ~
-svCustList svAllCustNo svStartCustNo startCustName svEndCustNo endCustName ~
-svAllLoc svStartLoc startLocName svEndLoc endLocName svAllLocBin ~
-svStartLocBin svEndLocBin svAllItemNo svStartItemNo startItemName ~
-svEndItemNo endItemName svAllProdCategory svStartProdCategory ~
-startProdCategoryName svEndProdCategory endProdCategoryName svAllSalesRep ~
-svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName svSort ~
-svPrintSetAndComponentsOnly svIncludeZeroBalance ~
-svIncludeCustomerOwnerdWarehouse svPrintSummaryByBinQty ~
-svOnlyCustomerOwnedWarehouse svIncludeInactiveItems svPrintCost svDLMATOnly 
+&Scoped-Define ENABLED-OBJECTS svCompany svShowQOHOlderThanDays svAsOfDate ~
+btnCalendar-1 svAsOfDateOption svCustList btnCustList svAllCustNo ~
+svStartCustNo svEndCustNo svAllLoc svStartLoc svEndLoc svAllLocBin ~
+svStartLocBin svEndLocBin svAllItemNo svStartItemNo svEndItemNo ~
+svAllProdCategory svStartProdCategory svEndProdCategory svAllSalesRep ~
+svStartSalesRep svEndSalesRep svSort svPrintSetAndComponentsOnly ~
+svIncludeZeroBalance svIncludeCustomerOwnerdWarehouse ~
+svPrintSummaryByBinQty svOnlyCustomerOwnedWarehouse svIncludeInactiveItems ~
+svPrintCost svDLMATOnly 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svShowQOHOlderThanDays ~
+svAsOfDate svAsOfDateOption svCustList svAllCustNo svStartCustNo ~
+startCustName svEndCustNo endCustName svAllLoc svStartLoc startLocName ~
+svEndLoc endLocName svAllLocBin svStartLocBin svEndLocBin svAllItemNo ~
+svStartItemNo startItemName svEndItemNo endItemName svAllProdCategory ~
+svStartProdCategory startProdCategoryName svEndProdCategory ~
+endProdCategoryName svAllSalesRep svStartSalesRep startSalesRepName ~
+svEndSalesRep endSalesRepName svSort svPrintSetAndComponentsOnly ~
+svIncludeZeroBalance svIncludeCustomerOwnerdWarehouse ~
+svPrintSummaryByBinQty svOnlyCustomerOwnedWarehouse svIncludeInactiveItems ~
+svPrintCost svDLMATOnly 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -173,6 +175,11 @@ DEFINE VARIABLE svEndSalesRep AS CHARACTER FORMAT "X(3)"
      LABEL "End Sales Rep" 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1.
+
+DEFINE VARIABLE svShowQOHOlderThanDays AS INTEGER FORMAT ">>9":U INITIAL 0 
+     LABEL "Only Show QOH Older Than" 
+     VIEW-AS FILL-IN 
+     SIZE 6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svStartCustNo AS CHARACTER FORMAT "X(8)" 
      LABEL "Start Customer" 
@@ -294,6 +301,8 @@ DEFINE VARIABLE svPrintSummaryByBinQty AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
+     svShowQOHOlderThanDays AT ROW 1.24 COL 63 COLON-ALIGNED HELP
+          "Enter Only Show QOH Older Than Days" WIDGET-ID 266
      svAsOfDate AT ROW 2.91 COL 23 COLON-ALIGNED HELP
           "Enter As Of Date" WIDGET-ID 72
      btnCalendar-1 AT ROW 2.91 COL 41 WIDGET-ID 76
@@ -351,8 +360,6 @@ DEFINE FRAME F-Main
           "Select Sort Option" NO-LABEL WIDGET-ID 84
      svPrintSetAndComponentsOnly AT ROW 31.48 COL 25 HELP
           "Select to Print Set and Components Only" WIDGET-ID 88
-     svIncludeZeroBalance AT ROW 31.48 COL 66 HELP
-          "Select to Include Zero Balance" WIDGET-ID 256
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -360,6 +367,8 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     svIncludeZeroBalance AT ROW 31.48 COL 66 HELP
+          "Select to Include Zero Balance" WIDGET-ID 256
      svIncludeCustomerOwnerdWarehouse AT ROW 32.67 COL 25 HELP
           "Select to Include Customer Ownerd Warehouse" WIDGET-ID 252
      svPrintSummaryByBinQty AT ROW 32.67 COL 66 HELP
@@ -372,6 +381,8 @@ DEFINE FRAME F-Main
           "Select to Print Cost" WIDGET-ID 262
      svDLMATOnly AT ROW 35.05 COL 66 HELP
           "Select to If Yes - DL/MAT Only" WIDGET-ID 264
+     "Days" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 1.24 COL 72 WIDGET-ID 268
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 30.05 COL 16 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 

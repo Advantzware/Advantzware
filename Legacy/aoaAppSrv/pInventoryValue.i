@@ -1,10 +1,11 @@
-/* pInventoryValue.i - auto generated 08.11.2016 @  9:21:25 pm from aoa/aoaParam.w */
+/* pInventoryValue.i - auto generated 08.15.2016 @  5:48:39 pm from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
 
     /* parameter values loaded into these variables */
+    DEFINE VARIABLE iShowQOHOlderThanDays AS INTEGER NO-UNDO.
     DEFINE VARIABLE dtAsOfDate AS DATE NO-UNDO.
     DEFINE VARIABLE cAsOfDateOption AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCustList AS LOGICAL NO-UNDO.
@@ -43,6 +44,7 @@
 
     /* load parameter values from above record into variables */
     ASSIGN
+        iShowQOHOlderThanDays = DYNAMIC-FUNCTION("fGetParamValue","svShowQOHOlderThanDays")
         dtAsOfDate = DATE(DYNAMIC-FUNCTION("fGetParamValue","svAsOfDate"))
         cAsOfDateOption = DYNAMIC-FUNCTION("fGetParamValue","svAsOfDateOption")
         dtAsOfDate = DYNAMIC-FUNCTION("fDateOptionDate",cAsOfDateOption,dtAsOfDate)
