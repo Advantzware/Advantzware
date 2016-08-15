@@ -177,22 +177,11 @@ ON CHOOSE OF btnCRM IN FRAME F-Main
 DO:
    DEFINE VARIABLE cHandle AS CHARACTER NO-UNDO.
 
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'CRM-source':U,OUTPUT cHandle).
-   RUN pCRM in WIDGET-HANDLE(cHandle).
-        /*
-        RUN init-object IN THIS-PROCEDURE (
-              INPUT  'panels/p-CRM.w':U ,
-              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-              INPUT  'Layout = ':U ,
-              OUTPUT h_CRM ).
-        RUN set-position IN h_CRM ( 1.00 , 51.00 ) NO-ERROR.
-        /* Size in UIB:  ( 1.81 , 7.80 ) */
-        */
-       
-   /*
-       /* Links to SmartViewer h_CRM. */
-       RUN add-link IN adm-broker-hdl ( h_phone , 'CRM':U , h_CRM ).
-       */
+   RUN util/chk-mod.p ("ASI", "zohoCRM.") NO-ERROR.
+   IF NOT ERROR-STATUS:ERROR THEN DO:
+       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'CRM-source':U,OUTPUT cHandle).
+       RUN pCRM in WIDGET-HANDLE(cHandle).
+   END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
