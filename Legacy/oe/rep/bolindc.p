@@ -411,9 +411,9 @@ PUT "<FBook Antiqua><R45><C1><P12><B>     Shipping Instructions: </B> <P9> " SKI
     "<=7><R+8><C9>CLASS   <C42>DESCRIPTION OF ARTICLES" SKIP
     "<C1><FROM><C80><LINE> "   SKIP
     /*v-frt-class FORM "x(40)" AT 10 */
-    "<=7><R+9><C10>70 (as FAK 55) <C36>Item #29280-sub 8, KD, other than corrugated, in packages" SKIP    
+    "<=7><R+9><C10>70 (as FAK 55) <C36>Item #29250-sub 8, KD, other than corrugated, in packages" SKIP    
     "<C1><FROM><C80><LINE> "   SKIP
-    "<=7><R+10><C10>100 (as FAK 55) <C36>Item #29275-sub 4, KD, corrugated, in packages" SKIP
+    "<=7><R+10><C10>100 (as FAK 55) <C36>Item #29250-sub 4, KD, corrugated, in packages" SKIP
     "<C1><FROM><C80><LINE> "   SKIP
     .
 
