@@ -40,8 +40,8 @@
     DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 
     /* locate parameter values record */
-    RUN pGetParamValues (ipcCompany, "r-fgobb.", ipcUserID, ipiBatch).
-
+    /*RUN pGetParamValues (ipcCompany, "r-fgobb.", ipcUserID, ipiBatch). */
+/*
     /* load parameter values from above record into variables */
     ASSIGN
         iShowQOHOlderThanDays = DYNAMIC-FUNCTION("fGetParamValue","svShowQOHOlderThanDays")
@@ -79,12 +79,18 @@
         cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
         cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
         .
-
+*/
+/*
     RUN pGetColumns (TEMP-TABLE ttInventoryValue:HANDLE,
                      cAvailableColumns,
                      cSelectedColumns
                      ).
-
+                     */
+    cAvailableColumns = "itemfg.cust-no,custName,itemfg.i-no,tag-No,tag,fgLotVal,itemfg.part-no,itemfg.i-name,jobNo,recDate," +
+                                "loc,bin,msfOnHand,costUom,relQty,qtyOnHand,lastSale,itemfg.procat," +
+                                "viewPo,linePo,relPo,sellPrice,ordPr,uomCost,totCost,matCost,labCost,salesRep," + 
+                                "sellValueFg,sellValueOrd,daysOld,custno,setHeader,qtyPerSet".
+    cSelectedColumns = cAvailableColumns. 
     IF lAllCustNo THEN
     ASSIGN
         cStartCustNo = CHR(32)
