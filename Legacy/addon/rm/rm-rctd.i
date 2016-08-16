@@ -1,2 +1,0 @@
-
-  {rm/rm-rctd.i}
