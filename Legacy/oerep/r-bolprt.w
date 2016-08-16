@@ -1109,7 +1109,7 @@ DO:
                       END.
                      
                       RUN SetVariables.
-                      RUN output-to-mail(INPUT b-oe-bolh.cust-no,YES).
+                      RUN output-to-mail(INPUT b-oe-bolh.cust-no,YES,b-oe-bolh.ship-id).
                    END.
                END. /*end for each*/
          END. /*sys-ctrl-shipto found*/
@@ -1127,7 +1127,7 @@ DO:
         
          RUN SetBOLForm(v-print-fmt).
          RUN SetVariables.
-         RUN output-to-mail(INPUT "",NO).
+         RUN output-to-mail(INPUT "",NO,"").
       END.
   
       if tb_MailBatchMode then
@@ -1603,9 +1603,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      sys-ctrl.name     = "BOLCERT"
      sys-ctrl.descrip  = "Print Certificate of Compliance forms?"
      sys-ctrl.log-fld  = no.
-    MESSAGE sys-ctrl.descrip
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE sys-ctrl.log-fld.
+   
   end.
   assign
    v-print-coc = sys-ctrl.log-fld
@@ -2945,10 +2943,10 @@ PROCEDURE GenerateMail :
     
     CASE icType:
 
-      WHEN 'Customer1':U  THEN RUN SendMail-1 (ic1stKey, 'Customer1').
-      WHEN 'Customer':U   THEN RUN SendMail-1 (ic1stKey, 'Customer').
-      WHEN 'ShipTo1':U    THEN RUN SendMail-1 (ic2ndKey, 'ShipTo1'). 
-      WHEN 'ShipTo':U     THEN RUN SendMail-1 (ic2ndKey, 'ShipTo'). 
+      WHEN 'Customer1':U  THEN RUN SendMail-1 (ic1stKey, 'Customer1',"").
+      WHEN 'Customer':U   THEN RUN SendMail-1 (ic1stKey, 'Customer',"").
+      WHEN 'ShipTo1':U    THEN RUN SendMail-1 (ic2ndKey, 'ShipTo1',""). 
+      WHEN 'ShipTo':U     THEN RUN SendMail-1 (ic2ndKey, 'ShipTo',""). 
 
     END CASE.
   END.
@@ -3195,7 +3193,8 @@ PROCEDURE output-to-mail :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
   DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
-
+  DEFINE INPUT PARAMETER ip-ship-id AS CHARACTER NO-UNDO.
+  
   ASSIGN
     v-s-bol             = begin_bol#
     v-e-bol             = end_bol#
@@ -3273,8 +3272,9 @@ PROCEDURE output-to-mail :
           ELSE RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  
       END.
      
-      if vcMailMode = 'Customer1' then RUN SendMail-1 (b1-cust.cust-no, 'Customer1'). /* Silent Mode */
-                                  else RUN SendMail-1 (b1-cust.cust-no, 'Customer').  /* Dialog Box */ 
+      if vcMailMode = 'Customer1' then RUN SendMail-1 (b1-cust.cust-no, 'Customer1', b1-oe-bolh.ship-id). /* Silent Mode */
+                                  else RUN SendMail-1 (b1-cust.cust-no, 'Customer', b1-oe-bolh.ship-id).  /* Dialog Box */
+
     END.
     
     /* Not XPrint */
@@ -4206,7 +4206,8 @@ PROCEDURE SendMail-1 :
 ------------------------------------------------------------------------------*/
   
   DEFINE INPUT PARAM icIdxKey   AS CHAR NO-UNDO.
-  DEFINE INPUT PARAM icRecType  AS CHAR NO-UNDO.    
+  DEFINE INPUT PARAM icRecType  AS CHAR NO-UNDO.  
+  DEFINE INPUT PARAMETER icShipId AS CHARACTER NO-UNDO.  
 
   DEFINE VARIABLE vcSubject   AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
@@ -4216,6 +4217,10 @@ PROCEDURE SendMail-1 :
           vcSubject   = IF tb_reprint THEN '[REPRINT] ' + vcSubject ELSE vcSubject
           vcMailBody  = "Please review attached Bill of Lading(s) for BOL #: " + vcBOLNums.
        
+  IF icShipId <> "" THEN icRecType = icRecType + "|" + icShipId. /* cust# + shipto */     
+  MESSAGE "sendmail-1: " icRectype skip
+   icshipid ":" icidxkey
+  VIEW-AS ALERT-BOX.
   RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-BOLPRT.',
                           input   lv-pdf-file,
