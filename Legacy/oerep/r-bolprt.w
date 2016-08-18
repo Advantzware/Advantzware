@@ -4218,9 +4218,7 @@ PROCEDURE SendMail-1 :
           vcMailBody  = "Please review attached Bill of Lading(s) for BOL #: " + vcBOLNums.
        
   IF icShipId <> "" THEN icRecType = icRecType + "|" + icShipId. /* cust# + shipto */     
-  MESSAGE "sendmail-1: " icRectype skip
-   icshipid ":" icidxkey
-  VIEW-AS ALERT-BOX.
+
   RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-BOLPRT.',
                           input   lv-pdf-file,
