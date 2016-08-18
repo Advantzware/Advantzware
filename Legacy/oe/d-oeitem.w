@@ -4715,7 +4715,7 @@ PROCEDURE display-est-detail :
         
         oe-ordl.part-dscr2:SCREEN-VALUE = itemfg.part-dscr2
         oe-ordl.part-dscr3:SCREEN-VALUE = itemfg.part-dscr3.
-        IF oe-ordl.price:SCREEN-VALUE = "0.00" THEN
+        IF DECIMAL(oe-ordl.price:SCREEN-VALUE) = 0 THEN
             ASSIGN
             oe-ordl.price:SCREEN-VALUE      = STRING(itemfg.sell-price) 
             oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
