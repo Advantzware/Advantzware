@@ -141,11 +141,11 @@
              v-program = "oe/rep/bolccc.p"
              is-xprint-form = YES
              lines-per-page = 64.
-       WHEN "Xprint" OR WHEN "bolfmt 1" THEN
+       WHEN "Xprint" THEN
           ASSIGN
              v-program = "oe/rep/bolxprnt.p"
              is-xprint-form = YES
-             lines-per-page = 80.
+             lines-per-page = 66.
          WHEN "Coburn" THEN
           ASSIGN
              v-program = "oe/rep/bolcobrn.p"
@@ -203,7 +203,7 @@
              lines-per-page = 66.
        WHEN "APC" THEN ASSIGN v-program = "oe/rep/bolxapc.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "P&PX" THEN ASSIGN v-program = "oe/rep/bolpnpx.p" is-xprint-form = YES lines-per-page = 66.
-       WHEN "Xprint2" OR WHEN "bolfmt 2" THEN ASSIGN v-program = "oe/rep/bolxprt2.p" is-xprint-form = YES lines-per-page = 66.
+       WHEN "Xprint2" THEN ASSIGN v-program = "oe/rep/bolxprt2.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "Chillicothe" THEN ASSIGN v-program = "oe/rep/bolchict.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "NSTOCK" THEN ASSIGN v-program = "oe/rep/bolnstok.p" is-xprint-form = YES lines-per-page = 80.
        WHEN "CSCIN" THEN ASSIGN v-program = "oe/rep/bolcscin.p" is-xprint-form = YES lines-per-page = 66.
