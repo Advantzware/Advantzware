@@ -42,8 +42,26 @@ IF ipType BEGINS 'CUSTOMER' THEN DO:
                        input  cust.email,     /* Email Address  */
                        input  ipGroupTitle,   /* Title          */
                        output ls-to-list).    /* Recepients     */
-    END.
+   END.
    ELSE ls-to-list = ''.
+   
+   if num-entries (ipType,"|") >= 2 then do:  /* shipto */
+      ls-to-list2 = "".  
+      FIND FIRST shipto NO-LOCK
+        WHERE shipto.company EQ g_company
+          AND shipto.cust-no EQ ipIdxKey
+          AND shipto.ship-id EQ entry(2,ipType,"|") NO-ERROR.
+
+      IF AVAILABLE shipto THEN DO:
+        vcRecordId = shipto.cust-no + ' ' + shipto.ship-id.
+        RUN buildToList (input  shipto.rec_key, /* Rec_Key        */
+                       input  '',             /* Email Address  */
+                       input  ipGroupTitle,   /* Title          */
+                       output ls-to-list2).    /* Recepients     */
+      END.
+      ELSE ls-to-list2 = ''.        
+   END.
+   IF ls-to-list2 <> "" THEN ls-to-list = ls-to-list2 + "," + ls-to-list. 
 END.
 
 ELSE IF ipType begins 'VENDOR' THEN DO:

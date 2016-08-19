@@ -64,6 +64,8 @@ DEFINE TEMP-TABLE ttMachineEmployeeTransactions NO-UNDO
 DEFINE TEMP-TABLE ttMachineTransactionSummary NO-UNDO
     {aoaAppSrv/ttFields.i}
     FIELD machine          AS CHARACTER LABEL "Machine"       FORMAT "x(6)"
+    FIELD custPartNo       AS CHARACTER LABEL "Cust Part"     FORMAT "x(15)"
+    FIELD custName         AS CHARACTER LABEL "Customer"      FORMAT "x(30)"
     FIELD jobNumber        AS CHARACTER LABEL "Job"           FORMAT "x(10)"
     FIELD mrHours          AS DECIMAL   LABEL "MR Hrs"        FORMAT ">>>9.99"
     FIELD runHours         AS DECIMAL   LABEL "Run Hrs"       FORMAT ">>>9.99"
@@ -188,6 +190,83 @@ FUNCTION fMachineTransactionSummary RETURNS HANDLE
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-pGetCustInfo) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCustInfo Procedure 
+PROCEDURE pGetCustInfo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER machtran FOR machtran.
+
+    DEFINE OUTPUT PARAMETER opcCustPartNo AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCustName   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcItemFG     AS CHARACTER NO-UNDO.
+
+    FIND FIRST job-mch NO-LOCK
+         WHERE job-mch.company  EQ machtran.company
+           AND job-mch.m-code   EQ machtran.machine
+           AND job-mch.job-no   EQ machtran.job_number
+           AND job-mch.job-no2  EQ machtran.job_sub
+           AND job-mch.frm      EQ machtran.form_number
+           AND job-mch.blank-no EQ machtran.blank_number
+           AND job-mch.pass     EQ machtran.pass_sequence
+         NO-ERROR.
+    IF AVAILABLE job-mch AND job-mch.i-no NE "" THEN DO:
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ machtran.company
+               AND itemfg.i-no    EQ job-mch.i-no
+             NO-ERROR.
+        IF AVAILABLE itemfg THEN
+        opcCustPartNo = itemfg.part-no.
+    END. /* avail job-mch */
+    RELEASE cust.
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company  EQ machtran.company
+           AND job-hdr.job-no   EQ machtran.job_number
+           AND job-hdr.job-no2  EQ machtran.job_sub
+           AND job-hdr.frm      EQ machtran.form_number
+           AND job-hdr.blank-no EQ machtran.blank_number
+         NO-ERROR.
+    IF NOT AVAILABLE job-hdr THEN
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company  EQ machtran.company
+           AND job-hdr.job-no   EQ machtran.job_number
+           AND job-hdr.job-no2  EQ machtran.job_sub
+           AND job-hdr.frm      EQ machtran.form_number
+         NO-ERROR.
+    IF NOT AVAILABLE job-hdr THEN
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company  EQ machtran.company
+           AND job-hdr.job-no   EQ machtran.job_number
+           AND job-hdr.job-no2  EQ machtran.job_sub
+         NO-ERROR.
+    IF AVAILABLE job-hdr THEN DO:
+        FIND FIRST cust NO-LOCK
+             WHERE cust.company EQ job-hdr.company
+               AND cust.cust-no EQ job-hdr.cust-no
+             NO-ERROR.
+        IF opcCustPartNo EQ "" THEN DO:
+            FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ machtran.company
+                   AND itemfg.i-no    EQ job-hdr.i-no
+                 NO-ERROR.
+            IF AVAILABLE itemfg THEN
+            opcCustPartNo = itemfg.part-no.
+        END. /* if cust part blank */
+    END. /* avail job-mch */
+    IF AVAILABLE cust   THEN opcCustName = cust.name.
+    IF AVAILABLE itemfg THEN opcItemFG   = itemfg.i-no.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-pMachineTransactions) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMachineTransactions Procedure 
@@ -201,6 +280,8 @@ PROCEDURE pMachineTransactions :
     
     /* local variables */
     DEFINE VARIABLE cCustPartNo AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustName   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemFG     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iStartTime  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iEndTime    AS INTEGER   NO-UNDO.
     
@@ -250,66 +331,14 @@ PROCEDURE pMachineTransactions :
               BY machtran.form_number
               BY machtran.blank_number
         :
-        IF FIRST-OF(machtran.blank_number) THEN DO:
-            cCustPartNo = "".
-            FIND FIRST job-mch NO-LOCK
-                 WHERE job-mch.company  EQ machtran.company
-                   AND job-mch.m-code   EQ machtran.machine
-                   AND job-mch.job-no   EQ machtran.job_number
-                   AND job-mch.job-no2  EQ machtran.job_sub
-                   AND job-mch.frm      EQ machtran.form_number
-                   AND job-mch.blank-no EQ machtran.blank_number
-                   AND job-mch.pass     EQ machtran.pass_sequence
-                 NO-ERROR.
-            IF AVAILABLE job-mch AND job-mch.i-no NE "" THEN DO:
-                FIND FIRST itemfg NO-LOCK
-                     WHERE itemfg.company EQ machtran.company
-                       AND itemfg.i-no    EQ job-mch.i-no
-                     NO-ERROR.
-                IF AVAILABLE itemfg THEN
-                cCustPartNo = itemfg.part-no.
-            END. /* avail job-mch */
-            RELEASE cust.
-            FIND FIRST job-hdr NO-LOCK
-                 WHERE job-hdr.company  EQ machtran.company
-                   AND job-hdr.job-no   EQ machtran.job_number
-                   AND job-hdr.job-no2  EQ machtran.job_sub
-                   AND job-hdr.frm      EQ machtran.form_number
-                   AND job-hdr.blank-no EQ machtran.blank_number
-                 NO-ERROR.
-            IF NOT AVAILABLE job-hdr THEN
-            FIND FIRST job-hdr NO-LOCK
-                 WHERE job-hdr.company  EQ machtran.company
-                   AND job-hdr.job-no   EQ machtran.job_number
-                   AND job-hdr.job-no2  EQ machtran.job_sub
-                   AND job-hdr.frm      EQ machtran.form_number
-                 NO-ERROR.
-            IF NOT AVAILABLE job-hdr THEN
-            FIND FIRST job-hdr NO-LOCK
-                 WHERE job-hdr.company  EQ machtran.company
-                   AND job-hdr.job-no   EQ machtran.job_number
-                   AND job-hdr.job-no2  EQ machtran.job_sub
-                 NO-ERROR.
-            IF AVAILABLE job-hdr THEN DO:
-                FIND FIRST cust NO-LOCK
-                     WHERE cust.company EQ job-hdr.company
-                       AND cust.cust-no EQ job-hdr.cust-no
-                     NO-ERROR.
-                IF cCustPartNo EQ "" THEN DO:
-                    FIND FIRST itemfg NO-LOCK
-                         WHERE itemfg.company EQ machtran.company
-                           AND itemfg.i-no    EQ job-hdr.i-no
-                         NO-ERROR.
-                    IF AVAILABLE itemfg THEN
-                    cCustPartNo = itemfg.part-no.
-                END. /* if cust part blank */
-            END. /* avail job-mch */
-        END. /* if first-of */
+        IF FIRST-OF(machtran.blank_number) THEN
+        RUN pGetCustInfo (BUFFER machtran, OUTPUT cCustPartNo, OUTPUT cCustName, OUTPUT cItemFG).
+        
         CREATE ttMachineTransactions.
         ASSIGN
             ttMachineTransactions.machine      = machtran.machine
             ttMachineTransactions.custPartNo   = cCustPartNo
-            ttMachineTransactions.custName     = IF AVAILABLE cust THEN cust.name ELSE ""
+            ttMachineTransactions.custName     = cCustName
             ttMachineTransactions.jobNumber    = machtran.job_number
             ttMachineTransactions.jobSub       = machtran.job_sub
             ttMachineTransactions.formNumber   = machtran.form_number
@@ -387,9 +416,12 @@ PROCEDURE pMachineTransactionSummary :
     {aoaAppSrv/pMachineTransactionSummary.i}
     
     /* local variables */
-    DEFINE VARIABLE cJobNo     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iStartTime AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iEndTime   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cCustPartNo AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustName   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemFG     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobNo      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iStartTime  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iEndTime    AS INTEGER   NO-UNDO.
     
     /* subject business logic */
     ASSIGN
@@ -431,42 +463,88 @@ PROCEDURE pMachineTransactionSummary :
                AND ttMachineTransactionSummary.jobNumber EQ cJobNo
              NO-ERROR.
         IF NOT AVAILABLE ttMachineTransactionSummary THEN DO:
+            RUN pGetCustInfo (BUFFER machtran, OUTPUT cCustPartNo, OUTPUT cCustName, OUTPUT cItemFG).
             CREATE ttMachineTransactionSummary.
             ASSIGN
-                ttMachineTransactionSummary.machine   = machtran.machine
-                ttMachineTransactionSummary.jobNumber = cJobNo
+                ttMachineTransactionSummary.machine    = machtran.machine
+                ttMachineTransactionSummary.custPartNo = cCustPartNo
+                ttMachineTransactionSummary.custName   = cCustName
+                ttMachineTransactionSummary.jobNumber  = cJobNo
                 .
         END. /* not avail */
+        FIND FIRST job-code NO-LOCK
+             WHERE job-code.code EQ machtran.charge_code
+             NO-ERROR.
+        IF NOT AVAILABLE job-code THEN NEXT.
+
+        CASE job-code.cat:
+            WHEN "MR" THEN
+            ASSIGN
+                ttMachineTransactionSummary.mrHours = ttMachineTransactionSummary.mrHours
+                                                    + machtran.total_time
+                ttMachineTransactionSummary.mrWaste = ttMachineTransactionSummary.mrWaste
+                                                    + machtran.waste_qty
+                .
+            WHEN "RUN" THEN
+            ASSIGN
+                ttMachineTransactionSummary.runHours = ttMachineTransactionSummary.runHours
+                                                     + machtran.total_time
+                ttMachineTransactionSummary.runWaste = ttMachineTransactionSummary.runWaste
+                                                     + machtran.waste_qty
+                .
+            OTHERWISE
+            ASSIGN
+                ttMachineTransactionSummary.dtHours = ttMachineTransactionSummary.dtHours
+                                                    + machtran.total_time
+                ttMachineTransactionSummary.mrWaste = ttMachineTransactionSummary.mrWaste
+                                                    + machtran.waste_qty
+                .
+        END CASE.
+
+        FOR EACH machemp NO-LOCK
+            WHERE machemp.table_rec_key EQ machtran.rec_key
+            :
+            ttMachineTransactionSummary.laborHours = ttMachineTransactionSummary.laborHours
+                                                   + machemp.total_time.
+        END. /* each machemp */
+
+        FIND FIRST job NO-LOCK
+             WHERE job.company EQ ipcCompany
+               AND job.job-no  EQ SUBSTRING(cJobNo,1,6)
+               AND job.job-no2 EQ INTEGER(SUBSTRING(cJobNo,8))
+             NO-ERROR.
+        IF AVAILABLE job THEN DO:
+            FIND FIRST eb NO-LOCK
+                 WHERE eb.company  EQ ipcCompany
+                   AND eb.est-no   EQ job.est-no
+                   AND eb.stock-no EQ cItemFG
+                 NO-ERROR.
+            IF AVAILABLE eb THEN
+            ttMachineTransactionSummary.numberOn = ttMachineTransactionSummary.numberOn + eb.num-up.
+        END. /* avail job */
+        
         ASSIGN
-            ttMachineTransactionSummary.mrHours          = ttMachineTransactionSummary.mrHours
-                                                         + 0
-            ttMachineTransactionSummary.runHours         = ttMachineTransactionSummary.runHours
-                                                         + 0
-            ttMachineTransactionSummary.dtHours          = ttMachineTransactionSummary.dtHours
-                                                         + 0
-            ttMachineTransactionSummary.totalHours       = ttMachineTransactionSummary.totalHours
-                                                         + 0
-            ttMachineTransactionSummary.laborHours       = ttMachineTransactionSummary.laborHours
-                                                         + 0
+            ttMachineTransactionSummary.totalHours       = ttMachineTransactionSummary.mrHours
+                                                         + ttMachineTransactionSummary.runHours
+                                                         + ttMachineTransactionSummary.dtHours
             ttMachineTransactionSummary.netPieces        = ttMachineTransactionSummary.netPieces
-                                                         + 0
-            ttMachineTransactionSummary.piecesPerHour    = ttMachineTransactionSummary.piecesPerHour
-                                                         + 0
-            ttMachineTransactionSummary.numberOn         = ttMachineTransactionSummary.numberOn
-                                                         + 0
-            ttMachineTransactionSummary.kicksPerHour     = ttMachineTransactionSummary.kicksPerHour
-                                                         + 0
-            ttMachineTransactionSummary.piecesPerManHour = ttMachineTransactionSummary.piecesPerManHour
-                                                         + 0
-            ttMachineTransactionSummary.mrWaste          = ttMachineTransactionSummary.mrWaste
-                                                         + 0
-            ttMachineTransactionSummary.runWaste         = ttMachineTransactionSummary.runWaste
-                                                         + 0
-            ttMachineTransactionSummary.totalWaste       = ttMachineTransactionSummary.totalWaste
-                                                         + 0
-            ttMachineTransactionSummary.wastePct         = ttMachineTransactionSummary.wastePct
-                                                         + 0
-            .
+                                                         + machtran.run_qty
+            ttMachineTransactionSummary.piecesPerHour    = ttMachineTransactionSummary.netPieces
+                                                         / ttMachineTransactionSummary.totalHours
+            ttMachineTransactionSummary.kicksPerHour     = ttMachineTransactionSummary.piecesPerHour
+                                                         / ttMachineTransactionSummary.numberOn
+            ttMachineTransactionSummary.piecesPerManHour = ttMachineTransactionSummary.netPieces
+                                                         / ttMachineTransactionSummary.laborHours
+            ttMachineTransactionSummary.totalWaste       = ttMachineTransactionSummary.mrWaste
+                                                         + ttMachineTransactionSummary.runWaste
+            ttMachineTransactionSummary.wastePct         = ttMachineTransactionSummary.totalWaste
+                                                         / (ttMachineTransactionSummary.totalWaste
+                                                         +  ttMachineTransactionSummary.netPieces)
+            .  
+        IF ttMachineTransactionSummary.kicksPerHour     EQ ? THEN ttMachineTransactionSummary.kicksPerHour     = 0.
+        IF ttMachineTransactionSummary.piecesPerHour    EQ ? THEN ttMachineTransactionSummary.piecesPerHour    = 0.
+        IF ttMachineTransactionSummary.piecesPerManHour EQ ? THEN ttMachineTransactionSummary.piecesPerManHour = 0.
+        IF ttMachineTransactionSummary.wastePct         EQ ? THEN ttMachineTransactionSummary.wastePct         = 0.
     END. /* each machtran */
 
 END PROCEDURE.

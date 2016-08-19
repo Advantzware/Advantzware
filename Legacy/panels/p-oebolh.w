@@ -292,6 +292,8 @@ DO:
     def var char-hdl as cha no-undo.
     run get-link-handle in adm-broker-hdl(this-procedure,"tableio-target", output char-hdl).
     run release-update in widget-handle(char-hdl).
+    
+        btn-release:LABEL = IF btn-release:LABEL EQ "Rel&ease" THEN "Hold" ELSE "Rel&ease" .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -463,6 +465,7 @@ PROCEDURE local-initialize :
      THEN RUN notify ('enable-fields, TABLEIO-TARGET':U).
   /* otherwise disable in case they were already enabled during initialization*/
   ELSE RUN notify('disable-fields, TABLEIO-TARGET':U). 
+   
 
 END PROCEDURE.
 
@@ -492,6 +495,7 @@ PROCEDURE set-buttons :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCheck-rel         AS CHARACTER NO-UNDO.
 
 DEF VAR char-hdl AS CHAR NO-UNDO.
 
@@ -654,6 +658,16 @@ DO WITH FRAME Panel-Frame:
        panel-state    NE "add-only"    THEN btn-save:SENSITIVE = YES.
     /*IF NOT v-can-run THEN btn-save:SENSITIVE = NO. */
   END.
+  
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
+      RUN check-release-update IN WIDGET-HANDLE(char-hdl) (OUTPUT cCheck-rel).
+      DO WITH FRAME {&FRAME-NAME}:
+          IF cCheck-rel EQ "H" THEN
+              btn-release:LABEL = "Rel&ease" .
+          ELSE
+              btn-release:LABEL =  "Hold" .
+      END.
+  END. /* VALID-HANDLE */
 
 END. /* DO WITH FRAME */
 

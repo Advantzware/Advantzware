@@ -1,7 +1,6 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
@@ -90,8 +89,8 @@ useDeptSort = SEARCH(findProgram('{&data}/',ID,'/useDeptSort.dat')) NE ?.
     ~{&OPEN-QUERY-browseJob}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 btnFilter btnPrint btnMoveResource ~
-btnRefresh jobPhrase btnSort resources browseJob 
+&Scoped-Define ENABLED-OBJECTS btnFilter btnPrint btnMoveResource ~
+btnRefresh RECT-1 jobPhrase btnSort resources browseJob 
 &Scoped-Define DISPLAYED-OBJECTS jobPhrase resources sortableColumns 
 
 /* Custom List Definitions                                              */
@@ -151,7 +150,7 @@ DEFINE VARIABLE sortableColumns AS CHARACTER FORMAT "X(256)":U INITIAL " Sortabl
      BGCOLOR 14  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 149.6 BY 1.19.
 
 /* Query definitions                                                    */
@@ -171,7 +170,7 @@ DEFINE BROWSE browseJob
   pendingJob.jobCompleted
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 149.6 BY 8.33 ROW-HEIGHT-CHARS .52.
+    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 149.6 BY 8.33.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -187,7 +186,7 @@ DEFINE FRAME F-Main
           "Click to Refresh Resource Browser"
      jobPhrase AT ROW 1.1 COL 5 COLON-ALIGNED
      btnSort AT ROW 1.1 COL 55
-     resources AT ROW 1.1 COL 104.6 HELP
+     resources AT ROW 1.1 COL 103.4 HELP
           "Select Resource"
      browseJob AT ROW 2.19 COL 1
      sortableColumns AT ROW 1.1 COL 35 COLON-ALIGNED NO-LABEL

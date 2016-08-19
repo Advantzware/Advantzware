@@ -1,7 +1,6 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
@@ -99,10 +98,11 @@ END.
     ~{&OPEN-QUERY-browseJob}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 btnFilter btnPrint btnDataCollection ~
+&Scoped-Define ENABLED-OBJECTS btnFilter btnPrint btnDataCollection ~
 btnLiveUpdate btnPendingReturn btnRefresh btnUnlock btnLock btnDetail ~
-btnDatePrompt btnRelatedJobs jobPhrase btnSort btnGoTo btnUpdate btnSetSeq ~
-browseJob btnJobNotes btnComplete btnUp btnDown btnPackJob btnSave 
+btnDatePrompt btnRelatedJobs RECT-1 jobPhrase btnSort btnGoTo btnUpdate ~
+btnSetSeq browseJob btnJobNotes btnComplete btnUp btnDown btnPackJob ~
+btnSave 
 &Scoped-Define DISPLAYED-OBJECTS jobPhrase sortableColumns 
 
 /* Custom List Definitions                                              */
@@ -274,7 +274,7 @@ DEFINE VARIABLE sortableColumns AS CHARACTER FORMAT "X(256)":U INITIAL " Sortabl
      BGCOLOR 14  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 149.6 BY 1.19.
 
 /* Query definitions                                                    */
@@ -298,7 +298,7 @@ ENABLE
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 143.6 BY 8.33
-         TITLE "Jobs by Resource" ROW-HEIGHT-CHARS .52.
+         TITLE "Jobs by Resource".
 
 
 /* ************************  Frame Definitions  *********************** */

@@ -7,19 +7,22 @@ PROCEDURE Get-Shift:
   DEFINE INPUT PARAMETER ip-optype AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER op-shift AS CHARACTER NO-UNDO.
 
-def var counter as int no-undo.
-def var tmp-shift as char no-undo.
-DEF VAR iEarliestShiftStart AS INT NO-UNDO.
-
-  {custom/getshift.i &file="machshft" &where="WHERE machshft.company = ip-company
-                                              AND machshft.machine = ip-machine"}
+  DEF VAR counter AS INT NO-UNDO.
+  DEF VAR tmp-shift AS CHAR NO-UNDO.
+  DEF VAR iEarliestShiftStart AS INT NO-UNDO.
   
-  if op-shift eq '' then
-    {custom/getshift.i &file="shifts" &WHERE="WHERE shifts.company = ip-company"}
-OUTPUT TO logs/get-shift.LOG APPEND.
-PUT UNFORMATTED "get-shift " "Mach " ip-machine " time " ip-time
-  " optype " ip-optype " op-shift " op-shift SKIP.
-OUTPUT CLOSE.
+  {custom/getshift.i &file="machshft" &where="WHERE machshft.company = ip-company AND machshft.machine = ip-machine"}
+  OUTPUT TO logs/get-shift.LOG APPEND.
+  EXPORT DELIMITER "|" "get-shiftp" "Day" TODAY "cTime" TIME "Mach " ip-machine " time " ip-time
+                    " optype " ip-optype " op-shift " op-shift SKIP.
+  OUTPUT CLOSE.  
+  IF op-shift EQ '' THEN DO:
+    {custom/getshift.i &file="shifts" &where="WHERE shifts.company = ip-company"}
+    OUTPUT TO logs/get-shift.LOG APPEND.
+    EXPORT DELIMITER "|" "get-shiftp1" "Day" TODAY "cTime" TIME "Mach " ip-machine " time " ip-time
+                      " optype " ip-optype " op-shift " op-shift SKIP.
+    OUTPUT CLOSE.
+  END.
 END PROCEDURE.
 
 PROCEDURE Missing-Shift:
@@ -44,11 +47,9 @@ PROCEDURE Shift-Data:
   DEFINE OUTPUT PARAMETER op-starttime AS INTEGER NO-UNDO.
   DEFINE OUTPUT PARAMETER op-endtime AS INTEGER NO-UNDO.
 
-  {custom/shftdata.i &file="machshft"
-    &where="machshft.company = ip-company AND machshft.machine = ip-machine AND "}
-  IF op-starttime NE 0 OR op-endtime NE 0 THEN
-  RETURN.
-  {custom/shftdata.i &file="shifts" &WHERE="shifts.company = ip-company AND "}
+  {custom/shftdata.i &file="machshft" &where="machshft.company = ip-company AND machshft.machine = ip-machine AND "}
+  IF op-starttime NE 0 OR op-endtime NE 0 THEN RETURN.
+  {custom/shftdata.i &file="shifts" &where="shifts.company = ip-company AND "}
   OUTPUT TO logs/shift-data.LOG APPEND.
   PUT UNFORMATTED "shift-data " "Mach " ip-machine " start " ip-shift
                   " startshift " op-starttime " op-endshift " op-endtime SKIP.

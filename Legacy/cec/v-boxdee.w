@@ -1105,7 +1105,7 @@ PROCEDURE local-assign-record :
      ASSIGN ls-lscore = ""
             li-start  = 0.    
   END.
-  FIND CURRENT box-design-line NO-LOCK.
+  FIND CURRENT box-design-line NO-LOCK NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
