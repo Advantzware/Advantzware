@@ -3705,7 +3705,7 @@ PROCEDURE run-report :
 DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
 DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
-IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,RFC,Premier,ASIExcel,Loylang,Printers,Badger") > 0 THEN DO:
+IF lookup(v-stmt-char,"ASIXprnt,RFC,Premier,ASIExcel,Loylang,Printers,Badger") > 0 THEN DO:
    RUN run-asistmt(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
    RETURN.
 END.
@@ -4254,7 +4254,7 @@ PROCEDURE run-report-mail :
 /* -------------------------------------------------------------------------- */
 DEFINE INPUT PARAM icCustNo   AS CHARACTER NO-UNDO.
 
-IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,Loylang,RFC,Premier,Badger,Printers") > 0 THEN DO:
+IF lookup(v-stmt-char,"ASIXprnt,Loylang,RFC,Premier,Badger,Printers") > 0 THEN DO:
    RUN run-asistmt-mail (icCustNo).
    RETURN.
 END.

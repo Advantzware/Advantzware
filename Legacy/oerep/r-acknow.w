@@ -2961,7 +2961,7 @@ PROCEDURE SetOEAckForm :
        WHEN "Pacific" THEN ASSIGN v-program = "oe/rep/ackpacif.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Hopx" THEN ASSIGN v-program = "oe/rep/ackhopx.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Carded" THEN ASSIGN v-program = "oe/rep/ackcared.p" is-xprint-form = YES lines-per-page = 68.  /* Task 09181303  */
-       WHEN "XPrint" OR WHEN "ackhead 1" OR WHEN "ackhead 2" THEN ASSIGN v-program = "oe/rep/ackxprnt.p" is-xprint-form = YES lines-per-page = 65.
+       WHEN "XPrint" THEN ASSIGN v-program = "oe/rep/ackxprnt.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Badger" THEN ASSIGN v-program = "oe/rep/ackbager.p" is-xprint-form = YES lines-per-page = 67. /* task 04021401 */
        WHEN "Hughes" THEN ASSIGN v-program = "oe/rep/ackhughes.p" is-xprint-form = YES lines-per-page = 65. 
        WHEN "Accord" THEN ASSIGN v-program = "oe/rep/ackacord.p" is-xprint-form = YES lines-per-page = 72.
