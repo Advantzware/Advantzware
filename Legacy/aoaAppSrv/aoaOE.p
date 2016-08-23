@@ -48,46 +48,40 @@ DEFINE TEMP-TABLE ttBOLPackingList NO-UNDO
 /* Orders Booked.rpa */
 DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
     {aoaAppSrv/ttFields.i}
+    FIELD salesRep     AS CHARACTER LABEL "Sales Rep"      FORMAT "X(3)"
+    FIELD salesRepName AS CHARACTER LABEL "Sales Rep Name" FORMAT "X(30)"
     FIELD dueDate      AS DATE      LABEL "Due Date"       FORMAT 99/99/9999
     FIELD orderNo      AS INTEGER   LABEL "Order No"       FORMAT ">>>>>>>"
     FIELD custNo       AS CHARACTER LABEL "Cust No"        FORMAT "X(8)"
     FIELD custName     AS CHARACTER LABEL "Customer Name"  FORMAT "X(30)"
-    FIELD salesRep     AS CHARACTER LABEL "Sales Rep"      FORMAT "X(3)"
-    FIELD salesRepName AS CHARACTER LABEL "Sales Name"     FORMAT "X(30)"
-    FIELD commPer      AS DECIMAL   LABEL "Comm "          FORMAT ">>>>>9.99"
+    FIELD commPer      AS DECIMAL   LABEL "Comm Pct"       FORMAT ">>>>>9.99"
     FIELD prodCode     AS CHARACTER LABEL "Prod Code"      FORMAT "x(8)"
+    FIELD qtyOrdEa     AS INTEGER   LABEL "Qty Ordered"    FORMAT ">,>>>,>>9"
+    FIELD custPartNo   AS CHARACTER LABEL "Customer Part"  FORMAT "x(15)" 
     FIELD fgItemNo     AS CHARACTER LABEL "FG Item"        FORMAT "X(15)"
     FIELD fgItemName   AS CHARACTER LABEL "FG Item Name"   FORMAT "X(30)"
-    FIELD qtyOrdEa     AS INTEGER   LABEL "Qty Ordered EA" FORMAT ">,>>>,>>>"
-    FIELD sqFit        AS DECIMAL   LABEL "Sq Ft"          FORMAT ">>,>>>.999"
-    FIELD totalSqfit   AS DECIMAL   LABEL "Total Sq Ft M"  FORMAT "->,>>>.999"
-    FIELD msfPrice     AS DECIMAL   LABEL "Msf"            FORMAT "->>,>>9.99"
-    FIELD price        AS DECIMAL   LABEL "Price"          FORMAT ">>>,>>9.99<<<<"
+    FIELD sqFt         AS DECIMAL   LABEL "Sq Ft"          FORMAT ">>,>>>.999"
+    FIELD totalSqft    AS DECIMAL   LABEL "Total SqFt"     FORMAT "->,>>>.999"
+    FIELD msfPrice     AS DECIMAL   LABEL "MSF"            FORMAT "->>,>>9.99"
+    FIELD price        AS DECIMAL   LABEL "Price"          FORMAT ">,>>>,>>9.99<<<<"
     FIELD orderAmount  AS DECIMAL   LABEL "Order Amount"   FORMAT "->,>>>,>>9.99"
-    FIELD profitPer    AS DECIMAL   LABEL "Profit"         FORMAT "->>,>>9.9"
+    FIELD profitPer    AS DECIMAL   LABEL "Profit"         FORMAT "->,>>>,>>9.9"
     FIELD totalTons    AS DECIMAL   LABEL "Total Tons"     FORMAT "->,>>>.9"
     FIELD ton          AS DECIMAL   LABEL "Ton"            FORMAT "->>,>>9.99"
-    FIELD vUserID      AS CHARACTER LABEL "Id"             FORMAT "x(8)"
-    FIELD custPartNo   AS CHARACTER LABEL "Cust Part"      FORMAT "x(15)" 
+    FIELD custPO       AS CHARACTER LABEL "Cust PO"        FORMAT "x(15)"
+    FIELD orderDate    AS DATE      LABEL "Order Date"     FORMAT 99/99/9999
     FIELD dieNo        AS CHARACTER LABEL "Die No"         FORMAT "x(15)"
-    .
-
-DEFINE TEMP-TABLE wkrecap NO-UNDO    /* recap by product category */
-    FIELD procat      LIKE itemfg.procat 
-    FIELD t-sqft      LIKE itemfg.t-sqft   EXTENT 2 
-    FIELD t-tons      AS   DECIMAL         EXTENT 2 
-    FIELD revenue     LIKE oe-ordl.t-price EXTENT 2 
-    FIELD price-per-m AS   DECIMAL         EXTENT 2
-    FIELD price-per-t AS   DECIMAL         EXTENT 2
-    FIELD num-of-ord  AS   INTEGER 
-    .
+    FIELD vUserID      AS CHARACTER LABEL "User ID"        FORMAT "x(8)"
+    FIELD xxSort       AS CHARACTER LABEL "Sort"           FORMAT "x(100)"
+        INDEX ttOrdersBooked IS PRIMARY rowType xxSort
+        .
 
 DEFINE TEMP-TABLE w-data NO-UNDO
     FIELD ord-no  LIKE oe-ord.ord-no
     FIELD line    LIKE oe-ordl.line
     FIELD sman    AS   CHARACTER 
     FIELD item-n  LIKE itemfg.i-name 
-    FIELD procat  LIKE itemfg.procat 
+    FIELD proCat  LIKE itemfg.proCat 
     FIELD qty     LIKE oe-ordl.qty   
     FIELD sqft    LIKE itemfg.t-sqft 
     FIELD t-sqft  LIKE itemfg.t-sqft 
@@ -102,7 +96,7 @@ DEFINE TEMP-TABLE w-data NO-UNDO
 
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD inv-no       AS   INTEGER 
-    FIELD chk-inv      AS   LOGICAL INIT YES
+    FIELD chk-inv      AS   LOGICAL INITIAL YES
     FIELD q-onh        LIKE itemfg.q-onh
     FIELD q-shp        LIKE itemfg.q-onh
     FIELD q-rel        LIKE itemfg.q-onh
@@ -122,7 +116,7 @@ DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
 DEFINE TEMP-TABLE ttOrderAcknowledgements NO-UNDO
     {aoaAppSrv/ttFields.i}
     FIELD custNo        AS CHARACTER LABEL "Customer ID"        FORMAT "x(8)"
-    FIELD ackNo         AS INTEGER   LABEL  "Acknowledgemwnt"   FORMAT ">>>>>>>>"
+    FIELD ackNo         AS INTEGER   LABEL "Acknowledgemwnt"    FORMAT ">>>>>>>>"
     FIELD phoneNo       AS CHARACTER LABEL "Telephone"          FORMAT "(999)999-9999"
     FIELD faxNo         AS CHARACTER LABEL "Fax"                FORMAT "(999) 999-9999"
     FIELD contact       AS CHARACTER LABEL "Contact"            FORMAT "x(30)"
@@ -160,7 +154,7 @@ DEFINE TEMP-TABLE ttOrderAcknowledgements NO-UNDO
     FIELD compCity      AS CHARACTER LABEL "Company City"       FORMAT "x(15)"
     FIELD compState     AS CHARACTER LABEL "Company State"      FORMAT "x(5)"
     FIELD compZip       AS CHARACTER LABEL "Company Zip"        FORMAT "x(8)"
-    FIELD compPhone     AS CHARACTER LABEL "Company Phone"      FORMAT "(999)999-9999"
+    FIELD compPhone     AS CHARACTER LABEL "Company Phone"      FORMAT "(999) 999-9999"
     FIELD compFax       AS CHARACTER LABEL "Company Fax"        FORMAT "(999) 999-9999" 
     FIELD compCustName  AS CHARACTER LABEL "Company  Name"      FORMAT "x(30)"
     FIELD compEmail     AS CHARACTER LABEL "Company email"      FORMAT "x(30)"
@@ -169,7 +163,7 @@ DEFINE TEMP-TABLE ttOrderAcknowledgements NO-UNDO
     FIELD csr           AS CHARACTER LABEL "CSR"                FORMAT "x(8)"
     FIELD over          AS DECIMAL   LABEL "Over"               FORMAT ">>9.99"
     FIELD under         AS DECIMAL   LABEL "Under"              FORMAT ">>9.99"
-    FIELD poOrder       AS CHARACTER      LABEL "Purchase Order"     FORMAT "x(15)"
+    FIELD poOrder       AS CHARACTER LABEL "Purchase Order"     FORMAT "x(15)"
     FIELD mfgDate       AS DATE      LABEL "Requested Mfg Date" FORMAT 99/99/9999
     FIELD frtCharge     AS CHARACTER LABEL "Freight Charge"     FORMAT "x(8)"
     FIELD pallet        AS DECIMAL   LABEL "Pallet"             FORMAT ">>>,>>9.99<<<<"
@@ -247,6 +241,23 @@ DEFINE TEMP-TABLE ttOrdersBookedByOrderNo NO-UNDO
     FIELD invoiceNo    AS INTEGER   LABEL "Invoice No"     FORMAT ">>>>>>"
     .
 /* Orders Booked By Order No.rpa */ 
+
+/* Recap Product Category.rpa */
+DEFINE TEMP-TABLE ttRecapProductCategory NO-UNDO
+    {aoaAppSrv/ttFields.i}
+    FIELD proCat          AS CHARACTER LABEL "Cat"                  FORMAT "x(5)"
+    FIELD catDscr         AS CHARACTER LABEL "Category Description" FORMAT "x(20)"
+    FIELD numOrders       AS INTEGER   LABEL "Orders"               FORMAT ">>>>9"
+    FIELD amountCurrent   AS DECIMAL   LABEL "Amount Current"       FORMAT "->>>,>>>,>>9.99"
+    FIELD sqFtCurrent     AS DECIMAL   LABEL "SqFt Current"         FORMAT ">>>9.999<<<"
+    FIELD priceMSFCurrent AS DECIMAL   LABEL "MSF Current"          FORMAT "->>>,>>>,>>9.99"
+    FIELD amountPeriod    AS DECIMAL   LABEL "Amount Period"        FORMAT "->>>,>>>,>>9.99"
+    FIELD sqFtPeriod      AS DECIMAL   LABEL "SqFt Period"          FORMAT ">>>9.999<<<"
+    FIELD priceMSFPeriod  AS DECIMAL   LABEL "MSF Period"           FORMAT "->>>,>>>,>>9.99"
+    FIELD dscr            AS CHARACTER LABEL "Description"          FORMAT "x(20)"
+        INDEX ttRecapProductCategory IS PRIMARY rowType proCat
+        .
+/* Recap Product Category.rpa */
 
 DEFINE TEMP-TABLE tt-fg-bin NO-UNDO LIKE fg-bin.
 
@@ -347,6 +358,19 @@ FUNCTION fOrdersBookedByOrderNo RETURNS HANDLE
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fRecapProductCategory) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fRecapProductCategory Procedure 
+FUNCTION fRecapProductCategory RETURNS HANDLE
+    ( ipcCompany AS CHARACTER,
+      ipiBatch   AS INTEGER,
+      ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -365,7 +389,7 @@ FUNCTION fOrdersBookedByOrderNo RETURNS HANDLE
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 18.14
+         HEIGHT             = 20.52
          WIDTH              = 60.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -1077,354 +1101,332 @@ Parameters:  Company, Batch Seq, User ID
 Notes:       
 ------------------------------------------------------------------------------*/
     {aoaAppSrv/pOrdersBooked.i}
+    {aoaAppSrv/pOrdersBookedLogic.i}
+
+    lPrtSqft = CAN-DO(cSelectedColumns,"sqFt").
+    RUN pOrdersBooked1 (ipcCompany,
+                        lPrtSqft,
+                        lPrintOrderUnderPct,
+                        lPrintOrderOverPct,
+                        iUnderValue,
+                        iOverValue
+                        ).
+    RUN pOrdersBooked2 (ipcCompany,
+                        lPrtSqft,
+                        lPrintOrderUnderPct,
+                        lPrintOrderOverPct,
+                        iUnderValue,
+                        iOverValue
+                        ).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pOrdersBooked1) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOrdersBooked1 Procedure 
+PROCEDURE pOrdersBooked1 :
+/*------------------------------------------------------------------------------
+Purpose:     OrdersBooked.rpa
+Parameters:  Company, PrtSqft, PrintOrderUnderPct, PrintOrderOverPct, UnderValue, OverValue
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrtSqft            AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrintOrderUnderPct AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrintOrderOverPct  AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiUnderValue         AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOverValue          AS INTEGER   NO-UNDO.
 
     /* local variables */
-    DEFINE VARIABLE i             AS   INTEGER             NO-UNDO.
-    DEFINE VARIABLE J             AS   INTEGER             NO-UNDO.
-    DEFINE VARIABLE K             AS   INTEGER             NO-UNDO.
-    DEFINE VARIABLE ii            LIKE i                   NO-UNDO.
-    DEFINE VARIABLE cv-code       AS   CHARACTER           NO-UNDO.
-    DEFINE VARIABLE lPrt-Sqft     AS   LOGICAL INITIAL YES NO-UNDO.
-    DEFINE VARIABLE dtMdate       AS   DATE                NO-UNDO.
-    DEFINE VARIABLE i-per-days    AS   INTEGER EXTENT 2    NO-UNDO INITIAL 0.
-    DEFINE VARIABLE v-n-lines     AS   INTEGER             NO-UNDO.
-    DEFINE VARIABLE cSalesRep     AS   CHARACTER           NO-UNDO.
-    DEFINE VARIABLE lExclude      AS   LOGICAL             NO-UNDO.
-    DEFINE VARIABLE lMisc         AS   LOGICAL             NO-UNDO.
-    DEFINE VARIABLE dPriceAmount  LIKE oe-ord.t-revenue    NO-UNDO.
-    DEFINE VARIABLE dPct          AS   DECIMAL             NO-UNDO.
-    DEFINE VARIABLE dTotalSqft    LIKE itemfg.t-sqft       NO-UNDO.
-    DEFINE VARIABLE dTotTons      AS   DECIMAL             NO-UNDO.
-    DEFINE VARIABLE dOrdQty       LIKE oe-ordl.qty         NO-UNDO.
-    DEFINE VARIABLE dMsfPrice     AS   DECIMAL             NO-UNDO.
-    DEFINE VARIABLE dPricePerTon  AS   DECIMAL             NO-UNDO.
-    DEFINE VARIABLE dRevenue      LIKE oe-ordl.t-price     NO-UNDO.
-    DEFINE VARIABLE dProfitPer    AS   DECIMAL             NO-UNDO.
-    DEFINE VARIABLE dMargin       AS   DECIMAL             NO-UNDO.
-    DEFINE VARIABLE cSalesName    LIKE sman.sname.       
-    DEFINE VARIABLE v             AS   INTEGER             NO-UNDO.
-    DEFINE VARIABLE qm            AS   DECIMAL             NO-UNDO.
-    DEFINE VARIABLE tb_sortby     AS   LOGICAL INIT NO     NO-UNDO.
-    DEFINE VARIABLE dtTrandate    LIKE dtStartOrderDate    NO-UNDO.
+    DEFINE VARIABLE i            AS   INTEGER          NO-UNDO.
+    DEFINE VARIABLE dPct         AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dPriceAmount LIKE oe-ord.t-revenue NO-UNDO.
+    DEFINE VARIABLE dRevenue     LIKE oe-ordl.t-price  NO-UNDO.
+    DEFINE VARIABLE dProfitPer   AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dOrdQty      LIKE oe-ordl.qty      NO-UNDO.
+    DEFINE VARIABLE dQM          AS   DECIMAL          NO-UNDO.
     
-    DEFINE BUFFER b-itemfg FOR itemfg.
-    FIND FIRST w-data NO-ERROR.    
-
-    FIND FIRST ce-ctrl NO-LOCK 
-         WHERE ce-ctrl.company EQ ipcCompany.
-    
-    FIND FIRST period NO-LOCK
-        WHERE period.company EQ ipcCompany
-        AND period.pst       LE dtEndOrderDate
-        AND period.pend      GE dtEndOrderDate
-        NO-ERROR.
-    dtTrandate = IF AVAILABLE period THEN MINIMUM(dtStartOrderDate,period.pst) ELSE dtStartOrderDate.
-    FOR EACH oe-ord NO-LOCK
-        WHERE oe-ord.company  EQ ipcCompany
-        AND oe-ord.cust-no  GE cStartCustNo
-        AND oe-ord.cust-no  LE cEndCustNo
-        AND oe-ord.ord-date GE dtTrandate
-        AND oe-ord.ord-date LE dtEndOrderDate
-        AND oe-ord.type     NE "T"
-        AND oe-ord.stat     NE "D"
-        BY oe-ord.company 
-        BY oe-ord.ord-date 
-        BY oe-ord.ord-no:
-        
-        IF lRelOrd THEN DO:
-            IF oe-ord.TYPE EQ "T" THEN NEXT.
-            cv-code = "".
-            FOR EACH oe-rel FIELDS(r-no) NO-LOCK 
-                WHERE oe-rel.company EQ oe-ord.company 
-                AND oe-rel.ord-no  EQ oe-ord.ord-no,
-                FIRST reftable NO-LOCK 
-                WHERE reftable.reftable EQ "oe-rel.s-code" 
-                AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") 
-                AND reftable.CODE EQ "T":
-                cv-code = "T".
-                LEAVE.
-            END.  /*FOR EACH oe-rel*/
-            IF cv-code EQ "T" THEN NEXT.
-        END.  /* if lRelOrd */
-
-        FOR EACH oe-ordl NO-LOCK
-            WHERE oe-ordl.company EQ ipcCompany
-            AND oe-ordl.ord-no  EQ oe-ord.ord-no
-            AND (oe-ordl.is-a-component EQ NO OR lSetCom EQ NO),
-            FIRST itemfg NO-LOCK
-            WHERE itemfg.company EQ ipcCompany
-            AND itemfg.i-no    EQ oe-ordl.i-no
-            AND itemfg.procat  GE  cStartProdCategory
-            AND itemfg.procat  LE cEndProdCategory
-            BREAK BY oe-ordl.line:
-            lExclude = YES.
-            
-            DO i = 1 TO 3:
-                IF lExclude 
-                    AND oe-ordl.s-man[i] GE cStartSalesRep 
-                    AND oe-ordl.s-man[i] LE cEndSalesRep 
-                    THEN lExclude = NO .
-            END.  /* do i.. */
-            
-            IF lExclude THEN NEXT.
-            lMisc = FALSE.
-            DO i = 1 TO 3:
-                IF lMisc THEN LEAVE.
-                IF oe-ordl.s-man[i] LT cStartSalesRep 
-                    OR oe-ordl.s-man[i] GT cEndSalesRep THEN NEXT.
-                /* if no salesman number then assign to misc, ie, blank no */
-                IF i EQ 1 
-                    AND oe-ordl.s-man[1] EQ "" 
-                    AND oe-ordl.s-man[2] EQ "" 
-                    AND oe-ordl.s-man[3] EQ "" THEN cSalesRep = "MISC".
-                ELSE   /* if blank salesman # then ignore */
-                    IF oe-ordl.s-man[i] EQ "" THEN NEXT.
-                    /* There must be at least 1 salesman in either pos'n 1, 2 or 3 */
-                    ELSE cSalesRep = oe-ordl.s-man[i].
-                IF oe-ord.ord-date GE  dtStartOrderDate 
-                    AND oe-ord.ord-date LE dtEndOrderDate THEN DO:
-                    CREATE tt-report.
-                    ASSIGN
-                        tt-report.term-id  = ""
-                        tt-report.key-01   = cSalesRep
-                        tt-report.key-02   = IF tb_sortby THEN STRING(oe-ord.ord-no,">>>>>>>>>>") ELSE ""
-                        tt-report.key-03   = STRING(i,"9")
-                        tt-report.rec-id   = RECID(oe-ordl).           
-                END.  /* if oe-ord.ord-date */
-                ASSIGN
-                    dPct  = oe-ordl.s-pct[i] / 100
-                    dOrdQty  = oe-ordl.qty * dPct
-                    dTotalSqft = itemfg.t-sqft * dOrdQty / 1000
-                    dTotTons = itemfg.weight-100 * dOrdQty / 100 / 2000
-                    dPriceAmount  = oe-ordl.t-price * dPct.
-                FIND FIRST wkrecap NO-LOCK
-                     WHERE wkrecap.procat EQ IF AVAILABLE itemfg THEN itemfg.procat ELSE ? NO-ERROR.
-                IF NOT AVAILABLE wkrecap THEN DO:
-                    CREATE wkrecap.
-                    ASSIGN
-                        wkrecap.procat     = IF AVAILABLE itemfg THEN itemfg.procat ELSE ?
-                        wkrecap.num-of-ord = wkrecap.num-of-ord + 1.
-                END.  /*if not avail wkrecap*/
-                ELSE wkrecap.num-of-ord = wkrecap.num-of-ord + 1.
-                j = IF oe-ord.ord-date GE  dtStartOrderDate 
-                    AND oe-ord.ord-date LE  dtEndOrderDate THEN 1 ELSE 2.
-               k = IF AVAILABLE period AND oe-ord.ord-date GE period.pst  
-                   AND oe-ord.ord-date LE period.pend THEN 2 ELSE 1.
-               IF j LE k THEN DO ii = j TO k:
-                   ASSIGN
-                       wkrecap.t-sqft[ii]  = wkrecap.t-sqft[ii] + dTotalSqft
-                       wkrecap.t-tons[ii]  = wkrecap.t-tons[ii] + dTotTons
-                       wkrecap.revenue[ii] = wkrecap.revenue[ii] + dPriceAmount.
-               END.  /*if j le k then*/
-            END.  /* do i = 1 to 3... */
-
-            IF oe-ord.ord-date NE dtMdate THEN DO:
-                dtMdate = oe-ord.ord-date.
-                IF oe-ord.ord-date GE  dtStartOrderDate 
-                    AND oe-ord.ord-date LE  dtEndOrderDate THEN
-                    i-per-days[1] = i-per-days[1] + 1.
-                IF AVAILABLE period AND oe-ord.ord-date GE period.pst  
-                    AND oe-ord.ord-date LE period.pend THEN
-                    i-per-days[2] = i-per-days[2] + 1.
-            END.  /*if oe-ord.ord-date ne dtMdate then do:*/
-        END.  /*for each oe-ordl no-lock*/ 
-
-        IF lMiscChg THEN
-        FOR EACH oe-ordm NO-LOCK
-            WHERE oe-ordm.company EQ ipcCompany
-            AND oe-ordm.ord-no  EQ oe-ord.ord-no:
-            lExclude = YES.
-            DO i = 1 TO 3:
-                IF lExclude AND
-                    oe-ordm.s-man[i] GE cStartSalesRep AND
-                    oe-ordm.s-man[i] LE cEndSalesRep THEN lExclude = NO.
-            END.  /* do i.. */
-
-            IF lExclude THEN NEXT.
-            /* At this point we have either 1, 2 or 3 valid salesman, in any  */
-            /* combination of the array. */
-            lMisc = FALSE.
-            DO i = 1 TO 3:
-                IF lMisc THEN LEAVE.
-                IF oe-ordm.s-man[i] LT cStartSalesRep OR
-                    oe-ordm.s-man[i] GT cEndSalesRep THEN NEXT.
-                /* if no salesman number then assign to misc, ie, blank no */
-                IF i EQ 1 AND
-                    oe-ordm.s-man[1] EQ "" AND
-                    oe-ordm.s-man[2] EQ "" AND
-                    oe-ordm.s-man[3] EQ "" THEN cSalesRep = "MISC".
-                ELSE   /* if blank salesman # then ignore */
-                    IF oe-ordm.s-man[i] EQ "" THEN NEXT.
-                    /* There must be at least 1 salesman in either pos'n 1, 2 or 3 */
-                    ELSE cSalesRep = oe-ordm.s-man[i].
-                    IF oe-ord.ord-date GE  dtStartOrderDate 
-                        AND oe-ord.ord-date LE  dtEndOrderDate THEN DO:
-                        CREATE tt-report.
-                        ASSIGN
-                            tt-report.term-id = ""
-                            tt-report.key-01  = cSalesRep
-                            tt-report.key-02  = IF tb_sortby THEN STRING(oe-ord.ord-no,">>>>>>>>>>") ELSE ""
-                            tt-report.key-03  = STRING(i,"9")
-                            tt-report.rec-id  = RECID(oe-ordm).
-                    END.  /*IF oe-ord.ord-date*/
-                    ASSIGN
-                        dPct = oe-ordm.s-pct[i] / 100
-                        dPriceAmount = oe-ordm.amt * dPct.
-                    FIND FIRST wkrecap NO-LOCK WHERE wkrecap.procat EQ "P/M" NO-ERROR.
-                    IF NOT AVAILABLE wkrecap THEN DO:
-                        CREATE wkrecap.
-                        ASSIGN
-                            wkrecap.procat     = "P/M"
-                            wkrecap.num-of-ord = wkrecap.num-of-ord + 1.
-                    END.  /*IF NOT AVAIL wkrecap*/ 
-                    ELSE wkrecap.num-of-ord = wkrecap.num-of-ord + 1.
-                    j = IF oe-ord.ord-date GE dtStartOrderDate 
-                        AND oe-ord.ord-date LE dtEndOrderDate THEN 1 ELSE 2.
-                    k = IF AVAILABLE period AND oe-ord.ord-date GE period.pst  
-                        AND oe-ord.ord-date LE period.pend THEN 2 ELSE 1.
-                    /* We cannot disturb loop variable i from within loop,so use ii: */
-
-                    IF j LE k THEN DO ii = j TO k:
-                        wkrecap.revenue[ii] = wkrecap.revenue[ii] + dPriceAmount.
-                    END.  /*IF j LE k*/
-            END.  /*do i = 1 to 3:*/
-        END.  /*for each oe-ordm no-lock*/   
-    END.  /* for each oe-ord */
-    
-    FOR EACH tt-report WHERE tt-report.term-id EQ ""
-        BREAK BY tt-report.key-01 BY tt-report.key-02:
+    FOR EACH tt-report
+        WHERE tt-report.term-id EQ ""
+        BREAK BY tt-report.key-01
+              BY tt-report.key-02
+        :
         FIND FIRST oe-ordm NO-LOCK
-            WHERE RECID(oe-ordm) EQ tt-report.rec-id NO-ERROR.
+             WHERE RECID(oe-ordm) EQ tt-report.rec-id
+             NO-ERROR.
+        IF AVAILABLE oe-ordm THEN
+        ASSIGN
+            i            = INTEGER(tt-report.key-03)
+            dPct         = oe-ordm.s-pct[i] / 100
+            dPriceAmount = oe-ordm.amt * dPct
+            dRevenue     = dPriceAmount
+            dProfitPer   = (dRevenue - (oe-ordm.cost * dPct)) / dRevenue * 100
+            .
+        ELSE DO:
+            FIND FIRST oe-ordl NO-LOCK
+                 WHERE RECID(oe-ordl) EQ tt-report.rec-id
+                 NO-ERROR.
+            IF AVAILABLE oe-ordl THEN
+            ASSIGN
+                i            = INTEGER(tt-report.key-03)
+                dPct         = oe-ordl.s-pct[i] / 100
+                dOrdQty      = oe-ordl.qty * dPct
+                dPriceAmount = oe-ordl.t-price * dPct
+                dQM          = oe-ordl.qty / 1000
+                dRevenue     = dPriceAmount
+                dProfitPer   = (dRevenue - (oe-ordl.cost * dQM)) / dRevenue * 100
+                .
+        END. /* else do */
+        
+        IF dProfitPer EQ ? THEN dProfitPer = 0.
+        
+        IF iplPrintOrderUnderPct AND iplPrintOrderOverPct THEN DO:
+            IF dProfitPer GE ipiUnderValue AND dProfitPer LE ipiOverValue THEN DELETE tt-report.
+        END.
+        ELSE IF iplPrintOrderUnderPct AND NOT iplPrintOrderOverPct THEN DO:
+            IF dProfitPer GE ipiUnderValue THEN DELETE tt-report.
+        END.
+        ELSE IF iplPrintOrderOverPct AND NOT iplPrintOrderUnderPct THEN DO:
+            IF dProfitPer LE ipiOverValue THEN DELETE tt-report.
+        END.
+    END.  /* for each tt-report */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pOrdersBooked2) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOrdersBooked2 Procedure 
+PROCEDURE pOrdersBooked2 :
+/*------------------------------------------------------------------------------
+Purpose:     OrdersBooked.rpa
+Parameters:  Company, PrtSqft, PrintOrderUnderPct, PrintOrderOverPct, UnderValue, OverValue
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrtSqft            AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrintOrderUnderPct AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrintOrderOverPct  AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiUnderValue         AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOverValue          AS INTEGER   NO-UNDO.
+
+    /* local variables */
+    DEFINE VARIABLE i            AS   INTEGER          NO-UNDO.
+    DEFINE VARIABLE dPct         AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dPriceAmount LIKE oe-ord.t-revenue NO-UNDO.
+    DEFINE VARIABLE dOrdQty      LIKE oe-ordl.qty      NO-UNDO.
+    DEFINE VARIABLE dTons        AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dSqft        AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE iLines       AS   INTEGER          NO-UNDO.
+    DEFINE VARIABLE dQM          AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dRevenue     LIKE oe-ordl.t-price  NO-UNDO.
+    DEFINE VARIABLE dMSFPrice    AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dPricePerTon AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dProfitPer   AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dMargin      AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE idx AS INTEGER     NO-UNDO.
+
+    DEFINE BUFFER bItemFG FOR itemfg.
+    
+    FOR EACH tt-report
+        WHERE tt-report.term-id EQ ""
+        BREAK BY tt-report.key-01
+              BY tt-report.key-02
+        :
+        FIND FIRST oe-ordm NO-LOCK
+             WHERE RECID(oe-ordm) EQ tt-report.rec-id
+             NO-ERROR.
         IF AVAILABLE oe-ordm THEN DO:
             FIND FIRST oe-ord OF oe-ordm NO-LOCK.
             ASSIGN
-                i            = INT(tt-report.key-03)
+                i            = INTEGER(tt-report.key-03)
                 dPct         = oe-ordm.s-pct[i] / 100
-                dPriceAmount = oe-ordm.amt * dPct.
-            ASSIGN
-                dRevenue     = dPriceAmount
-                dProfitPer   = (dRevenue - (oe-ordm.cost * dPct)) / dRevenue * 100
+                dPriceAmount = oe-ordm.amt * dPct
                 .
-        END.  /*if avail oe-ordm then do:*/
+            CREATE w-data.
+            ASSIGN
+                w-data.sman    = tt-report.key-01
+                w-data.ord-no  = oe-ordm.ord-no
+                w-data.line    = oe-ordm.line
+                w-data.misc    = YES
+                w-data.proCat  = "P/M"
+                w-data.qty     = 0
+                w-data.sqft    = 0
+                w-data.t-sqft  = 0
+                w-data.t-tons  = 0
+                w-data.item-n  = oe-ordm.dscr
+                w-data.cost    = oe-ordm.cost * dPct
+                w-data.price   = dPriceAmount
+                w-data.revenue = dPriceAmount
+                w-data.comm    = oe-ordm.s-comm[i]
+                .
+            FIND FIRST prep NO-LOCK
+                 WHERE prep.company EQ oe-ordm.company
+                   AND prep.code    EQ oe-ordm.charge
+                 NO-ERROR.
+            IF AVAILABLE prep THEN
+            w-data.proCat = IF prep.fgcat NE "" THEN prep.fgcat ELSE "P".
+            ELSE w-data.proCat = "M".
+        END. /* avail oe-ordm */
         ELSE DO:
-            FIND FIRST oe-ordl NO-LOCK 
-            WHERE RECID(oe-ordl) EQ tt-report.rec-id NO-ERROR.
-            ASSIGN
-                i             = INT(tt-report.key-03)
-                dPct          = oe-ordl.s-pct[i] / 100
-                dOrdQty       = oe-ordl.qty * dPct
-                dPriceAmount  = oe-ordl.t-price * dPct
-                qm            = oe-ordl.qty / 1000 .
-            ASSIGN
-                dRevenue      = dPriceAmount
-                dProfitPer    = (dRevenue - (oe-ordl.cost * qm)) / dRevenue * 100
-                .
-        END.  /*ELSE DO:*/
-        IF dProfitPer EQ ? THEN dProfitPer  = 0.
-        IF lPrt-Sqft THEN DO:       
-            /*==== new with selectable columns ====*/
-            IF lUnder AND lOver THEN DO:
-                IF dProfitPer GE iUnderValue AND dProfitPer LE iOverValue THEN 
-                    DELETE tt-report .
-            END. /*IF lUnder AND lOver THEN DO:*/
-            ELSE IF lUnder AND NOT lOver THEN DO:
-                IF dProfitPer GE iUnderValue THEN DELETE tt-report.
-            END.  /*ELSE IF lUnder AND NOT lOver THEN DO:*/
-            ELSE IF lOver AND NOT lUnder THEN DO:
-                IF dProfitPer LE iOverValue THEN DELETE tt-report.
-            END.  /*ELSE IF lOver AND NOT lUnder THEN DO:*/
-        END.  /* if lPrt-Sqft then do */
-        ELSE  DO:
-            IF lUnder AND dProfitPer GT iUnderValue THEN DELETE tt-report.
-            IF lOver AND dProfitPer LT iOverValue THEN DELETE tt-report.
-        END.  /* end of else do lPrt-Sqft */
-    END.  /* for each tt-report */
-    
-    FOR EACH tt-report WHERE tt-report.term-id EQ ""
-        BREAK BY tt-report.key-01 BY tt-report.key-02:
-        {aoaAppSrv/iOrdersBooked.i}
-        FIND FIRST oe-ordl NO-LOCK 
-         WHERE RECID(oe-ordl) EQ tt-report.rec-id NO-ERROR.
-        IF FIRST-OF(tt-report.key-01) THEN DO:
-            FIND FIRST sman NO-LOCK
-                WHERE sman.company EQ ipcCompany
-                AND sman.sman      EQ w-data.sman
-                NO-ERROR.
-            cSalesName = IF AVAILABLE sman THEN sman.sname
-                ELSE "* NOT IN SALES REP FILE *".
-        END.  /*IF FIRST-OF(tt-report.key-01) THEN DO:*/
+            FIND FIRST oe-ordl NO-LOCK
+                 WHERE RECID(oe-ordl) EQ tt-report.rec-id
+                 NO-ERROR.
+            IF AVAILABLE oe-ordl THEN DO:
+                FIND FIRST oe-ord OF oe-ordl NO-LOCK.
+                FIND FIRST itemfg NO-LOCK
+                     WHERE itemfg.company EQ ipcCompany
+                       AND itemfg.i-no    EQ oe-ordl.i-no
+                     NO-ERROR.
+                ASSIGN
+                    i            = INTEGER(tt-report.key-03)
+                    dPct         = oe-ordl.s-pct[i] / 100
+                    dOrdQty      = oe-ordl.qty * dPct
+                    dPriceAmount = oe-ordl.t-price * dPct
+                    dTons        = IF AVAILABLE itemfg THEN (itemfg.weight-100 * dOrdQty / 100 / 2000) ELSE 0
+                    .
+                IF AVAILABLE itemfg AND itemfg.isaset THEN DO:
+                   dSqft = 0.
+                   FOR EACH fg-set FIELDS(part-no part-qty) NO-LOCK
+                       WHERE fg-set.company EQ itemfg.company
+                         AND fg-set.set-no  EQ itemfg.i-no,
+                       FIRST bItemFG FIELDS(t-sqft) NO-LOCK
+                       WHERE bItemFG.company EQ itemfg.company
+                         AND bItemFG.i-no EQ fg-set.part-no
+                       :
+                       dSqft = dSqft + (dOrdQty
+                             * (IF fg-set.part-qty GE 0 THEN fg-set.part-qty
+                                ELSE (-1 / fg-set.part-qty))
+                             * bItemFG.t-sqft / 1000).
+                   END. /* each fg-set */
+                END.
+                ELSE dSqft = IF AVAILABLE itemfg THEN (itemfg.t-sqft * dOrdQty / 1000) ELSE 0.
+                CREATE w-data.
+                ASSIGN
+                    w-data.sman   = tt-report.key-01
+                    w-data.ord-no = oe-ordl.ord-no
+                    w-data.line   = oe-ordl.line
+                    w-data.misc   = NO
+                    iLines        = iLines + 1
+                    dQM           = oe-ordl.qty / 1000
+                    w-data.proCat = IF AVAILABLE itemfg THEN itemfg.proCat ELSE ""
+                    w-data.item-n = IF AVAILABLE itemfg THEN itemfg.i-name ELSE ""
+                    w-data.qty    = dOrdQty
+                    w-data.margin = oe-ordl.q-qty
+                    .
+                IF NOT oe-ordl.is-a-component THEN
+                ASSIGN
+                    w-data.sqft    = IF AVAILABLE itemfg THEN itemfg.t-sqft ELSE 0
+                    w-data.t-sqft  = dSqft
+                    w-data.t-tons  = dTons
+                    w-data.price   = oe-ordl.price
+                    w-data.revenue = dOrdQty
+                    w-data.cost    = oe-ordl.cost * dQM
+                    w-data.comm    = oe-ordl.s-comm[i]
+                    .
+            END. /* avail oe-ordl */
+        END. /* else do */
+
+        FIND FIRST oe-ordl NO-LOCK
+             WHERE RECID(oe-ordl) EQ tt-report.rec-id
+             NO-ERROR.
+        
         FIND FIRST oe-ord NO-LOCK
-            WHERE oe-ord.company EQ ipcCompany
-            AND oe-ord.ord-no    EQ w-data.ord-no
-            NO-ERROR.
+             WHERE oe-ord.company EQ ipcCompany
+               AND oe-ord.ord-no  EQ w-data.ord-no
+             NO-ERROR.
         FIND cust OF oe-ord NO-LOCK NO-ERROR.
+        
         ASSIGN
             dRevenue     = w-data.revenue
-            dMsfPrice    = dRevenue / w-data.t-sqft
+            dMSFPrice    = dRevenue / w-data.t-sqft
             dPricePerTon = dRevenue / w-data.t-tons
             dProfitPer   = (dRevenue - w-data.cost) / dRevenue * 100
-            dMargin      = w-data.margin.
-        IF dMsfPrice    EQ ? THEN dMsfPrice    = 0.
+            dMargin      = w-data.margin
+            .
+        IF dMSFPrice    EQ ? THEN dMSFPrice    = 0.
         IF dPricePerTon EQ ? THEN dPricePerTon = 0.
         IF dProfitPer   EQ ? THEN dProfitPer   = 0.
         IF dMargin      EQ ? THEN dMargin      = 0.
+        
         ACCUMULATE
             w-data.t-sqft (TOTAL BY tt-report.key-01)
             w-data.t-tons (TOTAL BY tt-report.key-01)
             dRevenue      (TOTAL BY tt-report.key-01)
-            w-data.cost   (TOTAL BY tt-report.key-01).
-
-        IF AVAILABLE oe-ordl THEN do:
+            w-data.cost   (TOTAL BY tt-report.key-01)
+            .
+        IF AVAILABLE oe-ordl THEN DO:
+            RELEASE eb.
             FIND FIRST itemfg NO-LOCK
-                WHERE itemfg.company EQ cocode
-                AND itemfg.i-no    EQ oe-ordl.i-no NO-ERROR.
-            
-            FIND FIRST eb NO-LOCK WHERE eb.company EQ cocode
-                AND eb.est-no  EQ oe-ordl.est-no
-                AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
+                 WHERE itemfg.company EQ ipcCompany
+                   AND itemfg.i-no    EQ oe-ordl.i-no
+                 NO-ERROR.
+            IF NOT AVAILABLE itemfg OR itemfg.die-no EQ "" THEN
+            FIND FIRST eb NO-LOCK
+                 WHERE eb.company  EQ ipcCompany
+                   AND eb.est-no   EQ oe-ordl.est-no
+                   AND eb.stock-no EQ oe-ordl.i-no
+                 NO-ERROR.
         END. /* avail oe-ordl  */
 
-        /*==== new with selectable columns ====*/
-        IF lUnder AND lOver THEN DO:
-            IF dProfitPer GE iUnderValue AND dProfitPer LE iOverValue THEN NEXT.
-        END. /*IF lUnder AND lOver THEN DO:*/
-        ELSE IF lUnder AND NOT lOver THEN DO:
-            IF dProfitPer GE iUnderValue THEN NEXT.
-        END. /*ELSE IF lUnder AND NOT lOver THEN DO:*/
-        ELSE IF lOver AND NOT lUnder THEN DO:
-            IF dProfitPer LE iOverValue THEN NEXT.
-        END. /*ELSE IF lOver AND NOT lUnder THEN DO:*/
+        IF iplPrintOrderUnderPct AND iplPrintOrderOverPct THEN DO:
+            IF dProfitPer GE ipiUnderValue AND dProfitPer LE ipiOverValue THEN NEXT.
+        END.
+        ELSE IF iplPrintOrderUnderPct AND NOT iplPrintOrderOverPct THEN DO:
+            IF dProfitPer GE ipiUnderValue THEN NEXT.
+        END.
+        ELSE IF iplPrintOrderOverPct AND NOT iplPrintOrderUnderPct THEN DO:
+            IF dProfitPer LE ipiOverValue THEN NEXT.
+        END.
 
-        PUT UNFORMATTED "ttOrdersBooked" SKIP.
+        FIND FIRST sman NO-LOCK
+             WHERE sman.company EQ ipcCompany
+               AND sman.sman    EQ w-data.sman
+             NO-ERROR.
+
         CREATE ttOrdersBooked.
         ASSIGN 
-            /*ttOrdersBooked.rowtype    =   oe-ord.due-date*/              
-            ttOrdersBooked.dueDate      =   oe-ord.due-date                    
-            ttOrdersBooked.orderNo      =   w-data.ord-no                      
-            ttOrdersBooked.custName     =   cust.name                   
-            ttOrdersBooked.custNo       =   cust.cust-no
-            ttOrdersBooked.salesRep     =   IF AVAILABLE sman THEN sman.sman ELSE ""
-            ttOrdersBooked.salesRepName =   IF AVAILABLE sman THEN sman.sname ELSE "" 
-            ttOrdersBooked.commPer      =   w-data.comm                      
-            ttOrdersBooked.prodCode     =   w-data.procat 
-            ttOrdersBooked.fgItemNo     =   oe-ordl.i-no                       
-            ttOrdersBooked.fgItemName   =   w-data.item-n                      
-            ttOrdersBooked.qtyOrdEa     =   w-data.qty                         
-            ttOrdersBooked.sqFit        =   w-data.sqft                     
-            ttOrdersBooked.totalSqfit   =   w-data.t-sqft                          
-            ttOrdersBooked.msfPrice     =   dMsfPrice                   
-            ttOrdersBooked.price        =   w-data.price                     
-            ttOrdersBooked.orderAmount  =   dRevenue                       
-            ttOrdersBooked.profitPer    =   dProfitPer                       
-            ttOrdersBooked.totalTons    =   w-data.t-tons                          
-            ttOrdersBooked.ton          =   dPricePerTon  
-            ttOrdersBooked.vUserID      =   oe-ord.user-id                  
-            ttOrdersBooked.custPartNo   =   oe-ordl.part-no
-            ttOrdersBooked.dieNo        =   IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN STRING(itemfg.die-no,"x(15)") ELSE IF AVAILABLE eb THEN STRING(eb.die-no,"x(15)") ELSE "" .
+            ttOrdersBooked.dueDate      = oe-ord.due-date                    
+            ttOrdersBooked.orderNo      = w-data.ord-no                      
+            ttOrdersBooked.custName     = IF AVAILABLE cust THEN cust.name ELSE ""
+            ttOrdersBooked.custNo       = oe-ord.cust-no
+            ttOrdersBooked.salesRep     = IF AVAILABLE sman THEN sman.sman ELSE ""
+            ttOrdersBooked.salesRepName = IF AVAILABLE sman THEN sman.sname ELSE "" 
+            ttOrdersBooked.commPer      = w-data.comm                      
+            ttOrdersBooked.prodCode     = w-data.proCat 
+            ttOrdersBooked.fgItemNo     = IF AVAILABLE oe-ordl THEN oe-ordl.i-no ELSE ""
+            ttOrdersBooked.fgItemName   = w-data.item-n
+            ttOrdersBooked.qtyOrdEa     = w-data.qty                         
+            ttOrdersBooked.sqFt         = w-data.sqft                     
+            ttOrdersBooked.totalSqft    = w-data.t-sqft                          
+            ttOrdersBooked.msfPrice     = dMSFPrice                   
+            ttOrdersBooked.price        = w-data.price                     
+            ttOrdersBooked.orderAmount  = dRevenue                       
+            ttOrdersBooked.profitPer    = dProfitPer                       
+            ttOrdersBooked.totalTons    = w-data.t-tons                          
+            ttOrdersBooked.ton          = dPricePerTon
+            ttOrdersBooked.custPO       = IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN oe-ordl.po-no ELSE oe-ord.po-no
+            ttOrdersBooked.orderDate    = oe-ord.ord-date
+            ttOrdersBooked.vUserID      = oe-ord.user-id                  
+            ttOrdersBooked.custPartNo   = IF AVAILABLE oe-ordl THEN oe-ordl.part-no ELSE ""
+            ttOrdersBooked.dieNo        = IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN itemfg.die-no
+                                     ELSE IF AVAILABLE eb THEN eb.die-no
+                                     ELSE ""
+            ttOrdersBooked.xxSort       = ttOrdersBooked.salesRep
+                                        + STRING(ttOrdersBooked.dueDate,"99/99/9999")
+                                        + STRING(ttOrdersBooked.orderNo)
             . 
         DELETE w-data.
-        DELETE tt-report.
-    END. /* for each tt-report */
+    END.  /* for each tt-report */
 
 END PROCEDURE.
 
@@ -1714,6 +1716,34 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pRecapProductCategory) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRecapProductCategory Procedure 
+PROCEDURE pRecapProductCategory :
+/*------------------------------------------------------------------------------
+Purpose:     Recap Product Category.rpa
+Parameters:  Company, Batch Seq, User ID
+Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/pRecapProductCategory.i}
+    {aoaAppSrv/pOrdersBookedLogic.i}
+
+    FOR EACH ttRecapProductCategory:
+        ASSIGN
+            ttRecapProductCategory.priceMSFCurrent = ttRecapProductCategory.amountCurrent / ttRecapProductCategory.sqFtCurrent
+            ttRecapProductCategory.priceMSFPeriod  = ttRecapProductCategory.amountPeriod  / ttRecapProductCategory.sqFtPeriod
+            .
+        IF ttRecapProductCategory.priceMSFCurrent EQ ? THEN ttRecapProductCategory.priceMSFCurrent = 0.
+        IF ttRecapProductCategory.priceMSFPeriod  EQ ? THEN ttRecapProductCategory.priceMSFPeriod  = 0.
+    END. /* each ttrecap */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fBOLPackingList) = 0 &THEN
@@ -1765,6 +1795,9 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Open Order Repoer.rpa */
         WHEN "r-ordopn." THEN
         RETURN TEMP-TABLE ttOpenOrderReport:HANDLE.
+        /* Recap Product Category.rpa */
+        WHEN "recappc." THEN
+        RETURN TEMP-TABLE ttRecapProductCategory:HANDLE.
     END CASE.
 
 END FUNCTION.
@@ -1834,6 +1867,7 @@ Purpose:  Order Booked.rpa
 Notes:  
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttOrdersBooked.
+    EMPTY TEMP-TABLE ttRecapProductCategory.
     
     RUN pOrdersBooked (ipcCompany, ipiBatch, ipcUserID).
     
@@ -1862,6 +1896,31 @@ Notes:
     RUN pOrdersBookedByOrderNo (ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttOrdersBookedByOrderNo:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fRecapProductCategory) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fRecapProductCategory Procedure 
+FUNCTION fRecapProductCategory RETURNS HANDLE
+    ( ipcCompany AS CHARACTER,
+      ipiBatch   AS INTEGER,
+      ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+Purpose:  Recap Product Category.rpa
+Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttOrdersBooked.
+    EMPTY TEMP-TABLE ttRecapProductCategory.
+    
+    RUN pRecapProductCategory (ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttRecapProductCategory:HANDLE .
 
 END FUNCTION.
 

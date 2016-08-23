@@ -1,4 +1,4 @@
-/* pOrdersBooked.i - auto generated 08.16.2016 @ 10:00:29 am from aoa/aoaParam.w */
+/* pRecapProductCategory.i - auto generated 08.19.2016 @ 11:08:46 am from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
@@ -30,7 +30,7 @@
     DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 
     /* locate parameter values record */
-    RUN pGetParamValues (ipcCompany, "r-booked.", ipcUserID, ipiBatch).
+    RUN pGetParamValues (ipcCompany, "recappc.", ipcUserID, ipiBatch).
 
     /* load parameter values from above record into variables */
     ASSIGN
@@ -61,7 +61,7 @@
         cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
         .
 
-    RUN pGetColumns (TEMP-TABLE ttOrdersBooked:HANDLE,
+    RUN pGetColumns (TEMP-TABLE ttRecapProductCategory:HANDLE,
                      cAvailableColumns,
                      cSelectedColumns
                      ).
@@ -84,4 +84,4 @@
         cEndProdCategory   = CHR(255)
         .
 
-    RUN pBuildCustList (ipcCompany, lCustList, cStartCustNo, cEndCustNo, "OR5").
+    RUN pBuildCustList (ipcCompany, lCustList, cStartCustNo, cEndCustNo, "OR17").
