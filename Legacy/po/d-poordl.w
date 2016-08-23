@@ -1630,8 +1630,8 @@ ON VALUE-CHANGED OF po-ordl.job-no2 IN FRAME Dialog-Frame /* Run # */
         ASSIGN
             ll-poord-warned = NO
             ll-pojob-warned = NO.
-        ASSIGN 
-            po-ordl.b-num:SCREEN-VALUE = ? .
+      /*  ASSIGN 
+            po-ordl.b-num:SCREEN-VALUE = ? . */
     END.
 
 /* _UIB-CODE-BLOCK-END */
