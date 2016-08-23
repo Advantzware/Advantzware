@@ -1229,6 +1229,7 @@ PROCEDURE pExcel :
     DEFINE VARIABLE chWorkBook  AS COM-HANDLE NO-UNDO.
     DEFINE VARIABLE chRangeRow  AS COM-HANDLE NO-UNDO.
     DEFINE VARIABLE chRangeCol  AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE idx         AS INTEGER    NO-UNDO.
     
     RUN pSaveParamValues (NO, BUFFER user-print).
 
@@ -1344,6 +1345,7 @@ PROCEDURE pExcel :
             END. /* do icolumn */
         END. /* show parameters */
 
+        /* run dynamic function (business subject) */
         ASSIGN
             chWorkSheet:Cells(iStatusRow,2):Value = "Running Query..."
             cDynFunc = "f" + REPLACE(aoaTitle," ","")
@@ -1383,6 +1385,7 @@ PROCEDURE pExcel :
                     ASSIGN
                         cFormat = hTable:BUFFER-FIELD(fieldName):FORMAT
                         cFormat = REPLACE(cFormat,">","#")
+                        cFormat = REPLACE(cFormat,"<","#")
                         cFormat = REPLACE(cFormat,"9","0")
                         .
                     IF INDEX(cFormat,"-") NE 0 THEN
@@ -1437,10 +1440,15 @@ PROCEDURE pExcel :
             IF hQueryBuf:BUFFER-FIELD("RowType"):BUFFER-VALUE() NE "Data" THEN NEXT.
             iRow = iRow + 1.
             DO iColumn = 1 TO svSelectedColumns:NUM-ITEMS:
-                ASSIGN
-                    fieldName = svSelectedColumns:ENTRY(iColumn)
-                    chWorkSheet:Cells(iRow,iColumn):Value = hTable:BUFFER-FIELD(fieldName):BUFFER-VALUE()
-                    .
+                fieldName = svSelectedColumns:ENTRY(iColumn).
+                chWorkSheet:Cells(iRow,iColumn):Value = hTable:BUFFER-FIELD(fieldName):BUFFER-VALUE() NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN
+                DO idx = 1 TO ERROR-STATUS:NUM-MESSAGES:
+                    MESSAGE "Row:" iRow "Column:" iColumn SKIP
+                        "Value:" hTable:BUFFER-FIELD(fieldName):BUFFER-VALUE() SKIP
+                        "Error:" ERROR-STATUS:GET-MESSAGE(idx)
+                        VIEW-AS ALERT-BOX ERROR.
+                END. /* do idx */
             END. /* do iColumn */
         END. /* repeat */
         hQuery:QUERY-CLOSE().
@@ -2360,6 +2368,13 @@ FUNCTION fSetDescription RETURNS CHARACTER
     cRange = REPLACE(ipObject:NAME,"sv","").
     
     CASE ipObject:NAME:
+        WHEN "svStartCompany" OR WHEN "svEndCompany" THEN DO:
+            cRange = REPLACE(cRange,"Company","").
+            FIND FIRST company NO-LOCK
+                 WHERE company.company EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE company THEN cDescription = company.name.
+        END.
         WHEN "svStartCustNo" OR WHEN "svEndCustNo" THEN DO:
             cRange = REPLACE(cRange,"CustNo","").
             FIND FIRST cust NO-LOCK
@@ -2367,6 +2382,14 @@ FUNCTION fSetDescription RETURNS CHARACTER
                    AND cust.cust-no EQ ipObject:SCREEN-VALUE
                  NO-ERROR.
             IF AVAILABLE cust THEN cDescription = cust.name.
+        END.
+        WHEN "svStartCurrency" OR WHEN "svEndCurrency" THEN DO:
+            cRange = REPLACE(cRange,"Currency","").
+            FIND FIRST currency NO-LOCK
+                 WHERE currency.company EQ aoaCompany
+                   AND currency.c-code EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE currency THEN cDescription = currency.c-desc.
         END.
         WHEN "svStartDept" OR WHEN "svEndDept" THEN DO:
             cRange = REPLACE(cRange,"Dept","").
@@ -2388,14 +2411,6 @@ FUNCTION fSetDescription RETURNS CHARACTER
             FIND FIRST loc NO-LOCK
                  WHERE loc.company EQ aoaCompany
                    AND loc.loc     EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE cust THEN cDescription = cust.name.
-        END.
-        WHEN "svStartLocBin" OR WHEN "svEndLocBin" THEN DO:
-            cRange = REPLACE(cRange,"LocBin","").
-            FIND FIRST cust NO-LOCK
-                 WHERE cust.company EQ aoaCompany
-                   AND cust.cust-no EQ ipObject:SCREEN-VALUE
                  NO-ERROR.
             IF AVAILABLE cust THEN cDescription = cust.name.
         END.
@@ -2430,6 +2445,14 @@ FUNCTION fSetDescription RETURNS CHARACTER
                    AND shift.shift   EQ INTEGER(ipObject:SCREEN-VALUE)
                  NO-ERROR.
             IF AVAILABLE shift THEN cDescription = shift.descr.
+        END.
+        WHEN "svStartTerms" OR WHEN "svEndTerms" THEN DO:
+            cRange = REPLACE(cRange,"Terms","").
+            FIND FIRST terms NO-LOCK
+                 WHERE terms.company EQ aoaCompany
+                   AND terms.t-code EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE terms THEN cDescription = terms.dscr.
         END.
         WHEN "svStartUserID" OR WHEN "svEndUserID" THEN DO:
             cRange = REPLACE(cRange,"UserID","").
