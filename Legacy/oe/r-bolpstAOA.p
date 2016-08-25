@@ -17,14 +17,15 @@
 */
 
 /* ***************************  Definitions  ************************** */
-DEFINE TEMP-TABLE ttPostBOLCreateInvoice
+DEFINE TEMP-TABLE ttPostBOLCreateInvoice NO-UNDO
+    {aoaAppSrv/ttFields.i}
     FIELD bolDate AS DATE      LABEL "Date" FORMAT "99/99/9999"
     FIELD bolNo   AS INTEGER   LABEL "BOL.#" FORMAT ">>>>>>>>9"
     FIELD carrier AS CHARACTER LABEL "Carrier" FORMAT "x(5)"
     FIELD trailer AS CHARACTER LABEL "Trailer" FORMAT "x(20)"
     FIELD freight AS DECIMAL   LABEL "Freight" FORMAT ">>,>>9.99"
     FIELD cwt     AS DECIMAL   LABEL "Rate" FORMAT ">>9.99"
-    FIELD totWgt  AS DECIMAL   LABEL "Tot WT" FORMAT ">>9.99"
+    FIELD totWgt  AS DECIMAL   LABEL "Tot WT" FORMAT ">>,>>9.99"
     FIELD custNo  AS CHARACTER LABEL "Cust#" FORMAT "x(5)"
     FIELD shipID  AS CHARACTER LABEL "Ship#" FORMAT "x(8)"
     FIELD deleted AS LOGICAL   LABEL "Deleted" FORMAT "YES/NO"
@@ -45,7 +46,7 @@ DEFINE TEMP-TABLE ttPostBOLCreateInvoice
 
 /* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER TABLE FOR ttPostBOLCreateInvoice.
+DEFINE OUTPUT PARAMETER TABLE FOR ttPostBOLCreateInvoice.
 
 DEFINE VARIABLE iplPost         AS LOG       INIT YES NO-UNDO.
 DEFINE VARIABLE lPost           AS LOG       NO-UNDO.
@@ -119,8 +120,8 @@ DEFINE VARIABLE cTransactionTime   AS CHARACTER FORMAT "x(20)":U LABEL "Time" NO
 ASSIGN
     cocode             = '001'
     locode             = 'main'
-    iStartBOLNumber    = 8417  
-    iEndBOLNumber      = 8417
+    iStartBOLNumber    = 8415
+    iEndBOLNumber      = 8415
     cStartingCustNo    = "TacoBell"
     cEndingCustNo      = "TacoBell"
     dtStartBOLDate     = 1/1/2015   

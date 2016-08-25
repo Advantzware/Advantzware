@@ -17,7 +17,7 @@ DEFINE TEMP-TABLE ttPostBOLCreateInvoice NO-UNDO
     FIELD trailer AS CHARACTER LABEL "Trailer" FORMAT "x(20)" 
     FIELD freight AS DECIMAL   LABEL "Freight" FORMAT ">>,>>9.99" 
     FIELD cwt     AS DECIMAL   LABEL "Rate" FORMAT ">>9.99"        
-    FIELD totWgt  AS DECIMAL   LABEL "Tot WT" FORMAT ">>9.99"   
+    FIELD totWgt  AS DECIMAL   LABEL "Tot WT" FORMAT ">>,>>9.99"   
     FIELD custNo  AS CHARACTER LABEL "Cust#" FORMAT "x(5)" 
     FIELD shipID  AS CHARACTER LABEL "Ship#" FORMAT "x(8)"  
     FIELD deleted AS LOGICAL   LABEL "Deleted"                                                            
@@ -41,7 +41,9 @@ DEFINE TEMP-TABLE ttPostBOLCreateInvoice NO-UNDO
 {sys/ref/CustList.i NEW}
 
 /* ***************************  Main Block  *************************** */
-
+DEFINE VARIABLE hBin AS HANDLE NO-UNDO.
+RUN aoaAppSrv/aoaBin.p PERSISTENT SET hBin.
+SESSION:ADD-SUPER-PROCEDURE (hBin).
 RUN pPostBOLCreateInvoice ("001",0,"asi").
 RUN aoa/aoaExcel.p (TEMP-TABLE ttPostBOLCreateInvoice:HANDLE).
 
@@ -59,7 +61,12 @@ PROCEDURE pPostBOLCreateInvoice:
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 
     /* subject business logic */
-    RUN oe/r-bolpstAOA.p (INPUT ipcCompany, INPUT TABLE ttPostBOLCreateInvoice).
+    RUN oe/r-bolpstAOA.p (INPUT ipcCompany, OUTPUT TABLE ttPostBOLCreateInvoice).
+output to c:\temp\test.txt.  
+for each ttPostBOLCreateInvoice:
+disp ttPostBOLCreateInvoice except rowType parameters with width 390  stream-io.  
+end.
+
 
 END PROCEDURE.
 
