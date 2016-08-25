@@ -17,42 +17,44 @@
 */
 
 /* ***************************  Definitions  ************************** */
+DEFINE TEMP-TABLE ttPostBOLCreateInvoice
+    FIELD bolDate AS DATE      LABEL "Date" FORMAT "99/99/9999"
+    FIELD bolNo   AS INTEGER   LABEL "BOL.#" FORMAT ">>>>>>>>9"
+    FIELD carrier AS CHARACTER LABEL "Carrier" FORMAT "x(5)"
+    FIELD trailer AS CHARACTER LABEL "Trailer" FORMAT "x(20)"
+    FIELD freight AS DECIMAL   LABEL "Freight" FORMAT ">>,>>9.99"
+    FIELD cwt     AS DECIMAL   LABEL "Rate" FORMAT ">>9.99"
+    FIELD totWgt  AS DECIMAL   LABEL "Tot WT" FORMAT ">>9.99"
+    FIELD custNo  AS CHARACTER LABEL "Cust#" FORMAT "x(5)"
+    FIELD shipID  AS CHARACTER LABEL "Ship#" FORMAT "x(8)"
+    FIELD deleted AS LOGICAL   LABEL "Deleted" FORMAT "YES/NO"
+    FIELD iNo     AS CHARACTER LABEL "Item#" FORMAT "x(1)"
+    FIELD iName   AS CHARACTER LABEL "Item Name" FORMAT "x(1)"
+    FIELD poNo    AS CHARACTER LABEL "P.O. #" FORMAT "x(1)"
+    FIELD ordNo   AS INTEGER   LABEL "Ord#" FORMAT ">>>>>>"
+    FIELD relNo   AS INTEGER   LABEL "Rel.#" FORMAT ">>>>>9"
+    FIELD bOrdNo  AS INTEGER   LABEL "B-Ord" FORMAT ">>>>>>>9"
+    FIELD loc     AS CHARACTER LABEL "Whse" FORMAT "x(1)"
+    FIELD locBin  AS CHARACTER LABEL "Bin Loc" FORMAT "x(8)"
+    FIELD tag     AS CHARACTER LABEL "Tag" FORMAT "x(1)"
+    FIELD cases   AS INTEGER   LABEL "Cases" FORMAT "->>>,>>9"
+    FIELD qtyCase AS INTEGER   LABEL "Qty/Case" FORMAT "->>>,>>9"
+    FIELD partial AS DECIMAL   LABEL "Partial" FORMAT ">>,>>9"
+    FIELD weight  AS INTEGER   LABEL "Weight" FORMAT ">>>>9"
+    .
 
 /* Parameters Definitions ---                                           */
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER TABLE FOR ttPostBOLCreateInvoice.
 
 DEFINE VARIABLE iplPost         AS LOG       INIT YES NO-UNDO.
 DEFINE VARIABLE lPost           AS LOG       NO-UNDO.
-DEFINE VARIABLE ipcCompany      AS CHARACTER NO-UNDO.
+
 DEFINE VARIABLE ipcUserLocation AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 /* {methods/defines/hndldefs.i &new=new} */
 
-DEFINE TEMP-TABLE ttBOLPostHeader                           
-    FIELD bolDate LIKE oe-bolh.BOL-date
-    FIELD bolNo   LIKE oe-bolh.BOL-no    
-    FIELD carrier LIKE oe-bolh.CARRIER 
-    FIELD trailer LIKE oe-bolh.TRAILER 
-    FIELD freight LIKE oe-bolh.FREIGHT 
-    FIELD cwt     LIKE oe-bolh.CWT         
-    FIELD totWgt  LIKE oe-bolh.TOT-WT   
-    FIELD custNo  LIKE oe-bolh.cust-no  
-    FIELD shipID  LIKE oe-bolh.ship-id  
-    FIELD deleted LIKE oe-bolh.deleted                                                                          
-    FIELD iNo     LIKE oe-boll.i-no                                                        
-    FIELD iName   LIKE itemfg.i-name                                   
-    FIELD poNo    LIKE oe-boll.po-no                                                          
-    FIELD ordNo   LIKE oe-boll.ord-no                                                        
-    FIELD relNo   LIKE oe-boll.rel-no                                                        
-    FIELD bOrdNo  LIKE oe-boll.b-ord-no                                                     
-    FIELD loc     LIKE oe-boll.loc                                                             
-    FIELD locBin  LIKE oe-boll.loc-bin                                                      
-    FIELD tag     LIKE oe-boll.tag                                                                                                                                                                                                                                       
-    FIELD cases   LIKE oe-boll.CASES                                                         
-    FIELD qtyCase LIKE oe-boll.qty-CASE                                                   
-    FIELD partial LIKE oe-boll.PARTIAL                                                     
-    FIELD weight  LIKE oe-boll.WEIGHT  
-    .                 
 
 {custom/gcompany.i}
 {custom/gloc.i}
@@ -431,18 +433,18 @@ PROCEDURE exception-rpt :
         /* IF FIRST-OF(w-except.bol-no) THEN */ 
         DO:
 
-            CREATE ttBolPostHeader.
+            CREATE ttPostBOLCreateInvoice.
             ASSIGN
-                ttBolPostHeader.bolDate = oe-bolh.bol-date
-                ttBolPostHeader.bolNo   = oe-bolh.bol-no
-                ttBolPostHeader.carrier = oe-bolh.carrier
-                ttBolPostHeader.trailer = oe-bolh.trailer
-                ttBolPostHeader.freight = oe-bolh.freight
-                ttBolPostHeader.cwt     = oe-bolh.cwt
-                ttBolPostHeader.totWgt  = oe-bolh.tot-wt
-                ttBolPostHeader.custNo  = oe-bolh.cust-no
-                ttBolPostHeader.shipId  = oe-bolh.ship-id
-                ttBolPostHeader.deleted = oe-bolh.deleted
+                ttPostBOLCreateInvoice.bolDate = oe-bolh.bol-date
+                ttPostBOLCreateInvoice.bolNo   = oe-bolh.bol-no
+                ttPostBOLCreateInvoice.carrier = oe-bolh.carrier
+                ttPostBOLCreateInvoice.trailer = oe-bolh.trailer
+                ttPostBOLCreateInvoice.freight = oe-bolh.freight
+                ttPostBOLCreateInvoice.cwt     = oe-bolh.cwt
+                ttPostBOLCreateInvoice.totWgt  = oe-bolh.tot-wt
+                ttPostBOLCreateInvoice.custNo  = oe-bolh.cust-no
+                ttPostBOLCreateInvoice.shipId  = oe-bolh.ship-id
+                ttPostBOLCreateInvoice.deleted = oe-bolh.deleted
                 .
  
         END.
@@ -463,18 +465,18 @@ PROCEDURE exception-rpt :
             ASSIGN cTagDisplay = w-except.tag .
 
         ASSIGN 
-            ttBOLPostHeader.iNo     = w-except.i-no
-            ttBOLPostHeader.tag     = cTagDisplay
-            ttBOLPostHeader.iName   = itemfg.i-name
-            ttBOLPostHeader.poNo    = w-except.po-no
-            ttBOLPostHeader.ordNo   = w-except.ord-no
-            ttBOLPostHeader.relNo   = w-except.rel-no /* STRING(w-except.rel-no,">>9") + "-" + STRING(w-except.b-ord-no,"99") */ 
-            ttBOLPostHeader.loc     = w-except.loc
-            ttBOLPostHeader.locBin  = w-except.loc-bin
-            ttBOLPostHeader.cases   = w-except.cases
-            ttBOLPostHeader.qtyCase = w-except.qty-case
-            ttBOLPostHeader.partial = w-except.partial
-            ttBOLPostHeader.weight  = w-except.weight    
+            ttPostBOLCreateInvoice.iNo     = w-except.i-no
+            ttPostBOLCreateInvoice.tag     = cTagDisplay
+            ttPostBOLCreateInvoice.iName   = itemfg.i-name
+            ttPostBOLCreateInvoice.poNo    = w-except.po-no
+            ttPostBOLCreateInvoice.ordNo   = w-except.ord-no
+            ttPostBOLCreateInvoice.relNo   = w-except.rel-no /* STRING(w-except.rel-no,">>9") + "-" + STRING(w-except.b-ord-no,"99") */ 
+            ttPostBOLCreateInvoice.loc     = w-except.loc
+            ttPostBOLCreateInvoice.locBin  = w-except.loc-bin
+            ttPostBOLCreateInvoice.cases   = w-except.cases
+            ttPostBOLCreateInvoice.qtyCase = w-except.qty-case
+            ttPostBOLCreateInvoice.partial = w-except.partial
+            ttPostBOLCreateInvoice.weight  = w-except.weight    
             .
     END.
 
@@ -829,41 +831,41 @@ PROCEDURE run-report :
         
             /* IF FIRST-OF(oe-boll.b-no) THEN */ 
             DO:
-                CREATE ttBolPostHeader.
+                CREATE ttPostBOLCreateInvoice.
                 ASSIGN
-                    ttBolPostHeader.bolDate = oe-bolh.BOL-date
-                    ttBolPostHeader.bolNo   = oe-bolh.BOL-no
-                    ttBolPostHeader.carrier = oe-bolh.CARRIER
-                    ttBolPostHeader.trailer = oe-bolh.TRAILER
-                    ttBolPostHeader.freight = oe-bolh.FREIGHT
-                    ttBolPostHeader.cwt     = oe-bolh.CWT
-                    ttBolPostHeader.totWgt  = oe-bolh.TOT-WT
-                    ttBolPostHeader.custNo  = oe-bolh.cust-no
-                    ttBolPostHeader.shipID  = oe-bolh.ship-id
-                    ttBolPostHeader.deleted = oe-bolh.deleted
+                    ttPostBOLCreateInvoice.bolDate = oe-bolh.BOL-date
+                    ttPostBOLCreateInvoice.bolNo   = oe-bolh.BOL-no
+                    ttPostBOLCreateInvoice.carrier = oe-bolh.CARRIER
+                    ttPostBOLCreateInvoice.trailer = oe-bolh.TRAILER
+                    ttPostBOLCreateInvoice.freight = oe-bolh.FREIGHT
+                    ttPostBOLCreateInvoice.cwt     = oe-bolh.CWT
+                    ttPostBOLCreateInvoice.totWgt  = oe-bolh.TOT-WT
+                    ttPostBOLCreateInvoice.custNo  = oe-bolh.cust-no
+                    ttPostBOLCreateInvoice.shipID  = oe-bolh.ship-id
+                    ttPostBOLCreateInvoice.deleted = oe-bolh.deleted
                     .
             END.
 
             ASSIGN
-                ttBolPostHeader.iNo     = oe-boll.i-no
-                ttBolPostHeader.iName   = itemfg.i-name 
+                ttPostBOLCreateInvoice.iNo     = oe-boll.i-no
+                ttPostBOLCreateInvoice.iName   = itemfg.i-name 
                 WHEN AVAILABLE itemfg
-                ttBolPostHeader.poNo    = oe-boll.po-no
-                ttBolPostHeader.ordNo   = oe-boll.ord-no
-                ttBolPostHeader.relNo   = oe-boll.rel-no
-                ttBolPostHeader.bOrdNo  = oe-boll.b-ord-no
-                ttBolPostHeader.loc     = oe-boll.loc
-                ttBolPostHeader.locBin  = oe-boll.loc-bin
-                ttBolPostHeader.tag     = oe-boll.tag
+                ttPostBOLCreateInvoice.poNo    = oe-boll.po-no
+                ttPostBOLCreateInvoice.ordNo   = oe-boll.ord-no
+                ttPostBOLCreateInvoice.relNo   = oe-boll.rel-no
+                ttPostBOLCreateInvoice.bOrdNo  = oe-boll.b-ord-no
+                ttPostBOLCreateInvoice.loc     = oe-boll.loc
+                ttPostBOLCreateInvoice.locBin  = oe-boll.loc-bin
+                ttPostBOLCreateInvoice.tag     = oe-boll.tag
                                        
 
-                ttBolPostHeader.cases   = oe-boll.CASES
-                ttBolPostHeader.qtyCase = oe-boll.qty-CASE
-                ttBolPostHeader.partial = oe-boll.PARTIAL
-                ttBolPostHeader.weight  = oe-boll.WEIGHT
+                ttPostBOLCreateInvoice.cases   = oe-boll.CASES
+                ttPostBOLCreateInvoice.qtyCase = oe-boll.qty-CASE
+                ttPostBOLCreateInvoice.partial = oe-boll.PARTIAL
+                ttPostBOLCreateInvoice.weight  = oe-boll.WEIGHT
                 .
             IF SUBSTR(oe-boll.tag,1,15) EQ oe-boll.i-no THEN        
-                ttBolPostHeader.tag =   SUBSTR(oe-boll.tag,16,8). 
+                ttPostBOLCreateInvoice.tag =   SUBSTR(oe-boll.tag,16,8). 
             IF AVAILABLE oe-ord                                 AND
                 AVAILABLE oe-ordl                                AND
                 oe-ordl.ship-qty + oe-boll.qty GT
