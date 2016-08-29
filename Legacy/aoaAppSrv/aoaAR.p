@@ -264,9 +264,9 @@ PROCEDURE pAgedReceivables :
   Purpose:     Aged Receivables.rpa
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pAgedReceivables.i}
+    {aoaAppSrv/includes/pAgedReceivables.i}
 
-    {aoaAppSrv/pAgedReceivablesLogic.i}
+    {aoaAppSrv/includes/pAgedReceivablesLogic.i}
 
 END PROCEDURE.
 
@@ -328,7 +328,7 @@ PROCEDURE pCashReceiptBySalesRepName :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pCashReceiptBySalesRepName.i}
+    {aoaAppSrv/includes/pCashReceiptBySalesRepName.i}
 
     /* local variables */
     DEFINE VARIABLE cSortKey    AS CHARACTER NO-UNDO.
@@ -673,7 +673,7 @@ PROCEDURE pCommissionCashReceipt :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pCommissionCashReceipt.i}
+    {aoaAppSrv/includes/pCommissionCashReceipt.i}
     
     /* local variables */
     DEFINE VARIABLE dtDate     AS DATE      NO-UNDO.

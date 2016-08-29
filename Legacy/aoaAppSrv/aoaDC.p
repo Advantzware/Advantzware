@@ -252,7 +252,7 @@ PROCEDURE pMachineProductivity :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pMachineProductivity.i}
+    {aoaAppSrv/includes/pMachineProductivity.i}
     
     /* local variables */
     DEFINE VARIABLE cStartDept AS CHARACTER NO-UNDO.
@@ -350,7 +350,7 @@ PROCEDURE pProductionAnalysis :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pProductionAnalysis.i}
+    {aoaAppSrv/includes/pProductionAnalysis.i}
 
     RUN pProductionAnalysis1 (
         ipcCompany,
