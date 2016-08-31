@@ -437,7 +437,7 @@ PROCEDURE Print-Check :
 
     /* Print text dollar amount. */
     PUT LineNum() FORMAT "99" AT 1
-        CAPS(dol) FORMAT "x(60)" AT 10.
+        CAPS(dol) FORMAT "x(70)" AT 10.
     /* Increment line count */
     incrementLineCount(1).
 
