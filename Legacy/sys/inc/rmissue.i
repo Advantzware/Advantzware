@@ -16,7 +16,7 @@ if not avail sys-ctrl then do transaction:
    sys-ctrl.char-fld = "Gross"
    sys-ctrl.descrip  = "Use Net or Gross Sheet L&W for RM Issue quantity?".
    
-  message sys-ctrl.descrip update sys-ctrl.char-fld.
+ /* message sys-ctrl.descrip update sys-ctrl.char-fld. */
 end.
 
 ASSIGN

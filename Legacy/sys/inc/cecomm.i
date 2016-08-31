@@ -17,9 +17,7 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.name    = "CECOMM"
    sys-ctrl.descrip = "Include Sales Rep Commission in CE Sell Price Calculation?"
    sys-ctrl.log-fld = YES.
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 END.
 
 ASSIGN

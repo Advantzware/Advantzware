@@ -17,9 +17,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.log-fld = yes
    sys-ctrl.descrip = "Delete Combination Estimate? " .
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 assign
  v-oecomb     = sys-ctrl.log-fld

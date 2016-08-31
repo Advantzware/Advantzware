@@ -22,9 +22,6 @@ if not avail sys-ctrl then do:
     sys-ctrl.descrip = "Default for CE machine run speed (" +
                        (if "{1}" eq "F" then "Fold" else "Corr") + "ware)".
 
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
 end.
 
 cerun{1} = sys-ctrl.char-fld.

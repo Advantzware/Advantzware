@@ -14,8 +14,6 @@ if not avail sys-ctrl then do:
    sys-ctrl.log-fld  = yes
    sys-ctrl.descrip  = "Is Order Date modifiable?".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 oedate-log = sys-ctrl.log-fld.

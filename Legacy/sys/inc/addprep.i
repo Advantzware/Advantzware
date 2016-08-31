@@ -17,9 +17,7 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.log-fld  = NO
    sys-ctrl.descrip  = "Prompt to Update Prep File for Die# and/or Plate#?".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 END.
 ASSIGN
  addprep-log = sys-ctrl.log-fld

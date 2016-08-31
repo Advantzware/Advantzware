@@ -12,9 +12,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.company = gcompany
    sys-ctrl.name    = "TAXCODE"
    sys-ctrl.descrip = "Is the Tax Code Mandatory for All Customers?".
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 end.
 v-tax-mand = sys-ctrl.log-fld.
 

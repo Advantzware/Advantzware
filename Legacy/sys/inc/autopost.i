@@ -12,8 +12,6 @@ if not avail sys-ctrl then do:
    sys-ctrl.company = cocode
    sys-ctrl.name    = "AUTOPOST"
    sys-ctrl.descrip = "Autopost to Finished Goods Receipts?".
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 end.
 autopost = sys-ctrl.char-fld.

@@ -17,7 +17,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.descrip  = "Whse/Bin Location for components of Unassembled Sets" +
                        " (Set/Item)"
    sys-ctrl.char-fld = "Set".
-  message sys-ctrl.descrip update sys-ctrl.char-fld.
+ /* message sys-ctrl.descrip update sys-ctrl.char-fld. */
   if sys-ctrl.char-fld ne "Set"  and
      sys-ctrl.char-fld ne "Item" then undo, retry.
 end.

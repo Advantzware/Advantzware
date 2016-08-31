@@ -15,9 +15,7 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.name    = "RELMERGE"
    sys-ctrl.descrip = "When creating actual releases, prompt to merge into printed release?"
    sys-ctrl.int-fld = 1.
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 end.
 assign
  relmerge-log = sys-ctrl.log-fld

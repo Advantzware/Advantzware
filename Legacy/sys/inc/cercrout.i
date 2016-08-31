@@ -15,9 +15,7 @@ if not avail sys-ctrl then do transaction:
    sys-ctrl.descrip  = "Import RC Dept via style routing regardless " +
                        "of #out or sheet size?".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 cercrout = sys-ctrl.log-fld.
 
