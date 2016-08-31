@@ -363,7 +363,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
-       /* Adjust the tab order of the smart objects. */
+      /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
@@ -408,6 +408,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_item. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_item ).
        RUN add-link IN adm-broker-hdl ( h_item , 'Record':U , THIS-PROCEDURE ).
+
+       /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( h_item , 'spechk':U , h_options ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_export ,
