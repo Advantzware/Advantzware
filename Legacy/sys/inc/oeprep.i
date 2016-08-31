@@ -14,9 +14,7 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.name    = "OEPREP"
    sys-ctrl.descrip = "Delete Prep Charges from the Estimate when Invoicing?"
    sys-ctrl.char-fld = "OE & DC".
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 END.
 ELSE
    IF sys-ctrl.char-fld EQ "" THEN

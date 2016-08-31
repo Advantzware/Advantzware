@@ -16,9 +16,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.name    = "CEPRICE"
    sys-ctrl.descrip = "Utilize Market Rate as the Minimum Charge per machine?"
    sys-ctrl.log-fld = no.
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 
 assign

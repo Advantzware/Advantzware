@@ -16,9 +16,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.log-fld  = no
    sys-ctrl.char-fld = ""
    sys-ctrl.descrip  = "OEPrepTaxCode?".
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 end.
 assign
  PrepTax-log = sys-ctrl.log-fld

@@ -15,9 +15,7 @@ if not avail sys-ctrl then do transaction:
    sys-ctrl.log-fld  = no
    sys-ctrl.descrip  = "Prompt for Warehous/Bin?".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 ssfgscan = sys-ctrl.log-fld.
 

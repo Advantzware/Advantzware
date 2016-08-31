@@ -11,9 +11,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.name    = "TSSETREC"
    sys-ctrl.descrip = "Create Set Header Recipts via Touch Screen?".
 
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 tssetrec-log = sys-ctrl.log-fld.
 tssetrec-char = sys-ctrl.char-fld.

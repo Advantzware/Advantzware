@@ -10,7 +10,6 @@
      sys-ctrl.company  = gcompany
      sys-ctrl.name     = "TSCOMPLT"
      sys-ctrl.descrip  = "Close TS Jobs via Completed Flag".
-    MESSAGE sys-ctrl.descrip VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-      UPDATE sys-ctrl.log-fld.
+   
     FIND CURRENT sys-ctrl NO-LOCK.
   END.

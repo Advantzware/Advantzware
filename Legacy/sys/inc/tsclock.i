@@ -12,9 +12,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.name    = "TSCLOCK"
    sys-ctrl.descrip = "Touch-Screen requires CLOCK IN/OUT?".
 
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 end.
 ASSIGN tsclock-log = sys-ctrl.log-fld
        .

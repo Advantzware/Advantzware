@@ -16,9 +16,7 @@ if not avail sys-ctrl then do transaction:
    sys-ctrl.log-fld  = no
    sys-ctrl.descrip  = "Is Job# or PO# mandatory on FG Receipts?".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 ASSIGN
  fgrecpt      = sys-ctrl.log-fld
