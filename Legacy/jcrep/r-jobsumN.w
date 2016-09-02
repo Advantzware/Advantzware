@@ -1737,26 +1737,7 @@ DEF VAR cslist AS cha NO-UNDO.
           ELSE
               misc-str-line = misc-str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
      END.
-
-   /*IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-   THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
-               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
-               excelheader = excelHeader + ttRptSelected.TextList + "," .        
-   ELSE 
-   ASSIGN str-tit4 = str-tit4 + 
-            (IF ttRptSelected.HeadingFromLeft THEN
-                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
-            ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
-          str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
-          excelheader = excelHeader + ttRptSelected.TextList + ","
-          .        
-          cSlist = cSlist + ttRptSelected.FieldList + ",".
-
-        IF LOOKUP(ttRptSelected.TextList, "Daily Sq Ft/M,Amount1,PTD Sq Ft/M,Amount2,YTD Sq Ft/M,Amount3") <> 0    THEN
-         ASSIGN
-         str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
-        ELSE
-         str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . */
+  
  END.
 
 IF tb_excel2 THEN DO:
@@ -1786,13 +1767,13 @@ display "" with frame r-top.
 
 IF tb_excel2 THEN DO:
   OUTPUT STREAM excel2 CLOSE.
-  /*IF tb_excel THEN*/
+  IF tb_runExcel THEN
   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file2)).
 END.
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
-  /*IF tb_excel THEN*/
+  /*IF tb_runExcel THEN*/
   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
 END.
 
