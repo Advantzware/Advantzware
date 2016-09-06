@@ -255,7 +255,7 @@ PROCEDURE pCustomerInventory :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pCustomerInventory.i}
+    {aoaAppSrv/includes/pCustomerInventory.i}
 
     /* local variables */
     DEFINE VARIABLE iPalletCount AS INTEGER   NO-UNDO.
@@ -354,7 +354,7 @@ PROCEDURE pInventoryValue :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pInventoryValue.i}
+    {aoaAppSrv/includes/pInventoryValue.i}
     
     /* local variables */
     DEFINE VARIABLE lProcessRel      AS LOGICAL   NO-UNDO.
@@ -378,7 +378,7 @@ PROCEDURE pInventoryValue :
              NO-ERROR.
         IF AVAILABLE ttCustList THEN 
         cEndCustNo = ttCustList.cust-no.
-    END.
+    END. /* if lcustlist */
 
     EMPTY TEMP-TABLE tt-fg-bin.
     EMPTY TEMP-TABLE tt-itemfg.
@@ -467,7 +467,7 @@ PROCEDURE pInventoryValue1 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pInventoryValue1.i}
+    {aoaAppSrv/includes/pInventoryValue1.i}
 
 END PROCEDURE.
 

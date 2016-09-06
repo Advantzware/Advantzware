@@ -66,10 +66,11 @@ svEndShipDateOption svAllUserID svStartUserID svStartBOLDate btnCalendar-13 ~
 svStartBOLDateOption svEndUserID svEndBOLDate btnCalendar-14 ~
 svEndBOLDateOption svAllItemNo svAsOfDate btnCalendar-15 svAsOfDateOption ~
 svStartItemNo svSort svEndItemNo svSubRpt_SubReportName svAllJobNo ~
-svAllOrderNo svAllBOL svAllLocBin svStartJobNo svStartJobNo2 svStartOrderNo ~
-svStartBOL svStartLocBin svEndJobNo svEndJobNo2 svEndOrderNo svEndBOL ~
-svEndLocBin svAllProdCategory svStartProdCategory svEndProdCategory ~
-svAllShift svStartShift svEndShift svAllDept svStartDept svEndDept 
+svAllOrderNo svAllBOL svAllLocBin svAllInvNo svStartJobNo svStartJobNo2 ~
+svStartOrderNo svStartBOL svStartLocBin svStartInvNo svEndJobNo svEndJobNo2 ~
+svEndOrderNo svEndBOL svEndLocBin svEndInvNo svAllProdCategory ~
+svStartProdCategory svEndProdCategory svAllShift svStartShift svEndShift ~
+svAllDept svStartDept svEndDept 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svCustList svAllLoc ~
 svAllCustNo svStartTranDate svStartTranDateOption svStartLoc startLocName ~
 svStartCustNo startCustName svEndTranDate svEndTranDateOption svEndLoc ~
@@ -90,12 +91,12 @@ svStartUserID startUserIDName svStartBOLDate svStartBOLDateOption ~
 svEndUserID endUserIDName svEndBOLDate svEndBOLDateOption svAllItemNo ~
 svAsOfDate svAsOfDateOption svStartItemNo startItemName svSort svEndItemNo ~
 endItemName svSubRpt_SubReportName svAllJobNo svAllOrderNo svAllBOL ~
-svAllLocBin svStartJobNo svStartJobNo2 svStartOrderNo svStartBOL ~
-svStartLocBin svEndJobNo svEndJobNo2 svEndOrderNo svEndBOL svEndLocBin ~
-svAllProdCategory svStartProdCategory startProdCategoryName ~
-svEndProdCategory endProdCategoryName svAllShift svStartShift ~
-startShiftDescription svEndShift endShiftDescription svAllDept svStartDept ~
-startDeptName svEndDept endDeptName 
+svAllLocBin svAllInvNo svStartJobNo svStartJobNo2 svStartOrderNo svStartBOL ~
+svStartLocBin svStartInvNo svEndJobNo svEndJobNo2 svEndOrderNo svEndBOL ~
+svEndLocBin svEndInvNo svAllProdCategory svStartProdCategory ~
+startProdCategoryName svEndProdCategory endProdCategoryName svAllShift ~
+svStartShift startShiftDescription svEndShift endShiftDescription svAllDept ~
+svStartDept startDeptName svEndDept endDeptName 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -388,10 +389,10 @@ DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1.
 
-DEFINE VARIABLE svEndBOL AS INTEGER FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE svEndBOL AS INTEGER FORMAT ">>>>>>>9" INITIAL 0 
      LABEL "End BOL" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1.
+     SIZE 11 BY 1.
 
 DEFINE VARIABLE svEndBOLDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
      LABEL "End BOL Date" 
@@ -427,6 +428,11 @@ DEFINE VARIABLE svEndDueDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49
      LABEL "End Due Date" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
+
+DEFINE VARIABLE svEndInvNo AS INTEGER FORMAT ">>>>>9" INITIAL 0 
+     LABEL "End Invoice" 
+     VIEW-AS FILL-IN 
+     SIZE 11 BY 1.
 
 DEFINE VARIABLE svEndInvoiceDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
      LABEL "End Invoice Date" 
@@ -523,10 +529,10 @@ DEFINE VARIABLE svLocation AS CHARACTER FORMAT "X(5)"
      VIEW-AS FILL-IN 
      SIZE 10 BY 1.
 
-DEFINE VARIABLE svStartBOL AS INTEGER FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE svStartBOL AS INTEGER FORMAT ">>>>>>>9" INITIAL 0 
      LABEL "Start BOL" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1.
+     SIZE 11 BY 1.
 
 DEFINE VARIABLE svStartBOLDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
      LABEL "Start BOL Date" 
@@ -562,6 +568,11 @@ DEFINE VARIABLE svStartDueDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50
      LABEL "Start Due Date" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
+
+DEFINE VARIABLE svStartInvNo AS INTEGER FORMAT ">>>>>9" INITIAL 0 
+     LABEL "Start Invoice" 
+     VIEW-AS FILL-IN 
+     SIZE 11 BY 1.
 
 DEFINE VARIABLE svStartInvoiceDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
      LABEL "Start Invoice Date" 
@@ -691,6 +702,11 @@ DEFINE VARIABLE svAllDept AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .95 NO-UNDO.
 
+DEFINE VARIABLE svAllInvNo AS LOGICAL INITIAL yes 
+     LABEL "All Invoices" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15 BY .95 NO-UNDO.
+
 DEFINE VARIABLE svAllItemNo AS LOGICAL INITIAL yes 
      LABEL "All Items" 
      VIEW-AS TOGGLE-BOX
@@ -779,7 +795,7 @@ DEFINE FRAME F-Main
      svStartTranDateOption AT ROW 2.91 COL 44 COLON-ALIGNED HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 74
      svStartLoc AT ROW 3.38 COL 170.2 COLON-ALIGNED HELP
-          "Enter State Warehouse" WIDGET-ID 270
+          "Enter Start Warehouse" WIDGET-ID 270
      startLocName AT ROW 3.38 COL 186 COLON-ALIGNED NO-LABEL WIDGET-ID 258
      svStartCustNo AT ROW 3.62 COL 89 COLON-ALIGNED HELP
           "Enter Start Customer" WIDGET-ID 2
@@ -961,6 +977,8 @@ DEFINE FRAME F-Main
           "All BOLs?" WIDGET-ID 246
      svAllLocBin AT ROW 26.71 COL 162 HELP
           "All Bins?" WIDGET-ID 282
+     svAllInvNo AT ROW 26.71 COL 192 HELP
+          "All Invoices?" WIDGET-ID 318
      svStartJobNo AT ROW 27.91 COL 89 COLON-ALIGNED HELP
           "Enter Start Job" WIDGET-ID 178
      svStartJobNo2 AT ROW 27.91 COL 100 COLON-ALIGNED HELP
@@ -971,6 +989,8 @@ DEFINE FRAME F-Main
           "Enter Start BOL" WIDGET-ID 250
      svStartLocBin AT ROW 27.91 COL 160 COLON-ALIGNED HELP
           "Enter Start Bin" WIDGET-ID 286
+     svStartInvNo AT ROW 27.91 COL 190 COLON-ALIGNED HELP
+          "Enter Start Invoice" WIDGET-ID 322
      svEndJobNo AT ROW 29.1 COL 89 COLON-ALIGNED HELP
           "Enter End Job" WIDGET-ID 176
      svEndJobNo2 AT ROW 29.1 COL 100 COLON-ALIGNED HELP
@@ -981,6 +1001,8 @@ DEFINE FRAME F-Main
           "Enter End BOL" WIDGET-ID 248
      svEndLocBin AT ROW 29.1 COL 160 COLON-ALIGNED HELP
           "Enter End Bin" WIDGET-ID 284
+     svEndInvNo AT ROW 29.1 COL 190 COLON-ALIGNED HELP
+          "Enter End Invoice" WIDGET-ID 320
      svAllProdCategory AT ROW 30.76 COL 91 HELP
           "All Sales Reps?" WIDGET-ID 202
      svStartProdCategory AT ROW 31.95 COL 89 COLON-ALIGNED HELP
@@ -1408,6 +1430,17 @@ END.
 ON VALUE-CHANGED OF svAllDept IN FRAME F-Main /* All Departments */
 DO:
     {aoa/svAllValueChanged.i svStartDept svEndDept}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllInvNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllInvNo sObject
+ON VALUE-CHANGED OF svAllInvNo IN FRAME F-Main /* All Invoices */
+DO:
+    {aoa/svAllValueChanged.i svStartInvNo svEndInvNo}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2286,6 +2319,8 @@ PROCEDURE pInitialize :
 
         APPLY "VALUE-CHANGED":U TO svAllBOL.
 
+        APPLY "VALUE-CHANGED":U TO svAllInvNo.
+
         APPLY "VALUE-CHANGED":U TO svAllProdCategory.
         APPLY "LEAVE":U TO svStartProdCategory.
         APPLY "LEAVE":U TO svEndProdCategory.
@@ -2303,8 +2338,6 @@ PROCEDURE pInitialize :
         APPLY "LEAVE":U TO svEndLoc.
         
         APPLY "VALUE-CHANGED":U TO svAllLocBin.
-        APPLY "LEAVE":U TO svStartLocBin.
-        APPLY "LEAVE":U TO svEndLocBin.
         
         APPLY "VALUE-CHANGED":U TO svAllCompany.
         APPLY "LEAVE":U TO svStartCompany.

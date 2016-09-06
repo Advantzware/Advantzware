@@ -164,7 +164,7 @@ PROCEDURE pTemplate :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pTemplate.i}
+    {aoaAppSrv/includes/pTemplate.i}
     
     /* local variables */
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.

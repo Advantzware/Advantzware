@@ -7,3 +7,4 @@ ASSIGN
     .
 IF {&SELF-NAME} NE "Fixed Date" THEN
 {&dateObject}:SCREEN-VALUE = "".
+
