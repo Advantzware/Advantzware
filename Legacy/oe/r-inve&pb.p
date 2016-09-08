@@ -6,29 +6,30 @@
 /* 5) Prompt for close of orders */
 /* Note: inv-list-post runs twice. Once for report and once to post. */
 
-DEFINE VARIABLE list-name    AS cha       NO-UNDO.
-DEFINE VARIABLE init-dir     AS CHA       NO-UNDO.
-DEFINE VARIABLE lv-comp-curr AS cha       NO-UNDO.
-DEFINE VARIABLE oeprep-char  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-prof       AS DECIMAL   NO-UNDO.
-/* {methods/defines/hndldefs.i} */
-/* {methods/prgsecur.i} */
+DEFINE VARIABLE cListName   AS cha       NO-UNDO.
+DEFINE VARIABLE cInitDir    AS CHA       NO-UNDO.
+DEFINE VARIABLE cCompCurr   AS cha       NO-UNDO.
+DEFINE VARIABLE oeprep-char AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dProfit     AS DECIMAL   NO-UNDO.
+
 
 {custom/gcompany.i}
 {custom/gloc.i}
-/*{custom/getcmpny.i}*/
-/*{custom/getloc.i}*/
+
 
 {sys/inc/VAR.i new shared}
-  /* wfk correction */
-    gcompany = '001'.
-    gloc = "main".
+/* wfk for testing only correction */
+gcompany = '001'.
+gloc = "main".
+    
+    
 ASSIGN
     cocode = gcompany
-    locode = gloc.
+    locode = gloc
+    .
     
-FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
-IF AVAILABLE company THEN lv-comp-curr = company.curr-code.
+FIND FIRST company NO-LOCK WHERE company.company EQ cocode  NO-ERROR.
+IF AVAILABLE company THEN cCompCurr = company.curr-code.
     
 DEFINE NEW SHARED BUFFER xoe-relh    FOR oe-relh.
 DEFINE NEW SHARED BUFFER yoe-relh    FOR oe-relh.
@@ -60,49 +61,49 @@ DEFINE NEW SHARED VARIABLE v-invhead         AS RECID.
 DEFINE NEW SHARED VARIABLE v-detail          AS LOG       FORMAT "Detail/Summary" INIT NO NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-gldetail        AS LOG       FORMAT "Detail/Summary" INIT NO NO-UNDO.
 
-DEFINE            VARIABLE v-fr-tax          AS LOG       INIT NO.
-DEFINE            VARIABLE v-postable        AS LOG       INIT NO.
+DEFINE            VARIABLE lIsFreightTax     AS LOG       INIT NO.
+DEFINE            VARIABLE lPostable         AS LOG       INIT NO.
 
-DEFINE            VARIABLE v-xno             LIKE ar-inv.x-no. /* Unique Internial # for header */
-DEFINE            VARIABLE v-xline           AS INTEGER.     /* Unique Internail # for lines */
+/* Used in include files which are used elsewhere */
+DEFINE            VARIABLE v-xno        LIKE ar-inv.x-no. /* Unique Internial # for header */
+DEFINE            VARIABLE v-xline          AS INTEGER.     /* Unique Internail # for lines */
+DEFINE            VARIABLE v-ord-no           LIKE inv-line.ord-no.
+DEFINE            VARIABLE v-ord-date         AS DATE.
+DEFINE            VARIABLE v-cost            AS DECIMAL   EXTENT 4 NO-UNDO.
 
-DEFINE            VARIABLE v-inv-qty         LIKE oe-ordl.inv-qty.
-DEFINE            VARIABLE v-ord-no          LIKE inv-line.ord-no.
-DEFINE            VARIABLE v-ord-date        AS DATE.
-DEFINE            VARIABLE v-inv-disc        AS DECIMAL   FORMAT "->>,>>9.99".
-DEFINE            VARIABLE v-inv-disc-w      AS DECIMAL   NO-UNDO.
-DEFINE            VARIABLE ld-temp-amt       AS DECIMAL.
-DEFINE            VARIABLE v-tax-rate        AS DECIMAL   EXTENT 4.
 
-DEFINE            VARIABLE v-uninv-ordl-amt  LIKE oe-ordl.t-price NO-UNDO INIT 0.
-DEFINE            VARIABLE v-u-inv           LIKE oe-ctrl.u-inv INIT FALSE.
-DEFINE            VARIABLE v-tmp-tax-rate    AS DECIMAL   FORMAT ">,>>9.99<<<".
+DEFINE            VARIABLE iInvoiceQty       LIKE oe-ordl.inv-qty.
+DEFINE            VARIABLE dInvDisc          AS DECIMAL   FORMAT "->>,>>9.99".
+DEFINE            VARIABLE dInvDisc-w        AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE dTempAmount       AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE dTaxRate          AS DECIMAL   EXTENT 4 NO-UNDO.
 
-DEFINE            VARIABLE v-line-tot        LIKE inv-line.t-price.
-DEFINE            VARIABLE v-misc-tot        LIKE inv-misc.amt.
-DEFINE            VARIABLE v-line-tot-w      AS DECIMAL   NO-UNDO.
-DEFINE            VARIABLE v-post-zero-cgs   AS LOG       NO-UNDO.
-DEFINE            VARIABLE v-export          LIKE sys-ctrl.char-fld NO-UNDO.
-DEFINE            VARIABLE v-rec-written     AS INTEGER   NO-UNDO.
-DEFINE            VARIABLE t-rec-written     AS INTEGER   NO-UNDO.
-DEFINE            VARIABLE v-cost            AS DECIMAL   EXTENT 4.
-DEFINE            VARIABLE v-cas-cnt         LIKE itemfg.case-count.
+DEFINE            VARIABLE dUninvOrdlAmt     LIKE oe-ordl.t-price NO-UNDO INIT 0.
+DEFINE            VARIABLE lUInv             LIKE oe-ctrl.u-inv INIT FALSE NO-UNDO.
+DEFINE            VARIABLE dLineTot          LIKE inv-line.t-price NO-UNDO.
+DEFINE            VARIABLE dMiscTotal        LIKE inv-misc.amt NO-UNDO.
+DEFINE            VARIABLE dLineTot-w        AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE lPostZeroCGS      AS LOG       NO-UNDO.
+DEFINE            VARIABLE cExportNk1        LIKE sys-ctrl.char-fld NO-UNDO.
+DEFINE            VARIABLE iRecsWritten      AS INTEGER   NO-UNDO.
+DEFINE            VARIABLE iTotRecsWritten   AS INTEGER   NO-UNDO.
 
-DEFINE            VARIABLE v-close-qty       LIKE oe-ordl.qty.
-DEFINE            VARIABLE v-dcr-val         LIKE oe-ordl.cost INIT 0.
-DEFINE            VARIABLE v-uom-rate        AS INTEGER.
-DEFINE            VARIABLE v-sum-rel-qty     AS DECIMAL   NO-UNDO.
-DEFINE            VARIABLE v-tax             AS DECIMAL.
-DEFINE            VARIABLE v-invalid         AS LOG       NO-UNDO.
-DEFINE            VARIABLE lv-list-name      LIKE list-name NO-UNDO.
-DEFINE            VARIABLE v-ftp-done        AS LOG       NO-UNDO.
-DEFINE            VARIABLE v-print-fmt       AS cha       NO-UNDO.
-DEFINE            VARIABLE ll-warned         AS LOG       NO-UNDO.
-DEFINE            VARIABLE v-ttl-tax         AS DECIMAL   NO-UNDO.
-DEFINE            VARIABLE v-ttl-rate        AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE iCaseCount        LIKE itemfg.case-count NO-UNDO.
+DEFINE            VARIABLE iCloseQty         LIKE oe-ordl.qty NO-UNDO.
+DEFINE            VARIABLE dDcrVal           LIKE oe-ordl.cost INIT 0 NO-UNDO.
+DEFINE            VARIABLE iUomRate          AS INTEGER NO-UNDO.
+DEFINE            VARIABLE dSumRelQty        AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE dTax              AS DECIMAL NO-UNDO.
+DEFINE            VARIABLE lIsInvalid        AS LOG       NO-UNDO.
+DEFINE            VARIABLE cCListName        LIKE cListName NO-UNDO.
+DEFINE            VARIABLE lFtpDone          AS LOG       NO-UNDO.
+DEFINE            VARIABLE cPrintFormat      AS cha       NO-UNDO.
+DEFINE            VARIABLE lWarned           AS LOG       NO-UNDO.
+DEFINE            VARIABLE dTotalTax         AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE dTotalRate        AS DECIMAL   NO-UNDO.
 
 DEFINE TEMP-TABLE ttInvoicePostUpdateGL
-    {aoaAppSrv/ttfields.i}
+{aoaAppSrv/ttfields.i}
     FIELD invNo             AS INTEGER   LABEL "Invoice Num" FORMAT ">9"     
     FIELD invDate           AS DATE      LABEL "Invoice Dt" FORMAT "99/99/99"
     FIELD custNo            AS CHARACTER LABEL "Cust Num" FORMAT "x(8)"
@@ -127,28 +128,7 @@ DEFINE TEMP-TABLE ttInvoicePostUpdateGL
     FIELD TotPrice          AS DECIMAL   LABEL "$ Per Ton" FORMAT "9.9"
     FIELD profit            AS DECIMAL   LABEL "Profit" FORMAT "->>>9.99%"
     .
-/*  ttInvoicePostUpdateGL.invNo             = inv-head.inv-no         */
-/*  ttInvoicePostUpdateGL.invDate             = inv-head.inv-date     */
-/*  ttInvoicePostUpdateGL.custNo              = inv-head.cust-no      */
-/*  ttInvoicePostUpdateGL.custName            = inv-head.cust-name    */
-/*  ttInvoicePostUpdateGL.orderNumber         = inv-head.orderNumber  */
-/*  ttInvoicePostUpdateGL.invoiceQty          = inv-head.invoiceQty   */
-/*  ttInvoicePostUpdateGL.totInvoicefreight   = inv-head.t-inv-freight*/
-/*  ttInvoicePostUpdateGL.totInvoiceTax       = inv-head.t-inv-tax    */
-/*  ttInvoicePostUpdateGL.miscTot            = inv-head.miscTot       */
-/*  ttInvoicePostUpdateGL.lineTot            = inv-head.lineTot       */
-/*  ttInvoicePostUpdateGL.iInvRev          = inv-head.t-inv-rev     */
-/*  ttInvoicePostUpdateGL.weightPerTon        = inv-head.weightPerTon */
-/*  ttInvoicePostUpdateGL.pricePerTon         = inv-head.pricePerTon  */
-/*  ttInvoicePostUpdateGL.iNo                = w-inv-line.i-no        */
-/*  ttInvoicePostUpdateGL.iName             = w-inv-line.i-name       */
-/*  ttInvoicePostUpdateGL.qty               = w-inv-line.qty          */
-/*  ttInvoicePostUpdateGL.invQty            = w-inv-line.inv-qty      */
-/*  ttInvoicePostUpdateGL.shipQty           = w-inv-line.ship-qty     */
-/*  ttInvoicePostUpdateGL.price              = w-inv-line.price       */
-/*  ttInvoicePostUpdateGL.uom                = w-inv-line.uom         */
-/*  ttInvoicePostUpdateGL.TotPrice             = w-inv-line.t-price   */
-/*  ttInvoicePostUpdateGL.profit             = w-inv-line.profit      */
+
 DEFINE TEMP-TABLE w-report NO-UNDO LIKE report.
 
 DEFINE TEMP-TABLE tt-gl NO-UNDO 
@@ -165,11 +145,12 @@ DEFINE BUFFER save-line  FOR reftable.
 {oe/invwork.i new}
 
 {oe/closchk.i new}
+/* wfk for testing only  */
 cocode = '001'.
 locode = "whse".
 
 RUN oe/getacct.p.
-/* wfk - correction */
+
 
 FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ cocode NO-LOCK.
 
@@ -187,16 +168,15 @@ DO TRANSACTION:
         sys-ctrl.company = cocode
         sys-ctrl.name    = "INVPOST"
         sys-ctrl.log-fld = NO
-        sys-ctrl.descrip = "Post cost-of-goods sold when cost is zero?".
-    MESSAGE sys-ctrl.descrip
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE sys-ctrl.log-fld.
+        sys-ctrl.descrip = "Post cost-of-goods sold when cost is zero?"
+        .
+
 END.
-v-post-zero-cgs = sys-ctrl.log-fld.
+lPostZeroCGS = sys-ctrl.log-fld.
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
     AND sys-ctrl.name    EQ "INVPRINT" NO-LOCK NO-ERROR.
-v-print-fmt = IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld ELSE "".
+cPrintFormat = IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld ELSE "".
 
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
@@ -210,15 +190,15 @@ DO TRANSACTION:
         sys-ctrl.name     = "AREXP"
         sys-ctrl.descrip  = "A/R Export option"
         sys-ctrl.char-fld = "ASI".
-    MESSAGE "System control record NOT found.  Please enter A/R Export Option".
-    UPDATE sys-ctrl.char-fld.
+
 END.
-v-export = sys-ctrl.char-fld.
+cExportNk1 = sys-ctrl.char-fld.
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK.
 ASSIGN
-    v-fr-tax = oe-ctrl.f-tax
-    v-u-inv  = oe-ctrl.u-inv.
+    lIsFreightTax = oe-ctrl.f-tax
+    lUInv         = oe-ctrl.u-inv
+    .
 
 DEFINE VARIABLE is-xprint-form AS LOG       NO-UNDO.
 DEFINE VARIABLE ls-fax-file    AS cha       NO-UNDO.
@@ -240,7 +220,8 @@ DO TRANSACTION:
             sys-ctrl.company  = cocode
             sys-ctrl.name     = "AUDITDIR"
             sys-ctrl.descrip  = "Audit Trails directory"
-            sys-ctrl.char-fld = ".\AUDIT TRAILS".
+            sys-ctrl.char-fld = ".\AUDIT TRAILS"
+            .
     END.
   
     lv-audit-dir = sys-ctrl.char-fld.
@@ -257,13 +238,13 @@ END.
 &ANALYZE-RESUME
 
 
-
-DEFINE VARIABLE tran-period             AS INTEGER   FORMAT ">>":U INITIAL 0 LABEL "Period" .
-DEFINE VARIABLE inexport-log            AS LOG.
-DEFINE VARIABLE inexport-desc           AS CHARACTER.
-DEFINE VARIABLE inexport-cha            AS CHARACTER. 
-DEFINE VARIABLE cStatus AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cReason AS CHARACTER NO-UNDO.
+/* These are used in include files, so cannot be changed */
+DEFINE VARIABLE tran-period   AS INTEGER   FORMAT ">>":U INITIAL 0 LABEL "Period" .
+DEFINE VARIABLE inexport-log  AS LOG.
+DEFINE VARIABLE inexport-desc AS CHARACTER.
+DEFINE VARIABLE inexport-cha  AS CHARACTER. 
+DEFINE VARIABLE cStatus       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cReason       AS CHARACTER NO-UNDO.
 
 
 
@@ -301,8 +282,7 @@ DEFINE VARIABLE cReason AS CHARACTER NO-UNDO.
     Created     : 3.23.2016
     Notes       :
   ----------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.      */
-/*----------------------------------------------------------------------*/
+
 
 /* ***************************  Definitions  ************************** */
 
@@ -329,7 +309,7 @@ DEFINE VARIABLE cReason AS CHARACTER NO-UNDO.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDateOptionDate Procedure 
 FUNCTION fDateOptionDate RETURNS DATE
-  ( ipcDateOption AS CHARACTER,
+    ( ipcDateOption AS CHARACTER,
     ipdtDate AS DATE )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -341,7 +321,7 @@ FUNCTION fDateOptionDate RETURNS DATE
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetParamValue Procedure 
 FUNCTION fGetParamValue RETURNS CHARACTER
-  ( ipcField AS CHARACTER )  FORWARD.
+    ( ipcField AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -352,7 +332,7 @@ FUNCTION fGetParamValue RETURNS CHARACTER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fParameters Procedure 
 FUNCTION fParameters RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
+    ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -372,27 +352,7 @@ FUNCTION fParameters RETURNS CHARACTER
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
-/* *************************  Create Window  ************************** */
 
-&ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 15
-         WIDTH              = 60.
-/* END WINDOW DEFINITION */
-                                                                        */
-&ANALYZE-RESUME
-
- 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
-
-
-/* ***************************  Main Block  *************************** */
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 /* **********************  Internal Procedures  *********************** */
@@ -464,11 +424,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetParamValues Procedure 
 PROCEDURE pGetParamValues :
-/*------------------------------------------------------------------------------
-  Purpose:     get user-print record requested
-  Parameters:  Company, Program ID, User ID, Batch Seq
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     get user-print record requested
+      Parameters:  Company, Program ID, User ID, Batch Seq
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcName    AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
@@ -477,19 +437,19 @@ PROCEDURE pGetParamValues :
     DEFINE VARIABLE cBatch AS CHARACTER NO-UNDO.
 
     IF ipiBatch EQ 0 THEN
-    FIND FIRST user-print NO-LOCK
-         WHERE user-print.company    EQ ipcCompany
-           AND user-print.program-id EQ ipcName
-           AND user-print.user-id    EQ ipcUserID
-           AND user-print.batch      EQ ""
-         NO-ERROR.
+        FIND FIRST user-print NO-LOCK
+            WHERE user-print.company    EQ ipcCompany
+            AND user-print.program-id EQ ipcName
+            AND user-print.user-id    EQ ipcUserID
+            AND user-print.batch      EQ ""
+            NO-ERROR.
     ELSE
-    FIND FIRST user-print NO-LOCK
-         WHERE user-print.company    EQ ipcCompany
-           AND user-print.batch-seq  EQ ipiBatch
-           AND user-print.program-id EQ ipcName
-           AND user-print.batch      EQ "Batch"
-         NO-ERROR.
+        FIND FIRST user-print NO-LOCK
+            WHERE user-print.company    EQ ipcCompany
+            AND user-print.batch-seq  EQ ipiBatch
+            AND user-print.program-id EQ ipcName
+            AND user-print.batch      EQ "Batch"
+            NO-ERROR.
 
 END PROCEDURE.
 
@@ -504,12 +464,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDateOptionDate Procedure 
 FUNCTION fDateOptionDate RETURNS DATE
-  ( ipcDateOption AS CHARACTER,
+    ( ipcDateOption AS CHARACTER,
     ipdtDate AS DATE ) :
-/*------------------------------------------------------------------------------
-  Purpose:  convert date option into date based on input date
-    Notes:  
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:  convert date option into date based on input date
+        Notes:  
+    ------------------------------------------------------------------------------*/
     DEFINE VARIABLE dtDate AS DATE NO-UNDO.
 
     CASE ipcDateOption:
@@ -600,17 +560,18 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetParamValue Procedure 
 FUNCTION fGetParamValue RETURNS CHARACTER
-  ( ipcField AS CHARACTER ) :
-/*------------------------------------------------------------------------------
-  Purpose:  get individual parameter field values
-    Notes:  
-------------------------------------------------------------------------------*/
+    ( ipcField AS CHARACTER ) :
+    /*------------------------------------------------------------------------------
+      Purpose:  get individual parameter field values
+        Notes:  
+    ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
 
     IF AVAILABLE user-print THEN
     DO idx = 1 TO EXTENT(user-print.field-name):
-        IF TRIM(user-print.field-name[idx]) EQ ipcField THEN DO:
+        IF TRIM(user-print.field-name[idx]) EQ ipcField THEN 
+        DO:
             cReturnValue = user-print.field-value[idx].
             LEAVE.
         END. /* found screen object */
@@ -629,11 +590,11 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fParameters Procedure 
 FUNCTION fParameters RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
+    ( /* parameter-definitions */ ) :
+    /*------------------------------------------------------------------------------
+      Purpose:  
+        Notes:  
+    ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cShow        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParameter   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
@@ -646,31 +607,31 @@ FUNCTION fParameters RETURNS CHARACTER
         IF CAN-DO("svTitle,svAvailableColumns,svSelectedColumns",user-print.field-name[idx]) THEN NEXT.
         CASE user-print.field-name[idx]:
             WHEN "svShowParameters"   THEN
-            IF user-print.field-value[idx] EQ "no" THEN
-            cParameter = "NoParameters".
+                IF user-print.field-value[idx] EQ "no" THEN
+                    cParameter = "NoParameters".
             WHEN "svShowReportHeader" THEN
-            IF user-print.field-value[idx] EQ "no" THEN
-            cShow = cShow + "0^".
+                IF user-print.field-value[idx] EQ "no" THEN
+                    cShow = cShow + "0^".
             WHEN "svShowPageHeader"   THEN
-            IF user-print.field-value[idx] EQ "no" THEN
-            cShow = cShow + "2^".
+                IF user-print.field-value[idx] EQ "no" THEN
+                    cShow = cShow + "2^".
             WHEN "svShowGroupHeader"  THEN
-            IF user-print.field-value[idx] EQ "no" THEN
-            cShow = cShow + "4^".
+                IF user-print.field-value[idx] EQ "no" THEN
+                    cShow = cShow + "4^".
             WHEN "svShowGroupFooter"  THEN
-            IF user-print.field-value[idx] EQ "no" THEN
-            cShow = cShow + "5^".
+                IF user-print.field-value[idx] EQ "no" THEN
+                    cShow = cShow + "5^".
             WHEN "svShowPageFooter"   THEN
-            IF user-print.field-value[idx] EQ "no" THEN
-            cShow = cShow + "3^".
+                IF user-print.field-value[idx] EQ "no" THEN
+                    cShow = cShow + "3^".
             WHEN "svShowReportFooter" THEN
-            IF user-print.field-value[idx] EQ "no" THEN
-            cShow = cShow + "1^".
+                IF user-print.field-value[idx] EQ "no" THEN
+                    cShow = cShow + "1^".
             OTHERWISE
             cReturnValue = cReturnValue
-                         + "|" + TRIM(user-print.field-name[idx])
-                         + "^" + user-print.field-value[idx]
-                         .
+                + "|" + TRIM(user-print.field-name[idx])
+                + "^" + user-print.field-value[idx]
+                .
         END CASE.
     END. /* do idx */
     ASSIGN
@@ -698,11 +659,11 @@ END FUNCTION.
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBuildCustList :
-/*------------------------------------------------------------------------------
-  Purpose:     Template.rpa
-  Parameters:  Company, Use List?, Start Cust, End Cust, ID
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Template.rpa
+      Parameters:  Company, Use List?, Start Cust, End Cust, ID
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplList      AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipcStartCust AS CHARACTER NO-UNDO.
@@ -716,12 +677,13 @@ PROCEDURE pBuildCustList :
     EMPTY TEMP-TABLE ttCustList.
 
     IF iplList THEN
-    RUN sys/ref/CustList.p (ipcCompany, ipcID, YES, OUTPUT lActive).
-    ELSE DO:
+        RUN sys/ref/CustList.p (ipcCompany, ipcID, YES, OUTPUT lActive).
+    ELSE 
+    DO:
         FOR EACH bCust NO-LOCK
             WHERE bCust.company EQ ipcCompany
-              AND bCust.cust-no GE ipcStartCust
-              AND bCust.cust-no LE ipcEndCust
+            AND bCust.cust-no GE ipcStartCust
+            AND bCust.cust-no LE ipcEndCust
             :
             CREATE ttCustList.
             ASSIGN 
@@ -738,8 +700,8 @@ END PROCEDURE.
 
 
 /* For testing only!!!! */
-        lPost = YES.
-        dtPostDate = TODAY.
+lPost = YES.
+dtPostDate = TODAY.
 /*        cPostDateOption = DYNAMIC-FUNCTION("fGetParamValue","svPostDateOption")*/
 /*        dtPostDate = DYNAMIC-FUNCTION("fDateOptionDate",cPostDateOption,dtPostDate)*/
 /*        lCustList = DYNAMIC-FUNCTION("fGetParamValue","svCustList") EQ "yes"*/
@@ -749,22 +711,22 @@ END PROCEDURE.
 /*        lAllInvNo = DYNAMIC-FUNCTION("fGetParamValue","svAllInvNo") EQ "yes"*/
 /*        iStartInvNo = DYNAMIC-FUNCTION("fGetParamValue","svStartInvNo")*/
 /*        iEndInvNo = DYNAMIC-FUNCTION("fGetParamValue","svEndInvNo")*/
-        dtStartInvoiceDate = 1/1/2016.
+dtStartInvoiceDate = 1/1/2015.
 /*        cStartInvoiceDateOption = DYNAMIC-FUNCTION("fGetParamValue","svStartInvoiceDateOption")*/
 /*        dtStartInvoiceDate = DYNAMIC-FUNCTION("fDateOptionDate",cStartInvoiceDateOption,dtStartInvoiceDate)*/
-        dtEndInvoiceDate = TODAY. 
+dtEndInvoiceDate = TODAY. 
 /*        cEndInvoiceDateOption = DYNAMIC-FUNCTION("fGetParamValue","svEndInvoiceDateOption")*/
 /*        dtEndInvoiceDate = DYNAMIC-FUNCTION("fDateOptionDate",cEndInvoiceDateOption,dtEndInvoiceDate)*/
 /*        lInvoiceReportDetail = DYNAMIC-FUNCTION("fGetParamValue","svInvoiceReportDetail") EQ "yes"*/
 /*        lGLReportDetail = DYNAMIC-FUNCTION("fGetParamValue","svGLReportDetail") EQ "yes"*/
-        lPrintTon = YES.
+lPrintTon = YES.
 /*        cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")*/
 /*        cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")*/
 gCompany = "001".
 gLoc = "Main".
 
-iStartInvNo = 7848.
-iEndInvNo = 7848.
+iStartInvNo = 7632.
+iEndInvNo = 7632.
 
 ASSIGN
     cocode = gcompany
@@ -774,9 +736,13 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-  lpost = YES.
-   v-post = lPost.
-   RUN pPrintPost.
+    lpost = YES.
+    v-post = lPost.
+    RUN pPrintPost.
+    OUTPUT TO c:\temp\ttInvoicePostUpdateGL.d.
+    FOR EACH ttInvoicePostUpdateGL:
+        EXPORT ttInvoicePostUpdateGL.
+    END.
 END. /* Main block */
 
 /* _UIB-CODE-BLOCK-END */
@@ -800,7 +766,7 @@ PROCEDURE calc-tax-gr :
     DEFINE VARIABLE k      AS INTEGER NO-UNDO.
     DEFINE VARIABLE dAccum AS DECIMAL NO-UNDO.
 
-    FIND bf-inv-head WHERE ROWID(bf-inv-head) = ipr-head-row NO-LOCK NO-ERROR.
+    FIND bf-inv-head NO-LOCK WHERE ROWID(bf-inv-head) = ipr-head-row  NO-ERROR.
 
     IF NOT AVAILABLE bf-inv-head THEN
         RETURN.
@@ -813,57 +779,58 @@ PROCEDURE calc-tax-gr :
         NO-ERROR.
 
     ASSIGN 
-        v-ttl-tax  = 0
-        v-ttl-rate = 0.
-    FIND FIRST stax
+        dTotalTax  = 0
+        dTotalRate = 0.
+    FIND FIRST stax NO-LOCK
     {sys/ref/stax1W.i}
         AND {sys/ref/taxgroup.i stax} EQ bf-inv-head.tax-gr
-        NO-LOCK NO-ERROR.
+        NO-ERROR.
     IF NOT AVAILABLE stax THEN
-        FIND FIRST stax
+        FIND FIRST stax NO-LOCK
             WHERE stax.company = bf-inv-head.company AND
             stax.tax-group EQ bf-inv-head.tax-gr
-            NO-LOCK NO-ERROR.
+            NO-ERROR.
     dAccum = 1.
     IF AVAILABLE stax THEN 
     DO:
         DO i = 1 TO EXTENT(stax.tax-rate1):
             IF stax.tax-rate1[i] = 0 THEN NEXT.
-            v-tax-rate[i] = stax.tax-rate1[i].
+            dTaxRate[i] = stax.tax-rate1[i].
             IF stax.accum-tax THEN 
             DO: 
                 /*        ##PN - must find effective rate since this is accumulated*/
-                dAccum = dAccum  * (1 + v-tax-rate[i] / 100).
-                v-tax-rate[i] = 100 * (dAccum - (v-ttl-rate / 100) - 1).
+                dAccum = dAccum  * (1 + dTaxRate[i] / 100).
+                dTaxRate[i] = 100 * (dAccum - (dTotalRate / 100) - 1).
             END.
             IF stax.company EQ "yes" AND i GT 1 THEN
             DO k = 1 TO i - 1:
-                v-tax-rate[i] = v-tax-rate[i] +
-                    (v-tax-rate[i] * (stax.tax-rate1[k] / 100)).
+                dTaxRate[i] = dTaxRate[i] +
+                    (dTaxRate[i] * (stax.tax-rate1[k] / 100)).
             END.
-            v-ttl-rate = v-ttl-rate + v-tax-rate[i].
+            dTotalRate = dTotalRate + dTaxRate[i].
         END.
       
         DO i = 1 TO EXTENT(stax.tax-rate1):
             IF stax.tax-rate1[i] = 0 THEN NEXT.
             ASSIGN 
-                v-tax-rate[i] = ROUND(v-tax-rate[i] / v-ttl-rate *
+                dTaxRate[i] = ROUND(dTaxRate[i] / dTotalRate *
                                      bf-inv-head.t-inv-tax,2)
-                v-ttl-tax     = v-ttl-tax + v-tax-rate[i].
+                dTotalTax   = dTotalTax + dTaxRate[i]
+                .
         END.
       
-        IF bf-inv-head.t-inv-tax NE v-ttl-tax THEN
-            v-tax-rate[1] = v-tax-rate[1] +
-                (bf-inv-head.t-inv-tax - v-ttl-tax).
+        IF bf-inv-head.t-inv-tax NE dTotalTax THEN
+            dTaxRate[1] = dTaxRate[1] +
+                (bf-inv-head.t-inv-tax - dTotalTax).
       
         DO i = 1 TO EXTENT(stax.tax-rate1):
             IF stax.tax-rate1[i] = 0 THEN NEXT.
-            FIND FIRST account
+            FIND FIRST account NO-LOCK
                 WHERE account.company EQ cocode
                 AND account.actnum  EQ stax.tax-acc1[i]
-                NO-LOCK NO-ERROR.
+                NO-ERROR.
             
-            IF AVAILABLE account AND v-tax-rate[i] NE 0 THEN 
+            IF AVAILABLE account AND dTaxRate[i] NE 0 THEN 
             DO:
                 CREATE tt-report.
                 ASSIGN
@@ -872,11 +839,12 @@ PROCEDURE calc-tax-gr :
                     tt-report.key-02  = account.actnum
                     tt-report.key-03  = STRING(ipi-inv-no,"999999")
                     tt-report.key-04  = bf-inv-head.tax-gr
-                    tt-report.key-05  = STRING(v-tax-rate[i] *
+                    tt-report.key-05  = STRING(dTaxRate[i] *
                                       (IF AVAILABLE bf-currency  THEN
                                          bf-currency.ex-rate ELSE 1))
-                    tt-report.weight  = v-line-tot-w *
-                               (v-tax-rate[i] / bf-inv-head.t-inv-tax).
+                    tt-report.weight  = dLineTot-w *
+                               (dTaxRate[i] / bf-inv-head.t-inv-tax)
+                               .
             END. /* avail account */
 
         END. /* 1 to 3 */
@@ -901,10 +869,10 @@ PROCEDURE calc-tons :
     DEFINE BUFFER b-itemfg FOR itemfg.
 
 
-    FIND FIRST b-itemfg
+    FIND FIRST b-itemfg NO-LOCK
         WHERE b-itemfg.company EQ cocode
         AND b-itemfg.i-no    EQ ip-i-no
-        NO-LOCK NO-ERROR.
+        NO-ERROR.
     IF AVAILABLE b-itemfg AND b-itemfg.weight-100 NE 0 THEN
         op-weight = b-itemfg.weight-100 * ip-qty / 100.
 
@@ -948,7 +916,7 @@ PROCEDURE close-order-lines :
         WHERE oe-ordl.company EQ oe-ord.company
         AND oe-ordl.ord-no  EQ oe-ord.ord-no:
 
-        FIND itemfg OF oe-ordl NO-LOCK NO-ERROR.
+        FIND itemfg NO-LOCK OF oe-ordl  NO-ERROR.
     
         IF (oe-ordl.inv-qty  GE oe-ordl.qty * (1 - (oe-ordl.under-pct / 100)) OR
             oe-ordl.is-a-component)                                               AND
@@ -983,16 +951,17 @@ PROCEDURE copy-report-to-audit-dir :
                     + STRING(v-trnum) + ".txt"
         dirname1   = lv-audit-dir
         dirname2   = lv-audit-dir + "\OP"
-        dirname3   = lv-audit-dir + "\OP\OB4".
+        dirname3   = lv-audit-dir + "\OP\OB4"
+        .
 
-    OS-COPY VALUE(list-name) VALUE (targetfile).
+    OS-COPY VALUE(cListName) VALUE (targetfile).
 
     IF SEARCH(targetfile) EQ ? THEN 
     DO:
         OS-CREATE-DIR VALUE(dirname1).
         OS-CREATE-DIR VALUE(dirname2).
         OS-CREATE-DIR VALUE(dirname3).
-        OS-COPY VALUE(list-name) VALUE (targetfile).
+        OS-COPY VALUE(cListName) VALUE (targetfile).
     END.
 END PROCEDURE.
 
@@ -1017,7 +986,8 @@ PROCEDURE create-save-line :
             save-line.val[1]   = inv-line.r-no
             save-line.val[2]   = inv-head.r-no
             save-line.val[3]   = INT(RECID(inv-line))
-            inv-line.r-no      = inv-head.r-no.
+            inv-line.r-no      = inv-head.r-no
+            .
     END.
 
     FOR EACH inv-misc WHERE inv-misc.r-no EQ b-inv-head.r-no:
@@ -1027,7 +997,8 @@ PROCEDURE create-save-line :
             save-line.val[1]   = inv-misc.r-no
             save-line.val[2]   = inv-head.r-no
             save-line.val[3]   = INT(RECID(inv-misc))
-            inv-misc.r-no      = inv-head.r-no.
+            inv-misc.r-no      = inv-head.r-no
+            .
     END.
 
 END PROCEDURE.
@@ -1042,15 +1013,16 @@ PROCEDURE get-lot-no :
       Parameters:  <none>
       Notes:       THIS IS TO ASSIGN THE LOT NUMBER FROM THE REFTABLE TO 
     ------------------------------------------------------------------------------*/
-    FIND FIRST reftable WHERE
+    FIND FIRST reftable NO-LOCK WHERE
         reftable.reftable EQ "inv-line.lot-no" AND
         reftable.rec_key  EQ inv-line.rec_key
-        USE-INDEX rec_key NO-LOCK NO-ERROR.
+        USE-INDEX rec_key NO-ERROR.
 
     IF AVAILABLE reftable THEN 
     DO:
         ASSIGN 
-            ar-invl.lot-no = TRIM(reftable.CODE).
+            ar-invl.lot-no = TRIM(reftable.CODE)
+            .
     END.
 
 END PROCEDURE.
@@ -1072,15 +1044,15 @@ PROCEDURE get-tr-dscr :
     RELEASE ar-inv.
     RELEASE cust.
 
-    FIND FIRST ar-inv
+    FIND FIRST ar-inv NO-LOCK
         WHERE ar-inv.company EQ cocode
         AND ar-inv.inv-no  EQ ip-inv-no
-        NO-LOCK NO-ERROR.
+        NO-ERROR.
     IF AVAILABLE ar-inv THEN
-        FIND FIRST cust
+        FIND FIRST cust NO-LOCK
             WHERE cust.company EQ ar-inv.company
             AND cust.cust-no EQ ar-inv.cust-no
-            NO-LOCK NO-ERROR.
+            NO-ERROR.
     op-dscr = TRIM(IF AVAILABLE cust THEN cust.name ELSE "Cust not on file") +
         " Inv# " + STRING(ip-inv-no,"99999999").
 
@@ -1098,8 +1070,8 @@ PROCEDURE list-gl :
     ------------------------------------------------------------------------------*/
 
 
-    DEFINE VARIABLE v-gl-sales    AS DECIMAL   FORMAT ">>,>>>,>>9.99cr" NO-UNDO.
-    DEFINE VARIABLE v-dscr        LIKE account.dscr NO-UNDO.
+    DEFINE VARIABLE dGLSales    AS DECIMAL   FORMAT ">>,>>>,>>9.99cr" NO-UNDO.
+    DEFINE VARIABLE cAccountDscr        LIKE account.dscr NO-UNDO.
     DEFINE VARIABLE v-disp-actnum LIKE account.actnum NO-UNDO.
     DEFINE VARIABLE v-disp-amt    AS DECIMAL   FORMAT ">>,>>>,>>9.99cr" NO-UNDO.
     DEFINE VARIABLE v-tmp-amt     AS DECIMAL   FORMAT ">>,>>>,>>9.99cr" NO-UNDO.
@@ -1147,7 +1119,7 @@ PROCEDURE list-gl :
     /*    WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top-d PAGE-TOP WIDTH 150 STREAM-IO.*/
     /*                                                                                  */
     /*FORM v-disp-actnum                                                                */
-    /*     v-dscr                                                                       */
+    /*     cAccountDscr                                                                       */
     /*           FORMAT "99/99/9999"                                           */
     /*     v-disp-amt                                                                   */
     /*     ld-pton                                                                      */
@@ -1156,7 +1128,7 @@ PROCEDURE list-gl :
     /*    WITH DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 150 FRAME gl-sum.                  */
     /*                                                                                  */
     /*FORM account.actnum                                                               */
-    /*     v-dscr                                                                       */
+    /*     cAccountDscr                                                                       */
     /*     inv-head.inv-no   FORMAT ">>>>>>>>"                                          */
     /*     inv-line.i-no                                                                */
     /*     v-tmp-amt                                                                    */
@@ -1182,7 +1154,7 @@ PROCEDURE list-gl :
     DO WHILE TRUE.
         SESSION:SET-WAIT-STATE ("general").
 
-        list-name = TRIM(lv-list-name) + ".001".
+        cListName = TRIM(cCListName) + ".001".
 
 
         /** LIST G/L FOR LINE ITEMS **/
@@ -1206,13 +1178,15 @@ PROCEDURE list-gl :
 
             FOR EACH tmp-work-job BREAK BY tmp-work-job.actnum
                 BY tmp-work-job.inv-no:
-                FIND FIRST account WHERE account.company = cocode AND
+                FIND FIRST account NO-LOCK WHERE account.company = cocode AND
                     account.actnum  = tmp-work-job.actnum
-                    NO-LOCK NO-ERROR.
+                    NO-ERROR.
                 IF AVAILABLE account THEN
-                    ASSIGN v-dscr = account.dscr.
+                    ASSIGN cAccountDscr = account.dscr
+                    .
                 ELSE
-                    ASSIGN v-dscr = "ACCOUNT NOT FOUND - " + tmp-work-job.actnum.
+                    ASSIGN cAccountDscr = "ACCOUNT NOT FOUND - " + tmp-work-job.actnum
+                    .
 
                 ACCUMULATE tmp-work-job.amt (TOTAL BY tmp-work-job.actnum).
                 ld-t[1] = tmp-work-job.weight / 2000.
@@ -1220,10 +1194,12 @@ PROCEDURE list-gl :
                 IF tmp-work-job.fg THEN
                     ASSIGN v-tmp-amt  = - tmp-work-job.amt
                         v-disp-amt = v-disp-amt - tmp-work-job.amt
-                        ld-t[1]    = - ld-t[1].
+                        ld-t[1]    = - ld-t[1]
+                        .
                 ELSE
                     ASSIGN v-tmp-amt  = tmp-work-job.amt
-                        v-disp-amt = v-disp-amt + tmp-work-job.amt.
+                        v-disp-amt = v-disp-amt + tmp-work-job.amt
+                        .
 
                 ASSIGN
                     ld-t[2] = ld-t[2] + ld-t[1]
@@ -1232,7 +1208,7 @@ PROCEDURE list-gl :
                 IF ld-pton EQ ? THEN ld-pton = 0.
 
                 /*        DISPLAY tmp-work-job.actnum @ account.actnum*/
-                /*            v-dscr                                  */
+                /*            cAccountDscr                                  */
                 /*            tmp-work-job.inv-no @ inv-head.inv-no   */
                 /*            tmp-work-job.i-no   @ inv-line.i-no     */
                 /*            v-tmp-amt                               */
@@ -1253,29 +1229,35 @@ PROCEDURE list-gl :
 
                     ASSIGN
                         v-disp-amt = 0
-                        ld-t[2]    = 0.
+                        ld-t[2]    = 0
+                        .
                 END.
             END.
         END.
 
-        FOR EACH work-job BREAK BY work-job.actnum:
+        FOR EACH work-job NO-LOCK BREAK BY work-job.actnum:
             FIND FIRST account WHERE account.company = cocode AND
                 account.actnum  = work-job.actnum
-                NO-LOCK NO-ERROR.
+                NO-ERROR.
             IF AVAILABLE account THEN
-                ASSIGN v-dscr = account.dscr.
+                ASSIGN cAccountDscr = account.dscr
+                .
             ELSE
-                ASSIGN v-dscr = "ACCOUNT NOT FOUND - " + work-job.actnum.
+                ASSIGN cAccountDscr = "ACCOUNT NOT FOUND - " + work-job.actnum
+                .
 
             ASSIGN 
                 v-disp-actnum = work-job.actnum
-                ld-t[2]       = work-job.weight / 2000.
+                ld-t[2]       = work-job.weight / 2000
+                .
 
             IF work-job.fg THEN
                 ASSIGN v-disp-amt = - work-job.amt
-                    ld-t[2]    = - ld-t[2].
+                    ld-t[2]    = - ld-t[2]
+                    .
             ELSE
-                ASSIGN v-disp-amt = work-job.amt.
+                ASSIGN v-disp-amt = work-job.amt
+                .
 
             ld-pton = v-disp-amt / ld-t[2].
 
@@ -1284,7 +1266,7 @@ PROCEDURE list-gl :
             IF NOT lGLReportDetail THEN 
             DO:
             /*        DISPLAY v-disp-actnum   */
-            /*             v-dscr             */
+            /*             cAccountDscr             */
             /*                       */
             /*             v-disp-amt         */
             /*             ld-pton WHEN lPrintTon*/
@@ -1295,31 +1277,33 @@ PROCEDURE list-gl :
 
             ASSIGN
                 v-balance = v-balance + v-disp-amt
-                ld-t[3]   = ld-t[3] + ld-t[2].
+                ld-t[3]   = ld-t[3] + ld-t[2]
+                .
         END. /* each work-job */
         /** POST FREIGHT TO G/L **/
-        FIND FIRST account
+        FIND FIRST account NO-LOCK
             WHERE account.company EQ cocode
             AND account.actnum  EQ v-ar-freight
-            NO-LOCK NO-ERROR.
+            NO-ERROR.
         ASSIGN
-            v-dscr     = IF AVAILABLE account THEN account.dscr
+            cAccountDscr     = IF AVAILABLE account THEN account.dscr
                    ELSE "ACCOUNT NOT FOUND - FREIGHT"
             v-disp-amt = 0
             ld-t[2]    = 0.
 
         IF lGLReportDetail THEN 
         DO:
-            FOR EACH tt-report
+            FOR EACH tt-report NO-LOCK
                 WHERE tt-report.term-id EQ ""
                 AND tt-report.key-01  EQ "work-freight"
-                NO-LOCK
+                
                 BREAK BY tt-report.key-02:
 
                 ASSIGN
                     ld-t[1]    = tt-report.weight / 2000
                     v-disp-amt = v-disp-amt + dec(tt-report.key-05)
-                    ld-t[2]    = ld-t[2] + ld-t[1].
+                    ld-t[2]    = ld-t[2] + ld-t[1]
+                    .
 
                 IF dec(tt-report.key-05) NE 0 THEN 
                 DO:
@@ -1328,7 +1312,7 @@ PROCEDURE list-gl :
                     IF ld-pton EQ ? THEN ld-pton = 0.
 
                 /*          DISPLAY v-ar-freight          @ account.actnum */
-                /*                  v-dscr                                 */
+                /*                  cAccountDscr                                 */
                 /*                  int(tt-report.key-02) @ inv-head.inv-no*/
                 /*                  "FREIGHT"             @ inv-line.i-no  */
                 /*                  dec(tt-report.key-05) @ v-tmp-amt      */
@@ -1346,12 +1330,13 @@ PROCEDURE list-gl :
                 DO:
                     ld-pton = v-disp-amt / ld-t[2].
                     IF ld-pton EQ ? THEN ld-pton = 0.
-                    PUT ld-pton TO 138 ld-t[2] TO 148 SKIP(1).
+                   /* PUT ld-pton TO 138 ld-t[2] TO 148 SKIP(1). */
                 END.
                 ELSE PUT SKIP.
                 ASSIGN
                     v-disp-amt = 0
-                    ld-t[2]    = 0.
+                    ld-t[2]    = 0
+                    .
             END.
         END.
 
@@ -1367,7 +1352,7 @@ PROCEDURE list-gl :
             IF ld-pton EQ ? THEN ld-pton = 0.
 
         /*      DISPLAY v-disp-actnum      */
-        /*              v-dscr             */
+        /*              cAccountDscr             */
         /*                        */
         /*              v-disp-amt         */
         /*              ld-pton WHEN lPrintTon*/
@@ -1377,22 +1362,22 @@ PROCEDURE list-gl :
 
         v-balance = v-balance + v-post-freight.
         /** POST DISCOUNT TO G/L **/
-        FIND FIRST account
+        FIND FIRST account NO-LOCK
             WHERE account.company EQ cocode
             AND account.actnum  EQ v-ar-disc
-            NO-LOCK NO-ERROR.
+            NO-ERROR.
         ASSIGN
-            v-dscr     = IF AVAILABLE account THEN account.dscr
+            cAccountDscr     = IF AVAILABLE account THEN account.dscr
                    ELSE "ACCOUNT NOT FOUND - DISCOUNT"
             v-disp-amt = 0
             ld-t[2]    = 0.
 
         IF lGLReportDetail THEN 
         DO:
-            FOR EACH tt-report
+            FOR EACH tt-report NO-LOCK
                 WHERE tt-report.term-id EQ ""
                 AND tt-report.key-01  EQ "work-disc"
-                NO-LOCK
+                
                 BREAK BY tt-report.key-02:
 
                 ASSIGN
@@ -1407,7 +1392,7 @@ PROCEDURE list-gl :
                     IF ld-pton EQ ? THEN ld-pton = 0.
 
                 /*                    DISPLAY v-ar-disc             @ account.actnum*/
-                /*                        v-dscr                                    */
+                /*                        cAccountDscr                                    */
                 /*                        int(tt-report.key-02) @ inv-head.inv-no   */
                 /*                        "DISCOUNT"            @ inv-line.i-no     */
                 /*                        dec(tt-report.key-05) @ v-tmp-amt         */
@@ -1448,7 +1433,7 @@ PROCEDURE list-gl :
             IF ld-pton EQ ? THEN ld-pton = 0.
 
         /*            DISPLAY v-disp-actnum */
-        /*                v-dscr            */
+        /*                cAccountDscr            */
         /*                         */
         /*                v-disp-amt        */
         /*                ld-pton           */
@@ -1463,11 +1448,11 @@ PROCEDURE list-gl :
         /** POST CASH TO G/L **/
         IF v-post-cash NE 0 THEN 
         DO:
-            FIND FIRST account
+            FIND FIRST account NO-LOCK
                 WHERE account.company EQ cocode
                 AND account.actnum  EQ ar-ctrl.cash-act
-                NO-LOCK NO-ERROR.
-            v-dscr = IF AVAILABLE account THEN account.dscr
+                NO-ERROR.
+            cAccountDscr = IF AVAILABLE account THEN account.dscr
             ELSE "ACCOUNT NOT FOUND - CASH".
 
             IF lGLReportDetail THEN 
@@ -1476,10 +1461,9 @@ PROCEDURE list-gl :
                     v-disp-amt = 0
                     ld-t[2]    = 0.
 
-                FOR EACH tt-report
+                FOR EACH tt-report NO-LOCK
                     WHERE tt-report.term-id EQ ""
                     AND tt-report.key-01  EQ "work-cash"
-                    NO-LOCK
                     BREAK BY tt-report.key-02:
 
                     ASSIGN
@@ -1494,7 +1478,7 @@ PROCEDURE list-gl :
                         IF ld-pton EQ ? THEN ld-pton = 0.
 
                     /*                        DISPLAY ar-ctrl.cash-act    @ account.actnum*/
-                    /*                            v-dscr                                  */
+                    /*                            cAccountDscr                                  */
                     /*                            int(tt-report.key-02)  @ inv-head.inv-no*/
                     /*                            "CASH INVOICE"      @ inv-line.i-no     */
                     /*                            dec(tt-report.key-05)  @ v-tmp-amt      */
@@ -1535,7 +1519,7 @@ PROCEDURE list-gl :
                 IF ld-pton EQ ? THEN ld-pton = 0.
 
             /*        DISPLAY v-disp-actnum      */
-            /*                v-dscr             */
+            /*                cAccountDscr             */
             /*                          */
             /*                v-disp-amt         */
             /*                ld-pton WHEN lPrintTon*/
@@ -1547,12 +1531,12 @@ PROCEDURE list-gl :
             v-balance = v-balance + v-disp-amt.
         END.  
         /** OFFSET ENTRY TO G/L **/
-        FIND FIRST account
+        FIND FIRST account NO-LOCK
             WHERE account.company = cocode
             AND account.actnum  = v-ar-acct
-            NO-LOCK NO-ERROR.
+            NO-ERROR.
         ASSIGN
-            v-dscr        = IF AVAILABLE account THEN account.dscr
+            cAccountDscr        = IF AVAILABLE account THEN account.dscr
                      ELSE "ACCOUNT NOT FOUND - OFFSET"
             v-disp-actnum = v-ar-acct
             v-disp-amt    = v-post-total.
@@ -1566,7 +1550,7 @@ PROCEDURE list-gl :
             IF ld-pton EQ ? THEN ld-pton = 0.
 
         /*      DISPLAY v-ar-acct     @ account.actnum*/
-        /*              v-dscr                        */
+        /*              cAccountDscr                        */
         /*              v-disp-amt    @ v-tmp-amt     */
         /*              ld-pton WHEN lPrintTon           */
         /*              ld-t[1] WHEN lPrintTon           */
@@ -1583,7 +1567,7 @@ PROCEDURE list-gl :
             IF ld-pton EQ ? THEN ld-pton = 0.
 
         /*      DISPLAY v-disp-actnum      */
-        /*              v-dscr             */
+        /*              cAccountDscr             */
         /*                        */
         /*              v-disp-amt         */
         /*              ld-pton WHEN lPrintTon*/
@@ -1602,31 +1586,31 @@ PROCEDURE list-gl :
         /*          "Total:" AT 79 v-balance TO 104 SKIP.*/
     
 
-        IF ROUND(v-balance,2) NE 0 THEN 
-        DO:
-            OUTPUT CLOSE.
-
-            FIND FIRST tt-report {oe/invpost7.i} NO-LOCK NO-ERROR.
-            lv-rowid = IF AVAILABLE tt-report THEN ROWID(tt-report) ELSE ?.
-
-            RUN oe/invpost7.p (ROUND(v-balance,2), INPUT-OUTPUT lv-rowid).
-
-            FIND tt-report WHERE ROWID(tt-report) EQ lv-rowid NO-LOCK NO-ERROR.
-
-            IF AVAILABLE tt-report THEN 
-            DO:
-                CREATE b-tt-report. 
-                ASSIGN
-                    b-tt-report.term-id = ""
-                    b-tt-report.key-01  = tt-report.key-01
-                    b-tt-report.key-02  = tt-report.key-02
-                    v-balance           = v-balance * -1
-                    b-tt-report.key-05  = STRING(ROUND(v-balance,2),"-999,999,999.99")
-                    v-recid             = RECID(b-tt-report).
-
-                NEXT post-print.
-            END.
-        END.
+/*        IF ROUND(v-balance,2) NE 0 THEN                                               */
+/*        DO:                                                                           */
+/*            OUTPUT CLOSE.                                                             */
+/*                                                                                      */
+/*            FIND FIRST tt-report NO-LOCK {oe/invpost7.i}  NO-ERROR.                   */
+/*            lv-rowid = IF AVAILABLE tt-report THEN ROWID(tt-report) ELSE ?.           */
+/*                                                                                      */
+/*            RUN oe/invpost7.p (ROUND(v-balance,2), INPUT-OUTPUT lv-rowid).            */
+/*                                                                                      */
+/*            FIND tt-report NO-LOCK WHERE ROWID(tt-report) EQ lv-rowid  NO-ERROR.      */
+/*                                                                                      */
+/*            IF AVAILABLE tt-report THEN                                               */
+/*            DO:                                                                       */
+/*                CREATE b-tt-report.                                                   */
+/*                ASSIGN                                                                */
+/*                    b-tt-report.term-id = ""                                          */
+/*                    b-tt-report.key-01  = tt-report.key-01                            */
+/*                    b-tt-report.key-02  = tt-report.key-02                            */
+/*                    v-balance           = v-balance * -1                              */
+/*                    b-tt-report.key-05  = STRING(ROUND(v-balance,2),"-999,999,999.99")*/
+/*                    v-recid             = RECID(b-tt-report).                         */
+/*                                                                                      */
+/*                NEXT post-print.                                                      */
+/*            END.                                                                      */
+/*        END.                                                                          */
 
         LEAVE.
     END. /* post-print */
@@ -1671,12 +1655,12 @@ PROCEDURE list-post-inv :
     /*    inv-head.inv-date AT 8 FORMAT "99/99/99"                                   */
     /*    inv-head.cust-no AT 17                                                     */
     /*    inv-head.cust-name FORMAT "x(25)" AT 26                                    */
-    /*    v-ord-no TO 59                                                             */
-    /*    v-inv-qty                                                                  */
+    /*    v-ord-noTO 59                                                             */
+    /*    iInvoiceQty                                                                  */
     /*    inv-head.t-inv-freight FORMAT "->,>>9.99"                                  */
     /*    inv-head.t-inv-tax FORMAT "->,>>9.99"                                      */
-    /*    v-misc-tot FORMAT "->>>>9.99"                                              */
-    /*    v-line-tot FORMAT "->>>>>>9.99"                                            */
+    /*    dMiscTotal FORMAT "->>>>9.99"                                              */
+    /*    dLineTot FORMAT "->>>>>>9.99"                                            */
     /*    inv-head.t-inv-rev TO 131                                                  */
     /*    ld-pton                                                                    */
     /*    ld-t[2]                                                                    */
@@ -1691,7 +1675,7 @@ PROCEDURE list-post-inv :
     /*    w-inv-line.price FORMAT "->>>,>>9.99<<<<" LABEL "Price"                    */
     /*    w-inv-line.uom LABEL "UOM"                                                 */
     /*    w-inv-line.t-price COLUMN-LABEL "Extended! Price"                          */
-    /*    v-prof  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"                           */
+    /*    dProfit  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"                           */
     /*    w-inv-line.i-no AT 10 LABEL "Item"                                         */
     /*    w-inv-line.i-name FORMAT "x(25)" LABEL "Description"                       */
     /*    w-inv-line.qty FORMAT "->>,>>>,>>9" LABEL "Order"                          */
@@ -1703,7 +1687,7 @@ PROCEDURE list-post-inv :
     /*    w-inv-line.t-price COLUMN-LABEL "Extended! Price"                          */
     /*    ld-pton COLUMN-LABEL "!     $/Ton"                                         */
     /*    ld-t[1] COLUMN-LABEL "!      Tons"                                         */
-    /*    v-prof  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"                           */
+    /*    dProfit  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"                           */
     /*    WITH DOWN NO-BOX STREAM-IO WIDTH 171 FRAME invlt.                          */
     /*                                                                               */
     /*  FORMAT                                                                       */
@@ -1727,7 +1711,7 @@ PROCEDURE list-post-inv :
     DISABLE TRIGGERS FOR LOAD OF oe-rell.
     
     ordblock:
-    FOR EACH w-report WHERE w-report.term-id EQ "" NO-LOCK,
+    FOR EACH w-report NO-LOCK WHERE w-report.term-id EQ "" ,
     
         FIRST inv-head WHERE RECID(inv-head) EQ w-report.rec-id
         
@@ -1736,7 +1720,942 @@ PROCEDURE list-post-inv :
         BY w-report.key-01:
 
 
-        {oe/r-inve&pb.i}
+        /* {oe/r-inve&pb.i} */
+        
+
+        IF v-post THEN 
+        DO:
+            v-xno = 1.
+            FIND LAST ar-inv NO-LOCK USE-INDEX x-no  NO-ERROR.
+            IF AVAILABLE ar-inv THEN
+                ASSIGN
+                    v-xno = ar-inv.x-no + 1
+                    v-xline   = 0.
+
+            CREATE ar-inv.
+            {oe/invhpost.i}
+
+            IF cExportNk1 EQ "Sonoco" THEN 
+            DO:
+                RUN oe/sonofile.p (1,RECID(ar-inv)).
+                RUN ar/sonoinv.p ("inv-head", RECID(inv-head),
+                    OUTPUT iRecsWritten).
+                              
+                iTotRecsWritten = iTotRecsWritten + iRecsWritten.
+            END.
+        END.
+
+        RELEASE currency.
+        IF inv-head.terms NE "CASH"              AND
+            cCompCurr NE ""                    AND
+            cCompCurr NE inv-head.curr-code[1] THEN
+            FIND FIRST currency NO-LOCK
+                WHERE currency.company     EQ inv-head.company
+                AND currency.c-code      EQ inv-head.curr-code[1]
+                AND currency.ar-ast-acct NE ""
+                AND currency.ex-rate     GT 0
+                NO-ERROR.
+
+        ASSIGN
+            lPostable        = YES
+            v-reduce-ord-bal = 0
+            iInvoiceQty      = 0
+            dInvDisc         = 0
+            dLineTot         = 0
+            dMiscTotal       = 0
+            dLineTot-w       = 0
+            dInvDisc-w       = 0
+            v-ord-no          = 0
+            v-ord-date        = ?.
+
+        FOR EACH w-inv-line:
+            DELETE w-inv-line.
+        END.
+        
+        /************ line ITEMS ************************************************/
+        FOR EACH inv-line
+            WHERE inv-line.r-no EQ inv-head.r-no
+            USE-INDEX r-no BREAK BY inv-line.ord-no:
+
+            FIND FIRST itemfg
+            {sys/look/itemfgrlW.i}
+                AND itemfg.i-no EQ inv-line.i-no
+                NO-ERROR.
+
+            FIND FIRST uom NO-LOCK
+                WHERE uom.uom  EQ inv-line.pr-uom
+                AND uom.mult NE 0
+                NO-ERROR.
+
+            FIND FIRST oe-ordl
+                WHERE oe-ordl.company EQ cocode
+                AND oe-ordl.ord-no  EQ inv-line.ord-no
+                AND oe-ordl.line    EQ inv-line.line
+                AND oe-ordl.i-no    EQ inv-line.i-no
+                USE-INDEX ord-no NO-ERROR.
+
+            RELEASE oe-ord.
+            IF inv-line.ord-no NE 0 AND AVAILABLE oe-ordl THEN
+                FIND FIRST oe-ord NO-LOCK
+                    WHERE oe-ord.company EQ oe-ordl.company
+                    AND oe-ord.ord-no  EQ oe-ordl.ord-no
+                    NO-ERROR.
+
+            IF AVAILABLE oe-ord AND v-post THEN 
+            DO:
+            {oe/closeaud.i oe-ord}
+                CREATE w-ord.
+                ASSIGN
+                    w-ord.ord-no = oe-ord.ord-no
+                    w-ord.rec-id = RECID(oe-ord)
+                    .
+            END.
+          
+            ASSIGN
+                iInvoiceQty = iInvoiceQty + inv-line.inv-qty
+                iCaseCount  = IF inv-line.cas-cnt NE 0 THEN
+                         inv-line.cas-cnt
+                       ELSE
+                       IF AVAILABLE oe-ordl AND oe-ordl.cas-cnt NE 0 THEN
+                         oe-ordl.cas-cnt
+                       ELSE
+                       IF AVAILABLE itemfg AND itemfg.case-count NE 0 THEN
+                         itemfg.case-count
+                       ELSE 1.
+
+            IF FIRST(inv-line.ord-no) THEN
+                ASSIGN
+                    v-ord-no   = inv-line.ord-no
+                    v-ord-date = inv-line.ord-date.
+
+
+            /*if v-detail and not v-post then do:*/
+            CREATE w-inv-line.
+            ASSIGN
+                w-inv-line.ord-no   = inv-line.ord-no
+                w-inv-line.i-no     = inv-line.i-no
+                w-inv-line.i-name   = inv-line.i-name
+                w-inv-line.qty      = inv-line.qty
+                w-inv-line.inv-qty  = inv-line.inv-qty
+                w-inv-line.ship-qty = inv-line.ship-qty
+                w-inv-line.price    = inv-line.price
+                w-inv-line.uom      = inv-line.pr-uom
+                w-inv-line.t-price  = inv-line.t-price
+                w-inv-line.cost     = inv-line.cost
+                .
+            /*end.*/
+
+            IF AVAILABLE itemfg THEN
+                FIND FIRST fgcat NO-LOCK 
+                    WHERE fgcat.company EQ cocode
+                    AND fgcat.procat  EQ itemfg.procat
+                    NO-ERROR.
+            ELSE
+                IF v-post THEN UNDO ordblock, NEXT ordblock.
+
+            RUN oe/invlcost.p (ROWID(inv-line),
+                OUTPUT v-cost[1], OUTPUT v-cost[2],
+                OUTPUT v-cost[3], OUTPUT v-cost[4],
+                OUTPUT inv-line.cost, OUTPUT inv-line.t-cost).
+            w-inv-line.t-cost = inv-line.t-cost.
+            IF inv-line.inv-qty NE 0 AND
+                inv-line.t-cost EQ 0  AND 
+                NOT lPostZeroCGS   THEN UNDO ordblock, NEXT ordblock.
+
+            RUN oe/invposty.p (inv-head.inv-no, inv-line.i-no, inv-line.inv-qty,
+                "M", v-cost[1], v-cost[2], v-cost[3], v-cost[4]).
+
+            IF AVAILABLE itemfg AND v-post THEN 
+            DO:
+                ASSIGN
+                    v-invline = RECID(inv-line)
+                    v-invhead = RECID(inv-head).
+
+                RUN oe/invpost3.p (dtPostDate, tran-period).
+            END. /* avail itemfg & v-post */
+
+            RUN calc-tons (w-inv-line.i-no, w-inv-line.inv-qty, OUTPUT w-inv-line.weight).
+
+            IF inv-line.t-price NE 0 THEN 
+            DO:
+                dTempAmount = 0.
+                IF inv-line.disc NE 0 THEN 
+                DO:
+                    dTempAmount = ROUND((IF inv-line.pr-uom BEGINS "L" AND
+                        inv-line.pr-uom NE "LB"    THEN
+                        IF inv-line.inv-qty LT 0 THEN -1 ELSE 1
+                        ELSE
+                        IF inv-line.pr-uom EQ "CS" THEN
+                        inv-line.inv-qty / iCaseCount
+                        ELSE
+                        IF AVAILABLE uom THEN
+                        inv-line.inv-qty / uom.mult
+                        ELSE
+                        inv-line.inv-qty / 1000) *
+                        inv-line.price,2) -
+                        inv-line.t-price.
+
+                    IF AVAILABLE currency THEN
+                        dTempAmount = dTempAmount * currency.ex-rate.
+
+                    ASSIGN
+                        dInvDisc   = dInvDisc + dTempAmount
+                        dInvDisc-w = dInvDisc-w + w-inv-line.weight.
+                END.
+
+                CREATE tt-report.
+                ASSIGN
+                    tt-report.term-id = ""
+                    tt-report.key-01  = "work-line"
+                    tt-report.key-02  = IF AVAILABLE fgcat AND fgcat.glacc NE ""
+                                 THEN fgcat.glacc ELSE v-ar-sales
+                    tt-report.key-03  = STRING(inv-head.inv-no,"999999")
+                    tt-report.key-04  = inv-line.i-no
+                    tt-report.weight  = w-inv-line.weight
+                    dTempAmount       = dTempAmount +
+                                 (inv-line.t-price *
+                                  (IF AVAILABLE currency THEN currency.ex-rate ELSE 1))
+                    tt-report.key-05  = STRING(dTempAmount).
+            END.
+
+            IF v-post THEN 
+            DO:
+                /*** Calculate the amount of dollars to take out of the
+                     customer's on order balance ***/
+                FIND CURRENT oe-ordl NO-ERROR.
+                IF AVAILABLE oe-ordl THEN 
+                DO:
+                  
+                    RUN ar/calctax2.p (oe-ord.tax-gr,
+                        NO,
+                        oe-ordl.t-price,
+                        oe-ordl.company, 
+                        oe-ordl.i-no,
+                        OUTPUT dTax).
+
+                    dUninvOrdlAmt = oe-ordl.t-price +
+                        (IF oe-ordl.tax THEN dTax ELSE 0).
+
+                    FOR EACH ar-invl NO-LOCK
+                        WHERE ar-invl.company EQ cocode
+                        AND ar-invl.posted  EQ YES
+                        AND ar-invl.cust-no EQ inv-head.cust-no
+                        AND ar-invl.ord-no  EQ inv-line.ord-no
+                        AND ar-invl.line    EQ inv-line.line
+                        AND ar-invl.i-no    EQ inv-line.i-no
+                        USE-INDEX inv-status :
+                  
+                        RUN ar/calctax2.p (ar-inv.tax-code, 
+                            NO,
+                            ar-invl.amt,
+                            ar-invl.company,
+                            ar-invl.i-no,
+                            OUTPUT dTax).
+                
+                        dUninvOrdlAmt = dUninvOrdlAmt - ar-invl.amt -
+                            (IF ar-invl.tax THEN dTax ELSE 0).
+                    END.
+                END.
+
+                ELSE
+                    dUninvOrdlAmt = 0.
+
+                dTax = 0.
+                IF inv-line.tax THEN
+                    RUN ar/calctax2.p (inv-head.tax-gr, 
+                        NO,
+                        inv-line.t-price, 
+                        inv-line.company,
+                        inv-line.i-no,
+                        OUTPUT dTax).
+                                  
+                IF inv-line.t-price + dTax LT dUninvOrdlAmt THEN
+                    v-reduce-ord-bal = v-reduce-ord-bal + inv-line.t-price + dTax.
+                ELSE
+                    v-reduce-ord-bal = v-reduce-ord-bal + dUninvOrdlAmt.
+
+                CREATE ar-invl.
+            
+                {oe/invlpost.i}.
+
+                /* gdm - 09290908 */ RUN get-lot-no.
+
+                IF cExportNk1 EQ "Sonoco" THEN RUN oe/sonofile.p (2,RECID(ar-invl)).
+                ELSE
+                    IF cExportNk1 EQ "Inland" THEN RUN ar/jdedward.p (RECID(ar-invl)).
+                    ELSE 
+                    DO:
+                        IF cExportNk1 EQ "Excel" THEN 
+                        DO: 
+                            RUN ar/jdedwrdx.p (RECID(ar-invl), INPUT v-first).
+                            v-first = NO.
+                        END.
+                    END.
+            END. /* v-post */
+          
+            IF AVAILABLE tt-report THEN
+                ASSIGN
+                    dLineTot   = dLineTot   + inv-line.t-price
+                    dLineTot-w = dLineTot-w + tt-report.weight
+                    .
+
+            IF v-post THEN 
+            DO:
+                IF inv-line.ord-no NE 0 THEN 
+                DO:
+                    /* Sum all release qty */
+                    dSumRelQty = 0.
+
+                    FOR EACH oe-boll NO-LOCK
+                        WHERE oe-boll.company EQ inv-line.company
+                        AND oe-boll.b-no    EQ inv-line.b-no
+                        AND oe-boll.ord-no  EQ inv-line.ord-no
+                        AND oe-boll.i-no    EQ inv-line.i-no
+                        AND oe-boll.line    EQ inv-line.line
+                        AND oe-boll.po-no   EQ inv-line.po-no
+                        AND CAN-FIND(FIRST oe-bolh
+                        WHERE oe-bolh.b-no   EQ oe-boll.b-no
+                        AND oe-bolh.posted EQ YES)
+                
+                        BREAK BY oe-boll.r-no
+                        BY oe-boll.rel-no
+                        BY oe-boll.b-ord-no:
+
+                        IF FIRST-OF(oe-boll.b-ord-no) THEN
+                            FOR EACH oe-rell NO-LOCK
+                                WHERE oe-rell.company  EQ oe-boll.company
+                                AND oe-rell.ord-no   EQ oe-boll.ord-no
+                                AND oe-rell.line     EQ oe-boll.line
+                                AND oe-rell.i-no     EQ oe-boll.i-no
+                                AND oe-rell.r-no     EQ oe-boll.r-no
+                                AND oe-rell.rel-no   EQ oe-boll.rel-no
+                                AND oe-rell.b-ord-no EQ oe-boll.b-ord-no
+                                AND CAN-FIND(FIRST oe-relh
+                                WHERE oe-relh.r-no   EQ oe-boll.r-no
+                                AND oe-relh.posted EQ YES)
+                                USE-INDEX ord-no :
+                                dSumRelQty = dSumRelQty + oe-rell.qty.
+                            END.
+                    END.
+
+                    IF dSumRelQty GE oe-ordl.qty AND 
+                        (CAN-FIND(oe-boll WHERE oe-boll.company EQ inv-line.company
+                        AND oe-boll.b-no   EQ inv-line.b-no
+                        AND oe-boll.ord-no EQ inv-line.ord-no
+                        AND oe-boll.i-no   EQ inv-line.i-no
+                        AND oe-boll.line   EQ inv-line.line
+                        AND oe-boll.po-no  EQ inv-line.po-no
+                        AND oe-boll.p-c    EQ TRUE) OR
+                        inv-line.p-c EQ TRUE) THEN
+                        FOR EACH oe-ordl WHERE oe-ordl.company EQ cocode
+                            AND oe-ordl.ord-no  EQ inv-line.ord-no
+                            AND oe-ordl.i-no    EQ inv-line.i-no:
+                            /* previous runs may have overstated the shipped qty.  re-acquire the "truth" */
+                            RUN oe/ordlsqty.p (ROWID(oe-ordl), OUTPUT oe-ordl.inv-qty, 
+                                OUTPUT oe-ordl.ship-qty).
+                            ASSIGN 
+                                oe-ordl.t-ship-qty = oe-ordl.ship-qty.
+                            ASSIGN 
+                                iCloseQty = oe-ordl.qty - oe-ordl.t-ship-qty.
+                            IF iCloseQty LT 0 
+                                /*10021404 - also do not reduce allocated for Invoice Only*/
+                                OR (CAN-FIND(oe-boll WHERE oe-boll.company EQ inv-line.company
+                                AND oe-boll.b-no   EQ inv-line.b-no
+                                AND oe-boll.ord-no EQ inv-line.ord-no
+                                AND oe-boll.i-no   EQ inv-line.i-no
+                                AND oe-boll.line   EQ inv-line.line
+                                AND oe-boll.po-no  EQ inv-line.po-no
+                                AND oe-boll.s-code EQ "I"))
+                                THEN iCloseQty = 0.
+
+                            FIND FIRST xoe-ord NO-LOCK WHERE xoe-ord.company EQ cocode
+                                AND xoe-ord.ord-no  EQ oe-ordl.ord-no
+                                NO-ERROR.
+
+                            IF AVAILABLE itemfg THEN 
+                            DO:
+                                IF xoe-ord.type NE "T" THEN
+                                    itemfg.q-alloc = itemfg.q-alloc - iCloseQty.
+                                IF itemfg.q-alloc LT 0 THEN itemfg.q-alloc = 0.
+
+                                itemfg.q-avail = itemfg.q-onh + itemfg.q-ono - itemfg.q-alloc.
+                                IF itemfg.q-avail LT 0 THEN itemfg.q-avail = 0.
+
+                                RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT xoe-ord.loc).
+
+                                FIND FIRST itemfg-loc 
+                                    WHERE itemfg-loc.company EQ itemfg.company
+                                    AND itemfg-loc.i-no    EQ itemfg.i-no
+                                    AND itemfg-loc.loc     EQ xoe-ord.loc
+                                    EXCLUSIVE-LOCK NO-ERROR.
+
+                                ASSIGN
+                                    itemfg.q-ptd     = itemfg.q-ptd     - iCloseQty
+                                    itemfg.q-ord-ytd = itemfg.q-ord-ytd - iCloseQty.
+
+                                IF AVAILABLE itemfg-loc THEN
+                                    itemfg-loc.q-alloc = itemfg-loc.q-alloc - iCloseQty.
+                          
+                                IF AVAIL(itemfg-loc) THEN 
+                                DO:
+                                    IF itemfg-loc.q-alloc LT 0 THEN itemfg-loc.q-alloc = 0.
+    
+                                    itemfg-loc.q-avail = itemfg-loc.q-onh + itemfg-loc.q-ono - itemfg-loc.q-alloc.
+                                    IF itemfg-loc.q-avail LT 0 THEN itemfg-loc.q-avail = 0.
+    
+                                    ASSIGN
+                                        itemfg-loc.q-ptd     = itemfg-loc.q-ptd     - iCloseQty
+                                        itemfg-loc.q-ord-ytd = itemfg-loc.q-ord-ytd - iCloseQty.
+                                END.
+                                FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
+                            END.
+
+                            IF iCloseQty GT 0 THEN 
+                            DO:
+                                ASSIGN
+                                    iUomRate = IF oe-ordl.pr-uom EQ "M"  THEN 1000
+                                ELSE
+                                IF oe-ordl.pr-uom EQ "C"  THEN 100
+                                ELSE
+                                IF AVAILABLE itemfg           AND
+                                   oe-ordl.pr-uom  EQ "CS"
+                                                          THEN itemfg.case-count
+                                ELSE 1
+
+                                    dDcrVal  = (iCloseQty / iUomRate) * oe-ordl.price
+                                    dDcrVal  = dDcrVal - (dDcrVal * oe-ordl.disc / 100).
+
+                                IF oe-ordl.tax THEN 
+                                DO:
+                                    RUN ar/calctax2.p (oe-ord.tax-gr, 
+                                        NO,
+                                        dDcrVal,
+                                        oe-ordl.company,
+                                        oe-ordl.i-no,
+                                        OUTPUT dTax).
+                                      
+                                    dDcrVal = dDcrVal + dTax.
+                                END.
+                  
+                                IF AVAILABLE cust THEN cust.ord-bal = cust.ord-bal - dDcrVal.
+                            END.
+
+                        /*RUN oe/clslnchkinv.p (BUFFER oe-ordl,OUTPUT v-close-line-ok).
+                        IF v-close-line-ok THEN
+                           RUN oe/closelin.p (ROWID(oe-ordl),YES).*/
+                
+                        END. /* for each oe-ordl */
+                END.
+            END.
+            STATUS DEFAULT "Posting for Invoic#: " + string(inv-head.inv-no) +
+                ", Item: " + inv-line.i-no.
+        END. /* each inv-line */
+
+        /******************* MISCELLANEOUS ITEMS ***********************************/
+        /* Be aware that job nos are not stroed in ar-invl records for misc charges*/
+
+        FOR EACH inv-misc
+            WHERE inv-misc.r-no EQ inv-head.r-no
+            USE-INDEX r-no:
+
+            IF v-detail AND NOT v-post AND inv-misc.bill EQ "Y" THEN 
+            DO:
+                CREATE w-ord-misc.
+                ASSIGN
+                    w-ord-misc.ord-no = inv-misc.ord-no
+                    w-ord-misc.charge = inv-misc.charge
+                    w-ord-misc.dscr   = inv-misc.dscr
+                    w-ord-misc.amt    = inv-misc.amt
+                    w-ord-misc.tax    = inv-misc.tax
+                    w-ord-misc.bill   = inv-misc.bill.
+            END. /* v-detail */
+
+            IF inv-misc.bill EQ "Y" AND inv-misc.amt NE 0 THEN 
+            DO:
+                CREATE tt-report.
+                ASSIGN
+                    tt-report.term-id = ""
+                    tt-report.key-01  = "work-misc"
+                    tt-report.key-02  = IF inv-misc.actnum NE ""
+                                 THEN inv-misc.actnum ELSE v-ar-sales
+                    tt-report.key-03  = STRING(inv-head.inv-no,"999999")
+                    tt-report.key-04  = inv-misc.charge
+                    tt-report.key-05  = STRING(inv-misc.amt *
+                                        (IF AVAILABLE currency  THEN
+                                           currency.ex-rate ELSE 1)).
+
+                dMiscTotal = dMiscTotal + inv-misc.amt.
+                
+                RELEASE oe-ord.
+                IF inv-misc.ord-no NE 0 THEN
+                    FIND FIRST oe-ord NO-LOCK
+                        WHERE oe-ord.company EQ inv-misc.company
+                        AND oe-ord.ord-no  EQ inv-misc.ord-no
+                        NO-ERROR.
+
+                IF AVAILABLE oe-ord AND v-post THEN 
+                DO:
+              {oe/closeaud.i oe-ord}
+                    CREATE w-ord.
+                    ASSIGN
+                        w-ord.ord-no = oe-ord.ord-no
+                        w-ord.rec-id = RECID(oe-ord).
+                END.
+            END.
+
+            IF v-post THEN 
+            DO:
+                FIND FIRST oe-ordm
+                    WHERE oe-ordm.company EQ inv-misc.company
+                    AND oe-ordm.ord-no  EQ inv-misc.ord-no
+                    AND oe-ordm.line    EQ inv-misc.line
+                    AND oe-ordm.charge  EQ inv-misc.charge
+                    NO-ERROR.
+                IF AVAILABLE oe-ordm THEN 
+                DO:
+                    IF oe-ordm.bill EQ "P" THEN oe-ordm.bill = IF inv-misc.bill EQ "Y" THEN "I" ELSE "Y".
+
+                    FOR EACH reftable NO-LOCK
+                        WHERE reftable.reftable EQ "oe/ordlmisc.p"
+                        AND reftable.company  EQ oe-ordm.company
+                        AND reftable.loc      EQ STRING(oe-ordm.ord-no,"9999999999")
+                        AND reftable.code     EQ STRING(oe-ordm.line,"9999999999")
+                        AND reftable.code2    EQ oe-ordm.charge
+                        :
+
+                        IF reftable.val[1] EQ 1 THEN
+                            FOR EACH est-prep
+                                WHERE est-prep.company EQ oe-ordm.company
+                                AND est-prep.est-no  EQ oe-ordm.est-no
+                                AND est-prep.eqty    EQ reftable.val[2]
+                                AND est-prep.line    EQ INT(reftable.val[3])
+                                AND est-prep.code    EQ oe-ordm.charge
+                                AND est-prep.simon   EQ "S"
+                                AND est-prep.amtz    EQ 100:
+                                IF oeprep-log THEN DELETE est-prep.
+                                ELSE est-prep.simon = "N".
+                            END.
+
+
+                        LEAVE.
+                    END.
+                END.
+
+                IF inv-misc.bill EQ "Y" THEN 
+                DO:
+                    RUN ar/calctax2.p (inv-head.tax-gr, 
+                        NO,
+                        inv-misc.amt,
+                        inv-misc.company,
+                        inv-misc.inv-i-no,
+                        OUTPUT dTax).
+                
+                    v-reduce-ord-bal = v-reduce-ord-bal + inv-misc.amt +
+                        (IF inv-misc.tax THEN dTax ELSE 0).
+                END.
+              
+                FIND FIRST ar-invl NO-LOCK
+                    WHERE ar-invl.x-no EQ v-xno
+                    AND ar-invl.line EQ v-xline + 1
+                    NO-ERROR.
+                IF NOT AVAILABLE ar-invl THEN CREATE ar-invl.
+                {oe/invmpost.i}.
+
+                /* gdm - 09290908 */ RUN get-lot-no.
+
+                IF inv-misc.bill NE "Y" THEN ar-invl.bill = NO.
+                IF cExportNk1 EQ "Sonoco" THEN RUN oe/sonofile.p (3,RECID(ar-invl)).
+            END. /* v-post */
+                    
+        END. /* each inv-misc */
+
+        /******************* DISCOUNT ITEMS ****************************************/
+        ASSIGN
+            v-post-disc   = v-post-disc   + dInvDisc
+            v-post-disc-w = v-post-disc-w + dInvDisc-w.
+
+        IF dInvDisc NE 0 THEN 
+        DO:
+            CREATE tt-report.
+            ASSIGN
+                tt-report.term-id = ""
+                tt-report.key-01  = "work-disc"
+                tt-report.key-02  = STRING(inv-head.inv-no,"999999")
+                tt-report.key-05  = STRING(dInvDisc)
+                tt-report.weight  = dInvDisc-w
+                .
+        END.
+
+        /******************* TAX ITEMS *********************************************/
+        IF inv-head.t-inv-Tax NE 0 THEN 
+        DO:
+            IF inv-head.tax-gr NE "" THEN 
+            DO:
+                IF inv-head.multi-invoice THEN 
+                DO:
+                    FOR EACH b-inv-head
+                        WHERE b-inv-head.company       EQ inv-head.company
+                        AND b-inv-head.cust-no       EQ inv-head.cust-no
+                        AND b-inv-head.inv-no        EQ inv-head.inv-no
+                        AND b-inv-head.multi-invoice EQ NO:
+                        RUN calc-tax-gr (ROWID(b-inv-head), inv-head.inv-no).
+                    END.
+
+                END.
+                ELSE 
+                    RUN calc-tax-gr (ROWID(inv-head), inv-head.inv-no).
+
+            END.
+
+            ELSE 
+            DO:
+                FIND FIRST account NO-LOCK
+                    WHERE account.company EQ cocode
+                    AND account.actnum  EQ v-ar-stax
+                    NO-ERROR.
+                CREATE tt-report.
+                ASSIGN
+                    tt-report.term-id = ""
+                    tt-report.key-01  = "work-tax"
+                    tt-report.key-02  = account.actnum
+                    tt-report.key-03  = STRING(inv-head.inv-no,"999999")
+                    tt-report.key-05  = STRING(inv-head.t-inv-tax *
+                                        (IF AVAILABLE currency  THEN
+                                           currency.ex-rate ELSE 1))
+                    tt-report.weight  = dLineTot-w
+                    .
+            END.
+        END.
+
+        IF NOT v-post THEN 
+        DO:
+            ASSIGN
+                ld-t[2] = dLineTot-w / 2000
+                ld-t[3] = ld-t[3] + dLineTot-w
+                ld-pton = inv-head.t-inv-rev / ld-t[2]
+                .
+
+            IF ld-pton EQ ? THEN ld-pton = 0.
+
+            /*          display inv-head.inv-no inv-head.inv-date                  */
+            /*                  inv-head.cust-no inv-head.cust-name v-ord-no      */
+            /*                  iInvoiceQty inv-head.t-inv-freight inv-head.t-inv-tax*/
+            /*                  dMiscTotal dLineTot inv-head.t-inv-rev           */
+            /*                  ld-pton WHEN lPrintTon                                */
+            /*                  ld-t[2] WHEN lPrintTon                                */
+            /*              with frame inv.                                        */
+            /*                                                                     */
+            IF NOT v-detail THEN 
+            DO:
+         
+                /* Create temp-table without detail info */
+                CREATE ttInvoicePostUpdateGL.
+                ASSIGN
+                    ttInvoicePostUpdateGL.invNo             = inv-head.inv-no
+                    ttInvoicePostUpdateGL.invDate           = inv-head.inv-date
+                    ttInvoicePostUpdateGL.custNo            = inv-head.cust-no
+                    ttInvoicePostUpdateGL.custName          = inv-head.cust-name
+                    ttInvoicePostUpdateGL.orderNumber       = v-ord-no
+                    ttInvoicePostUpdateGL.invoiceQty        = iInvoiceQty
+                    ttInvoicePostUpdateGL.totInvoicefreight = inv-head.t-inv-freight
+                    ttInvoicePostUpdateGL.totInvoiceTax     = inv-head.t-inv-tax
+                    ttInvoicePostUpdateGL.miscTot           = dMiscTotal
+                    ttInvoicePostUpdateGL.lineTot           = dLineTot
+                    ttInvoicePostUpdateGL.iInvRev           = inv-head.t-inv-rev
+                    .
+                IF lPrintTon THEN 
+                    ASSIGN 
+                        ttInvoicePostUpdateGL.weightPerTon = ld-t[2]
+                        ttInvoicePostUpdateGL.pricePerTon  = ld-pton
+                        .
+              
+            END.
+          
+            ELSE 
+            DO:
+                /* If v-detail */
+                FOR EACH w-inv-line BREAK BY w-inv-line.ord-no:
+                    IF lPrintTon THEN 
+                    DO WITH FRAME invlt:
+                        ASSIGN
+                            ld-t[1] = w-inv-line.weight / 2000
+                            ld-pton = w-inv-line.t-price / ld-t[1].
+
+                        IF ld-pton EQ ? THEN ld-pton = 0.
+                        dProfit = (w-inv-line.t-price - w-inv-line.t-cost) / w-inv-line.t-price * 100.
+                    /*                display w-inv-line.i-no w-inv-line.i-name w-inv-line.qty                               */
+                    /*                        w-inv-line.inv-qty w-inv-line.ship-qty                                         */
+                    /*                        w-inv-line.price w-inv-line.uom w-inv-line.t-price WHEN w-inv-line.t-price GT 0*/
+                    /*                        ld-pton WHEN lPrintTon                                                            */
+                    /*                        ld-t[1] WHEN lPrintTon                                                            */
+                    /*                        dProfit WHEN dProfit NE ?.                                                       */
+       
+                    END.
+                    ELSE
+                    DO WITH FRAME invl:
+                        dProfit = (w-inv-line.t-price - w-inv-line.t-cost) / w-inv-line.t-price * 100.
+                    /*                display w-inv-line.i-no w-inv-line.i-name w-inv-line.qty                               */
+                    /*                        w-inv-line.inv-qty w-inv-line.ship-qty w-inv-line.t-cost                       */
+                    /*                        w-inv-line.price w-inv-line.uom w-inv-line.t-price WHEN w-inv-line.t-price GT 0*/
+                    /*                        dProfit WHEN dProfit NE ?.                                                       */
+                
+                    END.
+                    CREATE ttInvoicePostUpdateGL.
+                    ASSIGN
+                        ttInvoicePostUpdateGL.invNo             = inv-head.inv-no
+                        ttInvoicePostUpdateGL.invDate           = inv-head.inv-date
+                        ttInvoicePostUpdateGL.custNo            = inv-head.cust-no
+                        ttInvoicePostUpdateGL.custName          = inv-head.cust-name
+                        ttInvoicePostUpdateGL.orderNumber       = v-ord-no
+                        ttInvoicePostUpdateGL.invoiceQty        = iInvoiceQty
+                        ttInvoicePostUpdateGL.totInvoicefreight = inv-head.t-inv-freight
+                        ttInvoicePostUpdateGL.totInvoiceTax     = inv-head.t-inv-tax
+                        ttInvoicePostUpdateGL.miscTot           = dMiscTotal
+                        ttInvoicePostUpdateGL.lineTot           = dLineTot
+                        ttInvoicePostUpdateGL.iInvRev           = inv-head.t-inv-rev
+                        /*                ttInvoicePostUpdateGL.weightPerTon      = inv-head.weightPerTon*/
+                        /*                ttInvoicePostUpdateGL.pricePerTon       = inv-head.pricePerTon */
+                        ttInvoicePostUpdateGL.iNo               = w-inv-line.i-no
+                        ttInvoicePostUpdateGL.iName             = w-inv-line.i-name
+                        ttInvoicePostUpdateGL.qty               = w-inv-line.qty
+                        ttInvoicePostUpdateGL.invQty            = w-inv-line.inv-qty
+                        ttInvoicePostUpdateGL.shipQty           = w-inv-line.ship-qty
+                        ttInvoicePostUpdateGL.price             = w-inv-line.price
+                        ttInvoicePostUpdateGL.uom               = w-inv-line.uom
+                        ttInvoicePostUpdateGL.TotPrice          = w-inv-line.t-price
+                        ttInvoicePostUpdateGL.profit            = dProfit
+                        .
+                    IF lPrintTon THEN 
+                        ASSIGN 
+                            ttInvoicePostUpdateGL.weightPerTon = ld-t[1] 
+                            ttInvoicePostUpdateGL.pricePerTon  = ld-pton
+                            .
+                    DELETE w-inv-line.
+
+                END.
+
+                FOR EACH w-ord-misc BREAK BY w-ord-misc.ord-no WITH FRAME invm:
+                    /*              if first(w-ord-misc.ord-no) then                         */
+                    /*              put "Miscellaneous" at 10 skip.                          */
+                    /*              display w-ord-misc.charge w-ord-misc.dscr w-ord-misc.amt.*/
+                    /*              if w-ord-misc.bill eq "N" then                           */
+                    /*              display "       N/C" @ w-ord-misc.amt.                   */
+        
+                    DELETE w-ord-misc.
+                END. /* each w-inv-line */
+            END.
+
+        END. /* not v-post */
+
+        ASSIGN
+            v-post-total   = v-post-total   + inv-head.t-inv-rev
+            v-post-total-w = v-post-total-w + dLineTot-w.
+
+        IF AVAILABLE currency THEN 
+        DO:
+            CREATE tt-report.
+            ASSIGN
+                tt-report.term-id = ""
+                tt-report.key-01  = "work-curr"
+                tt-report.key-02  = currency.ar-ast-acct
+                tt-report.key-05  = STRING(((inv-head.t-inv-rev * currency.ex-rate) -
+                                       inv-head.t-inv-rev) * -1).
+        END.
+
+        v-tot-frt = 0.
+        IF inv-head.multi-invoice THEN
+            FOR EACH b-inv-head
+                WHERE b-inv-head.company       EQ inv-head.company
+                AND b-inv-head.cust-no       EQ inv-head.cust-no
+                AND b-inv-head.inv-no        EQ inv-head.inv-no
+                AND b-inv-head.multi-invoice EQ NO:
+  
+                IF b-inv-head.f-bill AND b-inv-head.t-inv-freight NE 0 THEN 
+                    v-tot-frt = v-tot-frt + b-inv-head.t-inv-freight *
+                        (IF AVAILABLE currency THEN currency.ex-rate ELSE 1).
+            END.
+        ELSE
+            IF inv-head.f-bill THEN
+                v-tot-frt = inv-head.t-inv-freight *
+                    (IF AVAILABLE currency THEN currency.ex-rate ELSE 1).
+        /** if Freight Is Billable then Post to GL **/
+        IF v-tot-frt NE 0 THEN 
+        DO:
+            dTempAmount = v-tot-frt.
+            ASSIGN
+                v-post-freight   = v-post-freight   - dTempAmount
+                v-post-freight-w = v-post-freight-w - dLineTot-w
+                v-reduce-ord-bal = v-reduce-ord-bal + v-tot-frt
+                .
+
+            CREATE tt-report.
+            ASSIGN
+                tt-report.term-id = ""
+                tt-report.key-01  = "work-freight"
+                tt-report.key-02  = STRING(inv-head.inv-no,"999999")
+                tt-report.key-05  = STRING(- dTempAmount)
+                tt-report.weight  = - dLineTot-w
+                .
+        END.
+
+        IF inv-head.terms EQ "CASH" AND inv-head.t-inv-rev NE 0 THEN 
+        DO:
+            ASSIGN
+                v-post-cash    = v-post-cash    + inv-head.t-inv-rev
+                v-post-total   = v-post-total   - inv-head.t-inv-rev
+                v-post-cash-w  = v-post-cash-w  + dLineTot-w
+                v-post-total-w = v-post-total-w - dLineTot-w.
+
+            CREATE tt-report.
+            ASSIGN
+                tt-report.term-id = ""
+                tt-report.key-01  = "work-cash"
+                tt-report.key-02  = STRING(inv-head.inv-no,"999999")
+                tt-report.key-05  = STRING(inv-head.t-inv-rev)
+                tt-report.weight  = dLineTot-w.
+        END.
+
+        IF v-post THEN 
+        DO:
+            RUN oe/invcust.p (RECID(inv-head), v-ord-no, dtPostDate, tran-period).
+
+            IF AVAILABLE ar-inv THEN 
+            DO:
+                ASSIGN
+                    ar-inv.ord-no   = v-ord-no
+                    ar-inv.ord-date = v-ord-date.
+
+                RUN oe/invcost.p (RECID(ar-inv)).
+
+                RELEASE ar-inv.
+            END.
+
+            /* update loadtag status - Bill of lading task#: 10190414 */
+            FOR EACH inv-line NO-LOCK OF inv-head ,
+                EACH oe-boll NO-LOCK
+                WHERE oe-boll.company EQ inv-line.company
+                AND oe-boll.b-no    EQ inv-line.b-no
+                AND oe-boll.ord-no  EQ inv-line.ord-no
+                AND oe-boll.i-no    EQ inv-line.i-no
+                AND oe-boll.line    EQ inv-line.line
+                AND oe-boll.po-no   EQ inv-line.po-no
+                AND CAN-FIND(FIRST oe-bolh
+                WHERE oe-bolh.b-no   EQ inv-line.b-no
+                AND oe-bolh.posted EQ YES)
+                :
+
+                IF oe-boll.tag GT "" THEN
+                    FIND FIRST loadtag EXCLUSIVE-LOCK
+                        WHERE loadtag.company EQ inv-head.company
+                        AND loadtag.item-type EQ NO
+                        AND loadtag.i-no    EQ inv-line.i-no
+                        AND loadtag.job-no  EQ oe-boll.job-no
+                        AND loadtag.job-no2 EQ oe-boll.job-no2
+                        AND loadtag.tag-no  EQ oe-boll.tag
+                        USE-INDEX tag NO-ERROR.
+                ELSE IF oe-boll.job-no GT "" THEN
+                        FIND FIRST loadtag EXCLUSIVE-LOCK
+                            WHERE loadtag.company EQ inv-head.company
+                            AND loadtag.item-type EQ NO
+                            AND loadtag.i-no    EQ inv-line.i-no
+                            AND loadtag.job-no  EQ oe-boll.job-no
+                            AND loadtag.job-no2 EQ oe-boll.job-no2
+                            AND loadtag.tag-no  EQ oe-boll.tag
+                            USE-INDEX job-no NO-ERROR.
+                    ELSE 
+                        FIND FIRST loadtag EXCLUSIVE-LOCK
+                            WHERE loadtag.company EQ inv-head.company
+                            AND loadtag.item-type EQ NO
+                            AND loadtag.i-no    EQ inv-line.i-no
+                            AND loadtag.job-no  EQ oe-boll.job-no
+                            AND loadtag.job-no2 EQ oe-boll.job-no2
+                            AND loadtag.tag-no  EQ oe-boll.tag
+                            USE-INDEX i-no NO-ERROR.
+
+                IF AVAILABLE loadtag THEN
+                DO:
+                    loadtag.sts = "Completed".
+                    FIND CURRENT loadtag NO-LOCK NO-ERROR.
+                END.
+            END.
+
+            FOR EACH inv-line WHERE inv-line.r-no EQ inv-head.r-no USE-INDEX r-no
+                BREAK BY inv-line.b-no:
+
+                IF LAST-OF(inv-line.b-no) THEN
+                    FOR EACH oe-boll NO-LOCK
+                        WHERE oe-boll.company EQ inv-line.company
+                        AND oe-boll.b-no    EQ inv-line.b-no
+                        AND CAN-FIND(FIRST oe-bolh
+                        WHERE oe-bolh.b-no   EQ oe-boll.b-no
+                        AND oe-bolh.posted EQ YES)
+                
+                        BREAK BY oe-boll.r-no:
+
+                        IF LAST-OF(oe-boll.r-no) THEN
+                            FOR EACH oe-rell
+                                WHERE oe-rell.company EQ oe-boll.company
+                                AND oe-rell.r-no    EQ oe-boll.r-no
+                                AND (oe-rell.posted EQ NO OR
+                                NOT CAN-FIND(FIRST tmp-oe-boll
+                                WHERE tmp-oe-boll.company  EQ oe-rell.company
+                                AND tmp-oe-boll.r-no     EQ oe-rell.r-no
+                                AND tmp-oe-boll.ord-no   EQ oe-rell.ord-no
+                                AND tmp-oe-boll.i-no     EQ oe-rell.i-no
+                                AND tmp-oe-boll.line     EQ oe-rell.line
+                                AND tmp-oe-boll.rel-no   EQ oe-rell.rel-no
+                                AND tmp-oe-boll.b-ord-no EQ oe-rell.b-ord-no
+                                AND tmp-oe-boll.po-no    EQ oe-rell.po-no
+                                USE-INDEX ord-no))
+                                USE-INDEX r-no,
+
+                                FIRST oe-relh NO-LOCK
+                                WHERE oe-relh.r-no   EQ oe-rell.r-no
+                                AND oe-relh.posted EQ YES
+                                USE-INDEX r-no :
+
+                                FOR EACH oe-rel
+                                    WHERE oe-rel.company  EQ oe-rell.company
+                                    AND oe-rel.link-no  EQ oe-rell.r-no
+                                    AND oe-rel.ord-no   EQ oe-rell.ord-no
+                                    AND oe-rel.i-no     EQ oe-rell.i-no
+                                    AND oe-rel.line     EQ oe-rell.line
+                                    AND oe-rel.rel-no   EQ oe-rell.rel-no
+                                    AND oe-rel.b-ord-no EQ oe-rell.b-ord-no
+                                    AND oe-rel.po-no    EQ oe-rell.po-no
+                                    USE-INDEX link:
+                                    ASSIGN
+                                        oe-rel.rel-no   = 0
+                                        oe-rel.b-ord-no = 0
+                                        oe-rel.link-no  = 0.
+                                END.
+
+                                DELETE oe-rell.
+                            END.
+                    END.
+
+                DELETE inv-line.
+            END.
+
+            FOR EACH inv-misc WHERE inv-misc.r-no EQ inv-head.r-no USE-INDEX r-no:
+                DELETE inv-misc.
+            END.
+
+            IF inv-head.multi-invoice THEN
+                FOR EACH b-inv-head
+                    WHERE b-inv-head.company       EQ inv-head.company
+                    AND b-inv-head.cust-no       EQ inv-head.cust-no
+                    AND b-inv-head.inv-no        EQ inv-head.inv-no
+                    AND b-inv-head.multi-invoice EQ NO:
+
+                    DELETE b-inv-head.
+                END.
+
+            ELSE DELETE inv-head.
+
+            IF cPrintFormat NE "Fibre" THEN RUN post-gl.
+        END. /* v-post */
+        
     END.
 
     FIND CURRENT inv-head NO-LOCK NO-ERROR.
@@ -1761,7 +2680,7 @@ PROCEDURE post-gl :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lv-dscr LIKE gltrans.tr-dscr NO-UNDO. 
+    DEFINE VARIABLE lcAccountDscr LIKE gltrans.tr-dscr NO-UNDO. 
    
 
     /** POST TO GENERAL LEDGER ACCOUNTS TRANSACTION FILE **/
@@ -1773,10 +2692,10 @@ PROCEDURE post-gl :
 
         EMPTY TEMP-TABLE tt-gl.
         /** POST LINE ITEMS TO G/L TRANS **/
-        FOR EACH tt-report
+        FOR EACH tt-report NO-LOCK
             WHERE tt-report.term-id EQ ""
             AND tt-report.key-01  EQ "work-line"
-            NO-LOCK
+            
             BREAK BY tt-report.key-02
             BY tt-report.key-03:
 
@@ -1784,7 +2703,7 @@ PROCEDURE post-gl :
 
             IF LAST-OF(tt-report.key-03) THEN 
             DO:
-                RUN get-tr-dscr (INT(tt-report.key-03), OUTPUT lv-dscr).
+                RUN get-tr-dscr (INT(tt-report.key-03), OUTPUT lcAccountDscr).
 
                 CREATE tt-gl.
                 CREATE gltrans.
@@ -1793,19 +2712,20 @@ PROCEDURE post-gl :
                     gltrans.company = cocode
                     gltrans.actnum  = tt-report.key-02
                     gltrans.jrnl    = "OEINV"
-                    gltrans.tr-dscr = TRIM(lv-dscr) + " LINE"
+                    gltrans.tr-dscr = TRIM(lcAccountDscr) + " LINE"
                     gltrans.tr-date = dtPostDate
                     gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-03 dec(tt-report.key-05))
                     gltrans.period  = tran-period
-                    gltrans.trnum   = v-trnum.
+                    gltrans.trnum   = v-trnum
+                    .
                 RELEASE gltrans.
             END. /* last actnum */
         END. /* each work-line */
         /** POST MISC. TO G/L TRANS **/
-        FOR EACH tt-report
+        FOR EACH tt-report NO-LOCK
             WHERE tt-report.term-id EQ ""
             AND tt-report.key-01  EQ "work-misc"
-            NO-LOCK
+            
             BREAK BY tt-report.key-02
             BY tt-report.key-03:
 
@@ -1813,7 +2733,7 @@ PROCEDURE post-gl :
 
             IF LAST-OF(tt-report.key-03) THEN 
             DO:
-                RUN get-tr-dscr (INT(tt-report.key-03), OUTPUT lv-dscr).
+                RUN get-tr-dscr (INT(tt-report.key-03), OUTPUT lcAccountDscr).
 
                 CREATE tt-gl.
                 CREATE gltrans.
@@ -1821,19 +2741,20 @@ PROCEDURE post-gl :
                     tt-gl.row-id    = ROWID(gltrans)
                     gltrans.company = cocode
                     gltrans.jrnl    = "OEINV"
-                    gltrans.tr-dscr = TRIM(lv-dscr) + " MISC"
+                    gltrans.tr-dscr = TRIM(lcAccountDscr) + " MISC"
                     gltrans.tr-date = dtPostDate
                     gltrans.actnum  = tt-report.key-02
                     gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-03 dec(tt-report.key-05))
                     gltrans.period  = tran-period
-                    gltrans.trnum   = v-trnum.
+                    gltrans.trnum   = v-trnum
+                    .
             END. /* last actnum */
         END. /* each work-misc */
         /** POST SALES TAX TO G/L TRANS **/
-        FOR EACH tt-report
+        FOR EACH tt-report NO-LOCK
             WHERE tt-report.term-id EQ ""
             AND tt-report.key-01  EQ "work-tax"
-            NO-LOCK
+            
             BREAK BY tt-report.key-02
             BY tt-report.key-03:
 
@@ -1841,7 +2762,7 @@ PROCEDURE post-gl :
 
             IF LAST-OF(tt-report.key-03) THEN 
             DO:
-                RUN get-tr-dscr (INT(tt-report.key-03), OUTPUT lv-dscr).
+                RUN get-tr-dscr (INT(tt-report.key-03), OUTPUT lcAccountDscr).
 
                 CREATE tt-gl.
                 CREATE gltrans.
@@ -1850,19 +2771,20 @@ PROCEDURE post-gl :
                     gltrans.company = cocode
                     gltrans.actnum  = tt-report.key-02
                     gltrans.jrnl    = "OEINV"
-                    gltrans.tr-dscr = TRIM(lv-dscr) + " TAX"
+                    gltrans.tr-dscr = TRIM(lcAccountDscr) + " TAX"
                     gltrans.tr-date = dtPostDate
                     gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-03 dec(tt-report.key-05))
                     gltrans.period  = tran-period
-                    gltrans.trnum   = v-trnum.
+                    gltrans.trnum   = v-trnum
+                    .
                 RELEASE gltrans.
             END. /* last actnum */
         END. /* each work-tax */
         /** POST CURRENCY TO G/L TRANS **/
-        FOR EACH tt-report
+        FOR EACH tt-report NO-LOCK
             WHERE tt-report.term-id EQ ""
             AND tt-report.key-01  EQ "work-curr"
-            NO-LOCK
+            
             BREAK BY tt-report.key-02:
 
             ACCUMULATE dec(tt-report.key-05) (TOTAL BY tt-report.key-02).
@@ -1880,7 +2802,8 @@ PROCEDURE post-gl :
                     gltrans.tr-date = dtPostDate
                     gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-02 dec(tt-report.key-05))
                     gltrans.period  = tran-period
-                    gltrans.trnum   = v-trnum.
+                    gltrans.trnum   = v-trnum
+                    .
 
                 RELEASE gltrans.
             END. /* last actnum */
@@ -1895,7 +2818,7 @@ PROCEDURE post-gl :
 
             IF LAST-OF(tmp-work-job.inv-no) THEN 
             DO:
-                RUN get-tr-dscr (tmp-work-job.inv-no, OUTPUT lv-dscr).
+                RUN get-tr-dscr (tmp-work-job.inv-no, OUTPUT lcAccountDscr).
 
                 CREATE tt-gl.
                 CREATE gltrans.
@@ -1906,16 +2829,17 @@ PROCEDURE post-gl :
                     gltrans.jrnl    = "OEINV"
                     gltrans.tr-date = dtPostDate
                     gltrans.period  = tran-period
-                    gltrans.trnum   = v-trnum.
+                    gltrans.trnum   = v-trnum
+                    .
 
                 IF tmp-work-job.fg THEN
                     ASSIGN
                         gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tmp-work-job.inv-no tmp-work-job.amt)
-                        gltrans.tr-dscr = TRIM(lv-dscr) + " FG".
+                        gltrans.tr-dscr = TRIM(lcAccountDscr) + " FG".
                 ELSE
                     ASSIGN
                         gltrans.tr-amt  = (ACCUMULATE TOTAL BY tmp-work-job.inv-no tmp-work-job.amt)
-                        gltrans.tr-dscr = TRIM(lv-dscr) + " COGS".
+                        gltrans.tr-dscr = TRIM(lcAccountDscr) + " COGS".
 
                 RELEASE gltrans.
             END.
@@ -1933,7 +2857,8 @@ PROCEDURE post-gl :
             gltrans.tr-date = dtPostDate 
             gltrans.tr-amt  = v-post-freight
             gltrans.period  = tran-period
-            gltrans.trnum   = v-trnum.
+            gltrans.trnum   = v-trnum
+            .
         RELEASE gltrans. 
         /** POST DISCOUNT TO G/L TRANS **/
         CREATE tt-gl.
@@ -1947,7 +2872,8 @@ PROCEDURE post-gl :
             gltrans.tr-date = dtPostDate
             gltrans.tr-amt  = v-post-disc
             gltrans.period  = tran-period
-            gltrans.trnum   = v-trnum.
+            gltrans.trnum   = v-trnum
+            .
         RELEASE gltrans.
 
         /** POST CASH TO G/L TRANS **/
@@ -1965,7 +2891,8 @@ PROCEDURE post-gl :
                 gltrans.tr-amt  = v-post-cash
                 gltrans.period  = tran-period
                 gltrans.trnum   = v-trnum
-                v-post-cash     = - v-post-cash.
+                v-post-cash     = - v-post-cash
+                .
             RELEASE gltrans.
         END.
         /** OFFSET ENTRY TO G/L **/
@@ -1980,7 +2907,8 @@ PROCEDURE post-gl :
             gltrans.tr-date = dtPostDate
             gltrans.tr-amt  = v-post-total
             gltrans.period  = tran-period
-            gltrans.trnum   = v-trnum.
+            gltrans.trnum   = v-trnum
+            .
         RELEASE gltrans.
     END.
 
@@ -2016,17 +2944,17 @@ PROCEDURE pPrintPost:
                 LEAVE.
             END. /* IF AVAIL gl-ctrl */
         END. /* REPEAT */
-    /* gdm - 11050906 */
+
 
     END.
   
     RUN run-report.
 
 
-    IF v-postable THEN 
+    IF lPostable THEN 
     DO:
-      IF v-balance = 0 THEN  
-        lv-post = YES.
+        IF v-balance = 0 THEN  
+            lv-post = YES.
 
         IF lv-post THEN 
         DO:
@@ -2041,9 +2969,10 @@ PROCEDURE pPrintPost:
             END.
 
             EMPTY TEMP-TABLE tt-gl.
-
-            /*            IF v-export EQ "Sonoco" THEN                                        */
-            /*                RUN ar/sonoinv.p ("total", t-rec-written, OUTPUT v-rec-written).*/
+            
+            /* Taken out for auto post */
+            /*            IF cExportNk1 EQ "Sonoco" THEN                                        */
+            /*                RUN ar/sonoinv.p ("total", iTotRecsWritten, OUTPUT iRecsWritten).*/
           
             FOR EACH w-ord BREAK BY w-ord.ord-no:
                 IF NOT FIRST-OF(w-ord.ord-no) THEN DELETE w-ord.
@@ -2061,8 +2990,8 @@ PROCEDURE pPrintPost:
                 IF LAST-OF(oe-ord.cust-no) THEN 
                 DO:
 
-                    FIND FIRST tt-custbal WHERE tt-custbal.cust-no EQ oe-ord.cust-no
-                        NO-LOCK NO-ERROR.
+                    FIND FIRST tt-custbal NO-LOCK WHERE tt-custbal.cust-no EQ oe-ord.cust-no
+                        NO-ERROR.
                     IF NOT AVAILABLE tt-custbal THEN 
                     DO:
                         CREATE tt-custbal.
@@ -2073,7 +3002,7 @@ PROCEDURE pPrintPost:
                     FIND FIRST cust NO-LOCK /* EXCLUSIVE */
                         WHERE cust.company EQ oe-ord.company
                         AND cust.cust-no EQ oe-ord.cust-no
-                         NO-ERROR.
+                        NO-ERROR.
 
                     IF AVAILABLE cust THEN 
                     DO:
@@ -2146,9 +3075,9 @@ PROCEDURE pPrintPost:
         RUN undo-save-line.
     END.
 
-    IF NOT v-postable OR NOT lv-post THEN 
+    IF NOT lPostable OR NOT lv-post THEN 
     DO TRANSACTION:
-        /* gdm - 11050906 */
+      
         REPEAT:
             FIND FIRST gl-ctrl EXCLUSIVE-LOCK
                 WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.
@@ -2160,10 +3089,10 @@ PROCEDURE pPrintPost:
                 LEAVE.
             END. /* IF AVAIL gl-ctrl */
         END. /* REPEAT */
-    /* gdm - 11050906 */
+    
     END.
 
-    IF v-ftp-done THEN MESSAGE "File Export/FTP is completed." VIEW-AS ALERT-BOX INFORMATION.
+    IF lFtpDone THEN MESSAGE "File Export/FTP is completed." VIEW-AS ALERT-BOX INFORMATION.
 
     SESSION:SET-WAIT-STATE("").
 
@@ -2203,7 +3132,7 @@ PROCEDURE run-report :
         WHERE period.company EQ gcompany
         AND period.pst     LE dtPostDate
         AND period.pend    GE dtPostDate
-         NO-ERROR.
+        NO-ERROR.
  
         
     /*        iStartInvNo = begin_inv    */
@@ -2212,7 +3141,7 @@ PROCEDURE run-report :
     /*        dtEndInvoiceDate   = end_date     */
     /*        lInvoiceReportDetail   = lInvoiceReportDetail  */
     /*        lGLReportDetail = lGLReportDetail*/
-    v-postable = NO.
+    lPostable= NO.
 
     /*    IF lGLReportDetail THEN                                   */
     /*        ASSIGN                                       */
@@ -2242,7 +3171,7 @@ PROCEDURE run-report :
         TRANSACTION:
 
         FIND FIRST xinv-head EXCLUSIVE-LOCK WHERE RECID(xinv-head) EQ recid(inv-head)
-             NO-WAIT NO-ERROR.
+            NO-WAIT NO-ERROR.
         IF AVAILABLE xinv-head THEN 
         DO:
 
@@ -2296,14 +3225,14 @@ PROCEDURE run-report :
     END.
 
 
-    lv-list-name = list-name.
+    cCListName = cListName.
 
     RUN list-post-inv ("list").
   
     OUTPUT CLOSE.
 
-    /* export invoices to factor */   
-    v-ftp-done = NO.
+    /* wfk - taking out for batch report - export invoices to factor */   
+    lFtpDone = NO.
 
     IF FALSE AND  inexport-log THEN 
     DO:    
@@ -2317,7 +3246,7 @@ PROCEDURE run-report :
             substr(STRING(TIME,"HH:MM:SS"),4,2) +
             substr(STRING(TIME,"HH:MM:SS"),7,2) + ".dat".
 
-        IF (v-print-fmt = "Frankstn" OR v-print-fmt = "MIRPKG" ) AND inexport-cha EQ "CIT" THEN 
+        IF (cPrintFormat = "Frankstn" OR cPrintFormat = "MIRPKG" ) AND inexport-cha EQ "CIT" THEN 
         DO:
             OUTPUT TO VALUE(v-exp-file).
             RUN oe/rep/expfrank.p .
@@ -2331,15 +3260,15 @@ PROCEDURE run-report :
                 "quit" .
             OUTPUT CLOSE.
             OS-COMMAND SILENT VALUE("ftp -v -i -s:.\oe\ftpcmd2.txt"). 
-            v-ftp-done = YES.
+            lFtpDone = YES.
         END.
         ELSE
             IF inexport-cha EQ "ContSrvc" THEN 
             DO:
-                v-ftp-done = YES.
+                lFtpDone = YES.
 
                 FOR EACH tt-report NO-LOCK WHERE tt-report.term-id EQ "",
-                    FIRST inv-head WHERE RECID(inv-head) EQ tt-report.rec-id NO-LOCK,
+                    FIRST inv-head NO-LOCK WHERE RECID(inv-head) EQ tt-report.rec-id ,
                     FIRST cust NO-LOCK WHERE cust.company = inv-head.company AND
                     cust.cust-no = inv-head.cust-no AND
                     cust.an-edi-cust AND
@@ -2363,7 +3292,7 @@ PROCEDURE run-report :
                 END.
 
                 FOR EACH tt-report NO-LOCK WHERE tt-report.term-id EQ "",
-                    FIRST inv-head WHERE RECID(inv-head) EQ tt-report.rec-id NO-LOCK,
+                    FIRST inv-head NO-LOCK WHERE RECID(inv-head) EQ tt-report.rec-id ,
                     FIRST cust NO-LOCK WHERE cust.company = inv-head.company AND
                     cust.cust-no = inv-head.cust-no AND
                     cust.an-edi-cust AND
@@ -2397,7 +3326,7 @@ PROCEDURE run-report :
     END.
     /* end of export */
 
-    IF v-postable THEN RUN list-gl.   
+    IF lPostable THEN RUN list-gl.   
 
     EMPTY TEMP-TABLE tt-report.
 

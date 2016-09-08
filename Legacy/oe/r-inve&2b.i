@@ -11,7 +11,7 @@
           where account.company eq cocode
             and account.actnum  eq tt-report.key-02
           no-lock no-error.
-      v-dscr = if avail account then account.dscr
+      cAccountDscr = if avail account then account.dscr
                else "ACCOUNT NOT FOUND - " + TRIM("{2}").
 
       accumulate dec(tt-report.key-05) (total by tt-report.key-02).
@@ -28,7 +28,7 @@
         IF ld-pton EQ ? THEN ld-pton = 0.
 
 /*        display tt-report.key-02       @ account.actnum */
-/*                v-dscr                                  */
+/*                cAccountDscr                                  */
 /*                int(tt-report.key-03)  @ inv-head.inv-no*/
 /*                tt-report.key-04       @ inv-line.i-no  */
 /*                v-tmp-amt                               */
@@ -42,7 +42,7 @@
           v-disp-actnum = tt-report.key-02
           v-disp-amt    =
                     (accumulate total by tt-report.key-02 dec(tt-report.key-05)) * -1
-          v-gl-sales    =
+          dGLSales    =
                     (accumulate total by tt-report.key-02 dec(tt-report.key-05)) * -1
           ld-t[2]       = ld-t[2] * -1
           ld-pton       = v-disp-amt / ld-t[2].
@@ -61,7 +61,7 @@
 
         else do:
 /*          display v-disp-actnum      */
-/*                  v-dscr             */
+/*                  cAccountDscr             */
 /*                  tran-date          */
 /*                  v-disp-amt         */
 /*                  ld-pton WHEN lPrintTon*/
@@ -70,7 +70,7 @@
         end.
 
         assign
-         v-balance = v-balance + v-gl-sales
+         v-balance = v-balance + dGLSales
          ld-t[3]   = ld-t[3] + ld-t[2]
          ld-t[2]   = 0.
       end. /* last actnum */
