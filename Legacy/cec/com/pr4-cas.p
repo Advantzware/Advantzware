@@ -198,7 +198,7 @@ for each cas where cas.typ eq 1,
            cas.cosm                     to 69
              when not v-summ
            w-cas.cost / (w-cas.units / 1000)
-             when v-summ                @ cas.cosm
+             when v-summ                @ cas.cosm format ">>,>>9.99"
            w-cas.cost                   to 80   format ">>>>,>>9.99"
            SKIP WITH STREAM-IO.
 end.
@@ -353,7 +353,7 @@ for each cas where cas.typ eq 3,
            cas.cosm                     to 69
              when not v-summ
            w-cas.cost / (w-cas.units / 1000)
-             when v-summ                @ cas.cosm
+             when v-summ                @ cas.cosm format ">>,>>9.99"
            w-cas.cost                   to 80   format ">>>>,>>9.99"
            skip WITH STREAM-IO.
 
@@ -422,7 +422,7 @@ for each cas where cas.typ = 4 by cas.snum by cas.bnum with no-labels no-box:
               item.i-name
               strap-qty         format ">>>,>>>"         to 50 "MLI"
               lv-setup-strap when lv-setup-strap ne 0 format ">>>9.99" to 61
-              cas.cosm                                   to 69
+              cas.cosm          format ">>,>>9.99"                      to 69
               cas.cost          format ">>>,>>9.99"      to 80 skip
           with stream-io.
 
