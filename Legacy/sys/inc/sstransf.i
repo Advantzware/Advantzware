@@ -14,9 +14,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.name    = "SSTRANSF"
    sys-ctrl.descrip = "Sharp Shooter FG Item Transfer Prompt?".
 
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 ASSIGN sstransf-log = sys-ctrl.log-fld
        sstransf-char = sys-ctrl.char-fld

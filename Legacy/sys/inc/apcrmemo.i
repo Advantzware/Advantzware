@@ -16,9 +16,7 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.name    = "APCRMEMO"
    sys-ctrl.log-fld = NO
    sys-ctrl.descrip = "Update RM & WIP Cost when posting AP Credit Memos".
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
   FIND CURRENT sys-ctrl NO-LOCK NO-ERROR.
 END.
 

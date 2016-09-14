@@ -15,9 +15,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.log-fld  = NO
    sys-ctrl.descrip  = "Default Posting Date to today's date?".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 end.
 assign
  postdate-log = sys-ctrl.log-fld

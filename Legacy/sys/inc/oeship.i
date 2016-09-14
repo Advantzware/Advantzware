@@ -14,9 +14,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.log-fld  = NO
    sys-ctrl.descrip  = "Ship components of an unassembled set?".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 ASSIGN oeship-log = sys-ctrl.log-fld
        oeship-cha = sys-ctrl.char-fld.

@@ -13,6 +13,6 @@ if not avail sys-ctrl then do:
    sys-ctrl.name     = "CEROUND"
    sys-ctrl.char-fld = "Penny"
    sys-ctrl.descrip  = "Corrware to round up sell price to the...".
-  message sys-ctrl.descrip update sys-ctrl.char-fld.
+/*  message sys-ctrl.descrip update sys-ctrl.char-fld. */
 end.
 v-round = sys-ctrl.char-fld.
