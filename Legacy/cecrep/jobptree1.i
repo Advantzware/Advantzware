@@ -82,20 +82,20 @@ def {1} workfile w-ef no-undo
 
 FORM HEADER
        "<P8><=1>" 
-       "<U>Sold To:</U>" at 23        "<U>Location:</U>" AT 105 "<U>Job Information:</U><P10>" AT 145 SKIP
+       "<U>Sold To:</U>" at 23        /*"<U>Location:</U>" AT 105*/ "<U>Job Information:</U><P10>" AT 145 SKIP
        v-cus[1] AT 2 "<P12><B>Due Date:</B><P10>" AT 39 v-due-date FORM "x(13)"
-       "Bin:" AT 82 v-loc-bin "<P12><B>" "Job#:" AT 113  v-job-prt "</B><P10>" "Overrun:" /*AT 131*/ lv-over-run format "x(7)"   
+       /*"Bin:" AT 82 v-loc-bin*/ "<P12><B>" "Job#:" AT 109  v-job-prt "</B><P10>" " Overrun:" /*AT 131*/ lv-over-run format "x(7)"   
        SKIP
        v-cus[2] AT 2 v-make-hold AT 39 "Est#:" AT 90 v-est-no  "Underrun:" AT 110 lv-under-run FORMAT "x(7)"
        SKIP
-       v-cus[3] AT 2 "Ord Date:" AT 39 v-ord-date "_____ _____ @ _____" AT 67   "Salesman:" AT 90 v-sman
+       v-cus[3] AT 2 "Ord Date:" AT 39 v-ord-date /*"_____ _____ @ _____" AT 67*/   "Salesman:" AT 90 v-sman
        SKIP
-       v-cus[4] AT 2 "For Shipping Use Only" AT 39 "_____ _____ @ _____" AT 67
+       v-cus[4] AT 2 "For Shipping Use Only" AT 39 /*"_____ _____ @ _____" AT 67*/
        SKIP
-       "PO #:" AT 2 lv-ord-po    "Rel. Date:____________" AT 39 "_____ _____ @ _____" AT 67
+       "PO #:" AT 2 lv-ord-po    "Rel. Date:____________" AT 39 /*"_____ _____ @ _____" AT 67*/
        "<P8><U>Order Information:</U><P10>" AT 100       
        SKIP
-       "Status:" AT 2 lv-status  "Rel. Qty:_____________" AT 39 "_____ _____ @ _____" AT 67
+       "Status:" AT 2 lv-status  "Rel. Qty:_____________" AT 39 /*"_____ _____ @ _____" AT 67*/
        "<B><P12>Cust Set/Box#:" AT 90 lv-cust-set "</B><P10>"  
        SKIP
     
