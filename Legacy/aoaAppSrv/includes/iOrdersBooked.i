@@ -77,8 +77,8 @@
                 w-data.ord-no = oe-ord.ord-no
                 w-data.line   = oe-ordl.line
                 w-data.misc   = NO
-                v-n-lines     = v-n-lines + 1
-                qm            = oe-ordl.qty / 1000
+                iLines        = iLines + 1
+                dQM           = oe-ordl.qty / 1000
                 w-data.procat = IF AVAILABLE itemfg THEN itemfg.procat ELSE ?
                 w-data.item-n = IF AVAILABLE itemfg THEN itemfg.i-name ELSE ?
                 w-data.qty    = dOrdQty
@@ -91,7 +91,7 @@
                 w-data.t-tons  = dTotTons
                 w-data.price   = oe-ordl.price
                 w-data.revenue = dPriceAmount
-                w-data.cost    = oe-ordl.cost * qm
+                w-data.cost    = oe-ordl.cost * dQM
                 w-data.comm    = oe-ordl.s-comm[i]
                 .
         END. /* avail oe-ordl */

@@ -276,7 +276,7 @@ PROCEDURE pMachineTransactions :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pMachineTransactions.i}
+    {aoaAppSrv/includes/pMachineTransactions.i}
     
     /* local variables */
     DEFINE VARIABLE cCustPartNo AS CHARACTER NO-UNDO.
@@ -413,7 +413,7 @@ PROCEDURE pMachineTransactionSummary :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pMachineTransactionSummary.i}
+    {aoaAppSrv/includes/pMachineTransactionSummary.i}
     
     /* local variables */
     DEFINE VARIABLE cCustPartNo AS CHARACTER NO-UNDO.

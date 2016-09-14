@@ -1260,6 +1260,7 @@ PROCEDURE pSetNames :
                     ASSIGN
                         ttDetail.dtAlignment = 1
                         cFormat = REPLACE(ttSubject.ttFormat,">","#")
+                        cFormat = REPLACE(cFormat,"<","#")
                         cFormat = REPLACE(cFormat,"9","0")
                         .
                     IF INDEX(cFormat,"-") NE 0 THEN

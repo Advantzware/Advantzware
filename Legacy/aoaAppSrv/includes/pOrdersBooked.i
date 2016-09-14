@@ -1,4 +1,4 @@
-/* pOrdersBooked.i - auto generated 08.06.2016 @  7:56:10 pm from aoa/aoaParam.w */
+/* pOrdersBooked.i - auto generated 08.16.2016 @ 10:00:29 am from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
@@ -19,14 +19,12 @@
     DEFINE VARIABLE lAllProdCategory AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cStartProdCategory AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndProdCategory AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lMiscChg AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lPageRep AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lSetCom AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lRepTot AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lRelOrd AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lUnder AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIncludePrepMiscChg AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lExcludeSetComponents AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lExcludeTransferReleasesOrders AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPrintOrderUnderPct AS LOGICAL NO-UNDO.
     DEFINE VARIABLE iUnderValue AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lOver AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPrintOrderOverPct AS LOGICAL NO-UNDO.
     DEFINE VARIABLE iOverValue AS INTEGER NO-UNDO.
     DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
@@ -52,14 +50,12 @@
         lAllProdCategory = DYNAMIC-FUNCTION("fGetParamValue","svAllProdCategory") EQ "yes"
         cStartProdCategory = DYNAMIC-FUNCTION("fGetParamValue","svStartProdCategory")
         cEndProdCategory = DYNAMIC-FUNCTION("fGetParamValue","svEndProdCategory")
-        lMiscChg = DYNAMIC-FUNCTION("fGetParamValue","svMiscChg") EQ "yes"
-        lPageRep = DYNAMIC-FUNCTION("fGetParamValue","svPageRep") EQ "yes"
-        lSetCom = DYNAMIC-FUNCTION("fGetParamValue","svSetCom") EQ "yes"
-        lRepTot = DYNAMIC-FUNCTION("fGetParamValue","svRepTot") EQ "yes"
-        lRelOrd = DYNAMIC-FUNCTION("fGetParamValue","svRelOrd") EQ "yes"
-        lUnder = DYNAMIC-FUNCTION("fGetParamValue","svUnder") EQ "yes"
+        lIncludePrepMiscChg = DYNAMIC-FUNCTION("fGetParamValue","svIncludePrepMiscChg") EQ "yes"
+        lExcludeSetComponents = DYNAMIC-FUNCTION("fGetParamValue","svExcludeSetComponents") EQ "yes"
+        lExcludeTransferReleasesOrders = DYNAMIC-FUNCTION("fGetParamValue","svExcludeTransferReleasesOrders") EQ "yes"
+        lPrintOrderUnderPct = DYNAMIC-FUNCTION("fGetParamValue","svPrintOrderUnderPct") EQ "yes"
         iUnderValue = DYNAMIC-FUNCTION("fGetParamValue","svUnderValue")
-        lOver = DYNAMIC-FUNCTION("fGetParamValue","svOver") EQ "yes"
+        lPrintOrderOverPct = DYNAMIC-FUNCTION("fGetParamValue","svPrintOrderOverPct") EQ "yes"
         iOverValue = DYNAMIC-FUNCTION("fGetParamValue","svOverValue")
         cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
         cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")

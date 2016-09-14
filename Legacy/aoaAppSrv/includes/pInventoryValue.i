@@ -1,4 +1,4 @@
-/* pInventoryValue.i - auto generated 08.15.2016 @  5:48:39 pm from aoa/aoaParam.w */
+/* pInventoryValue.i - auto generated 08.17.2016 @ 12:55:46 pm from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
@@ -28,6 +28,7 @@
     DEFINE VARIABLE cStartSalesRep AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndSalesRep AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSort AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemCode AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPrintSetAndComponentsOnly AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIncludeZeroBalance AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIncludeCustomerOwnerdWarehouse AS LOGICAL NO-UNDO.
@@ -40,8 +41,8 @@
     DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 
     /* locate parameter values record */
-    /*RUN pGetParamValues (ipcCompany, "r-fgobb.", ipcUserID, ipiBatch). */
-/*
+    RUN pGetParamValues (ipcCompany, "r-fgohbb.", ipcUserID, ipiBatch).
+
     /* load parameter values from above record into variables */
     ASSIGN
         iShowQOHOlderThanDays = DYNAMIC-FUNCTION("fGetParamValue","svShowQOHOlderThanDays")
@@ -68,6 +69,7 @@
         cStartSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svStartSalesRep")
         cEndSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svEndSalesRep")
         cSort = DYNAMIC-FUNCTION("fGetParamValue","svSort")
+        cItemCode = DYNAMIC-FUNCTION("fGetParamValue","svItemCode")
         lPrintSetAndComponentsOnly = DYNAMIC-FUNCTION("fGetParamValue","svPrintSetAndComponentsOnly") EQ "yes"
         lIncludeZeroBalance = DYNAMIC-FUNCTION("fGetParamValue","svIncludeZeroBalance") EQ "yes"
         lIncludeCustomerOwnerdWarehouse = DYNAMIC-FUNCTION("fGetParamValue","svIncludeCustomerOwnerdWarehouse") EQ "yes"
@@ -79,18 +81,12 @@
         cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
         cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
         .
-*/
-/*
+
     RUN pGetColumns (TEMP-TABLE ttInventoryValue:HANDLE,
                      cAvailableColumns,
                      cSelectedColumns
                      ).
-                     */
-    cAvailableColumns = "itemfg.cust-no,custName,itemfg.i-no,tag-No,tag,fgLotVal,itemfg.part-no,itemfg.i-name,jobNo,recDate," +
-                                "loc,bin,msfOnHand,costUom,relQty,qtyOnHand,lastSale,itemfg.procat," +
-                                "viewPo,linePo,relPo,sellPrice,ordPr,uomCost,totCost,matCost,labCost,salesRep," + 
-                                "sellValueFg,sellValueOrd,daysOld,custno,setHeader,qtyPerSet".
-    cSelectedColumns = cAvailableColumns. 
+
     IF lAllCustNo THEN
     ASSIGN
         cStartCustNo = CHR(32)

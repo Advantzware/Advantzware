@@ -367,6 +367,29 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 149 BY 18.05.
 
+DEFINE FRAME frameColumns
+     svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
+     btnDefault AT ROW 1.71 COL 32 HELP
+          "Reset Selected Columns to Default" WIDGET-ID 76
+     svSelectedColumns AT ROW 1.71 COL 37 NO-LABEL WIDGET-ID 70
+     btnAdd AT ROW 4.33 COL 32 HELP
+          "Add Available Column(s) to Selected Columns" WIDGET-ID 58
+     btnRemoveColumn AT ROW 5.52 COL 32 HELP
+          "Remove Selected Column(s)" WIDGET-ID 78
+     btnMoveUp AT ROW 8.14 COL 32 HELP
+          "Move Selected Column Up" WIDGET-ID 66
+     btnMoveDown AT ROW 9.33 COL 32 HELP
+          "Move Selected Column Down" WIDGET-ID 62
+     "Selected Columns (In Order)" VIEW-AS TEXT
+          SIZE 28 BY .62 AT ROW 1 COL 37 WIDGET-ID 72
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 1 COL 2 WIDGET-ID 74
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 82 ROW 1
+         SIZE 67 BY 10.48
+         TITLE "Report Columns" WIDGET-ID 200.
+
 DEFINE FRAME frameShow
      svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
      svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
@@ -383,29 +406,6 @@ DEFINE FRAME frameShow
          AT COL 41 ROW 1
          SIZE 40 BY 10.48
          TITLE "Show/Hide Sections" WIDGET-ID 300.
-
-DEFINE FRAME frameColumns
-     svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
-     btnDefault AT ROW 1.71 COL 32 HELP
-          "Reset Selected Columns to Default" WIDGET-ID 76
-     svSelectedColumns AT ROW 1.71 COL 37 NO-LABEL WIDGET-ID 70
-     btnAdd AT ROW 4.33 COL 32 HELP
-          "Add Available Column(s) to Selected Columns" WIDGET-ID 58
-     btnRemoveColumn AT ROW 5.52 COL 32 HELP
-          "Remove Selected Column(s)" WIDGET-ID 78
-     btnMoveUp AT ROW 8.14 COL 32 HELP
-          "Move Selected Column Up" WIDGET-ID 66
-     btnMoveDown AT ROW 9.33 COL 32 HELP
-          "Move Selected Column Down" WIDGET-ID 62
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 1 COL 2 WIDGET-ID 74
-     "Selected Columns (In Order)" VIEW-AS TEXT
-          SIZE 28 BY .62 AT ROW 1 COL 37 WIDGET-ID 72
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 82 ROW 1
-         SIZE 67 BY 10.48
-         TITLE "Report Columns" WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1206,8 +1206,8 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExcel W-Win 
 PROCEDURE pExcel :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
+  Purpose:     Export temp-table contents to Excel
+  Parameters:  user-print buffer
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER user-print FOR user-print.
@@ -1229,6 +1229,7 @@ PROCEDURE pExcel :
     DEFINE VARIABLE chWorkBook  AS COM-HANDLE NO-UNDO.
     DEFINE VARIABLE chRangeRow  AS COM-HANDLE NO-UNDO.
     DEFINE VARIABLE chRangeCol  AS COM-HANDLE NO-UNDO.
+    DEFINE VARIABLE idx         AS INTEGER    NO-UNDO.
     
     RUN pSaveParamValues (NO, BUFFER user-print).
 
@@ -1270,6 +1271,57 @@ PROCEDURE pExcel :
         chWorkbook:Worksheets:Add(,chWorksheet).
         RELEASE OBJECT chWorksheet.
 
+        IF svShowParameters THEN DO:
+            chWorkbook:Worksheets(2):Activate.
+            ASSIGN
+                chWorksheet = chWorkbook:Worksheets(2)
+                /* Rename the worksheet */
+                chWorkSheet:Name = "Parameters"
+                /* Disable screen updating so it will go faster */
+                chExcel:ScreenUpdating = TRUE
+                .
+            chExcel:Selection:Columns:MergeCells = TRUE.
+            ASSIGN
+                chWorkSheet:Cells(iRow,1):Value = "Parameter:"
+                chWorkSheet:Cells(iRow,1):Font:Bold = TRUE
+                chWorkSheet:Cells(iRow,1):Font:Underline = TRUE
+                chWorkSheet:Cells(iRow,1):HorizontalAlignment = -4152
+                chWorkSheet:Cells(iRow,2):Value = "Value"
+                chWorkSheet:Cells(iRow,2):Font:Bold = TRUE
+                chWorkSheet:Cells(iRow,2):Font:Underline = TRUE
+                iRow = iRow + 1
+                .
+            DO iColumn = 1 TO EXTENT(user-print.field-name):
+                IF user-print.field-name[iColumn] EQ "" THEN LEAVE.
+                IF user-print.field-name[iColumn] EQ "svTitle" THEN LEAVE.
+                IF INDEX(user-print.field-name[iColumn],"DateOption") EQ 0 THEN DO:
+                    /* align left (-4131) or right (-4152) */
+                    ASSIGN
+                        chWorkSheet:Cells(iRow,1):Value = (IF user-print.field-label[iColumn] NE ? THEN
+                                                              user-print.field-label[iColumn] ELSE
+                                                              user-print.field-name[iColumn]) + ":"
+                        chWorkSheet:Cells(iRow,1):HorizontalAlignment = -4152
+                        chWorkSheet:Cells(iRow,2):Value = user-print.field-value[iColumn]
+                        chWorkSheet:Cells(iRow,2):HorizontalAlignment = -4131
+                        iRow = iRow + 1
+                        .
+                END. /* not a date option parameter */
+                ELSE
+                chWorkSheet:Cells(iRow - 1,1):Value = chWorkSheet:Cells(iRow - 1,1):Value
+                                                    + " (" + user-print.field-value[iColumn] + ")".
+            END. /* do icolumn */
+            ASSIGN
+                chRangeRow = chWorkSheet:Cells(1,1)
+                chRangeCol = chWorkSheet:Cells(iRow,2)
+                .
+            chWorkSheet:Range(chRangeRow,chRangeCol):Select.
+            /* auto size the columns */
+            chExcel:Selection:Columns:AutoFit.
+            chWorksheet:Cells(iRow,1):Select.
+        END. /* show parameters */
+        ELSE /* remove spare worksheet */
+        chWorkbook:WorkSheets(2):DELETE NO-ERROR.
+        
         /* Select a worksheet */
         chWorkbook:Worksheets(1):Activate.
         ASSIGN
@@ -1278,10 +1330,8 @@ PROCEDURE pExcel :
             chWorkSheet:Name = aoaTitle
             /* Disable screen updating so it will go faster */
             chExcel:ScreenUpdating = TRUE
+            iRow = 1
             .
-        /* remove spare worksheet */
-        chWorkbook:WorkSheets(2):DELETE NO-ERROR.
-
         IF svShowReportHeader THEN DO:
             ASSIGN
                 chRangeRow = chWorkSheet:Cells(1,1)
@@ -1304,46 +1354,8 @@ PROCEDURE pExcel :
                 iStatusRow = iStatusRow + 2
                 .
         END. /* show report title */
-        
-        IF svShowParameters THEN DO:
-            ASSIGN
-                chRangeRow = chWorkSheet:Cells(iRow,1)
-                chRangeCol = chWorkSheet:Cells(iRow,svSelectedColumns:NUM-ITEMS)
-                .
-            chWorkSheet:Range(chRangeRow,chRangeCol):Select.
-            chExcel:Selection:Columns:MergeCells = TRUE.
-            ASSIGN
-                chWorkSheet:Cells(iRow,1):Value = "Parameter: Value"
-                chWorkSheet:Cells(iRow,1):Font:Bold = TRUE
-                chWorkSheet:Cells(iRow,1):Font:Underline = TRUE
-                iRow = iRow + 1
-                iStatusRow = iStatusRow + 1
-                .
-            DO iColumn = 1 TO EXTENT(user-print.field-name):
-                IF user-print.field-name[iColumn] EQ "" THEN LEAVE.
-                IF user-print.field-name[iColumn] EQ "svTitle" THEN LEAVE.
-                IF INDEX(user-print.field-name[iColumn],"DateOption") EQ 0 THEN DO:
-                    ASSIGN
-                        chRangeRow = chWorkSheet:Cells(iRow,1)
-                        chRangeCol = chWorkSheet:Cells(iRow,svSelectedColumns:NUM-ITEMS)
-                        .
-                    chWorkSheet:Range(chRangeRow,chRangeCol):Select.
-                    chExcel:Selection:Columns:MergeCells = TRUE.
-                    ASSIGN
-                        chWorkSheet:Cells(iRow,1):Value = (IF user-print.field-label[iColumn] NE ? THEN
-                                                              user-print.field-label[iColumn] ELSE
-                                                              user-print.field-name[iColumn])
-                                                        + ": " + user-print.field-value[iColumn]
-                        iRow = iRow + 1
-                        iStatusRow = iStatusRow + 1
-                        .
-                END. /* not a date option parameter */
-                ELSE
-                chWorkSheet:Cells(iRow - 1,1):Value = chWorkSheet:Cells(iRow - 1,1):Value
-                                                    + " (" + user-print.field-value[iColumn] + ")".
-            END. /* do icolumn */
-        END. /* show parameters */
 
+        /* run dynamic function (business subject) */
         ASSIGN
             chWorkSheet:Cells(iStatusRow,2):Value = "Running Query..."
             cDynFunc = "f" + REPLACE(aoaTitle," ","")
@@ -1383,6 +1395,7 @@ PROCEDURE pExcel :
                     ASSIGN
                         cFormat = hTable:BUFFER-FIELD(fieldName):FORMAT
                         cFormat = REPLACE(cFormat,">","#")
+                        cFormat = REPLACE(cFormat,"<","#")
                         cFormat = REPLACE(cFormat,"9","0")
                         .
                     IF INDEX(cFormat,"-") NE 0 THEN
@@ -1394,6 +1407,7 @@ PROCEDURE pExcel :
                 END. /* integer/decimal */
             END CASE.
         END. /* do iColumn */
+
         IF svShowPageHeader THEN DO:
             /* bold and underline header row */
             ASSIGN
@@ -1437,10 +1451,15 @@ PROCEDURE pExcel :
             IF hQueryBuf:BUFFER-FIELD("RowType"):BUFFER-VALUE() NE "Data" THEN NEXT.
             iRow = iRow + 1.
             DO iColumn = 1 TO svSelectedColumns:NUM-ITEMS:
-                ASSIGN
-                    fieldName = svSelectedColumns:ENTRY(iColumn)
-                    chWorkSheet:Cells(iRow,iColumn):Value = hTable:BUFFER-FIELD(fieldName):BUFFER-VALUE()
-                    .
+                fieldName = svSelectedColumns:ENTRY(iColumn).
+                chWorkSheet:Cells(iRow,iColumn):Value = hTable:BUFFER-FIELD(fieldName):BUFFER-VALUE() NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN
+                DO idx = 1 TO ERROR-STATUS:NUM-MESSAGES:
+                    MESSAGE "Row:" iRow "Column:" iColumn SKIP
+                        "Value:" hTable:BUFFER-FIELD(fieldName):BUFFER-VALUE() SKIP
+                        "Error:" ERROR-STATUS:GET-MESSAGE(idx)
+                        VIEW-AS ALERT-BOX ERROR.
+                END. /* do idx */
             END. /* do iColumn */
         END. /* repeat */
         hQuery:QUERY-CLOSE().
@@ -1454,9 +1473,9 @@ PROCEDURE pExcel :
         /* put data into a table */
         IF svExcelTable THEN
         ASSIGN
-            chWorkSheet:ListObjects:Add(,chWorkSheet:Range(chRangeRow,chRangeCol),,NOT svShowPageHeader):Name = "TableAOA".
+            chWorkSheet:ListObjects:Add(,chWorkSheet:Range(chRangeRow,chRangeCol),,NOT svShowPageHeader):Name = "TableAOA"
             chWorkSheet:ListObjects("TableAOA"):ShowTotals = TRUE
-                .
+            .
         /* select header and data */
         chWorkSheet:Range(chRangeRow,chRangeCol):Select.
         /* auto size the columns */
@@ -1495,7 +1514,7 @@ PROCEDURE pGenerateInclude :
 
     IF NOT CAN-DO("ASI,NoSweat",USERID("NoSweat")) THEN RETURN.
 
-    OUTPUT TO VALUE("aoaAppSrv/p" + REPLACE(aoaTitle," ","") + ".i").
+    OUTPUT TO VALUE("aoaAppSrv/includes/p" + REPLACE(aoaTitle," ","") + ".i").
     PUT UNFORMATTED
         "/* p" REPLACE(aoaTitle," ","") ".i - auto generated "
         STRING(TODAY,"99.99.9999") " @ " STRING(TIME,"hh:mm:ss am")
@@ -1533,14 +1552,14 @@ PROCEDURE pGenerateInclude :
     fGenerateInclude(hFrame,"svAllGen").
 
     OUTPUT CLOSE.
-    MESSAGE "aoaAppSrv/p" + REPLACE(aoaTitle," ","") + ".i" SKIP(1)
+    MESSAGE "aoaAppSrv/includes/p" + REPLACE(aoaTitle," ","") + ".i" SKIP(1)
         "View Generated Code?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
         TITLE "Auto Generated"
         UPDATE viewCode AS LOGICAL
         .
     IF viewCode THEN
-    OS-COMMAND NO-WAIT notepad.exe VALUE("aoaAppSrv/p" + REPLACE(aoaTitle," ","") + ".i").
+    OS-COMMAND NO-WAIT notepad.exe VALUE("aoaAppSrv/includes/p" + REPLACE(aoaTitle," ","") + ".i").
 
 END PROCEDURE.
 
@@ -1790,6 +1809,9 @@ PROCEDURE pSaveParamValues :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    /* number of reserved parameter fields needed */
+    &SCOPED-DEFINE reserved 12
+    
     DEFINE INPUT  PARAMETER iplBatch   AS LOGICAL NO-UNDO.
     DEFINE PARAMETER BUFFER user-print FOR user-print.
 
@@ -1849,8 +1871,10 @@ PROCEDURE pSaveParamValues :
                 user-print.field-value[idx] = hChild:SCREEN-VALUE
                 .
             hChild = hChild:NEXT-SIBLING.
+            IF idx EQ EXTENT(user-print.field-name) - {&reserved} THEN LEAVE.
         END. /* do while */
     
+        IF idx LE EXTENT(user-print.field-name) - {&reserved} THEN
         ASSIGN
             idx = idx + 1
             user-print.field-name[idx]  = "svTitle"
@@ -2360,6 +2384,13 @@ FUNCTION fSetDescription RETURNS CHARACTER
     cRange = REPLACE(ipObject:NAME,"sv","").
     
     CASE ipObject:NAME:
+        WHEN "svStartCompany" OR WHEN "svEndCompany" THEN DO:
+            cRange = REPLACE(cRange,"Company","").
+            FIND FIRST company NO-LOCK
+                 WHERE company.company EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE company THEN cDescription = company.name.
+        END.
         WHEN "svStartCustNo" OR WHEN "svEndCustNo" THEN DO:
             cRange = REPLACE(cRange,"CustNo","").
             FIND FIRST cust NO-LOCK
@@ -2367,6 +2398,14 @@ FUNCTION fSetDescription RETURNS CHARACTER
                    AND cust.cust-no EQ ipObject:SCREEN-VALUE
                  NO-ERROR.
             IF AVAILABLE cust THEN cDescription = cust.name.
+        END.
+        WHEN "svStartCurrency" OR WHEN "svEndCurrency" THEN DO:
+            cRange = REPLACE(cRange,"Currency","").
+            FIND FIRST currency NO-LOCK
+                 WHERE currency.company EQ aoaCompany
+                   AND currency.c-code EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE currency THEN cDescription = currency.c-desc.
         END.
         WHEN "svStartDept" OR WHEN "svEndDept" THEN DO:
             cRange = REPLACE(cRange,"Dept","").
@@ -2389,15 +2428,7 @@ FUNCTION fSetDescription RETURNS CHARACTER
                  WHERE loc.company EQ aoaCompany
                    AND loc.loc     EQ ipObject:SCREEN-VALUE
                  NO-ERROR.
-            IF AVAILABLE cust THEN cDescription = cust.name.
-        END.
-        WHEN "svStartLocBin" OR WHEN "svEndLocBin" THEN DO:
-            cRange = REPLACE(cRange,"LocBin","").
-            FIND FIRST cust NO-LOCK
-                 WHERE cust.company EQ aoaCompany
-                   AND cust.cust-no EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE cust THEN cDescription = cust.name.
+            IF AVAILABLE loc THEN cDescription = loc.dscr.
         END.
         WHEN "svStartMachine" OR WHEN "svEndMachine" THEN DO:
             cRange = REPLACE(cRange,"Machine","").
@@ -2430,6 +2461,14 @@ FUNCTION fSetDescription RETURNS CHARACTER
                    AND shift.shift   EQ INTEGER(ipObject:SCREEN-VALUE)
                  NO-ERROR.
             IF AVAILABLE shift THEN cDescription = shift.descr.
+        END.
+        WHEN "svStartTerms" OR WHEN "svEndTerms" THEN DO:
+            cRange = REPLACE(cRange,"Terms","").
+            FIND FIRST terms NO-LOCK
+                 WHERE terms.company EQ aoaCompany
+                   AND terms.t-code EQ ipObject:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAILABLE terms THEN cDescription = terms.dscr.
         END.
         WHEN "svStartUserID" OR WHEN "svEndUserID" THEN DO:
             cRange = REPLACE(cRange,"UserID","").

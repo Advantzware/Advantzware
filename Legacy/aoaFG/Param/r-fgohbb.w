@@ -4,12 +4,12 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
 /*------------------------------------------------------------------------
 
-  File: r-booked.w
+  File: r-commcr.w
 
   Description: from SMART.W - Template for basic ADM2 SmartObject
 
-  Author: 
-  Created: 
+  Author: Ron Stark
+  Created: 3.19.2016
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -47,25 +47,30 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList svAllCustNo ~
-svStartCustNo svEndCustNo svStartOrderDate btnCalendar-1 ~
-svStartOrderDateOption svEndOrderDate btnCalendar-2 svEndOrderDateOption ~
-svAllSalesRep svStartSalesRep svEndSalesRep svAllProdCategory ~
-svStartProdCategory svEndProdCategory svIncludePrepMiscChg ~
-svExcludeSetComponents svExcludeTransferReleasesOrders svPrintOrderUnderPct ~
-svUnderValue svPrintOrderOverPct svOverValue 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
-startCustName svStartCustNo endCustName svEndCustNo svStartOrderDate ~
-svStartOrderDateOption svEndOrderDate svEndOrderDateOption svAllSalesRep ~
-svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
-svAllProdCategory svStartProdCategory startProdCategoryName ~
-svEndProdCategory endProdCategoryName svIncludePrepMiscChg ~
-svExcludeSetComponents svExcludeTransferReleasesOrders svPrintOrderUnderPct ~
-svUnderValue svPrintOrderOverPct svOverValue 
+&Scoped-Define ENABLED-OBJECTS svCompany svShowQOHOlderThanDays svAsOfDate ~
+btnCalendar-1 svAsOfDateOption svCustList btnCustList svAllCustNo ~
+svStartCustNo svEndCustNo svAllLoc svStartLoc svEndLoc svAllLocBin ~
+svStartLocBin svEndLocBin svAllItemNo svStartItemNo svEndItemNo ~
+svAllProdCategory svStartProdCategory svEndProdCategory svAllSalesRep ~
+svStartSalesRep svEndSalesRep svSort svItemCode svPrintSetAndComponentsOnly ~
+svIncludeZeroBalance svIncludeCustomerOwnerdWarehouse ~
+svPrintSummaryByBinQty svOnlyCustomerOwnedWarehouse svIncludeInactiveItems ~
+svPrintCost svDLMATOnly 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svShowQOHOlderThanDays ~
+svAsOfDate svAsOfDateOption svCustList svAllCustNo svStartCustNo ~
+startCustName svEndCustNo endCustName svAllLoc svStartLoc startLocName ~
+svEndLoc endLocName svAllLocBin svStartLocBin svEndLocBin svAllItemNo ~
+svStartItemNo startItemName svEndItemNo endItemName svAllProdCategory ~
+svStartProdCategory startProdCategoryName svEndProdCategory ~
+endProdCategoryName svAllSalesRep svStartSalesRep startSalesRepName ~
+svEndSalesRep endSalesRepName svSort svItemCode svPrintSetAndComponentsOnly ~
+svIncludeZeroBalance svIncludeCustomerOwnerdWarehouse ~
+svPrintSummaryByBinQty svOnlyCustomerOwnedWarehouse svIncludeInactiveItems ~
+svPrintCost svDLMATOnly 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-3 btnCalendar-1 btnCalendar-2 
+&Scoped-define List-3 btnCalendar-1 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -81,22 +86,11 @@ DEFINE BUTTON btnCalendar-1
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
-DEFINE BUTTON btnCalendar-2 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-
 DEFINE BUTTON btnCustList 
      LABEL "Preview" 
      SIZE 9.8 BY .95.
 
-DEFINE VARIABLE svEndOrderDateOption AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "Item 1" 
-     DROP-DOWN-LIST
-     SIZE 25 BY 1 NO-UNDO.
-
-DEFINE VARIABLE svStartOrderDateOption AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE svAsOfDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
@@ -104,27 +98,48 @@ DEFINE VARIABLE svStartOrderDateOption AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 48.6 BY 1.
+     SIZE 45 BY 1.
+
+DEFINE VARIABLE endItemName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 38 BY 1.
+
+DEFINE VARIABLE endLocName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 45 BY 1.
 
 DEFINE VARIABLE endProdCategoryName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 49 BY 1.
+     SIZE 45 BY 1.
 
 DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 48 BY 1.
+     SIZE 52 BY 1.
 
 DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 48.6 BY 1.
+     SIZE 45 BY 1.
+
+DEFINE VARIABLE startItemName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 38 BY 1.
+
+DEFINE VARIABLE startLocName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 45 BY 1.
 
 DEFINE VARIABLE startProdCategoryName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 49 BY 1.
+     SIZE 45 BY 1.
 
 DEFINE VARIABLE startSalesRepName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 48 BY 1.
+     SIZE 52 BY 1.
+
+DEFINE VARIABLE svAsOfDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
+     LABEL "As Of Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1.
 
 DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "Company" 
@@ -134,12 +149,22 @@ DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)"
 DEFINE VARIABLE svEndCustNo AS CHARACTER FORMAT "X(8)" 
      LABEL "End Customer" 
      VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
+     SIZE 15 BY 1.
 
-DEFINE VARIABLE svEndOrderDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
-     LABEL "End Order Date" 
+DEFINE VARIABLE svEndItemNo AS CHARACTER FORMAT "X(8)" 
+     LABEL "End Item" 
      VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
+     SIZE 22 BY 1.
+
+DEFINE VARIABLE svEndLoc AS CHARACTER FORMAT "X(5)" 
+     LABEL "End Warehouse" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
+DEFINE VARIABLE svEndLocBin AS CHARACTER FORMAT "X(2)" 
+     LABEL "End Bin" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
 
 DEFINE VARIABLE svEndProdCategory AS CHARACTER FORMAT "X(5)" 
      LABEL "End Prod Category" 
@@ -147,23 +172,34 @@ DEFINE VARIABLE svEndProdCategory AS CHARACTER FORMAT "X(5)"
      SIZE 15.6 BY 1.
 
 DEFINE VARIABLE svEndSalesRep AS CHARACTER FORMAT "X(3)" 
-     LABEL "End SalesRep#" 
+     LABEL "End Sales Rep" 
      VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
+     SIZE 8 BY 1.
 
-DEFINE VARIABLE svOverValue AS INTEGER FORMAT ">9" INITIAL 0 
+DEFINE VARIABLE svShowQOHOlderThanDays AS INTEGER FORMAT ">>9":U INITIAL 0 
+     LABEL "Only Show QOH Older Than" 
      VIEW-AS FILL-IN 
-     SIZE 4.4 BY 1.
+     SIZE 6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svStartCustNo AS CHARACTER FORMAT "X(8)" 
      LABEL "Start Customer" 
      VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
+     SIZE 15 BY 1.
 
-DEFINE VARIABLE svStartOrderDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
-     LABEL "Start Order Date" 
+DEFINE VARIABLE svStartItemNo AS CHARACTER FORMAT "X(15)" 
+     LABEL "Start Item" 
      VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
+     SIZE 22 BY 1.
+
+DEFINE VARIABLE svStartLoc AS CHARACTER FORMAT "X(5)" 
+     LABEL "Start Warehouse" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
+DEFINE VARIABLE svStartLocBin AS CHARACTER FORMAT "X(8)" 
+     LABEL "Start Bin" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
 
 DEFINE VARIABLE svStartProdCategory AS CHARACTER FORMAT "X(5)" 
      LABEL "Start Prod Category" 
@@ -171,18 +207,47 @@ DEFINE VARIABLE svStartProdCategory AS CHARACTER FORMAT "X(5)"
      SIZE 15.6 BY 1.
 
 DEFINE VARIABLE svStartSalesRep AS CHARACTER FORMAT "X(3)" 
-     LABEL "Start SalesRep#" 
+     LABEL "Start Sales Rep" 
      VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1.
+     SIZE 8 BY 1.
 
-DEFINE VARIABLE svUnderValue AS INTEGER FORMAT ">9" INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 4.4 BY 1.
+DEFINE VARIABLE svItemCode AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Stock", "S",
+"Custom", "C",
+"All", "A"
+     SIZE 36 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svSort AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Customer", "Customer",
+"FG Item", "FG Item",
+"Part", "Part",
+"Product Category", "Product Category",
+"Whs/Bin", "Whs/Bin"
+     SIZE 70 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllItemNo AS LOGICAL INITIAL yes 
+     LABEL "All Items" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 12 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllLoc AS LOGICAL INITIAL yes 
+     LABEL "All Warehouses" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 19 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllLocBin AS LOGICAL INITIAL yes 
+     LABEL "All Bins" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 12 BY .95 NO-UNDO.
 
 DEFINE VARIABLE svAllProdCategory AS LOGICAL INITIAL yes 
      LABEL "All Product Categories" 
@@ -199,94 +264,143 @@ DEFINE VARIABLE svCustList AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY .95 NO-UNDO.
 
-DEFINE VARIABLE svExcludeSetComponents AS LOGICAL INITIAL no 
-     LABEL "Exclude Set Components" 
+DEFINE VARIABLE svDLMATOnly AS LOGICAL INITIAL no 
+     LABEL "If Yes - DL/MAT Only?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 33 BY 1 NO-UNDO.
+     SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svExcludeTransferReleasesOrders AS LOGICAL INITIAL no 
-     LABEL "Exclude Transfer Releases/Orders" 
+DEFINE VARIABLE svIncludeCustomerOwnerdWarehouse AS LOGICAL INITIAL no 
+     LABEL "Include Customer Ownerd Warehouse?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 37 BY 1 NO-UNDO.
+     SIZE 41 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svIncludePrepMiscChg AS LOGICAL INITIAL no 
-     LABEL "Include Prep / Misc Charge" 
+DEFINE VARIABLE svIncludeInactiveItems AS LOGICAL INITIAL no 
+     LABEL "Include Inactive Items?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 33 BY 1 NO-UNDO.
+     SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svPrintOrderOverPct AS LOGICAL INITIAL no 
-     LABEL "Print Order Over(%) +" 
+DEFINE VARIABLE svIncludeZeroBalance AS LOGICAL INITIAL no 
+     LABEL "Include Zero Balance?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 24.2 BY 1 NO-UNDO.
+     SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svPrintOrderUnderPct AS LOGICAL INITIAL no 
-     LABEL "Print Order Under(%) -" 
+DEFINE VARIABLE svOnlyCustomerOwnedWarehouse AS LOGICAL INITIAL no 
+     LABEL "Only Customer Owned Warehouse?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 25 BY 1 NO-UNDO.
+     SIZE 38 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svPrintCost AS LOGICAL INITIAL no 
+     LABEL "Print Cost?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svPrintSetAndComponentsOnly AS LOGICAL INITIAL no 
+     LABEL "Print Set and Components Only?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 35 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svPrintSummaryByBinQty AS LOGICAL INITIAL no 
+     LABEL "Print Summary By Bin Qty?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 21.6 COLON-ALIGNED WIDGET-ID 60
-     svCustList AT ROW 2.91 COL 24 WIDGET-ID 48
-     btnCustList AT ROW 2.91 COL 59 WIDGET-ID 46
-     svAllCustNo AT ROW 4.1 COL 24 HELP
+     svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
+     svShowQOHOlderThanDays AT ROW 1.24 COL 63 COLON-ALIGNED HELP
+          "Enter Only Show QOH Older Than Days" WIDGET-ID 266
+     svAsOfDate AT ROW 2.91 COL 23 COLON-ALIGNED HELP
+          "Enter As Of Date" WIDGET-ID 72
+     btnCalendar-1 AT ROW 2.91 COL 41 WIDGET-ID 76
+     svAsOfDateOption AT ROW 2.91 COL 44 COLON-ALIGNED HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 74
+     svCustList AT ROW 4.57 COL 25 WIDGET-ID 48
+     btnCustList AT ROW 4.57 COL 55 WIDGET-ID 46
+     svAllCustNo AT ROW 5.76 COL 25 HELP
           "All Customers?" WIDGET-ID 56
-     startCustName AT ROW 5.29 COL 38.4 COLON-ALIGNED HELP
-          "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svStartCustNo AT ROW 5.33 COL 22 COLON-ALIGNED HELP
-          "Enter Beginning Customer" WIDGET-ID 2
-     endCustName AT ROW 6.48 COL 38.4 COLON-ALIGNED HELP
-          "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svEndCustNo AT ROW 6.52 COL 22 COLON-ALIGNED HELP
-          "Enter Ending Customer" WIDGET-ID 6
-     svStartOrderDate AT ROW 8.38 COL 22 COLON-ALIGNED HELP
-          "Enter Start Order Date" WIDGET-ID 84
-     btnCalendar-1 AT ROW 8.38 COL 39 WIDGET-ID 76
-     svStartOrderDateOption AT ROW 8.38 COL 42 COLON-ALIGNED HELP
-          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 86
-     svEndOrderDate AT ROW 9.57 COL 22 COLON-ALIGNED HELP
-          "Enter End Order Date" WIDGET-ID 80
-     btnCalendar-2 AT ROW 9.57 COL 39 WIDGET-ID 78
-     svEndOrderDateOption AT ROW 9.57 COL 42 COLON-ALIGNED HELP
-          "Select End Order Date Option" NO-LABEL WIDGET-ID 82
-     svAllSalesRep AT ROW 11.48 COL 24 HELP
-          "All Sales Reps?" WIDGET-ID 58
-     svStartSalesRep AT ROW 12.67 COL 22 COLON-ALIGNED HELP
-          "Enter Beginning SalesRep#" WIDGET-ID 22
-     startSalesRepName AT ROW 12.67 COL 39 COLON-ALIGNED HELP
-          "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndSalesRep AT ROW 13.86 COL 22 COLON-ALIGNED HELP
-          "Enter Ending SalesRep" WIDGET-ID 20
-     endSalesRepName AT ROW 13.86 COL 39 COLON-ALIGNED HELP
-          "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svAllProdCategory AT ROW 15.76 COL 24 HELP
-          "All Sales Reps?" WIDGET-ID 112
-     svStartProdCategory AT ROW 16.95 COL 22 COLON-ALIGNED HELP
-          "Enter Start Product Category" WIDGET-ID 90
-     startProdCategoryName AT ROW 16.95 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 210
-     svEndProdCategory AT ROW 18.14 COL 22 COLON-ALIGNED HELP
-          "Enter End Product Category" WIDGET-ID 88
-     endProdCategoryName AT ROW 18.14 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 208
-     svIncludePrepMiscChg AT ROW 19.81 COL 24 WIDGET-ID 42
-     svExcludeSetComponents AT ROW 21 COL 24 WIDGET-ID 94
-     svExcludeTransferReleasesOrders AT ROW 22.05 COL 24 WIDGET-ID 96
-     svPrintOrderUnderPct AT ROW 23.14 COL 24 WIDGET-ID 98
-     svUnderValue AT ROW 23.14 COL 48 COLON-ALIGNED HELP
-          "Enter Beginning Prod Category#" NO-LABEL WIDGET-ID 104
-     svPrintOrderOverPct AT ROW 24.33 COL 24 WIDGET-ID 102
-     svOverValue AT ROW 24.33 COL 48 COLON-ALIGNED HELP
-          "Enter Beginning Prod Category#" NO-LABEL WIDGET-ID 106
-     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
-          SIZE 58 BY .95 AT ROW 25.76 COL 21 WIDGET-ID 108
-     "Note: Profit Includes Estimate Markups and Commissions." VIEW-AS TEXT
-          SIZE 54.6 BY .71 AT ROW 26.81 COL 22.4 WIDGET-ID 110
-          FGCOLOR 1 
+     svStartCustNo AT ROW 6.95 COL 23 COLON-ALIGNED HELP
+          "Enter Start Customer" WIDGET-ID 2
+     startCustName AT ROW 6.95 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 8.14 COL 23 COLON-ALIGNED HELP
+          "Enter End Customer" WIDGET-ID 6
+     endCustName AT ROW 8.14 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svAllLoc AT ROW 9.81 COL 25 HELP
+          "All Warehouses?" WIDGET-ID 158
+     svStartLoc AT ROW 11 COL 23 COLON-ALIGNED HELP
+          "Enter State Warehouse" WIDGET-ID 162
+     startLocName AT ROW 11 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 156
+     svEndLoc AT ROW 12.19 COL 23 COLON-ALIGNED HELP
+          "Enter End Warehouse" WIDGET-ID 160
+     endLocName AT ROW 12.19 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 154
+     svAllLocBin AT ROW 13.86 COL 25 HELP
+          "All Bins?" WIDGET-ID 226
+     svStartLocBin AT ROW 15.05 COL 23 COLON-ALIGNED HELP
+          "Enter Start Bin" WIDGET-ID 230
+     svEndLocBin AT ROW 16.24 COL 23 COLON-ALIGNED HELP
+          "Enter End Bin" WIDGET-ID 228
+     svAllItemNo AT ROW 17.91 COL 25 HELP
+          "All Items?" WIDGET-ID 164
+     svStartItemNo AT ROW 19.1 COL 23 COLON-ALIGNED HELP
+          "Enter Start Item" WIDGET-ID 168
+     startItemName AT ROW 19.1 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 172
+     svEndItemNo AT ROW 20.29 COL 23 COLON-ALIGNED HELP
+          "Enter End Item" WIDGET-ID 166
+     endItemName AT ROW 20.29 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 170
+     svAllProdCategory AT ROW 21.95 COL 25 HELP
+          "All Sales Reps?" WIDGET-ID 202
+     svStartProdCategory AT ROW 23.14 COL 23 COLON-ALIGNED HELP
+          "Enter Start Product Category" WIDGET-ID 206
+     startProdCategoryName AT ROW 23.14 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 210
+     svEndProdCategory AT ROW 24.33 COL 23 COLON-ALIGNED HELP
+          "Enter End Product Category" WIDGET-ID 204
+     endProdCategoryName AT ROW 24.33 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 208
+     svAllSalesRep AT ROW 26 COL 25 HELP
+          "All Sales Reps?" WIDGET-ID 108
+     svStartSalesRep AT ROW 27.19 COL 23 COLON-ALIGNED HELP
+          "Enter Beginning Sales Rep#" WIDGET-ID 112
+     startSalesRepName AT ROW 27.19 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     svEndSalesRep AT ROW 28.38 COL 23 COLON-ALIGNED HELP
+          "Enter Ending Sales Rep" WIDGET-ID 110
+     endSalesRepName AT ROW 28.38 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     svSort AT ROW 30.05 COL 25 HELP
+          "Select Sort Option" NO-LABEL WIDGET-ID 84
+     svItemCode AT ROW 31.24 COL 25 HELP
+          "Select Sort Option" NO-LABEL WIDGET-ID 270
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89 BY 27.67
+         SIZE 94.8 BY 37.38.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     svPrintSetAndComponentsOnly AT ROW 32.67 COL 25 HELP
+          "Select to Print Set and Components Only" WIDGET-ID 88
+     svIncludeZeroBalance AT ROW 32.67 COL 66 HELP
+          "Select to Include Zero Balance" WIDGET-ID 256
+     svIncludeCustomerOwnerdWarehouse AT ROW 33.86 COL 25 HELP
+          "Select to Include Customer Ownerd Warehouse" WIDGET-ID 252
+     svPrintSummaryByBinQty AT ROW 33.86 COL 66 HELP
+          "Select to Print Summary By Bin Qty" WIDGET-ID 258
+     svOnlyCustomerOwnedWarehouse AT ROW 35.05 COL 25 HELP
+          "Select to Only Customer Owned Warehouse" WIDGET-ID 254
+     svIncludeInactiveItems AT ROW 35.05 COL 66 HELP
+          "Select to Include Inactive Items" WIDGET-ID 260
+     svPrintCost AT ROW 36.24 COL 25 HELP
+          "Select to Print Cost" WIDGET-ID 262
+     svDLMATOnly AT ROW 36.24 COL 66 HELP
+          "Select to If Yes - DL/MAT Only" WIDGET-ID 264
+     "Item Code:" VIEW-AS TEXT
+          SIZE 10 BY 1 AT ROW 31.24 COL 14 WIDGET-ID 274
+     "Sort By:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 30.05 COL 16 WIDGET-ID 90
+     "Days" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 1.24 COL 72 WIDGET-ID 268
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 94.8 BY 37.38
          TITLE "Report Parameters".
 
 
@@ -316,8 +430,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 27.67
-         WIDTH              = 89.
+         HEIGHT             = 37.38
+         WIDTH              = 94.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -345,15 +459,21 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
    3                                                                    */
-/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
-   3                                                                    */
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN endItemName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN endLocName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endProdCategoryName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endSalesRepName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startItemName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startLocName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startProdCategoryName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -385,18 +505,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject
 ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
 DO:
-  {methods/btnCalendar.i svStartOrderDate}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnCalendar-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 sObject
-ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i svEndOrderDate}
+  {methods/btnCalendar.i svAsOfDate}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -425,6 +534,39 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svAllItemNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllItemNo sObject
+ON VALUE-CHANGED OF svAllItemNo IN FRAME F-Main /* All Items */
+DO:
+    {aoa/svAllValueChanged.i svStartItemNo svEndItemNo}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllLoc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllLoc sObject
+ON VALUE-CHANGED OF svAllLoc IN FRAME F-Main /* All Warehouses */
+DO:
+    {aoa/svAllValueChanged.i svStartLoc svEndLoc}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllLocBin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllLocBin sObject
+ON VALUE-CHANGED OF svAllLocBin IN FRAME F-Main /* All Bins */
+DO:
+    {aoa/svAllValueChanged.i svStartLocBin svEndLocBin}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svAllProdCategory
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllProdCategory sObject
 ON VALUE-CHANGED OF svAllProdCategory IN FRAME F-Main /* All Product Categories */
@@ -447,11 +589,33 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svAsOfDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAsOfDate sObject
+ON HELP OF svAsOfDate IN FRAME F-Main /* As Of Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAsOfDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAsOfDateOption sObject
+ON VALUE-CHANGED OF svAsOfDateOption IN FRAME F-Main
+DO:
+    {aoa/tDateOption.i &dateObject=svAsOfDate &btnCalendar=1}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svCompany
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCompany sObject
 ON ENTRY OF svCompany IN FRAME F-Main /* Company */
 DO:
-  APPLY "ENTRY":U TO svStartCustNo.
+  APPLY "ENTRY":U TO svAsOfDate.
   RETURN NO-APPLY.
 END.
 
@@ -463,13 +627,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svCustList sObject
 ON VALUE-CHANGED OF svCustList IN FRAME F-Main /* Use Defined Customer List */
 DO:
-    ASSIGN {&SELF-NAME}
-        svStartCustNo:READ-ONLY = {&SELF-NAME}
-        svEndCustNo:READ-ONLY   = {&SELF-NAME}
-        btnCustList:SENSITIVE   = {&SELF-NAME}
-        .
-    IF {&SELF-NAME} THEN
-    ASSIGN svAllCustNo:SCREEN-VALUE = "no".
+  ASSIGN {&SELF-NAME}
+      svStartCustNo:READ-ONLY = {&SELF-NAME}
+      svEndCustNo:READ-ONLY   = {&SELF-NAME}
+      btnCustList:SENSITIVE   = {&SELF-NAME}
+      .
+  IF {&SELF-NAME} THEN
+  ASSIGN svAllCustNo:SCREEN-VALUE = "no".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -487,22 +651,22 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndOrderDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndOrderDate sObject
-ON HELP OF svEndOrderDate IN FRAME F-Main /* End Order Date */
+&Scoped-define SELF-NAME svEndItemNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndItemNo sObject
+ON LEAVE OF svEndItemNo IN FRAME F-Main /* End Item */
 DO:
-  {methods/calendar.i}
+    endItemName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svEndOrderDateOption
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndOrderDateOption sObject
-ON VALUE-CHANGED OF svEndOrderDateOption IN FRAME F-Main
+&Scoped-define SELF-NAME svEndLoc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndLoc sObject
+ON LEAVE OF svEndLoc IN FRAME F-Main /* End Warehouse */
 DO:
-    {aoa/tDateOption.i &dateObject=svEndOrderDate &btnCalendar=2}
+    endLocName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -522,21 +686,9 @@ END.
 
 &Scoped-define SELF-NAME svEndSalesRep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndSalesRep sObject
-ON LEAVE OF svEndSalesRep IN FRAME F-Main /* End SalesRep# */
+ON LEAVE OF svEndSalesRep IN FRAME F-Main /* End Sales Rep */
 DO:
     endSalesRepName:SCREEN-VALUE = {aoa/fSetDescription.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME svOverValue
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svOverValue sObject
-ON LEAVE OF svOverValue IN FRAME F-Main
-DO:
-    ASSIGN {&SELF-NAME}.
-    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -554,22 +706,22 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartOrderDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartOrderDate sObject
-ON HELP OF svStartOrderDate IN FRAME F-Main /* Start Order Date */
+&Scoped-define SELF-NAME svStartItemNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartItemNo sObject
+ON LEAVE OF svStartItemNo IN FRAME F-Main /* Start Item */
 DO:
-  {methods/calendar.i}
+    startItemName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svStartOrderDateOption
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartOrderDateOption sObject
-ON VALUE-CHANGED OF svStartOrderDateOption IN FRAME F-Main
+&Scoped-define SELF-NAME svStartLoc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartLoc sObject
+ON LEAVE OF svStartLoc IN FRAME F-Main /* Start Warehouse */
 DO:
-    {aoa/tDateOption.i &dateObject=svStartOrderDate &btnCalendar=1}
+    startLocName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -589,21 +741,9 @@ END.
 
 &Scoped-define SELF-NAME svStartSalesRep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartSalesRep sObject
-ON LEAVE OF svStartSalesRep IN FRAME F-Main /* Start SalesRep# */
+ON LEAVE OF svStartSalesRep IN FRAME F-Main /* Start Sales Rep */
 DO:
     startSalesRepName:SCREEN-VALUE = {aoa/fSetDescription.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME svUnderValue
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svUnderValue sObject
-ON LEAVE OF svUnderValue IN FRAME F-Main
-DO:
-    ASSIGN {&SELF-NAME}.
-    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -661,21 +801,32 @@ PROCEDURE pInitialize :
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
             .
-        APPLY "VALUE-CHANGED":U TO svCustList.
+
+        APPLY "VALUE-CHANGED":U TO svAsOfDateOption.
+        
         APPLY "VALUE-CHANGED":U TO svAllCustNo.
         APPLY "LEAVE":U TO svStartCustNo.
         APPLY "LEAVE":U TO svEndCustNo.
         
-        APPLY "VALUE-CHANGED":U TO svStartOrderDateOption.
-        APPLY "VALUE-CHANGED":U TO svEndOrderDateOption.
-
-        APPLY "VALUE-CHANGED":U TO svAllSalesRep.
-        APPLY "LEAVE":U TO svStartSalesRep.
-        APPLY "LEAVE":U TO svEndSalesRep.
+        APPLY "VALUE-CHANGED":U TO svAllLoc.
+        APPLY "LEAVE":U TO svStartLoc.
+        APPLY "LEAVE":U TO svEndLoc.
+        
+        APPLY "VALUE-CHANGED":U TO svAllLocBin.
+        APPLY "LEAVE":U TO svStartLocBin.
+        APPLY "LEAVE":U TO svEndLocBin.
+        
+        APPLY "VALUE-CHANGED":U TO svAllItemNo.
+        APPLY "LEAVE":U TO svStartItemNo.
+        APPLY "LEAVE":U TO svEndItemNo.
         
         APPLY "VALUE-CHANGED":U TO svAllProdCategory.
         APPLY "LEAVE":U TO svStartProdCategory.
         APPLY "LEAVE":U TO svEndProdCategory.
+        
+        APPLY "VALUE-CHANGED":U TO svAllSalesRep.
+        APPLY "LEAVE":U TO svStartSalesRep.
+        APPLY "LEAVE":U TO svEndSalesRep.
     END.
 
 END PROCEDURE.
@@ -693,12 +844,9 @@ PROCEDURE pPopulateOptions :
     DEFINE INPUT PARAMETER iphContainer AS HANDLE NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN
-            hContainer = iphContainer
-            .
-        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartOrderDateOption:HANDLE).
-        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndOrderDateOption:HANDLE).
+        hContainer = iphContainer.
         
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svAsOfDateOption:HANDLE).
     END.
 
 END PROCEDURE.
