@@ -742,19 +742,19 @@ PROCEDURE spec-image-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE v-spec AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE lspec AS LOGICAL NO-UNDO.
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
  
  IF AVAIL ITEM THEN
-   v-spec = CAN-FIND(FIRST notes WHERE
+   lspec = CAN-FIND(FIRST notes WHERE
             notes.rec_key = ITEM.rec_key AND
             notes.note_type = "S").
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spechk-target':U, OUTPUT char-hdl).
   
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+      RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT lspec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
