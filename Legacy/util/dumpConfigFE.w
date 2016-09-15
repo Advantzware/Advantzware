@@ -74,7 +74,8 @@ DEFINE FRAME Dialog-Frame
      Btn_OK AT ROW 7.19 COL 15
      Btn_Cancel AT ROW 7.19 COL 43
      "Enter Config Data Output File Path" VIEW-AS TEXT
-          SIZE 27 BY 1.1 AT ROW 2.43 COL 6
+          SIZE 35 BY 1.1 AT ROW 2.43 COL 7
+          FGCOLOR 9 
      RECT-25 AT ROW 3.14 COL 5 WIDGET-ID 6
      SPACE(1.59) SKIP(4.37)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -138,11 +139,28 @@ DO:
 /*    IF NOT CONNECTED("nosweat-addon") THEN DO:                                           */
 /*        CONNECT -pf VALUE(fiPFFileLocation + "\addon\" + "nosweat.pf") -ld nosweat-addon.*/
 /*    END. 
-                                                                                */
+    file-info                                                   */
+    FILE-INFO:FILE-NAME = lv-file.
+    
+    IF not FILE-INFO:file-type begins "D"  THEN DO:
+        MESSAGE "The folder " lv-file  skip
+        "does not exist, so can't continue"
+        VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.
+    END.
+    
+        FILE-INFO:FILE-NAME = lv-file + "\addon".
+    
+    IF not FILE-INFO:file-type begins "D"  THEN DO:
+        MESSAGE "The folder "  lv-file + "/addon" skip
+        "does not exist, so can't continue"
+        VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.
+    END.
+    
     IF CONNECTED("nosweat") THEN
         DISCONNECT nosweat.
-        MESSAGE "after disconnect"
-        VIEW-AS ALERT-BOX.
+
     CONNECT -db nosweat -S 3810 -H asidc.
     CONNECT -db nosweat -ld "ASINOS" -S 3802 -H asidc.        
 
