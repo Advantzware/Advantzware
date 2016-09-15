@@ -1,11 +1,10 @@
-/* pPostBOLCreateInvoice.i - auto generated 08.24.2016 @  7:20:45 pm from aoa/aoaParam.w */
+/* pPostBOLCreateInvoice.i - auto generated 09.08.2016 @  6:47:03 pm from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
 
     /* parameter values loaded into these variables */
-    DEFINE VARIABLE lPost AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dtPostDate AS DATE NO-UNDO.
     DEFINE VARIABLE cPostDateOption AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCustList AS LOGICAL NO-UNDO.
@@ -25,6 +24,7 @@
     DEFINE VARIABLE lAllLocBin AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cStartLocBin AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndLocBin AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lPost AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 
@@ -33,7 +33,6 @@
 
     /* load parameter values from above record into variables */
     ASSIGN
-        lPost = DYNAMIC-FUNCTION("fGetParamValue","svPost") EQ "yes"
         dtPostDate = DATE(DYNAMIC-FUNCTION("fGetParamValue","svPostDate"))
         cPostDateOption = DYNAMIC-FUNCTION("fGetParamValue","svPostDateOption")
         dtPostDate = DYNAMIC-FUNCTION("fDateOptionDate",cPostDateOption,dtPostDate)
@@ -56,6 +55,7 @@
         lAllLocBin = DYNAMIC-FUNCTION("fGetParamValue","svAllLocBin") EQ "yes"
         cStartLocBin = DYNAMIC-FUNCTION("fGetParamValue","svStartLocBin")
         cEndLocBin = DYNAMIC-FUNCTION("fGetParamValue","svEndLocBin")
+        lPost = DYNAMIC-FUNCTION("fGetParamValue","svPost") EQ "yes"
         cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
         cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
         .

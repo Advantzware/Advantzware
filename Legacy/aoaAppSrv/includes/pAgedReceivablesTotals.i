@@ -1,4 +1,4 @@
-/* pAgedReceivables.i - auto generated 09.04.2016 @ 10:48:38 pm from aoa/aoaParam.w */
+/* pAgedReceivablesTotals.i - auto generated 09.06.2016 @  6:54:57 pm from aoa/aoaParam.w */
 
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
@@ -43,7 +43,7 @@
     DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 
     /* locate parameter values record */
-    RUN pGetParamValues (ipcCompany, "r-araged.", ipcUserID, ipiBatch).
+    RUN pGetParamValues (ipcCompany, "agedtot.", ipcUserID, ipiBatch).
 
     /* load parameter values from above record into variables */
     ASSIGN
@@ -88,7 +88,7 @@
         cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
         .
 
-    RUN pGetColumns (TEMP-TABLE ttAgedReceivables:HANDLE,
+    RUN pGetColumns (TEMP-TABLE ttAgedReceivablesTotals:HANDLE,
                      cAvailableColumns,
                      cSelectedColumns
                      ).
@@ -123,4 +123,4 @@
         cEndTerms   = CHR(255)
         .
 
-    RUN pBuildCustList (ipcCompany, lCustList, cStartCustNo, cEndCustNo, "AR5").
+    RUN pBuildCustList (ipcCompany, lCustList, cStartCustNo, cEndCustNo, "AR51").

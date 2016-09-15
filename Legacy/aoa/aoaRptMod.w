@@ -72,8 +72,8 @@ DEFINE TEMP-TABLE ttDetail NO-UNDO
     FIELD dtOrder        AS INTEGER   LABEL "Order"         FORMAT ">>>9"
     FIELD dtName         AS CHARACTER LABEL "Name"          FORMAT "x(30)"
     FIELD dtDataField    AS CHARACTER LABEL "DataField"     FORMAT "x(20)"
-    FIELD dtLeft         AS INTEGER   LABEL "Position"      FORMAT ">>>>9"
-    FIELD dtWidth        AS INTEGER   LABEL "Width"         FORMAT ">>>>9"
+    FIELD dtLeft         AS INTEGER   LABEL "Position"      FORMAT ">>>>>9"
+    FIELD dtWidth        AS INTEGER   LABEL "Width"         FORMAT ">>>>>9"
     FIELD dtAlignment    AS INTEGER   LABEL "Alignment"     FORMAT "9"
     FIELD dtOutputFormat AS CHARACTER LABEL "OutputFormat"  FORMAT "x(30)"
     FIELD dtSectionItem  AS INTEGER   LABEL "SectionItem"   FORMAT ">>9"
@@ -273,7 +273,7 @@ DEFINE BUTTON btnSetName
 
 DEFINE BUTTON btnSubReport 
      LABEL "SubRpt: None" 
-     SIZE 24 BY 1.
+     SIZE 25 BY 1.
 
 DEFINE BUTTON btnUpdate 
      LABEL "Update Scripts && Publish" 
@@ -288,7 +288,7 @@ DEFINE VARIABLE aoaProgramID AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE aoaReportTitle AS CHARACTER FORMAT "X(256)":U 
      LABEL "Report Title" 
      VIEW-AS FILL-IN 
-     SIZE 67 BY 1
+     SIZE 66 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE aoaReportWidth AS INTEGER FORMAT ">>>,>>9":U INITIAL 0 
@@ -336,7 +336,7 @@ DEFINE BROWSE ttDetail
     ttDetail.dtOutputFormat
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 108 BY 20.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 110 BY 20.95
          TITLE "Detail Section".
 
 DEFINE BROWSE ttPageHeader
@@ -414,16 +414,16 @@ DEFINE FRAME DEFAULT-FRAME
      aoaReportWidth AT ROW 1.24 COL 94 COLON-ALIGNED WIDGET-ID 10
      aoaRptFile AT ROW 1.24 COL 123 COLON-ALIGNED WIDGET-ID 2
      btnSubReport AT ROW 1.24 COL 217 WIDGET-ID 28
-     aoaReportTitle AT ROW 1.24 COL 252 COLON-ALIGNED WIDGET-ID 8
+     aoaReportTitle AT ROW 1.24 COL 253 COLON-ALIGNED WIDGET-ID 8
      ttProgID AT ROW 2.43 COL 1 WIDGET-ID 700
      ttPageHeader AT ROW 2.43 COL 30 WIDGET-ID 300
      ttDetail AT ROW 2.43 COL 107 WIDGET-ID 400
      ttParameter AT ROW 2.43 COL 242 WIDGET-ID 600
-     btnOnReportStart AT ROW 3.38 COL 216 WIDGET-ID 14
-     btnGroupHeaderOnFormat AT ROW 4.81 COL 216 WIDGET-ID 22
-     btnGroupFooterOnFormat AT ROW 6.24 COL 216 WIDGET-ID 24
-     btnDetailOnFormat AT ROW 7.67 COL 216 WIDGET-ID 12
-     btnOnReportEnd AT ROW 9.1 COL 216 WIDGET-ID 26
+     btnOnReportStart AT ROW 3.38 COL 217 WIDGET-ID 14
+     btnGroupHeaderOnFormat AT ROW 4.81 COL 217 WIDGET-ID 22
+     btnGroupFooterOnFormat AT ROW 6.24 COL 217 WIDGET-ID 24
+     btnDetailOnFormat AT ROW 7.67 COL 217 WIDGET-ID 12
+     btnOnReportEnd AT ROW 9.1 COL 217 WIDGET-ID 26
      btnUpdate AT ROW 22.43 COL 2 WIDGET-ID 30
      ttSubject AT ROW 23.62 COL 1 WIDGET-ID 200
      ttSection AT ROW 23.62 COL 99 WIDGET-ID 500
@@ -1048,8 +1048,9 @@ PROCEDURE pGetTempTableFields :
     iphTable = iphTable:DEFAULT-BUFFER-HANDLE.
     DO idx = 1 TO iphTable:NUM-FIELDS:
         IF CAN-DO("RECID,ROWID",iphTable:BUFFER-FIELD(idx):DATA-TYPE) THEN NEXT.
-        IF iphTable:BUFFER-FIELD(idx):NAME EQ "rowType" THEN NEXT.
-        IF iphTable:BUFFER-FIELD(idx):NAME EQ "parameters" THEN NEXT.
+        IF iphTable:BUFFER-FIELD(idx):NAME EQ "rowType"     THEN NEXT.
+        IF iphTable:BUFFER-FIELD(idx):NAME EQ "parameters"  THEN NEXT.
+        IF iphTable:BUFFER-FIELD(idx):NAME EQ "recDataType" THEN NEXT.
         CREATE ttSubject.
         ASSIGN
             iOrder             = iOrder + 1

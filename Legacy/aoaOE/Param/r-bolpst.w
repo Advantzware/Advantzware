@@ -47,16 +47,16 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svPost svPostDate btnCalendar-1 ~
+&Scoped-Define ENABLED-OBJECTS svCompany svPostDate btnCalendar-1 ~
 svPostDateOption svCustList btnCustList svAllCustNo svStartCustNo ~
 svEndCustNo svStartBOLDate btnCalendar-2 svStartBOLDateOption svEndBOLDate ~
 btnCalendar-3 svEndBOLDateOption svAllBOL svStartBOL svEndBOL svAllLoc ~
-svStartLoc svEndLoc svAllLocBin svStartLocBin svEndLocBin 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svPost svPostDate ~
-svPostDateOption svCustList svAllCustNo svStartCustNo startCustName ~
-svEndCustNo endCustName svStartBOLDate svStartBOLDateOption svEndBOLDate ~
-svEndBOLDateOption svAllBOL svStartBOL svEndBOL svAllLoc svStartLoc ~
-startLocName svEndLoc endLocName svAllLocBin svStartLocBin svEndLocBin 
+svStartLoc svEndLoc svAllLocBin svStartLocBin svEndLocBin svPost 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svPostDate svPostDateOption ~
+svCustList svAllCustNo svStartCustNo startCustName svEndCustNo endCustName ~
+svStartBOLDate svStartBOLDateOption svEndBOLDate svEndBOLDateOption ~
+svAllBOL svStartBOL svEndBOL svAllLoc svStartLoc startLocName svEndLoc ~
+endLocName svAllLocBin svStartLocBin svEndLocBin svPost 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -154,7 +154,7 @@ DEFINE VARIABLE svEndLocBin AS CHARACTER FORMAT "X(2)"
      VIEW-AS FILL-IN 
      SIZE 15 BY 1.
 
-DEFINE VARIABLE svPostDate AS DATE FORMAT "99/99/9999" INITIAL ? 
+DEFINE VARIABLE svPostDate AS DATE FORMAT "99/99/9999" 
      LABEL "Post Date" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
@@ -224,8 +224,6 @@ DEFINE VARIABLE svPost AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 60
-     svPost AT ROW 1.24 COL 70 HELP
-          "Select to Post" WIDGET-ID 344
      svPostDate AT ROW 2.91 COL 17 COLON-ALIGNED HELP
           "Enter Post Date" WIDGET-ID 274
      btnCalendar-1 AT ROW 2.91 COL 35 WIDGET-ID 272
@@ -271,6 +269,8 @@ DEFINE FRAME F-Main
           "Enter Start Bin" WIDGET-ID 286
      svEndLocBin AT ROW 24.33 COL 17 COLON-ALIGNED HELP
           "Enter End Bin" WIDGET-ID 284
+     svPost AT ROW 24.33 COL 70 HELP
+          "Select to Post" WIDGET-ID 344
      "Bills of Lading MUST BE printed prior to posting!" VIEW-AS TEXT
           SIZE 58 BY .95 AT ROW 27.43 COL 13 WIDGET-ID 336
           BGCOLOR 11 FONT 5

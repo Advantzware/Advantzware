@@ -1586,9 +1586,10 @@ PROCEDURE pGetColumns :
             .
         DO idx = 1 TO hTable:NUM-FIELDS:
             IF CAN-DO("RECID,ROWID",hTable:BUFFER-FIELD(idx):DATA-TYPE) THEN NEXT.
-            IF hTable:BUFFER-FIELD(idx):NAME BEGINS "xx" THEN NEXT.
-            IF hTable:BUFFER-FIELD(idx):NAME EQ "rowType" THEN NEXT.
-            IF hTable:BUFFER-FIELD(idx):NAME EQ "parameters" THEN NEXT.
+            IF hTable:BUFFER-FIELD(idx):NAME BEGINS "xx"      THEN NEXT.
+            IF hTable:BUFFER-FIELD(idx):NAME EQ "rowType"     THEN NEXT.
+            IF hTable:BUFFER-FIELD(idx):NAME EQ "parameters"  THEN NEXT.
+	    IF hTable:BUFFER-FIELD(idx):NAME EQ "recDataType" THEN NEXT.
             cRowType = cRowType + "|" + hTable:BUFFER-FIELD(idx):NAME.
             svAvailableColumns:ADD-LAST(hTable:BUFFER-FIELD(idx):LABEL,
                                         hTable:BUFFER-FIELD(idx):NAME).
