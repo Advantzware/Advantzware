@@ -14,9 +14,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.log-fld  = no
    sys-ctrl.descrip  = "Include the cost of freight into the cost of purchased goods?".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 END.
 
 fgpofrt-log = sys-ctrl.log-fld.

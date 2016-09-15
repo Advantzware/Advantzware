@@ -14,9 +14,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.name     = "OETANDEM"
    sys-ctrl.log-fld  = NO
    sys-ctrl.descrip  = "Create tandem estimates from OE?".
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 end.
 assign
  oetandem-log = sys-ctrl.log-fld

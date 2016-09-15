@@ -17,9 +17,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.log-fld  = no
    sys-ctrl.char-fld = ""
    sys-ctrl.descrip  = "Default scheduled release type (Ship Only,Invoice Only,Both,Transfer)".
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 assign
  RelType-log = sys-ctrl.log-fld

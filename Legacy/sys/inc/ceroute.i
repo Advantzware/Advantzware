@@ -27,10 +27,10 @@ IF NOT AVAIL sys-ctrl THEN DO:
      sys-ctrl.descrip = "Build machine routing from page 1 of Estimate (" +
                         (IF "{1}" EQ "F" THEN "Fold" ELSE "Corr") + "ware)".
 
-    IF "{1}" EQ "C" THEN
+    /*IF "{1}" EQ "C" THEN
       MESSAGE sys-ctrl.descrip
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-          UPDATE sys-ctrl.log-fld.
+          UPDATE sys-ctrl.log-fld.  */
 
     MESSAGE "Please enter the default layout machine (" +
             (IF "{1}" EQ "F" THEN "Fold" ELSE "Corr") + "ware)"

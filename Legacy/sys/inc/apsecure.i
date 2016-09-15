@@ -14,8 +14,6 @@ if not avail sys-ctrl then do:
    sys-ctrl.log-fld  = NO
    sys-ctrl.descrip  = "Protect AP Invoices by UserID?".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 apsecure-log = sys-ctrl.log-fld.

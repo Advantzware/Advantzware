@@ -14,8 +14,6 @@ if not avail sys-ctrl then do transaction:
    sys-ctrl.log-fld  = yes
    sys-ctrl.descrip  = "Post GL for FG adjustments".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 end.
 v-adjustgl = sys-ctrl.log-fld.

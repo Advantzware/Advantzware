@@ -16,9 +16,7 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.log-fld  = NO
    sys-ctrl.descrip  = "Automatically Create purchase orders during OE for Prep RMs?".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 END.
 ASSIGN
  oepreppo-log = sys-ctrl.log-fld
