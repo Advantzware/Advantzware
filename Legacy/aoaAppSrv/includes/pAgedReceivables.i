@@ -1,8 +1,6 @@
 /* pAgedReceivables.i - auto generated 09.04.2016 @ 10:48:38 pm from aoa/aoaParam.w */
 
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
+    {aoaAppSrv/aoaInputDefParams.i}
 
     /* parameter values loaded into these variables */
     DEFINE VARIABLE lAllCompany AS LOGICAL NO-UNDO.

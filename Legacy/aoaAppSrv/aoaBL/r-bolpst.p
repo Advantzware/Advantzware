@@ -14,6 +14,8 @@
 */
 
 /* ***************************  Definitions  ***************************/
+
+/* Post BOL Create Invoice.rpa */
 {aoaAppSrv/includes/ttPostBolCreateInvoice.i}
 
 /* Parameters Definitions ---                                           */

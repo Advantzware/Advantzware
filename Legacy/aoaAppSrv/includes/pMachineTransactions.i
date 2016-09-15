@@ -1,8 +1,6 @@
 /* pMachineTransactions.i - auto generated 05.25.2016 @  2:58:13 pm from aoa/aoaParam.w */
 
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
+    {aoaAppSrv/aoaInputDefParams.i}
 
     /* parameter values loaded into these variables */
     DEFINE VARIABLE dtStartMachTranDate AS DATE NO-UNDO.

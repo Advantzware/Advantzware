@@ -1,8 +1,6 @@
-/* pPostBOLCreateInvoice.i - auto generated 09.08.2016 @  6:47:03 pm from aoa/aoaParam.w */
+/* pPostBOLCreateInvoice.i - auto generated 09.15.2016 @  3:22:32 pm from aoa/aoaParam.w */
 
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
+    {aoaAppSrv/aoaInputDefParams.i}
 
     /* parameter values loaded into these variables */
     DEFINE VARIABLE dtPostDate AS DATE NO-UNDO.

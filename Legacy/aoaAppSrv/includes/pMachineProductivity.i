@@ -1,8 +1,6 @@
 /* pMachineProductivity.i - auto generated 07.07.2016 @ 11:39:09 am from aoa/aoaParam.w */
 
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
+    {aoaAppSrv/aoaInputDefParams.i}
 
     /* parameter values loaded into these variables */
     DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
