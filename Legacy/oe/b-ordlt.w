@@ -89,7 +89,7 @@ DEFINE VARIABLE oeBolPrompt-char AS CHARACTER NO-UNDO .
 DEFINE VARIABLE oeBolPrompt-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
-DEFINE VARIABLE lv-text AS CHARACTER NO-UNDO .
+DEFINE VARIABLE clvtext AS CHARACTER NO-UNDO .
 
 &SCOPED-DEFINE SORTBY-PHRASE BY oe-ordl.set-hdr-line BY oe-ordl.line
 
@@ -670,16 +670,16 @@ FOR EACH bf-rel
         v-all-i = NO.    
 END.
 
-ASSIGN lv-text = "Notes: " .
+ASSIGN clvtext = "Notes: " .
 IF oeBolPrompt-log AND AVAILABLE xoe-ord THEN DO:
     FOR EACH xoe-ordl OF xoe-ord NO-LOCK:
         FOR EACH notes NO-LOCK WHERE notes.rec_key = xoe-ordl.rec_key AND
                               LOOKUP(notes.note_code,oeBolPrompt-char) <> 0 :
-            lv-text = lv-text + notes.note_text + "  " .
+            clvtext = clvtext + notes.note_text + "  " .
         END.
     END.
-    IF lv-text NE "Notes: " THEN
-    MESSAGE lv-text VIEW-AS ALERT-BOX INFORMATION BUTTONS OK  .
+    IF clvtext NE "Notes: " THEN
+    MESSAGE clvtext VIEW-AS ALERT-BOX INFORMATION BUTTONS OK  .
 END.
 
 /* gdm - 02020902 */
