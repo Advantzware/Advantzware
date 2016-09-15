@@ -1096,9 +1096,9 @@ DEF BUFFER bf-itemfg FOR itemfg.
 DEF BUFFER bf-quotehd FOR quotehd.
 DEF VAR cNewRep AS CHAR NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE newRecord AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lnewRecord AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
-  newRecord = adm-new-record.
+  lnewRecord = adm-new-record.
 
   RUN valid-uom NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1131,13 +1131,13 @@ DEFINE VARIABLE newRecord AS LOGICAL NO-UNDO.
 
   ASSIGN adm-new-record = NO .
 
-   IF newRecord THEN DO:
+   IF lnewRecord THEN DO:
        run get-link-handle in adm-broker-hdl
         (this-procedure,"itemqt-TARGET", output char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN resetQuery IN WIDGET-HANDLE(char-hdl) (INPUT quoteitm.q-no).
      
-       newRecord = NO.
+       lnewRecord = NO.
     END.
 
 
