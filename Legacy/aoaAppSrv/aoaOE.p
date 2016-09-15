@@ -240,6 +240,10 @@ DEFINE TEMP-TABLE ttOrdersBookedByOrderNo NO-UNDO
     .
 /* Orders Booked By Order No.rpa */ 
 
+/* Post BOL Create Invoice.rpa */
+{aoaAppSrv/includes/ttPostBolCreateInvoice.i}
+/* Post BOL Create Invoice.rpa */
+
 /* Recap Product Category.rpa */
 DEFINE TEMP-TABLE ttRecapProductCategory NO-UNDO
     {aoaAppSrv/ttFields.i}
@@ -356,6 +360,19 @@ FUNCTION fOrdersBookedByOrderNo RETURNS HANDLE
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fPostBOLCreateInvoice) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fPostBOLCreateInvoice Procedure 
+FUNCTION fPostBOLCreateInvoice RETURNS HANDLE
+    ( ipcCompany AS CHARACTER,
+      ipiBatch   AS INTEGER,
+      ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-fRecapProductCategory) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fRecapProductCategory Procedure 
@@ -387,7 +404,7 @@ FUNCTION fRecapProductCategory RETURNS HANDLE
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 20.52
+         HEIGHT             = 23.57
          WIDTH              = 60.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -1766,6 +1783,29 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pPostBOLCreateInvoice) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostBOLCreateInvoice Procedure 
+PROCEDURE pPostBOLCreateInvoice :
+/*------------------------------------------------------------------------------
+  Purpose:     Post BOL Create Invoice.rpa
+  Parameters:  Company, Batch Seq, User ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/includes/pPostBOLCreateInvoice.i}
+    
+    /* local variables */
+
+    /* subject business logic */
+    RUN aoaAppSrv/aoaBL/r-bolpst.p (OUTPUT TABLE ttPostBOLCreateInvoice, ipcCompany, ipiBatch, ipcUserID).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-pRecapProductCategory) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRecapProductCategory Procedure 
@@ -1846,6 +1886,9 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Open Order Repoer.rpa */
         WHEN "r-ordopn." THEN
         RETURN TEMP-TABLE ttOpenOrderReport:HANDLE.
+        /* Post BOL Create Invoice.rpa */
+        WHEN "r-bolpst." THEN
+        RETURN TEMP-TABLE ttPostBOLCreateInvoice:HANDLE.
         /* Recap Product Category.rpa */
         WHEN "recappc." THEN
         RETURN TEMP-TABLE ttRecapProductCategory:HANDLE.
@@ -1947,6 +1990,30 @@ Notes:
     RUN pOrdersBookedByOrderNo (ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttOrdersBookedByOrderNo:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fPostBOLCreateInvoice) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fPostBOLCreateInvoice Procedure 
+FUNCTION fPostBOLCreateInvoice RETURNS HANDLE
+    ( ipcCompany AS CHARACTER,
+      ipiBatch   AS INTEGER,
+      ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+Purpose:  Post BOL Create Invoice.rpa
+Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttPostBOLCreateInvoice.
+    
+    RUN pPostBOLCreateInvoice (ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttPostBOLCreateInvoice:HANDLE .
 
 END FUNCTION.
 

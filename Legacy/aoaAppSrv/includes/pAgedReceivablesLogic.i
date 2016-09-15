@@ -1,4 +1,4 @@
- /* pAgedReceivablesLogic.i */
+/* pAgedReceivablesLogic.i */
 
     /* local variables */
     DEFINE VARIABLE dCreditDebitAmt   AS DECIMAL   NO-UNDO.
@@ -13,6 +13,9 @@
     DEFINE VARIABLE dSManT            AS DECIMAL   NO-UNDO EXTENT 6.
     DEFINE VARIABLE dSManTPri         AS DECIMAL   NO-UNDO EXTENT 6.
     DEFINE VARIABLE dSManTFc          AS DECIMAL   NO-UNDO EXTENT 6.
+    DEFINE VARIABLE dGrandT           AS DECIMAL   NO-UNDO EXTENT 6.
+    DEFINE VARIABLE dGrandTPri        AS DECIMAL   NO-UNDO EXTENT 6.
+    DEFINE VARIABLE dGrandTFc         AS DECIMAL   NO-UNDO EXTENT 6.
     DEFINE VARIABLE iCurrentTrendDays AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dCurrT            AS DECIMAL   NO-UNDO EXTENT 6.
     DEFINE VARIABLE dCurrTPri         AS DECIMAL   NO-UNDO EXTENT 6.
@@ -24,6 +27,9 @@
     DEFINE VARIABLE dC1               AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dC1Pri            AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dC1Fc             AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dT1               AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dT1Pri            AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dT1Fc             AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cM2               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cM3               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dUnapp            AS DECIMAL   NO-UNDO EXTENT 6.
@@ -248,7 +254,7 @@
             FIRST ar-inv NO-LOCK
             WHERE ROWID(ar-inv) EQ tt-inv.row-id
             BREAK BY tt-inv.sorter
-            BY tt-inv.inv-no
+                  BY tt-inv.inv-no
             :
             /* Inserted because AR stores gross wrong */
             dAmt = IF ar-inv.net EQ ar-inv.gross + ar-inv.freight + ar-inv.tax-amt THEN ar-inv.net
@@ -279,9 +285,9 @@
             END. /* each ar-invl */
         
             ASSIGN
-                dAg     = dAmt
-                iD      = dtAsofDate - ar-inv.due-date
-                idx     = idx + 1
+                dAg    = dAmt
+                iD     = dtAsofDate - ar-inv.due-date
+                idx    = idx + 1
                 cvType = IF ar-inv.terms EQ "FCHG" THEN "FC" ELSE "IN"
                 .
         
@@ -364,13 +370,13 @@
                 ASSIGN
                     dCustT[iInt] = dCustT[iInt] + dAg
                     dDec         = 0
-                    dDec[iInt]  = dAg
+                    dDec[iInt]   = dAg
                     .
         
                 IF lSeparateFinanceCharges THEN DO:
                     IF cvType NE "FC" THEN dCustTPri[iInt] = dCustTPri[iInt] + dAg.
                     ELSE dCustTFc[iInt] = dCustTFc[iInt] + dAg.
-                END. /* IF lSeparateFinanceCharges THEN */
+                END. /* if lSeparateFinanceCharges */
         
                 IF cType EQ "Detail" THEN DO:
                     CREATE ttAgedReceivables.
@@ -404,6 +410,8 @@
                         ttAgedReceivables.jobNo       = cJobStr                      
                         ttAgedReceivables.invoiceNote = ""                           
                         ttAgedReceivables.collNote    = ""
+                        ttAgedReceivables.xxSort1     = tt-cust.sorter
+                        ttAgedReceivables.xxSort2     = tt-inv.sorter
                         .
                             
                     FOR EACH notes NO-LOCK
@@ -510,7 +518,7 @@
                                 CREATE ttAgedReceivables.
                                 ASSIGN
                                     ttAgedReceivables.custNo      = cust.cust-no
-                                    ttAgedReceivables.custName    = cust.NAME
+                                    ttAgedReceivables.custName    = cust.name
                                     ttAgedReceivables.contact     = cust.contact
                                     ttAgedReceivables.salesRep    = cSalesRep
                                     ttAgedReceivables.terms       = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""
@@ -538,10 +546,13 @@
                                     ttAgedReceivables.jobNo       = cJobStr
                                     ttAgedReceivables.invoiceNote = ""
                                     ttAgedReceivables.collNote    = ""
+                                    ttAgedReceivables.xxSort1     = tt-cust.sorter
+                                    ttAgedReceivables.xxSort2     = tt-inv.sorter
                                     .
                                 FOR EACH notes NO-LOCK
                                     WHERE notes.rec_key   EQ ar-inv.rec_key
-                                      AND notes.note_type EQ "I" :
+                                      AND notes.note_type EQ "I"
+                                    :
                                     cLvText = cLvText + " " + TRIM(notes.note_text) + CHR(10).
                                 END. /* each notes*/
                                 ttAgedReceivables.invoiceNote = cLvText.
@@ -550,7 +561,7 @@
                             CREATE ttAgedReceivables.
                             ASSIGN
                                 ttAgedReceivables.custNo      = cust.cust-no
-                                ttAgedReceivables.custName    = cust.NAME
+                                ttAgedReceivables.custName    = cust.name
                                 ttAgedReceivables.contact     = cust.contact
                                 ttAgedReceivables.salesRep    = cSalesRep
                                 ttAgedReceivables.terms       = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""
@@ -578,11 +589,14 @@
                                 ttAgedReceivables.jobNo       = cJobStr
                                 ttAgedReceivables.invoiceNote = ""
                                 ttAgedReceivables.collNote    = ""
-                                 .
+                                ttAgedReceivables.xxSort1     = tt-cust.sorter
+                                ttAgedReceivables.xxSort2     = tt-inv.sorter
+                                .
                         
                             FOR EACH notes NO-LOCK
                                 WHERE notes.rec_key   EQ ar-inv.rec_key
-                                  AND notes.note_type EQ "I" :
+                                  AND notes.note_type EQ "I"
+                                :
                                 cLvText = cLvText + " " + TRIM(notes.note_text) + CHR(10).
                             END. /* each notes */
                             ttAgedReceivables.invoiceNote = cLvText.
@@ -606,7 +620,7 @@
                                        AND gltrans.tr-dscr EQ cGltransDesc
                                      NO-ERROR.
                                 dtInvoiceDate = IF AVAILABLE gltrans THEN gltrans.tr-date
-                                               ELSE ar-cash.check-date.
+                                                ELSE ar-cash.check-date.
                             END. /* else */
                         END. /* IF v-type EQ "VD" */
                         ELSE dtInvoiceDate = ar-cash.check-date.
@@ -615,7 +629,7 @@
                             CREATE ttAgedReceivables.
                             ASSIGN
                                 ttAgedReceivables.custNo      = cust.cust-no
-                                ttAgedReceivables.custName    = cust.NAME
+                                ttAgedReceivables.custName    = cust.name
                                 ttAgedReceivables.contact     = cust.contact
                                 ttAgedReceivables.salesRep    = cSalesRep
                                 ttAgedReceivables.terms       = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""
@@ -643,13 +657,16 @@
                                 ttAgedReceivables.jobNo       = cJobStr
                                 ttAgedReceivables.invoiceNote = ""
                                 ttAgedReceivables.collNote    = ""
+                                ttAgedReceivables.xxSort1     = tt-cust.sorter
+                                ttAgedReceivables.xxSort2     = tt-inv.sorter
                                 .
                             FOR EACH notes NO-LOCK
                                 WHERE notes.rec_key   EQ ar-inv.rec_key
-                                  AND notes.note_type EQ "I" :
+                                  AND notes.note_type EQ "I"
+                                :
                                 cLvText = cLvText + " " + TRIM(notes.note_text) + CHR(10).
                             END. /* FOR EACH notes*/                                                           
-                            ttAgedReceivables.invoiceNote    =  cLvText . 
+                            ttAgedReceivables.invoiceNote = cLvText.
                         END. /*  IF cType EQ "Detail"*/
                     END. /*  IF cType EQ "Detail" */
                 END. /* for each ar-cashl record */
@@ -745,7 +762,7 @@
                               AND gltrans.jrnl    EQ "CASHRVD"
                               AND gltrans.tr-dscr EQ cTrDscr) THEN DO:
                     ASSIGN
-                        cvType        = "VD"
+                        cvType       = "VD"
                         cInvoiceNote = "VOID"
                         .
                     RELEASE reftable.
@@ -788,7 +805,7 @@
                     CREATE ttAgedReceivables.
                     ASSIGN
                         ttAgedReceivables.custNo      = cust.cust-no 
-                        ttAgedReceivables.custName    = cust.NAME                                                  
+                        ttAgedReceivables.custName    = cust.name                                                  
                         ttAgedReceivables.contact     = cust.contact                                               
                         ttAgedReceivables.salesRep    = cSalesRep                                                     
                         ttAgedReceivables.terms       = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""             
@@ -816,6 +833,8 @@
                         ttAgedReceivables.jobNo       = cJobStr                                                                               
                         ttAgedReceivables.invoiceNote = cInvoiceNote
                         ttAgedReceivables.collNote    = ""
+                        ttAgedReceivables.xxSort1     = tt-cust.sorter
+                        ttAgedReceivables.xxSort2     = 0
                         . 
                 END. /*IF cType EQ "Detail" THEN DO */
                 
@@ -862,10 +881,10 @@
                 ELSE dtInvoiceDate = ar-cash.check-date.
                   
                 IF cType EQ "Detail" THEN DO:
-                    CREATE ttAgedReceivables .
+                    CREATE ttAgedReceivables.
                     ASSIGN
                         ttAgedReceivables.custNo      = cust.cust-no
-                        ttAgedReceivables.custName    = cust.NAME
+                        ttAgedReceivables.custName    = cust.name
                         ttAgedReceivables.contact     = cust.contact
                         ttAgedReceivables.salesRep    = cSalesRep
                         ttAgedReceivables.terms       = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""
@@ -893,45 +912,112 @@
                         ttAgedReceivables.jobNo       = cJobStr
                         ttAgedReceivables.invoiceNote = cInvoiceNote
                         ttAgedReceivables.collNote    = ""
+                        ttAgedReceivables.xxSort1     = tt-cust.sorter
+                        ttAgedReceivables.xxSort2     = 0
                         . 
-                END. /*IF cType EQ "Detail" THEN */
-            END. /* ELSE DO: */
-        END. /* for each ar-cashl record */
+                END. /* if cType eq "Detail" */
+            END. /* else do: */
+        END. /* each ar-cashl */
     
         dC1 = dCustT[1] + dCustT[2] + dCustT[3] + dCustT[4].
         
         IF NOT lFirstCust OR dC1 NE 0 THEN DO:
             IF cType EQ "Detail" THEN DO:
+                RUN AgedReceivablesCreateTotals (
+                    cust.cust-no,
+                    cust.name,
+                    cSalesRep,
+                    "Customer Totals",
+                    dC1,
+                    dCustT[1],
+                    dCustT[2],
+                    dCustT[3],
+                    dCustT[4],
+                    tt-cust.sorter
+                    ).
                 IF lSeparateFinanceCharges THEN DO:
                     ASSIGN
                         dC1Pri = dCustTPri[1] + dCustTPri[2] + dCustTPri[3] + dCustTPri[4]
-                        dC1Fc  = dCustTFc[1] + dCustTFc[2] + dCustTFc[3] + dCustTFc[4].
+                        dC1Fc  = dCustTFc[1]  + dCustTFc[2]  + dCustTFc[3]  + dCustTFc[4].
+                    RUN AgedReceivablesCreateTotals (
+                        "",
+                        "",
+                        "",
+                        "Principal Amount",
+                        dC1Pri,
+                        dCustTPri[1],
+                        dCustTPri[2],
+                        dCustTPri[3],
+                        dCustTPri[4],
+                        tt-cust.sorter
+                        ).
+                    RUN AgedReceivablesCreateTotals (
+                        "",
+                        "",
+                        "",
+                        "Finance Charges",
+                        dC1Fc,
+                        dCustTFc[1],
+                        dCustTFc[2],
+                        dCustTFc[3],
+                        dCustTFc[4],
+                        tt-cust.sorter
+                        ).
                 END. /* IF lSeparateFinanceCharges THEN */
-            END. /*  IF cType EQ "Detail" THEN DO */
+            END. /*  if cType eq "Detail" */
+            ELSE IF cType EQ "Summary" THEN DO:
+                RUN AgedReceivablesCreateTotals (
+                    cust.cust-no,
+                    cust.name,
+                    cSalesRep,
+                    "Summary Totals",
+                    dC1,
+                    dCustT[1],
+                    dCustT[2],
+                    dCustT[3],
+                    dCustT[4],
+                    tt-cust.sorter
+                    ).
+            END. /* if cType eq "Summary" */
                    
             DO i = 1 TO 4:
                 ASSIGN
                     dSManT[i] = dSManT[i] + dCustT[i]
-                    dCustT[i] = 0.
-        
+                    dCustT[i] = 0
+                    .
                 IF lSeparateFinanceCharges THEN
-                    ASSIGN
-                        dSManTPri[i] = dSManTPri[i] + dCustTPri[i]
-                        dSManTFc[i]  = dSManTFc[i] + dCustTFc[i]
-                        dCustTPri[i] = 0
-                        dCustTFc[i]  = 0
-                        .
-            END. /*  DO i = 1 TO 4: */
-        END. /* IF (NOT lFirstCust) OR c1 NE 0 THEN DO */
+                ASSIGN
+                    dSManTPri[i] = dSManTPri[i] + dCustTPri[i]
+                    dSManTFc[i]  = dSManTFc[i]  + dCustTFc[i]
+                    dCustTPri[i] = 0
+                    dCustTFc[i]  = 0
+                    .
+            END. /* do i */
+        END. /* if not lFirstCust */
         
         IF LAST-OF(tt-cust.sorter) THEN DO:
             dC1 = dSManT[1] + dSManT[2] + dSManT[3] + dSManT[4].
+            IF cSort1 EQ "Name" THEN DO:
+                IF cType NE "Totals Only" THEN
+                RUN AgedReceivablesCreateTotals (
+                    cust.cust-no,
+                    cust.name,
+                    cSalesRep,
+                    "Salesrep Totals",
+                    dC1,
+                    dSManT[1],
+                    dSManT[2],
+                    dSManT[3],
+                    dSManT[4],
+                    tt-cust.sorter
+                    ).
+            END. /* sort by customer no */
             DO i = 1 TO 4:
                 ASSIGN
-                    dCurrT[i]    = dCurrT[i] + dSManT[i]
-                    dSManT[i]    = 0
+                    dCurrT[i]    = dCurrT[i]    + dSManT[i]
                     dCurrTPri[i] = dCurrTPri[i] + dSManTPri[i]
-                    dCurrTFc[i]  = dCurrTFc[i] + dSManTFc[i]
+                    dCurrTFc[i]  = dCurrTFc[i]  + dSManTFc[i]
+                    dSManT[i]    = 0
                     dSManTPri[i] = 0
                     dSManTFc[i]  = 0
                     .
@@ -941,7 +1027,45 @@
         IF LAST-OF(tt-cust.curr-code) THEN DO:
             IF lMultCurr THEN DO:
                 dC1 = dCurrT[1] + dCurrT[2] + dCurrT[3] + dCurrT[4].
+                IF cType NE "Totals Only" THEN
+                RUN AgedReceivablesCreateTotals (
+                    cust.cust-no,
+                    cust.name,
+                    cSalesRep,
+                    "Currency Totals",
+                    dC1,
+                    dCurrT[1],
+                    dCurrT[2],
+                    dCurrT[3],
+                    dCurrT[4],
+                    tt-cust.sorter
+                    ).
+                RUN AgedReceivablesCreateTotals (
+                    cust.cust-no,
+                    cust.name,
+                    cSalesRep,
+                    "Percentage Composition",
+                    0,
+                    (IF dC1 NE 0 THEN (dCurrT[1] / dC1) * 100 ELSE 0),
+                    (IF dC1 NE 0 THEN (dCurrT[2] / dC1) * 100 ELSE 0),
+                    (IF dC1 NE 0 THEN (dCurrT[3] / dC1) * 100 ELSE 0),
+                    (IF dC1 NE 0 THEN (dCurrT[4] / dC1) * 100 ELSE 0),
+                    tt-cust.sorter
+                    ).
             END. /* IF lMultCurr */
+            DO i = 1 TO 4:
+                ASSIGN
+                    dGrandT[i] = dGrandT[i] + dCurrT[i]
+                    dCurrT[i]  = 0
+                    .
+            END. /* do i */
+            IF lSeparateFinanceCharges THEN
+            ASSIGN
+                dGrandTPri[i] = dGrandTPri[i] + dCustTPri[i]
+                dGrandTFc[i]  = dGrandTFc[i]  + dCustTFc[i]
+                dCustTPri[i]  = 0
+                dCustTFc[i]   = 0
+                .
         END. /*  IF LAST-OF(tt-cust.curr-code) */
         
         cM3 = "".
@@ -951,3 +1075,61 @@
             dDiscAmt        = 0
             .
     END. /* each tt-cust */
+
+    dT1 = dGrandT[1] + dGrandT[2] + dGrandT[3] + dGrandT[4].
+
+    RUN AgedReceivablesCreateTotals (
+        "",
+        "",
+        "",
+        "Grand Total",
+        dT1,
+        dGrandT[1],
+        dGrandT[2],
+        dGrandT[3],
+        dGrandT[4],
+        tt-cust.sorter
+        ).
+    RUN AgedReceivablesCreateTotals (
+        "",
+        "",
+        "",
+        "Percentage Composition",
+        0,
+        (IF dT1 NE 0 THEN (dGrandT[1] / dT1) * 100 ELSE 0),
+        (IF dT1 NE 0 THEN (dGrandT[2] / dT1) * 100 ELSE 0),
+        (IF dT1 NE 0 THEN (dGrandT[3] / dT1) * 100 ELSE 0),
+        (IF dT1 NE 0 THEN (dGrandT[4] / dT1) * 100 ELSE 0),
+        tt-cust.sorter
+        ).
+
+    IF lSeparateFinanceCharges THEN DO:
+        ASSIGN
+            dT1Pri = dGrandTPri[1] + dGrandTPri[2] + dGrandTPri[3] + dGrandTPri[4]
+            dT1Fc  = dGrandTFc[1]  + dGrandTFc[2]  + dGrandTFc[3]  + dGrandTFc[4]
+            .
+        RUN AgedReceivablesCreateTotals (
+            "",
+            "",
+            "",
+            "Principal Amount",
+            dT1Pri,
+            dGrandTPri[1],
+            dGrandTPri[2],
+            dGrandTPri[3],
+            dGrandTPri[4],
+            tt-cust.sorter
+            ).
+        RUN AgedReceivablesCreateTotals (
+            "",
+            "",
+            "",
+            "Finance Charges",
+            dT1Fc,
+            dGrandTFc[1],
+            dGrandTFc[2],
+            dGrandTFc[3],
+            dGrandTFc[4],
+            tt-cust.sorter
+            ).
+    END. /* if separate finance charges */
