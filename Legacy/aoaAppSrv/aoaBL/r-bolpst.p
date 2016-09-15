@@ -14,8 +14,6 @@
 */
 
 /* ***************************  Definitions  ***************************/
-
-/* Post BOL Create Invoice.rpa */
 {aoaAppSrv/includes/ttPostBolCreateInvoice.i}
 
 /* Parameters Definitions ---                                           */
@@ -27,14 +25,18 @@ DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)
 
 /* Local Variable Definitions ---                                       */
 {sys/ref/CustList.i }
+
 {methods/defines/hndldefs.i &new=NEW}
+{methods/defines/globdefs.i &new=NEW}
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}
-    
+
 ASSIGN
     cocode = ipcCompany
     locode = ipcUserLocation
+    g_company = ipcCompany
+    g_loc     = gloc
     .
 {oe/oe-bolp1.i NEW}
 
@@ -132,13 +134,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
 
     EMPTY TEMP-TABLE tt-email.
-
+    
     RUN pRunReport. 
-
+    
     IF lPost THEN DO:
         IF CAN-FIND(FIRST w-bolh) THEN DO:
             RUN pPostBols.
             /* close transfer order here, Non-UI procedure */
+            
             RUN oe/closchk.p (0).
             /* WFk- 5/4/12- This is here to make sure it is the last thing in*/
             /* the posting process.  Posting relies on a cleanup routine     */
@@ -158,7 +161,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                     RUN oe/cleanrel.p (INPUT ROWID(oe-ordl)).    
                 END. /* each oe-boll */
             END. /* each w-bolh */
-
+            
             FOR EACH w-ord:
                 /* Non-UI procedure*/
                 RUN oe/close.p (w-ord.rec-id, YES).  
@@ -168,6 +171,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             IF AVAILABLE tt-email THEN RUN email-reorderitems.
         END. /* If can-find w-bolh */
     END. /* if lPost */
+
+    RUN pExceptionRpt.
+
+    FOR EACH ttPostBOLCreateInvoice:
+      IF  ttPostBOLCreateInvoice.bolStatus EQ "" THEN DO:
+      /*  FIND FIRST oe-bolh NO-LOCK WHERE oe-bolh.company EQ gcompany
+          AND oe-bolh.bol-no EQ ttPostBOLCreateInvoice.bolNo
+          NO-ERROR.
+        IF AVAIL oe-bolh AND oe-bolh.posted = TRUE THEN */
+          ttPostBOLCreateInvoice.bolStatus  = "Posted".
+      END.
+    END.
+    
 END. /* main block */
 
 /* **********************  Internal Procedures  *********************** */
@@ -283,6 +299,7 @@ PROCEDURE pExceptionRpt :
             WHERE itemfg.company EQ cocode
               AND itemfg.i-no    EQ w-except.i-no
             NO-ERROR.
+        /*
         CREATE ttPostBOLCreateInvoice.
         ASSIGN
             iTagNumber  = 0
@@ -314,9 +331,15 @@ PROCEDURE pExceptionRpt :
             ttPostBOLCreateInvoice.qtyCase   = w-except.qty-case
             ttPostBOLCreateInvoice.partial   = w-except.partial
             ttPostBOLCreateInvoice.weight    = w-except.weight  
-            ttPostBOLCreateInvoice.bolStatus = "Exception"  
-            ttPostBOLCreateInvoice.reason    = "Exception"
+            ttPostBOLCreateInvoice.bolStatus = "Not Posted"  
+            ttPostBOLCreateInvoice.reason    = "Insufficient Quantity"
             .
+          */
+        FOR EACH ttPostBOLCreateInvoice WHERE ttPostBOLCreateInvoice.bolNo EQ oe-bolh.bol-no:
+          ASSIGN ttPostBOLCreateInvoice.reason    = "Insuffient Quantity"
+                 ttPostBOLCreateInvoice.bolStatus = "Not Posted" 
+                 .
+        END.
     END.
 END PROCEDURE.
 
@@ -348,6 +371,8 @@ PROCEDURE pPostBols :
            AND sys-ctrl.name    EQ 'EDIBOLPost'
          NO-ERROR.
     /**********************  POSTING BLOCK  ****************************/
+    FIND FIRST w-bolh NO-ERROR.
+    
     post-blok:
     DO TRANSACTION.
         bolh:
@@ -380,7 +405,7 @@ PROCEDURE pPostBols :
                      NO-ERROR.
             END. /* avail sys-ctrl */
 
-            cExternalProgram = "sbo/oerel-recalc-act.p".
+            cExternalProgram = "aoaAppSrv\aoaBL\recalcActRel.p".
             RUN VALUE(cExternalProgram) PERSISTENT SET hExtProgramHandle NO-ERROR.
             hRelLib = hExtProgramHandle.
 
@@ -396,11 +421,11 @@ PROCEDURE pPostBols :
                       AND oe-rel.i-no    EQ oe-ordl.i-no
                       AND oe-rel.line    EQ oe-ordl.line
                       AND oe-rel.stat    EQ "P"
-                      AND oe-rel.link-no GT 0 
+                      AND oe-rel.link-no GT 0
                       AND oe-rel.rel-no  GT 0
-                    :
+                    :                    
                     /* Set actual quantity */
-                    IF AVAILABLE oe-rel AND VALID-HANDLE(hRelLib) THEN 
+                    IF AVAILABLE oe-rel AND VALID-HANDLE(hRelLib) THEN
                     RUN recalc-act-qty IN hRelLib (INPUT ROWID(oe-rel), OUTPUT dActualQty).
                 END.
             END.
@@ -412,9 +437,14 @@ PROCEDURE pPostBols :
                 WHERE oe-boll.company EQ oe-bolh.company
                   AND oe-boll.b-no    EQ oe-bolh.b-no
                 :
+
                 RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term).
+
                 IF fgreorder-log AND cust.ACTIVE EQ "E" THEN
                 RUN pCreateReorder (ROWID(oe-boll)).
+
+
+
             END. /* each oe-boll */
         END. /* for each oe-bolh */
 
@@ -424,7 +454,10 @@ PROCEDURE pPostBols :
         /* Non-UI process,                                                                                     */
         /* Requires where report.term-id EQ v-term, FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ report.rec-id*/
         /* Requires shared buffer xoe-ord                                                                      */
+        FIND FIRST report WHERE report.term-id EQ v-term NO-ERROR.
+
         RUN oe/oe-bolp3.p (v-term).
+    
     END. /* post-blok*/
     
     DELETE-BLOK:
@@ -654,6 +687,8 @@ PROCEDURE pRunReport :
     FOR EACH w-nopost
         BREAK BY w-nopost.bol-no
         :
+        /* Create record just for the status of not posted */
+        CREATE ttPostBolCreateInvoice.
         ASSIGN
             ttPostBOLCreateInvoice.bolDate   = w-nopost.bol-date
             ttPostBOLCreateInvoice.bolNo     = w-nopost.bol-no
