@@ -82,14 +82,15 @@ DEFINE VARIABLE gcDefVend AS CHARACTER   NO-UNDO.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-9 check-date bank-code ~
-start_check-no tb_ach begin_vend-no end_vend-no rd-dest td-show-parm btn-ok ~
-btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS check-date bank-code bank-name ~
-start_check-no tb_ach begin_vend-no end_vend-no rd-dest td-show-parm 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-9 check-date cb_paytype ~
+bank-code start_check-no begin_vend-no end_vend-no rd-dest td-show-parm ~
+btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS check-date cb_paytype bank-code bank-name ~
+start_check-no begin_vend-no end_vend-no rd-dest td-show-parm 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
+&Scoped-define List-1 cb_paytype 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -125,6 +126,13 @@ DEFINE BUTTON btn-cancel AUTO-END-KEY
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
      SIZE 15 BY 1.14.
+
+DEFINE VARIABLE cb_paytype AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Payment Type" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "All Payment Types","All Electronic","All Non-Electronic" 
+     DROP-DOWN-LIST
+     SIZE 28 BY 1 NO-UNDO.
 
 DEFINE VARIABLE bank-code AS CHARACTER FORMAT "X(8)" 
      LABEL "Bank Code" 
@@ -198,11 +206,6 @@ DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 47 BY 3.81.
 
-DEFINE VARIABLE tb_ach AS LOGICAL INITIAL no 
-     LABEL "ACH/Bill Pay Check Run" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 29 BY .95 NO-UNDO.
-
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
@@ -212,13 +215,13 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     check-date AT ROW 3.62 COL 28.8 COLON-ALIGNED
-     bank-code AT ROW 4.57 COL 29 COLON-ALIGNED HELP
+     check-date AT ROW 2.43 COL 29 COLON-ALIGNED
+     cb_paytype AT ROW 3.43 COL 29 COLON-ALIGNED WIDGET-ID 28
+     bank-code AT ROW 4.52 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     bank-name AT ROW 4.57 COL 46 COLON-ALIGNED NO-LABEL
-     start_check-no AT ROW 5.52 COL 29 COLON-ALIGNED HELP
+     bank-name AT ROW 4.52 COL 46 COLON-ALIGNED NO-LABEL
+     start_check-no AT ROW 5.48 COL 29 COLON-ALIGNED HELP
           "Enter Check Number"
-     tb_ach AT ROW 5.62 COL 49 WIDGET-ID 2
      begin_vend-no AT ROW 8.86 COL 44 COLON-ALIGNED HELP
           "Enter Beginning Vendor  Number"
      end_vend-no AT ROW 9.81 COL 44 COLON-ALIGNED HELP
@@ -233,11 +236,11 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 21 COL 57
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.43 COL 5
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 13.14 COL 4
      "REPRINT OPTIONS" VIEW-AS TEXT
           SIZE 24 BY .62 AT ROW 7.67 COL 35
           FGCOLOR 9 FONT 6
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.14 COL 4
      RECT-6 AT ROW 12.81 COL 2
      RECT-7 AT ROW 1.24 COL 2
      RECT-9 AT ROW 7.91 COL 23
@@ -308,6 +311,8 @@ ASSIGN
        begin_vend-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR COMBO-BOX cb_paytype IN FRAME FRAME-A
+   1                                                                    */
 ASSIGN 
        check-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -406,7 +411,7 @@ DO:
      giCheckNoACH = bank.spare-int-1 + 1.
   IF giCheckNoACH EQ 1 THEN  giCheckNoACH = 800001.
 
-  IF tb_ach
+  IF cb_paytype = "ACH" OR cb_paytype = "Bill Pay"
       THEN
         ASSIGN 
             START_check-no = giCheckNoACH
@@ -465,7 +470,7 @@ DO:
         END.
     
         IF INT(start_check-no:SCREEN-VALUE) EQ 0 THEN 
-            IF tb_ach 
+            IF /*tb_ach*/ can-do("ACH,Bill pay",cb_paytype) 
                 THEN
                     start_check-no:SCREEN-VALUE = STRING(bank.spare-int-1 + 1).
                 ELSE
@@ -473,7 +478,7 @@ DO:
     
         ASSIGN {&displayed-objects}.
     
-        IF NOT tb_ach AND rd-dest EQ 5 THEN DO:
+        IF NOT can-do("ACH,Bill Pay", cb_paytype) AND rd-dest EQ 5 THEN DO:
             MESSAGE "Email output only available for ACH/Bill Pay Check Run"
                 VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO check-date.
@@ -486,7 +491,7 @@ DO:
   IF CAN-FIND(FIRST sys-ctrl-shipto
      WHERE sys-ctrl-shipto.company = cocode
      AND sys-ctrl-shipto.NAME = "CHKFMT") 
-     AND (NOT glRemittance AND NOT tb_ach) THEN
+     AND (NOT glRemittance AND NOT can-do("ACH,Bill Pay", cb_paytype)) THEN
      DO:
         IF CAN-FIND(FIRST ap-chk
           where ap-chk.company   eq cocode
@@ -509,6 +514,7 @@ DO:
                 first b-vend
                 where b-vend.company eq cocode
                   and b-vend.vend-no eq b-ap-chk.vend-no
+                  AND b-vend.payment-type = cb_paytype
                 break by b-ap-chk.company
                       BY b-ap-chk.vend-no:
       
@@ -537,7 +543,7 @@ DO:
   else /*not can-find sys-ctrl-shipto*/
   DO:
 
-   IF glRemittance AND tb_ach THEN DO:
+   IF glRemittance AND can-do("ACH,Bill Pay",cb_paytype) THEN DO:
         
         RUN SetChkForm(INPUT gcRemittanceDefault,
                        INPUT YES).
@@ -650,39 +656,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_check-no C-Win
 ON LEAVE OF start_check-no IN FRAME FRAME-A /* Starting Check# */
 DO:
-    IF tb_ach AND INT(START_check-no:SCREEN-VALUE) LT 800000  THEN DO:
+    IF can-do("ACH,Bill Pay", cb_paytype) AND INT(START_check-no:SCREEN-VALUE) LT 800000  THEN DO:
         MESSAGE "ACH Check number must not be less than 800000"
             VIEW-AS ALERT-BOX INFO BUTTONS OK.
         RETURN NO-APPLY.
     END.
     ELSE 
         assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_ach
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_ach C-Win
-ON VALUE-CHANGED OF tb_ach IN FRAME FRAME-A /* ACH/Bill Pay Check Run */
-DO:
-    ASSIGN {&SELF-NAME}.
-    IF tb_ach AND NOT ACHRunOK() THEN DO:
-        MESSAGE "Check selection must include only ACH vendors or only Bill Pay vendors for ACH Check Run."
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-        tb_ach:SCREEN-VALUE = "NO".
-        tb_ach = NO.
-    END.
-    ELSE IF tb_ach THEN
-        ASSIGN 
-            START_check-no:SCREEN-VALUE = STRING(giCheckNoACH)
-            START_check-no = giCheckNoACH.
-    ELSE 
-        ASSIGN 
-            START_check-no:SCREEN-VALUE = STRING(giCheckNoStd)
-            START_check-no = giCheckNoStd.
-   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -808,10 +788,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY check-date bank-code bank-name start_check-no tb_ach begin_vend-no 
+  DISPLAY check-date cb_paytype bank-code bank-name start_check-no begin_vend-no 
           end_vend-no rd-dest td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 RECT-9 check-date bank-code start_check-no tb_ach 
+  ENABLE RECT-6 RECT-7 RECT-9 check-date cb_paytype bank-code start_check-no 
          begin_vend-no end_vend-no rd-dest td-show-parm btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
@@ -1164,7 +1144,7 @@ do on error undo outers, leave outers :
                     and bank.bank-code eq bank-code
                   EXCLUSIVE-LOCK.
   IF AVAIL bank THEN DO:
-    IF tb_ach  
+    IF can-do("ACH,Bill Pay", cb_paytype)  
           THEN
             bank.spare-int-1 = stnum - 1.
           ELSE
@@ -1496,6 +1476,16 @@ PROCEDURE SetParamDefaults :
 ------------------------------------------------------------------------------*/
 DEFINE INPUT  PARAMETER iplMain AS LOGICAL     NO-UNDO.
 
+IF iplMain THEN DO:
+   DEFINE VARIABLE ilogic AS LOG NO-UNDO.
+   cb_paytype:LIST-ITEMS IN FRAME {&frame-name} = "".
+      
+   FOR EACH payment-type NO-LOCK WHERE payment-type.company = cocode.
+       ilogic = cb_paytype:ADD-LAST (payment-type.type) IN FRAME {&frame-name}.
+   END.    
+    
+END.
+    
 FIND FIRST ap-ctrl 
     WHERE ap-ctrl.company = cocode 
     NO-LOCK.
@@ -1514,11 +1504,11 @@ IF AVAIL bank THEN DO:
     IF ACHRunOK() THEN
         ASSIGN 
             start_check-no = giCheckNoACH
-            tb_ach = YES.
+            cb_paytype = "ACH".
     ELSE
         ASSIGN 
             start_check-no = giCheckNoSTD
-            tb_ach = NO.
+            cb_paytype = "Check".
 END.
 
 IF NOT iplMain THEN

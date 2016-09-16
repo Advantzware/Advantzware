@@ -1,11 +1,9 @@
-/* pInvoicePostUpdateGL.i - auto generated 08.24.2016 @ 11:38:37 pm from aoa/aoaParam.w */
+/* pInvoicePostUpdateGL.i - auto generated 09.16.2016 @  2:50:19 pm from aoa/aoaParam.w */
 
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBatch   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID  AS CHARACTER NO-UNDO.
+    {aoaAppSrv/aoaInputDefParams.i}
 
     /* parameter values loaded into these variables */
-    DEFINE VARIABLE lPost AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtPostDate AS DATE NO-UNDO.
     DEFINE VARIABLE cPostDateOption AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCustList AS LOGICAL NO-UNDO.
@@ -22,6 +20,7 @@
     DEFINE VARIABLE lInvoiceReportDetail AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lGLReportDetail AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lPrintTon AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPost AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 
@@ -30,7 +29,7 @@
 
     /* load parameter values from above record into variables */
     ASSIGN
-        lPost = DYNAMIC-FUNCTION("fGetParamValue","svPost") EQ "yes"
+        cLocation = DYNAMIC-FUNCTION("fGetParamValue","svLocation")
         dtPostDate = DATE(DYNAMIC-FUNCTION("fGetParamValue","svPostDate"))
         cPostDateOption = DYNAMIC-FUNCTION("fGetParamValue","svPostDateOption")
         dtPostDate = DYNAMIC-FUNCTION("fDateOptionDate",cPostDateOption,dtPostDate)
@@ -50,6 +49,7 @@
         lInvoiceReportDetail = DYNAMIC-FUNCTION("fGetParamValue","svInvoiceReportDetail") EQ "yes"
         lGLReportDetail = DYNAMIC-FUNCTION("fGetParamValue","svGLReportDetail") EQ "yes"
         lPrintTon = DYNAMIC-FUNCTION("fGetParamValue","svPrintTon") EQ "yes"
+        lPost = DYNAMIC-FUNCTION("fGetParamValue","svPost") EQ "yes"
         cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
         cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
         .

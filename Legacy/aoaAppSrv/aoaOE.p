@@ -43,6 +43,10 @@ DEFINE TEMP-TABLE ttBOLPackingList NO-UNDO
         .
 /* BOL Packing List.rpa */
 
+/* Invoice Post Update GL.rpa */
+{aoaAppSrv/includes/ttInvoicePostUpdateGL.i}
+/* Invoice Post Update GL.rpa */
+
 /* Orders Booked.rpa */
 DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
     {aoaAppSrv/ttFields.i}
@@ -240,6 +244,10 @@ DEFINE TEMP-TABLE ttOrdersBookedByOrderNo NO-UNDO
     .
 /* Orders Booked By Order No.rpa */ 
 
+/* Post BOL Create Invoice.rpa */
+{aoaAppSrv/includes/ttPostBolCreateInvoice.i}
+/* Post BOL Create Invoice.rpa */
+
 /* Recap Product Category.rpa */
 DEFINE TEMP-TABLE ttRecapProductCategory NO-UNDO
     {aoaAppSrv/ttFields.i}
@@ -304,6 +312,19 @@ FUNCTION fGetTableHandle RETURNS HANDLE
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fInvoicePostUpdateGL) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fInvoicePostUpdateGL Procedure 
+FUNCTION fInvoicePostUpdateGL RETURNS HANDLE
+    ( ipcCompany AS CHARACTER,
+      ipiBatch   AS INTEGER,
+      ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-fOpenOrderReport) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOpenOrderReport Procedure 
@@ -356,6 +377,19 @@ FUNCTION fOrdersBookedByOrderNo RETURNS HANDLE
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fPostBOLCreateInvoice) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fPostBOLCreateInvoice Procedure 
+FUNCTION fPostBOLCreateInvoice RETURNS HANDLE
+    ( ipcCompany AS CHARACTER,
+      ipiBatch   AS INTEGER,
+      ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-fRecapProductCategory) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fRecapProductCategory Procedure 
@@ -387,7 +421,7 @@ FUNCTION fRecapProductCategory RETURNS HANDLE
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 20.52
+         HEIGHT             = 23.57
          WIDTH              = 60.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -707,29 +741,29 @@ PROCEDURE pCalcPOMSF :
     factor# = IF AVAILABLE sys-ctrl AND CAN-DO("Premier,Middlesx,16th's",sys-ctrl.char-fld) THEN .16 ELSE 1.
     cocode = ipcCompany.
     {ce/msfcalc.i}
-    IF AVAIL po-ordl THEN
+    
     FIND FIRST item NO-LOCK
-         WHERE item.company EQ ipcCompany
+         WHERE item.company EQ oe-ordl.company
            AND item.i-no    EQ po-ordl.i-no
          NO-ERROR.
     ASSIGN
         dBasisW  = IF AVAILABLE item THEN item.basis-w ELSE dBasisW
         dv-dep   = IF AVAILABLE item THEN item.s-dep   ELSE dv-dep
-        dLength  = IF AVAIL po-ordl THEN po-ordl.s-len ELSE 0
-        dWidth   = IF AVAIL po-ordl THEN po-ordl.s-wid ELSE 0
-        iOrdQty  = IF AVAIL po-ordl THEN po-ordl.ord-qty ELSE 0
-        cOrigUOM = IF AVAIL po-ordl THEN po-ordl.pr-qty-uom  ELSE ""
+        dLength  = po-ordl.s-len
+        dWidth   = po-ordl.s-wid
+        iOrdQty  = po-ordl.ord-qty
+        cOrigUOM = po-ordl.pr-qty-uom 
         {po/calc10.i dLength} 
         {po/calc10.i dWidth}
         .
-    IF NOT AVAILABLE ITEM AND AVAIL po-ordl THEN
+    IF NOT AVAILABLE item THEN
     FIND FIRST itemfg NO-LOCK
          WHERE itemfg.company EQ ipcCompany
            AND itemfg.i-no    EQ po-ordl.i-no
          NO-ERROR.
-    IF AVAILABLE itemfg AND AVAIL po-ordl THEN
+    IF AVAILABLE itemfg THEN
     RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom, OUTPUT lEach).
-    IF lEach AND AVAIL po-ordl THEN ASSIGN iUOM = po-ordl.pr-qty-uom. 
+    IF lEach THEN ASSIGN iUOM = po-ordl.pr-qty-uom. 
 
     IF dLength EQ 0 AND AVAILABLE item AND
        ITEM.i-code EQ "R" AND item.r-wid GT 0 THEN DO:
@@ -745,15 +779,15 @@ PROCEDURE pCalcPOMSF :
 
     RUN sys/ref/uom-fg.p (?, OUTPUT cFGUOMList).
 
-    IF AVAIL po-ordl AND (po-ordl.pr-qty-uom{2} EQ "EA" OR
+    IF po-ordl.pr-qty-uom{2} EQ "EA" OR
       (NOT po-ordl.item-type AND
-       LOOKUP(po-ordl.pr-qty-uom,cFGUOMList) GT 0)) THEN
+       LOOKUP(po-ordl.pr-qty-uom,cFGUOMList) GT 0) THEN
     opTotalMsf = IF v-corr THEN ((dLength * dWidth * .007 * DEC(po-ordl.ord-qty{2})) / 1000)
                  ELSE ((((dLength * dWidth) / 144) * DEC(po-ordl.ord-qty{2})) / 1000).
     ELSE DO:
         /*convert whatever the UOM is into "EACH" first*/
         opTotalMsf = 0.
-        IF  AVAIL po-ordl AND po-ordl.pr-qty-uom NE "EA" THEN DO:
+        IF po-ordl.pr-qty-uom NE "EA" THEN DO:
             opTotalMsf = 0.
             RUN sys/ref/convquom.p
                 (po-ordl.pr-qty-uom,
@@ -801,6 +835,29 @@ PROCEDURE pCalcQOH :
         CREATE tt-fg-bin.
         BUFFER-COPY fg-bin EXCEPT rec_key TO tt-fg-bin.
     END. /*FOR EACH itemfg*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pInvoicePostUpdateGL) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInvoicePostUpdateGL Procedure 
+PROCEDURE pInvoicePostUpdateGL :
+/*------------------------------------------------------------------------------
+  Purpose:     Invoice Post Update GL.rpa
+  Parameters:  Company, Batch Seq, User ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/aoaInputDefParams.i}
+    
+    /* local variables */
+
+    /* subject business logic */
+    RUN aoaAppSrv/aoaBL/r-inve&pb.p (OUTPUT TABLE ttInvoicePostUpdateGL, ipcCompany, ipiBatch, ipcUserID).
 
 END PROCEDURE.
 
@@ -1766,6 +1823,29 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pPostBOLCreateInvoice) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostBOLCreateInvoice Procedure 
+PROCEDURE pPostBOLCreateInvoice :
+/*------------------------------------------------------------------------------
+  Purpose:     Post BOL Create Invoice.rpa
+  Parameters:  Company, Batch Seq, User ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/aoaInputDefParams.i}
+    
+    /* local variables */
+
+    /* subject business logic */
+    RUN aoaAppSrv/aoaBL/r-bolpst.p (OUTPUT TABLE ttPostBOLCreateInvoice, ipcCompany, ipiBatch, ipcUserID).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-pRecapProductCategory) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRecapProductCategory Procedure 
@@ -1846,10 +1926,40 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Open Order Repoer.rpa */
         WHEN "r-ordopn." THEN
         RETURN TEMP-TABLE ttOpenOrderReport:HANDLE.
+        /* Post BOL Create Invoice.rpa */
+        WHEN "r-bolpst." THEN
+        RETURN TEMP-TABLE ttPostBOLCreateInvoice:HANDLE.
+        /* Invoice Post Update GL.rpa */
+        WHEN "r-inve&p." THEN
+        RETURN TEMP-TABLE ttInvoicePostUpdateGL:HANDLE.
         /* Recap Product Category.rpa */
         WHEN "recappc." THEN
         RETURN TEMP-TABLE ttRecapProductCategory:HANDLE.
     END CASE.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fInvoicePostUpdateGL) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fInvoicePostUpdateGL Procedure 
+FUNCTION fInvoicePostUpdateGL RETURNS HANDLE
+    ( ipcCompany AS CHARACTER,
+      ipiBatch   AS INTEGER,
+      ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+Purpose:  Post BOL Create Invoice.rpa
+Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttInvoicePostUpdateGL.
+    
+    RUN pInvoicePostUpdateGL (ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttInvoicePostUpdateGL:HANDLE .
 
 END FUNCTION.
 
@@ -1947,6 +2057,30 @@ Notes:
     RUN pOrdersBookedByOrderNo (ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttOrdersBookedByOrderNo:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fPostBOLCreateInvoice) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fPostBOLCreateInvoice Procedure 
+FUNCTION fPostBOLCreateInvoice RETURNS HANDLE
+    ( ipcCompany AS CHARACTER,
+      ipiBatch   AS INTEGER,
+      ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+Purpose:  Post BOL Create Invoice.rpa
+Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttPostBOLCreateInvoice.
+    
+    RUN pPostBOLCreateInvoice (ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttPostBOLCreateInvoice:HANDLE .
 
 END FUNCTION.
 

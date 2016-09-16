@@ -66,7 +66,7 @@ iphTable = iphTable:DEFAULT-BUFFER-HANDLE.
 
 /* build header row column labels */
 DO iColIdx = 1 TO iphTable:NUM-FIELDS:
-    IF CAN-DO("rowType,parameters",iphTable:BUFFER-FIELD(iColIdx):NAME) THEN NEXT.
+    IF CAN-DO("rowType,parameters,recDataType",iphTable:BUFFER-FIELD(iColIdx):NAME) THEN NEXT.
     iColumn = iColumn + 1.
     ASSIGN
         cDataType = iphTable:BUFFER-FIELD(iColIdx):DATA-TYPE
@@ -142,7 +142,7 @@ REPEAT:
         iColumn = 0
         .
     DO iColIdx = 1 TO iphTable:NUM-FIELDS:
-        IF CAN-DO("rowType,parameters",iphTable:BUFFER-FIELD(iColIdx):NAME) THEN NEXT.
+        IF CAN-DO("rowType,parameters,recDataType",iphTable:BUFFER-FIELD(iColIdx):NAME) THEN NEXT.
         iColumn = iColumn + 1.
         chWorkSheet:Cells(iRow,iColumn):Value = iphTable:BUFFER-FIELD(iColIdx):BUFFER-VALUE() NO-ERROR.
         IF ERROR-STATUS:ERROR THEN
