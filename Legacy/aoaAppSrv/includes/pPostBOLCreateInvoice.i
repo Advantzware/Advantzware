@@ -1,8 +1,9 @@
-/* pPostBOLCreateInvoice.i - auto generated 09.15.2016 @  3:22:32 pm from aoa/aoaParam.w */
+/* pPostBOLCreateInvoice.i - auto generated 09.16.2016 @  2:50:49 pm from aoa/aoaParam.w */
 
     {aoaAppSrv/aoaInputDefParams.i}
 
     /* parameter values loaded into these variables */
+    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtPostDate AS DATE NO-UNDO.
     DEFINE VARIABLE cPostDateOption AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCustList AS LOGICAL NO-UNDO.
@@ -31,6 +32,7 @@
 
     /* load parameter values from above record into variables */
     ASSIGN
+        cLocation = DYNAMIC-FUNCTION("fGetParamValue","svLocation")
         dtPostDate = DATE(DYNAMIC-FUNCTION("fGetParamValue","svPostDate"))
         cPostDateOption = DYNAMIC-FUNCTION("fGetParamValue","svPostDateOption")
         dtPostDate = DYNAMIC-FUNCTION("fDateOptionDate",cPostDateOption,dtPostDate)
