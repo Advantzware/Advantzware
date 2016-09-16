@@ -15,7 +15,7 @@ DEFINE TEMP-TABLE ttInvoicePostUpdateGL
     FIELD lineTot           AS DECIMAL   LABEL "Line Total"    FORMAT "9.9"
     FIELD iInvRev           AS INTEGER   LABEL "Invoice Rev"   FORMAT "99"
     FIELD weightPerTon      AS DECIMAL   LABEL "Weight"        FORMAT "9.9"
-    FIELD pricePerTon       AS DECIMAL   LABEL "Price"         FORMAT "9.9"
+    FIELD pricePerTon       AS DECIMAL   LABEL "Ton Price"     FORMAT "9.9"
     FIELD iNo               AS CHARACTER LABEL "Item"          FORMAT "x(16)"
     FIELD iName             AS CHARACTER LABEL "Description"   FORMAT "x(25)"
     FIELD qty               AS INTEGER   LABEL "Order"         FORMAT "->>,>>>,>>9"
