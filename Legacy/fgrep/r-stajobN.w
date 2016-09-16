@@ -80,7 +80,7 @@ DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
 DEFINE VARIABLE cFieldType AS cha NO-UNDO.
 DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
-                                
+
 ASSIGN cTextListToSelect = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #,DESCRIPTION,JOB," +
                            "REL#,REL DATE,RFQ#,QTY ALLOCATED,QTY ON HAND,QTY ORDERED," +
                            "QTY SHIPPED,RECEIPT DATE,PRICE,VALUE,RELEASE QTY," +
