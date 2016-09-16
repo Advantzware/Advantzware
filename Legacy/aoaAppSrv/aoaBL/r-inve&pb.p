@@ -5,7 +5,7 @@
 /* 2) PUt statements for misc */
 /* 3) UI to verify there is something to post */
 /* 4)  GL Summary  report */ 
-/* 5) Prompt for close of orders */
+/* 5) Prompt for close of orders, auto follow nk1 */
 /* Note: inv-list-post runs twice. Once for report and once to post. */
 
 /* ***************************  Definitions  ***************************/
@@ -219,36 +219,13 @@ DEFINE VARIABLE inexport-cha  AS CHARACTER.
 DEFINE VARIABLE cStatus       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cReason       AS CHARACTER NO-UNDO.
 
-/* For testing only!!!! */
-ASSIGN
-    lPost = NO
-    dtPostDate = TODAY
-/*        cPostDateOption = DYNAMIC-FUNCTION("fGetParamValue","svPostDateOption")*/
-/*        dtPostDate = DYNAMIC-FUNCTION("fDateOptionDate",cPostDateOption,dtPostDate)*/
-/*        lCustList = DYNAMIC-FUNCTION("fGetParamValue","svCustList") EQ "yes"*/
-/*        lAllCustNo = DYNAMIC-FUNCTION("fGetParamValue","svAllCustNo") EQ "yes"*/
-/*        cStartCustNo = DYNAMIC-FUNCTION("fGetParamValue","svStartCustNo")*/
-/*        cEndCustNo = DYNAMIC-FUNCTION("fGetParamValue","svEndCustNo")*/
-/*        lAllInvNo = DYNAMIC-FUNCTION("fGetParamValue","svAllInvNo") EQ "yes"*/
-/*        iStartInvNo = DYNAMIC-FUNCTION("fGetParamValue","svStartInvNo")*/
-/*        iEndInvNo = DYNAMIC-FUNCTION("fGetParamValue","svEndInvNo")*/
-    dtStartInvoiceDate = 1/1/2015
-/*        cStartInvoiceDateOption = DYNAMIC-FUNCTION("fGetParamValue","svStartInvoiceDateOption")*/
-/*        dtStartInvoiceDate = DYNAMIC-FUNCTION("fDateOptionDate",cStartInvoiceDateOption,dtStartInvoiceDate)*/
-    dtEndInvoiceDate = TODAY
-/*        cEndInvoiceDateOption = DYNAMIC-FUNCTION("fGetParamValue","svEndInvoiceDateOption")*/
-/*        dtEndInvoiceDate = DYNAMIC-FUNCTION("fDateOptionDate",cEndInvoiceDateOption,dtEndInvoiceDate)*/
-/*        lInvoiceReportDetail = DYNAMIC-FUNCTION("fGetParamValue","svInvoiceReportDetail") EQ "yes"*/
-/*        lGLReportDetail = DYNAMIC-FUNCTION("fGetParamValue","svGLReportDetail") EQ "yes"*/
-    lPrintTon = YES
-/*        cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")*/
-/*        cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")*/
-    gCompany = "001"
-    gLoc = "Main"
-    iStartInvNo = 7632
-    iEndInvNo = 7632
-    v-post = lPost
-    .
+
+ASSIGN /* gLoc = "main" */
+       v-post = lpost
+       v-detail = lInvoiceReportDetail /* Required since not part of parameters */
+       locode = gloc
+       .
+
 
 RUN pPrintPost.
 
@@ -682,7 +659,7 @@ PROCEDURE list-gl :
 
                 IF LAST-OF(tmp-work-job.actnum) THEN 
                 DO:
-                    PUT v-disp-amt TO 128.
+                    
                     IF lPrintTon THEN 
                     DO:
                         ld-pton = v-disp-amt / ld-t[2].
@@ -788,14 +765,14 @@ PROCEDURE list-gl :
 
             IF v-disp-amt NE 0 THEN 
             DO:
-                PUT v-disp-amt TO 128.
+                
                 IF lPrintTon THEN 
                 DO:
                     ld-pton = v-disp-amt / ld-t[2].
                     IF ld-pton EQ ? THEN ld-pton = 0.
                    /* PUT ld-pton TO 138 ld-t[2] TO 148 SKIP(1). */
                 END.
-                ELSE PUT SKIP.
+                
                 ASSIGN
                     v-disp-amt = 0
                     ld-t[2]    = 0
@@ -870,14 +847,14 @@ PROCEDURE list-gl :
 
             IF v-disp-amt NE 0 THEN 
             DO:
-                PUT v-disp-amt TO 128.
+                
                 IF lPrintTon THEN 
                 DO:
                     ld-pton = v-disp-amt / ld-t[2].
                     IF ld-pton EQ ? THEN ld-pton = 0.
-                    PUT ld-pton TO 138 ld-t[2] TO 148 SKIP(1).
+                
                 END.
-                ELSE PUT SKIP.
+                
                 ASSIGN
                     v-disp-amt = 0
                     ld-t[2]    = 0.
@@ -956,7 +933,7 @@ PROCEDURE list-gl :
 
                 IF v-disp-amt NE 0 THEN 
                 DO:
-                    PUT v-disp-amt TO 128.
+                    
                     IF lPrintTon THEN 
                     DO:
                         ld-pton = v-disp-amt / ld-t[2].
@@ -1859,6 +1836,7 @@ PROCEDURE list-post-inv :
                     /*                        dProfit WHEN dProfit NE ?.                                                       */
                 
                     END.
+                    dprofit = dProfit / 100.
                     CREATE ttInvoicePostUpdateGL.
                     ASSIGN
                         ttInvoicePostUpdateGL.invNo             = inv-head.inv-no
@@ -1884,6 +1862,8 @@ PROCEDURE list-post-inv :
                         ttInvoicePostUpdateGL.TotPrice          = w-inv-line.t-price
                         ttInvoicePostUpdateGL.profit            = dProfit
                         .
+
+
                     IF lPrintTon THEN 
                         ASSIGN 
                             ttInvoicePostUpdateGL.weightPerTon = ld-t[1] 
@@ -2406,7 +2386,7 @@ PROCEDURE pPrintPost:
         IF v-balance = 0 THEN  
             lv-post = YES.
 
-        IF lv-post THEN 
+        IF lv-post AND v-post THEN 
         DO:
 
             RUN list-post-inv ("post").
