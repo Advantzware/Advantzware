@@ -15,9 +15,7 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.log-fld  = NO
    sys-ctrl.descrip  = "Invoice Drop Shipped FGs when Received?".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 END.
 ASSIGN
  fginvrec-log = sys-ctrl.log-fld

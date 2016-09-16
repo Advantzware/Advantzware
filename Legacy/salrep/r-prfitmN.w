@@ -77,7 +77,7 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
-ASSIGN cTextListToSelect = "Customer,Invoice#,FG Item,Cust Part No,Categ,Qty Shipped,Itm SqFT,Ttl MSF,$/MSF," +
+ASSIGN cTextListToSelect = "Customer,Invoice#,FG Item,Cust Part No,Categ,Quantity,Itm SqFT,Ttl MSF,$/MSF," +
                            "Unit Price,UOM,Cost/M,Margin/M,Cost%,Colors,Order date,Ship Date,Invoice Amt,Estimate#," +
                            "Style,Flute,Test,Length,Width,Depth"
        cFieldListToSelect = "cust,inv,ino,cust-part,cat,qty-shp,i-sq,ttl-msf,msf," +
@@ -88,7 +88,7 @@ ASSIGN cTextListToSelect = "Customer,Invoice#,FG Item,Cust Part No,Categ,Qty Shi
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Customer,Invoice#,FG Item,Cust Part No,Categ,Qty Shipped,Itm SqFT,Ttl MSF,$/MSF," +
+ASSIGN cTextListToDefault  = "Customer,Invoice#,FG Item,Cust Part No,Categ,Quantity,Itm SqFT,Ttl MSF,$/MSF," +
                            "Unit Price,UOM,Cost/M,Margin/M,Cost%,Colors,Order date,Ship Date,Invoice Amt,Estimate#," +
                            "Style,Flute,Test,Length,Width,Depth" .
 

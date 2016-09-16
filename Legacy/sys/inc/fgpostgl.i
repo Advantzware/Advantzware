@@ -14,9 +14,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.log-fld  = yes
    sys-ctrl.descrip  = "Post GL for purchased FG Receipts".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 fgpostgl = sys-ctrl.char-fld.
 

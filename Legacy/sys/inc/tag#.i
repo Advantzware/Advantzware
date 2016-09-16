@@ -12,9 +12,7 @@ if not avail sys-ctrl then do transaction:
    sys-ctrl.name    = "TAG#"
    sys-ctrl.descrip = "Assign RM Receipt Tag# Using PO# and Sequence?"
    sys-ctrl.log-fld = no.
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 
 v-tag# = sys-ctrl.log-fld.

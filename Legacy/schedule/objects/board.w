@@ -1870,11 +1870,15 @@ PROCEDURE asiDC :
   DEFINE VARIABLE lvJobCompleted AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lvMRCompleted AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lvRunCompleted AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lvContinue AS LOGICAL NO-UNDO.
 
   SESSION:SET-WAIT-STATE('General').
 
   lvVorneDat = findProgram('{&data}/',ID,'/Vorne.dat').
-  IF lvVorneDat NE ? THEN RUN {&loads}/ASI/vorne.p (lvVorneDat).
+  IF lvVorneDat NE ? THEN DO:
+      RUN {&loads}/ASI/vorne.w (lvVorneDat,OUTPUT lvContinue).
+      IF NOT lvContinue THEN RETURN.
+  END.
   
   lvHCDat = findProgram('{&data}/',ID,'/HighwayConnect.dat').
   IF lvHCDat NE ? THEN DO:

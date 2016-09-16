@@ -145,7 +145,7 @@
           ASSIGN
              v-program = "oe/rep/bolxprnt.p"
              is-xprint-form = YES
-             lines-per-page = 80.
+             lines-per-page = 66.
          WHEN "Coburn" THEN
           ASSIGN
              v-program = "oe/rep/bolcobrn.p"

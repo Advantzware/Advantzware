@@ -16,7 +16,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.descrip  = "Method to calculate Due Date and Last Ship Date"
    sys-ctrl.char-fld = "ASI".
    
-  message sys-ctrl.descrip "(ASI/Fibre)" update sys-ctrl.char-fld.
+ /* message sys-ctrl.descrip "(ASI/Fibre)" update sys-ctrl.char-fld. */
           
   if sys-ctrl.char-fld eq "Fibre" then do:
     message "Manufacturing Days:" update sys-ctrl.int-fld.

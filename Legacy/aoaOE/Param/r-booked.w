@@ -4,7 +4,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
 /*------------------------------------------------------------------------
 
-  File: r-commcr.w
+  File: r-booked.w
 
   Description: from SMART.W - Template for basic ADM2 SmartObject
 
@@ -51,15 +51,17 @@ CREATE WIDGET-POOL.
 svStartCustNo svEndCustNo svStartOrderDate btnCalendar-1 ~
 svStartOrderDateOption svEndOrderDate btnCalendar-2 svEndOrderDateOption ~
 svAllSalesRep svStartSalesRep svEndSalesRep svAllProdCategory ~
-svStartProdCategory svEndProdCategory svMiscChg svPageRep svSetCom svRepTot ~
-svRelOrd svUnder svUnderValue svOver svOverValue 
+svStartProdCategory svEndProdCategory svIncludePrepMiscChg ~
+svExcludeSetComponents svExcludeTransferReleasesOrders svPrintOrderUnderPct ~
+svUnderValue svPrintOrderOverPct svOverValue 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
 startCustName svStartCustNo endCustName svEndCustNo svStartOrderDate ~
 svStartOrderDateOption svEndOrderDate svEndOrderDateOption svAllSalesRep ~
 svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
 svAllProdCategory svStartProdCategory startProdCategoryName ~
-svEndProdCategory endProdCategoryName svMiscChg svPageRep svSetCom svRepTot ~
-svRelOrd svUnder svUnderValue svOver svOverValue 
+svEndProdCategory endProdCategoryName svIncludePrepMiscChg ~
+svExcludeSetComponents svExcludeTransferReleasesOrders svPrintOrderUnderPct ~
+svUnderValue svPrintOrderOverPct svOverValue 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -197,37 +199,27 @@ DEFINE VARIABLE svCustList AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY .95 NO-UNDO.
 
-DEFINE VARIABLE svMiscChg AS LOGICAL INITIAL no 
-     LABEL "Include Prep / Misc Charge" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 33 BY 1 NO-UNDO.
-
-DEFINE VARIABLE svOver AS LOGICAL INITIAL no 
-     LABEL "Print Order Over(%) +" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24.2 BY 1 NO-UNDO.
-
-DEFINE VARIABLE svPageRep AS LOGICAL INITIAL no 
-     LABEL "Page By SalesRep?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 25.2 BY 1 NO-UNDO.
-
-DEFINE VARIABLE svRelOrd AS LOGICAL INITIAL no 
-     LABEL "Exclude Transfer Releases/Orders" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 37 BY 1 NO-UNDO.
-
-DEFINE VARIABLE svRepTot AS LOGICAL INITIAL no 
-     LABEL "Rep Sub Totals?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 25.2 BY 1 NO-UNDO.
-
-DEFINE VARIABLE svSetCom AS LOGICAL INITIAL no 
+DEFINE VARIABLE svExcludeSetComponents AS LOGICAL INITIAL no 
      LABEL "Exclude Set Components" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svUnder AS LOGICAL INITIAL no 
+DEFINE VARIABLE svExcludeTransferReleasesOrders AS LOGICAL INITIAL no 
+     LABEL "Exclude Transfer Releases/Orders" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 37 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svIncludePrepMiscChg AS LOGICAL INITIAL no 
+     LABEL "Include Prep / Misc Charge" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 33 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svPrintOrderOverPct AS LOGICAL INITIAL no 
+     LABEL "Print Order Over(%) +" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24.2 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svPrintOrderUnderPct AS LOGICAL INITIAL no 
      LABEL "Print Order Under(%) -" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY 1 NO-UNDO.
@@ -237,66 +229,64 @@ DEFINE VARIABLE svUnder AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 21.6 COLON-ALIGNED WIDGET-ID 60
-     svCustList AT ROW 3.14 COL 24 WIDGET-ID 48
-     btnCustList AT ROW 3.14 COL 59 WIDGET-ID 46
-     svAllCustNo AT ROW 4.33 COL 24 HELP
+     svCustList AT ROW 2.91 COL 24 WIDGET-ID 48
+     btnCustList AT ROW 2.91 COL 59 WIDGET-ID 46
+     svAllCustNo AT ROW 4.1 COL 24 HELP
           "All Customers?" WIDGET-ID 56
-     startCustName AT ROW 5.52 COL 38.4 COLON-ALIGNED HELP
+     startCustName AT ROW 5.29 COL 38.4 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svStartCustNo AT ROW 5.57 COL 22 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 5.33 COL 22 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     endCustName AT ROW 6.71 COL 38.4 COLON-ALIGNED HELP
+     endCustName AT ROW 6.48 COL 38.4 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svEndCustNo AT ROW 6.76 COL 22 COLON-ALIGNED HELP
+     svEndCustNo AT ROW 6.52 COL 22 COLON-ALIGNED HELP
           "Enter Ending Customer" WIDGET-ID 6
-     svStartOrderDate AT ROW 8.62 COL 22 COLON-ALIGNED HELP
+     svStartOrderDate AT ROW 8.38 COL 22 COLON-ALIGNED HELP
           "Enter Start Order Date" WIDGET-ID 84
-     btnCalendar-1 AT ROW 8.62 COL 39 WIDGET-ID 76
-     svStartOrderDateOption AT ROW 8.62 COL 42 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 8.38 COL 39 WIDGET-ID 76
+     svStartOrderDateOption AT ROW 8.38 COL 42 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 86
-     svEndOrderDate AT ROW 9.81 COL 22 COLON-ALIGNED HELP
+     svEndOrderDate AT ROW 9.57 COL 22 COLON-ALIGNED HELP
           "Enter End Order Date" WIDGET-ID 80
-     btnCalendar-2 AT ROW 9.81 COL 39 WIDGET-ID 78
-     svEndOrderDateOption AT ROW 9.81 COL 42 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 9.57 COL 39 WIDGET-ID 78
+     svEndOrderDateOption AT ROW 9.57 COL 42 COLON-ALIGNED HELP
           "Select End Order Date Option" NO-LABEL WIDGET-ID 82
-     svAllSalesRep AT ROW 11.71 COL 24 HELP
+     svAllSalesRep AT ROW 11.48 COL 24 HELP
           "All Sales Reps?" WIDGET-ID 58
-     svStartSalesRep AT ROW 12.91 COL 22 COLON-ALIGNED HELP
+     svStartSalesRep AT ROW 12.67 COL 22 COLON-ALIGNED HELP
           "Enter Beginning SalesRep#" WIDGET-ID 22
-     startSalesRepName AT ROW 12.91 COL 39 COLON-ALIGNED HELP
+     startSalesRepName AT ROW 12.67 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndSalesRep AT ROW 14.1 COL 22 COLON-ALIGNED HELP
+     svEndSalesRep AT ROW 13.86 COL 22 COLON-ALIGNED HELP
           "Enter Ending SalesRep" WIDGET-ID 20
-     endSalesRepName AT ROW 14.1 COL 39 COLON-ALIGNED HELP
+     endSalesRepName AT ROW 13.86 COL 39 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svAllProdCategory AT ROW 16 COL 24 HELP
+     svAllProdCategory AT ROW 15.76 COL 24 HELP
           "All Sales Reps?" WIDGET-ID 112
-     svStartProdCategory AT ROW 17.19 COL 22 COLON-ALIGNED HELP
+     svStartProdCategory AT ROW 16.95 COL 22 COLON-ALIGNED HELP
           "Enter Start Product Category" WIDGET-ID 90
-     startProdCategoryName AT ROW 17.19 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 210
-     svEndProdCategory AT ROW 18.38 COL 22 COLON-ALIGNED HELP
+     startProdCategoryName AT ROW 16.95 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 210
+     svEndProdCategory AT ROW 18.14 COL 22 COLON-ALIGNED HELP
           "Enter End Product Category" WIDGET-ID 88
-     endProdCategoryName AT ROW 18.38 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 208
-     svMiscChg AT ROW 20.29 COL 24 WIDGET-ID 42
-     svPageRep AT ROW 20.29 COL 59.8 WIDGET-ID 92
-     svSetCom AT ROW 21.24 COL 24 WIDGET-ID 94
-     svRepTot AT ROW 21.24 COL 59.8 WIDGET-ID 100
-     svRelOrd AT ROW 22.29 COL 24 WIDGET-ID 96
-     svUnder AT ROW 23.38 COL 24 WIDGET-ID 98
-     svUnderValue AT ROW 23.38 COL 48 COLON-ALIGNED HELP
+     endProdCategoryName AT ROW 18.14 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 208
+     svIncludePrepMiscChg AT ROW 19.81 COL 24 WIDGET-ID 42
+     svExcludeSetComponents AT ROW 21 COL 24 WIDGET-ID 94
+     svExcludeTransferReleasesOrders AT ROW 22.05 COL 24 WIDGET-ID 96
+     svPrintOrderUnderPct AT ROW 23.14 COL 24 WIDGET-ID 98
+     svUnderValue AT ROW 23.14 COL 48 COLON-ALIGNED HELP
           "Enter Beginning Prod Category#" NO-LABEL WIDGET-ID 104
-     svOver AT ROW 23.38 COL 59.8 WIDGET-ID 102
-     svOverValue AT ROW 23.38 COL 82.6 COLON-ALIGNED HELP
+     svPrintOrderOverPct AT ROW 24.33 COL 24 WIDGET-ID 102
+     svOverValue AT ROW 24.33 COL 48 COLON-ALIGNED HELP
           "Enter Beginning Prod Category#" NO-LABEL WIDGET-ID 106
-     "Note: Profit Includes Estimate Markups and Commissions." VIEW-AS TEXT
-          SIZE 60 BY .71 AT ROW 26 COL 23.4 WIDGET-ID 110
-          FGCOLOR 1 
      "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
-          SIZE 67 BY .95 AT ROW 24.95 COL 22 WIDGET-ID 108
+          SIZE 58 BY .95 AT ROW 25.76 COL 21 WIDGET-ID 108
+     "Note: Profit Includes Estimate Markups and Commissions." VIEW-AS TEXT
+          SIZE 54.6 BY .71 AT ROW 26.81 COL 22.4 WIDGET-ID 110
+          FGCOLOR 1 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89 BY 26.95
+         SIZE 89 BY 27.67
          TITLE "Report Parameters".
 
 
@@ -326,7 +316,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 26.95
+         HEIGHT             = 27.67
          WIDTH              = 89.
 /* END WINDOW DEFINITION */
                                                                         */

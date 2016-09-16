@@ -472,7 +472,7 @@ ELSE DO: /*all other cases*/
 
     IF (lInvQtyMet OR lUnassembledSetComponent) /*if component, don't check inv qty*/
         AND 
-       (lShipQtyMet OR lUnassembledSetHeader OR lNotStocked) /*if UnAssembled Set Header, don't check ship qty*/
+       (lShipQtyMet OR lUnassembledSetHeader /*OR lNotStocked*/ ) /*if UnAssembled Set Header, don't check ship qty*/
         THEN DO:
         
         /*additional check for job bin qty = 0*/

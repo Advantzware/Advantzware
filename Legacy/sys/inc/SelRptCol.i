@@ -17,9 +17,7 @@ IF NOT AVAILABLE sys-ctrl THEN DO :
         sys-ctrl.char-fld = ""
         sys-ctrl.descrip  = "Selectable Report Columns"
         .
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 END.
 
 ASSIGN 

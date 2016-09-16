@@ -15,9 +15,7 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.char-fld = "Any"
    sys-ctrl.descrip  = "Automatically Create purchase orders during OE for purchased FGs?".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 END.
 ASSIGN
  oeautofg-log = sys-ctrl.log-fld

@@ -146,12 +146,13 @@ for each cas where cas.typ = 1 by cas.snum by cas.bnum with no-labels no-box:
       brd.cost = cas.cost / cas.qty
       brd.cost-m = cas.cosm.
 
+
    display string(cas.snum,"99") + "-" + string(cas.bnum,"9") format "x(4)"
            item.i-name format "x(20)"
            (zzz / cas.qty) format ">>>>9" "Pieces/BDL"
            cas.qty format ">>>>>9" to 50 "BDL"
-           v-setup when v-setup ne 0 format ">>>9.99" to 61
-           cas.cosm to 69
+           v-setup when v-setup ne 0 format ">>>>9.99" to 61
+           cas.cosm to 69 format ">>,>>9.99"
            cas.cost to 80 format ">>>,>>9.99" skip
        with stream-io.
 
@@ -256,8 +257,8 @@ for each cas where cas.typ = 2 by cas.snum by cas.bnum with no-labels no-box:
 
    display string(cas.snum,"99") + "-" + string(cas.bnum,"9") format "x(4)"
            item.i-name cas.qty format ">>>>>9" to 50 "Tr"
-           v-setup when v-setup ne 0 format ">>>9.99" to 61
-           cas.cosm to 69
+           v-setup when v-setup ne 0 format ">>>>9.99" to 61
+           cas.cosm to 69 format ">>,>>9.99" 
            cas.cost to 80 format ">>>,>>9.99" skip
        with stream-io.
 end.
@@ -380,8 +381,8 @@ for each cas where cas.typ = 3 by cas.snum by cas.bnum with no-labels no-box:
               v-pck-code when avail xcas
               space(0)
               cas.qty format ">>>>>9" to 50 "Pal"
-              v-setup when v-setup ne 0 format ">>>9.99" to 61
-              cas.cosm to 69
+              v-setup when v-setup ne 0 format ">>>>9.99" to 61
+              cas.cosm to 69 format ">>,>>9.99" 
               cas.cost to 80 format ">>>,>>9.99" skip
           with stream-io.
 
@@ -445,7 +446,7 @@ for each cas where cas.typ = 4 by cas.snum by cas.bnum with no-labels no-box:
       display string(cas.snum,"99") + "-" + string(cas.bnum,"9") format "x(4)"
               item.i-name
               strap-qty         format ">>>,>>>"         to 50 "MLI"
-              lv-setup-strap when lv-setup-strap ne 0 format ">>>9.99" to 61
+              lv-setup-strap when lv-setup-strap ne 0 format ">>>>9.99" to 61
               cas.cost / (tt-blk * (if xest.form-qty eq 1 or vmclean2 then v-yld else 1) / 1000) to 69
               cas.cost          format ">>>,>>9.99"      to 80 skip
           with stream-io.

@@ -54,6 +54,11 @@ DEFINE TEMP-TABLE ttAOA NO-UNDO
     FIELD menuID  AS CHARACTER LABEL "Menu ID"  FORMAT "x(4)"
         INDEX aoa IS PRIMARY UNIQUE aoaFile.
 
+RUN util/chk-mod.p ("ASI",
+                    IF ipcLaunchType EQ "Report" THEN "aoaReport"
+                    ELSE "aoaDashboard") NO-ERROR.
+IF ERROR-STATUS:ERROR THEN RETURN.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -98,7 +103,7 @@ DEFINE TEMP-TABLE ttAOA NO-UNDO
     ~{&OPEN-QUERY-browseModule}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnClose btnLaunch browseModule browseAOA 
+&Scoped-Define ENABLED-OBJECTS browseModule browseAOA btnClose btnLaunch 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -160,10 +165,10 @@ DEFINE BROWSE browseModule
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnClose AT ROW 26.71 COL 106 WIDGET-ID 2
-     btnLaunch AT ROW 26.71 COL 41 WIDGET-ID 4
      browseModule AT ROW 1.24 COL 2 WIDGET-ID 200
      browseAOA AT ROW 1.24 COL 41 WIDGET-ID 300
+     btnClose AT ROW 26.71 COL 106 WIDGET-ID 2
+     btnLaunch AT ROW 26.71 COL 41 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -400,7 +405,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnClose btnLaunch browseModule browseAOA 
+  ENABLE browseModule browseAOA btnClose btnLaunch 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

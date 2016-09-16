@@ -37,8 +37,76 @@ DEFINE TEMP-TABLE ttCustomerInventory NO-UNDO
     FIELD xxSort2     AS CHARACTER          LABEL "Sort 2"       FORMAT "x(500)"
         INDEX sortBy IS PRIMARY rowType xxSort1 xxSort2
         .
-{sys/ref/CustList.i NEW}
 /* Customer Inventory.rpa */
+
+/* Inventory Value.rpa */
+DEFINE TEMP-TABLE ttInventoryValue NO-UNDO
+    {aoaAppSrv/ttFields.i}
+    FIELD custNo       AS CHARACTER LABEL "Customer"
+    FIELD custName     AS CHARACTER LABEL "Cust Name"    FORMAT "x(30)"
+    FIELD salesRep     AS CHARACTER LABEL "Rep"          FORMAT "X(3)"
+    FIELD iNo          AS CHARACTER LABEL "Item"         FORMAT "x(15)"
+    FIELD iName        AS CHARACTER LABEL "Description"  FORMAT "X(30)"
+    FIELD tagNo        AS CHARACTER LABEL "Tag"          FORMAT "x(6)"
+    FIELD tag          AS CHARACTER LABEL "Full Tag"     FORMAT "x(24)"    
+    FIELD fgLotVal     AS CHARACTER LABEL "FG LOT#"      FORMAT "x(20)"
+    FIELD partNo       AS CHARACTER LABEL "Cust Part"    FORMAT "X(15)"    
+    FIELD procat       AS CHARACTER LABEL "FG Cat"       FORMAT "X(5)"         
+    FIELD loc          AS CHARACTER LABEL "Whse"         FORMAT "X(5)"
+    FIELD bin          AS CHARACTER LABEL "Bin"          FORMAT "X(8)" 
+    FIELD jobNo        AS CHARACTER LABEL "Job"          FORMAT "x(10)"
+    FIELD msfOnHand    AS DECIMAL   LABEL "MSF OH"       FORMAT "->>9.999" DECIMALS 3
+    FIELD qtyOnHand    AS INTEGER   LABEL "Qty On Hand"  FORMAT "->>,>>>,>>9" 
+    FIELD relQty       AS INTEGER   LABEL "Rel Qty"      FORMAT "->>,>>>,>>9"     
+    FIELD sellPrice    AS DECIMAL   LABEL "FG Price"     FORMAT "->>>,>>9.99" 
+    FIELD ordPr        AS DECIMAL   LABEL "Order Price"  FORMAT "->>>,>>9.99"     
+    FIELD uomCost      AS DECIMAL   LABEL "UOM Cost"     FORMAT "->>>>>9.999" DECIMALS 3
+    FIELD totCost      AS DECIMAL   LABEL "Total Cost"   FORMAT "->>>,>>9.99" 
+    FIELD matCost      AS DECIMAL   LABEL "Mat Cost"     FORMAT "->>>,>>9.99" 
+    FIELD labCost      AS DECIMAL   LABEL "Labor Cost"   FORMAT "->>>,>>9.99" 
+    FIELD costUom      AS CHARACTER LABEL "C-UOM"        FORMAT "x(5)" 
+    FIELD sellValueFg  AS DECIMAL   LABEL "Sell Val FG"  FORMAT "->>,>>>,>>9.99" 
+    FIELD sellValueOrd AS DECIMAL   LABEL "Sell Val Ord" FORMAT "->>,>>>,>>9.99"  
+    FIELD lastSale     AS DATE      LABEL "Last Sale"    FORMAT 99/99/9999
+    FIELD viewPo       AS CHARACTER LABEL "View PO"      FORMAT "x(11)" 
+    FIELD linePo       AS CHARACTER LABEL "Line PO"      FORMAT "x(10)" 
+    FIELD relPo        AS CHARACTER LABEL "Rel PO"       FORMAT "x(11)"      
+    FIELD daysOld      AS INTEGER   LABEL "Dats Oold"    FORMAT "->>>>>>9" 
+    FIELD custNoOwned  AS CHARACTER LABEL "Cust Own"     FORMAT "X(8)" 
+    FIELD setHeader    AS CHARACTER LABEL "Set Header"   FORMAT "X(15)" 
+    FIELD qtyPerSet    AS INTEGER   LABEL "Qty Per Set"  FORMAT "->>,>>>,>>9" 
+    FIELD recDate      AS DATE      LABEL "Rec Date"     FORMAT 99/99/9999
+    FIELD xxSort       AS CHARACTER LABEL "Sort"         FORMAT "x(500)"
+        INDEX sortBy IS PRIMARY rowType xxSort
+        .
+
+&SCOPED-DEFINE itemfg-index i-no job-no job-no2 loc loc-bin tag bin-cust-no
+DEFINE NEW SHARED TEMP-TABLE tt-itemfg NO-UNDO
+    FIELD row-id      AS ROWID
+    FIELD i-no        LIKE itemfg.i-no
+    FIELD i-name      LIKE itemfg.i-name
+    FIELD cust-no     LIKE itemfg.cust-no
+    FIELD part-no     LIKE itemfg.part-no
+    FIELD part-cust   AS CHARACTER
+    FIELD procat      LIKE itemfg.procat
+    FIELD job-no      LIKE fg-rcpth.job-no
+    FIELD job-no2     LIKE fg-rcpth.job-no2
+    FIELD loc         LIKE fg-rdtlh.loc
+    FIELD loc-bin     LIKE fg-rdtlh.loc-bin
+    FIELD tag         LIKE fg-rdtlh.tag
+    FIELD bin-cust-no LIKE fg-rdtlh.cust-no
+    FIELD loc-bin-tag AS CHARACTER
+        INDEX i-no                    {&itemfg-index}
+        INDEX cust-no     cust-no     {&itemfg-index}
+        INDEX partNo      part-cust   {&itemfg-index}
+        INDEX procat      procat      {&itemfg-index}
+        INDEX loc-bin-tag loc-bin-tag {&itemfg-index}
+        .
+
+{fg/rep/tt-fgbin.i NEW SHARED}
+/* Inventory Value.rpa */
+
+{sys/ref/CustList.i NEW}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -77,6 +145,19 @@ FUNCTION fCustomerInventory RETURNS HANDLE
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTableHandle Procedure 
 FUNCTION fGetTableHandle RETURNS HANDLE
   ( ipcProgramID AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fInventoryValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fInventoryValue Procedure 
+FUNCTION fInventoryValue RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -174,7 +255,7 @@ PROCEDURE pCustomerInventory :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pCustomerInventory.i}
+    {aoaAppSrv/includes/pCustomerInventory.i}
 
     /* local variables */
     DEFINE VARIABLE iPalletCount AS INTEGER   NO-UNDO.
@@ -264,6 +345,137 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pInventoryValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInventoryValue Procedure 
+PROCEDURE pInventoryValue :
+/*------------------------------------------------------------------------------
+  Purpose:     Inventory Value.rpa
+  Parameters:  Company, Batch Seq, User ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/includes/pInventoryValue.i}
+    
+    /* local variables */
+    DEFINE VARIABLE lProcessRel      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lProcessLastSale AS LOGICAL   NO-UNDO.
+    
+    /* subject business logic */
+    IF CAN-DO(cSelectedColumns,"Rel Qty") OR
+       CAN-DO(cSelectedColumns,"Rel PO") THEN
+    lProcessRel = YES.
+
+    lProcessLastSale = CAN-DO(cSelectedColumns,"Last Sale").
+
+    IF lCustList THEN DO:
+        FIND FIRST ttCustList NO-LOCK
+             WHERE ttCustList.log-fld USE-INDEX cust-No  
+             NO-ERROR.
+        IF AVAILABLE ttCustList THEN
+        cStartCustNo = ttCustList.cust-no .
+        FIND LAST ttCustList NO-LOCK
+             WHERE ttCustList.log-fld USE-INDEX cust-No
+             NO-ERROR.
+        IF AVAILABLE ttCustList THEN 
+        cEndCustNo = ttCustList.cust-no.
+    END. /* if lcustlist */
+
+    EMPTY TEMP-TABLE tt-fg-bin.
+    EMPTY TEMP-TABLE tt-itemfg.
+
+    FOR EACH itemfg NO-LOCK
+        WHERE itemfg.company EQ ipcCompany
+          AND itemfg.cust-no GE cStartCustNo
+          AND itemfg.cust-no LE cEndCustNo
+          AND (IF lCustList THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
+          AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
+          AND itemfg.i-no    GE cStartItemNo
+          AND itemfg.i-no    LE cEndItemNo
+          AND itemfg.procat  GE cStartProdCategory
+          AND itemfg.procat  LE cEndProdCategory
+          AND (itemfg.i-code EQ cItemCode OR cItemCode EQ "A")
+          AND (itemfg.stat EQ "A" OR lIncludeInactiveItems)
+          AND (NOT lPrintSetandComponentsOnly OR itemfg.isaset
+           OR CAN-FIND(FIRST fg-set
+                       WHERE fg-set.company EQ itemfg.company
+                         AND fg-set.part-no EQ itemfg.i-no))
+        USE-INDEX customer
+        :
+        RUN fg/rep/tt-fgbin.p
+            (BUFFER itemfg,
+             dtAsOfDate, "", "zzzzzzzzzz",
+             cStartLoc, cEndLoc, cStartLocBin, cEndLocBin,
+             lIncludeZeroBalance, iShowQOHOlderThanDays, YES,
+             lIncludeCustomerOwnerdWarehouse).
+        
+        FOR EACH tt-fg-bin
+            WHERE tt-fg-bin.company EQ itemfg.company
+              AND tt-fg-bin.i-no    EQ itemfg.i-no
+              AND (lIncludeCustomerOwnerdWarehouse OR lOnlyCustomerOwnedWarehouse
+               OR (tt-fg-bin.cust-no EQ "" AND tt-fg-bin.loc NE "CUST"))
+              AND (NOT lOnlyCustomerOwnedWarehouse
+               OR (tt-fg-bin.cust-no NE "" OR tt-fg-bin.loc EQ "CUST"))
+            USE-INDEX co-ino
+            :
+            IF tt-fg-bin.qty NE 0 OR lIncludeZeroBalance THEN DO:
+                CREATE tt-itemfg.
+                BUFFER-COPY itemfg TO tt-itemfg
+                ASSIGN
+                    tt-itemfg.row-id      = ROWID(itemfg) 
+                    tt-itemfg.job-no      = tt-fg-bin.job-no
+                    tt-itemfg.job-no2     = tt-fg-bin.job-no2
+                    tt-itemfg.loc         = tt-fg-bin.loc
+                    tt-itemfg.loc-bin     = tt-fg-bin.loc-bin
+                    tt-itemfg.tag         = tt-fg-bin.tag
+                    tt-itemfg.bin-cust-no = tt-fg-bin.cust-no
+                    tt-itemfg.part-cust   = STRING(tt-itemfg.part-no,"x(20)")
+                                          + STRING(tt-itemfg.cust-no,"x(20)") 
+                    tt-itemfg.loc-bin-tag = STRING(tt-itemfg.loc,"x(10)")
+                                          + STRING(tt-itemfg.loc-bin,"x(10)")
+                                          + STRING(tt-itemfg.tag,"x(20)")
+                    . 
+            END. /* if qty ne 0 */
+            ELSE DELETE tt-fg-bin.
+        END. /* each tt-fg-bin */
+    END. /* each itemfg */
+
+    RUN pInventoryValue1
+        (ipcCompany,
+         cStartSalesRep,
+         cEndSalesRep,
+         cSort,
+         lPrintSummaryByBinQty,
+         lIncludeZeroBalance,
+         dtAsOfDate,
+         lProcessRel,
+         lProcessLastSale
+         ).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pInventoryValue1) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInventoryValue1 Procedure 
+PROCEDURE pInventoryValue1 :
+/*------------------------------------------------------------------------------
+  Purpose:     Inventory Value.rpa
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/includes/pInventoryValue1.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fCustomerInventory) = 0 &THEN
@@ -278,15 +490,6 @@ FUNCTION fCustomerInventory RETURNS HANDLE
     Notes:  
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttCustomerInventory.
-
-    OUTPUT TO "aoaFG.log" APPEND.
-    PUT UNFORMATTED
-        "[" NOW "] fCustomerInventory" SKIP
-        "[" NOW "]" ipcCompany SKIP
-        "[" NOW "]" ipiBatch SKIP
-        "[" NOW "]" ipcUserID SKIP(1)
-        .
-    OUTPUT CLOSE.
 
     RUN pCustomerInventory (ipcCompany, ipiBatch, ipcUserID).
 
@@ -312,7 +515,34 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Customer Inventory.rpa */
         WHEN "r-cusinv." THEN
         RETURN TEMP-TABLE ttCustomerInventory:HANDLE.
+        /* Customer Inventory.rpa */
+        WHEN "r-fgohbb." THEN
+        RETURN TEMP-TABLE ttInventoryValue:HANDLE.
     END CASE.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fInventoryValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fInventoryValue Procedure 
+FUNCTION fInventoryValue RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Customer Inventory.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttInventoryValue.
+
+    RUN pInventoryValue (ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttInventoryValue:HANDLE .
 
 END FUNCTION.
 

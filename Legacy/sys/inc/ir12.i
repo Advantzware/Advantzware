@@ -16,9 +16,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.int-fld  = 0
    sys-ctrl.descrip  = "Prompt for standard for custom IR12 report? ".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 end.
 
 assign

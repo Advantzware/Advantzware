@@ -88,7 +88,7 @@ IF ipxQty EQ 0 THEN
 ELSE IF ipxPriceUom BEGINS "L" AND ipxPriceUom NE "LB" THEN
     opxTotalPrice = ipxPrice * IF ipxQty LT 0 THEN -1 ELSE 1.
 ELSE IF ipxPriceUom EQ "CS" AND ipxCaseCount NE 0 THEN
-    opxTotalPrice = ipxPrice * ipxQty / ipxCaseCount * ipxPrice.
+    opxTotalPrice = /*ipxPrice **/ ipxQty / ipxCaseCount * ipxPrice.
 ELSE IF ipxPriceUom EQ "C" THEN
     opxTotalPrice = ipxQty / 100 * ipxPrice.
 ELSE IF ipxPriceUom EQ "M" THEN
