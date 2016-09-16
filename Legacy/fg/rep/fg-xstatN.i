@@ -224,18 +224,6 @@ FOR EACH ttCustList
                      END.
 
                      tt-oe-rel.qty = v-prodqty2 .
-
-                    /* for each fg-rcpth
-                         where fg-rcpth.company = cocode
-                         AND fg-rcpth.i-no    = itemfg.i-no 
-                         AND fg-rcpth.rita-code  = "R" 
-                         AND fg-rcpth.job-no  = oe-ordl.job-no 
-                         AND fg-rcpth.job-no2 = oe-ordl.job-no2
-                         AND fg-rdtlh.stack-code = tt-oe-rel.lot-no
-                         no-lock:
-                         v-prodqty = fg-rcpth.qty .
-                         LEAVE.
-                     END.*/
                  END. 
                  
                   IF AVAILABLE oe-relh  THEN 
@@ -891,7 +879,6 @@ FOR EACH ttCustList
 
                            FOR EACH xbin WHERE xbin.company = cocode 
                                           AND xbin.i-no    =  itemfg.i-no 
-                                          AND xbin.loc     =  fg-bin.loc
                                           AND xbin.job-no  GE fg-bin.job-no
                                           AND xbin.job-no  LE fg-bin.job-no
                                           AND xbin.job-no2 GE fg-bin.job-no2
@@ -1072,7 +1059,7 @@ FOR EACH ttCustList
                 WHEN "fac-costm" THEN cVarValue = IF vtot-costm <> 0 THEN STRING(vtot-costm,"->>,>>>,>>9.99") ELSE "" .
                 WHEN "tot-fac-cost" THEN cVarValue = IF vtot-job-cost <> 0 THEN STRING(vtot-job-cost,"->>>>,>>>,>>9.99") ELSE ""  .
                 WHEN "on-hand-cost" THEN DO: 
-                    cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh / 1000 * vtot-costm,"->,>>>,>>9.99") ELSE "" .
+                    cVarValue = IF v-job-no <> "" THEN STRING( ROUND( v-qty-onh / 1000 * vtot-costm,2),"->,>>>,>>9.99") ELSE "" .
                 END.
                                    
             END CASE.
