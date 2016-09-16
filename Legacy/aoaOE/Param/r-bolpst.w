@@ -47,16 +47,17 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svPostDate btnCalendar-1 ~
-svPostDateOption svCustList btnCustList svAllCustNo svStartCustNo ~
-svEndCustNo svStartBOLDate btnCalendar-2 svStartBOLDateOption svEndBOLDate ~
-btnCalendar-3 svEndBOLDateOption svAllBOL svStartBOL svEndBOL svAllLoc ~
-svStartLoc svEndLoc svAllLocBin svStartLocBin svEndLocBin svPost 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svPostDate svPostDateOption ~
-svCustList svAllCustNo svStartCustNo startCustName svEndCustNo endCustName ~
-svStartBOLDate svStartBOLDateOption svEndBOLDate svEndBOLDateOption ~
-svAllBOL svStartBOL svEndBOL svAllLoc svStartLoc startLocName svEndLoc ~
-endLocName svAllLocBin svStartLocBin svEndLocBin svPost 
+&Scoped-Define ENABLED-OBJECTS svCompany svLocation svPostDate ~
+btnCalendar-1 svPostDateOption svCustList btnCustList svAllCustNo ~
+svStartCustNo svEndCustNo svStartBOLDate btnCalendar-2 svStartBOLDateOption ~
+svEndBOLDate btnCalendar-3 svEndBOLDateOption svAllBOL svStartBOL svEndBOL ~
+svAllLoc svStartLoc svEndLoc svAllLocBin svStartLocBin svEndLocBin svPost 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svPostDate ~
+svPostDateOption svCustList svAllCustNo svStartCustNo startCustName ~
+svEndCustNo endCustName svStartBOLDate svStartBOLDateOption svEndBOLDate ~
+svEndBOLDateOption svAllBOL svStartBOL svEndBOL svAllLoc svStartLoc ~
+startLocName svEndLoc endLocName svAllLocBin svStartLocBin svEndLocBin ~
+svPost 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -154,6 +155,11 @@ DEFINE VARIABLE svEndLocBin AS CHARACTER FORMAT "X(2)"
      VIEW-AS FILL-IN 
      SIZE 15 BY 1.
 
+DEFINE VARIABLE svLocation AS CHARACTER FORMAT "X(5)" 
+     LABEL "Location" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1.
+
 DEFINE VARIABLE svPostDate AS DATE FORMAT "99/99/9999" 
      LABEL "Post Date" 
      VIEW-AS FILL-IN 
@@ -224,6 +230,7 @@ DEFINE VARIABLE svPost AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 60
+     svLocation AT ROW 1.24 COL 33 COLON-ALIGNED WIDGET-ID 130
      svPostDate AT ROW 2.91 COL 17 COLON-ALIGNED HELP
           "Enter Post Date" WIDGET-ID 274
      btnCalendar-1 AT ROW 2.91 COL 35 WIDGET-ID 272
@@ -356,6 +363,9 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
+
+ASSIGN 
+       svLocation:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -537,6 +547,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svLocation
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svLocation sObject
+ON ENTRY OF svLocation IN FRAME F-Main /* Location */
+DO:
+  APPLY "ENTRY":U TO svPostDate.
+  RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svPostDate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svPostDate sObject
 ON HELP OF svPostDate IN FRAME F-Main /* Post Date */
@@ -653,6 +675,8 @@ PROCEDURE pInitialize :
             hContainer = iphContainer
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
+            svLocation:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetLocation' IN hContainer)
+            svLocation
             .
 
         APPLY "VALUE-CHANGED":U TO svPostDateOption.

@@ -47,16 +47,18 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svCompany svPost svPostDate btnCalendar-1 ~
-svPostDateOption svCustList btnCustList svAllCustNo svStartCustNo ~
-svEndCustNo svAllInvNo svStartInvNo svEndInvNo svStartInvoiceDate ~
-btnCalendar-2 svStartInvoiceDateOption svEndInvoiceDate btnCalendar-3 ~
-svEndInvoiceDateOption svInvoiceReportDetail svGLReportDetail svPrintTon 
-&Scoped-Define DISPLAYED-OBJECTS svCompany svPost svPostDate ~
+&Scoped-Define ENABLED-OBJECTS svCompany svLocation svPostDate ~
+btnCalendar-1 svPostDateOption svCustList btnCustList svAllCustNo ~
+svStartCustNo svEndCustNo svAllInvNo svStartInvNo svEndInvNo ~
+svStartInvoiceDate btnCalendar-2 svStartInvoiceDateOption svEndInvoiceDate ~
+btnCalendar-3 svEndInvoiceDateOption svInvoiceReportDetail svGLReportDetail ~
+svPrintTon svPost 
+&Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svPostDate ~
 svPostDateOption svCustList svAllCustNo svStartCustNo startCustName ~
 svEndCustNo endCustName svAllInvNo svStartInvNo svEndInvNo ~
 svStartInvoiceDate svStartInvoiceDateOption svEndInvoiceDate ~
-svEndInvoiceDateOption svInvoiceReportDetail svGLReportDetail svPrintTon 
+svEndInvoiceDateOption svInvoiceReportDetail svGLReportDetail svPrintTon ~
+svPost 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -136,6 +138,11 @@ DEFINE VARIABLE svEndInvoiceDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
+DEFINE VARIABLE svLocation AS CHARACTER FORMAT "X(5)" 
+     LABEL "Location" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1.
+
 DEFINE VARIABLE svPostDate AS DATE FORMAT "99/99/9999" 
      LABEL "Post Date" 
      VIEW-AS FILL-IN 
@@ -196,8 +203,7 @@ DEFINE VARIABLE svPrintTon AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
-     svPost AT ROW 1.24 COL 72 HELP
-          "Select to Post" WIDGET-ID 344
+     svLocation AT ROW 1.24 COL 35 COLON-ALIGNED WIDGET-ID 130
      svPostDate AT ROW 2.91 COL 19 COLON-ALIGNED HELP
           "Enter Post Date" WIDGET-ID 274
      btnCalendar-1 AT ROW 2.91 COL 37 WIDGET-ID 272
@@ -235,6 +241,8 @@ DEFINE FRAME F-Main
           "Select to Show GL Report Detail" WIDGET-ID 354
      svPrintTon AT ROW 20.05 COL 21 HELP
           "Select to Show Print $/Ton" WIDGET-ID 356
+     svPost AT ROW 20.05 COL 71 HELP
+          "Select to Post" WIDGET-ID 344
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -307,6 +315,9 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        svCompany:READ-ONLY IN FRAME F-Main        = TRUE.
+
+ASSIGN 
+       svLocation:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -455,6 +466,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svLocation
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svLocation sObject
+ON ENTRY OF svLocation IN FRAME F-Main /* Location */
+DO:
+  APPLY "ENTRY":U TO svPostDate.
+  RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svPostDate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svPostDate sObject
 ON HELP OF svPostDate IN FRAME F-Main /* Post Date */
@@ -560,6 +583,8 @@ PROCEDURE pInitialize :
             hContainer = iphContainer
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
+            svLocation:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetLocation' IN hContainer)
+            svLocation
             .
 
         APPLY "VALUE-CHANGED":U TO svPostDateOption.
