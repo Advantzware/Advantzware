@@ -48,7 +48,8 @@
             where ar-invl.x-no    eq ar-inv.x-no
               and ar-invl.i-no    ge fitem
               and ar-invl.i-no    le titem
-              and ((tb_prep AND ar-invl.billable) or not ar-invl.misc)
+              and ((tb_prep AND ar-invl.billable ) or not ar-invl.misc) 
+              AND ar-invl.amt <> 0 
             no-lock:
 
           find first itemfg
@@ -119,7 +120,8 @@
                   and ar-invl.cust-no eq ar-cash.cust-no
                   and ar-invl.inv-no  eq ar-cashl.inv-no
                   and ar-invl.i-no    eq oe-retl.i-no
-                  and ((tb_prep AND ar-invl.billable) or not ar-invl.misc)
+                  and ((tb_prep AND ar-invl.billable ) or not ar-invl.misc)
+                  AND ar-invl.amt <> 0
                 no-lock no-error.
             if avail ar-invl then do:
               find first itemfg
