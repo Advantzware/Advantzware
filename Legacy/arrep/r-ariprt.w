@@ -1063,8 +1063,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         lv-scr-num-copies:HIDDEN = NO
         lv-scr-num-copies:SENSITIVE = YES.
 
-  ELSE IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "Boss" OR
-          v-print-fmt EQ "SIMKINS" OR v-print-fmt EQ "CapCityIN" THEN
+  ELSE IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "invprint 1" OR 
+          v-print-fmt EQ "SIMKINS" OR v-print-fmt EQ "CapCityIN" OR v-print-fmt EQ "invprint 2"  THEN
      ASSIGN
         tb_print-dept:HIDDEN = NO
         tb_print-dept:SENSITIVE = YES
@@ -1821,7 +1821,7 @@ PROCEDURE SetInvForm :
              v-program      = "ar/rep/invpacif.p"
              lines-per-page = 66
              is-xprint-form = YES.
-       WHEN "Xprint" THEN
+       WHEN "Xprint" OR WHEN "invprint 1" OR WHEN "invprint 2" THEN
           ASSIGN
              v-program = "ar/rep/invxprnt.p"
              lines-per-page = 66
