@@ -986,9 +986,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      lines-per-page              = li-lineperpage
      lines-per-page:SCREEN-VALUE = STRING(li-lineperpage).
 
-    IF NOT CAN-DO('Brick,CSC,Southpak,Xprint,StClair,Boss,PeachTree,Asixprnt,PPI,CSC-GA,Indiana,Packrite,Allwest,Bell,ACPI,Sultana,CCC,Protagon,SouleMed,Soule,Hughes',v-print-fmt) THEN DISABLE tb_spec.
+    IF NOT CAN-DO('Brick,CSC,Southpak,Xprint,poprint 1,StClair,Boss,PeachTree,Asixprnt,PPI,CSC-GA,Indiana,Packrite,Allwest,Bell,ACPI,Sultana,CCC,Protagon,SouleMed,Soule,Hughes',v-print-fmt) THEN DISABLE tb_spec.
 
-    IF NOT CAN-DO('Xprint,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana',v-print-fmt) THEN DO:
+    IF NOT CAN-DO('Xprint,poprint 1,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana',v-print-fmt) THEN DO:
        IF v-print-fmt NE "CentBox" THEN
           ASSIGN
              tb_itemDescription = NO
@@ -1007,7 +1007,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           tb_itemDescription:LABEL = "Print P.O. Description Lines"
           tb_itemDescription:SENSITIVE = YES.
 
-    IF LOOKUP(v-print-fmt,"xprint,StClair,Boss,Hughes,PeachTree,Protagon,ppi,Packrite") = 0 THEN 
+    IF LOOKUP(v-print-fmt,"xprint,poprint 1,StClair,Boss,Hughes,PeachTree,Protagon,ppi,Packrite") = 0 THEN 
        DISABLE tb_metric.
 
     IF v-print-fmt NE "Indiana" THEN
@@ -1153,7 +1153,7 @@ PROCEDURE GenerateReport :
   IF rd-dest = 5 THEN DO:      
    
     /* gdm - 11190804 */
-    IF LOOKUP(v-print-fmt,"Xprint,StClair,Boss,Hughes,PeachTree,FibreX,Protagon") > 0 
+    IF LOOKUP(v-print-fmt,"Xprint,poprint 1,StClair,Boss,Hughes,PeachTree,FibreX,Protagon") > 0 
         OR lv-attachments THEN DO:
       FIND FIRST sys-ctrl NO-LOCK
         WHERE sys-ctrl.company EQ cocode
@@ -1220,7 +1220,7 @@ PROCEDURE GenerateReport :
         ASSIGN lv-pdf-file = init-dir + "\PO.pdf".
 
       /* gdm - 11190804 */
-      IF (LOOKUP(v-print-fmt,"Xprint,StClair,Boss,Hughes,PeachTree,FibreX,Protagon") > 0 
+      IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,StClair,Boss,Hughes,PeachTree,FibreX,Protagon") > 0 
            OR 
           lv-attachments)
         AND TRIM(v-outfile) NE "" 
@@ -1248,7 +1248,7 @@ PROCEDURE GenerateReport :
       IF NOT AttachmentExists() THEN RETURN.
 
       /* gdm - 11190804 */
-      IF (LOOKUP(v-print-fmt,"Xprint,StClair,Boss,Hughes,PeachTree,FibreX,Protagon") > 0 
+      IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,StClair,Boss,Hughes,PeachTree,FibreX,Protagon") > 0 
            OR
           lv-attachments)
         AND TRIM(v-outfile) NE "" 
@@ -1549,7 +1549,7 @@ PROCEDURE run-report :
       END CASE.
   END.
 
-  IF LOOKUP(v-print-fmt,"SOUTHPAK,SouthPak-xl,CENTBOX,Oracle,metro,ASIXprnt,Valley,CSC-GA,HPB,Indiana,XPRINT,StClair,Boss,Hughes,PeachTree,ACPI,Sultana,CCC,SouleMed,Soule") > 0 THEN 
+  IF LOOKUP(v-print-fmt,"SOUTHPAK,SouthPak-xl,CENTBOX,Oracle,metro,ASIXprnt,Valley,CSC-GA,HPB,Indiana,XPRINT,poprint 1,StClair,Boss,Hughes,PeachTree,ACPI,Sultana,CCC,SouleMed,Soule") > 0 THEN 
     RUN VALUE(v-program) (lv-multi-faxout,lines-per-page). 
   ELSE  
     RUN VALUE(v-program).
@@ -1611,7 +1611,7 @@ PROCEDURE SetGlobalVariables :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-po-ord-no AS INT NO-UNDO.
 
-  IF LOOKUP(v-print-fmt,"Pacific,Xprint,StClair,Boss,PeachTree,Xprint2,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
+  IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,StClair,Boss,PeachTree,Xprint2,poprint 2,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
     THEN is-xprint-form = YES.
     ELSE is-xprint-form = NO.
 
@@ -1655,14 +1655,14 @@ PROCEDURE SetPOPrintForm :
     WHEN 'Pacific'      THEN ASSIGN v-program = "po/po-pacif.p"     li-lineperpage = 80.
     WHEN 'Elite'        THEN ASSIGN v-program = "po/po-elite.p"     li-lineperpage = 80.
     WHEN 'CSC'          THEN ASSIGN v-program = "po/po-xcsc.p"      li-lineperpage = 80.
-    WHEN 'Xprint'       THEN ASSIGN v-program = "po/po-xprnt.p"     li-lineperpage = 80.
+    WHEN 'Xprint' OR WHEN 'poprint 1' THEN ASSIGN v-program = "po/po-xprnt.p"     li-lineperpage = 80.
     WHEN 'StClair'       THEN ASSIGN v-program = "po/po-stclr.p"     li-lineperpage = 80.
     WHEN 'Boss'       THEN ASSIGN v-program = "po/po-boss.p"     li-lineperpage = 80.
     WHEN 'PPI'          THEN ASSIGN v-program = "po/po-ppi.p"       li-lineperpage = 80.
     WHEN 'FibreX'       THEN ASSIGN v-program = "po/po-fibx.p"      li-lineperpage = 60.
     WHEN 'ConsBox'      THEN ASSIGN v-program = "po/po-consb.p"     li-lineperpage = 80.
     WHEN 'APC'          THEN ASSIGN v-program = "po/po-consb.p"     li-lineperpage = 80.
-    WHEN 'Xprint2'      THEN ASSIGN v-program = "po/po-xprt2.p"     li-lineperpage = 80.
+    WHEN 'Xprint2' OR WHEN "poprint 2" THEN ASSIGN v-program = "po/po-xprt2.p"     li-lineperpage = 80.
     WHEN 'OTTpkg'       THEN ASSIGN v-program = "po/po-ott.p"       li-lineperpage = 80.
     WHEN 'Hughes'       THEN ASSIGN v-program = "po/po-hughs.p"     li-lineperpage = 80.
     WHEN 'southpak'     THEN ASSIGN v-program = "po/po-sthpk.p"     li-lineperpage = 80.

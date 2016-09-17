@@ -1442,7 +1442,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*    IF LOOKUP(v-relprint,"Carded,PremierX,Frank,NStock,CSC-GA,Protagon,Soule,Prystup,StClair") EQ 0 THEN
        rd-print-what:SCREEN-VALUE  = rd-print-what.   */    /* Task# 03041404 */
 
-    IF v-relprint EQ "Xprint" THEN
+    IF v-relprint EQ "Xprint" OR v-relprint EQ "relprint 1" THEN
        tb_prt-part-no:SENSITIVE = YES.
 
     lines-per-page:SENSITIVE = NO.
@@ -2170,7 +2170,7 @@ PROCEDURE set-report :
      is-xprint-form = YES.
 
   ELSE
-  IF v-relprint EQ "Xprint" THEN
+  IF v-relprint EQ "Xprint" OR v-relprint = "relprint 1" THEN
    ASSIGN
     lv-program     = "oe/rep/relxprnt.p"
     lines-per-page = 75
@@ -2197,7 +2197,7 @@ PROCEDURE set-report :
     lines-per-page = 75
     is-xprint-form = YES  .
 
-  ELSE IF v-relprint EQ "Xprint2" THEN
+  ELSE IF v-relprint EQ "Xprint2" OR v-relprint = "relprint 2" THEN
     ASSIGN lv-program     = "oe/rep/relxprn2.p"
            lines-per-page = 75
            is-xprint-form = YES  . 

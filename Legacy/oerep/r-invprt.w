@@ -1512,7 +1512,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
 
-  IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
+  IF v-print-fmt EQ "XPRINT" OR v-print-fmt = "invprint 1" OR v-print-fmt = "invprint 2" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
      ASSIGN tb_print-dept:HIDDEN = NO
             tb_print-dept:SENSITIVE = YES
             fi_depts:HIDDEN = NO
@@ -3197,7 +3197,7 @@ PROCEDURE SetInvForm :
              v-program      = "oe/rep/invpacif.p"
              lines-per-page = 66
              is-xprint-form = YES.
-       WHEN "Xprint" THEN
+       WHEN "Xprint" OR WHEN "invprint 1" OR WHEN "invprint 2" THEN
           ASSIGN
              v-program = "oe/rep/invxprnt.p"
              lines-per-page = 66
@@ -3748,7 +3748,7 @@ PROCEDURE SetInvPostForm :
              v-program      = "ar/rep/invpacif.p"
              lines-per-page = 66
              is-xprint-form = YES.
-       WHEN "Xprint" THEN
+       WHEN "Xprint" OR WHEN "invprint 1" OR WHEN "invprint 1" THEN
           ASSIGN
              v-program = "ar/rep/invxprnt.p"
              lines-per-page = 66
