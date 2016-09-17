@@ -386,6 +386,8 @@ DO:
    {methods/run_link.i "CONTAINER-SOURCE" "MF-Message"
      "(CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = item.rec_key))"} 
 
+   RUN spec-image-proc .
+
   DEF VAR char-hdl AS cha NO-UNDO.
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"history-target", OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -727,6 +729,32 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-image-proc B-table-Win 
+PROCEDURE spec-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE lspec AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+ 
+ IF AVAIL ITEM THEN
+   lspec = CAN-FIND(FIRST notes WHERE
+            notes.rec_key = ITEM.rec_key AND
+            notes.note_type = "S").
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spechk-target':U, OUTPUT char-hdl).
+  
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT lspec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

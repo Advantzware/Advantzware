@@ -418,6 +418,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-item ).
        RUN add-link IN adm-broker-hdl ( h_b-item , 'Record':U , THIS-PROCEDURE ).
 
+       /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( h_b-item , 'spechk':U , h_options ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_movecol2 ,
              h_export , 'AFTER':U ).
