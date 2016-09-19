@@ -37,8 +37,8 @@ def var ld-ink-frm as dec no-undo.
 DEF VAR v-long-qty-set AS DEC NO-UNDO.
 DEF VAR v-short-qty-set AS DEC NO-UNDO.
 DEF VAR v-count AS INT NO-UNDO.
-DEF VARIABLE d-blank-len AS DECIMAL NO-UNDO.
-DEF VARIABLE d-blank-wid AS DECIMAL NO-UNDO.
+DEF VARIABLE dBlankLen AS DECIMAL NO-UNDO.
+DEF VARIABLE dBlankWid AS DECIMAL NO-UNDO.
 
 assign
  v-len = sh-len
@@ -182,12 +182,12 @@ ELSE DO:
 END.
 IF AVAIL est-op AND est-op.spare-char-1 = "R" THEN
     ASSIGN
-    d-blank-len  = xeb.t-wid
-    d-blank-wid  = xeb.t-len .
+    dBlankLen  = xeb.t-wid
+    dBlankWid  = xeb.t-len .
 ELSE 
    ASSIGN
-    d-blank-len  = xeb.t-len
-    d-blank-wid  = xeb.t-wid .
+    dBlankLen  = xeb.t-len
+    dBlankWid  = xeb.t-wid .
 
 
 /* --------------------------------- c o l  ----- */
@@ -207,11 +207,11 @@ do while avail {1} and x eq 0:
 
   else
   if mstd.{3}-x eq 4 then
-    {cec/kxy2.i "{1}" COL d-blank-len /*xeb.t-len*/  }
+    {cec/kxy2.i "{1}" COL dBlankLen /*xeb.t-len*/  }
 
   else
   if mstd.{3}-x eq 5 then
-    {cec/kxy2.i "{1}" COL d-blank-wid  /*xeb.t-wid*/ }
+    {cec/kxy2.i "{1}" COL dBlankWid  /*xeb.t-wid*/ }
 
   else
   if mstd.{3}-x eq 6 then
@@ -348,11 +348,11 @@ do while avail {1} and y eq 0:
 
   else
   if mstd.{3}-y eq 4 then
-    {cec/kxy2.i "{1}" ROW d-blank-len /*xeb.t-len*/ }
+    {cec/kxy2.i "{1}" ROW dBlankLen /*xeb.t-len*/ }
 
   else
   if mstd.{3}-y eq 5 then
-    {cec/kxy2.i "{1}" ROW d-blank-wid /*xeb.t-wid*/ }
+    {cec/kxy2.i "{1}" ROW dBlankWid /*xeb.t-wid*/ }
 
   else
   if mstd.{3}-y eq 6 then
