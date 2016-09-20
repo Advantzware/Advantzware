@@ -267,9 +267,7 @@ DEFINE VARIABLE svSort2 AS CHARACTER
 DEFINE VARIABLE svType AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Detail", "Detail",
-"Summary", "Summary",
-"Totals Only", "Totals Only"
+          "Detail", "Detail"
      SIZE 46 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svAllCompany AS LOGICAL INITIAL yes 
@@ -420,12 +418,12 @@ DEFINE FRAME F-Main
           "Select End Invoice Date Option" NO-LABEL WIDGET-ID 66
      svInactiveCustomers AT ROW 36.48 COL 20 HELP
           "Select to Include Inactive Customers" WIDGET-ID 336
-     "Sort By 1:" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 28.62 COL 10 WIDGET-ID 90
-     "Type:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 27.43 COL 13 WIDGET-ID 328
      "Sort By 2:" VIEW-AS TEXT
           SIZE 10 BY 1 AT ROW 29.81 COL 10 WIDGET-ID 318
+     "Type:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 27.43 COL 13 WIDGET-ID 328
+     "Sort By 1:" VIEW-AS TEXT
+          SIZE 10 BY 1 AT ROW 28.62 COL 10 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
