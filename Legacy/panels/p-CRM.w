@@ -176,12 +176,13 @@ ASSIGN
 ON CHOOSE OF btnCRM IN FRAME F-Main
 DO:
    DEFINE VARIABLE cHandle AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE crmType AS CHARACTER NO-UNDO.
 
-   RUN util/chk-mod.p ("ASI", "zohoCRM.") NO-ERROR.
-   IF NOT ERROR-STATUS:ERROR THEN DO:
-       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'CRM-source':U,OUTPUT cHandle).
-       RUN pCRM in WIDGET-HANDLE(cHandle).
-   END.
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'CRM-source':U,OUTPUT cHandle).
+   RUN pCRMType IN WIDGET-HANDLE(cHandle) (OUTPUT crmType).
+   RUN util/chk-mod.p ("ASI", crmType) NO-ERROR.
+   IF NOT ERROR-STATUS:ERROR THEN
+   RUN pCRM IN WIDGET-HANDLE(cHandle).
 END.
 
 /* _UIB-CODE-BLOCK-END */

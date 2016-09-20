@@ -36,9 +36,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
-DEFINE INPUT  PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 &ELSE
-DEFINE VARIABLE ipcRecKey AS CHARACTER NO-UNDO INIT "0108200300150995".
+DEFINE VARIABLE ipcCompany AS CHARACTER NO-UNDO INITIAL "001".
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -46,25 +46,28 @@ DEFINE VARIABLE ipcRecKey AS CHARACTER NO-UNDO INIT "0108200300150995".
 {XMLOutput/ttNodes.i NEW}
 
 DEFINE TEMP-TABLE ttAccounts NO-UNDO
-    FIELD accountName  AS CHARACTER
-    FIELD tickerSymbol AS CHARACTER
-    .
-
-DEFINE TEMP-TABLE ttContacts NO-UNDO
-    FIELD crmFirstName   AS CHARACTER LABEL "CRM First Name" FORMAT "x(20)"
-    FIELD crmLastName    AS CHARACTER LABEL "CRM Last Name"  FORMAT "x(20)"
-    FIELD crmPhone       AS CHARACTER LABEL "CRM Phone"      FORMAT "x(20)"
-    FIELD crmEmail       AS CHARACTER LABEL "CRM Email"      FORMAT "x(30)"
-    FIELD applyAction    AS LOGICAL   LABEL "=>"
-    FIELD action         AS CHARACTER LABEL "Action"         FORMAT "x(8)"  INITIAL "Add"
-    FIELD phoneAttention AS CHARACTER LABEL "Attention"      FORMAT "x(35)"
-    FIELD phoneCityCode  AS CHARACTER LABEL "City"           FORMAT "x(5)"
-    FIELD phonePhone     AS CHARACTER LABEL "Phone"          FORMAT "x(12)"
-    FIELD phoneExt       AS CHARACTER LABEL "Ext"            FORMAT "x(8)"
-    FIELD phoneEmail     AS CHARACTER LABEL "Email"          FORMAT "x(30)"
-    FIELD phoneRowID     AS ROWID
-    FIELD saveAction     AS CHARACTER
-    .
+    FIELD tickerSymbol AS CHARACTER LABEL "CRM Ticker"   FORMAT "x(8)"
+    FIELD crmName      AS CHARACTER LABEL "CRM Name"     FORMAT "x(30)"
+    FIELD crmPhone     AS CHARACTER LABEL "CRM Phone"    FORMAT "x(20)"
+    FIELD crmStreet    AS CHARACTER LABEL "CRM Street"   FORMAT "x(30)"
+    FIELD crmStreet2   AS CHARACTER LABEL "CRM Street 2" FORMAT "x(30)"
+    FIELD crmCity      AS CHARACTER LABEL "CRM City"     FORMAT "x(15)"
+    FIELD crmState     AS CHARACTER LABEL "CRM State"    FORMAT "x(2)"
+    FIELD crmCode      AS CHARACTER LABEL "CRM Code"     FORMAT "x(10)"
+    FIELD applyAction  AS LOGICAL   LABEL "=>"
+    FIELD action       AS CHARACTER LABEL "Action"       FORMAT "x(8)"  INITIAL "Add"
+    FIELD custName     AS CHARACTER LABEL "Name"         FORMAT "x(30)"
+    FIELD custAreaCode AS CHARACTER LABEL "Area"         FORMAT "(999)"
+    FIELD custPhone    AS CHARACTER LABEL "Phone"        FORMAT "999-9999"
+    FIELD custStreet   AS CHARACTER LABEL "Street"       FORMAT "x(30)"
+    FIELD custStreet2  AS CHARACTER LABEL "Street 2"     FORMAT "x(30)"
+    FIELD custCity     AS CHARACTER LABEL "City"         FORMAT "x(15)"
+    FIELD custState    AS CHARACTER LABEL "State"        FORMAT "x(2)"
+    FIELD custCode     AS CHARACTER LABEL "Code"         FORMAT "x(10)"
+    FIELD custRowID    AS ROWID
+    FIELD saveAction   AS CHARACTER
+        INDEX ttAccounts IS PRIMARY tickerSymbol
+        .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -79,27 +82,27 @@ DEFINE TEMP-TABLE ttContacts NO-UNDO
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
-&Scoped-define BROWSE-NAME crmContacts
+&Scoped-define BROWSE-NAME crmAccounts
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttContacts
+&Scoped-define INTERNAL-TABLES ttAccounts
 
-/* Definitions for BROWSE crmContacts                                   */
-&Scoped-define FIELDS-IN-QUERY-crmContacts ttContacts.crmFirstName ttContacts.crmLastName ttContacts.crmPhone ttContacts.crmEmail ttContacts.applyAction ttContacts.action ttContacts.phoneAttention ttContacts.phoneCityCode ttContacts.phonePhone ttContacts.phoneExt ttContacts.phoneEmail   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-crmContacts ttContacts.applyAction   
-&Scoped-define ENABLED-TABLES-IN-QUERY-crmContacts ttContacts
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-crmContacts ttContacts
-&Scoped-define SELF-NAME crmContacts
-&Scoped-define QUERY-STRING-crmContacts FOR EACH ttContacts
-&Scoped-define OPEN-QUERY-crmContacts OPEN QUERY {&SELF-NAME} FOR EACH ttContacts.
-&Scoped-define TABLES-IN-QUERY-crmContacts ttContacts
-&Scoped-define FIRST-TABLE-IN-QUERY-crmContacts ttContacts
+/* Definitions for BROWSE crmAccounts                                   */
+&Scoped-define FIELDS-IN-QUERY-crmAccounts ttAccounts.tickerSymbol ttAccounts.crmName ttAccounts.crmPhone ttAccounts.applyAction ttAccounts.action ttAccounts.custName ttAccounts.custAreaCode ttAccounts.custPhone ttAccounts.custStreet ttAccounts.custStreet2 ttAccounts.custCity ttAccounts.custState ttAccounts.custCode   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-crmAccounts ttAccounts.applyAction   
+&Scoped-define ENABLED-TABLES-IN-QUERY-crmAccounts ttAccounts
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-crmAccounts ttAccounts
+&Scoped-define SELF-NAME crmAccounts
+&Scoped-define QUERY-STRING-crmAccounts FOR EACH ttAccounts
+&Scoped-define OPEN-QUERY-crmAccounts OPEN QUERY {&SELF-NAME} FOR EACH ttAccounts.
+&Scoped-define TABLES-IN-QUERY-crmAccounts ttAccounts
+&Scoped-define FIRST-TABLE-IN-QUERY-crmAccounts ttAccounts
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svSelect crmContacts btnApply btnReset ~
+&Scoped-Define ENABLED-OBJECTS svSelect crmAccounts btnApply btnReset ~
 btnSave btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS svSelect svStatus 
 
@@ -149,37 +152,39 @@ DEFINE VARIABLE svSelect AS LOGICAL INITIAL no
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY crmContacts FOR 
-      ttContacts SCROLLING.
+DEFINE QUERY crmAccounts FOR 
+      ttAccounts SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE crmContacts
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS crmContacts Dialog-Frame _FREEFORM
-  QUERY crmContacts DISPLAY
-      ttContacts.crmFirstName
-    ttContacts.crmLastName
-    ttContacts.crmPhone
-    ttContacts.crmEmail
-    ttContacts.applyAction VIEW-AS TOGGLE-BOX
-    ttContacts.action
-    ttContacts.phoneAttention
-    ttContacts.phoneCityCode
-    ttContacts.phonePhone
-    ttContacts.phoneExt
-    ttContacts.phoneEmail
+DEFINE BROWSE crmAccounts
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS crmAccounts Dialog-Frame _FREEFORM
+  QUERY crmAccounts DISPLAY
+      ttAccounts.tickerSymbol
+    ttAccounts.crmName
+    ttAccounts.crmPhone
+    ttAccounts.applyAction VIEW-AS TOGGLE-BOX
+    ttAccounts.action
+    ttAccounts.custName
+    ttAccounts.custAreaCode
+    ttAccounts.custPhone
+    ttAccounts.custStreet
+    ttAccounts.custStreet2
+    ttAccounts.custCity
+    ttAccounts.custState
+    ttAccounts.custCode
     ENABLE
-    ttContacts.applyAction
+    ttAccounts.applyAction
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 204 BY 5.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 225 BY 5.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     svSelect AT ROW 1 COL 96 WIDGET-ID 2
-     crmContacts AT ROW 1.95 COL 2 WIDGET-ID 200
+     svSelect AT ROW 1 COL 67 WIDGET-ID 2
+     crmAccounts AT ROW 1.95 COL 2 WIDGET-ID 200
      btnApply AT ROW 7.19 COL 95 HELP
           "Apply Selected Actions" WIDGET-ID 76
      btnReset AT ROW 7.19 COL 100 HELP
@@ -189,14 +194,14 @@ DEFINE FRAME Dialog-Frame
      btnCancel AT ROW 7.19 COL 110 HELP
           "Cancel" WIDGET-ID 4
      svStatus AT ROW 7.19 COL 2 NO-LABEL WIDGET-ID 78
-     "CRM Contacts" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 1.24 COL 41 WIDGET-ID 80
-     "Customer Contacts" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 1.24 COL 149 WIDGET-ID 82
-     SPACE(39.00) SKIP(6.56)
+     "CRM Accounts" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 1.24 COL 26 WIDGET-ID 80
+     "Customers" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.24 COL 126 WIDGET-ID 82
+     SPACE(90.99) SKIP(6.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "ZOHO CRM" WIDGET-ID 100.
+         TITLE "ZOHO CRM (Customers)" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -216,7 +221,7 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME 3 4                                                       */
-/* BROWSE-TAB crmContacts svSelect Dialog-Frame */
+/* BROWSE-TAB crmAccounts svSelect Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -247,13 +252,13 @@ ASSIGN
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE crmContacts
-/* Query rebuild information for BROWSE crmContacts
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE crmAccounts
+/* Query rebuild information for BROWSE crmAccounts
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttContacts.
+OPEN QUERY {&SELF-NAME} FOR EACH ttAccounts.
      _END_FREEFORM
      _Query            is NOT OPENED
-*/  /* BROWSE crmContacts */
+*/  /* BROWSE crmAccounts */
 &ANALYZE-RESUME
 
  
@@ -264,7 +269,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttContacts.
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* ZOHO CRM */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* ZOHO CRM (Customers) */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
@@ -313,19 +318,19 @@ END.
 ON VALUE-CHANGED OF svSelect IN FRAME Dialog-Frame /* Select */
 DO:
   ASSIGN {&SELF-NAME}.
-  FOR EACH ttContacts:
-      ttContacts.applyAction = {&SELF-NAME}.
-      IF ttContacts.action EQ "" THEN
-      ttContacts.applyAction = NO.
-  END. /* each ttcontacts */
-  BROWSE crmContacts:REFRESH() NO-ERROR.
+  FOR EACH ttAccounts:
+      ttAccounts.applyAction = {&SELF-NAME}.
+      IF ttAccounts.action EQ "" THEN
+      ttAccounts.applyAction = NO.
+  END. /* each ttAccounts */
+  BROWSE crmAccounts:REFRESH() NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME crmContacts
+&Scoped-define BROWSE-NAME crmAccounts
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
@@ -352,6 +357,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
+
+{CRM/crmProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -389,7 +396,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY svSelect svStatus 
       WITH FRAME Dialog-Frame.
-  ENABLE svSelect crmContacts btnApply btnReset btnSave btnCancel 
+  ENABLE svSelect crmAccounts btnApply btnReset btnSave btnCancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -407,68 +414,31 @@ PROCEDURE pApplyCRM :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
 
-    FOR EACH ttContacts:
-        IF ttContacts.applyAction EQ NO THEN NEXT.
-        IF ttContacts.action EQ "" THEN NEXT.
+    FOR EACH ttAccounts:
+        IF ttAccounts.applyAction EQ NO THEN NEXT.
+        IF ttAccounts.action EQ "" THEN NEXT.
         ASSIGN
-            cPhone = REPLACE(ttContacts.crmPhone," ","")
+            cPhone = REPLACE(ttAccounts.crmPhone," ","")
             cPhone = REPLACE(cPhone,"+","")
             cPhone = REPLACE(cPhone,"-","")
             cPhone = REPLACE(cPhone,"(","")
             cPhone = REPLACE(cPhone,")","")
             cPhone = REPLACE(cPhone,"x","")
-            ttContacts.phoneAttention = ttContacts.crmFirstName + " " + ttContacts.crmLastName
-            ttContacts.phoneCityCode  = SUBSTR(cPhone,1,3)
-            ttContacts.phonePhone     = SUBSTR(cPhone,4,7)
-            ttContacts.phoneExt       = SUBSTR(cPhone,11)
-            ttContacts.phoneEmail     = ttContacts.crmEmail
-            ttContacts.saveAction     = ttContacts.action
-            ttContacts.applyAction    = NO
-            ttContacts.action         = ""
+            cPhone = REPLACE(cPhone,".","")
+            ttAccounts.custName     = ttAccounts.crmName
+            ttAccounts.custAreaCode = SUBSTR(cPhone,1,3)
+            ttAccounts.custPhone    = SUBSTR(cPhone,4,7)
+            ttAccounts.custStreet   = ttAccounts.crmStreet
+            ttAccounts.custStreet2  = ttAccounts.crmStreet2
+            ttAccounts.custCity     = ttAccounts.crmCity
+            ttAccounts.custState    = ttAccounts.crmState
+            ttAccounts.custCode     = ttAccounts.crmCode
+            ttAccounts.saveAction   = ttAccounts.action
+            ttAccounts.applyAction  = NO
+            ttAccounts.action       = ""
             .
-        BROWSE crmContacts:REFRESH() NO-ERROR.
-    END. /* each ttcontacts */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetAuthToken Dialog-Frame 
-PROCEDURE pGetAuthToken :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  input company, output authoriaztion token
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcAuthToken AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-
-    RUN sys/ref/nk1look.p (ipcCompany, "CRMAuthToken", "C", NO, NO, "", "",
-                           OUTPUT opcAuthToken, OUTPUT lFound).
-    RETURN opcAuthToken.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetConnection Dialog-Frame 
-PROCEDURE pGetConnection :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  output web service connection
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opcConnection AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-
-    RUN sys/ref/nk1look.p ("", "ASIHelpService", "C", NO, NO, "", "",
-                           OUTPUT opcConnection, OUTPUT lFound).
-    RETURN opcConnection.
+        BROWSE crmAccounts:REFRESH() NO-ERROR.
+    END. /* each ttAccounts */
 
 END PROCEDURE.
 
@@ -489,13 +459,8 @@ PROCEDURE pGetCRM :
     DEFINE VARIABLE iHeight     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iRows       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lcAccounts  AS LONGCHAR  NO-UNDO.
-    DEFINE VARIABLE lcContacts  AS LONGCHAR  NO-UNDO.
 
-    FIND FIRST cust NO-LOCK WHERE cust.rec_key EQ ipcRecKey NO-ERROR.
-    IF NOT AVAILABLE cust THEN
-    RETURN "Customer Not Available".
-    
-    RUN pGetAuthToken  (cust.company, OUTPUT cAuthToken).
+    RUN pGetAuthToken  (ipcCompany, OUTPUT cAuthToken).
     IF cAuthToken EQ "" THEN
     RETURN "Authorization Token Value is Blank".
     
@@ -518,12 +483,13 @@ PROCEDURE pGetCRM :
     
     RUN HelpCrmZohoAcc IN hSalesSoap (
         "Accounts",
-        "Ticker Symbol:" + cust.cust-no,
-        "Accounts(ACCOUNTID,Account%20Name,Ticker%20Symbol)",
-        "searchRecords",
+        "",
+        "Accounts(ACCOUNTID,Account%20Name,Ticker%20Symbol,Phone,Billing Street,Billing Street 2,Billing City,Billing State,Billing Code)&fromIndex=1&toIndex=125&sortColumnString=Ticker%20Symbol&sortOrderString=desc",
+        "getRecords",
         cAuthToken,
         OUTPUT lcAccounts
         ).
+
     IF INDEX(STRING(lcAccounts),"<code>4422</code>") NE 0 THEN
     RETURN "No Data Returned".
 
@@ -533,73 +499,50 @@ PROCEDURE pGetCRM :
     EMPTY TEMP-TABLE ttAccounts.
     RUN pXML ("c:\tmp\Accounts.xml", "Accounts").
     
-    FIND FIRST ttAccounts NO-ERROR.
-    IF AVAILABLE ttAccounts THEN DO:
-        RUN HelpCrmZohoCont IN hSalesSoap (
-            "Contacts",
-            "Account%20Name:" + ttAccounts.accountName,
-            "Contacts(First%20Name,Last%20Name,Phone,Email)",
-            "searchRecords",
-            cAuthToken,
-            OUTPUT lcContacts
-            ).
-        OUTPUT TO "c:\tmp\Contacts.xml".
-        PUT UNFORMATTED STRING(lcContacts) SKIP.
-        OUTPUT CLOSE.
-        EMPTY TEMP-TABLE ttContacts.
-        RUN pXML ("c:\tmp\Contacts.xml", "Contacts").
-    END. /* avail ttaccounts */
-
-    FOR EACH ttContacts:
-        iRows = iRows + 1.
-        IF ttContacts.crmEmail NE "" THEN
-        ttContacts.applyAction = YES.
-    END.
-    
-    FOR EACH phone NO-LOCK
-        WHERE phone.table_rec_key EQ ipcRecKey
+    FOR EACH ttAccounts
+        WHERE ttAccounts.tickerSymbol EQ ""
         :
-        RELEASE ttContacts.
-        IF phone.e_mail NE "" THEN
-        FIND FIRST ttContacts
-             WHERE ttContacts.crmEmail EQ phone.e_mail
+        DELETE ttAccounts.
+    END. /* each ttaccounts */
+    
+    FOR EACH ttAccounts:
+        iRows = iRows + 1.
+        FIND FIRST cust NO-LOCK
+             WHERE cust.company EQ ipcCompany
+               AND cust.cust-no EQ ttAccounts.tickerSymbol
              NO-ERROR.
-        IF NOT AVAILABLE ttContacts THEN DO:
-            CREATE ttContacts.
+        IF AVAILABLE cust THEN DO:
             ASSIGN
-                ttContacts.action = ""
-                iRows = iRows + 1
+                ttAccounts.custName     = cust.name
+                ttAccounts.custAreaCode = cust.area-code
+                ttAccounts.custPhone    = cust.phone
+                ttAccounts.custStreet   = cust.addr[1]
+                ttAccounts.custStreet2  = cust.addr[2]
+                ttAccounts.custCity     = cust.city
+                ttAccounts.custState    = cust.state
+                ttAccounts.custCode     = cust.zip
+                ttAccounts.custRowID    = ROWID(cust)
+                ttAccounts.action       = "Update"
+                ttAccounts.applyAction  = YES
                 .
-        END.
-        ELSE
-        ASSIGN
-            ttContacts.action = "Update"
-            ttContacts.applyAction = YES.
-        ASSIGN
-            ttContacts.phoneAttention = phone.attention
-            ttContacts.phoneCityCode  = phone.phone_city_code
-            ttContacts.phonePhone     = phone.phone
-            ttContacts.phoneExt       = phone.phone_ext
-            ttContacts.phoneEmail     = phone.e_mail
-            ttContacts.phoneRowID     = ROWID(phone)
-            .
-    END.
+        END. /* avail cust */
+    END. /* each ttaccounts */
 
     DO WITH FRAME {&FRAME-NAME}:
         IF iRows GT 5 THEN DO:
             ASSIGN
                 iHeight = 20 + iRows * 17
                 FRAME {&FRAME-NAME}:HEIGHT-PIXELS = 80 + iHeight
-                btnApply:Y  = BROWSE crmContacts:Y + iHeight + 5
+                btnApply:Y  = BROWSE crmAccounts:Y + iHeight + 5
                 btnReset:Y  = btnApply:Y
                 btnSave:Y   = btnApply:Y
                 btnCancel:Y = btnApply:Y
                 svStatus:Y  = btnApply:Y
                 .
-            BROWSE crmContacts:HEIGHT-PIXELS = iHeight.
+            BROWSE crmAccounts:HEIGHT-PIXELS = iHeight.
         END.
     END.
-    {&OPEN-QUERY-crmContacts}
+    {&OPEN-QUERY-crmAccounts}
     svStatus:SCREEN-VALUE = "".
     RETURN.
 
@@ -615,23 +558,26 @@ PROCEDURE pSave :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    FOR EACH ttContacts:
-        IF ttContacts.saveAction EQ "" THEN NEXT.
-        IF ttContacts.saveAction EQ "Update" THEN
-        FIND phone EXCLUSIVE-LOCK WHERE ROWID(phone) EQ ttContacts.phoneRowID.
+    FOR EACH ttAccounts:
+        IF ttAccounts.saveAction EQ "" THEN NEXT.
+        IF ttAccounts.saveAction EQ "Update" THEN
+        FIND cust EXCLUSIVE-LOCK WHERE ROWID(cust) EQ ttAccounts.custRowID.
         ELSE DO:
-            CREATE phone.
-            phone.table_rec_key = ipcRecKey.
+            CREATE cust.
+            cust.cust-no = ttAccounts.TickerSymbol.
         END. /* save */
         ASSIGN
-            phone.attention       = ttContacts.phoneAttention
-            phone.phone_city_code = ttContacts.phoneCityCode
-            phone.phone           = ttContacts.phonePhone
-            phone.phone_ext       = ttContacts.phoneExt
-            phone.e_mail          = ttContacts.phoneEmail
+            cust.name      = ttAccounts.custName
+            cust.area-code = ttAccounts.custAreaCode
+            cust.phone     = ttAccounts.custPhone
+            cust.addr[1]   = ttAccounts.custStreet
+            cust.addr[2]   = ttAccounts.custStreet2
+            cust.city      = ttAccounts.custCity
+            cust.state     = ttAccounts.custState
+            cust.zip       = ttAccounts.custCode
             .
-        RELEASE phone.
-    END. /* each ttcontacts */
+        RELEASE cust.
+    END. /* each ttAccounts */
 
 END PROCEDURE.
 
@@ -659,35 +605,30 @@ PROCEDURE pXML :
             .
         IF ttNodes.nodeName   EQ "no"  AND
            ttNodes.parentName EQ "row" AND
-           ttNodes.level      EQ 5     THEN DO:
-            IF ipcType EQ "Accounts" THEN
-            CREATE ttAccounts.
-            ELSE IF ipcType EQ "Contacts" THEN
-            CREATE ttContacts.
-        END.
+           ttNodes.level      EQ 5     THEN
+        CREATE ttAccounts.
 
         IF ttNodes.nodeName   EQ "val" AND
            ttNodes.parentName EQ "FL"  AND
-           ttNodes.level      EQ 6     THEN DO:
-            IF ipcType EQ "Accounts" THEN
-            CASE ttNodes.nodeValue:
-                WHEN "Account Name" THEN
-                ttAccounts.accountName = cValue.
-                WHEN "Ticker Symbol" THEN
-                ttAccounts.tickerSymbol = cValue.
-            END CASE.
-            ELSE IF ipcType EQ "Contacts" THEN
-            CASE ttNodes.nodeValue:
-                WHEN "First Name" THEN
-                ttContacts.crmFirstName = cValue.
-                WHEN "Last Name" THEN
-                ttContacts.crmLastName = cValue.
-                WHEN "Phone" THEN
-                ttContacts.crmPhone = cValue.
-                WHEN "Email" THEN
-                ttContacts.crmEmail = cValue.
-            END CASE.
-        END.
+           ttNodes.level      EQ 6     THEN
+        CASE ttNodes.nodeValue:
+            WHEN "Account Name" THEN
+            ttAccounts.crmName = cValue.
+            WHEN "Billing City" THEN
+            ttAccounts.crmCity = cValue.
+            WHEN "Billing State" THEN
+            ttAccounts.crmState = cValue.
+            WHEN "Billing Code" THEN
+            ttAccounts.crmCode = cValue.
+            WHEN "Billing Street" THEN
+            ttAccounts.crmStreet = cValue.
+            WHEN "Billing Street 2" THEN
+            ttAccounts.crmStreet2 = cValue.
+            WHEN "Phone" THEN
+            ttAccounts.crmPhone = cValue.
+            WHEN "Ticker Symbol" THEN
+            ttAccounts.tickerSymbol = cValue.
+        END CASE.
 
         IF ttNodes.nodeName   EQ "FL"  AND
            ttNodes.parentName EQ "row" AND
