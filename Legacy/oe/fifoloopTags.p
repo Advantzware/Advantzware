@@ -5,8 +5,7 @@ DEFINE INPUT PARAMETER iplNoAssignTagNum AS LOG NO-UNDO.
 DEFINE INPUT  PARAMETER ipcLocationList AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplNoRecFound AS LOG NO-UNDO.
 DEFINE OUTPUT PARAMETER ophTToe-rell AS HANDLE NO-UNDO.
-DEFINE STREAM sDebug.
-OUTPUT STREAM sDEbug TO VALUE("logs/" + string(today, "99999999") + string(time) + "fifo.txt").
+
 {sys/inc/var.i SHARED}
 
 DEFINE SHARED VARIABLE out-recid       AS RECID   NO-UNDO.
@@ -23,6 +22,8 @@ DEFINE        VARIABLE iRNo            LIKE oe-rell.link-no NO-UNDO.
 DEFINE        VARIABLE lUseCSCIndex    AS LOGICAL     NO-UNDO.
 DEFINE        VARIABLE cRunMode        AS CHARACTER NO-UNDO. 
 DEFINE        VARIABLE lFgBinFound     AS LOGICAL NO-UNDO.
+DEFINE        VARIABLE lUseLogs        AS LOGICAL NO-UNDO.
+DEFINE        VARIABLE cDebugLog       AS CHARACTER NO-UNDO.
 DEFINE BUFFER b-oe-ord   FOR oe-ord.
 DEFINE BUFFER b-reftable FOR reftable.
 
@@ -31,6 +32,13 @@ DEFINE TEMP-TABLE ttoe-rell LIKE oe-rell.
 DO TRANSACTION:
     {sys/inc/relmerge.i}
     {sys/inc/addrelse.i}
+END.
+cDebugLog = "logs/" + string(today, "99999999") + string(time) + "fifo.txt".
+
+DEFINE STREAM sDebug.
+IF lUseLogs THEN DO:
+    OUTPUT STREAM sDEbug TO VALUE(cDebugLog).
+    OUTPUT TO VALUE(replace(cDebugLog, "txt", "errs")).
 END.
 
 /** If Shipping From Bill Of Lading Then Set Ship Code = B
@@ -120,12 +128,16 @@ FIND FIRST itemfg
     AND itemfg.i-no    EQ cINo
     NO-LOCK NO-ERROR.
 
-  
+
+
 IF NOT iplNoAssignTagNum AND AVAILABLE oe-relh AND (AVAILABLE oe-rel OR AVAILABLE inv-line OR AVAILABLE oe-boll) THEN
 DO: 
 
     IF lUseCSCIndex THEN 
     DO:
+          OUTPUT STREAM sDEbug CLOSE. OUTPUT STREAM sDEbug TO VALUE(cDebugLog) append.
+          PUT STREAM sDebug UNFORMATTED "fifo -csc "  SKIP.
+        
         fifo-loop-csc:
         DO iFifoLoopCount = 1 TO 2.
             FOR EACH fg-bin
@@ -185,6 +197,7 @@ DO:
     END. /* IF Using CSC: No Index */
     ELSE 
     DO:
+        PUT STREAM sDebug UNFORMATTED "fifo - before loop " "qty to asign" iRelQtyToAssign SKIP.
         /* Using i-no index */
         fifo-loop:
         REPEAT:
@@ -254,6 +267,7 @@ DO:
                     lFgBinFound = TRUE.
 /*                    MESSAGE "fifo in each bin loop"
                       VIEW-AS ALERT-BOX INFO BUTTONS OK. */
+                    OUTPUT STREAM sDEbug CLOSE. OUTPUT STREAM sDEbug TO VALUE(cDebugLog) append.                                
                     PUT STREAM sDebug unformatted "run pcreatetempoerell " fg-bin.tag SKIP.
                     RUN pCreateTempOeRell (INPUT ROWID(fg-bin), ROWID(fg-rcpth)).
     
@@ -265,7 +279,8 @@ DO:
                      /* Record was found, so leave the loop */
                      LEAVE loop-count.
                 END. /* end for each fg-bin */
-                
+                          OUTPUT STREAM sDEbug CLOSE. OUTPUT STREAM sDEbug TO VALUE(cDebugLog) append.
+          PUT STREAM sDebug UNFORMATTED "next of loop "  SKIP.
             END. /* loop-count: do iFifoLoopCount 1 to 2 */
             /*MESSAGE "ready to leave fifo loop? iRelQtyToAssing" iRelQtyToAssign
               VIEW-AS ALERT-BOX INFO BUTTONS OK. */
@@ -281,6 +296,13 @@ IF cRunMode ne "oe-boll" THEN
 ELSE 
   RUN pCreateDynamicTT.
   OUTPUT STREAM sDebug CLOSE.
+
+
+/* ************************  Function Prototypes ********************** */
+
+FUNCTION fDebugLog RETURNS CHARACTER 
+	( INPUT ipcMessage AS CHARACTER  ) FORWARD.
+
 PROCEDURE pCreateDynamicTT:
  
         DEFINE VARIABLE httoe-rell AS HANDLE NO-UNDO.
@@ -308,7 +330,8 @@ PROCEDURE pCreateDynamicTT:
     hBufTToe-rell = hTToe-rell:DEFAULT-BUFFER-HANDLE.
 
     FOR EACH ttOe-Rell:
-          PUT STREAM sDebug unformatted "creatig hbufftt " ttOe-Rell.tag SKIP.
+          
+          fDebugLog("creating hbufftt " + ttOe-Rell.tag).
          /* Populate the temp-table from oe-rell */   
           hBufTToe-rell:BUFFER-CREATE.
           hBufTToe-rell:BUFFER-COPY(hBufPassedTToe-rell).
@@ -350,7 +373,8 @@ PROCEDURE pCreateTempOeRell:
     FIND FIRST fg-rcpth NO-LOCK 
         WHERE ROWID(fg-rcpth) EQ iprFgRcpth
         NO-ERROR.
-     PUT STREAM sDebug unformatted "create ttOe-rell " fg-bin.tag SKIP.
+ 
+     fDebugLog("create ttOe-rell " + fg-bin.tag).
     /* Create temp-table record to either create an oe-rell or to be returned to calling program */
     CREATE ttoe-rell.
     ASSIGN 
@@ -427,7 +451,8 @@ PROCEDURE pCreateOeRell:
     
     IF rLastOeREll NE ? THEN 
       FIND oe-rell EXCLUSIVE-LOCK WHERE ROWID(oe-rell) EQ rLastOeREll NO-ERROR.
-    PUT STREAM sDebug unformatted "pCreateOerell avail oe-rell? " avail(oe-rell) SKIP.
+    
+    fDebugLog("pCreateOerell avail oe-rell? " + STRING(avail(oe-rell)) ).
     IF NOT AVAILABLE oe-rell THEN 
       RETURN.
     RELEASE reftable.
@@ -482,3 +507,23 @@ PROCEDURE pCreateOeRell:
     RELEASE oe-rell.
     
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fDebugLog RETURNS CHARACTER 
+	(INPUT ipcMessage AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE result AS CHARACTER NO-UNDO.
+    IF lUseLogs THEN DO:
+        OUTPUT STREAM sDebug CLOSE. OUTPUT STREAM sDebug TO VALUE(cDebugLog) append.
+        PUT STREAM sDebug UNFORMATTED ipcMessage SKIP.
+    END.
+    
+    RETURN result.
+		
+END FUNCTION.
