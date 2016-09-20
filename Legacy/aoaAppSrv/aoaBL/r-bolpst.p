@@ -7,10 +7,7 @@
     3) create capability to handle PROCEDURE email-reorderitems
     4) Create capability for: BOL posting Exception Report 
     5) PROCEDURE email-reorderitems :
-    6) oe/bol-pre-post.p is missing
-    7) is lPost an input parameter?
-    8) oe-bolp3 depends on created report records, but where are they created?
-    9) implment delete logic on oe-bolh marked as deleted
+    6) implment delete logic on oe-bolh marked as deleted
 */
 
 /* ***************************  Definitions  ***************************/
@@ -34,9 +31,10 @@ DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)
     
 ASSIGN
     cocode = ipcCompany
-    locode = ipcUserLocation
+    locode = cLocation
     .
 {oe/oe-bolp1.i NEW}
+{oe/d-selbin.i NEW} /* w-bin definition */
 
 DEFINE VARIABLE cTagDisplay        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iTagNumber         AS INTEGER   NO-UNDO.
@@ -54,7 +52,17 @@ DEFINE VARIABLE lUserChoice        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lPrintInvoice      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCountNotPosted    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE hExtProgramHandle  AS HANDLE    NO-UNDO.
-
+DEFINE VARIABLE cAutoSelectShipFromAlpha AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lTaglessBOLExists  AS LOG        NO-UNDO.
+DEFINE VARIABLE cAutoSelectTagAlpha AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAutoSelectShipFrom AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAutoSelectShipFrom AS LOGICAL   NO-UNDO.
+/* for sel-bins */
+DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
+DEFINE BUFFER xoe-boll FOR oe-boll.
+DEFINE BUFFER bf-oe-boll FOR oe-boll.
+DEFINE STREAM sDebug.
+OUTPUT STREAM sDebug TO VALUE("logs/" + string(today, "99999999") + STRING(time) + STRING(RANDOM(1,10)) + "pst.txt").
 {oe/closchk.i NEW}
 
 DEFINE TEMP-TABLE tt-email NO-UNDO
@@ -66,14 +74,12 @@ DEFINE TEMP-TABLE tt-email NO-UNDO
     FIELD cust-no  AS CHARACTER
         INDEX tt-cust IS PRIMARY cust-no DESCENDING
         .
+    
+DEFINE TEMP-TABLE ttSelectedOeRell LIKE oe-rell.
 
 /* ***************************  Main Block  *************************** */    
-
-/* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
-/* Now enable the interface and wait for the exit condition.            */
-/* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
@@ -98,17 +104,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name    EQ "BOLPOST"
         NO-ERROR.
+    lCheckQty = sys-ctrl.char-fld EQ "Bin>Qty".
   
     /* Invstatus to determine invoice status when created  */
     RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "L", NO, NO, "", "", 
         OUTPUT cReturnChar, OUTPUT lRecordFound).
     lInvoiceStatusLog = LOGICAL(cReturnChar).
-    
+
     /* Invstatus to determine invoice status when created  */
     RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "C", NO, NO, "", "", 
         OUTPUT cInvoiceStatusType, OUTPUT lRecordFound).
 
-    lCheckQty = sys-ctrl.char-fld EQ "Bin>Qty".
+
+
     DO TRANSACTION:
     /* No prompt for creation of nk1 */
         {sys/inc/fgreorder.i}
@@ -137,6 +145,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF lPost THEN DO:
         IF CAN-FIND(FIRST w-bolh) THEN DO:
+            PUT STREAM sDebug UNFORMATTED "Start Post pPostBols" SKIP.
             RUN pPostBols.
             /* close transfer order here, Non-UI procedure */
             RUN oe/closchk.p (0).
@@ -169,8 +178,238 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         END. /* If can-find w-bolh */
     END. /* if lPost */
 END. /* main block */
-
+OUTPUT STREAM sDebug CLOSE.
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pAutoSelectTags:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+            
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprOeBoll AS ROWID NO-UNDO.
+    
+    DEFINE VARIABLE lSelectTags   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lNoneSelected AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE hTToe-rel     AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE hBufOeRell       AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hQueryOeRell     AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hBufDynmicOeRell AS HANDLE NO-UNDO.
+    DEFINE VARIABLE li               AS INTEGER NO-UNDO.
+    
+    /* Needed for processing selected tags */
+    DEFINE VARIABLE li-selected-qty  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE ll-update-qty-no AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-BOLQtyPopup   AS LOG     NO-UNDO.
+    DEFINE VARIABLE ll-change-qty    AS LOG. 
+    DEFINE VARIABLE v-qty            AS INTEGER NO-UNDO.
+    
+    /* specially defined for r-bolpst */
+    DEFINE VARIABLE ip-rowid         AS ROWID   NO-UNDO.
+    DEFINE VARIABLE nufile           AS LOGICAL NO-UNDO. /* set to indicate a new record, not needed here */
+    DEFINE VARIABLE fil_id           AS RECID   NO-UNDO. /* set when record is added to the recid of created oe-boll */
+    DEFINE VARIABLE boll_id          AS RECID   NO-UNDO. /* set when record is added to the recid of created oe-boll */
+    DEFINE VARIABLE bolh_id          AS RECID   NO-UNDO.
+    DEFINE VARIABLE iWBinSeq         AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-oerel FOR oe-rel.
+    /* defining temporarily */
+    DEFINE VARIABLE op-rowid-list AS CHARACTER .   
+    DEFINE BUFFER b-reftable FOR reftable. /* used to find and copy lot-no when creating oe-boll */
+    
+    FIND xoe-boll EXCLUSIVE-LOCK
+        WHERE ROWID(xoe-boll) EQ iprOeBoll 
+        NO-ERROR.
+            
+    /* Get ship-from location */
+    FIND FIRST oe-ordl NO-LOCK
+        WHERE oe-ordl.company EQ xoe-boll.company
+          AND oe-ordl.ord-no  EQ xoe-boll.ord-no
+          AND oe-ordl.line    EQ xoe-boll.line
+          NO-ERROR.
+PUT STREAM sDebug UNFORMATTED "avail order" avail(oe-ordl) SKIP.
+    IF NOT AVAILABLE oe-ordl THEN 
+        RETURN.
+  
+    FIND FIRST oe-rel NO-LOCK
+        WHERE oe-rel.company EQ oe-ordl.company
+        AND oe-rel.ord-no  EQ oe-ordl.ord-no
+            AND oe-rel.i-no    EQ oe-ordl.i-no
+            AND oe-rel.line    EQ oe-ordl.line
+            AND oe-rel.stat    EQ "P"
+            AND oe-rel.link-no GT 0 
+            AND oe-rel.rel-no  GT 0
+            NO-ERROR.
+    PUT STREAM sDebug UNFORMATTED "avail oerel" avail(oe-rel) SKIP.
+    IF NOT AVAILABLE oe-rel THEN 
+        RETURN.
+    FIND FIRST oe-relh NO-LOCK
+        WHERE oe-relh.r-no eq oe-boll.r-no 
+        NO-ERROR.
+    PUT STREAM sDebug UNFORMATTED "avail oe-relh" avail(oe-relh) SKIP.        
+    IF NOT AVAIL oe-relh THEN
+      RETURN.
+      
+    out-recid = RECID(oe-relh).
+    /* Run Standard Tag Selection but only for specific ship from location */
+   
+    
+    ASSIGN lSelectTags = NO
+           iWBinSeq    = 0
+           lSelectTags = FALSE.
+    EMPTY TEMP-TABLE w-bin.
+    RUN oe/fifoloopTags.p (ROWID(xoe-boll), lSelectTags, oe-rel.spare-char-1 /*oe-boll.ship-from */, OUTPUT lNoneSelected, OUTPUT hTToe-rel).
+
+    /* From fifoloop, process returned dynamic temp-table to retrieve tag records selected */
+    hBufOeRell = hTToe-rel:DEFAULT-BUFFER-HANDLE.
+    CREATE QUERY hQueryOeRell.
+    hQueryOeRell:SET-BUFFERS(hBufOeRell).
+    hQueryOeRell:QUERY-PREPARE("FOR EACH ttoe-rell").
+    hQueryOeRell:QUERY-OPEN().
+    hBufDynmicOeRell = BUFFER ttSelectedOeRell:HANDLE.
+    
+    /* Run a query to access the TEMP-TABLE            */
+    /* Display the oe-rell number and the oe-ordl name */
+    REPEAT:
+        
+        hQueryOeRell:GET-NEXT() NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+        DO:
+            LEAVE.
+        END.
+        
+        IF hQueryOeRell:QUERY-OFF-END THEN LEAVE.
+        CREATE ttSelectedOeRell.
+               
+        hBufDynmicOeRell:BUFFER-COPY(hBufOeRell).
+        PUT STREAM sDebug UNFORMATTED "auto bin returned" ttSelectedOeRell.tag SKIP.
+        /* In case duplicate w-bin's were created, check first if exists */
+        FIND FIRST w-bin 
+            WHERE w-bin.company EQ ttSelectedOeREll.company
+              AND w-bin.i-no EQ ttSelectedOeREll.i-no
+              AND w-bin.loc EQ ttSelectedOeREll.loc
+              AND w-bin.loc-bin EQ ttSelectedOeREll.loc-bin
+              AND w-bin.tag EQ ttSelectedOeREll.tag
+              AND w-bin.job-no EQ ttSelectedOeREll.job-no
+              AND w-bin.job-no2 EQ ttSelectedOeREll.job-no2
+              AND w-bin.cust-no EQ ttSelectedOeREll.cust-no
+              AND w-bin.cust-no EQ ttSelectedOeREll.cust-no
+              NO-ERROR.
+        IF NOT AVAILABLE w-bin THEN                   
+          CREATE w-bin.    
+        BUFFER-COPY ttSelectedOeRell EXCEPT qty TO w-bin.
+        FIND FIRST fg-bin NO-LOCK  
+              WHERE fg-bin.company    EQ ttSelectedOeRell.company
+                  AND fg-bin.i-no     EQ  ttSelectedOeRell.i-no
+                  AND fg-bin.loc      EQ  ttSelectedOeRell.loc
+                  AND fg-bin.loc-bin  EQ  ttSelectedOeRell.loc-bin
+                  AND fg-bin.tag      EQ  ttSelectedOeRell.tag
+                  NO-ERROR.      
+        ASSIGN 
+            iWBinSeq         = iWBinSeq + 1
+            w-bin.selekt     = "?" /* what is this */
+            w-bin.seq        = iWBinSeq
+            w-bin.selekt-log = YES 
+            w-bin.rec-id     = RECID(fg-bin)
+            w-bin.units      = 0
+            w-bin.to-rel     = 0
+            w-bin.to-bol     = 0
+            w-bin.rfid       = ""
+            w-bin.qty        = INTEGER(ttSelectedOeRell.qty)
+            .        
+
+    END. /* Repeat */
+        
+    hQueryOeRell:QUERY-CLOSE().
+    hBufOeRell:BUFFER-RELEASE().
+    
+    DELETE OBJECT hTToe-rel.
+    DELETE OBJECT hQueryOeRell.
+
+    FOR EACH w-bin:
+        ASSIGN
+            li-selected-qty = li-selected-qty + w-bin.qty
+            .
+    END.
+    PUT STREAM sDebug UNFORMATTED "selected qty" li-selected-qty "bol" xoe-boll.qty SKIP.
+    /* Was not able to assign full quantity from tagged inventory */
+    IF li-selected-qty LT xoe-boll.qty THEN 
+      RETURN.
+      
+    /* If full quantity was selected, then process creation of oe-boll lines */
+    v-qty     = xoe-boll.qty.    
+    IF ll-change-qty AND li-selected-qty GT v-qty THEN 
+    DO:
+        /* Hard code user selection Transfer scheduled release quantity instead of total of bins selected */
+        ll-change-qty = FALSE.
+
+    END.
+
+    /* Create oe-boll records based on tags selected */
+    op-rowid-list = "".
+    FIND FIRST bf-oerel WHERE
+          ROWID(bf-oerel) EQ ROWID(oe-rel)
+        NO-ERROR.
+    
+    
+    /* This loop will exit when v-qty is reduced to zero (in sel-bins.i) */
+    FOR EACH w-bin , 
+        FIRST fg-bin
+          WHERE RECID(fg-bin) EQ w-bin.rec-id
+          NO-LOCK,
+        FIRST itemfg
+          WHERE itemfg.company EQ cocode
+          AND itemfg.i-no    EQ fg-bin.i-no
+          NO-LOCK
+          BREAK 
+             BY w-bin.seq 
+             BY w-bin.tag:
+
+            
+        FIND FIRST oe-bolh WHERE oe-bolh.b-no EQ xoe-boll.b-no NO-LOCK.
+        ASSIGN 
+          bolh_id = RECID(oe-bolh)        
+          ip-rowid = ROWID(xoe-boll)
+          .
+        /* creates oe-boll if does not exist (based on ip-rowid), and assigns fg-bin values to it */
+        {oe/sel-bins.i "oe-bol"}
+        oe-boll.weight = oe-boll.qty / 100 * itemfg.weight-100.
+    
+        IF NOT AVAILABLE oe-ordl THEN
+            FIND FIRST oe-ordl WHERE oe-ordl.company EQ cocode
+                AND oe-ordl.ord-no  EQ xoe-boll.ord-no
+                AND oe-ordl.i-no    EQ xoe-boll.i-no 
+                NO-LOCK NO-ERROR.
+    
+        op-rowid-list = op-rowid-list + STRING(ROWID(oe-boll)) + ",".
+
+    END. /* for each w-bin, create the oe-boll record */
+
+    /* Special for r-bolpst - Delete the original non-tag bol lines */
+    FIND oe-bolh 
+        WHERE RECID(oe-bolh) EQ bolh_id
+        NO-LOCK NO-ERROR.
+        
+    /* Mark oe-boll lines as complete */
+    FIND oe-bolh 
+        WHERE RECID(oe-bolh) EQ bolh_id
+        NO-LOCK NO-ERROR.
+    IF AVAILABLE oe-bolh THEN 
+    DO:
+        FOR EACH oe-boll 
+            WHERE oe-boll.b-no EQ oe-bolh.b-no
+            EXCLUSIVE-LOCK
+            BREAK BY oe-boll.ord-no
+            BY oe-boll.i-no:
+            IF FIRST-OF(oe-boll.i-no) THEN 
+            DO:
+                {oe/oe-bolpc.i ALL}
+            END.
+        END. /* each oe-boll */
+    END. /* avail oe-bolh */
+
+
+END PROCEDURE.
 
 PROCEDURE pCheckDate :
 /*------------------------------------------------------------------------------
@@ -364,7 +603,47 @@ PROCEDURE pPostBols :
             /* Create tt-fg-bin */
             IF FIRST-OF(oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN
             RUN oe/bolcheck.p (ROWID(oe-bolh)).
-
+            
+            /* Find out if autoSelectingTags for this customer */
+            RUN sys/ref/nk1look.p (cocode, "BOLPOST", "C", YES, YES /* Cust# */, oe-bolh.cust-no, "" /* ship-to value */, 
+                OUTPUT cAutoSelectShipFrom, OUTPUT lRecordFound).
+            RUN sys/ref/nk1look.p (cocode, "BOLPOST", "L", YES, YES /* Cust# */, oe-bolh.cust-no, "" /* ship-to value */, 
+                OUTPUT cAutoSelectShipFromAlpha, OUTPUT lRecordFound).
+                lAutoSelectShipFrom = LOGICAL(cAutoSelectShipFromAlpha).
+            FIND FIRST w-except WHERE w-except.bol-no EQ oe-bolh.bol-no NO-ERROR.
+            PUT STREAM sDebug UNFORMATTED "cAutoSelectShipFrom" cAutoSelectShipFrom  lAutoSelectShipFrom 
+                                          "avail w-except" avail(w-except)   SKIP.
+            IF lAutoSelectShipFrom  THEN DO:
+              lTaglessBOLExists = FALSE.
+                FOR EACH bf-oe-boll NO-LOCK                   
+                   WHERE bf-oe-boll.b-no EQ oe-bolh.b-no                   
+                   :
+                  IF bf-oe-boll.tag EQ "" THEN
+                     lTaglessBOLExists = TRUE.
+                END.
+                PUT STREAM sDebug UNFORMATTED "decide to lTaglessBolExists" lTaglessBOLExists SKIP.
+                IF AVAIL w-except OR lTaglessBOLExists THEN DO:
+                
+                    /* Try to assign tags to fulfill BOL Qty */
+                    FOR EACH bf-oe-boll NO-LOCK                   
+                       WHERE bf-oe-boll.b-no EQ oe-bolh.b-no                   
+                       :
+                        PUT STREAM sDebug UNFORMATTED "start pUaotSelTags" lTaglessBOLExists SKIP.
+                        RUN pAutoSelectTags (INPUT ROWID(bf-oe-boll)).
+                    END.
+                     
+                    FOR EACH w-except 
+                      WHERE w-except.bol-no EQ oe-bolh.bol-no 
+                      :
+                          DELETE w-except.
+                    END.
+                    
+                    /* check if suffient inventory again after selecting tags */
+                    RUN oe/bolcheck.p (ROWID(oe-bolh)).
+                
+                END.
+                
+            END.
             FIND FIRST w-except WHERE w-except.bol-no EQ oe-bolh.bol-no NO-ERROR.
             IF AVAILABLE w-except THEN NEXT bolh.
 
@@ -401,7 +680,7 @@ PROCEDURE pPostBols :
                     :
                     /* Set actual quantity */
                     IF AVAILABLE oe-rel AND VALID-HANDLE(hRelLib) THEN 
-                    RUN recalc-act-qty IN hRelLib (INPUT ROWID(oe-rel), OUTPUT dActualQty).
+                        RUN recalc-act-qty IN hRelLib (INPUT ROWID(oe-rel), OUTPUT dActualQty).
                 END.
             END.
 
@@ -414,7 +693,7 @@ PROCEDURE pPostBols :
                 :
                 RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term).
                 IF fgreorder-log AND cust.ACTIVE EQ "E" THEN
-                RUN pCreateReorder (ROWID(oe-boll)).
+                    RUN pCreateReorder (ROWID(oe-boll)).
             END. /* each oe-boll */
         END. /* for each oe-bolh */
 
