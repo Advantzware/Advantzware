@@ -57,12 +57,22 @@ DEFINE VARIABLE lTaglessBOLExists  AS LOG        NO-UNDO.
 DEFINE VARIABLE cAutoSelectTagAlpha AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAutoSelectShipFrom AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAutoSelectShipFrom AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDebugLog AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lUseLogs AS LOGICAL NO-UNDO.
 /* for sel-bins */
 DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 DEFINE BUFFER xoe-boll FOR oe-boll.
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE STREAM sDebug.
-OUTPUT STREAM sDebug TO VALUE("logs/" + string(today, "99999999") + STRING(time) + STRING(RANDOM(1,10)) + "pst.txt").
+lUseLogs = YES. /* Use debug logging */
+cDebugLog = "logs/" + "r-bolpst" + string(today, "99999999") + STRING(time) + STRING(RANDOM(1,10)) + ".txt".
+IF lUseLogs THEN 
+  OUTPUT STREAM sDebug TO VALUE(cDebugLog).
+
+cLogFile = "logs/" + "r-bolpst" + string(today, "99999999") + STRING(time) + STRING(RANDOM(1,10)) + ".errs".
+IF lUseLogs THEN 
+  OUTPUT TO value(cLogFile).
 {oe/closchk.i NEW}
 
 DEFINE TEMP-TABLE tt-email NO-UNDO
@@ -76,6 +86,12 @@ DEFINE TEMP-TABLE tt-email NO-UNDO
         .
     
 DEFINE TEMP-TABLE ttSelectedOeRell LIKE oe-rell.
+
+
+
+/* ************************  Function Prototypes ********************** */
+FUNCTION fDebugMsg RETURNS CHARACTER 
+	(INPUT ipcMessage AS CHARACTER ) FORWARD.
 
 /* ***************************  Main Block  *************************** */    
 PAUSE 0 BEFORE-HIDE.
@@ -116,7 +132,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         OUTPUT cInvoiceStatusType, OUTPUT lRecordFound).
 
 
-
     DO TRANSACTION:
     /* No prompt for creation of nk1 */
         {sys/inc/fgreorder.i}
@@ -145,7 +160,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF lPost THEN DO:
         IF CAN-FIND(FIRST w-bolh) THEN DO:
-            PUT STREAM sDebug UNFORMATTED "Start Post pPostBols" SKIP.
+
+            fDebugMsg("Start Post pPostBols").
             RUN pPostBols.
             /* close transfer order here, Non-UI procedure */
             RUN oe/closchk.p (0).
@@ -176,8 +192,31 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             FIND FIRST tt-email NO-LOCK NO-ERROR.
             IF AVAILABLE tt-email THEN RUN email-reorderitems.
         END. /* If can-find w-bolh */
+
     END. /* if lPost */
+    RUN pProcessNoPostRecs.  
+    FOR EACH ttPostBOLCreateInvoice:
+        fDebugMsg("After pRunReport each ttPostBolCreateInvoice " + STRING(ttPostBOLCreateInvoice.bolNo)).        
+        FIND FIRST oe-bolh NO-LOCK
+            WHERE oe-bolh.company EQ cocode 
+              AND oe-bolh.bol-no EQ ttPostBOLCreateInvoice.bolNo
+              NO-ERROR.
+        IF AVAILABLE oe-bolh AND oe-bolh.posted = TRUE THEN 
+          ASSIGN 
+             ttPostBolCreateInvoice.bolStatus = "Posted"
+             ttPostBolCreateInvoice.reason    = ""
+             .
+        ELSE DO:
+          ASSIGN 
+             ttPostBolCreateInvoice.bolStatus = "Not Posted"
+             .
+          IF lPost = YES AND ttPostBolCreateInvoice.reason EQ "" THEN 
+            ttPostBolCreateInvoice.reason = "Undetermined".
+        END.
+          
+    END.    
 END. /* main block */
+
 OUTPUT STREAM sDebug CLOSE.
 /* **********************  Internal Procedures  *********************** */
 
@@ -227,7 +266,8 @@ PROCEDURE pAutoSelectTags:
           AND oe-ordl.ord-no  EQ xoe-boll.ord-no
           AND oe-ordl.line    EQ xoe-boll.line
           NO-ERROR.
-PUT STREAM sDebug UNFORMATTED "avail order" avail(oe-ordl) SKIP.
+
+    fDebugMsg("avail order " + STRING(AVAILABLE(oe-ordl))).
     IF NOT AVAILABLE oe-ordl THEN 
         RETURN.
   
@@ -240,13 +280,14 @@ PUT STREAM sDebug UNFORMATTED "avail order" avail(oe-ordl) SKIP.
             AND oe-rel.link-no GT 0 
             AND oe-rel.rel-no  GT 0
             NO-ERROR.
-    PUT STREAM sDebug UNFORMATTED "avail oerel" avail(oe-rel) SKIP.
+    fDebugMsg("avail oerel " + STRING(AVAILABLE(oe-rel))).
     IF NOT AVAILABLE oe-rel THEN 
         RETURN.
     FIND FIRST oe-relh NO-LOCK
         WHERE oe-relh.r-no eq oe-boll.r-no 
         NO-ERROR.
-    PUT STREAM sDebug UNFORMATTED "avail oe-relh" avail(oe-relh) SKIP.        
+
+    fDebugMsg("avail oe-relh" + STRING(AVAILABLE(oe-relh))).        
     IF NOT AVAIL oe-relh THEN
       RETURN.
       
@@ -258,6 +299,8 @@ PUT STREAM sDebug UNFORMATTED "avail order" avail(oe-ordl) SKIP.
            iWBinSeq    = 0
            lSelectTags = FALSE.
     EMPTY TEMP-TABLE w-bin.
+
+    fDebugMsg("start fifoloop").     
     RUN oe/fifoloopTags.p (ROWID(xoe-boll), lSelectTags, oe-rel.spare-char-1 /*oe-boll.ship-from */, OUTPUT lNoneSelected, OUTPUT hTToe-rel).
 
     /* From fifoloop, process returned dynamic temp-table to retrieve tag records selected */
@@ -282,7 +325,7 @@ PUT STREAM sDebug UNFORMATTED "avail order" avail(oe-ordl) SKIP.
         CREATE ttSelectedOeRell.
                
         hBufDynmicOeRell:BUFFER-COPY(hBufOeRell).
-        PUT STREAM sDebug UNFORMATTED "auto bin returned" ttSelectedOeRell.tag SKIP.
+        fDebugMsg( "auto bin returned " + STRING(ttSelectedOeRell.tag)).
         /* In case duplicate w-bin's were created, check first if exists */
         FIND FIRST w-bin 
             WHERE w-bin.company EQ ttSelectedOeREll.company
@@ -331,7 +374,7 @@ PUT STREAM sDebug UNFORMATTED "avail order" avail(oe-ordl) SKIP.
             li-selected-qty = li-selected-qty + w-bin.qty
             .
     END.
-    PUT STREAM sDebug UNFORMATTED "selected qty" li-selected-qty "bol" xoe-boll.qty SKIP.
+    fDebugMsg("selected qty " + STRING(li-selected-qty) ).
     /* Was not able to assign full quantity from tagged inventory */
     IF li-selected-qty LT xoe-boll.qty THEN 
       RETURN.
@@ -427,6 +470,7 @@ PROCEDURE pCreateNoPostRec :
         WHERE itemfg.company EQ oe-boll.company
           AND itemfg.i-no    EQ oe-boll.i-no
         NO-ERROR.
+    fDebugMsg("pCreateNoPostREc  " + STRING(oe-boll.bol-no)).
     CREATE w-nopost.
     ASSIGN
         w-nopost.ord-no   = oe-boll.ord-no
@@ -611,8 +655,8 @@ PROCEDURE pPostBols :
                 OUTPUT cAutoSelectShipFromAlpha, OUTPUT lRecordFound).
                 lAutoSelectShipFrom = LOGICAL(cAutoSelectShipFromAlpha).
             FIND FIRST w-except WHERE w-except.bol-no EQ oe-bolh.bol-no NO-ERROR.
-            PUT STREAM sDebug UNFORMATTED "cAutoSelectShipFrom" cAutoSelectShipFrom  lAutoSelectShipFrom 
-                                          "avail w-except" avail(w-except)   SKIP.
+            fDebugMsg("cAutoSelectShipFrom " + cAutoSelectShipFrom + " " + STRING(lAutoSelectShipFrom) + 
+                                          " avail w-except " + STRING(AVAILABLE(w-except))).
             IF lAutoSelectShipFrom  THEN DO:
               lTaglessBOLExists = FALSE.
                 FOR EACH bf-oe-boll NO-LOCK                   
@@ -621,13 +665,14 @@ PROCEDURE pPostBols :
                   IF bf-oe-boll.tag EQ "" THEN
                      lTaglessBOLExists = TRUE.
                 END.
-                PUT STREAM sDebug UNFORMATTED "decide to lTaglessBolExists" lTaglessBOLExists SKIP.
+                fDebugMsg("decide to lTaglessBolExists " + string(lTaglessBOLExists)).                
                 IF AVAIL w-except OR lTaglessBOLExists THEN DO:
                 
                     /* Try to assign tags to fulfill BOL Qty */
                     FOR EACH bf-oe-boll NO-LOCK                   
                        WHERE bf-oe-boll.b-no EQ oe-bolh.b-no                   
                        :
+                        OUTPUT STREAM sDebug CLOSE. OUTPUT STREAM sDebug TO VALUE(cDebugLog) append.                           
                         PUT STREAM sDebug UNFORMATTED "start pUaotSelTags" lTaglessBOLExists SKIP.
                         RUN pAutoSelectTags (INPUT ROWID(bf-oe-boll)).
                     END.
@@ -730,12 +775,50 @@ PROCEDURE pPostBols :
     END. /* each oe-bolh */
 END PROCEDURE.
 
+PROCEDURE pProcessNoPostRecs:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+iCountNotPosted = 0.
+FOR EACH w-nopost NO-LOCK
+  :
+  fDebugMsg("process w-nopost " + STRING(w-nopost.bol-no)).
+  iCountNotPosted = iCountNotPosted + 1.
+  FIND FIRST ttPostBolCreateInvoice
+    WHERE ttPostBolCreateInvoice.bolNo EQ w-nopost.bol-no
+      AND ttPostBolCreateInvoice.iNo  EQ w-nopost.i-no
+    NO-ERROR.
+  IF AVAILABLE ttPostBolCreateInvoice THEN 
+    ASSIGN 
+       ttPostBolCreateInvoice.bolStatus = "Not Posted"
+       ttPostBolCreateInvoice.reason    = w-nopost.reason
+       .
+  ELSE DO:
+      CREATE ttPostBolCreateInvoice.
+      ASSIGN 
+          ttPostBolCreateInvoice.bolNo     = w-nopost.bol-no
+          ttPostBolCreateInvoice.bolDate   = w-nopost.bol-date
+          ttPostBolCreateInvoice.iNo       = w-nopost.i-no
+          ttPostBolCreateInvoice.iName     = w-nopost.i-name
+          ttPostBolCreateInvoice.relNo     = w-nopost.rel-no
+          ttPostBolCreateInvoice.bOrdNo    = w-nopost.b-ord-no
+          ttPostBolCreateInvoice.custNo    = w-nopost.cust-no
+          ttPostBolCreateInvoice.poNo      = w-nopost.po-no
+          ttPostBolCreateInvoice.bolStatus = "Not Posted"
+          ttPostBolCreateInvoice.reason    = w-nopost.reason
+          .
+  END. /* else...not avail ttPostBolCreateInvoice */
+END. /* each w-nopost */
+
+END PROCEDURE.
+
 PROCEDURE pRunReport :
     /* -------------------------------------------------- oe/oe-bolp2.p 07/97 FWK */
     /* BILL OF LADING POSTING REPORT MODULE 2 - O/E Module                        */
     /* -------------------------------------------------------------------------- */
     DEFINE BUFFER b-oe-boll FOR oe-boll.
-
+    fDebugMsg("In Run Report").
     FIND FIRST period NO-LOCK                
         WHERE period.company EQ gcompany
           AND period.pst     LE dtPostDate
@@ -806,7 +889,8 @@ PROCEDURE pRunReport :
         :
         IF NOT FIRST-OF(oe-bolh.b-no) THEN DELETE w-bolh.
     END.
-
+    FIND FIRST w-bolh NO-ERROR.
+    fDebugMsg("In Run Report - Avail w-bolh?" + STRING(AVAILABLE(w-bolh))).
     MAINBLOK:
     FOR EACH w-bolh
         BY w-bolh.bol-no 
@@ -825,6 +909,8 @@ PROCEDURE pRunReport :
                   BY oe-boll.rel-no
                   BY oe-boll.b-ord-no
             :
+            
+            fDebugMsg("run-report each oe-boll " + STRING(oe-boll.bol-no)).
             RELEASE oe-ord.
             RELEASE oe-ordl.
             IF NOT oe-bolh.deleted THEN DO:
@@ -888,7 +974,7 @@ PROCEDURE pRunReport :
                     NEXT mainblok.
                 END.
             END.
-        
+            fDebugMsg("In Run Report - Create ttPostBolCreateInvoice").    
             CREATE ttPostBOLCreateInvoice.
             ASSIGN
                 ttPostBOLCreateInvoice.bolDate = oe-bolh.BOL-date
@@ -928,27 +1014,8 @@ PROCEDURE pRunReport :
         END. /* each oe-boll */
     END. /* each w-bolh */
 
-    iCountNotPosted = 0.
+    
 
-    FOR EACH w-nopost
-        BREAK BY w-nopost.bol-no
-        :
-        ASSIGN
-            ttPostBOLCreateInvoice.bolDate   = w-nopost.bol-date
-            ttPostBOLCreateInvoice.bolNo     = w-nopost.bol-no
-            ttPostBOLCreateInvoice.custNo    = w-nopost.cust-no
-            ttPostBolCreateInvoice.bolStatus = "Not Posted"
-            ttPostBolCreateInvoice.reason    = w-nopost.reason
-            ttPostBOLCreateInvoice.iNo       = w-nopost.i-no
-            ttPostBOLCreateInvoice.iName     = w-nopost.i-name  
-            ttPostBOLCreateInvoice.poNo      = w-nopost.po-no
-            ttPostBOLCreateInvoice.ordNo     = w-nopost.ord-no
-            ttPostBOLCreateInvoice.relNo     = w-nopost.rel-no
-            ttPostBOLCreateInvoice.bOrdNo    = w-nopost.b-ord-no
-            iCountNotPosted = iCountNotPosted + 1
-            .
-        DELETE w-nopost.
-    END. /* each w-nopost */
 END PROCEDURE.
 
 PROCEDURE pBuildCustList :
@@ -986,3 +1053,23 @@ PROCEDURE pBuildCustList :
         END. /* each bcust */
     END. /* else */
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fDebugMsg RETURNS CHARACTER 
+	(INPUT ipcMessage AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+
+		DEFINE VARIABLE result AS CHARACTER NO-UNDO.
+		IF lUseLogs THEN DO:
+            OUTPUT STREAM sDebug CLOSE. OUTPUT STREAM sDebug TO VALUE(cDebugLog) append.
+            PUT STREAM sDebug UNFORMATTED ipcMessage SKIP.
+        END.
+        
+		RETURN result.
+
+END FUNCTION.

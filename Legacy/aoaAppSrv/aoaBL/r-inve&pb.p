@@ -107,9 +107,14 @@ DEFINE            VARIABLE cPrintFormat      AS cha       NO-UNDO.
 DEFINE            VARIABLE lWarned           AS LOG       NO-UNDO.
 DEFINE            VARIABLE dTotalTax         AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE dTotalRate        AS DECIMAL   NO-UNDO.
-
+DEFINE            VARIABLE lUseLogs          AS LOGICAL NO-UNDO.
+DEFINE            VARIABLE cDebugLog        AS CHARACTER NO-UNDO.
+DEFINE STREAM sDebug.
 DEFINE TEMP-TABLE w-report NO-UNDO LIKE report.
-
+lUseLogs = TRUE.
+cDebugLog = "logs/" + "r-invepb" + string(today, "99999999") + STRING(time) + STRING(RANDOM(1,10)) + ".txt".
+IF lUseLogs THEN 
+  OUTPUT STREAM sDebug TO VALUE(cDebugLog).
 DEFINE TEMP-TABLE tt-gl NO-UNDO 
     FIELD row-id AS ROWID.
     
@@ -220,6 +225,13 @@ DEFINE VARIABLE cStatus       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cReason       AS CHARACTER NO-UNDO.
 
 
+
+/* ************************  Function Prototypes ********************** */
+FUNCTION fDebugMsg RETURNS CHARACTER 
+	(INPUT ipcMessage AS CHARACTER   ) FORWARD.
+
+
+/* Main Block */
 ASSIGN /* gLoc = "main" */
        v-post = lpost
        v-detail = lInvoiceReportDetail /* Required since not part of parameters */
@@ -228,6 +240,9 @@ ASSIGN /* gLoc = "main" */
 
 
 RUN pPrintPost.
+OUTPUT STREAM sDebug CLOSE.
+/* End Main Block */
+
 
 PROCEDURE calc-tax-gr :
     /*------------------------------------------------------------------------------
@@ -1136,8 +1151,9 @@ PROCEDURE list-post-inv :
 
     RUN oe/invpostd.p ("").
       
-    v-post = ip-list-post EQ "post".
-
+    v-post = ip-list-post EQ "post" AND lPost.
+    fDebugMsg("List Post - setting v-post " + STRING(v-post)) .
+    
     DISABLE TRIGGERS FOR LOAD OF inv-head.
     DISABLE TRIGGERS FOR LOAD OF inv-line.
     DISABLE TRIGGERS FOR LOAD OF oe-ord.
@@ -1765,6 +1781,7 @@ PROCEDURE list-post-inv :
 
         IF NOT v-post THEN 
         DO:
+            fDebugMsg("List Post, not v-post, create ttInvoicePostUpdateGL Recs") .
             ASSIGN
                 ld-t[2] = dLineTot-w / 2000
                 ld-t[3] = ld-t[3] + dLineTot-w
@@ -2377,16 +2394,16 @@ PROCEDURE pPrintPost:
 
 
     END.
-  
+    fDebugMsg("Start Run Report").
     RUN run-report.
-
-
+    
+    fDebugMsg("After Run Report - lPostable? " + STRING(lPostable)).
     IF lPostable THEN 
     DO:
         IF v-balance = 0 THEN  
             lv-post = YES.
-
-        IF lv-post AND v-post THEN 
+    fDebugMsg("After Run Report - lv-post? " + STRING(lv-post) + " v-post " + STRING(v-post) + " lpost " + STRING(lPost)).
+        IF lv-post /* AND v-post (here by mistake?) */ THEN 
         DO:
 
             RUN list-post-inv ("post").
@@ -2573,7 +2590,7 @@ PROCEDURE run-report :
     /*            lv-label-ton[2] = "====================".*/
 
     EMPTY TEMP-TABLE w-report.
-
+    fDebugMsg("Run Report - Begin For Each") .
     FOR EACH inv-head NO-LOCK
         WHERE inv-head.company  EQ cocode
         AND inv-head.printed  EQ YES
@@ -2647,7 +2664,7 @@ PROCEDURE run-report :
     END.
 
     cCListName = cListName.
-
+    fDebugMsg("Run Report - run list-post-inv - list") .
     RUN list-post-inv ("list").
   
     /* wfk - taking out for batch report - export invoices to factor */   
@@ -2744,7 +2761,7 @@ PROCEDURE run-report :
 
     END.
     /* end of export */
-
+fDebugMsg("Run Report - if lpostable run list-gl " + STRING(lPostable)) .
     IF lPostable THEN RUN list-gl.   
 
     EMPTY TEMP-TABLE tt-report.
@@ -2806,4 +2823,22 @@ PROCEDURE pBuildCustList :
     END. /* else */
 
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fDebugMsg RETURNS CHARACTER 
+	( INPUT ipcMessage AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+        DEFINE VARIABLE result AS CHARACTER NO-UNDO.
+        IF lUseLogs THEN DO:
+            OUTPUT STREAM sDebug CLOSE. OUTPUT STREAM sDebug TO VALUE(cDebugLog) append.
+            PUT STREAM sDebug UNFORMATTED ipcMessage SKIP.
+        END.
+        
+        RETURN result.
+END FUNCTION.
 
