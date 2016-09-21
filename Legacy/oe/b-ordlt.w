@@ -670,14 +670,18 @@ FOR EACH bf-rel
         v-all-i = NO.    
 END.
 
+FIND FIRST cust NO-LOCK 
+        WHERE cust.company EQ oe-ordl.company
+          AND cust.cust-no EQ oe-ordl.cust-no NO-ERROR.
+
 ASSIGN clvtext = "Notes: " .
-IF oeBolPrompt-log AND AVAILABLE xoe-ord THEN DO:
-    FOR EACH xoe-ordl OF xoe-ord NO-LOCK:
-        FOR EACH notes NO-LOCK WHERE notes.rec_key = xoe-ordl.rec_key AND
+IF oeBolPrompt-log AND AVAILABLE cust THEN DO:
+    
+        FOR EACH notes NO-LOCK WHERE notes.rec_key = cust.rec_key AND
                               LOOKUP(notes.note_code,oeBolPrompt-char) <> 0 :
             clvtext = clvtext + notes.note_text + "  " .
         END.
-    END.
+    
     IF clvtext NE "Notes: " THEN
     MESSAGE clvtext VIEW-AS ALERT-BOX INFORMATION BUTTONS OK  .
 END.
@@ -688,9 +692,7 @@ FIND FIRST sys-ctrl NO-LOCK
       AND sys-ctrl.name EQ "RELCREDT" NO-ERROR.
 IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN DO:
     
-    FIND FIRST cust NO-LOCK 
-        WHERE cust.company EQ oe-ordl.company
-          AND cust.cust-no EQ oe-ordl.cust-no NO-ERROR.
+    
     IF AVAILABLE cust THEN RUN oe/CRcheck.p (INPUT ROWID(cust),
                                          INPUT YES,
                                          OUTPUT v-chkflg).
