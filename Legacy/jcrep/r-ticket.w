@@ -1860,7 +1860,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ELSE
         revsn_no:HIDDEN IN FRAME FRAME-A = NO .
 
-    tb_prt-set-header:SENSITIVE = CAN-DO("Artios,Premier,Xprint,Lakeside,VINELAND,Suthrlnd,United,MulticellGA,MCPartitions,oklahoma,Hughes,Protagon,Spectrum,CapCity,Allwest,LoyLang,PQP,RFC2,PEACHTREE,Soule,BELL",lv-format-c).
+    tb_prt-set-header:SENSITIVE = CAN-DO("Artios,Premier,Xprint,jobcardc 1,jobcardc 2,Lakeside,VINELAND,Suthrlnd,United,MulticellGA,MCPartitions,oklahoma,Hughes,Protagon,Spectrum,CapCity,Allwest,LoyLang,PQP,RFC2,PEACHTREE,Soule,BELL",lv-format-c).
     IF NOT tb_prt-set-header:SENSITIVE THEN
       tb_prt-set-header:SCREEN-VALUE = "no".
 
