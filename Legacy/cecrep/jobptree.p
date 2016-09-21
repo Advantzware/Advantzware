@@ -64,7 +64,7 @@ DEFINE NEW SHARED VARIABLE v-adder-6 AS CHARACTER FORMAT "X(10)" NO-UNDO.
 DEFINE VARIABLE ls-image1 AS cha NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
 
-ASSIGN ls-image1 = "images\Quality Check Initials Ptree.png".
+ASSIGN ls-image1 = "images\Quality-Check-Initials-Ptree.png".
 
 FILE-INFO:FILE-NAME = ls-image1.
 ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
