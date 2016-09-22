@@ -32,7 +32,7 @@ PROCEDURE UpdateVendorPaymentType:
    FOR EACH vend :
        If vend.spare-int-1 = 1 THEN vend.payment-type = "Credit Card".
        IF vend.spare-int-2 = 1 THEN vend.payment-type = "Bill Pay".
-       ELSE vend.payment-type = "Check"
+       ELSE vend.payment-type = "Check".
            
    END.
 

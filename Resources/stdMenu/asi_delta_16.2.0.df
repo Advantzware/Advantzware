@@ -59,6 +59,15 @@ ADD INDEX "payment-type" ON "payment-type"
   INDEX-FIELD "company" ASCENDING 
   INDEX-FIELD "type" ASCENDING 
 
+ADD FIELD "payment-type" OF "vend" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Payment Type"
+  POSITION 123
+  MAX-WIDTH 40
+  HELP "Enter Payment Type"
+  ORDER 1220
+
 .
 PSC
 cpstream=ISO8859-1
