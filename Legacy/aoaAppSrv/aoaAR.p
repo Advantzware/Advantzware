@@ -166,8 +166,17 @@ DEFINE TEMP-TABLE ttCommissionCashReceipt NO-UNDO
     FIELD row-id      AS ROWID
         INDEX sortBy IS PRIMARY rowType salesRep custNo invoiceNo invDate
         .
-{sys/ref/CustList.i NEW}
 /* Commision Cash Receipt.rpa */
+
+/* CRM Contacts.rpa */
+{CRM/ttCRMContacts.i}
+/* CRM Contacts.rpa */
+
+/* CRM Customers.rpa */
+{CRM/ttCRMCustomers.i}
+/* CRM Customers.rpa */
+
+{sys/ref/CustList.i NEW}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -240,6 +249,32 @@ FUNCTION fCommissionCashReceipt RETURNS HANDLE
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fCRMContacts) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCRMContacts Procedure 
+FUNCTION fCRMContacts RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fCRMCustomers) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCRMCustomers Procedure 
+FUNCTION fCRMCustomers RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTableHandle Procedure 
@@ -269,7 +304,7 @@ FUNCTION fGetTableHandle RETURNS HANDLE
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 15
+         HEIGHT             = 17.24
          WIDTH              = 60.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -1049,6 +1084,52 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pCRMContacts) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRMContacts Procedure 
+PROCEDURE pCRMContacts :
+/*------------------------------------------------------------------------------
+  Purpose:     CRM Contacts.rpa
+  Parameters:  Company, Batch Seq, User ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/aoaInputDefParams.i}
+    
+    /* local variables */
+
+    /* subject business logic */
+    RUN aoaAppSrv/aoaBL/crmContacts.p (OUTPUT TABLE ttCRMContacts, ipcCompany, ipiBatch, ipcUserID).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pCRMCustomers) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRMCustomers Procedure 
+PROCEDURE pCRMCustomers :
+/*------------------------------------------------------------------------------
+  Purpose:     CRM Customers.rpa
+  Parameters:  Company, Batch Seq, User ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/aoaInputDefParams.i}
+    
+    /* local variables */
+
+    /* subject business logic */
+    RUN aoaAppSrv/aoaBL/crmCustomers.p (OUTPUT TABLE ttCRMCustomers, ipcCompany, ipiBatch, ipcUserID).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-pGetTrendDays) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTrendDays Procedure 
@@ -1199,6 +1280,54 @@ END FUNCTION.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fCRMContacts) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCRMContacts Procedure 
+FUNCTION fCRMContacts RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  CRM Contacts.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttCRMContacts.
+
+    RUN pCRMContacts (ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttCRMContacts:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fCRMCustomers) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCRMCustomers Procedure 
+FUNCTION fCRMCustomers RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  CRM Customers.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttCRMCustomers.
+
+    RUN pCRMCustomers (ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttCRMCustomers:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTableHandle Procedure 
@@ -1221,6 +1350,12 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Commision Cash Receipt.rpa */
         WHEN "r-commcr." THEN
         RETURN TEMP-TABLE ttCommissionCashReceipt:HANDLE.
+        /* CRM Contacts.rpa */
+        WHEN "crmCont." THEN
+        RETURN TEMP-TABLE ttCRMContacts:HANDLE.
+        /* CRM Customers.rpa */
+        WHEN "crmCust." THEN
+        RETURN TEMP-TABLE ttCRMCustomers:HANDLE.
     END CASE.
 
 END FUNCTION.

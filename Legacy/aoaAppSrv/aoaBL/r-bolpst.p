@@ -65,14 +65,14 @@ DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 DEFINE BUFFER xoe-boll FOR oe-boll.
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE STREAM sDebug.
-lUseLogs = YES. /* Use debug logging */
-cDebugLog = "logs/" + "r-bolpst" + string(today, "99999999") + STRING(time) + STRING(RANDOM(1,10)) + ".txt".
+lUseLogs = NO. /* Use debug logging */
+cDebugLog = "logs/" + "r-bolpst" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,10)) + ".txt".
 IF lUseLogs THEN 
   OUTPUT STREAM sDebug TO VALUE(cDebugLog).
 
-cLogFile = "logs/" + "r-bolpst" + string(today, "99999999") + STRING(time) + STRING(RANDOM(1,10)) + ".errs".
+cLogFile = "logs/" + "r-bolpst" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,10)) + ".errs".
 IF lUseLogs THEN 
-  OUTPUT TO value(cLogFile).
+  OUTPUT TO VALUE(cLogFile).
 {oe/closchk.i NEW}
 
 DEFINE TEMP-TABLE tt-email NO-UNDO

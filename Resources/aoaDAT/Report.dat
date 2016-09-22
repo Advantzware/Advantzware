@@ -2,6 +2,8 @@
 "AR" "Aged Receivables Totals" "agedtot." "AR51"
 "AR" "Cash Receipt By SalesRep Name" "r-cashs2." "AR16"
 "AR" "Commission Cash Receipt" "r-commcr." "AR15"
+"AR" "CRM Contacts" "crmCont." "CRM1"
+"AR" "CRM Customers" "crmCust." "CRM2"
 "DC" "Machine Productivity" "machprod." "DE3"
 "DC" "Production Analysis" "r-prodlys." "DE2"
 "FG" "Customer Inventory" "r-cusinv." "IL12"

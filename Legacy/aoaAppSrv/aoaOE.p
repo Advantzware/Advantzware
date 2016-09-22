@@ -2080,7 +2080,7 @@ Notes:
     
     RUN pPostBOLCreateInvoice (ipcCompany, ipiBatch, ipcUserID).
     
-    RETURN TEMP-TABLE ttPostBOLCreateInvoice:HANDLE .
+    RETURN TEMP-TABLE ttPostBOLCreateInvoice:HANDLE.
 
 END FUNCTION.
 
