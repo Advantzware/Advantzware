@@ -2061,6 +2061,8 @@ PROCEDURE valid-mach :
   DEFINE VARIABLE v-msgreturn AS INTEGER NO-UNDO .
   DEFINE VARIABLE dNshLen AS DECIMAL NO-UNDO .
   DEFINE VARIABLE dTrimL  AS DECIMAL NO-UNDO .
+  DEFINE VARIABLE dMachMaxLen AS DECIMAL NO-UNDO .
+  DEFINE VARIABLE dMachMaxWid AS DECIMAL NO-UNDO .
 
   DEFINE BUFFER b-est-op FOR est-op.
   DEFINE BUFFER b-mach FOR mach.
@@ -2163,7 +2165,10 @@ PROCEDURE valid-mach :
           END.
         END.
 
-        ASSIGN cMachType = IF AVAILABLE mach THEN mach.p-type ELSE "" .
+        ASSIGN cMachType = IF AVAILABLE mach THEN mach.p-type ELSE "" 
+               dMachMaxLen = IF AVAILABLE mach THEN mach.max-len ELSE 0 
+               dMachMaxWid = IF AVAILABLE mach THEN mach.max-wid ELSE 0.
+
         IF lv-dept EQ "RC" THEN DO:
           xcal = sh-dep.
           RUN cec/rc-mach.p (BUFFER mach, v-on-f, NO).
@@ -2175,14 +2180,14 @@ PROCEDURE valid-mach :
         END.
                       
         IF NOT AVAILABLE mach THEN DO:
-            IF cMachType = "S" AND sh-wid < sh-len  THEN DO:
+            IF (cMachType = "S" AND ( (sh-wid < sh-len AND  (dMachMaxLen LT sh-len OR dMachMaxWid LT sh-wid) ) OR (sh-wid > sh-len AND ( dMachMaxLen LT sh-len OR dMachMaxWid LT sh-wid)  ) )) THEN DO:
 
                 RUN custom/d-msg-mach.w ("Warning","","Estimate specifications outside machine limits ","",2,"Reverse Feed Direction,OK", OUTPUT v-msgreturn).         
                 IF v-msgreturn = 1  THEN DO:
                     FIND FIRST bf-ef EXCLUSIVE-LOCK WHERE 
                                bf-ef.company EQ xef.company AND
                                RECID(bf-ef)  EQ RECID(xef) NO-ERROR.
-                    IF AVAILABLE bf-ef AND bf-ef.nsh-wid GT bf-ef.nsh-len THEN
+                    IF AVAILABLE bf-ef THEN
                         ASSIGN
                         dNshLen       = xef.nsh-len  
                         dTrimL        = xef.trim-l
