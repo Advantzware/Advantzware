@@ -224,12 +224,9 @@ DEFINE VARIABLE inexport-cha  AS CHARACTER.
 DEFINE VARIABLE cStatus       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cReason       AS CHARACTER NO-UNDO.
 
-
-
 /* ************************  Function Prototypes ********************** */
 FUNCTION fDebugMsg RETURNS CHARACTER 
 	(INPUT ipcMessage AS CHARACTER   ) FORWARD.
-
 
 /* Main Block */
 ASSIGN /* gLoc = "main" */
@@ -238,11 +235,9 @@ ASSIGN /* gLoc = "main" */
        locode = gloc
        .
 
-
 RUN pPrintPost.
 OUTPUT STREAM sDebug CLOSE.
 /* End Main Block */
-
 
 PROCEDURE calc-tax-gr :
     /*------------------------------------------------------------------------------
@@ -2363,7 +2358,6 @@ PROCEDURE post-gl :
             .
         RELEASE gltrans.
     END.
-
 END PROCEDURE.
 
 PROCEDURE pPrintPost:
@@ -2376,14 +2370,11 @@ PROCEDURE pPrintPost:
     DEFINE VARIABLE cStatus      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReason      AS CHARACTER NO-UNDO.
 
-
     DO TRANSACTION:       /** GET next G/L TRANS. POSTING # **/
         REPEAT:
             FIND FIRST gl-ctrl EXCLUSIVE-LOCK
                 WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.
-            IF AVAILABLE gl-ctrl THEN 
-            DO:
-
+            IF AVAILABLE gl-ctrl THEN DO:
                 ASSIGN 
                     v-trnum       = gl-ctrl.trnum + 1 
                     gl-ctrl.trnum = v-trnum.
@@ -2391,30 +2382,20 @@ PROCEDURE pPrintPost:
                 LEAVE.
             END. /* IF AVAIL gl-ctrl */
         END. /* REPEAT */
-
-
     END.
     fDebugMsg("Start Run Report").
     RUN run-report.
-    
     fDebugMsg("After Run Report - lPostable? " + STRING(lPostable)).
-    IF lPostable THEN 
-    DO:
-        IF v-balance = 0 THEN  
-            lv-post = YES.
-    fDebugMsg("After Run Report - lv-post? " + STRING(lv-post) + " v-post " + STRING(v-post) + " lpost " + STRING(lPost)).
-        IF lv-post /* AND v-post (here by mistake?) */ THEN 
-        DO:
-
+    IF lPostable THEN DO:
+        IF v-balance = 0 THEN lv-post = YES.
+        fDebugMsg("After Run Report - lv-post? " + STRING(lv-post) + " v-post " + STRING(v-post) + " lpost " + STRING(lPost)).
+        IF lv-post /* AND v-post (here by mistake?) */ THEN DO:
             RUN list-post-inv ("post").
-
             RUN post-gl.
             RUN copy-report-to-audit-dir.
-
             FOR EACH tt-report:
                 DELETE tt-report.
             END.
-
             EMPTY TEMP-TABLE tt-gl.
             
             /* Taken out for auto post */
@@ -2434,44 +2415,34 @@ PROCEDURE pPrintPost:
 
                 RELEASE cust.
                 RUN oe/calcordt.p (ROWID(oe-ord)).
-                IF LAST-OF(oe-ord.cust-no) THEN 
-                DO:
-
+                IF LAST-OF(oe-ord.cust-no) THEN DO:
                     FIND FIRST tt-custbal NO-LOCK WHERE tt-custbal.cust-no EQ oe-ord.cust-no
                         NO-ERROR.
-                    IF NOT AVAILABLE tt-custbal THEN 
-                    DO:
+                    IF NOT AVAILABLE tt-custbal THEN DO:
                         CREATE tt-custbal.
                         ASSIGN 
                             tt-custbal.cust-no = oe-ord.cust-no.
                     END.
 
                     FIND FIRST cust NO-LOCK /* EXCLUSIVE */
-                        WHERE cust.company EQ oe-ord.company
-                        AND cust.cust-no EQ oe-ord.cust-no
-                        NO-ERROR.
-
-                    IF AVAILABLE cust THEN 
-                    DO:
+                         WHERE cust.company EQ oe-ord.company
+                           AND cust.cust-no EQ oe-ord.cust-no
+                         NO-ERROR.
+                    IF AVAILABLE cust THEN DO:
                         RUN ar/updcust1.p (NO, BUFFER cust, OUTPUT tt-custbal.ord-bal).
-
-
                         FIND CURRENT cust NO-LOCK.
                     END.
                 END.
-
-
             END. /* Each w-ord */
       
             cust-bal:
             FOR EACH tt-custbal,
-                FIRST cust EXCLUSIVE-LOCK WHERE cust.company EQ cocode
-                AND cust.cust-no EQ tt-custbal.cust-no
-                .
-                cust.ord-bal = tt-custbal.ord-bal.         
-
+                FIRST cust EXCLUSIVE-LOCK
+                WHERE cust.company EQ cocode
+                  AND cust.cust-no EQ tt-custbal.cust-no
+                :
+                cust.ord-bal = tt-custbal.ord-bal.
                 IF cust.ord-bal LT 0 THEN cust.ord-bal = 0.
-
             END.
 
             order-close2:
@@ -2483,10 +2454,7 @@ PROCEDURE pPrintPost:
 
                 RELEASE cust.
 
-
-
-                IF NOT oeclose-log  THEN
-                DO:
+                IF NOT oeclose-log  THEN DO:
                     FOR EACH oe-ordl NO-LOCK WHERE
                         oe-ordl.company EQ oe-ord.company AND
                         oe-ordl.ord-no  EQ oe-ord.ord-no AND
@@ -2507,8 +2475,7 @@ PROCEDURE pPrintPost:
             END. /* Each w-ord */
             
 
-            IF oeclose-log THEN
-            DO:
+            IF oeclose-log THEN DO:
                 RUN oe/closchkinv.p (0).
             /* Contains UI, so taken out for batch mode  */
             /*                IF CAN-FIND (FIRST w-ord) THEN*/
@@ -2517,32 +2484,24 @@ PROCEDURE pPrintPost:
         END.
     END.
 
-
     FOR EACH save-line WHERE save-line.reftable EQ "save-line" + STRING(v-trnum,"9999999999"):
         RUN undo-save-line.
     END.
 
     IF NOT lPostable OR NOT lv-post THEN 
-    DO TRANSACTION:
-      
+    DO TRANSACTION: 
         REPEAT:
             FIND FIRST gl-ctrl EXCLUSIVE-LOCK
                 WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.
-            IF AVAILABLE gl-ctrl THEN 
-            DO:
-
+            IF AVAILABLE gl-ctrl THEN DO:
                 IF gl-ctrl.trnum EQ v-trnum THEN gl-ctrl.trnum = v-trnum - 1.
                 FIND CURRENT gl-ctrl NO-LOCK.
                 LEAVE.
             END. /* IF AVAIL gl-ctrl */
         END. /* REPEAT */
-    
     END.
 
     IF lFtpDone THEN MESSAGE "File Export/FTP is completed." VIEW-AS ALERT-BOX INFORMATION.
-
-    SESSION:SET-WAIT-STATE("").
-
 
 END PROCEDURE.
 	
@@ -2593,27 +2552,32 @@ PROCEDURE run-report :
     fDebugMsg("Run Report - Begin For Each") .
     FOR EACH inv-head NO-LOCK
         WHERE inv-head.company  EQ cocode
-        AND inv-head.printed  EQ YES
-        AND inv-head.inv-no   GT 0
-        AND inv-head.inv-no   GE iStartInvNo
-        AND inv-head.inv-no   LE iEndInvNo
-        AND inv-head.inv-date GE dtStartInvoiceDate
-        AND inv-head.inv-date LE dtEndInvoiceDate
-        AND inv-head.stat     NE "H"
+          AND inv-head.printed  EQ YES
+          AND inv-head.inv-no   GT 0
+          AND inv-head.inv-no   GE iStartInvNo
+          AND inv-head.inv-no   LE iEndInvNo
+          AND inv-head.inv-date GE dtStartInvoiceDate
+          AND inv-head.cust-no  GE cStartCustNo
+          AND inv-head.cust-no  LE cEndCustNo
+          AND inv-head.inv-date LE dtEndInvoiceDate
+          AND inv-head.stat     NE "H"
         USE-INDEX prnt,
-             
         FIRST cust NO-LOCK
         WHERE cust.company EQ cocode
-        AND cust.cust-no EQ inv-head.cust-no
-        AND ((cust.inv-meth EQ ? AND inv-head.multi-invoice) OR
-        (cust.inv-meth NE ? AND NOT inv-head.multi-invoice))
+          AND cust.cust-no EQ inv-head.cust-no
+          AND ((cust.inv-meth EQ ?
+          AND inv-head.multi-invoice)
+           OR (cust.inv-meth NE ?
+          AND NOT inv-head.multi-invoice))
         TRANSACTION:
-
-        FIND FIRST xinv-head EXCLUSIVE-LOCK WHERE RECID(xinv-head) EQ recid(inv-head)
-            NO-WAIT NO-ERROR.
-        IF AVAILABLE xinv-head THEN 
-        DO:
-
+        IF lCustList AND
+           NOT CAN-FIND(FIRST ttCustList
+                        WHERE ttCustList.cust-no EQ inv-head.cust-no) THEN
+        NEXT.
+        FIND FIRST xinv-head EXCLUSIVE-LOCK
+             WHERE RECID(xinv-head) EQ recid(inv-head)
+             NO-WAIT NO-ERROR.
+        IF AVAILABLE xinv-head THEN DO:
             CREATE w-report.
             ASSIGN
                 w-report.term-id = ""
@@ -2636,12 +2600,9 @@ PROCEDURE run-report :
                         AND b-inv-head.cust-no       EQ inv-head.cust-no
                         AND b-inv-head.inv-no        EQ inv-head.inv-no
                         AND b-inv-head.multi-invoice EQ NO:
-
                         RUN create-save-line.
                     END.
-
-                ELSE 
-                DO:
+                ELSE DO:
                     DELETE tt-report.
                     DELETE w-report.
                     DELETE xinv-head.
@@ -2654,8 +2615,7 @@ PROCEDURE run-report :
                         AND reftable.company  EQ inv-head.company
                         AND reftable.loc      EQ ""
                         AND reftable.code     EQ inv-line.i-no)
-                        THEN 
-                    DO:
+                     THEN DO:
                         tt-report.key-02 = "Factored".  /* for oe/rep/expfrank.p task#  09200521*/
                         LEAVE.
                     END.
@@ -2670,8 +2630,7 @@ PROCEDURE run-report :
     /* wfk - taking out for batch report - export invoices to factor */   
     lFtpDone = NO.
 
-    IF FALSE AND  inexport-log THEN 
-    DO:    
+    IF FALSE AND  inexport-log THEN DO:    
         DEFINE VARIABLE v-exp-file AS cha NO-UNDO.
         v-exp-file = inexport-desc +  
             "INVOICE_" + 
@@ -2682,8 +2641,7 @@ PROCEDURE run-report :
             substr(STRING(TIME,"HH:MM:SS"),4,2) +
             substr(STRING(TIME,"HH:MM:SS"),7,2) + ".dat".
 
-        IF (cPrintFormat = "Frankstn" OR cPrintFormat = "MIRPKG" ) AND inexport-cha EQ "CIT" THEN 
-        DO:
+        IF (cPrintFormat = "Frankstn" OR cPrintFormat = "MIRPKG" ) AND inexport-cha EQ "CIT" THEN DO:
             OUTPUT TO VALUE(v-exp-file).
             RUN oe/rep/expfrank.p .
             OUTPUT CLOSE.
@@ -2699,8 +2657,7 @@ PROCEDURE run-report :
             lFtpDone = YES.
         END.
         ELSE
-            IF inexport-cha EQ "ContSrvc" THEN 
-            DO:
+            IF inexport-cha EQ "ContSrvc" THEN DO:
                 lFtpDone = YES.
 
                 FOR EACH tt-report NO-LOCK WHERE tt-report.term-id EQ "",
@@ -2720,8 +2677,7 @@ PROCEDURE run-report :
                     LEAVE.
                 END.
 
-                IF v-contsrvc-export-found THEN
-                DO:
+                IF v-contsrvc-export-found THEN DO:
                     OUTPUT TO VALUE(v-exp-file).
                     RUN oe/rep/expconts.p .
                     OUTPUT CLOSE.
@@ -2743,8 +2699,7 @@ PROCEDURE run-report :
                     LEAVE.
                 END.
 
-                IF v-goodman-export-found THEN
-                DO:
+                IF v-goodman-export-found THEN DO:
                     v-exp-file = inexport-desc +  
                         "INVOICEG_" + 
                         substr(STRING(YEAR(TODAY),"9999"),3,2) +
@@ -2758,14 +2713,11 @@ PROCEDURE run-report :
                     OUTPUT CLOSE.
                 END.
             END.
-
     END.
     /* end of export */
-fDebugMsg("Run Report - if lpostable run list-gl " + STRING(lPostable)) .
-    IF lPostable THEN RUN list-gl.   
-
+    fDebugMsg("Run Report - if lpostable run list-gl " + STRING(lPostable)) .
+    IF lPostable THEN RUN list-gl.
     EMPTY TEMP-TABLE tt-report.
-
 END PROCEDURE.
 
 PROCEDURE undo-save-line :
@@ -2823,7 +2775,6 @@ PROCEDURE pBuildCustList :
     END. /* else */
 
 END PROCEDURE.
-
 
 /* ************************  Function Implementations ***************** */
 

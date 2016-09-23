@@ -19,7 +19,6 @@
 DEFINE OUTPUT PARAMETER TABLE FOR ttPostBOLCreateInvoice.
 {aoaAppSrv/includes/pPostBOLCreateInvoice.i}
 
-DEFINE VARIABLE ipcUserLocation  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)":U.
 
 /* Local Variable Definitions ---                                       */
@@ -86,8 +85,6 @@ DEFINE TEMP-TABLE tt-email NO-UNDO
         .
     
 DEFINE TEMP-TABLE ttSelectedOeRell LIKE oe-rell.
-
-
 
 /* ************************  Function Prototypes ********************** */
 FUNCTION fDebugMsg RETURNS CHARACTER 
@@ -294,7 +291,6 @@ PROCEDURE pAutoSelectTags:
     out-recid = RECID(oe-relh).
     /* Run Standard Tag Selection but only for specific ship from location */
    
-    
     ASSIGN lSelectTags = NO
            iWBinSeq    = 0
            lSelectTags = FALSE.
@@ -359,8 +355,7 @@ PROCEDURE pAutoSelectTags:
             w-bin.to-bol     = 0
             w-bin.rfid       = ""
             w-bin.qty        = INTEGER(ttSelectedOeRell.qty)
-            .        
-
+            .
     END. /* Repeat */
         
     hQueryOeRell:QUERY-CLOSE().
@@ -370,9 +365,7 @@ PROCEDURE pAutoSelectTags:
     DELETE OBJECT hQueryOeRell.
 
     FOR EACH w-bin:
-        ASSIGN
-            li-selected-qty = li-selected-qty + w-bin.qty
-            .
+        ASSIGN li-selected-qty = li-selected-qty + w-bin.qty.
     END.
     fDebugMsg("selected qty " + STRING(li-selected-qty) ).
     /* Was not able to assign full quantity from tagged inventory */
@@ -381,19 +374,16 @@ PROCEDURE pAutoSelectTags:
       
     /* If full quantity was selected, then process creation of oe-boll lines */
     v-qty     = xoe-boll.qty.    
-    IF ll-change-qty AND li-selected-qty GT v-qty THEN 
-    DO:
+    IF ll-change-qty AND li-selected-qty GT v-qty THEN DO:
         /* Hard code user selection Transfer scheduled release quantity instead of total of bins selected */
         ll-change-qty = FALSE.
-
     END.
 
     /* Create oe-boll records based on tags selected */
     op-rowid-list = "".
-    FIND FIRST bf-oerel WHERE
-          ROWID(bf-oerel) EQ ROWID(oe-rel)
+    FIND FIRST bf-oerel
+         WHERE ROWID(bf-oerel) EQ ROWID(oe-rel)
         NO-ERROR.
-    
     
     /* This loop will exit when v-qty is reduced to zero (in sel-bins.i) */
     FOR EACH w-bin , 
@@ -450,8 +440,6 @@ PROCEDURE pAutoSelectTags:
             END.
         END. /* each oe-boll */
     END. /* avail oe-bolh */
-
-
 END PROCEDURE.
 
 PROCEDURE pCheckDate :
@@ -682,12 +670,9 @@ PROCEDURE pPostBols :
                       :
                           DELETE w-except.
                     END.
-                    
                     /* check if suffient inventory again after selecting tags */
                     RUN oe/bolcheck.p (ROWID(oe-bolh)).
-                
                 END.
-                
             END.
             FIND FIRST w-except WHERE w-except.bol-no EQ oe-bolh.bol-no NO-ERROR.
             IF AVAILABLE w-except THEN NEXT bolh.
@@ -756,7 +741,7 @@ PROCEDURE pPostBols :
         WHERE oe-bolh.company  EQ cocode
           AND oe-bolh.deleted  EQ YES
           AND oe-bolh.bol-no   GE iStartBOL
-          AND oe-bolh.bol-no  LE iEndBOL
+          AND oe-bolh.bol-no   LE iEndBOL
           AND oe-bolh.bol-date GE dtStartBOLDate
           AND oe-bolh.bol-date LE dtEndBOLDate
           AND oe-bolh.cust-no  GE cStartCustNo
@@ -765,6 +750,10 @@ PROCEDURE pPostBols :
           AND oe-bolh.stat     EQ "R"
         USE-INDEX deleted
         :
+        IF lCustList AND
+           NOT CAN-FIND(FIRST ttCustList
+                        WHERE ttCustList.cust-no EQ oe-bolh.cust-no) THEN
+        NEXT.
         FOR EACH oe-boll
             WHERE oe-boll.company EQ oe-bolh.company
               AND oe-boll.b-no    EQ oe-bolh.b-no
@@ -780,37 +769,36 @@ PROCEDURE pProcessNoPostRecs:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-iCountNotPosted = 0.
-FOR EACH w-nopost NO-LOCK
-  :
-  fDebugMsg("process w-nopost " + STRING(w-nopost.bol-no)).
-  iCountNotPosted = iCountNotPosted + 1.
-  FIND FIRST ttPostBolCreateInvoice
-    WHERE ttPostBolCreateInvoice.bolNo EQ w-nopost.bol-no
-      AND ttPostBolCreateInvoice.iNo  EQ w-nopost.i-no
-    NO-ERROR.
-  IF AVAILABLE ttPostBolCreateInvoice THEN 
-    ASSIGN 
-       ttPostBolCreateInvoice.bolStatus = "Not Posted"
-       ttPostBolCreateInvoice.reason    = w-nopost.reason
-       .
-  ELSE DO:
-      CREATE ttPostBolCreateInvoice.
-      ASSIGN 
-          ttPostBolCreateInvoice.bolNo     = w-nopost.bol-no
-          ttPostBolCreateInvoice.bolDate   = w-nopost.bol-date
-          ttPostBolCreateInvoice.iNo       = w-nopost.i-no
-          ttPostBolCreateInvoice.iName     = w-nopost.i-name
-          ttPostBolCreateInvoice.relNo     = w-nopost.rel-no
-          ttPostBolCreateInvoice.bOrdNo    = w-nopost.b-ord-no
-          ttPostBolCreateInvoice.custNo    = w-nopost.cust-no
-          ttPostBolCreateInvoice.poNo      = w-nopost.po-no
-          ttPostBolCreateInvoice.bolStatus = "Not Posted"
-          ttPostBolCreateInvoice.reason    = w-nopost.reason
-          .
-  END. /* else...not avail ttPostBolCreateInvoice */
-END. /* each w-nopost */
-
+    iCountNotPosted = 0.
+    FOR EACH w-nopost NO-LOCK
+      :
+      fDebugMsg("process w-nopost " + STRING(w-nopost.bol-no)).
+      iCountNotPosted = iCountNotPosted + 1.
+      FIND FIRST ttPostBolCreateInvoice
+        WHERE ttPostBolCreateInvoice.bolNo EQ w-nopost.bol-no
+          AND ttPostBolCreateInvoice.iNo  EQ w-nopost.i-no
+        NO-ERROR.
+      IF AVAILABLE ttPostBolCreateInvoice THEN 
+        ASSIGN 
+           ttPostBolCreateInvoice.bolStatus = "Not Posted"
+           ttPostBolCreateInvoice.reason    = w-nopost.reason
+           .
+      ELSE DO:
+          CREATE ttPostBolCreateInvoice.
+          ASSIGN 
+              ttPostBolCreateInvoice.bolNo     = w-nopost.bol-no
+              ttPostBolCreateInvoice.bolDate   = w-nopost.bol-date
+              ttPostBolCreateInvoice.iNo       = w-nopost.i-no
+              ttPostBolCreateInvoice.iName     = w-nopost.i-name
+              ttPostBolCreateInvoice.relNo     = w-nopost.rel-no
+              ttPostBolCreateInvoice.bOrdNo    = w-nopost.b-ord-no
+              ttPostBolCreateInvoice.custNo    = w-nopost.cust-no
+              ttPostBolCreateInvoice.poNo      = w-nopost.po-no
+              ttPostBolCreateInvoice.bolStatus = "Not Posted"
+              ttPostBolCreateInvoice.reason    = w-nopost.reason
+              .
+      END. /* else...not avail ttPostBolCreateInvoice */
+    END. /* each w-nopost */
 END PROCEDURE.
 
 PROCEDURE pRunReport :
@@ -847,6 +835,10 @@ PROCEDURE pRunReport :
           AND oe-bolh.stat     EQ "R"
         USE-INDEX post
         :
+        IF lCustList AND
+           NOT CAN-FIND(FIRST ttCustList
+                        WHERE ttCustList.cust-no EQ oe-bolh.cust-no) THEN
+        NEXT.
         CREATE w-bolh.
         ASSIGN
             w-bolh.bol-no   = oe-bolh.bol-no
@@ -856,7 +848,7 @@ PROCEDURE pRunReport :
             w-bolh.b-ord-no = oe-bolh.b-ord-no
             w-bolh.cust-no  = oe-bolh.cust-no
             .
-    END.
+    END. /* each oe-bolh */
 
     FOR EACH oe-bolh NO-LOCK
         WHERE oe-bolh.company  EQ cocode
@@ -866,10 +858,16 @@ PROCEDURE pRunReport :
           AND oe-bolh.bol-no   LE iEndBOL
           AND oe-bolh.bol-date GE dtStartBOLDate
           AND oe-bolh.bol-date LE dtEndBOLDate
+          AND oe-bolh.cust-no  GE cStartCustNo
+          AND oe-bolh.cust-no  LE cEndCustNo
           AND oe-bolh.trailer  NE "HOLD"
           AND oe-bolh.stat     EQ "R"
         USE-INDEX deleted
         :
+        IF lCustList AND
+           NOT CAN-FIND(FIRST ttCustList
+                        WHERE ttCustList.cust-no EQ oe-bolh.cust-no) THEN
+        NEXT.
         CREATE w-bolh.
         ASSIGN
             w-bolh.bol-no   = oe-bolh.bol-no
@@ -879,7 +877,7 @@ PROCEDURE pRunReport :
             w-bolh.b-ord-no = oe-bolh.b-ord-no
             w-bolh.cust-no  = oe-bolh.cust-no
             .
-    END.
+    END. /* each oe-bolh */
 
     FOR EACH w-bolh,
         FIRST oe-bolh NO-LOCK
@@ -888,15 +886,24 @@ PROCEDURE pRunReport :
               BY oe-bolh.bol-no
         :
         IF NOT FIRST-OF(oe-bolh.b-no) THEN DELETE w-bolh.
+        IF NOT CAN-FIND(oe-boll
+                        WHERE oe-boll.company EQ oe-bolh.company
+                          AND oe-boll.b-no    EQ oe-bolh.b-no
+                          AND oe-boll.loc     GE cStartLoc
+                          AND oe-boll.loc     LE cEndLoc
+                          AND oe-boll.loc-bin GE cStartLocBin
+                          AND oe-boll.loc-bin LE cEndLocBin) THEN
+        DELETE w-bolh.
     END.
+    
     FIND FIRST w-bolh NO-ERROR.
     fDebugMsg("In Run Report - Avail w-bolh?" + STRING(AVAILABLE(w-bolh))).
     MAINBLOK:
     FOR EACH w-bolh
-        BY w-bolh.bol-no 
-        BY w-bolh.ord-no
-        BY w-bolh.rel-no 
-        BY w-bolh.b-ord-no
+          BY w-bolh.bol-no 
+          BY w-bolh.ord-no
+          BY w-bolh.rel-no 
+          BY w-bolh.b-ord-no
         :
         FIND oe-bolh NO-LOCK WHERE RECID(oe-bolh) EQ w-bolh.w-recid.
         v-tot-post = v-tot-post + 1.
@@ -909,7 +916,6 @@ PROCEDURE pRunReport :
                   BY oe-boll.rel-no
                   BY oe-boll.b-ord-no
             :
-            
             fDebugMsg("run-report each oe-boll " + STRING(oe-boll.bol-no)).
             RELEASE oe-ord.
             RELEASE oe-ordl.
@@ -1013,9 +1019,6 @@ PROCEDURE pRunReport :
             ttPostBOLCreateInvoice.reason = "Qty Shipped will exceed Qty Ordered + Allowable Overrun".
         END. /* each oe-boll */
     END. /* each w-bolh */
-
-    
-
 END PROCEDURE.
 
 PROCEDURE pBuildCustList :
@@ -1054,7 +1057,6 @@ PROCEDURE pBuildCustList :
     END. /* else */
 END PROCEDURE.
 
-
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fDebugMsg RETURNS CHARACTER 
@@ -1063,13 +1065,10 @@ FUNCTION fDebugMsg RETURNS CHARACTER
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/	
-
-		DEFINE VARIABLE result AS CHARACTER NO-UNDO.
-		IF lUseLogs THEN DO:
-            OUTPUT STREAM sDebug CLOSE. OUTPUT STREAM sDebug TO VALUE(cDebugLog) append.
-            PUT STREAM sDebug UNFORMATTED ipcMessage SKIP.
-        END.
-        
-		RETURN result.
-
+    DEFINE VARIABLE result AS CHARACTER NO-UNDO.
+    IF lUseLogs THEN DO:
+        OUTPUT STREAM sDebug CLOSE. OUTPUT STREAM sDebug TO VALUE(cDebugLog) append.
+        PUT STREAM sDebug UNFORMATTED ipcMessage SKIP.
+    END.
+    RETURN result.
 END FUNCTION.
