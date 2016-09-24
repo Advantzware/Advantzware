@@ -164,7 +164,7 @@ DEFINE BUTTON btn-go
      LABEL "Go" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE cb_paytype AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE cb_paytype AS CHARACTER FORMAT "X(256)":U INITIAL "All Payment Types" 
      LABEL "Payment Type" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "All Payment Types","All Electronic","All Non-Electronic" 
@@ -938,7 +938,7 @@ DO:
     IF CAN-FIND(FIRST tt-sel) THEN DO:
       {&open-query-{&browse-name}}
 
-      DISABLE fi_chk-date fi_due-date fi_curr-code fi_age fi_amt lv-proamt btn-go tb_discount 
+      DISABLE fi_chk-date fi_due-date fi_curr-code fi_age fi_amt lv-proamt btn-go tb_discount cb_payType
           WITH FRAME {&FRAME-NAME}.      
 
       APPLY "entry" TO btn-change IN FRAME {&FRAME-NAME}.  
@@ -1587,6 +1587,7 @@ PROCEDURE local-initialize :
   FOR EACH payment-type NO-LOCK WHERE payment-type.company = cocode :     
      ll = cb_payType:add-last(payment-type.type) IN FRAME {&frame-name}.
   END.
+  cb_payType:SCREEN-VALUE = cb_payType:ENTRY (1).  
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -1667,7 +1668,7 @@ PROCEDURE local-initialize :
         fi_amt = fi_amt + tt-sel.amt-paid.
     END.
     DISPLAY fi_amt.
-    DISABLE fi_chk-date fi_due-date fi_curr-code fi_age fi_amt lv-proamt btn-go tb_discount .
+    DISABLE fi_chk-date fi_due-date fi_curr-code fi_age fi_amt lv-proamt btn-go tb_discount cb_payType .
     APPLY "entry" TO btn-change.
   END.
   ELSE DO WITH FRAME {&FRAME-NAME}:
@@ -1691,8 +1692,8 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "tt-sel"}
   {src/adm/template/snd-list.i "ap-pay"}
+  {src/adm/template/snd-list.i "tt-sel"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
