@@ -233,42 +233,42 @@ DEFINE VARIABLE svExcelTable AS LOGICAL INITIAL no
 DEFINE VARIABLE svShowAll AS LOGICAL INITIAL no 
      LABEL "Show ALL" 
      VIEW-AS TOGGLE-BOX
-     SIZE 37 BY .81 NO-UNDO.
+     SIZE 38 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowGroupFooter AS LOGICAL INITIAL no 
      LABEL "Group Footer (SubTotals)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
+     SIZE 35 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowGroupHeader AS LOGICAL INITIAL no 
      LABEL "Group Header" 
      VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
+     SIZE 35 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowPageFooter AS LOGICAL INITIAL no 
      LABEL "Page Footer (Date / Page No.)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
+     SIZE 35 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowPageHeader AS LOGICAL INITIAL no 
      LABEL "Page Header (Column Headers)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
+     SIZE 35 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowParameters AS LOGICAL INITIAL no 
      LABEL "Parameters (Report Header)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 32 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowReportFooter AS LOGICAL INITIAL no 
      LABEL "Report Footer (Grand Totals)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
+     SIZE 35 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowReportHeader AS LOGICAL INITIAL no 
      LABEL "Report Header (Report Title)" 
      VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
+     SIZE 35 BY .81 NO-UNDO.
 
 DEFINE BUTTON btnApply 
      IMAGE-UP FILE "aoa/images/aoaapply.jpg":U
@@ -746,7 +746,7 @@ DO:
             TITLE "Delete Batch Record"
             UPDATE deleteBatch AS LOGICAL
             .
-        IF deleteBatch THEN DO:
+        IF deleteBatch THEN DO TRANSACTION:
             FIND bUserPrint EXCLUSIVE-LOCK WHERE ROWID(bUserPrint) EQ ttUserPrint.UserPrintRowID.
             DELETE bUserPrint.
             RUN pGetUserPrint.
@@ -1259,7 +1259,7 @@ PROCEDURE pExcel :
             RETURN ERROR.
         END.
         /* Open our Excel Template. */
-        chWorkbook = chExcel:Workbooks:Open(cExcelFile) NO-ERROR.
+        /* chWorkbook = chExcel:Workbooks:Open(cExcelFile) NO-ERROR. */
         chExcel:Visible = TRUE.
         /* Do not display Excel error messages. */
         chExcel:DisplayAlerts = FALSE NO-ERROR.
@@ -1467,6 +1467,7 @@ PROCEDURE pExcel :
 
         /* calc header and data */
         ASSIGN
+            chWorkSheet:Cells(iStatusRow + 4,2):Value = "Building Wooksheet...Done"
             chRangeRow = chWorkSheet:Cells(iStatusRow - 2,1)
             chRangeCol = chWorkSheet:Cells(iRow,svSelectedColumns:NUM-ITEMS)
             .
@@ -1946,31 +1947,34 @@ PROCEDURE pSchedule :
 
     RUN pSaveParamValues (YES, BUFFER user-print).
 
-    FIND CURRENT user-print EXCLUSIVE-LOCK.
-    ASSIGN
-        user-print.batch-seq    = iBatchSeq + 1
-        user-print.prog-title   = aoaTitle
-        user-print.frequency    = ""
-        user-print.next-date    = ?
-        user-print.next-time    = 0
-        user-print.last-date    = TODAY
-        user-print.last-time    = TIME
-        .
-    FIND CURRENT user-print NO-LOCK.
+    DO TRANSACTION:
+        FIND CURRENT user-print EXCLUSIVE-LOCK.
+        ASSIGN
+            user-print.batch-seq    = iBatchSeq + 1
+            user-print.prog-title   = aoaTitle
+            user-print.frequency    = ""
+            user-print.next-date    = ?
+            user-print.next-time    = 0
+            user-print.last-date    = TODAY
+            user-print.last-time    = TIME
+            .
+        FIND CURRENT user-print NO-LOCK.
 
-    FIND FIRST reftable
-         WHERE reftable.reftable EQ "aoaReport"
-           AND reftable.code     EQ cProgramID
-         NO-ERROR.
-    IF NOT AVAILABLE reftable THEN DO:
-         CREATE reftable.
-         ASSIGN
-             reftable.reftable = "aoaReport"
-             reftable.code     = cProgramID
-             reftable.code2    = aoaProgramID
-             .
-    END. /* not avail */
-    ASSIGN reftable.dscr = aoaID.
+        FIND FIRST reftable EXCLUSIVE-LOCK
+             WHERE reftable.reftable EQ "aoaReport"
+               AND reftable.code     EQ cProgramID
+             NO-ERROR.
+        IF NOT AVAILABLE reftable THEN DO:
+             CREATE reftable.
+             ASSIGN
+                 reftable.reftable = "aoaReport"
+                 reftable.code     = cProgramID
+                 reftable.code2    = aoaProgramID
+                 .
+        END. /* not avail */
+        ASSIGN reftable.dscr = aoaID.
+    END. /* do transaction */
+    RELEASE reftable.
 
     MESSAGE
         "Parameters created for ..." SKIP(1)
