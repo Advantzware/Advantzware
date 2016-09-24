@@ -474,7 +474,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-qtitem , 'TableIO':U , h_b-qtitm ).
        RUN add-link IN adm-broker-hdl ( h_v-qthd , 'bottom':U , h_b-qtitm ).
        RUN add-link IN adm-broker-hdl ( h_v-qthd , 'Record':U , h_b-qtitm ).
-       RUN add-link IN adm-broker-hdl ( h_b-qtitm , 'itemqt':U , h_b-qthd ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-qthd ,
