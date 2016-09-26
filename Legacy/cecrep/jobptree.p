@@ -138,7 +138,10 @@ DEFINE VARIABLE v-inst2 AS cha EXTENT 6 NO-UNDO.
 DEFINE VARIABLE v-tmp-line AS INTEGER NO-UNDO.
 DEFINE BUFFER bf-eb FOR eb.
 DEFINE BUFFER b-ef FOR ef.
-DEFINE WORKFILE tt-wm LIKE w-m.
+DEFINE WORKFILE tt-wm LIKE w-m 
+    field mseq like mach.m-seq .
+DEFINE WORKFILE ww-wm LIKE w-m
+field mseq like mach.m-seq .
 DEFINE VARIABLE lv-spec-qty LIKE ef.spec-qty FORMAT ">>>,>>9.9<<<<" NO-UNDO.
 DEFINE SHARED VARIABLE s-prt-set-header AS LOG NO-UNDO.
 DEFINE VARIABLE v-managed-order AS cha FORM "x(30)" NO-UNDO.
@@ -769,15 +772,26 @@ ASSIGN
       PUT SKIP(3)
           "<R-3><P8>        <U>Machine Routing:</U>              <U>Sheets</U>"
           "<P10>"  SKIP.
+
+     FOR EACH w-m BY w-m.dseq:
+         FIND FIRST mach NO-LOCK WHERE mach.company EQ cocode
+             AND mach.m-code EQ w-m.m-code NO-ERROR.
+         
+         CREATE ww-wm.
+             BUFFER-COPY w-m TO ww-wm.
+
+         IF AVAIL mach THEN
+             ww-wm.mseq  = mach.m-seq .
+     END.
       
-      FOR EACH w-m BY w-m.dseq:
+      FOR EACH ww-wm BY ww-wm.mseq BY ww-wm.dseq:
 
         ASSIGN
            i = i + 1
            v-letter = substr("UTE",i,1)
            v-lines = v-lines + 1.
 
-        DISPLAY w-m.dscr AT 3   "<P8><U>Received:</U><P10>" WHEN i = 1 AT 29
+        DISPLAY ww-wm.dscr AT 3   "<P8><U>Received:</U><P10>" WHEN i = 1 AT 29
             WITH NO-BOX NO-LABELS FRAME oo1 WIDTH 150 NO-ATTR-SPACE DOWN STREAM-IO.
         
       END.
@@ -785,9 +799,9 @@ ASSIGN
                                          AND b-ef.est-no = est.est-no NO-LOCK NO-ERROR.
       
       IF AVAILABLE b-ef AND b-ef.form-no = w-ef.frm THEN 
-         FOR EACH w-m:
+         FOR EACH ww-wm:
              CREATE tt-wm.
-             BUFFER-COPY w-m TO tt-wm.
+             BUFFER-COPY ww-wm TO tt-wm.
       END.
 
     EMPTY TEMP-TABLE tt-formtext.
@@ -1118,7 +1132,7 @@ ASSIGN
                  .
         
              i = 0.
-             FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0  BY tt-wm.dseq:
+             FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0 BY tt-wm.mseq  BY tt-wm.dseq:
                i = i + 1.
                DISPLAY tt-wm.dscr AT 3
                     tt-wm.s-hr WHEN tt-wm.s-hr NE 0
