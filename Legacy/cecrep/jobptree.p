@@ -773,6 +773,10 @@ ASSIGN
           "<R-3><P8>        <U>Machine Routing:</U>              <U>Sheets</U>"
           "<P10>"  SKIP.
 
+     FOR EACH ww-wm NO-LOCK:
+         DELETE ww-wm .
+     END.
+
      FOR EACH w-m BY w-m.dseq:
          FIND FIRST mach NO-LOCK WHERE mach.company EQ cocode
              AND mach.m-code EQ w-m.m-code NO-ERROR.
