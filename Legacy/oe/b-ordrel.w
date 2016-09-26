@@ -2089,6 +2089,7 @@ DEF VAR v-all-items AS LOG NO-UNDO.
 DEF VAR v-first AS LOG NO-UNDO.
 DEF VAR lv-save-recid AS RECID NO-UNDO.
 DEF VAR v-invoice AS LOG NO-UNDO.
+DEFINE BUFFER bf-notes FOR notes .
 
 FIND xoe-ord WHERE xoe-ord.company = g_company AND
                    xoe-ord.ord-no = oe-rel.ord-no NO-LOCK.
@@ -2108,7 +2109,7 @@ IF oeBolPrompt-log AND AVAILABLE cust THEN DO:
     
         FOR EACH notes NO-LOCK WHERE notes.rec_key = cust.rec_key AND
                               LOOKUP(notes.note_code,oeBolPrompt-char) <> 0 :
-            clvtext = clvtext + notes.note_text + "  " .
+            clvtext = clvtext + notes.note_text + "  " + CHR(13) .
         END.
     
     IF clvtext NE "Notes: " THEN
@@ -2228,6 +2229,30 @@ SESSION:SET-WAIT-STATE("general").
         IF AVAIL oe-rell AND oe-rell.link-no NE 0 THEN
         FIND oe-rel WHERE oe-rel.r-no EQ oe-rell.link-no NO-LOCK NO-ERROR.                    
     END.
+
+    IF oeBolPrompt-log AND AVAILABLE xoe-ordl THEN DO:
+      IF NOT AVAIL cust THEN
+          FIND FIRST cust NO-LOCK 
+          WHERE cust.company EQ xoe-ordl.company
+          AND cust.cust-no EQ xoe-ordl.cust-no NO-ERROR.
+      IF AVAIL cust THEN
+          FOR EACH notes NO-LOCK WHERE notes.rec_key = cust.rec_key AND
+                                LOOKUP(notes.note_code,oeBolPrompt-char) <> 0 :
+             FIND FIRST oe-boll NO-LOCK
+                 WHERE oe-boll.company  EQ xoe-ordl.company
+                 AND oe-boll.ord-no   EQ xoe-ordl.ord-no
+                 AND oe-boll.i-no     EQ xoe-ordl.i-no 
+                 NO-ERROR.
+             IF AVAILABLE oe-boll THEN 
+                 FIND FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ oe-boll.b-no NO-ERROR.
+             IF AVAILABLE oe-bolh THEN DO:
+                 CREATE bf-notes .
+                 BUFFER-COPY notes EXCEPT rec_key TO bf-notes .
+                 ASSIGN bf-notes.rec_key = oe-bolh.rec_key .
+             END.
+          END.
+    END. /*oeBolPrompt-log  */
+
 
 RUN release-shared-buffers.
 
