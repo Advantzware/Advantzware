@@ -55,11 +55,10 @@ svStartJobNo2 svEndJobNo svEndJobNo2 svAllItemNo svStartItemNo svEndItemNo ~
 svAllCAD svStartCAD svEndCAD svStartDueDate btnCalendar-3 ~
 svStartDueDateOption svEndDueDate btnCalendar-4 svEndDueDateOption ~
 svAllUserID svStartUserID svEndUserID svAllSalesRep svStartSalesRep ~
-svEndSalesRep svPrimarySort svPrimarySort-2 svJobStatus svOrderStatus ~
+svEndSalesRep svPrimarySort svSecondarySort svJobStatus svOrderStatus ~
 svWIPQty svSubRpt_PrintJobQtyDetails svDropOrderUnderrun ~
-svIncludeZeroOrderBalanceItems svIncludeJobsQOH ~
-svIncludeZeroQtyActReleaseQty svIncludeZeroQtyWIPItems ~
-svIncludeInactiveItems 
+svIncludeZeroOrderBalanceItems svIncludeZeroQtyActReleaseQty ~
+svIncludeJobsQOH svIncludeZeroQtyWIPItems svIncludeInactiveItems 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svAllCustNo svCustList ~
 svStartCustNo startCustName svEndCustNo endCustName svStartOrderDate ~
 svStartOrderDateOption svEndOrderDate svEndOrderDateOption svAllPONumber ~
@@ -69,11 +68,10 @@ endItemName svAllCAD svStartCAD svEndCAD svStartDueDate ~
 svStartDueDateOption svEndDueDate svEndDueDateOption svAllUserID ~
 svStartUserID startUserIDName svEndUserID endUserIDName svAllSalesRep ~
 svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
-svPrimarySort svPrimarySort-2 svJobStatus svOrderStatus svWIPQty ~
+svPrimarySort svSecondarySort svJobStatus svOrderStatus svWIPQty ~
 svSubRpt_PrintJobQtyDetails svDropOrderUnderrun ~
-svIncludeZeroOrderBalanceItems svIncludeJobsQOH ~
-svIncludeZeroQtyActReleaseQty svIncludeZeroQtyWIPItems ~
-svIncludeInactiveItems 
+svIncludeZeroOrderBalanceItems svIncludeZeroQtyActReleaseQty ~
+svIncludeJobsQOH svIncludeZeroQtyWIPItems svIncludeInactiveItems 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -299,7 +297,7 @@ DEFINE VARIABLE svPrimarySort AS CHARACTER INITIAL "Customer"
 "Sales Rep", "Sales Rep"
      SIZE 68 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svPrimarySort-2 AS CHARACTER INITIAL "PO" 
+DEFINE VARIABLE svSecondarySort AS CHARACTER INITIAL "PO" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "PO", "PO",
@@ -483,7 +481,7 @@ DEFINE FRAME F-Main
      endSalesRepName AT ROW 24.81 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 104
      svPrimarySort AT ROW 26 COL 22 HELP
           "Select Primary Sort Option" NO-LABEL WIDGET-ID 84
-     svPrimarySort-2 AT ROW 27.19 COL 22 HELP
+     svSecondarySort AT ROW 27.19 COL 22 HELP
           "Select Secondary Sort Option" NO-LABEL WIDGET-ID 202
      svJobStatus AT ROW 28.38 COL 22 HELP
           "Select Job Status" NO-LABEL WIDGET-ID 210
@@ -497,16 +495,14 @@ DEFINE FRAME F-Main
           "Select to Drop Order Underrun%" WIDGET-ID 234
      svIncludeZeroOrderBalanceItems AT ROW 34.33 COL 22 HELP
           "Select to Include 0 Order Balance Items" WIDGET-ID 224
-     svIncludeJobsQOH AT ROW 34.33 COL 56 HELP
-          "Select to Include Jobs with QOH" WIDGET-ID 230
      svIncludeZeroQtyActReleaseQty AT ROW 34.33 COL 56 HELP
           "Select to Include 0 Qty / Act. Release Qty = 0" WIDGET-ID 222
+     svIncludeJobsQOH AT ROW 34.33 COL 56 HELP
+          "Select to Include Jobs with QOH" WIDGET-ID 230
      svIncludeZeroQtyWIPItems AT ROW 35.52 COL 22 HELP
           "Select to Include 0 Qty WIP Items" WIDGET-ID 226
      svIncludeInactiveItems AT ROW 35.52 COL 56 HELP
           "Select to Include Inactive Items" WIDGET-ID 228
-     "WIP Qty:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 30.76 COL 12 WIDGET-ID 246
      "Primary Sort By:" VIEW-AS TEXT
           SIZE 15 BY 1 AT ROW 26 COL 6 WIDGET-ID 90
      "Order Status:" VIEW-AS TEXT
@@ -515,6 +511,8 @@ DEFINE FRAME F-Main
           SIZE 11 BY 1 AT ROW 28.38 COL 10 WIDGET-ID 242
      "Secondary Sort By:" VIEW-AS TEXT
           SIZE 18 BY 1 AT ROW 27.19 COL 3 WIDGET-ID 208
+     "WIP Qty:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 30.76 COL 12 WIDGET-ID 246
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
