@@ -15,9 +15,7 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.company = cocode
    sys-ctrl.name    = "SSBOL"
    sys-ctrl.descrip = "Scanned Tags automatically added to Release?".
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 END.
 ASSIGN
  ssbol-int = sys-ctrl.int-fld

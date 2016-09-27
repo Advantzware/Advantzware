@@ -101,6 +101,11 @@ DEFINE VARIABLE colNumber AS INTEGER       NO-UNDO.
 DEFINE VARIABLE dtPrevDueDate AS DATE NO-UNDO.
 DEFINE VARIABLE cDueDateChgReason AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lJustDeletedLine AS LOGICAL NO-UNDO.
+DEFINE VARIABLE oeBolPrompt-char AS CHARACTER NO-UNDO .
+DEFINE VARIABLE oeBolPrompt-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE clvtext AS CHARACTER NO-UNDO .
 
 
 RUN sys/ref/s-codes.p (OUTPUT lv-s-codes, OUTPUT lv-s-dscrs).
@@ -168,6 +173,18 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* chec
                        OUTPUT v-rtn-char, OUTPUT v-rec-found).
 IF v-rec-found THEN
 oeDateAuto-char = v-rtn-char NO-ERROR.    
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLPrompt", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+     oeBolPrompt-log = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLPrompt", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    oeBolPrompt-char = cRtnChar NO-ERROR. 
 
 /* Could be implemented later */
 /* DEF VAR bt_addnote AS HANDLE.                                                       */
@@ -2081,6 +2098,23 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company = xoe-ord.company NO-LOCK .
 {sys/inc/oereordr.i}
 
 v-scr-s-code = tt-report.s-basis[1]:SCREEN-VALUE IN BROWSE {&browse-name}.
+
+FIND FIRST cust NO-LOCK 
+        WHERE cust.company EQ xoe-ord.company
+          AND cust.cust-no EQ xoe-ord.cust-no NO-ERROR.
+
+ASSIGN clvtext = "Notes: " .
+IF oeBolPrompt-log AND AVAILABLE cust THEN DO:
+    
+        FOR EACH notes NO-LOCK WHERE notes.rec_key = cust.rec_key AND
+                              LOOKUP(notes.note_code,oeBolPrompt-char) <> 0 :
+            clvtext = clvtext + notes.note_text + "  " .
+        END.
+    
+    IF clvtext NE "Notes: " THEN
+    MESSAGE clvtext VIEW-AS ALERT-BOX INFORMATION BUTTONS OK  .
+END.
+
 IF v-scr-s-code NE "I" THEN DO:
 
   RUN check-release NO-ERROR.
@@ -2090,6 +2124,8 @@ IF v-scr-s-code NE "I" THEN DO:
   RUN credit-check NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN.
 END.
+
+
 
 ASSIGN
 lv-save-recid = RECID(oe-rel)

@@ -82,8 +82,6 @@ for each xef where xef.company = xest.company and
                    xef.est-no = xest.est-no:
    v-form-no = xef.form-no.
 
-
-
    v-up = 0.
    for each xeb fields(num-up) where
         xeb.company = xest.company AND
@@ -120,24 +118,24 @@ for each xef where xef.company = xest.company and
                    AND eb.form-no EQ xef.form-no
                  NO-LOCK.
       v-sheets =  probe.est-qty * (IF eb.yld-qty GT 0 THEN eb.yld-qty ELSE 
-        IF eb.yld-qty EQ 0 THEN 1 ELSE (-1 / eb.yld-qty)) / eb.num-up / v-n-out.    
-         
-         IF v-sheets GT v-max-sheets THEN
+        IF eb.yld-qty EQ 0 THEN 1 ELSE (-1 / eb.yld-qty)) / eb.num-up / v-n-out.
+            
+        IF v-sheets GT v-max-sheets THEN
              v-max-sheets = v-sheets.
-
      END.
-     IF v-max-sheets GT 0 THEN
+
+     IF v-max-sheets GT vgsh-qty THEN
        vgsh-qty = v-max-sheets.
    END.
+
    IF vgsh-qty = 0 THEN
        vgsh-qty       = IF xef.gsh-qty NE 0 THEN xef.gsh-qty
                         else
                         if avail est-op then est-op.num-sh
                         else qty / (v-up * v-n-out).
 
-
    {sys/inc/roundup.i vgsh-qty}
-   
+ 
    assign
     probe.gsh-qty = probe.gsh-qty + vgsh-qty
     probe.tot-lbs = probe.tot-lbs +

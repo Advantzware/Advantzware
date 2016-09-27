@@ -704,8 +704,6 @@ ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
   DEF VAR phandle AS HANDLE NO-UNDO.
   DEF VAR char-hdl AS cha NO-UNDO.
-
-
   {methods/run_link.i "container-source" "select-page" "(2)"}
 END.
 
@@ -776,8 +774,6 @@ DO:
   END.
 
   SESSION:SET-WAIT-STATE("").
-
-  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1280,6 +1276,36 @@ PROCEDURE navigate-browser :
       
   IF ROWID(cust) EQ lvFirstRowID THEN
   opNavType = IF opNavType EQ 'L' THEN 'B' ELSE 'F'.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRM B-table-Win 
+PROCEDURE pCRM :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN CRM/crmCustomers.w (g_company).
+    RUN query-go.
+    APPLY "VALUE-CHANGED":U TO BROWSE {&BROWSE-NAME}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRM B-table-Win 
+PROCEDURE pCRMType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCRMType AS CHARACTER NO-UNDO INITIAL "crmCustomers.".
 
 END PROCEDURE.
 

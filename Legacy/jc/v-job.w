@@ -26,59 +26,59 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF NEW SHARED VAR nufile AS LOG NO-UNDO.   /* for jc-calc.p */
-DEF NEW SHARED VAR lv-qty AS INT NO-UNDO. 
-DEF NEW SHARED VAR fil_id AS RECID NO-UNDO.
+DEFINE NEW SHARED VARIABLE nufile AS LOG NO-UNDO.   /* for jc-calc.p */
+DEFINE NEW SHARED VARIABLE lv-qty AS INTEGER NO-UNDO. 
+DEFINE NEW SHARED VARIABLE fil_id AS RECID NO-UNDO.
 {custom/globdefs.i}
 {sys/inc/var.i "new shared"}
 ASSIGN cocode = g_company
        locode = g_loc.
 
-DEF VAR ll-valid AS LOG NO-UNDO.
-DEF VAR ll-secure AS LOG NO-UNDO.
-DEF VAR ll-sch-updated AS LOG NO-UNDO.
-DEF VAR lv-new-job-hdr-rowid AS ROWID NO-UNDO.
-DEF VAR copyJob AS LOG NO-UNDO.
-DEF VAR copyJobRowID AS ROWID NO-UNDO.
+DEFINE VARIABLE ll-valid AS LOG NO-UNDO.
+DEFINE VARIABLE ll-secure AS LOG NO-UNDO.
+DEFINE VARIABLE ll-sch-updated AS LOG NO-UNDO.
+DEFINE VARIABLE lv-new-job-hdr-rowid AS ROWID NO-UNDO.
+DEFINE VARIABLE copyJob AS LOG NO-UNDO.
+DEFINE VARIABLE copyJobRowID AS ROWID NO-UNDO.
 /* rstark 06241201 */
-DEF VAR noDate AS LOG NO-UNDO.
-DEF VAR planDate AS LOG NO-UNDO.
-DEF VAR scheduleHndl AS HANDLE NO-UNDO.
+DEFINE VARIABLE noDate AS LOG NO-UNDO.
+DEFINE VARIABLE planDate AS LOG NO-UNDO.
+DEFINE VARIABLE scheduleHndl AS HANDLE NO-UNDO.
 /* rstark 06241201 */
 
 /* gdm - 05290901 */
-DEF VAR v-jbmch-stdate LIKE job.start-date NO-UNDO.
-DEF VAR v-okflg        AS LOG              NO-UNDO.
-DEF VAR v-stdflg       AS LOG              NO-UNDO.
-DEF VAR v-rowid        AS ROWID            NO-UNDO.
-DEF VAR gvlUseJobQty AS LOG NO-UNDO.
-DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
-DEF VAR v-corr AS LOG NO-UNDO.
-DEF VAR ll-one-part AS LOG NO-UNDO.
-DEF            BUFFER x-eb   FOR eb.
-DEF NEW SHARED BUFFER xeb    FOR eb.
-DEF            BUFFER bf-job FOR job.
+DEFINE VARIABLE v-jbmch-stdate LIKE job.start-date NO-UNDO.
+DEFINE VARIABLE v-okflg        AS LOG              NO-UNDO.
+DEFINE VARIABLE v-stdflg       AS LOG              NO-UNDO.
+DEFINE VARIABLE v-rowid        AS ROWID            NO-UNDO.
+DEFINE VARIABLE gvlUseJobQty AS LOG NO-UNDO.
+DEFINE VARIABLE K_FRAC AS DECIMAL INIT 6.25 NO-UNDO.
+DEFINE VARIABLE v-corr AS LOG NO-UNDO.
+DEFINE VARIABLE ll-one-part AS LOG NO-UNDO.
+DEFINE            BUFFER x-eb   FOR eb.
+DEFINE NEW SHARED BUFFER xeb    FOR eb.
+DEFINE            BUFFER bf-job FOR job.
 /* gdm - 05290901 end */
 
 /* gdm - 05290901*/
-DEF VAR v-startdate LIKE job.start-date NO-UNDO.
-DEF BUFFER bf-job-mch FOR job-mch.
-DEF VAR OEJobHold-log AS LOG NO-UNDO.
-DEF VAR lcReturn AS CHAR NO-UNDO.
-DEF VAR llRecFound AS LOG NO-UNDO.
+DEFINE VARIABLE v-startdate LIKE job.start-date NO-UNDO.
+DEFINE BUFFER bf-job-mch FOR job-mch.
+DEFINE VARIABLE OEJobHold-log AS LOG NO-UNDO.
+DEFINE VARIABLE lcReturn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE llRecFound AS LOG NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
                           OUTPUT lcReturn, OUTPUT llRecFound).
 
 IF llRecFound THEN
    OEJobHold-log = LOGICAL(lcReturn) NO-ERROR.  
 
-DEF VAR JobHoldReason-log AS LOG NO-UNDO.
+DEFINE VARIABLE JobHoldReason-log AS LOG NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "JOBHoldReason", "L", NO, NO, "", "", 
                           OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
    JobHoldReason-log = LOGICAL(lcReturn) NO-ERROR.
 
-DEF BUFFER xjob FOR job.
+DEFINE BUFFER xjob FOR job.
 
 noDate = CAN-FIND(FIRST sys-ctrl
                   WHERE sys-ctrl.company EQ cocode
@@ -92,9 +92,9 @@ planDate = CAN-FIND(FIRST sys-ctrl
                       AND sys-ctrl.char-fld EQ 'PlanDate'
                       AND sys-ctrl.log-fld EQ YES).
 /* rstark 06241201 */
-DEF VAR lvReturnChar AS CHAR NO-UNDO.
-DEF VAR lvFound AS LOG NO-UNDO.
-DEF VAR autofgissue-log AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lvReturnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lvFound AS LOG NO-UNDO.
+DEFINE VARIABLE autofgissue-log AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "AUTOFGISSUE", "L", NO, NO, "", "", 
     OUTPUT lvReturnChar, OUTPUT lvFound).
@@ -196,7 +196,7 @@ DEFINE FRAME F-Main
           LABEL "Job Number" FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     job.job-no2 AT ROW 1.24 COL 37 COLON-ALIGNED NO-LABEL
+     job.job-no2 AT ROW 1.24 COL 37 COLON-ALIGNED NO-LABELS
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
      job.est-no AT ROW 1.24 COL 65 COLON-ALIGNED FORMAT "x(8)"
@@ -331,8 +331,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-  DEF VAR char-val AS CHAR NO-UNDO. 
-  DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE char-val AS CHARACTER NO-UNDO. 
+  DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
   
 
   lw-focus = FOCUS.
@@ -342,7 +342,7 @@ DO:
         RUN windows/l-est.w (g_company,g_loc,lw-focus:SCREEN-VALUE, OUTPUT char-val).
         IF char-val NE "" THEN DO:
           FIND eb WHERE RECID(eb) EQ INT(char-val) NO-LOCK NO-ERROR.
-          IF AVAIL eb THEN lw-focus:SCREEN-VALUE = eb.est-no.
+          IF AVAILABLE eb THEN lw-focus:SCREEN-VALUE = eb.est-no.
         END.                
       END. 
       WHEN "loc" THEN DO:
@@ -351,7 +351,7 @@ DO:
            ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
       END.
       WHEN "reason" THEN DO:
-            RUN windows/l-rejjob.w (cocode, lw-focus:screen-value, OUTPUT char-val).
+            RUN windows/l-rejjob.w (cocode, lw-focus:SCREEN-VALUE, OUTPUT char-val).
             /* If value selected, set code to first entry of string,
                set tooltip to second entry of string (description). */
             IF char-val <> "" THEN
@@ -534,7 +534,7 @@ FIND FIRST bf-job EXCLUSIVE-LOCK
       AND bf-job.job     EQ job.job
       AND bf-job.job-no  EQ job.job-no
       AND bf-job.job-no2 EQ job.job-no2 NO-ERROR.
-IF AVAIL bf-job THEN DO:
+IF AVAILABLE bf-job THEN DO:
    ASSIGN bf-job.start-date = v-jbmch-stdate. 
 END.
 RELEASE bf-job.
@@ -552,9 +552,9 @@ PROCEDURE close-reopen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-rowid AS ROWID NO-UNDO.
-  DEF VAR char-hdl AS CHAR NO-UNDO.
-  DEF VAR ll-process AS LOG NO-UNDO.
+  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE ll-process AS LOG NO-UNDO.
 
     
   ll-process = job.opened OR ll-secure OR NOT v-jobpass.
@@ -605,12 +605,12 @@ PROCEDURE get-due-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
   DO WITH FRAME {&frame-name}:
     FIND job-hdr WHERE ROWID(job-hdr) EQ ip-rowid NO-LOCK NO-ERROR.
 
-    IF NOT AVAIL job-hdr AND AVAIL job THEN
+    IF NOT AVAILABLE job-hdr AND AVAILABLE job THEN
     FIND FIRST job-hdr
         WHERE job-hdr.company EQ job.company
           AND job-hdr.job     EQ job.job
@@ -618,7 +618,7 @@ PROCEDURE get-due-date :
           AND job-hdr.job-no2 EQ job.job-no2
         NO-LOCK NO-ERROR.
 
-    IF AVAIL job-hdr AND job-hdr.ord-no NE 0 THEN
+    IF AVAILABLE job-hdr AND job-hdr.ord-no NE 0 THEN
       FIND FIRST oe-ordl
           WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no  EQ job-hdr.ord-no
@@ -630,11 +630,11 @@ PROCEDURE get-due-date :
           WHERE oe-ordl.company EQ cocode
             AND oe-ordl.job-no  EQ job.job-no:SCREEN-VALUE
             AND oe-ordl.job-no2 EQ INT(job.job-no2:SCREEN-VALUE)
-            AND (NOT AVAIL job-hdr OR
-                 (AVAIL job-hdr AND oe-ordl.i-no EQ job-hdr.i-no))
+            AND (NOT AVAILABLE job-hdr OR
+                 (AVAILABLE job-hdr AND oe-ordl.i-no EQ job-hdr.i-no))
           NO-LOCK NO-ERROR.
 
-    IF AVAIL oe-ordl THEN job.due-date:SCREEN-VALUE = STRING(oe-ordl.req-date).
+    IF AVAILABLE oe-ordl THEN job.due-date:SCREEN-VALUE = STRING(oe-ordl.req-date).
   END.
 END PROCEDURE.
 
@@ -648,10 +648,10 @@ PROCEDURE get-start-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAM ip-flg AS LOG NO-UNDO.
+DEFINE INPUT PARAMETER ip-flg AS LOG NO-UNDO.
 
-DEF VAR char-hdl AS CHAR NO-UNDO.
-DEF VAR v-assign-start-date AS LOG NO-UNDO.
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-assign-start-date AS LOG NO-UNDO.
 
 ASSIGN v-jbmch-stdate = ?.
 
@@ -692,7 +692,7 @@ IF ip-flg THEN DO:
        "Machine Routing Start Date is " STRING(v-jbmch-stdate,"99/99/99") " ." SKIP
                    "Job Start Date is " STRING(job.start-date,"99/99/99") " ." SKIP
        "  Transfer Routing Date to Start Date ?" 
-      VIEW-AS ALERT-BOX INFO BUTTONS YES-NO
+      VIEW-AS ALERT-BOX INFORMATION BUTTONS YES-NO
       UPDATE v-okflg.
 
   IF v-okflg THEN
@@ -736,10 +736,10 @@ PROCEDURE hold-release :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR char-hdl AS CHAR NO-UNDO.  
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
   DEFINE VARIABLE lOrderOnHold AS LOGICAL NO-UNDO.  
     
-    IF AVAIL job AND job.opened THEN 
+    IF AVAILABLE job AND job.opened THEN 
     DO:
         FIND CURRENT job NO-ERROR.
     
@@ -755,7 +755,7 @@ PROCEDURE hold-release :
                         WHERE oe-ord.company EQ job-hdr.company
                         AND oe-ord.ord-no EQ job-hdr.ord-no
                         NO-LOCK NO-ERROR.
-                    IF AVAIL oe-ord AND oe-ord.stat EQ "H" THEN 
+                    IF AVAILABLE oe-ord AND oe-ord.stat EQ "H" THEN 
                     DO:
                         lOrderOnHold= TRUE.
                         MESSAGE "Order " oe-ord.ord-no "is on hold and must be released before this job can be released."
@@ -793,11 +793,11 @@ PROCEDURE hold-release :
                 ELSE "W"
                 ELSE "R"
                 ELSE "H".
-            if JobHoldReason-log and job.stat = "H" then do:                
-                run windows/l-rejjob.w (cocode, job.reason, OUTPUT char-hdl).
-                job.reason = entry(1,char-hdl).                
-            end.
-            if job.stat <> "H" then job.reason = "".
+            IF JobHoldReason-log AND job.stat = "H" THEN DO:                
+                RUN windows/l-rejjob.w (cocode, job.reason, OUTPUT char-hdl).
+                job.reason = ENTRY(1,char-hdl).                
+            END.
+            IF job.stat <> "H" THEN job.reason = "".
             
             FIND CURRENT job NO-LOCK NO-ERROR.
 
@@ -818,9 +818,9 @@ PROCEDURE is-row-available :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF OUTPUT PARAM op-row-avail AS LOG NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-row-avail AS LOG NO-UNDO.
   
-  op-row-avail = IF AVAIL job THEN YES ELSE NO.
+  op-row-avail = IF AVAILABLE job THEN YES ELSE NO.
 
 END PROCEDURE.
 
@@ -833,11 +833,11 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-start-date AS DATE NO-UNDO.
+  DEFINE VARIABLE lv-start-date AS DATE NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   
-  lv-start-date = IF AVAIL job THEN job.start-date ELSE ?.
+  lv-start-date = IF AVAILABLE job THEN job.start-date ELSE ?.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -920,7 +920,7 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR li LIKE job.job.
+  DEFINE VARIABLE li LIKE job.job.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   
@@ -968,9 +968,9 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-msg AS CHAR NO-UNDO.
-  DEF VAR char-hdl AS cha NO-UNDO.
-  DEF VAR ll-warn AS LOG NO-UNDO.
+  DEFINE VARIABLE lv-msg AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE char-hdl AS cha NO-UNDO.
+  DEFINE VARIABLE ll-warn AS LOG NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -998,7 +998,7 @@ PROCEDURE local-delete-record :
             AND oe-ordl.job-no  EQ job.job-no
             AND oe-ordl.job-no2 EQ job.job-no2
           NO-LOCK NO-ERROR.
-      IF AVAIL oe-ordl THEN lv-msg = "An order exists with this Job#".
+      IF AVAILABLE oe-ordl THEN lv-msg = "An order exists with this Job#".
     END.
 
     IF lv-msg NE "" THEN DO:
@@ -1051,8 +1051,8 @@ PROCEDURE local-display-fields :
                MACHINE SETUP START DATE. GETTING THE MACHINE SETUP START DATE.
                
 ------------------------------------------------------------------------------*/
-DEF VAR li AS INT NO-UNDO.
-DEF VAR char-hdl AS cha NO-UNDO.
+DEFINE VARIABLE li AS INTEGER NO-UNDO.
+DEFINE VARIABLE char-hdl AS cha NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */  
@@ -1061,14 +1061,14 @@ DEF VAR char-hdl AS cha NO-UNDO.
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  if job.stat = "H" then do: 
-     find first rejct-cd WHERE rejct-cd.type = "JH" 
-                          and rejct-cd.code = job.reason NO-LOCK no-error.
-     if avail rejct-cd then
-        assign vHoldReason:hidden in frame {&frame-name} = no
+  IF AVAILABLE job AND job.stat = "H" THEN DO: 
+     FIND FIRST rejct-cd WHERE rejct-cd.type = "JH" 
+                          AND rejct-cd.code = job.reason NO-LOCK NO-ERROR.
+     IF AVAILABLE rejct-cd THEN
+        ASSIGN vHoldReason:hidden IN FRAME {&frame-name} = NO
                vHoldReason:screen-value  = job.reason + " " + rejct-cd.dscr.      
-  end.
-  else assign vHoldReason:hidden in frame {&frame-name} = yes
+  END.
+  ELSE ASSIGN vHoldReason:hidden IN FRAME {&frame-name} = YES
               vHoldReason:screen-value  = "".
   
   RUN get-start-date (NO). 
@@ -1117,7 +1117,7 @@ PROCEDURE local-enable-fields :
       IF FIRST(job-hdr.job) AND LAST(job-hdr.job) THEN LEAVE.
     END.
 
-    IF AVAIL job-hdr THEN ENABLE job.due-date.
+    IF AVAILABLE job-hdr THEN ENABLE job.due-date.
   END.
 
 END PROCEDURE.
@@ -1131,7 +1131,7 @@ PROCEDURE local-row-available :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER bf-job FOR job.
+  DEFINE BUFFER bf-job FOR job.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -1139,7 +1139,7 @@ PROCEDURE local-row-available :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-   IF AVAIL job AND job.est-no EQ "" THEN DO:
+   IF AVAILABLE job AND job.est-no EQ "" THEN DO:
 
       FIND FIRST job-hdr
             WHERE job-hdr.company EQ job.company
@@ -1157,7 +1157,7 @@ PROCEDURE local-row-available :
    END. 
    IF lv-new-job-hdr-rowid <> ? THEN DO:
        FIND FIRST job-hdr WHERE ROWID(job-hdr) = lv-new-job-hdr-rowid NO-LOCK NO-ERROR.
-       IF AVAIL job-hdr THEN FIND FIRST job OF job-hdr NO-LOCK NO-ERROR.       
+       IF AVAILABLE job-hdr THEN FIND FIRST job OF job-hdr NO-LOCK NO-ERROR.       
        RUN dispatch ('display-fields').
        lv-new-job-hdr-rowid = ?.
    END.
@@ -1174,16 +1174,16 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR ll-new AS LOG NO-UNDO.
-  DEF VAR char-hdl AS cha NO-UNDO.
-  DEF VAR lv-job-rowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE ll-new AS LOG NO-UNDO.
+  DEFINE VARIABLE char-hdl AS cha NO-UNDO.
+  DEFINE VARIABLE lv-job-rowid AS ROWID NO-UNDO.
   DEFINE VARIABLE jobHdrRowID AS ROWID NO-UNDO.
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR v-reprint AS LOG NO-UNDO.
-  DEF BUFFER xeb FOR eb .
-  DEF VAR choice AS LOG NO-UNDO.
-  DEF VAR rEbRow AS ROWID NO-UNDO.
-  DEF VAR cNewItem AS CHAR NO-UNDO.
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-reprint AS LOG NO-UNDO.
+  DEFINE BUFFER xeb FOR eb .
+  DEFINE VARIABLE choice AS LOG NO-UNDO.
+  DEFINE VARIABLE rEbRow AS ROWID NO-UNDO.
+  DEFINE VARIABLE cNewItem AS CHARACTER NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN validate-start-date.
   IF NOT ll-valid THEN RETURN NO-APPLY.
@@ -1215,7 +1215,7 @@ PROCEDURE local-update-record :
   /* Deal with blank item number here so that can undo the add */
   /* begin insert */
 
-  DEF BUFFER xest FOR est.
+  DEFINE BUFFER xest FOR est.
   IF adm-new-record THEN DO:
     FIND FIRST xest WHERE xest.company EQ job.company
        AND xest.est-no = job.est-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -1239,7 +1239,7 @@ PROCEDURE local-update-record :
                           NO-LOCK NO-ERROR.
 
       choice = NO.
-      IF NOT AVAIL itemfg OR xeb.stock-no EQ "" THEN DO WHILE TRUE:
+      IF NOT AVAILABLE itemfg OR xeb.stock-no EQ "" THEN DO WHILE TRUE:
 
         IF NOT choice OR xeb.stock-no EQ '' OR NOT AVAIL (itemfg) THEN DO:
           choice = NO.
@@ -1257,7 +1257,7 @@ PROCEDURE local-update-record :
               {sys/look/itemfgrlW.i}
                 AND itemfg.i-no   EQ xeb.stock-no
               NO-LOCK NO-ERROR.
-             IF NOT AVAIL itemfg THEN
+             IF NOT AVAILABLE itemfg THEN
             MESSAGE "Item: " + TRIM(xeb.stock-no) + " doesn't exist for Cust Part#: " +  TRIM(xeb.part-no) + 
                  " and Form#: " + STRING(xeb.form-no) + ", would you LIKE to create it?"
                     VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
@@ -1273,7 +1273,7 @@ PROCEDURE local-update-record :
       FIND FIRST itemfg WHERE itemfg.company EQ cocode
                           AND itemfg.i-no    EQ xeb.stock-no
                           NO-LOCK NO-ERROR.
-      IF AVAIL itemfg AND itemfg.prod-uom EQ "" THEN DO:
+      IF AVAILABLE itemfg AND itemfg.prod-uom EQ "" THEN DO:
        MESSAGE "FG Item " + itemfg.i-no + " has no cost UOM. Please correct the item master and try again."
            VIEW-AS ALERT-BOX ERROR.         
        RETURN NO-APPLY. 
@@ -1295,7 +1295,7 @@ PROCEDURE local-update-record :
       nufile = YES.
       FIND xeb WHERE ROWID(xeb) = rEbRow NO-LOCK NO-ERROR.
       
-      IF AVAIL xeb AND cNewItem GT "" THEN DO:
+      IF AVAILABLE xeb AND cNewItem GT "" THEN DO:
         FIND xeb WHERE ROWID(xeb) = rEbRow EXCLUSIVE-LOCK NO-ERROR.
         xeb.stock-no = cNewItem.
       END.
@@ -1322,12 +1322,12 @@ PROCEDURE local-update-record :
              AND xeb.est-no EQ job-hdr.est-no
              AND xeb.pur-man
              NO-LOCK NO-ERROR.
-         IF NOT AVAIL xeb THEN
+         IF NOT AVAILABLE xeb THEN
          FIND FIRST xeb WHERE xeb.company EQ job-hdr.company
           AND xeb.est-no EQ job-hdr.est-no            
           NO-LOCK NO-ERROR.
 
-         IF AVAIL xeb THEN DO:               
+         IF AVAILABLE xeb THEN DO:               
              RUN disable-enable-farm IN WIDGET-HANDLE(char-hdl) (xeb.pur-man) NO-ERROR.
          END.
     END.
@@ -1376,14 +1376,14 @@ PROCEDURE local-update-record :
   /*needed for immediately pushing print button after adding new job*/
   IF ll-new THEN
   DO:
-     IF NOT AVAIL job-hdr THEN
+     IF NOT AVAILABLE job-hdr THEN
         FIND FIRST job-hdr NO-LOCK
              WHERE job-hdr.company EQ job.company
                AND job-hdr.job     EQ job.job
                AND job-hdr.job-no  EQ job.job-no
                AND job-hdr.job-no2 EQ job.job-no2 NO-ERROR.
 
-     IF AVAIL job-hdr THEN
+     IF AVAILABLE job-hdr THEN
         v-reprint = job-hdr.ftick-prnt.
 
      RUN custom/setUserPrint.p (job.company,'job_.',
@@ -1412,7 +1412,7 @@ PROCEDURE Rebuild-Stds :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF AVAIL job AND job.est-no NE "" THEN DO:   /*** STANDARD CALCULATION ***/
+  IF AVAILABLE job AND job.est-no NE "" THEN DO:   /*** STANDARD CALCULATION ***/
 
      IF job.stat = "Z" OR job.stat = "C" THEN DO:
          MESSAGE "Job is closed." SKIP
@@ -1436,7 +1436,7 @@ PROCEDURE Rebuild-Stds :
          
                MESSAGE "Real Board Has Been Committed to Import Estimated Board Material." SKIP
                        "You Must Deallocate Board."
-                  VIEW-AS ALERT-BOX INFO BUTTONS OK.
+                  VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
                LEAVE.
      END.
     
@@ -1457,11 +1457,11 @@ PROCEDURE recalc-costs :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR hld-stat AS CHAR NO-UNDO.
-  DEF VAR ll AS LOG NO-UNDO.
+  DEFINE VARIABLE hld-stat AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE ll AS LOG NO-UNDO.
 
 
-  IF AVAIL job AND job.est-no NE "" THEN DO:
+  IF AVAILABLE job AND job.est-no NE "" THEN DO:
     MESSAGE "Recalculate Job Cost?"
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE ll.  
@@ -1493,10 +1493,10 @@ PROCEDURE refresh-browser :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR char-hdl AS CHAR NO-UNDO.
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lv-rowid AS ROWID NO-UNDO.
-  DEF VAR char-hdl2 AS CHAR NO-UNDO.
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE char-hdl2 AS CHARACTER NO-UNDO.
 
   
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"job-hdr-source", OUTPUT char-hdl).     
@@ -1522,7 +1522,7 @@ PROCEDURE refresh-browser :
   IF lv-rowid NE ? THEN
   FIND job-hdr WHERE ROWID(job-hdr) EQ lv-rowid NO-LOCK NO-ERROR.
 
-  IF NOT AVAIL job-hdr THEN
+  IF NOT AVAILABLE job-hdr THEN
   FIND FIRST job-hdr
       WHERE job-hdr.company EQ job.company
         AND job-hdr.job     EQ job.job
@@ -1530,7 +1530,7 @@ PROCEDURE refresh-browser :
         AND job-hdr.job-no2 EQ job.job-no2
       NO-LOCK NO-ERROR.
 
-  IF AVAIL job-hdr THEN DO:
+  IF AVAILABLE job-hdr THEN DO:
     lv-rowid = ROWID(job-hdr).
 
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).     
@@ -1582,7 +1582,7 @@ PROCEDURE setUseJobQty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER iplUseJobQty AS LOG NO-UNDO.
+DEFINE INPUT PARAMETER iplUseJobQty AS LOG NO-UNDO.
 gvlUseJobQty = iplUseJobQty.
 
 END PROCEDURE.
@@ -1618,12 +1618,12 @@ PROCEDURE unapprove :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR char-hdl AS CHAR NO-UNDO.  
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
 
    IF v-unapp-security THEN DO:
       IF USERID("nosweat") NE job.cs-user-id-t THEN DO:
          FIND FIRST usergrps WHERE usergrps.usergrps = "JU2" NO-LOCK NO-ERROR.
-         IF NOT AVAIL usergrps THEN DO:
+         IF NOT AVAILABLE usergrps THEN DO:
             MESSAGE "User ID: " USERID("nosweat") 
                     " did not approve this JOB and " SKIP
                     "there is no JU2 group override available." SKIP(1)
@@ -1632,7 +1632,7 @@ PROCEDURE unapprove :
 
             RETURN NO-APPLY.        
          END. /* IF NOT AVAIL usergrps */
-         ELSE IF AVAIL usergrps AND 
+         ELSE IF AVAILABLE usergrps AND 
                  NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN DO:
             MESSAGE "User ID: " USERID("nosweat") 
                     " did not approve this JOB and " SKIP
@@ -1644,7 +1644,7 @@ PROCEDURE unapprove :
       END. /* IF USERID("nosweat") NE job.USER-ID */
    END. /* IF AVAIL sys-ctrl AND sys-ctrl.log-fld */
     
-  IF AVAIL job THEN DO:
+  IF AVAILABLE job THEN DO:
     FIND CURRENT job NO-ERROR.
 
     ASSIGN
@@ -1675,13 +1675,13 @@ PROCEDURE update-job-mch :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR char-hdl AS CHAR NO-UNDO.
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
 DISABLE TRIGGERS FOR LOAD OF job-mch.
 
 /* rstark 06241201 */
-DEF VAR calcDueDate AS DATE NO-UNDO.
-DEF VAR calcStartDate AS DATE NO-UNDO.
+DEFINE VARIABLE calcDueDate AS DATE NO-UNDO.
+DEFINE VARIABLE calcStartDate AS DATE NO-UNDO.
 
 IF noDate THEN RETURN.
 IF planDate THEN DO:
@@ -1895,14 +1895,14 @@ PROCEDURE valid-cust-user :
   Notes:       
 ------------------------------------------------------------------------------*/
 custcount = "".
-DEF VAR lActive AS LOG NO-UNDO.
-DEF VAR v-cust-chk AS CHAR NO-UNDO.
+DEFINE VARIABLE lActive AS LOG NO-UNDO.
+DEFINE VARIABLE v-cust-chk AS CHARACTER NO-UNDO.
 RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'JU1',
                             INPUT YES,
                             OUTPUT lActive).
 {sys/inc/chblankcust.i ""JU1""}
-  IF ou-log THEN do:
+  IF ou-log THEN DO:
     DO WITH FRAME {&FRAME-NAME}:
         job.est-no:SCREEN-VALUE = FILL(" ",8 - LENGTH(TRIM(INPUT job.est-no))) + TRIM(INPUT job.est-no).
 
@@ -1911,18 +1911,18 @@ RUN sys/ref/CustList.p (INPUT cocode,
             AND est.loc     EQ locode
             AND est.est-no  EQ job.est-no:SCREEN-VALUE
           NO-LOCK NO-ERROR.
-        IF AVAIL est THEN
+        IF AVAILABLE est THEN
             FIND FIRST eb
           WHERE eb.company = cocode
             AND eb.est-no   EQ est.est-no
             AND eb.form-no NE 0
             AND TRIM(eb.cust-no) NE "" 
           NO-LOCK NO-ERROR.
-        IF AVAIL eb THEN
+        IF AVAILABLE eb THEN
             v-cust-chk = eb.cust-no .
         ELSE v-cust-chk = "" .
 
-     IF LOOKUP(v-cust-chk,custcount) = 0 THEN do:
+     IF LOOKUP(v-cust-chk,custcount) = 0 THEN DO:
           MESSAGE "Customer is not on Users Customer List.  "  SKIP
               "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO job.est-no .
@@ -2038,7 +2038,7 @@ PROCEDURE valid-whse :
         WHERE loc.company EQ cocode 
           AND loc.loc EQ job.loc:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF NOT AVAIL loc THEN DO:
+    IF NOT AVAILABLE loc THEN DO:
       MESSAGE "Invalid warehouse code entered..."
               VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO job.loc.
@@ -2058,12 +2058,12 @@ PROCEDURE validate-est :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-lastevent AS cha NO-UNDO.
+  DEFINE INPUT PARAMETER ip-lastevent AS cha NO-UNDO.
 
-  DEF VAR v-bld-job LIKE job.job-no NO-UNDO.
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR ll AS LOG NO-UNDO.
-  DEF VAR lActive AS LOG NO-UNDO.
+  DEFINE VARIABLE v-bld-job LIKE job.job-no NO-UNDO.
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEFINE VARIABLE ll AS LOG NO-UNDO.
+  DEFINE VARIABLE lActive AS LOG NO-UNDO.
 
   ll-valid = YES.
 
@@ -2085,7 +2085,7 @@ PROCEDURE validate-est :
             AND est.est-no  EQ job.est-no:SCREEN-VALUE
           NO-LOCK NO-ERROR.
 
-      IF NOT AVAIL est THEN DO:
+      IF NOT AVAILABLE est THEN DO:
         MESSAGE "Estimate Number is not valid, try help..."
               VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO job.est-no.
@@ -2151,7 +2151,7 @@ PROCEDURE validate-est :
             v-bld-job = " " + job.est-no:SCREEN-VALUE
             li        = 0.  
           
-           IF AVAIL sys-ctrl THEN
+           IF AVAILABLE sys-ctrl THEN
              v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
           
            ASSIGN
@@ -2179,7 +2179,7 @@ PROCEDURE validate-est :
                  AND xjob.job-no  EQ v-bld-job
                  AND ROWID(xjob)  NE ROWID(job)
                USE-INDEX job-no
-               BY xjob.job-no2 DESC:
+               BY xjob.job-no2 DESCENDING:
           
                li = xjob.job-no2 + 1.
           
@@ -2188,7 +2188,7 @@ PROCEDURE validate-est :
         END.
 
         ELSE DO:
-          IF NOT AVAIL sys-ctrl                  OR
+          IF NOT AVAILABLE sys-ctrl                  OR
              SUBSTR(sys-ctrl.char-fld,2,1) EQ "" THEN DO:
             MESSAGE "Must have System Control Parameter 'JOBCREATE'..."
                 VIEW-AS ALERT-BOX ERROR.
@@ -2202,7 +2202,7 @@ PROCEDURE validate-est :
               NO-LOCK NO-ERROR.
             
           ASSIGN
-           li        = (IF AVAIL xjob THEN INT(SUBSTR(xjob.job-no,2,5)) ELSE 0) + 1
+           li        = (IF AVAILABLE xjob THEN INT(SUBSTR(xjob.job-no,2,5)) ELSE 0) + 1
            v-bld-job = SUBSTR(sys-ctrl.char-fld,2,1) + STRING(li,"99999")
            li        = 0.
         END.

@@ -1,0 +1,75 @@
+ADD TABLE "payment-type"
+  AREA "Schema Area"
+  LABEL "Payment Type"
+  DESCRIPTION "Payment Type"
+  DUMP-NAME "payment-type"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\payment-type.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\payment-type.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\payment-type.p" CRC "?" 
+
+ADD FIELD "company" OF "payment-type" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  ORDER 5
+
+ADD FIELD "type" OF "payment-type" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Payment Type"
+  POSITION 3
+  MAX-WIDTH 40
+  HELP "Enter Payment Type"
+  ORDER 10
+
+ADD FIELD "Dscr" OF "payment-type" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 60
+  HELP "Enter Payment Type Description"
+  ORDER 20
+
+ADD FIELD "rec_key" OF "payment-type" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 5
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 30
+
+ADD FIELD "paperCheck" OF "payment-type" AS logical 
+  DESCRIPTION "Paper or Electronic Check"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Paper Check"
+  POSITION 6
+  MAX-WIDTH 1
+  HELP "Is paper check?"
+  ORDER 40
+
+ADD INDEX "payment-type" ON "payment-type" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "type" ASCENDING 
+
+ADD FIELD "payment-type" OF "vend" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Payment Type"
+  POSITION 123
+  MAX-WIDTH 40
+  HELP "Enter Payment Type"
+  ORDER 1220
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000006247

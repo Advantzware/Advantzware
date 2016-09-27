@@ -16,9 +16,7 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.name    = "OECREDIT"
    sys-ctrl.log-fld = YES
    sys-ctrl.descrip = "Update order status after approved by credit".
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
   FIND CURRENT sys-ctrl NO-LOCK NO-ERROR.
 END.
 

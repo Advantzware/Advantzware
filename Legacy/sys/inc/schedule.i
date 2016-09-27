@@ -9,9 +9,7 @@ if not avail sys-ctrl then do:
             sys-ctrl.name     = "SCHEDULE"
             sys-ctrl.char-fld = "None"
             sys-ctrl.descrip  = "Update Due date and Promise date for Schedule?".
-   MESSAGE sys-ctrl.descrip
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE sys-ctrl.log-fld.                             
+                             
 END.
 ASSIGN schedule-log = sys-ctrl.log-fld
        .

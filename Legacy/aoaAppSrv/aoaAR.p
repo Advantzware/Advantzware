@@ -21,37 +21,40 @@
 /* Aged Receivables.rpa */
 DEFINE TEMP-TABLE ttAgedReceivables NO-UNDO
     {aoaAppSrv/ttFields.i}
-    FIELD custNo      AS CHARACTER LABEL "Customer"        FORMAT "x(8)" 
-    FIELD custName    AS CHARACTER LABEL "Customer Name"   FORMAT "x(30)"
-    FIELD contact     AS CHARACTER LABEL "Contact"         FORMAT "x(15)"
-    FIELD salesRep    AS CHARACTER LABEL "Sales Rep"       FORMAT "x(25)"
-    FIELD terms       AS CHARACTER LABEL "Terms"           FORMAT "x(8)"
-    FIELD address1    AS CHARACTER LABEL "Address1"        FORMAT "x(30)"
-    FIELD address2    AS CHARACTER LABEL "Address2"        FORMAT "x(30)"
-    FIELD city        AS CHARACTER LABEL "City"            FORMAT "x(15)"
-    FIELD state       AS CHARACTER LABEL "State"           FORMAT "x(5)"
-    FIELD zip         AS CHARACTER LABEL "Zip"             FORMAT "x(8)"
-    FIELD creditLimit AS DECIMAL   LABEL "Credit Lim"      FORMAT "->>,>>>,>>9.99"
-    FIELD phone       AS CHARACTER LABEL "Phone"           FORMAT "x(13)"
-    FIELD fax         AS CHARACTER LABEL "Fax"             FORMAT "x(12)"
-    FIELD checkMemo   AS CHARACTER LABEL "Check/Memo"      FORMAT "x(10)"
-    FIELD daysOld     AS INTEGER   LABEL "Days Old"        FORMAT "->>>>>>>9"
-    FIELD vType       AS CHARACTER LABEL "Type"            FORMAT "x(4)"
-    FIELD invoiceNo   AS INTEGER   LABEL "Invoice"         FORMAT ">>>>>>>>9"
-    FIELD invoiceDate AS DATE      LABEL "Inv Date"       
-    FIELD amount      AS DECIMAL   LABEL "Amount"          FORMAT "->,>>>,>>>,>>9.99"
-    FIELD vCurrent    AS DECIMAL   LABEL "Current"         FORMAT "->,>>>,>>>,>>9.99"
-    FIELD adtp        AS INTEGER   LABEL "Adtp"            FORMAT "->,>>9"
-    FIELD td          AS INTEGER   LABEL "Td"              FORMAT "->,>>9"
-    FIELD periodDay1  AS DECIMAL   LABEL "Period Day1"     FORMAT "->,>>>,>>>,>>9.99"
-    FIELD periodDay2  AS DECIMAL   LABEL "Period Day2"     FORMAT "->,>>>,>>>,>>9.99"
-    FIELD periodDay3  AS DECIMAL   LABEL "Period Day3"     FORMAT "->,>>>,>>>,>>9.99"
-    FIELD custPoNo    AS CHARACTER LABEL "Customer PoNo"   FORMAT "x(15)"
-    FIELD jobNo       AS CHARACTER LABEL "Job No "         FORMAT "x(9)"
-    FIELD invoiceNote AS CHARACTER LABEL "Invoice Note"    FORMAT "x(500)"
-    FIELD collNote    AS CHARACTER LABEL "Collection Note" FORMAT "x(500)"
+    FIELD custNo        AS CHARACTER LABEL "Customer"        FORMAT "x(8)" 
+    FIELD custName      AS CHARACTER LABEL "Customer Name"   FORMAT "x(30)"
+    FIELD contact       AS CHARACTER LABEL "Contact"         FORMAT "x(15)"
+    FIELD salesRep      AS CHARACTER LABEL "Sales Rep"       FORMAT "x(25)"
+    FIELD terms         AS CHARACTER LABEL "Terms"           FORMAT "x(8)"
+    FIELD address1      AS CHARACTER LABEL "Address 1"       FORMAT "x(30)"
+    FIELD address2      AS CHARACTER LABEL "Address 2"       FORMAT "x(30)"
+    FIELD city          AS CHARACTER LABEL "City"            FORMAT "x(15)"
+    FIELD state         AS CHARACTER LABEL "State"           FORMAT "x(5)"
+    FIELD zip           AS CHARACTER LABEL "Zip"             FORMAT "x(8)"
+    FIELD creditLimit   AS DECIMAL   LABEL "Credit Lim"      FORMAT "->>,>>>,>>9.99"
+    FIELD phone         AS CHARACTER LABEL "Phone"           FORMAT "x(13)"
+    FIELD fax           AS CHARACTER LABEL "Fax"             FORMAT "x(12)"
+    FIELD checkMemo     AS CHARACTER LABEL "Check/Memo"      FORMAT "x(10)"
+    FIELD daysOld       AS INTEGER   LABEL "Days Old"        FORMAT "->>>>>>>9"
+    FIELD vType         AS CHARACTER LABEL "Type"            FORMAT "x(4)"
+    FIELD invoiceNo     AS INTEGER   LABEL "Invoice"         FORMAT ">>>>>>>>9"
+    FIELD invoiceDate   AS DATE      LABEL "Inv Date"        FORMAT 99/99/9999
+    FIELD amount        AS DECIMAL   LABEL "Amount"          FORMAT "->,>>>,>>>,>>9.99"
+    FIELD vCurrent      AS DECIMAL   LABEL "Current"         FORMAT "->,>>>,>>>,>>9.99"
+    FIELD adtp          AS INTEGER   LABEL "Adtp"            FORMAT "->,>>9"
+    FIELD td            AS INTEGER   LABEL "Td"              FORMAT "->,>>9"
+    FIELD periodDay1    AS DECIMAL   LABEL "Period Days 1"   FORMAT "->,>>>,>>>,>>9.99"
+    FIELD periodDay2    AS DECIMAL   LABEL "Period Days 2"   FORMAT "->,>>>,>>>,>>9.99"
+    FIELD periodDay3    AS DECIMAL   LABEL "Period Days 3"   FORMAT "->,>>>,>>>,>>9.99"
+    FIELD custPoNo      AS CHARACTER LABEL "Customer PoNo"   FORMAT "x(15)"
+    FIELD jobNo         AS CHARACTER LABEL "Job No "         FORMAT "x(9)"
+    FIELD invoiceNote   AS CHARACTER LABEL "Invoice Note"    FORMAT "x(500)"
+    FIELD collNote      AS CHARACTER LABEL "Collection Note" FORMAT "x(500)"
+    FIELD xxSort1       AS CHARACTER LABEL "Sort 1"          FORMAT "x(100)"
+    FIELD xxSort2       AS INTEGER   LABEL "Sort 2"          FORMAT ">>>>>>>>>9"
+        INDEX ttAgedReceivables IS PRIMARY rowType xxSort1 xxSort2
     .
-    
+
 DEFINE TEMP-TABLE tt-cust NO-UNDO
     FIELD curr-code LIKE cust.curr-code
     FIELD sorter    LIKE cust.cust-no
@@ -74,6 +77,23 @@ DEFINE TEMP-TABLE tt-factored
         INDEX i2 x-no
         .
 /* Aged Receivables.rpa */
+
+/* Aged Receivables Totals.rpa */
+DEFINE TEMP-TABLE ttAgedReceivablesTotals NO-UNDO
+    {aoaAppSrv/ttFields.i}
+    FIELD totCustNo      AS CHARACTER LABEL "Cust No"     FORMAT "x(8)" 
+    FIELD totCustName    AS CHARACTER LABEL "Name"        FORMAT "x(30)"
+    FIELD totSalesRep    AS CHARACTER LABEL "SalesRep"    FORMAT "x(25)"
+    FIELD totDescription AS CHARACTER LABEL "Description" FORMAT "x(30)"
+    FIELD totAmount      AS DECIMAL   LABEL "Amt"         FORMAT "->,>>>,>>>,>>9.99"
+    FIELD totCurrent     AS DECIMAL   LABEL "Curr Amt"    FORMAT "->,>>>,>>>,>>9.99"
+    FIELD totPeriodDay1  AS DECIMAL   LABEL "Period 1"    FORMAT "->,>>>,>>>,>>9.99"
+    FIELD totPeriodDay2  AS DECIMAL   LABEL "Period 2"    FORMAT "->,>>>,>>>,>>9.99"
+    FIELD totPeriodDay3  AS DECIMAL   LABEL "Period 3"    FORMAT "->,>>>,>>>,>>9.99"
+    FIELD xxSort         AS CHARACTER LABEL "Sort"        FORMAT "x(100)"
+        INDEX ttAgedReceivablesTotals IS PRIMARY rowType xxSort
+    .
+/* Aged Receivables Totals.rpa */
 
 /* Cash Receipt By SalesRep Name.rpa */
 DEFINE TEMP-TABLE ttCashReceiptBySalesRepName NO-UNDO
@@ -146,8 +166,17 @@ DEFINE TEMP-TABLE ttCommissionCashReceipt NO-UNDO
     FIELD row-id      AS ROWID
         INDEX sortBy IS PRIMARY rowType salesRep custNo invoiceNo invDate
         .
-{sys/ref/CustList.i NEW}
 /* Commision Cash Receipt.rpa */
+
+/* CRM Contacts.rpa */
+{CRM/ttCRMContacts.i}
+/* CRM Contacts.rpa */
+
+/* CRM Customers.rpa */
+{CRM/ttCRMCustomers.i}
+/* CRM Customers.rpa */
+
+{sys/ref/CustList.i NEW}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -181,6 +210,19 @@ FUNCTION fAgedReceivables RETURNS HANDLE
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fAgedReceivablesTotals) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAgedReceivablesTotals Procedure 
+FUNCTION fAgedReceivablesTotals RETURNS HANDLE
+    ( ipcCompany AS CHARACTER,
+      ipiBatch   AS INTEGER,
+      ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-fCashReceiptBySalesRepName) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCashReceiptBySalesRepName Procedure 
@@ -198,6 +240,32 @@ FUNCTION fCashReceiptBySalesRepName RETURNS HANDLE
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCommissionCashReceipt Procedure 
 FUNCTION fCommissionCashReceipt RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fCRMContacts) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCRMContacts Procedure 
+FUNCTION fCRMContacts RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fCRMCustomers) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCRMCustomers Procedure 
+FUNCTION fCRMCustomers RETURNS HANDLE
   ( ipcCompany AS CHARACTER,
     ipiBatch   AS INTEGER,
     ipcUserID  AS CHARACTER )  FORWARD.
@@ -236,7 +304,7 @@ FUNCTION fGetTableHandle RETURNS HANDLE
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 15
+         HEIGHT             = 17.24
          WIDTH              = 60.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -256,18 +324,79 @@ FUNCTION fGetTableHandle RETURNS HANDLE
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-AgedReceivablesCreateTotals) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE AgedReceivablesCreateTotals Procedure 
+PROCEDURE AgedReceivablesCreateTotals :
+/*------------------------------------------------------------------------------
+  Purpose:     Aged Receivables Totals.rpa
+  Parameters:  
+  Notes:       build records to show at end of report
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcTotCustNo      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTotCustName    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTotSalesRep    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTotDescription AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdTotAmount      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdTotCurrent     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdTotPeriod1     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdTotPeriod2     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdTotPeriod3     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSort           AS CHARACTER NO-UNDO.
+
+    CREATE ttAgedReceivablesTotals.
+    ASSIGN
+        ttAgedReceivablesTotals.totCustNo      = ipcTotCustNo
+        ttAgedReceivablesTotals.totCustName    = ipcTotCustName
+        ttAgedReceivablesTotals.totSalesRep    = ipcTotSalesRep
+        ttAgedReceivablesTotals.totDescription = ipcTotDescription
+        ttAgedReceivablesTotals.totAmount      = ipdTotAmount
+        ttAgedReceivablesTotals.totCurrent     = ipdTotCurrent
+        ttAgedReceivablesTotals.totPeriodDay1  = ipdTotPeriod1
+        ttAgedReceivablesTotals.totPeriodDay2  = ipdTotPeriod2
+        ttAgedReceivablesTotals.totPeriodDay3  = ipdTotPeriod3
+        ttAgedReceivablesTotals.xxSort         = ipcSort
+        . 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-pAgedReceivables) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAgedReceivables Procedure 
 PROCEDURE pAgedReceivables :
 /*------------------------------------------------------------------------------
   Purpose:     Aged Receivables.rpa
-  Parameters:  Company, Batch Seq, User ID
+  Parameters:  Company, Batch Seq, User ID  
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pAgedReceivables.i}
+    {aoaAppSrv/includes/pAgedReceivables.i}
 
-    {aoaAppSrv/pAgedReceivablesLogic.i}
+    {aoaAppSrv/includes/pAgedReceivablesLogic.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pAgedReceivablesTotals) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAgedReceivablesTotals Procedure 
+PROCEDURE pAgedReceivablesTotals :
+/*------------------------------------------------------------------------------
+  Purpose:     Aged Receivables Totals.rpa
+  Parameters:  Company, Batch Seq, User ID  
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/includes/pAgedReceivablesTotals.i}
+
+    {aoaAppSrv/includes/pAgedReceivablesLogic.i}
 
 END PROCEDURE.
 
@@ -329,7 +458,7 @@ PROCEDURE pCashReceiptBySalesRepName :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pCashReceiptBySalesRepName.i}
+    {aoaAppSrv/includes/pCashReceiptBySalesRepName.i}
 
     /* local variables */
     DEFINE VARIABLE cSortKey    AS CHARACTER NO-UNDO.
@@ -674,7 +803,7 @@ PROCEDURE pCommissionCashReceipt :
   Parameters:  Company, Batch Seq, User ID
   Notes:       
 ------------------------------------------------------------------------------*/
-    {aoaAppSrv/pCommissionCashReceipt.i}
+    {aoaAppSrv/includes/pCommissionCashReceipt.i}
     
     /* local variables */
     DEFINE VARIABLE dtDate     AS DATE      NO-UNDO.
@@ -955,6 +1084,52 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pCRMContacts) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRMContacts Procedure 
+PROCEDURE pCRMContacts :
+/*------------------------------------------------------------------------------
+  Purpose:     CRM Contacts.rpa
+  Parameters:  Company, Batch Seq, User ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/aoaInputDefParams.i}
+    
+    /* local variables */
+
+    /* subject business logic */
+    RUN aoaAppSrv/aoaBL/crmContacts.p (OUTPUT TABLE ttCRMContacts, ipcCompany, ipiBatch, ipcUserID).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pCRMCustomers) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRMCustomers Procedure 
+PROCEDURE pCRMCustomers :
+/*------------------------------------------------------------------------------
+  Purpose:     CRM Customers.rpa
+  Parameters:  Company, Batch Seq, User ID
+  Notes:       
+------------------------------------------------------------------------------*/
+    {aoaAppSrv/aoaInputDefParams.i}
+    
+    /* local variables */
+
+    /* subject business logic */
+    RUN aoaAppSrv/aoaBL/crmCustomers.p (OUTPUT TABLE ttCRMCustomers, ipcCompany, ipiBatch, ipcUserID).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-pGetTrendDays) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTrendDays Procedure 
@@ -1015,14 +1190,40 @@ FUNCTION fAgedReceivables RETURNS HANDLE
       ipiBatch   AS INTEGER,
       ipcUserID  AS CHARACTER ) :
   /*------------------------------------------------------------------------------
-    Purpose:  Commission Cash Receipt.rpa
+    Purpose:  Aged Receivables.rpa
       Notes:  
   ------------------------------------------------------------------------------*/
       EMPTY TEMP-TABLE ttAgedReceivables.
+      EMPTY TEMP-TABLE ttAgedReceivablesTotals.
 
       RUN pAgedReceivables (ipcCompany, ipiBatch, ipcUserID).
 
-      RETURN TEMP-TABLE ttAgedReceivables :HANDLE .
+      RETURN TEMP-TABLE ttAgedReceivables:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fAgedReceivablesTotals) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAgedReceivablesTotals Procedure 
+FUNCTION fAgedReceivablesTotals RETURNS HANDLE
+    ( ipcCompany AS CHARACTER,
+      ipiBatch   AS INTEGER,
+      ipcUserID  AS CHARACTER ) :
+  /*------------------------------------------------------------------------------
+    Purpose:  Aged Receivables Totals.rpa
+      Notes:  
+  ------------------------------------------------------------------------------*/
+      EMPTY TEMP-TABLE ttAgedReceivables.
+      EMPTY TEMP-TABLE ttAgedReceivablesTotals.
+
+      RUN pAgedReceivablesTotals (ipcCompany, ipiBatch, ipcUserID).
+
+      RETURN TEMP-TABLE ttAgedReceivablesTotals:HANDLE .
 
 END FUNCTION.
 
@@ -1079,6 +1280,54 @@ END FUNCTION.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fCRMContacts) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCRMContacts Procedure 
+FUNCTION fCRMContacts RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  CRM Contacts.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttCRMContacts.
+
+    RUN pCRMContacts (ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttCRMContacts:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fCRMCustomers) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCRMCustomers Procedure 
+FUNCTION fCRMCustomers RETURNS HANDLE
+  ( ipcCompany AS CHARACTER,
+    ipiBatch   AS INTEGER,
+    ipcUserID  AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  CRM Customers.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttCRMCustomers.
+
+    RUN pCRMCustomers (ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttCRMCustomers:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTableHandle Procedure 
@@ -1089,6 +1338,10 @@ FUNCTION fGetTableHandle RETURNS HANDLE
     Notes:  
 ------------------------------------------------------------------------------*/
     CASE ipcProgramID:
+        /* Aged Receivables Totals.rpa */
+        WHEN "agedtot." THEN
+        RETURN TEMP-TABLE ttAgedReceivablesTotals:HANDLE.
+        /* Aged Receivables.rpa */
         WHEN "r-araged." THEN
         RETURN TEMP-TABLE ttAgedReceivables:HANDLE.
         /* Cash Receipt By SalesRep Name.rpa */
@@ -1097,6 +1350,12 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Commision Cash Receipt.rpa */
         WHEN "r-commcr." THEN
         RETURN TEMP-TABLE ttCommissionCashReceipt:HANDLE.
+        /* CRM Contacts.rpa */
+        WHEN "crmCont." THEN
+        RETURN TEMP-TABLE ttCRMContacts:HANDLE.
+        /* CRM Customers.rpa */
+        WHEN "crmCust." THEN
+        RETURN TEMP-TABLE ttCRMCustomers:HANDLE.
     END CASE.
 
 END FUNCTION.

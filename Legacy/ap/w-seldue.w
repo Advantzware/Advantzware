@@ -109,17 +109,16 @@ DEF VAR lv-in-update AS LOG NO-UNDO.
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fi_chk-date fi_curr-code fi_due-date fi_age ~
-lv-proamt tb_discount tb_cc btn-go BROWSE-1 btn-change btn-add btn-delete ~
-btn-finish tb_cc-only tb_bp-only RECT-9 
-&Scoped-Define DISPLAYED-OBJECTS fi_chk-date fi_curr-code c-desc ~
-fi_due-date fi_age fi_amt lv-proamt tb_discount tb_cc fi_sortBy tb_cc-only ~
-tb_bp-only 
+&Scoped-Define ENABLED-OBJECTS cb_paytype fi_chk-date fi_curr-code ~
+fi_due-date fi_age lv-proamt tb_discount btn-go BROWSE-1 btn-change btn-add ~
+btn-delete btn-finish RECT-9 
+&Scoped-Define DISPLAYED-OBJECTS cb_paytype fi_chk-date fi_curr-code c-desc ~
+fi_due-date fi_age fi_amt lv-proamt tb_discount fi_sortBy 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-1 fi_chk-date fi_curr-code fi_due-date fi_age fi_amt ~
-tb_discount tb_cc tb_cc-only tb_bp-only 
+&Scoped-define List-1 cb_paytype fi_chk-date fi_curr-code fi_due-date ~
+fi_age fi_amt tb_discount 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -165,6 +164,13 @@ DEFINE BUTTON btn-go
      LABEL "Go" 
      SIZE 15 BY 1.14.
 
+DEFINE VARIABLE cb_paytype AS CHARACTER FORMAT "X(256)":U INITIAL "All Payment Types" 
+     LABEL "Payment Type" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "All Payment Types","All Electronic","All Non-Electronic" 
+     DROP-DOWN-LIST
+     SIZE 29 BY 1 NO-UNDO.
+
 DEFINE VARIABLE c-desc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 19 BY 1 NO-UNDO.
@@ -209,21 +215,6 @@ DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 147 BY 5.24.
 
-DEFINE VARIABLE tb_bp-only AS LOGICAL INITIAL no 
-     LABEL "Bill Pay Vendors" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 39 BY .95 NO-UNDO.
-
-DEFINE VARIABLE tb_cc AS LOGICAL INITIAL no 
-     LABEL "Exclude Credit Card/ACH and Bill Pay Vendors" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 61 BY .95 NO-UNDO.
-
-DEFINE VARIABLE tb_cc-only AS LOGICAL INITIAL no 
-     LABEL "Credit Card/ACH Vendors" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 39 BY .95 NO-UNDO.
-
 DEFINE VARIABLE tb_discount AS LOGICAL INITIAL no 
      LABEL "Include Invoices Available for Discount" 
      VIEW-AS TOGGLE-BOX
@@ -261,6 +252,7 @@ DEFINE BROWSE BROWSE-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     cb_paytype AT ROW 4.33 COL 89 COLON-ALIGNED WIDGET-ID 28
      fi_chk-date AT ROW 1.48 COL 24 COLON-ALIGNED
      fi_curr-code AT ROW 1.48 COL 60 COLON-ALIGNED
      c-desc AT ROW 1.48 COL 69 COLON-ALIGNED NO-LABEL
@@ -269,7 +261,6 @@ DEFINE FRAME F-Main
      fi_amt AT ROW 2.71 COL 97 COLON-ALIGNED
      lv-proamt AT ROW 1.48 COL 118.8 COLON-ALIGNED
      tb_discount AT ROW 3.86 COL 5.8 WIDGET-ID 14
-     tb_cc AT ROW 4.91 COL 65 WIDGET-ID 18
      btn-go AT ROW 2.67 COL 129
      BROWSE-1 AT ROW 6.24 COL 1
      fi_sortBy AT ROW 23.14 COL 14 COLON-ALIGNED WIDGET-ID 12
@@ -278,8 +269,6 @@ DEFINE FRAME F-Main
      btn-cancel AT ROW 23.14 COL 92.6
      btn-delete AT ROW 23.14 COL 108.6
      btn-finish AT ROW 23.14 COL 129.6
-     tb_cc-only AT ROW 3.86 COL 65 WIDGET-ID 20
-     tb_bp-only AT ROW 3.86 COL 106 WIDGET-ID 22
      "Days" VIEW-AS TEXT
           SIZE 7 BY .95 AT ROW 2.67 COL 72
      RECT-9 AT ROW 1 COL 2.2
@@ -351,6 +340,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN c-desc IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR COMBO-BOX cb_paytype IN FRAME F-Main
+   1                                                                    */
 /* SETTINGS FOR FILL-IN fi_age IN FRAME F-Main
    1                                                                    */
 /* SETTINGS FOR FILL-IN fi_amt IN FRAME F-Main
@@ -363,12 +354,6 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR FILL-IN fi_sortBy IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tb_bp-only IN FRAME F-Main
-   1                                                                    */
-/* SETTINGS FOR TOGGLE-BOX tb_cc IN FRAME F-Main
-   1                                                                    */
-/* SETTINGS FOR TOGGLE-BOX tb_cc-only IN FRAME F-Main
-   1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX tb_discount IN FRAME F-Main
    1                                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
@@ -931,6 +916,10 @@ DO:
 
   ASSIGN {&list-1}.
 
+  DEFINE VARIABLE tb_cc AS LOG NO-UNDO.
+  DEFINE VARIABLE tb_cc-only AS LOG NO-UNDO.
+  DEFINE VARIABLE tb_bp-only AS LOG NO-UNDO.
+  
   RUN ap/d-paysel.w (INPUT fi_due-date, 
                      INPUT fi_age, 
                      INPUT tb_discount, 
@@ -949,7 +938,7 @@ DO:
     IF CAN-FIND(FIRST tt-sel) THEN DO:
       {&open-query-{&browse-name}}
 
-      DISABLE fi_chk-date fi_due-date fi_curr-code fi_age fi_amt lv-proamt btn-go tb_discount tb_cc tb_cc-only tb_bp-only
+      DISABLE fi_chk-date fi_due-date fi_curr-code fi_age fi_amt lv-proamt btn-go tb_discount cb_payType
           WITH FRAME {&FRAME-NAME}.      
 
       APPLY "entry" TO btn-change IN FRAME {&FRAME-NAME}.  
@@ -985,61 +974,6 @@ DO:
         AND currency.c-code  EQ {&self-name}:SCREEN-VALUE
       NO-ERROR.
   IF AVAIL currency THEN c-desc:SCREEN-VALUE = currency.c-desc.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_bp-only
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_bp-only W-Win
-ON VALUE-CHANGED OF tb_bp-only IN FRAME F-Main /* Bill Pay Vendors */
-DO:
-  ASSIGN {&self-name}.
-  IF tb_bp-only THEN
-      ASSIGN 
-        tb_cc-only = NO
-        tb_cc-only:SCREEN-VALUE = "NO"
-        tb_cc = NO
-        tb_cc:SCREEN-VALUE = "NO".
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_cc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cc W-Win
-ON VALUE-CHANGED OF tb_cc IN FRAME F-Main /* Exclude Credit Card/ACH and Bill Pay Vendors */
-DO:
-  ASSIGN {&self-name}.
-  IF tb_cc THEN
-      ASSIGN 
-        tb_cc-only = NO
-        tb_cc-only:SCREEN-VALUE = "NO"
-        tb_bp-only = NO
-        tb_bp-only:SCREEN-VALUE = "NO"
-       .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_cc-only
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cc-only W-Win
-ON VALUE-CHANGED OF tb_cc-only IN FRAME F-Main /* Credit Card/ACH Vendors */
-DO:
-  ASSIGN {&self-name}.
-  IF tb_cc-only THEN
-      ASSIGN 
-        tb_bp-only = NO
-        tb_bp-only:SCREEN-VALUE = "NO"
-        tb_cc = NO
-        tb_cc:SCREEN-VALUE = "NO".
-  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1434,14 +1368,33 @@ DEF VAR ld-tot-line AS DEC NO-UNDO.
 DEF VAR ld-non-disc AS DEC NO-UNDO.
 DEF VAR lv-net LIKE ap-inv.net NO-UNDO.
 
+DEFINE VARIABLE cPaymentList AS cha NO-UNDO.
+
+IF cb_payType = "All Electronic" THEN DO:
+   FOR EACH payment-type NO-LOCK WHERE payment-type.company = cocode 
+                                   AND NOT payment-type.paperCheck: 
+       cPaymentList = cPaymentList + payment-type.type + ",".                            
+   END.
+END.
+ELSE IF cb_payType = "All Non-Electronic" THEN DO:
+   FOR EACH payment-type NO-LOCK WHERE payment-type.company = cocode 
+                                   AND payment-type.paperCheck: 
+       cPaymentList = cPaymentList + payment-type.type + ",".                            
+   END.
+END.
+ELSE cPaymentList = "".
 
 fi_amt = 0.
     for each vend where vend.company eq cocode
                       and vend.acc-bal gt 0
-                      AND ((vend.spare-int-1 NE 1 AND tb_cc) OR NOT tb_cc)
-                      AND ((vend.spare-int-1 EQ 1 AND tb_cc-only) OR NOT tb_cc-only)
-                      AND ((vend.spare-int-2 NE 1 AND tb_cc) OR NOT tb_cc)
-                      AND ((vend.spare-int-2 EQ 1 AND tb_bp-only) OR NOT tb_bp-only)
+/*                      AND ((vend.spare-int-1 NE 1 AND tb_cc) OR NOT tb_cc)          */
+/*                      AND ((vend.spare-int-1 EQ 1 AND tb_cc-only) OR NOT tb_cc-only)*/
+/*                      AND ((vend.spare-int-2 NE 1 AND tb_cc) OR NOT tb_cc)          */
+/*                      AND ((vend.spare-int-2 EQ 1 AND tb_bp-only) OR NOT tb_bp-only)*/
+                        AND ( (vend.payment-type = cb_paytype )
+                              OR cb_paytype = "All payment types"
+                              OR (can-do(cPaymentList, vend.payment-type) AND cPaymentList <> "")
+                            )
                       no-lock,
           each ap-inv where ap-inv.company  eq cocode
                         and ap-inv.vend-no  eq vend.vend-no
@@ -1588,12 +1541,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fi_chk-date fi_curr-code c-desc fi_due-date fi_age fi_amt lv-proamt 
-          tb_discount tb_cc fi_sortBy tb_cc-only tb_bp-only 
+  DISPLAY cb_paytype fi_chk-date fi_curr-code c-desc fi_due-date fi_age fi_amt 
+          lv-proamt tb_discount fi_sortBy 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE fi_chk-date fi_curr-code fi_due-date fi_age lv-proamt tb_discount 
-         tb_cc btn-go BROWSE-1 btn-change btn-add btn-delete btn-finish 
-         tb_cc-only tb_bp-only RECT-9 
+  ENABLE cb_paytype fi_chk-date fi_curr-code fi_due-date fi_age lv-proamt 
+         tb_discount btn-go BROWSE-1 btn-change btn-add btn-delete btn-finish 
+         RECT-9 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -1630,7 +1583,12 @@ PROCEDURE local-initialize :
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+ 
+  FOR EACH payment-type NO-LOCK WHERE payment-type.company = cocode :     
+     ll = cb_payType:add-last(payment-type.type) IN FRAME {&frame-name}.
+  END.
+  cb_payType:SCREEN-VALUE = cb_payType:ENTRY (1).  
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
@@ -1710,7 +1668,7 @@ PROCEDURE local-initialize :
         fi_amt = fi_amt + tt-sel.amt-paid.
     END.
     DISPLAY fi_amt.
-    DISABLE fi_chk-date fi_due-date fi_curr-code fi_age fi_amt lv-proamt btn-go tb_discount tb_cc tb_cc-only tb_bp-only.
+    DISABLE fi_chk-date fi_due-date fi_curr-code fi_age fi_amt lv-proamt btn-go tb_discount cb_payType .
     APPLY "entry" TO btn-change.
   END.
   ELSE DO WITH FRAME {&FRAME-NAME}:

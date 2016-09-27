@@ -28,7 +28,6 @@
 "Utilities" "" "DeleteOF4Prices.r" "OP" "OF3" "Purge Obsolete Price Matrixes from OF3" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0429201308755539" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "delnotes.r" "FG" "IF" "Delete Finished Goods Spec Notes  (Drop Down)" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1103200501121389" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "delordln.r" "OP" "OU1" "Delete Duplicate Line Item with Qty 0" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1202200904164089" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
-"Utilities" "" "delZero.r" "FG" "IF1" "Purge Zero FG Bins" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0524201609950814" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "DPBOXIMG.R" "CE" "EB" "Dump Box Images" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1206200601765398" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "DPINKS.r" "RM" "MF" "Dump Inks from Advantzware System" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0208200601499194" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "Dpstyle.r" "CE" "EB" "Dump Styles to Style.Dat File" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0618200803067483" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
@@ -69,6 +68,7 @@
 "Utilities" "" "FXBOLPOST.r" "OP" "OS1" "Restore Bill of Lading to Non Posted Status" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0627201308822019" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "Fxestqty.r" "CE" "E" "Restore Estimate Not Displaying" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0506201106458382" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "Fxitemv.r" "RM" "MF1" "Fix Corrugated Vend Cost Record Key for Adder Markups" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0318201106354263" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
+"Utilities" "" "FxIvOnly.r" "OP" "OS1" "Invoice Only Missing Invoice Fix" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1201201509751693" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "FxMnote.r" "OQ" "OQ1" "Restore Job's Machine Notes" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0330201207834572" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "fxoeretl.r" "FG" "IF" "Returns should reduce the ship quantity." 0 0 0 0 0 0 0 0 0 0 0 0 0 "1103200501121407" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "fxoeship.r" "OP" "OU1" "Update Order Browsers Ship Quantity" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1208200501404354" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
@@ -81,7 +81,6 @@
 "Utilities" "" "fxshpqty.r" "OP" "OU1" "Updates Orders Ship Quantity" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0616200601618388" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "FxTrncs2.r" "RM" "MF" "Updates RM History Cost from Purchase Order" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1107200702279461" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "glinvdif.r" "GL" "G" "Report shows differences in invoice amt vs posted amount" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0302201005453775" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
-"Utilities" "" "impfgrcp.r" "IU" "IU" "Import FG Receipts from XML file" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0419201609923394" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "LDBOXIMG.R" "CE" "EB" "Load Box Images" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1206200601765400" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "ldinks.r" "RM" "MF" "Load Inks from Inks.Dat File" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1103200501121401" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "ldstyle.r" "CE" "EB" "Load Styles from Style.Dat File" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1103200501121400" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
@@ -130,7 +129,7 @@
 "Utilities" "" "updappay.r" "AP" "V" "Update check date of Posted Checks" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0726200701938706" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "updarcal.r" "AR" "A" "Update line item of OP/AR invoice" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0302201005453892" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "UpdateEstNo.r" "CE" "NR" "Update Estimate Number" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1008201005813956" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
-"Utilities" "" "updateFG.r" "FG" "IF1" "Upload a CSV of FG Item Changes" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0827201509793824" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
+"Utilities" "" "updateFG.r" "FG" "IF1" "Upload a CSV of FG Item Master changes" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0827201509735134" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "UpdateFGCounts.r" "FG" "IF1" "UpdateFGCounts" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0102201308448000" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "Updateimagepath.r" "CE" "E" "Update Attachments Disk Drive or Folder" 0 0 0 0 0 0 0 0 0 0 0 0 0 "1025200702222265" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "UpdateShiptoZones.r" "AR" "AF1" "Update Shipto Zones" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0616201409291787" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
@@ -151,5 +150,4 @@
 "Utilities" "" "w-updsmn.r" "AF" "AF" "Update Salesman on Estimate,Quotes and Order from Customer" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0113201409115208" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "warinvrestore.r" "AR" "AQ" "Restores Purged Invoices via N-F-13" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0703200803138471" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "XrefTypetoGroup.r" "AF" "AF1" "COPY the A-F-1 Customer Type to the A-F-1 Cust Group Field." 0 0 0 0 0 0 0 0 0 0 0 0 0 "0102201509550279" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
-"Utilities" "" "zeroBin.r" "FG" "IF1" "Purge Zero Quantity FG bin records" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0519201609945536" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0
 "Utilities" "" "ZeroParts.r" "FG" "IF1" "Set Qty on Hand to Zero for Overrun Parts of Set" 0 0 0 0 0 0 0 0 0 0 0 0 0 "0412200601572995" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0

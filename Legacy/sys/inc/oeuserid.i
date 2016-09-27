@@ -12,9 +12,5 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.name     = "OEUserID"
    sys-ctrl.log-fld  = YES
    sys-ctrl.descrip  = "Update UserID when updating order?".
-   
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
 END.
 oeuserid-log = sys-ctrl.log-fld.

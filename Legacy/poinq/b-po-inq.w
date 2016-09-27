@@ -127,6 +127,7 @@ DEF VAR v-paidflg AS LOG NO-UNDO.
 &SCOPED-DEFINE for-each4                                           ~
     FIRST  ap-invl NO-LOCK                                          ~
     WHERE ap-invl.i-no              EQ int(reftable.code2)         ~
+      AND ap-invl.company           EQ cocode                      ~
       AND ap-invl.po-no             EQ po-ordl.po-no               ~
       AND (ap-invl.line +                                          ~
            (ap-invl.po-no * -1000)) EQ po-ordl.LINE OUTER-JOIN 
@@ -134,6 +135,7 @@ DEF VAR v-paidflg AS LOG NO-UNDO.
 &SCOPED-DEFINE for-each5                                           ~
     FIRST ap-inv NO-LOCK                                           ~
     WHERE ap-inv.i-no EQ ap-invl.i-no                              ~
+      AND ap-inv.company EQ cocode                                 ~
       AND ap-inv.due EQ 0  ~
       OUTER-JOIN  
 
@@ -2710,12 +2712,14 @@ FOR EACH  reftable NO-LOCK
       AND reftable.loc      EQ ""        
       AND reftable.code     EQ STRING(po-ordl.po-no,"9999999999"),
     EACH  ap-invl NO-LOCK
-    WHERE ap-invl.i-no              EQ int(reftable.code2) 
+    WHERE ap-invl.company           EQ po-ordl.company
+      AND ap-invl.i-no              EQ int(reftable.code2) 
       AND ap-invl.po-no             EQ po-ordl.po-no 
       AND (ap-invl.line + 
            (ap-invl.po-no * -1000)) EQ po-ordl.line,
     EACH  ap-inv NO-LOCK
-    WHERE ap-inv.i-no EQ ap-invl.i-no 
+    WHERE ap-inv.company EQ ap-invl.company 
+      AND ap-inv.i-no EQ ap-invl.i-no 
       AND ap-inv.due  EQ 0:
 
    v-flg = TRUE.
@@ -2746,12 +2750,14 @@ FOR EACH  reftable NO-LOCK
       AND reftable.loc      EQ ""        
       AND reftable.code     EQ STRING(po-ordl.po-no,"9999999999"),
     EACH  ap-invl NO-LOCK
-    WHERE ap-invl.i-no              EQ int(reftable.code2) 
+    WHERE ap-invl.company           EQ po-ordl.company
+      AND ap-invl.i-no              EQ int(reftable.code2) 
       AND ap-invl.po-no             EQ po-ordl.po-no 
       AND (ap-invl.line + 
            (ap-invl.po-no * -1000)) EQ po-ordl.line,
     EACH  ap-inv NO-LOCK
-    WHERE ap-inv.i-no EQ ap-invl.i-no 
+    WHERE ap-inv.company EQ ap-invl.company 
+      AND ap-inv.i-no EQ ap-invl.i-no 
       AND ap-inv.due  EQ 0:
 
    v-flg = TRUE.

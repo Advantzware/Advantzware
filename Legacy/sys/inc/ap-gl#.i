@@ -16,9 +16,7 @@ DO TRANSACTION:
             sys-ctrl.name    = "AP GL#"
             sys-ctrl.descrip = "Default GL# from Purchasing?"
             sys-ctrl.log-fld = NO.
-        MESSAGE sys-ctrl.descrip
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE sys-ctrl.log-fld.
+       
     END.
   
     IF sys-ctrl.char-fld EQ "" THEN sys-ctrl.char-fld = "Asset".

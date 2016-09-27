@@ -15,9 +15,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.log-fld  = yes
    sys-ctrl.char-fld = "Due Date"
    sys-ctrl.descrip  = "Create scheduled release when adding an order line?".
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+
 end.
 assign
  oereleas-log = sys-ctrl.log-fld

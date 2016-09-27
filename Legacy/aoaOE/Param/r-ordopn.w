@@ -189,7 +189,7 @@ DEFINE VARIABLE svEndDueDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
-DEFINE VARIABLE svEndItemNo AS CHARACTER FORMAT "X(8)" 
+DEFINE VARIABLE svEndItemNo AS CHARACTER FORMAT "X(15)" 
      LABEL "End Item" 
      VIEW-AS FILL-IN 
      SIZE 22 BY 1.
@@ -483,7 +483,7 @@ DEFINE FRAME F-Main
      endSalesRepName AT ROW 24.81 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 104
      svPrimarySort AT ROW 26 COL 22 HELP
           "Select Primary Sort Option" NO-LABEL WIDGET-ID 84
-     svPrimarySort-2 AT ROW 28.38 COL 22 HELP
+     svPrimarySort-2 AT ROW 27.19 COL 22 HELP
           "Select Secondary Sort Option" NO-LABEL WIDGET-ID 202
      svJobStatus AT ROW 28.38 COL 22 HELP
           "Select Job Status" NO-LABEL WIDGET-ID 210
@@ -507,14 +507,14 @@ DEFINE FRAME F-Main
           "Select to Include Inactive Items" WIDGET-ID 228
      "WIP Qty:" VIEW-AS TEXT
           SIZE 9 BY 1 AT ROW 30.76 COL 12 WIDGET-ID 246
-     "Job Status:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 28.38 COL 10 WIDGET-ID 242
-     "Secondary Sort By" VIEW-AS TEXT
-          SIZE 19 BY 1 AT ROW 27.19 COL 21 WIDGET-ID 208
      "Primary Sort By:" VIEW-AS TEXT
           SIZE 15 BY 1 AT ROW 26 COL 6 WIDGET-ID 90
      "Order Status:" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 29.57 COL 9 WIDGET-ID 244
+          SIZE 13 BY 1 AT ROW 29.57 COL 8 WIDGET-ID 244
+     "Job Status:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 28.38 COL 10 WIDGET-ID 242
+     "Secondary Sort By:" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 27.19 COL 3 WIDGET-ID 208
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1

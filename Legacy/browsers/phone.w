@@ -388,8 +388,22 @@ PROCEDURE pCRM :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN CRM/zohoCRM.w (ip-rec_key).
+    RUN CRM/crmContacts.w (ip-rec_key).
     {&OPEN-QUERY-Browser-Table}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRMType B-table-Win 
+PROCEDURE pCRMType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCRMType AS CHARACTER NO-UNDO INITIAL "crmContacts.".
 
 END PROCEDURE.
 

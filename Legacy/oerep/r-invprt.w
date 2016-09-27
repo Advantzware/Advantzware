@@ -2154,7 +2154,7 @@ PROCEDURE output-to-mail :
                                    NO-LOCK NO-ERROR.
                          vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
                   END.
-                  vShipToNo = ar-inv.ship-id.
+                  vShipToNo = b-ar-inv.ship-id.
                   RUN GenerateEmail(b-ar-inv.cust-no).
                END.
            END.
@@ -3197,7 +3197,7 @@ PROCEDURE SetInvForm :
              v-program      = "oe/rep/invpacif.p"
              lines-per-page = 66
              is-xprint-form = YES.
-       WHEN "Xprint" THEN
+       WHEN "Xprint" OR WHEN "invprint 1" OR WHEN "invprint 2" THEN
           ASSIGN
              v-program = "oe/rep/invxprnt.p"
              lines-per-page = 66
@@ -3748,7 +3748,7 @@ PROCEDURE SetInvPostForm :
              v-program      = "ar/rep/invpacif.p"
              lines-per-page = 66
              is-xprint-form = YES.
-       WHEN "Xprint" THEN
+       WHEN "Xprint" OR WHEN "invprint 1" OR WHEN "invprint 2" THEN
           ASSIGN
              v-program = "ar/rep/invxprnt.p"
              lines-per-page = 66

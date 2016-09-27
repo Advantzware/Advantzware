@@ -4,9 +4,9 @@
 
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
-DEF INPUT PARAMETER v-format AS CHAR.
-DEF SHARED VAR v-dept-log AS LOG NO-UNDO.
-DEF SHARED VAR v-dept-codes AS CHAR NO-UNDO.
+DEFINE INPUT PARAMETER v-format AS CHARACTER.
+DEFINE SHARED VARIABLE v-dept-log AS LOG NO-UNDO.
+DEFINE SHARED VARIABLE v-dept-codes AS CHARACTER NO-UNDO.
 DEFINE VARIABLE prt-copies       AS INTEGER          NO-UNDO.
 DEFINE VARIABLE v-start-compress AS cha              NO-UNDO.
 DEFINE VARIABLE v-end-compress   AS cha              NO-UNDO.
@@ -106,8 +106,8 @@ DEFINE VARIABLE scr-end-cell-w3    AS DECIMAL    FORMAT ">9.999999" NO-UNDO.
 {sys/inc/VAR.i SHARED}
 {cec/msfcalc.i}
 {sys/inc/f16to32.i}
-DEF NEW SHARED VAR v-out1-id       AS   RECID    NO-UNDO.  /* YSK 06/08/01  was~ local var */
-DEF NEW SHARED VAR v-out2-id       AS   RECID    NO-UNDO.  /* YSK 06/08/01  was~ local var */
+DEFINE NEW SHARED VARIABLE v-out1-id       AS   RECID    NO-UNDO.  /* YSK 06/08/01  was~ local var */
+DEFINE NEW SHARED VARIABLE v-out2-id       AS   RECID    NO-UNDO.  /* YSK 06/08/01  was~ local var */
 
 DEFINE VARIABLE laser            AS LOGICAL          INIT NO FORMAT "Y/N" NO-UNDO.
 DEFINE VARIABLE v-vend-no        LIKE oe-ordl.vend-no  NO-UNDO.
@@ -121,7 +121,7 @@ DEFINE VARIABLE v-print-score    AS LOGICAL          INIT YES NO-UNDO.
 DEFINE VARIABLE v-pqty           AS DECIMAL          NO-UNDO.
 DEFINE VARIABLE lv-part-no       AS cha              FORM "x(15)" NO-UNDO.
 DEFINE VARIABLE lv-rt-num        AS INTEGER          NO-UNDO.
-DEF STREAM ctl.
+DEFINE STREAM ctl.
 DEFINE VARIABLE lv-add-entry     AS INTEGER          NO-UNDO.
 DEFINE VARIABLE v-loop-cnt       AS INTEGER          NO-UNDO.
 DEFINE VARIABLE v-note-cnt       AS INTEGER          NO-UNDO.
@@ -135,58 +135,60 @@ DEFINE VARIABLE v-under-run      AS cha              NO-UNDO.
 DEFINE VARIABLE v-fg-set         AS cha              FORM "x(15)" NO-UNDO.
 {custom/notesdef.i}
 {cecrep/jc-prem.i}
-DEF BUFFER b-ef FOR ef.
+DEFINE BUFFER b-ef FOR ef.
 DEFINE VARIABLE v-xg-flag        AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE v-tmp-stype      AS cha              NO-UNDO.
 DEFINE VARIABLE v-len-score2     AS cha              EXTENT 13 NO-UNDO.
 DEFINE VARIABLE v-tmp-score      AS cha              NO-UNDO.
-DEF VAR m AS INT.
-DEF VAR v-ship-notes AS CHAR FORMAT "x(38)" EXTENT 12.
-DEF VAR v-add-space AS LOG.
+DEFINE VARIABLE m AS INTEGER.
+DEFINE VARIABLE v-ship-notes AS CHARACTER FORMAT "x(38)" EXTENT 12.
+DEFINE VARIABLE v-add-space AS LOG.
 
-DEF BUFFER bf-eb FOR eb.
+DEFINE BUFFER bf-eb FOR eb.
 DEFINE VARIABLE lv-spec-qty      LIKE ef.spec-qty      FORMAT ">>>,>>9.9<<<<" NO-UNDO.
 DEFINE SHARED VARIABLE s-prt-set-header AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE v-dept-inst      AS cha              FORM "x(80)" EXTENT 6 NO-UNDO.
 DEFINE VARIABLE v-inst2          AS cha              EXTENT 6 NO-UNDO.
-DEF BUFFER bf-item FOR ITEM.
+DEFINE BUFFER bf-item FOR ITEM.
 DEFINE VARIABLE v-type-desc      LIKE ITEM.i-name      NO-UNDO.
 DO TRANSACTION:
   {sys/inc/tspostfg.i}
 END.
 
-DEF VAR d2-text AS CHAR FORMAT "X(45)" NO-UNDO.
-DEF VAR d3-text AS CHAR FORMAT "X(45)" NO-UNDO.
-DEF VAR d4-text AS CHAR FORMAT "X(45)" NO-UNDO.
-DEF VAR d5-text AS CHAR FORMAT "X(45)" NO-UNDO.
-DEF VAR pr-text AS CHAR FORMAT "X(45)" NO-UNDO.
-DEF VAR score-count AS INT NO-UNDO.
-DEF VAR v-size AS CHAR FORMAT "X(30)" NO-UNDO.
-DEF VAR lv-note-text AS CHAR NO-UNDO.
-DEF VAR v-count AS INT NO-UNDO.
-DEF VAR v-count-2 AS INT NO-UNDO.
-DEF VAR v-qa-text AS cha FORM "x(30)" INIT "6/05 Job Ticket QF-119 Rev.A" NO-UNDO.
-DEF VAR lv-char AS CHAR NO-UNDO.
-DEF VAR v-mod-48-count AS INT NO-UNDO.
-DEF VAR v-mod-39-count AS INT NO-UNDO.
-DEF VAR v-cont-string AS cha NO-UNDO.
-DEF VAR v-prev-k AS INT NO-UNDO.
-DEF VAR v-tmp-note-length AS INT NO-UNDO.
-DEF VAR lv-text AS CHAR NO-UNDO.
-DEF VAR v-return-note AS CHAR NO-UNDO.
-DEF VAR v-tmp-line AS INT NO-UNDO.
-DEF VAR v-shipto AS cha NO-UNDO.
+DEFINE VARIABLE d2-text AS CHARACTER FORMAT "X(45)" NO-UNDO.
+DEFINE VARIABLE d3-text AS CHARACTER FORMAT "X(45)" NO-UNDO.
+DEFINE VARIABLE d4-text AS CHARACTER FORMAT "X(45)" NO-UNDO.
+DEFINE VARIABLE d5-text AS CHARACTER FORMAT "X(45)" NO-UNDO.
+DEFINE VARIABLE pr-text AS CHARACTER FORMAT "X(45)" NO-UNDO.
+DEFINE VARIABLE score-count AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-size AS CHARACTER FORMAT "X(30)" NO-UNDO.
+DEFINE VARIABLE lv-note-text AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-count AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-count-2 AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-qa-text AS cha FORM "x(30)" INIT "6/05 Job Ticket QF-119 Rev.A" NO-UNDO.
+DEFINE VARIABLE lv-char AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-mod-48-count AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-mod-39-count AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-cont-string AS cha NO-UNDO.
+DEFINE VARIABLE v-prev-k AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-tmp-note-length AS INTEGER NO-UNDO.
+DEFINE VARIABLE lv-text AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-return-note AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-tmp-line AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-shipto AS cha NO-UNDO.
+
+DEFINE BUFFER bf-xeb FOR eb .
 
 {custom/formtext.i NEW}
 {sys/inc/notes.i}
-DEF BUFFER xshipto FOR shipto.
+DEFINE BUFFER xshipto FOR shipto.
 
 /* {custom/notesdef.i} */
 FUNCTION display-cw-dim RETURNS DECIMAL
   ( INPUT ip-dim AS DECIMAL)  FORWARD.
   
   {cecrep/jobmcpt.i "new shared"}
-  DEF WORKFILE tt-wm LIKE w-m.
+  DEFINE WORKFILE tt-wm LIKE w-m.
   ASSIGN
   v-line[1] = CHR(95) + FILL(CHR(95),40) + CHR(95) + "  " +
   CHR(95) + FILL(CHR(95),40) + CHR(95) + "  " +
@@ -246,43 +248,50 @@ FUNCTION display-cw-dim RETURNS DECIMAL
       AND est-op.LINE LT 500
       AND est-op.s-num EQ xeb.form-no
       AND est.est-type NE 8 NO-LOCK NO-ERROR.
-      
+     
       v-pqty = 1.
       v-cp = "".
-      IF avail xeb THEN DO:
-        DEF VAR a-i AS INT.
-        CASE xeb.form-no:
-          WHEN 1 THEN DO:
-              v-len-array1 = "".
-              DO a-i = 1 TO 28:
-                IF xeb.k-len-array2[a-i] GT 0 THEN
-                v-len-array1[a-i] = STRING(xeb.k-len-array2[a-i]).
-                IF xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array1[a-i], ".") EQ 0 THEN
-                v-len-array1[a-i] = v-len-array1[a-i] + ".0".
-              END.
-            END.
-          WHEN 2 THEN DO:
-              v-len-array2 = "".
-              DO a-i = 1 TO 28:
-                IF xeb.k-len-array2[a-i] GT 0 THEN
-                v-len-array2[a-i] = STRING(xeb.k-len-array2[a-i] /* , ">>.999999" */).
-                IF xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array2[a-i], ".") EQ 0 THEN
-                v-len-array2[a-i] = v-len-array2[a-i] + ".0".
-                
-              END.
-            END.
-          WHEN 3 THEN DO:
-              v-len-array3 = "".
-              DO a-i = 1 TO 28:
-                IF xeb.k-len-array2[a-i] GT 0 THEN
-                v-len-array3[a-i] = STRING(xeb.k-len-array2[a-i] /* , ">>.999999" */).
-                IF xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array3[a-i], ".") EQ 0 THEN
-                v-len-array3[a-i] = v-len-array3[a-i] + ".0".
-                
-              END.
-            END.
-            
-        END CASE.
+      IF AVAILABLE xeb THEN DO:
+          FOR EACH bf-xeb NO-LOCK WHERE 
+              bf-xeb.company  EQ xeb.company AND
+              bf-xeb.est-no   EQ xeb.est-no AND
+              bf-xeb.form-no  EQ xeb.form-no : 
+              
+              DEFINE VARIABLE a-i AS INTEGER.
+              CASE bf-xeb.blank-no:
+                WHEN 1 THEN DO:
+                    v-len-array1 = "".
+                    DO a-i = 1 TO 28:
+                      IF bf-xeb.k-len-array2[a-i] GT 0 THEN
+                      v-len-array1[a-i] = STRING(bf-xeb.k-len-array2[a-i]).
+                      IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array1[a-i], ".") EQ 0 THEN
+                      v-len-array1[a-i] = v-len-array1[a-i] + ".0".
+                    END.
+                  END.
+                WHEN 2 THEN DO:
+                    v-len-array2 = "".
+                    DO a-i = 1 TO 28:
+                      IF bf-xeb.k-len-array2[a-i] GT 0 THEN
+                      v-len-array2[a-i] = STRING(bf-xeb.k-len-array2[a-i] /* , ">>.999999" */).
+                      IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array2[a-i], ".") EQ 0 THEN
+                      v-len-array2[a-i] = v-len-array2[a-i] + ".0".
+                      
+                    END.
+                  END.
+                WHEN 3 THEN DO:
+                    v-len-array3 = "".
+                    DO a-i = 1 TO 28:
+                      IF bf-xeb.k-len-array2[a-i] GT 0 THEN
+                      v-len-array3[a-i] = STRING(bf-xeb.k-len-array2[a-i] /* , ">>.999999" */).
+                      IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array3[a-i], ".") EQ 0 THEN
+                      v-len-array3[a-i] = v-len-array3[a-i] + ".0".
+                      
+                    END.
+                  END.
+                  
+              END CASE.
+
+          END. /* each bf-xeb */
         IF xeb.stock-no NE "" THEN v-fg = xeb.stock-no.
         v-cp = xeb.part-no.
         
@@ -298,19 +307,19 @@ FUNCTION display-cw-dim RETURNS DECIMAL
       v-loc     = ""
       v-loc-bin = "".
       
-      ASSIGN lv-over-run = IF AVAIL xoe-ordl THEN TRIM(STRING(xoe-ordl.over-pct,">>9.99%")) ELSE
-      IF AVAIL xoe-ord  THEN TRIM(STRING(xoe-ord.over-pct,">>9.99%"))  ELSE ""
-      li-over-run  = IF AVAIL xoe-ordl THEN DECIMAL(xoe-ordl.over-pct) ELSE
-      IF AVAIL xoe-ord  THEN DECIMAL(xoe-ord.over-pct)  ELSE 0
-      lv-under-run = IF AVAIL xoe-ordl THEN TRIM(STRING(xoe-ordl.under-pct,">>9.99%")) ELSE
-      IF AVAIL xoe-ord  THEN TRIM(STRING(xoe-ord.under-pct,">>9.99%"))  ELSE ""
-      li-under-run = IF AVAIL xoe-ordl THEN DECIMAL(xoe-ordl.under-pct) ELSE
-      IF AVAIL xoe-ord  THEN DECIMAL(xoe-ord.under-pct)  ELSE 0
+      ASSIGN lv-over-run = IF AVAILABLE xoe-ordl THEN TRIM(STRING(xoe-ordl.over-pct,">>9.99%")) ELSE
+      IF AVAILABLE xoe-ord  THEN TRIM(STRING(xoe-ord.over-pct,">>9.99%"))  ELSE ""
+      li-over-run  = IF AVAILABLE xoe-ordl THEN DECIMAL(xoe-ordl.over-pct) ELSE
+      IF AVAILABLE xoe-ord  THEN DECIMAL(xoe-ord.over-pct)  ELSE 0
+      lv-under-run = IF AVAILABLE xoe-ordl THEN TRIM(STRING(xoe-ordl.under-pct,">>9.99%")) ELSE
+      IF AVAILABLE xoe-ord  THEN TRIM(STRING(xoe-ord.under-pct,">>9.99%"))  ELSE ""
+      li-under-run = IF AVAILABLE xoe-ordl THEN DECIMAL(xoe-ordl.under-pct) ELSE
+      IF AVAILABLE xoe-ord  THEN DECIMAL(xoe-ord.under-pct)  ELSE 0
       lv-part-name = /* IF AVAIL xeb THEN xeb.part-dscr1 ELSE " " */ itemfg.i-name
-      lv-part-no = IF AVAIL xoe-ordl THEN xoe-ordl.part-no ELSE itemfg.part-no
-      v-cust-po = IF AVAIL xoe-ord THEN xoe-ord.po-no ELSE ""
-      v-req-code1 = IF AVAIL xoe-ordl THEN xoe-ordl.req-code ELSE ""
-      v-req-code2 = IF AVAIL xoe-ordl THEN xoe-ordl.req-code ELSE "".
+      lv-part-no = IF AVAILABLE xoe-ordl THEN xoe-ordl.part-no ELSE itemfg.part-no
+      v-cust-po = IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE ""
+      v-req-code1 = IF AVAILABLE xoe-ordl THEN xoe-ordl.req-code ELSE ""
+      v-req-code2 = IF AVAILABLE xoe-ordl THEN xoe-ordl.req-code ELSE "".
       
       
       ASSIGN v-perf = YES
@@ -321,15 +330,15 @@ FUNCTION display-cw-dim RETURNS DECIMAL
       v-contact = cust.contact
       v-num-tags = 1
       .
-      IF AVAIL xef THEN
+      IF AVAILABLE xef THEN
       ASSIGN v-reversed = (xef.xgrain = "B" OR xef.xgrain = "S").
       
-      ASSIGN v-set-qty = IF avail xeb /*and xeb.est-type eq 6 */ THEN
-      IF avail xoe-ordl THEN xoe-ordl.qty
+      ASSIGN v-set-qty = IF AVAILABLE xeb /*and xeb.est-type eq 6 */ THEN
+      IF AVAILABLE xoe-ordl THEN xoe-ordl.qty
       ELSE job-hdr.qty
       ELSE 0.
       
-      IF AVAIL est-op THEN DO:
+      IF AVAILABLE est-op THEN DO:
         IF w-ef.frm = 1 THEN DO:
           
           ASSIGN
@@ -338,19 +347,19 @@ FUNCTION display-cw-dim RETURNS DECIMAL
           v-dc-msetup[3] = est-op.att-type[3].
           IF v-dc-msetup[2] = "" THEN
           v-dc-msetup[2] = est-op.att-type[1].
-          IF AVAIL est-prep THEN
+          IF AVAILABLE est-prep THEN
           v-dc-msetup[4] = est-prep.CODE.
         END.
       END.
       
-      IF AVAIL est-op THEN DO:
+      IF AVAILABLE est-op THEN DO:
         IF w-ef.frm = 2 THEN DO:
           
           ASSIGN
           v-dc-setup[1] = est-op.att-type[1]
           v-dc-setup[2] = est-op.att-type[2]
           v-dc-setup[3] = est-op.att-type[3].
-          IF AVAIL est-prep THEN
+          IF AVAILABLE est-prep THEN
           v-dc-setup[4] = est-prep.CODE.
         END.
       END.
@@ -365,7 +374,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
         FIND bf-item WHERE bf-item.company = cocode
         AND bf-item.i-no    = v-form-code
         NO-LOCK NO-ERROR.
-        IF AVAIL bf-item THEN
+        IF AVAILABLE bf-item THEN
         v-type-desc = bf-item.i-name.
         ASSIGN v-due-date1 = DATE(v-due-date)
         v-board-type-1 = SUBSTRING(v-type-desc, 1, 12)
@@ -392,7 +401,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
         FIND bf-item WHERE bf-item.company = cocode
         AND bf-item.i-no    = v-form-code
         NO-LOCK NO-ERROR.
-        IF AVAIL bf-item THEN
+        IF AVAILABLE bf-item THEN
         v-type-desc = bf-item.i-name.
         
         ASSIGN v-due-date2 = DATE(v-due-date)
@@ -416,7 +425,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
         FIND bf-item WHERE bf-item.company = cocode
         AND bf-item.i-no    = v-form-code
         NO-LOCK NO-ERROR.
-        IF AVAIL bf-item THEN
+        IF AVAILABLE bf-item THEN
         v-type-desc = bf-item.i-name.
         
         ASSIGN v-due-date3 = DATE(v-due-date)
@@ -474,9 +483,9 @@ FUNCTION display-cw-dim RETURNS DECIMAL
       IF LAST(w-ef.frm) THEN DO:
           
         PUT    "</PROGRESS>"
-        "<P12><C2><B>CUSTOMER NAME:</B> " substring(v-cus[1], 1, 18) FORMAT "x(18)"
+        "<P12><C2><B>CUSTOMER NAME:</B> " SUBSTRING(v-cus[1], 1, 18) FORMAT "x(18)"
         "<B><C37>DESCRIPTION/PART #:</B><B><C75>ORDER #:</B> " xoe-ord.ord-no SKIP
-        "<C2><B>CUSTOMER PO#:</B> "  v-cust-po "<C37>"  lv-part-name "<C75><B>DUE DATE:</B><P10> " date(v-due-date) SPACE xoe-ord.due-code FORMAT "X(5)" SKIP
+        "<C2><B>CUSTOMER PO#:</B> "  v-cust-po "<C37>"  lv-part-name "<C75><B>DUE DATE:</B><P10> " DATE(v-due-date) SPACE xoe-ord.due-code FORMAT "X(5)" SKIP
         "<#1><C1><FROM><C105><R+45><RECT><|3>"
         "<=1><C36><FROM><R+22><C36><LINE><|3>"
         "<=1><C72><FROM><R+22><C72><LINE><|3>"
@@ -570,15 +579,15 @@ FUNCTION display-cw-dim RETURNS DECIMAL
       FIND LAST b-ef USE-INDEX est-qty WHERE b-ef.company = est.company
       AND b-ef.est-no = est.est-no NO-LOCK NO-ERROR.
       
-      IF AVAIL b-ef AND b-ef.form-no = w-ef.frm THEN
+      IF AVAILABLE b-ef AND b-ef.form-no = w-ef.frm THEN
       FOR EACH w-m:
         CREATE tt-wm.
         BUFFER-COPY w-m TO tt-wm.
       END.
 
-      v-shipto = IF AVAIL xoe-rel THEN xoe-rel.ship-id
-      ELSE IF avail xeb THEN xeb.ship-id
-      ELSE IF avail xoe-ord THEN xoe-ord.sold-id
+      v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id
+      ELSE IF AVAILABLE xeb THEN xeb.ship-id
+      ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id
       ELSE "".
 
       FIND FIRST xshipto NO-LOCK WHERE xshipto.company EQ cust.company AND
@@ -631,7 +640,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
       "<=7><C72><FROM><R+19><C72><LINE><|3>"
       "<P7>" SKIP.
       DISPLAY "<C2><R30><P10><B>Prep & Packing:" "<C77> Shipping Info:</B>" AT 92 SKIP
-      "<C2>Case/Count:" v-cas-no v-cas-cnt "Ship To #:" AT 91 xoe-ord.sold-id WHEN avail xoe-ord SKIP
+      "<C2>Case/Count:" v-cas-no v-cas-cnt "Ship To #:" AT 91 xoe-ord.sold-id WHEN AVAILABLE xoe-ord SKIP
       "<C2>Skid/Cases:" v-case-pallet    "<C74>" v-shp[1] SKIP
       "<C2>Label:" v-casetag-param       "<C74>" v-shp[2] SKIP
       "<C74>" v-shp[3] SKIP
@@ -710,7 +719,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
         END.
       END.
             
-      IF print-box AND avail xest THEN DO:
+      IF print-box AND AVAILABLE xest THEN DO:
         RUN cec/desprntU.p (RECID(xef),
         INPUT-OUTPUT v-lines,
         RECID(xest)).
@@ -733,15 +742,15 @@ FUNCTION display-cw-dim RETURNS DECIMAL
       IF i > 1 THEN DO:
         
         v-fg-set = job-hdr.i-no.
-        v-set-qty2 = IF avail xeb AND xeb.est-type EQ 6 THEN
-        IF avail xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty
+        v-set-qty2 = IF AVAILABLE xeb AND xeb.est-type EQ 6 THEN
+        IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty
         ELSE 0.
-        v-ord-qty = (IF avail xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty) *
+        v-ord-qty = (IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty) *
         IF est.form-qty LE 1 THEN 1 ELSE v-pqty.
-        v-over-run = IF AVAIL xoe-ordl THEN TRIM(STRING(xoe-ordl.over-pct,">>9.99%")) ELSE
-        IF AVAIL xoe-ord  THEN TRIM(STRING(xoe-ord.over-pct,">>9.99%"))  ELSE "".
-        v-under-run = IF AVAIL xoe-ordl THEN TRIM(STRING(xoe-ordl.under-pct,">>9.99%")) ELSE
-        IF AVAIL xoe-ord  THEN TRIM(STRING(xoe-ord.under-pct,">>9.99%"))  ELSE "".
+        v-over-run = IF AVAILABLE xoe-ordl THEN TRIM(STRING(xoe-ordl.over-pct,">>9.99%")) ELSE
+        IF AVAILABLE xoe-ord  THEN TRIM(STRING(xoe-ord.over-pct,">>9.99%"))  ELSE "".
+        v-under-run = IF AVAILABLE xoe-ordl THEN TRIM(STRING(xoe-ordl.under-pct,">>9.99%")) ELSE
+        IF AVAILABLE xoe-ord  THEN TRIM(STRING(xoe-ord.under-pct,">>9.99%"))  ELSE "".
         PUT "<R3><C1><#15><C30><P16><B> SET HEADER<P7></B>" SKIP(2)
         "Job #: " AT 3 v-job-prt "<C25>Our Order #: " v-ord-no
         "<C60>Our Date: " v-ord-date SKIP
@@ -820,14 +829,14 @@ FUNCTION display-cw-dim RETURNS DECIMAL
         END.
         v-tmp-line = v-tmp-line + 3 + i .
         
-        v-shipto = IF AVAIL xoe-rel THEN xoe-rel.ship-id
-        ELSE IF avail xeb THEN xeb.ship-id
-        ELSE IF avail xoe-ord THEN xoe-ord.sold-id
+        v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id
+        ELSE IF AVAILABLE xeb THEN xeb.ship-id
+        ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id
         ELSE "".
                 
         FIND FIRST tt-prem WHERE tt-prem.tt-job-no  EQ job-hdr.job-no
         AND tt-prem.tt-job-no2  EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
-        IF NOT AVAIL tt-prem THEN CREATE tt-prem.
+        IF NOT AVAILABLE tt-prem THEN CREATE tt-prem.
         
         ASSIGN v-tmp-lines = 0
                j = 0
@@ -890,14 +899,14 @@ PROCEDURE stackImage:
 END PROCEDURE.
 
 PROCEDURE getNotesNew:
-    DEF INPUT PARAMETER ipcTypeList AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcNoteType AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcPanel AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER v-return-note AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTypeList AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNoteType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPanel AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER v-return-note AS CHARACTER NO-UNDO.
   
-    DEF VAR li AS INT.
-    DEF VAR l-width AS INT.
-    DEF VAR l-rec LIKE note.rec_key.
+    DEFINE VARIABLE li AS INTEGER.
+    DEFINE VARIABLE l-width AS INTEGER.
+    DEFINE VARIABLE l-rec LIKE note.rec_key.
 
     IF ipcNoteType = "Pen" THEN l-rec = job.rec_key.
     ELSE IF ipcNoteType = "Spec" THEN l-rec = itemfg.rec_key.
@@ -1029,14 +1038,14 @@ END PROCEDURE.
 /* END PROCEDURE.                                                                 */
 
 PROCEDURE getDNotes:
-    DEF INPUT PARAMETER ipcTypeList AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcNoteType AS CHAR NO-UNDO.
-    DEF output PARAMETER v-return-note AS CHAR NO-UNDO.
-    DEF VAR v-end-note AS CHAR NO-UNDO.
-    DEF VAR v-note-length AS INT.
-    DEF VAR v-prev-note-rec AS INT.
-    DEF VAR m AS INT.
-    DEF VAR v-start-note AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTypeList AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNoteType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER v-return-note AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-end-note AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-note-length AS INTEGER.
+    DEFINE VARIABLE v-prev-note-rec AS INTEGER.
+    DEFINE VARIABLE m AS INTEGER.
+    DEFINE VARIABLE v-start-note AS CHARACTER NO-UNDO.
 
     v-start-note = "".
     DO m = 1 TO 4:
@@ -1153,8 +1162,8 @@ END PROCEDURE.
 /* END PROCEDURE.                                                                                                                          */
 
 PROCEDURE add-dept-note:
-  DEF INPUT PARAMETER ipNote AS CHAR NO-UNDO.
-  DEF VAR i AS INT.
+  DEFINE INPUT PARAMETER ipNote AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER.
   DO i = 1 TO 19:
     IF v-dept-note[i] = "" THEN DO:
         v-dept-note[i] = ipNote.
@@ -1165,8 +1174,8 @@ PROCEDURE add-dept-note:
 END PROCEDURE.
 
 PROCEDURE add-ship-note:
-  DEF INPUT PARAMETER ipNote AS CHAR NO-UNDO.
-  DEF VAR i AS INT NO-UNDO.
+  DEFINE INPUT PARAMETER ipNote AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DO i = 1 TO 12:
     IF v-ship-notes[i] = "" THEN DO:
         v-ship-notes[i] = ipNote.
@@ -1181,7 +1190,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
   Purpose:
   Notes:
   ------------------------------------------------------------------------------*/
-  DEF VAR out-dim AS DEC DECIMALS 6 NO-UNDO.
+  DEFINE VARIABLE out-dim AS DECIMAL DECIMALS 6 NO-UNDO.
   
   out-dim = ROUND(trunc(ip-dim,0) + ((ip-dim - trunc(ip-dim,0)) / K_FRAC), IF v-cecscrn-char NE "Decimal" THEN 2 ELSE 6).   /* @ ip-dim */
   RETURN out-dim.   /* Function return value. */

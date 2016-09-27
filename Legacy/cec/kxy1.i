@@ -37,6 +37,8 @@ def var ld-ink-frm as dec no-undo.
 DEF VAR v-long-qty-set AS DEC NO-UNDO.
 DEF VAR v-short-qty-set AS DEC NO-UNDO.
 DEF VAR v-count AS INT NO-UNDO.
+DEF VARIABLE dBlankLen AS DECIMAL NO-UNDO.
+DEF VARIABLE dBlankWid AS DECIMAL NO-UNDO.
 
 assign
  v-len = sh-len
@@ -178,6 +180,15 @@ ELSE DO:
           ELSE
           IF xeb.yld-qty LT 0 THEN (-1 / xeb.yld-qty) ELSE xeb.yld-qty.
 END.
+IF AVAIL est-op AND est-op.spare-char-1 = "R" THEN
+    ASSIGN
+    dBlankLen  = xeb.t-wid
+    dBlankWid  = xeb.t-len .
+ELSE 
+   ASSIGN
+    dBlankLen  = xeb.t-len
+    dBlankWid  = xeb.t-wid .
+
 
 /* --------------------------------- c o l  ----- */
 x = 0.
@@ -196,11 +207,11 @@ do while avail {1} and x eq 0:
 
   else
   if mstd.{3}-x eq 4 then
-    {cec/kxy2.i "{1}" col xeb.t-len}
+    {cec/kxy2.i "{1}" COL dBlankLen /*xeb.t-len*/  }
 
   else
   if mstd.{3}-x eq 5 then
-    {cec/kxy2.i "{1}" col xeb.t-wid}
+    {cec/kxy2.i "{1}" COL dBlankWid  /*xeb.t-wid*/ }
 
   else
   if mstd.{3}-x eq 6 then
@@ -224,11 +235,11 @@ do while avail {1} and x eq 0:
 
   else
   if mstd.{3}-x eq 11 then
-    {cec/kxy2.i "{1}" col xef.nsh-wid}
+    {cec/kxy2.i "{1}" COL xef.nsh-wid }
 
   else
   if mstd.{3}-x eq 12 then
-    {cec/kxy2.i "{1}" col xef.nsh-len}
+    {cec/kxy2.i "{1}" COL xef.nsh-len  }
 
   else
   if mstd.{3}-x eq 13 then
@@ -337,11 +348,11 @@ do while avail {1} and y eq 0:
 
   else
   if mstd.{3}-y eq 4 then
-    {cec/kxy2.i "{1}" row xeb.t-len}
+    {cec/kxy2.i "{1}" ROW dBlankLen /*xeb.t-len*/ }
 
   else
   if mstd.{3}-y eq 5 then
-    {cec/kxy2.i "{1}" row xeb.t-wid}
+    {cec/kxy2.i "{1}" ROW dBlankWid /*xeb.t-wid*/ }
 
   else
   if mstd.{3}-y eq 6 then
@@ -365,11 +376,11 @@ do while avail {1} and y eq 0:
 
   else
   if mstd.{3}-y eq 11 then
-    {cec/kxy2.i "{1}" row xef.nsh-wid}
+    {cec/kxy2.i "{1}" ROW xef.nsh-wid  }
 
   else
   if mstd.{3}-y eq 12 then
-    {cec/kxy2.i "{1}" row xef.nsh-len}
+    {cec/kxy2.i "{1}" ROW xef.nsh-len  }
 
   else
   if mstd.{3}-y eq 13 then

@@ -27,9 +27,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.descrip = "Show records when first entering OE & CE browsers"
    sys-ctrl.log-fld = YES
    sys-ctrl.int-fld = 30.
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 end.
 
 assign

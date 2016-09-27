@@ -17,9 +17,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.descrip = "Display Commission Dollars and % " +
 		              "in Order Entry & Invoicing?"
    sys-ctrl.log-fld = yes.
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 
 ASSIGN

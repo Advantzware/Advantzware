@@ -16,9 +16,7 @@ IF NOT AVAILABLE sys-ctrl THEN DO :
         sys-ctrl.char-fld = ""
         sys-ctrl.descrip  = "Define Customer List for Reporting"
         .
-    MESSAGE sys-ctrl.descrip
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE sys-ctrl.log-fld.
+  
 END .
 
 FIND FIRST sys-ctrl-shipto OF sys-ctrl NO-LOCK 
