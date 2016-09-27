@@ -824,7 +824,7 @@ PROCEDURE pRunReport :
     FOR EACH oe-bolh NO-LOCK
         WHERE oe-bolh.company  EQ cocode
           AND oe-bolh.posted   EQ NO
-          AND (oe-bolh.printed EQ YES OR NOT lPost)
+          AND (oe-bolh.printed EQ YES OR lPost EQ NO)
           AND oe-bolh.bol-no   GE iStartBOL
           AND oe-bolh.bol-no   LE iEndBOL
           AND oe-bolh.bol-date GE dtStartBOLDate
@@ -885,8 +885,8 @@ PROCEDURE pRunReport :
         BREAK BY oe-bolh.b-no
               BY oe-bolh.bol-no
         :
-        IF NOT FIRST-OF(oe-bolh.b-no) THEN DELETE w-bolh.
-        IF NOT CAN-FIND(oe-boll
+        IF NOT FIRST-OF(oe-bolh.b-no) OR
+           NOT CAN-FIND(FIRST oe-boll
                         WHERE oe-boll.company EQ oe-bolh.company
                           AND oe-boll.b-no    EQ oe-bolh.b-no
                           AND oe-boll.loc     GE cStartLoc
@@ -894,7 +894,7 @@ PROCEDURE pRunReport :
                           AND oe-boll.loc-bin GE cStartLocBin
                           AND oe-boll.loc-bin LE cEndLocBin) THEN
         DELETE w-bolh.
-    END.
+    END. /* each w-bolh */
     
     FIND FIRST w-bolh NO-ERROR.
     fDebugMsg("In Run Report - Avail w-bolh?" + STRING(AVAILABLE(w-bolh))).

@@ -1,4 +1,4 @@
-/* pOpenOrderReport.i - auto generated 08.26.2016 @  7:05:47 pm from aoa/aoaParam.w */
+/* pOpenOrderReport.i - auto generated 09.26.2016 @  5:49:56 pm from aoa/aoaParam.w */
 
     {aoaAppSrv/aoaInputDefParams.i}
 
@@ -36,7 +36,7 @@
     DEFINE VARIABLE cStartSalesRep AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndSalesRep AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrimarySort AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPrimarySort-2 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSecondarySort AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobStatus AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOrderStatus AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cWIPQty AS CHARACTER NO-UNDO.
@@ -92,7 +92,7 @@
         cStartSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svStartSalesRep")
         cEndSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svEndSalesRep")
         cPrimarySort = DYNAMIC-FUNCTION("fGetParamValue","svPrimarySort")
-        cPrimarySort-2 = DYNAMIC-FUNCTION("fGetParamValue","svPrimarySort-2")
+        cSecondarySort = DYNAMIC-FUNCTION("fGetParamValue","svSecondarySort")
         cJobStatus = DYNAMIC-FUNCTION("fGetParamValue","svJobStatus")
         cOrderStatus = DYNAMIC-FUNCTION("fGetParamValue","svOrderStatus")
         cWIPQty = DYNAMIC-FUNCTION("fGetParamValue","svWIPQty")

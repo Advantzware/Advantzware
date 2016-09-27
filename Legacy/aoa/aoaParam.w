@@ -1230,6 +1230,7 @@ PROCEDURE pExcel :
     DEFINE VARIABLE chRangeRow  AS COM-HANDLE NO-UNDO.
     DEFINE VARIABLE chRangeCol  AS COM-HANDLE NO-UNDO.
     DEFINE VARIABLE idx         AS INTEGER    NO-UNDO.
+    DEFINE VARIABLE errorMsg    AS CHARACTER  NO-UNDO.
     
     RUN pSaveParamValues (NO, BUFFER user-print).
 
@@ -1453,13 +1454,18 @@ PROCEDURE pExcel :
             DO iColumn = 1 TO svSelectedColumns:NUM-ITEMS:
                 fieldName = svSelectedColumns:ENTRY(iColumn).
                 chWorkSheet:Cells(iRow,iColumn):Value = hTable:BUFFER-FIELD(fieldName):BUFFER-VALUE() NO-ERROR.
-                IF ERROR-STATUS:ERROR THEN
-                DO idx = 1 TO ERROR-STATUS:NUM-MESSAGES:
-                    MESSAGE "Row:" iRow "Column:" iColumn SKIP
-                        "Value:" hTable:BUFFER-FIELD(fieldName):BUFFER-VALUE() SKIP
-                        "Error:" ERROR-STATUS:GET-MESSAGE(idx)
-                        VIEW-AS ALERT-BOX ERROR.
-                END. /* do idx */
+                IF ERROR-STATUS:ERROR THEN DO:
+                    errorMsg = "".
+                    DO idx = 1 TO ERROR-STATUS:NUM-MESSAGES:
+                        errorMsg = errorMsg + ERROR-STATUS:GET-MESSAGE(idx) + CHR(10).
+                    END. /* do idx */
+                    MESSAGE "Row:" iRow "Column:" iColumn SKIP(1)
+                        "Field:" fieldName SKIP
+                        "Label:" hTable:BUFFER-FIELD(fieldName):LABEL SKIP
+                        "Value:" hTable:BUFFER-FIELD(fieldName):BUFFER-VALUE() SKIP(1)
+                        "Error:" errorMsg
+                            VIEW-AS ALERT-BOX ERROR TITLE "CTRL-BREAK to End".
+                END. /* if error-status:error */
             END. /* do iColumn */
         END. /* repeat */
         hQuery:QUERY-CLOSE().
@@ -1467,7 +1473,6 @@ PROCEDURE pExcel :
 
         /* calc header and data */
         ASSIGN
-            chWorkSheet:Cells(iStatusRow + 4,2):Value = "Building Wooksheet...Done"
             chRangeRow = chWorkSheet:Cells(iStatusRow - 2,1)
             chRangeCol = chWorkSheet:Cells(iRow,svSelectedColumns:NUM-ITEMS)
             .

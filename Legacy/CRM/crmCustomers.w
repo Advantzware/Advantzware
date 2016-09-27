@@ -43,31 +43,7 @@ DEFINE VARIABLE ipcCompany AS CHARACTER NO-UNDO INITIAL "001".
 
 /* Local Variable Definitions ---                                       */
 
-{XMLOutput/ttNodes.i NEW}
-
-DEFINE TEMP-TABLE ttAccounts NO-UNDO
-    FIELD tickerSymbol AS CHARACTER LABEL "CRM Ticker"   FORMAT "x(8)"
-    FIELD crmName      AS CHARACTER LABEL "CRM Name"     FORMAT "x(30)"
-    FIELD crmPhone     AS CHARACTER LABEL "CRM Phone"    FORMAT "x(20)"
-    FIELD crmStreet    AS CHARACTER LABEL "CRM Street"   FORMAT "x(30)"
-    FIELD crmStreet2   AS CHARACTER LABEL "CRM Street 2" FORMAT "x(30)"
-    FIELD crmCity      AS CHARACTER LABEL "CRM City"     FORMAT "x(15)"
-    FIELD crmState     AS CHARACTER LABEL "CRM State"    FORMAT "x(2)"
-    FIELD crmCode      AS CHARACTER LABEL "CRM Code"     FORMAT "x(10)"
-    FIELD applyAction  AS LOGICAL   LABEL "=>"
-    FIELD action       AS CHARACTER LABEL "Action"       FORMAT "x(8)"  INITIAL "Add"
-    FIELD custName     AS CHARACTER LABEL "Name"         FORMAT "x(30)"
-    FIELD custAreaCode AS CHARACTER LABEL "Area"         FORMAT "(999)"
-    FIELD custPhone    AS CHARACTER LABEL "Phone"        FORMAT "999-9999"
-    FIELD custStreet   AS CHARACTER LABEL "Street"       FORMAT "x(30)"
-    FIELD custStreet2  AS CHARACTER LABEL "Street 2"     FORMAT "x(30)"
-    FIELD custCity     AS CHARACTER LABEL "City"         FORMAT "x(15)"
-    FIELD custState    AS CHARACTER LABEL "State"        FORMAT "x(2)"
-    FIELD custCode     AS CHARACTER LABEL "Code"         FORMAT "x(10)"
-    FIELD custRowID    AS ROWID
-    FIELD saveAction   AS CHARACTER
-        INDEX ttAccounts IS PRIMARY tickerSymbol
-        .
+{CRM/ttCRMCustomers.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -85,18 +61,18 @@ DEFINE TEMP-TABLE ttAccounts NO-UNDO
 &Scoped-define BROWSE-NAME crmAccounts
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttAccounts
+&Scoped-define INTERNAL-TABLES ttCRMCustomers
 
 /* Definitions for BROWSE crmAccounts                                   */
-&Scoped-define FIELDS-IN-QUERY-crmAccounts ttAccounts.tickerSymbol ttAccounts.crmName ttAccounts.crmPhone ttAccounts.applyAction ttAccounts.action ttAccounts.custName ttAccounts.custAreaCode ttAccounts.custPhone ttAccounts.custStreet ttAccounts.custStreet2 ttAccounts.custCity ttAccounts.custState ttAccounts.custCode   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-crmAccounts ttAccounts.applyAction   
-&Scoped-define ENABLED-TABLES-IN-QUERY-crmAccounts ttAccounts
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-crmAccounts ttAccounts
+&Scoped-define FIELDS-IN-QUERY-crmAccounts ttCRMCustomers.tickerSymbol ttCRMCustomers.crmName ttCRMCustomers.crmPhone ttCRMCustomers.xxApplyAction ttCRMCustomers.action ttCRMCustomers.custName ttCRMCustomers.custAreaCode ttCRMCustomers.custPhone ttCRMCustomers.custStreet ttCRMCustomers.custStreet2 ttCRMCustomers.custCity ttCRMCustomers.custState ttCRMCustomers.custCode   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-crmAccounts ttCRMCustomers.xxApplyAction   
+&Scoped-define ENABLED-TABLES-IN-QUERY-crmAccounts ttCRMCustomers
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-crmAccounts ttCRMCustomers
 &Scoped-define SELF-NAME crmAccounts
-&Scoped-define QUERY-STRING-crmAccounts FOR EACH ttAccounts
-&Scoped-define OPEN-QUERY-crmAccounts OPEN QUERY {&SELF-NAME} FOR EACH ttAccounts.
-&Scoped-define TABLES-IN-QUERY-crmAccounts ttAccounts
-&Scoped-define FIRST-TABLE-IN-QUERY-crmAccounts ttAccounts
+&Scoped-define QUERY-STRING-crmAccounts FOR EACH ttCRMCustomers
+&Scoped-define OPEN-QUERY-crmAccounts OPEN QUERY {&SELF-NAME} FOR EACH ttCRMCustomers.
+&Scoped-define TABLES-IN-QUERY-crmAccounts ttCRMCustomers
+&Scoped-define FIRST-TABLE-IN-QUERY-crmAccounts ttCRMCustomers
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -153,28 +129,28 @@ DEFINE VARIABLE svSelect AS LOGICAL INITIAL no
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY crmAccounts FOR 
-      ttAccounts SCROLLING.
+      ttCRMCustomers SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE crmAccounts
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS crmAccounts Dialog-Frame _FREEFORM
   QUERY crmAccounts DISPLAY
-      ttAccounts.tickerSymbol
-    ttAccounts.crmName
-    ttAccounts.crmPhone
-    ttAccounts.applyAction VIEW-AS TOGGLE-BOX
-    ttAccounts.action
-    ttAccounts.custName
-    ttAccounts.custAreaCode
-    ttAccounts.custPhone
-    ttAccounts.custStreet
-    ttAccounts.custStreet2
-    ttAccounts.custCity
-    ttAccounts.custState
-    ttAccounts.custCode
+      ttCRMCustomers.tickerSymbol
+    ttCRMCustomers.crmName
+    ttCRMCustomers.crmPhone
+    ttCRMCustomers.xxApplyAction VIEW-AS TOGGLE-BOX
+    ttCRMCustomers.action
+    ttCRMCustomers.custName
+    ttCRMCustomers.custAreaCode
+    ttCRMCustomers.custPhone
+    ttCRMCustomers.custStreet
+    ttCRMCustomers.custStreet2
+    ttCRMCustomers.custCity
+    ttCRMCustomers.custState
+    ttCRMCustomers.custCode
     ENABLE
-    ttAccounts.applyAction
+    ttCRMCustomers.xxApplyAction
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 225 BY 5.
@@ -198,7 +174,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 15 BY .62 AT ROW 1.24 COL 26 WIDGET-ID 80
      "Customers" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.24 COL 126 WIDGET-ID 82
-     SPACE(90.99) SKIP(6.56)
+     SPACE(91.00) SKIP(6.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "ZOHO CRM (Customers)" WIDGET-ID 100.
@@ -255,7 +231,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE crmAccounts
 /* Query rebuild information for BROWSE crmAccounts
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttAccounts.
+OPEN QUERY {&SELF-NAME} FOR EACH ttCRMCustomers.
      _END_FREEFORM
      _Query            is NOT OPENED
 */  /* BROWSE crmAccounts */
@@ -283,6 +259,7 @@ END.
 ON CHOOSE OF btnApply IN FRAME Dialog-Frame /* Apply */
 DO:
     RUN pApplyCRM.
+    BROWSE crmAccounts:REFRESH() NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -318,11 +295,11 @@ END.
 ON VALUE-CHANGED OF svSelect IN FRAME Dialog-Frame /* Select */
 DO:
   ASSIGN {&SELF-NAME}.
-  FOR EACH ttAccounts:
-      ttAccounts.applyAction = {&SELF-NAME}.
-      IF ttAccounts.action EQ "" THEN
-      ttAccounts.applyAction = NO.
-  END. /* each ttAccounts */
+  FOR EACH ttCRMCustomers:
+      ttCRMCustomers.xxApplyAction = {&SELF-NAME}.
+      IF ttCRMCustomers.action EQ "" THEN
+      ttCRMCustomers.xxApplyAction = NO.
+  END. /* each ttCRMCustomers */
   BROWSE crmAccounts:REFRESH() NO-ERROR.
 END.
 
@@ -342,7 +319,6 @@ END.
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
-
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -350,15 +326,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   RUN pGetCRM.
-  IF RETURN-VALUE NE "" THEN DO:
-      MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-      RETURN.
-  END.
+  IF RETURN-VALUE NE "" THEN RETURN.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
 
-{CRM/crmProcs.i}
+{CRM/crmCustomers.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -405,46 +378,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pApplyCRM Dialog-Frame 
-PROCEDURE pApplyCRM :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
-
-    FOR EACH ttAccounts:
-        IF ttAccounts.applyAction EQ NO THEN NEXT.
-        IF ttAccounts.action EQ "" THEN NEXT.
-        ASSIGN
-            cPhone = REPLACE(ttAccounts.crmPhone," ","")
-            cPhone = REPLACE(cPhone,"+","")
-            cPhone = REPLACE(cPhone,"-","")
-            cPhone = REPLACE(cPhone,"(","")
-            cPhone = REPLACE(cPhone,")","")
-            cPhone = REPLACE(cPhone,"x","")
-            cPhone = REPLACE(cPhone,".","")
-            ttAccounts.custName     = ttAccounts.crmName
-            ttAccounts.custAreaCode = SUBSTR(cPhone,1,3)
-            ttAccounts.custPhone    = SUBSTR(cPhone,4,7)
-            ttAccounts.custStreet   = ttAccounts.crmStreet
-            ttAccounts.custStreet2  = ttAccounts.crmStreet2
-            ttAccounts.custCity     = ttAccounts.crmCity
-            ttAccounts.custState    = ttAccounts.crmState
-            ttAccounts.custCode     = ttAccounts.crmCode
-            ttAccounts.saveAction   = ttAccounts.action
-            ttAccounts.applyAction  = NO
-            ttAccounts.action       = ""
-            .
-        BROWSE crmAccounts:REFRESH() NO-ERROR.
-    END. /* each ttAccounts */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCRM Dialog-Frame 
 PROCEDURE pGetCRM :
 /*------------------------------------------------------------------------------
@@ -452,83 +385,18 @@ PROCEDURE pGetCRM :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cAuthToken  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cConnection AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hWebService AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hSalesSoap  AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE iHeight     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iRows       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lcAccounts  AS LONGCHAR  NO-UNDO.
-
-    RUN pGetAuthToken  (ipcCompany, OUTPUT cAuthToken).
-    IF cAuthToken EQ "" THEN
-    RETURN "Authorization Token Value is Blank".
-    
-    RUN pGetConnection (OUTPUT cConnection).
-    IF cConnection EQ "" THEN
-    RETURN "Web Service Connection is Blank".
-    
-    svStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Connecting to ZOHO CRM ...".
-
-    CREATE SERVER hWebService.
-    hWebService:CONNECT(cConnection) NO-ERROR.
-    IF NOT hWebService:CONNECTED() THEN DO:
-        DELETE OBJECT hWebService.
-        RETURN "Web Service Connection Failed".
-    END.
-
-    svStatus:SCREEN-VALUE = "Retreiving ZOHO CRM ...".
-    
-    RUN Service1Soap SET hSalesSoap ON hWebService.
-    
-    RUN HelpCrmZohoAcc IN hSalesSoap (
-        "Accounts",
-        "",
-        "Accounts(ACCOUNTID,Account%20Name,Ticker%20Symbol,Phone,Billing Street,Billing Street 2,Billing City,Billing State,Billing Code)&fromIndex=1&toIndex=125&sortColumnString=Ticker%20Symbol&sortOrderString=desc",
-        "getRecords",
-        cAuthToken,
-        OUTPUT lcAccounts
-        ).
-
-    IF INDEX(STRING(lcAccounts),"<code>4422</code>") NE 0 THEN
-    RETURN "No Data Returned".
-
-    OUTPUT TO "c:\tmp\Accounts.xml".
-    PUT UNFORMATTED STRING(lcAccounts) SKIP.
-    OUTPUT CLOSE.
-    EMPTY TEMP-TABLE ttAccounts.
-    RUN pXML ("c:\tmp\Accounts.xml", "Accounts").
-    
-    FOR EACH ttAccounts
-        WHERE ttAccounts.tickerSymbol EQ ""
-        :
-        DELETE ttAccounts.
-    END. /* each ttaccounts */
-    
-    FOR EACH ttAccounts:
-        iRows = iRows + 1.
-        FIND FIRST cust NO-LOCK
-             WHERE cust.company EQ ipcCompany
-               AND cust.cust-no EQ ttAccounts.tickerSymbol
-             NO-ERROR.
-        IF AVAILABLE cust THEN DO:
-            ASSIGN
-                ttAccounts.custName     = cust.name
-                ttAccounts.custAreaCode = cust.area-code
-                ttAccounts.custPhone    = cust.phone
-                ttAccounts.custStreet   = cust.addr[1]
-                ttAccounts.custStreet2  = cust.addr[2]
-                ttAccounts.custCity     = cust.city
-                ttAccounts.custState    = cust.state
-                ttAccounts.custCode     = cust.zip
-                ttAccounts.custRowID    = ROWID(cust)
-                ttAccounts.action       = "Update"
-                ttAccounts.applyAction  = YES
-                .
-        END. /* avail cust */
-    END. /* each ttaccounts */
+    DEFINE VARIABLE iRows   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iHeight AS INTEGER NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
+        svStatus:SCREEN-VALUE = "Retreiving ZOHO CRM ...".
+        EMPTY TEMP-TABLE ttCRMCustomers.
+        RUN pZohoCRM (ipcCompany, OUTPUT iRows).
+        IF RETURN-VALUE NE "" THEN DO:
+            MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
+            RETURN RETURN-VALUE.
+        END.
+        IF iRows GT 30 THEN iRows = 30.
         IF iRows GT 5 THEN DO:
             ASSIGN
                 iHeight = 20 + iRows * 17
@@ -540,101 +408,10 @@ PROCEDURE pGetCRM :
                 svStatus:Y  = btnApply:Y
                 .
             BROWSE crmAccounts:HEIGHT-PIXELS = iHeight.
-        END.
+        END. /* irows gt 5 */
+        {&OPEN-QUERY-crmAccounts}
+        svStatus:SCREEN-VALUE = "".
     END.
-    {&OPEN-QUERY-crmAccounts}
-    svStatus:SCREEN-VALUE = "".
-    RETURN.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSave Dialog-Frame 
-PROCEDURE pSave :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    FOR EACH ttAccounts:
-        IF ttAccounts.saveAction EQ "" THEN NEXT.
-        IF ttAccounts.saveAction EQ "Update" THEN
-        FIND cust EXCLUSIVE-LOCK WHERE ROWID(cust) EQ ttAccounts.custRowID.
-        ELSE DO:
-            CREATE cust.
-            cust.cust-no = ttAccounts.TickerSymbol.
-        END. /* save */
-        ASSIGN
-            cust.name      = ttAccounts.custName
-            cust.area-code = ttAccounts.custAreaCode
-            cust.phone     = ttAccounts.custPhone
-            cust.addr[1]   = ttAccounts.custStreet
-            cust.addr[2]   = ttAccounts.custStreet2
-            cust.city      = ttAccounts.custCity
-            cust.state     = ttAccounts.custState
-            cust.zip       = ttAccounts.custCode
-            .
-        RELEASE cust.
-    END. /* each ttAccounts */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pXML Dialog-Frame 
-PROCEDURE pXML :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  input XML file and type (accounts/contacts)
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcXMLFile AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcType    AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE cValue  AS CHARACTER NO-UNDO.
-
-    RUN XMLOutput/XMLParser.p (ipcXMLFile).
-    FOR EACH ttNodes:
-        ASSIGN
-            ttNodes.nodeName   = TRIM(LEFT-TRIM(ttNodes.nodeName))
-            ttNodes.nodeValue  = TRIM(LEFT-TRIM(ttNodes.nodeValue))
-            ttNodes.parentName = TRIM(LEFT-TRIM(ttNodes.parentName))
-            .
-        IF ttNodes.nodeName   EQ "no"  AND
-           ttNodes.parentName EQ "row" AND
-           ttNodes.level      EQ 5     THEN
-        CREATE ttAccounts.
-
-        IF ttNodes.nodeName   EQ "val" AND
-           ttNodes.parentName EQ "FL"  AND
-           ttNodes.level      EQ 6     THEN
-        CASE ttNodes.nodeValue:
-            WHEN "Account Name" THEN
-            ttAccounts.crmName = cValue.
-            WHEN "Billing City" THEN
-            ttAccounts.crmCity = cValue.
-            WHEN "Billing State" THEN
-            ttAccounts.crmState = cValue.
-            WHEN "Billing Code" THEN
-            ttAccounts.crmCode = cValue.
-            WHEN "Billing Street" THEN
-            ttAccounts.crmStreet = cValue.
-            WHEN "Billing Street 2" THEN
-            ttAccounts.crmStreet2 = cValue.
-            WHEN "Phone" THEN
-            ttAccounts.crmPhone = cValue.
-            WHEN "Ticker Symbol" THEN
-            ttAccounts.tickerSymbol = cValue.
-        END CASE.
-
-        IF ttNodes.nodeName   EQ "FL"  AND
-           ttNodes.parentName EQ "row" AND
-           ttNodes.level      EQ 5     THEN
-        cValue = ttNodes.nodeValue.
-    END. /* each ttnodes */
 
 END PROCEDURE.
 
