@@ -19,7 +19,8 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+DEFINE VARIABLE tb_excel AS LOG NO-UNDO. /* To prevent compile error as mch-edit.i contains this var */
+DEFINE STREAM excel . /* To prevent compile error as mch-edit.i contains this stream */
 /* Parameters Definitions ---                                           */
 
 &IF DEFINED(UIB_IS_RUNNING) NE 0 &THEN
