@@ -257,7 +257,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     END.
 
     ELSE
-    IF numfit EQ 6 THEN DO:
+    IF i EQ 6 AND numfit GE 6 THEN DO:
        v-board = "".
        IF NOT adder-print AND NOT logSetPrinting AND AVAIL ef THEN
          v-board = ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
