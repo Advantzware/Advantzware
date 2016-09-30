@@ -74,7 +74,7 @@ DEFINE BUFFER bPJob FOR pendingJob.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME browseJob
 
@@ -98,9 +98,9 @@ DEFINE BUFFER bPJob FOR pendingJob.
     ~{&OPEN-QUERY-browseJob}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnFilter btnPrint btnComplete ~
-btnMoveResource btnRefresh resources RECT-1 RECT-2 RECT-3 RECT-5 RECT-6 ~
-jobPhrase btnSort browseJob instructions4Steps 
+&Scoped-Define ENABLED-OBJECTS resources btnFilter btnPrint btnComplete ~
+btnMoveResource btnRefresh RECT-1 RECT-2 RECT-3 RECT-5 RECT-6 jobPhrase ~
+btnSort browseJob instructions4Steps 
 &Scoped-Define DISPLAYED-OBJECTS resources jobPhrase dateTime newDate ~
 newHour newMinute newAMPM setDateTimeOptions relatedJobs ~
 setPlacementOptions instructions4Steps sortableColumns 
@@ -355,6 +355,8 @@ DEFINE BROWSE browseJob
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     resources AT ROW 1 COL 109.4 HELP
+          "Select Resource"
      btnFilter AT ROW 1.05 COL 31 HELP
           "Click to Set Filter Values"
      btnPrint AT ROW 1.05 COL 69 HELP
@@ -367,8 +369,6 @@ DEFINE FRAME F-Main
           "Click to Auto Set Sequence Based on Currently Sorted Order"
      btnRefresh AT ROW 1.05 COL 104 HELP
           "Click to Refresh Resource Browser"
-     resources AT ROW 1.05 COL 107.4 HELP
-          "Select Resource"
      jobPhrase AT ROW 1.1 COL 4 COLON-ALIGNED
      btnSort AT ROW 1.1 COL 55
      btnUpdate AT ROW 1.1 COL 93
@@ -458,7 +458,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB browseJob dateTime F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE

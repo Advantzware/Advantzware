@@ -610,7 +610,10 @@ FOR EACH job-hdr NO-LOCK
                 + job-mch.m-code + ','
                 + STRING(job-mch.job) + ','
                 + job-mch.job-no + ','
-                + STRING(job-mch.job-no2)
+                + STRING(job-mch.job-no2) + ','
+                + STRING(job-mch.frm) + ','
+                + STRING(job-mch.blank-no) + ','
+                + STRING(job-mch.pass)
       timeSpan = calcJobTime(job-mch.mr-hr,job-mch.run-hr)
       unitFound = NO
       userField = ''
@@ -1156,7 +1159,7 @@ FOR EACH job-hdr NO-LOCK
       &jobSequence=job-mch.seq-no
       &startTime=startTime
       &timeSpan=timeSpan
-      &jobLocked=job-mch.anchored
+      &jobLocked=NO
       &dueDate=dueDate
       &prodDate=prodDate
       &customValue=customVal
