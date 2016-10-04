@@ -42,7 +42,7 @@
         &IF DEFINED(useMatches) NE 0  &THEN
            &SCOPED-DEFINE KEY-PHRASE {&WHERE-STATEMENT} AND ({&FLDNAME{1}} BEGINS auto_find OR ({&FLDNAME{1}} MATCHES '*' + auto_find + '*' AND auto_find BEGINS '*' ))   /*task 10171311   */
         &ELSE
-           &SCOPED-DEFINE KEY-PHRASE {&WHERE-STATEMENT} AND {&FLDNAME{1}} BEGINS auto_find
+           &SCOPED-DEFINE KEY-PHRASE {&WHERE-STATEMENT} AND TRIM({&FLDNAME{1}}) BEGINS auto_find
         &ENDIF   
     &ELSE
     &SCOPED-DEFINE KEY-PHRASE {&WHERE-STATEMENT} AND {&FLDNAME{1}} EQ {&DATATYP{1}}(auto_find)

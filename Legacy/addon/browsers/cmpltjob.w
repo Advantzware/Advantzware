@@ -331,9 +331,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL auto_find B-table-Win
 ON LEAVE OF auto_find IN FRAME F-Main
 DO:
-    IF browse-order = 2  THEN
+   /* IF browse-order = 2  THEN
     ASSIGN auto_find:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(auto_find:SCREEN-VALUE))) +
-                 TRIM(auto_find:SCREEN-VALUE)  .
+                 TRIM(auto_find:SCREEN-VALUE)  .*/
    ASSIGN  
     auto_find
     find-auto = yes.
