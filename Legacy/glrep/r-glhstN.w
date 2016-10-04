@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
-&SCOPED-DEFINE WINDOW-NAME C-Win
+&Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
@@ -78,20 +78,21 @@ ASSIGN cTextListToDefault  = "Account Number,Account Description,Run #,Journal,"
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE WINDOW 
-&SCOPED-DEFINE DB-AWARE NO 
+&Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME FRAME-A
+&Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS RECT-6 RECT-7 begin_date end_date begin_acct ~
-end_acct tb_exc-auto tb_detailed sl_avail Btn_Def sl_selected Btn_Add ~
-Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no ~
-td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-&SCOPED-DEFINE DISPLAYED-OBJECTS begin_date end_date begin_acct end_acct ~
-tb_exc-auto tb_detailed sl_avail sl_selected rd-dest lv-ornt lines-per-page ~
-lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_date end_date begin_acct ~
+end_acct tb_exc-auto tb_detailed tb_exc-acc sl_avail Btn_Def sl_selected ~
+Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page ~
+lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_acct end_acct ~
+tb_exc-auto tb_detailed tb_exc-acc sl_avail sl_selected rd-dest lv-ornt ~
+lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
+fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -208,7 +209,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 6.91.
+     SIZE 96 BY 7.6.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -218,29 +219,34 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 34 BY 5 NO-UNDO.
 
-DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL YES  
+DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL yes 
      LABEL "Detailed?" 
      VIEW-AS TOGGLE-BOX
      SIZE 19 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_exc-auto AS LOGICAL INITIAL YES  
+DEFINE VARIABLE tb_exc-acc AS LOGICAL INITIAL NO 
+     LABEL "Exclude accounts with zero balance?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 39 BY .95 NO-UNDO.
+
+DEFINE VARIABLE tb_exc-auto AS LOGICAL INITIAL yes 
      LABEL "Exclude Auto Distributions?" 
      VIEW-AS TOGGLE-BOX
      SIZE 31 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES  
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO  
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -249,53 +255,54 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_date AT ROW 2.52 COLUMN 19 COLON-ALIGNED
-     end_date AT ROW 2.52 COLUMN 63 COLON-ALIGNED HELP
+     begin_date AT ROW 2.52 COL 19 COLON-ALIGNED
+     end_date AT ROW 2.52 COL 63 COLON-ALIGNED HELP
           "Enter Ending Due Date"
-     begin_acct AT ROW 3.71 COLUMN 19 COLON-ALIGNED HELP
+     begin_acct AT ROW 3.71 COL 19 COLON-ALIGNED HELP
           "Enter Beginning Account Number"
-     end_acct AT ROW 3.71 COLUMN 63 COLON-ALIGNED HELP
+     end_acct AT ROW 3.71 COL 63 COLON-ALIGNED HELP
           "Enter Ending Account Number"
-     tb_exc-auto AT ROW 5.14 COLUMN 38
-     tb_detailed AT ROW 6.33 COLUMN 38
-     sl_avail AT ROW 9.19 COLUMN 3 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 9.19 COLUMN 40.8 HELP
+     tb_exc-auto AT ROW 5.14 COL 38
+     tb_detailed AT ROW 6.33 COL 38
+     tb_exc-acc AT ROW 7.43 COL 38 WIDGET-ID 58
+     sl_avail AT ROW 9.52 COL 3 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 9.52 COL 40.8 HELP
           "Default Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 9.19 COLUMN 61.2 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 10.19 COLUMN 40.8 HELP
+     sl_selected AT ROW 9.52 COL 61.2 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 10.52 COL 40.8 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 11.19 COLUMN 40.8 HELP
+     Btn_Remove AT ROW 11.52 COL 40.8 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 12.19 COLUMN 40.8 WIDGET-ID 40
-     btn_down AT ROW 13.19 COLUMN 40.8 WIDGET-ID 42
-     rd-dest AT ROW 15.67 COLUMN 6 NO-LABEL
-     lv-ornt AT ROW 15.91 COLUMN 31 NO-LABEL
-     lines-per-page AT ROW 15.91 COLUMN 85 COLON-ALIGNED
-     lv-font-no AT ROW 17.57 COLUMN 35 COLON-ALIGNED
-     lv-font-name AT ROW 18.76 COLUMN 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 19.95 COLUMN 31
-     tb_excel AT ROW 21.38 COLUMN 51 RIGHT-ALIGNED
-     tb_runExcel AT ROW 21.38 COLUMN 72 RIGHT-ALIGNED
-     fi_file AT ROW 22.19 COLUMN 29 COLON-ALIGNED HELP
+     btn_Up AT ROW 12.52 COL 40.8 WIDGET-ID 40
+     btn_down AT ROW 13.52 COL 40.8 WIDGET-ID 42
+     rd-dest AT ROW 15.86 COL 6 NO-LABEL
+     lv-ornt AT ROW 16.1 COL 31 NO-LABEL
+     lines-per-page AT ROW 16.1 COL 85 COLON-ALIGNED
+     lv-font-no AT ROW 17.76 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 18.95 COL 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 20.14 COL 31
+     tb_excel AT ROW 21.57 COL 51 RIGHT-ALIGNED
+     tb_runExcel AT ROW 21.57 COL 72 RIGHT-ALIGNED
+     fi_file AT ROW 22.38 COL 29 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 24.48 COLUMN 19
-     btn-cancel AT ROW 24.48 COLUMN 58
+     btn-ok AT ROW 24.67 COL 19
+     btn-cancel AT ROW 24.67 COL 58
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 14.95 COLUMN 3
+          SIZE 18 BY .62 AT ROW 15.14 COL 3
           FGCOLOR 9 
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COLUMN 5
-          BGCOLOR 2 
-     "Available Columns" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 8.43 COLUMN 3.4 WIDGET-ID 38
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 8.43 COLUMN 61.2 WIDGET-ID 44
-     RECT-6 AT ROW 14.67 COLUMN 1
-     RECT-7 AT ROW 1 COLUMN 1
+          SIZE 34 BY .62 AT ROW 8.76 COL 61.2 WIDGET-ID 44
+     "Available Columns" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 8.76 COL 3.4 WIDGET-ID 38
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 5
+          BGCOLOR 2 
+     RECT-6 AT ROW 14.86 COL 1
+     RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COLUMN 1 ROW 1
-         SIZE 96.6 BY 25.
+         AT COL 1 ROW 1
+         SIZE 96.6 BY 25.52.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -315,21 +322,21 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "G L  Account History"
-         HEIGHT             = 25
+         HEIGHT             = 25.52
          WIDTH              = 96.6
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES 
-         SCROLL-BARS        = NO 
-         STATUS-AREA        = YES 
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES 
-         THREE-D            = YES 
-         MESSAGE-AREA       = NO 
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -376,6 +383,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       tb_exc-acc:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        tb_exc-auto:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -392,7 +403,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -403,7 +414,7 @@ THEN C-Win:HIDDEN = NO.
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE SELF-NAME C-Win
+&Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* G L  Account History */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
@@ -429,7 +440,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_acct
+&Scoped-define SELF-NAME begin_acct
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_acct C-Win
 ON LEAVE OF begin_acct IN FRAME FRAME-A /* Beginning Acct# */
 DO:
@@ -440,7 +451,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_date
+&Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
 DO:
@@ -451,7 +462,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn-cancel
+&Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
@@ -462,7 +473,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn-ok
+&Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
@@ -513,7 +524,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Add
+&Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
@@ -539,7 +550,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Def
+&Scoped-define SELF-NAME Btn_Def
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
@@ -554,7 +565,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_down
+&Scoped-define SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down C-Win
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
@@ -565,7 +576,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Remove
+&Scoped-define SELF-NAME Btn_Remove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove C-Win
 ON CHOOSE OF Btn_Remove IN FRAME FRAME-A /* << Remove */
 DO:
@@ -581,7 +592,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_Up
+&Scoped-define SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up C-Win
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
@@ -592,7 +603,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_acct
+&Scoped-define SELF-NAME end_acct
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_acct C-Win
 ON LEAVE OF end_acct IN FRAME FRAME-A /* Ending Acct# */
 DO:
@@ -603,7 +614,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_date
+&Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Date */
 DO:
@@ -614,7 +625,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_file
+&Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
@@ -625,7 +636,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lines-per-page
+&Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
@@ -636,7 +647,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lv-font-no
+&Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
@@ -662,7 +673,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lv-ornt
+&Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
 DO:
@@ -683,7 +694,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME rd-dest
+&Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
@@ -694,7 +705,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME sl_avail
+&Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
@@ -733,7 +744,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME sl_selected
+&Scoped-define SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected C-Win
 ON DEFAULT-ACTION OF sl_selected IN FRAME FRAME-A
 DO:
@@ -757,7 +768,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_detailed
+&Scoped-define SELF-NAME tb_detailed
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_detailed C-Win
 ON VALUE-CHANGED OF tb_detailed IN FRAME FRAME-A /* Detailed? */
 DO:
@@ -768,7 +779,18 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_exc-auto
+&Scoped-define SELF-NAME tb_exc-acc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_exc-acc C-Win
+ON VALUE-CHANGED OF tb_exc-acc IN FRAME FRAME-A /* Exclude accounts with zero balance? */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_exc-auto
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_exc-auto C-Win
 ON VALUE-CHANGED OF tb_exc-auto IN FRAME FRAME-A /* Exclude Auto Distributions? */
 DO:
@@ -779,7 +801,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_excel
+&Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
@@ -790,7 +812,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_runExcel
+&Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
@@ -801,7 +823,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME td-show-parm
+&Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
@@ -999,12 +1021,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_date end_date begin_acct end_acct tb_exc-auto tb_detailed 
-          sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no 
-          lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          tb_exc-acc sl_avail sl_selected rd-dest lv-ornt lines-per-page 
+          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_date end_date begin_acct end_acct tb_exc-auto 
-         tb_detailed sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up 
-         btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
+         tb_detailed tb_exc-acc sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
+         btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
          tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
@@ -1535,6 +1557,8 @@ SESSION:SET-WAIT-STATE ("general").
            IF AVAILABLE ar-mcash THEN tmp-dscr = ar-mcash.payer + " Rec# " + tmp-dscr.
          END.
 
+         IF tb_exc-acc AND glhist.tr-amt EQ 0 THEN NEXT .
+
          /*put space(19)
              glhist.tr-num format "9999999" space(1)
              glhist.jrnl space(1)
@@ -1624,12 +1648,7 @@ SESSION:SET-WAIT-STATE ("general").
            IF AVAILABLE ar-mcash THEN tmp-dscr = ar-mcash.payer + " Rec# " + tmp-dscr.
          END.
 
-         /*put space(19)
-             gltrans.trnum format "9999999" space(1)
-             gltrans.jrnl space(1)
-             tmp-dscr FORMAT "X(52)"
-             gltrans.tr-date FORMAT "99/99/99" SPACE(1)
-             gltrans.tr-amt FORMAT "(>>,>>>,>>9.99)" skip.*/
+        IF tb_exc-acc AND gltrans.tr-amt EQ 0 THEN NEXT .
 
           ASSIGN cDisplay = ""
           cTmpField = ""
@@ -1714,6 +1733,8 @@ SESSION:SET-WAIT-STATE ("general").
 
             ASSIGN tmp-amt = tmp-amt + xglhist.tr-amt.
         END.
+
+        IF tb_exc-acc AND tmp-amt EQ 0 THEN NEXT .
 
         IF glhist.jrnl EQ "CASHR" THEN
           ASSIGN tmp-dscr = "CASH RECEIPTS                           ".
@@ -1841,6 +1862,8 @@ SESSION:SET-WAIT-STATE ("general").
 
           ASSIGN tmp-amt = tmp-amt + xgltrans.tr-amt.
         END.
+
+         IF tb_exc-acc AND tmp-amt EQ 0 THEN NEXT .
 
         IF gltrans.jrnl EQ "CASHR" THEN
           ASSIGN tmp-dscr = "CASH RECEIPTS                           ".
