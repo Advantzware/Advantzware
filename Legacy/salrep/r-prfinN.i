@@ -553,7 +553,7 @@ IF NOT v-smr THEN
                  WHEN "cat" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.procat) ELSE "".
                  WHEN "qty" THEN cVarValue = STRING(v-qty[2],"->>>,>>>,>>>").
                  WHEN "ttl-msf" THEN cVarValue = STRING(v-msf[2],"->>>>9.99").
-                 WHEN "msf" THEN cVarValue = string(v-$msf,"->>>9.99").
+                 WHEN "msf" THEN cVarValue = string(v-$msf,"->>>>9.99").
                  WHEN "sal-amt" THEN cVarValue = STRING(v-amt[2],"->>>,>>>,>>9.99<<") .
                  WHEN "ful-cst" THEN cVarValue = IF v-cost2 THEN STRING(v-brdc,"->>>,>>9.99") ELSE "".
                  WHEN "proft" THEN cVarValue = IF v-cost2 THEN STRING(v-marg,"->>>,>>9.99") ELSE "".
@@ -626,7 +626,7 @@ IF NOT v-smr THEN
                  WHEN "cat" THEN cVarValue = "".
                  WHEN "qty" THEN cVarValue = STRING(v-qty[3],"->>>,>>>,>>>").
                  WHEN "ttl-msf" THEN cVarValue = STRING(v-msf[3],"->>>>9.99").
-                 WHEN "msf" THEN cVarValue = string(v-$msf,"->>>9.99").
+                 WHEN "msf" THEN cVarValue = string(v-$msf,"->>>>9.99").
                  WHEN "sal-amt" THEN cVarValue = STRING(v-amt[3],"->>>,>>>,>>9.99<<") .
                  WHEN "ful-cst" THEN cVarValue = IF v-cost2 THEN STRING(v-brdc,"->>>,>>9.99") ELSE "".
                  WHEN "proft" THEN cVarValue = IF v-cost2 THEN STRING(v-marg,"->>>,>>9.99") ELSE "".
@@ -701,7 +701,7 @@ IF NOT v-smr THEN
                  WHEN "cat" THEN cVarValue = "".
                  WHEN "qty" THEN cVarValue = STRING(v-qty[4],"->>>,>>>,>>>").
                  WHEN "ttl-msf" THEN cVarValue = STRING(v-msf[4],"->>>>9.99").
-                 WHEN "msf" THEN cVarValue = string(v-$msf,"->>>9.99").
+                 WHEN "msf" THEN cVarValue = string(v-$msf,"->>>>9.99").
                  WHEN "sal-amt" THEN cVarValue = STRING(v-amt[4],"->>>,>>>,>>9.99<<") .
                  WHEN "ful-cst" THEN cVarValue = IF v-cost2 THEN STRING(v-brdc,"->>>,>>9.99") ELSE "".
                  WHEN "proft" THEN cVarValue = IF v-cost2 THEN STRING(v-marg,"->>>,>>9.99") ELSE "".
@@ -780,7 +780,7 @@ IF NOT v-smr THEN
                  WHEN "cat" THEN cVarValue = "".
                  WHEN "qty" THEN cVarValue = STRING(v-qty[5],"->>>,>>>,>>>").
                  WHEN "ttl-msf" THEN cVarValue = STRING(v-msf[5],"->>>>9.99").
-                 WHEN "msf" THEN cVarValue = string(v-$msf,"->>>9.99").
+                 WHEN "msf" THEN cVarValue = string(v-$msf,"->>>>9.99").
                  WHEN "sal-amt" THEN cVarValue = STRING(v-amt[5],"->>>,>>>,>>9.99<<") .
                  WHEN "ful-cst" THEN cVarValue = IF v-cost2 THEN STRING(v-brdc,"->>>,>>9.99") ELSE "".
                  WHEN "proft" THEN cVarValue = IF v-cost2 THEN STRING(v-marg,"->>>,>>9.99") ELSE "".
@@ -1078,7 +1078,7 @@ IF NOT v-smr THEN
                  WHEN "cat" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.procat) ELSE "".
                  WHEN "qty" THEN cVarValue = STRING(v-qty[3],"->>>,>>>,>>>").
                  WHEN "ttl-msf" THEN cVarValue = STRING(v-msf[3],"->>>>9.99").
-                 WHEN "msf" THEN cVarValue = string(v-$msf,"->>>9.99").
+                 WHEN "msf" THEN cVarValue = string(v-$msf,"->>>>9.99").
                  WHEN "sal-amt" THEN cVarValue = STRING(v-amt[3],"->>>,>>>,>>9.99<<") .
                  WHEN "ful-cst" THEN cVarValue = IF v-cost2 THEN STRING(v-brdc,"->>>,>>9.99") ELSE "".
                  WHEN "proft" THEN cVarValue = IF v-cost2 THEN STRING(v-marg,"->>>,>>9.99") ELSE "".
@@ -1154,7 +1154,7 @@ IF NOT v-smr THEN
                  WHEN "cat" THEN cVarValue = "".
                  WHEN "qty" THEN cVarValue = STRING(v-qty[4],"->>>,>>>,>>>").
                  WHEN "ttl-msf" THEN cVarValue = STRING(v-msf[4],"->>>>9.99").
-                 WHEN "msf" THEN cVarValue = string(v-$msf,"->>>9.99").
+                 WHEN "msf" THEN cVarValue = string(v-$msf,"->>>>9.99").
                  WHEN "sal-amt" THEN cVarValue = STRING(v-amt[4],"->>>,>>>,>>9.99<<") .
                  WHEN "ful-cst" THEN cVarValue = IF v-cost2 THEN STRING(v-brdc,"->>>,>>9.99") ELSE "".
                  WHEN "proft" THEN cVarValue = IF v-cost2 THEN STRING(v-marg,"->>>,>>9.99") ELSE "".
