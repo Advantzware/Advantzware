@@ -298,7 +298,7 @@ PROCEDURE pAutoSelectTags:
 
     fDebugMsg("start fifoloop").     
     RUN oe/fifoloopTags.p (ROWID(xoe-boll), lSelectTags, oe-rel.spare-char-1 /*oe-boll.ship-from */, OUTPUT lNoneSelected, OUTPUT hTToe-rel).
-
+    fDebugMsg("end fifoloop").     
     /* From fifoloop, process returned dynamic temp-table to retrieve tag records selected */
     hBufOeRell = hTToe-rel:DEFAULT-BUFFER-HANDLE.
     CREATE QUERY hQueryOeRell.
@@ -319,7 +319,7 @@ PROCEDURE pAutoSelectTags:
         
         IF hQueryOeRell:QUERY-OFF-END THEN LEAVE.
         CREATE ttSelectedOeRell.
-               
+        fDebugMsg("get-next hqueiryoe-rell").            
         hBufDynmicOeRell:BUFFER-COPY(hBufOeRell).
         fDebugMsg( "auto bin returned " + STRING(ttSelectedOeRell.tag)).
         /* In case duplicate w-bin's were created, check first if exists */
@@ -440,6 +440,7 @@ PROCEDURE pAutoSelectTags:
             END.
         END. /* each oe-boll */
     END. /* avail oe-bolh */
+        fDebugMsg("leaving fifoloop").     
 END PROCEDURE.
 
 PROCEDURE pCheckDate :
@@ -660,8 +661,7 @@ PROCEDURE pPostBols :
                     FOR EACH bf-oe-boll NO-LOCK                   
                        WHERE bf-oe-boll.b-no EQ oe-bolh.b-no                   
                        :
-                        OUTPUT STREAM sDebug CLOSE. OUTPUT STREAM sDebug TO VALUE(cDebugLog) append.                           
-                        PUT STREAM sDebug UNFORMATTED "start pUaotSelTags" lTaglessBOLExists SKIP.
+                        fDebugMsg("start pUaotSelTags " + string(lTaglessBOLExists)).
                         RUN pAutoSelectTags (INPUT ROWID(bf-oe-boll)).
                     END.
                      
@@ -733,6 +733,8 @@ PROCEDURE pPostBols :
         /* Non-UI process,                                                                                     */
         /* Requires where report.term-id EQ v-term, FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ report.rec-id*/
         /* Requires shared buffer xoe-ord                                                                      */
+        FIND FIRST report WHERE report.term-id = v-term NO-LOCK NO-ERROR.
+        fDebugMsg("run oe/oe-bolp3 " + v-term + " avail report " + STRING(AVAIL(report))).
         RUN oe/oe-bolp3.p (v-term).
     END. /* post-blok*/
     
