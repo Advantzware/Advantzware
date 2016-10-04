@@ -267,10 +267,14 @@ FOR EACH w-oe-rell USE-INDEX idx,
   itemfg.i-no EQ w-oe-rell.i-no
   NO-LOCK
   BREAK BY w-oe-rell.ord-no DESC
-  BY w-oe-rell.set-no
-  BY w-oe-rell.seq
-  BY w-oe-rell.po-no
-  BY w-oe-rell.i-no
+    BY w-oe-rell.loc 
+    BY w-oe-rell.loc-bin 
+    BY w-oe-rell.set-no
+    BY w-oe-rell.seq
+    BY w-oe-rell.po-no
+    BY w-oe-rell.i-no
+     
+ 
    :
   
   IF FIRST-OF(w-oe-rell.i-no) THEN     
@@ -394,7 +398,10 @@ FOR EACH w-oe-rell USE-INDEX idx,
     /* Do actual detail printing */
     FOR EACH w-bin
       BREAK BY w-bin.w-date-time
-            BY w-bin.w-i-no
+            BY w-bin.w-loc
+            BY w-bin.w-bin 
+            BY w-bin.w-tag
+            /*BY w-bin.w-i-no*/
             BY w-bin.w-qty[2] desc
             BY w-bin.w-qty[1] desc:
 
@@ -505,7 +512,7 @@ FOR EACH w-oe-rell USE-INDEX idx,
       
       DOWN {2} WITH FRAME rel-mid.
       
-    END.  /* for eacn w-bin*/
+    END.  /* for eacn w-bin  */
     v-rel-qty = 0.
   END.  /* last-of(w-oe-rell.po-no) */
 END. /* for each w-oe-rell */
