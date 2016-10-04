@@ -99,6 +99,47 @@ for each oe-relh no-lock
       RUN oe/ordlsqty.p (ROWID(oe-ordl),
                      OUTPUT oe-ordl.inv-qty,
                      OUTPUT oe-ordl.ship-qty).
+
+        if oe-rell.link-no eq 0 then do:
+          find first oe-rel
+              where oe-rel.company  eq oe-rell.company
+                and oe-rel.ord-no   eq oe-rell.ord-no
+                and oe-rel.line     eq oe-rell.line
+                and oe-rel.i-no     eq oe-rell.i-no
+                and oe-rel.ship-id  eq oe-relh.ship-id
+                and oe-rel.link-no  eq 0
+              no-error.
+        
+          if not avail oe-rel then
+          find first oe-rel
+              where oe-rel.company  eq oe-rell.company
+                and oe-rel.ord-no   eq oe-rell.ord-no
+                and oe-rel.line     eq oe-rell.line
+                and oe-rel.i-no     eq oe-rell.i-no
+                and oe-rel.link-no  eq 0
+              no-error.
+        end.
+        
+        else
+        find first oe-rel
+            where oe-rel.r-no eq oe-rell.link-no
+            use-index seq-no no-error.
+
+        if avail oe-rel THEN DO:
+          /*if not avail shipto then*/
+            RUN oe/custxship.p (oe-relh.company,
+                                      oe-relh.cust-no,
+                                      oe-relh.ship-id,
+                                      BUFFER shipto).
+
+            if avail shipto and avail oe-rel then
+              assign
+               oe-rel.ship-addr[1] = shipto.ship-addr[1]
+               oe-rel.ship-addr[2] = shipto.ship-addr[2]
+               oe-rel.ship-city    = shipto.ship-city
+               oe-rel.ship-state   = shipto.ship-state
+               oe-rel.ship-zip     = shipto.ship-zip.
+        END.
   END.
   
   STATUS DEFAULT "Posting Release# " +
