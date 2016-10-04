@@ -679,7 +679,7 @@ IF oeBolPrompt-log AND AVAILABLE cust THEN DO:
     
         FOR EACH notes NO-LOCK WHERE notes.rec_key = cust.rec_key AND
                               LOOKUP(notes.note_code,oeBolPrompt-char) <> 0 :
-            clvtext = clvtext + notes.note_text + "  " .
+            clvtext = clvtext + notes.note_text + "  " + CHR(13)  .
         END.
     
     IF clvtext NE "Notes: " THEN
@@ -830,24 +830,25 @@ IF choice THEN DO:
 
 
   IF oeBolPrompt-log AND AVAILABLE xoe-ord THEN DO:
-      FOR EACH xoe-ordl OF xoe-ord NO-LOCK:
-          FOR EACH notes NO-LOCK WHERE notes.rec_key = xoe-ordl.rec_key AND
+      IF NOT AVAIL cust THEN
+          FIND FIRST cust NO-LOCK 
+          WHERE cust.company EQ xoe-ord.company
+          AND cust.cust-no EQ xoe-ord.cust-no NO-ERROR.
+      IF AVAIL cust THEN
+          FOR EACH notes NO-LOCK WHERE notes.rec_key = cust.rec_key AND
                                 LOOKUP(notes.note_code,oeBolPrompt-char) <> 0 :
-              FIND FIRST oe-boll NO-LOCK
-                  WHERE oe-boll.company  EQ xoe-ordl.company
-                  AND oe-boll.ord-no   EQ xoe-ordl.ord-no
-                  AND oe-boll.i-no     EQ xoe-ordl.i-no
-                  AND oe-boll.line     EQ xoe-ordl.line
-                  NO-ERROR.
-              IF AVAILABLE oe-boll THEN 
-                  FIND FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ oe-boll.b-no NO-ERROR.
-              IF AVAILABLE oe-bolh THEN DO:
-                  CREATE bf-notes .
-                  BUFFER-COPY notes EXCEPT rec_key TO bf-notes .
-                  ASSIGN bf-notes.rec_key = oe-bolh.rec_key .
-              END.
+             FIND FIRST oe-boll NO-LOCK
+                 WHERE oe-boll.company  EQ xoe-ord.company
+                 AND oe-boll.ord-no   EQ xoe-ord.ord-no
+                 NO-ERROR.
+             IF AVAILABLE oe-boll THEN 
+                 FIND FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ oe-boll.b-no NO-ERROR.
+             IF AVAILABLE oe-bolh THEN DO:
+                 CREATE bf-notes .
+                 BUFFER-COPY notes EXCEPT rec_key TO bf-notes .
+                 ASSIGN bf-notes.rec_key = oe-bolh.rec_key .
+             END.
           END.
-      END.
   END. /*oeBolPrompt-log  */
   
 
