@@ -1390,11 +1390,11 @@ DO:
    def var lv-len as dec no-undo.
    def var lv-wid as dec no-undo.
 
-   /*ASSIGN
+   ASSIGN
      lv-len = decimal(eb.t-len:screen-value)
      lv-wid = decimal(eb.t-wid:screen-value)
      lv-sqin = ( lv-len * lv-wid )
-     eb.t-sqin:screen-value = string(lv-sqin).*/
+     eb.t-sqin:screen-value = string(lv-sqin).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1410,11 +1410,11 @@ DO:
    def var lv-len as dec no-undo.
    def var lv-wid as dec no-undo.
 
-   /*ASSIGN
+   ASSIGN
      lv-len = decimal(eb.t-len:screen-value)
      lv-wid = decimal(eb.t-wid:screen-value)
      lv-sqin = ( lv-len * lv-wid )
-     eb.t-sqin:SCREEN-VALUE = STRING(lv-sqin).*/
+     eb.t-sqin:SCREEN-VALUE = STRING(lv-sqin).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1900,10 +1900,6 @@ PROCEDURE local-assign-record :
   RUN est/u2kinc1.p (RECID(eb)).
   RUN est/u2kinc2.p (RECID(eb)).
   find first formule.
-
-  IF AVAIL formule AND NOT ll-auto-calc-selected THEN
-    assign 
-          eb.t-sqin = (formule[7] * formule[8]).
 
   IF TRIM(fi_from-est-no) NE TRIM(lv-master-est-no) THEN DO:
     FOR EACH b-eb
