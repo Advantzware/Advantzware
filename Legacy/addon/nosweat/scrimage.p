@@ -1,0 +1,27 @@
+/* scrimage.p */
+
+DEFINE INPUT PARAMETER h_Window AS WIDGET-HANDLE NO-UNDO.
+
+DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
+DEFINE VARIABLE FileOut AS CHARACTER NO-UNDO.
+DEFINE VARIABLE h_Viper AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE h_intWindow AS INTEGER NO-UNDO.
+
+ldummy = SESSION:SET-WAIT-STATE('').
+
+RUN viper.p PERSISTENT SET h_Viper.
+IF VALID-HANDLE(h_Viper) THEN
+DO:
+  RUN FindWindowA (0,h_Window:TITLE,OUTPUT h_intWindow).
+  RUN SaveWindowToFile IN h_Viper (h_intWindow,'ALL','',OUTPUT FileOut).
+  APPLY 'CLOSE' TO h_Viper.
+  MESSAGE 'Captured Screen Image is located @' FileOut VIEW-AS ALERT-BOX.
+END.
+ELSE
+MESSAGE 'Capture Screen process failed to Load & Run.' VIEW-AS ALERT-BOX.
+
+PROCEDURE FindWindowA EXTERNAL 'user32.dll':
+  DEFINE INPUT PARAMETER intClassName AS LONG.
+  DEFINE INPUT PARAMETER intCaption AS CHARACTER.
+  DEFINE RETURN PARAMETER intHandle AS SHORT.
+END PROCEDURE.
