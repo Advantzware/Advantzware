@@ -851,11 +851,11 @@ PROCEDURE dispNewRep :
   /* This is to prevent an error message about current buffer different */
   /* then result list */
   
-    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:   
+  /*  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:   
     hWinHandle = WIDGET-HANDLE(char-hdl).
     IF INDEX(hWinHandle:NAME, "w-quote") GT 0 THEN
       RUN switchTabs IN WIDGET-HANDLE(char-hdl).
-  END.
+  END.*/
     
 
 END PROCEDURE.
@@ -1448,6 +1448,7 @@ PROCEDURE quoteitm-exists :
 ------------------------------------------------------------------------------*/
 DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
 DEF OUTPUT PARAMETER oprCurrentQuote AS ROWID NO-UNDO.
+DEFINE VARIABLE lCheckNew AS LOGICAL NO-UNDO.
 FIND FIRST quoteitm WHERE quoteitm.company EQ quotehd.company
                       AND quoteitm.loc EQ quotehd.loc
                       AND quoteitm.q-no EQ quotehd.q-no
@@ -1460,6 +1461,14 @@ FIND FIRST quoteitm WHERE quoteitm.company EQ quotehd.company
                     NO-LOCK NO-ERROR.
 ASSIGN oplExists = AVAIL(quoteitm)
        oprCurrentQuote = ROWID(quotehd).
+
+run get-link-handle in adm-broker-hdl
+         (this-procedure,"bottom-TARGET", output char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN quoteitm-check-new IN WIDGET-HANDLE(char-hdl) (OUTPUT lCheckNew).
+     IF lCheckNew THEN
+         oplExists = YES . 
+     
 
 END PROCEDURE.
 
