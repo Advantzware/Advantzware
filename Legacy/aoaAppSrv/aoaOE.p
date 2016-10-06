@@ -178,29 +178,8 @@ DEFINE TEMP-TABLE ttOrderAcknowledgements NO-UNDO
     .
 /* Order Acknowledgements Report.rpa */
 
-/* Open Order Report.rpa */ 
-DEFINE TEMP-TABLE ttOpenOrderReport NO-UNDO
-    {aoaAppSrv/ttFields.i}
-    FIELD salesRep    AS CHARACTER LABEL "Rep"              FORMAT "x(3)"
-    FIELD custNo      AS CHARACTER LABEL "Cust No"          FORMAT "x(8)"
-    FIELD lineDueDate AS DATE      LABEL "Line Due Dt"      FORMAT 99/99/9999
-    FIELD relDueDate  AS DATE      LABEL "Rel Due Dt"       FORMAT 99/99/9999
-    FIELD custPartNo  AS CHARACTER LABEL "Cust Part"        FORMAT "x(15)"
-    FIELD fgItemName  AS CHARACTER LABEL "Item Description" FORMAT "x(30)"
-    FIELD fgItemNo    AS CHARACTER LABEL "FG Item "         FORMAT "x(15)"
-    FIELD orderNo     AS INTEGER   LABEL "Order No"         FORMAT ">>>>>>"
-    FIELD cadNo       AS CHARACTER LABEL "CAD"              FORMAT "x(15)"
-    FIELD poNo        AS CHARACTER LABEL "PO No"            FORMAT "x(10)"
-    FIELD qtyOrd      AS INTEGER   LABEL "Order Qty"        FORMAT "->,>>>,>>9"
-    FIELD qtyOnhand   AS INTEGER   LABEL "Qty Onhand"       FORMAT "->,>>>,>>9"
-    FIELD qtyShipped  AS INTEGER   LABEL "Qty Shipped"      FORMAT "->,>>>,>>9"
-    FIELD qtyActRel   AS INTEGER   LABEL "Qty ActRel"       FORMAT "->,>>>,>>9"
-    FIELD qtyWIP      AS INTEGER   LABEL "Qty WIP"          FORMAT "->,>>>,>>9"
-    FIELD qtyAvail    AS INTEGER   LABEL "Qty Avail"        FORMAT "->,>>>,>>9"
-    FIELD unit        AS INTEGER   LABEL "Unit"             FORMAT ">>>>9"
-    FIELD pallet      AS INTEGER   LABEL "Pallet"           FORMAT ">>9"
-    .
-/* Open Order Report.rpa */ 
+/* Open Order Report.rpa */
+{aoaAppSrv/includes/ttOpenOrderReport.i}
 
 /* Orders Booked By Order No.rpa */
 {aoaAppSrv/includes/ttOrdersBookedByOrderNo.i}

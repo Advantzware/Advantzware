@@ -38,6 +38,7 @@ DEFINE TEMP-TABLE ttMachineTransactions NO-UNDO
     FIELD totalTime    AS CHARACTER                LABEL "Total"     FORMAT "hh:mm am"
     FIELD runQty       LIKE machtran.run_qty
     FIELD wasteQty     LIKE machtran.waste_qty
+    FIELD runComplete  AS LOGICAL                  LABEL "Run Complete"
     FIELD xxRecKey     LIKE machtran.rec_key
     FIELD xxSort       AS CHARACTER                LABEL "Sort"      FORMAT "x(100)"
     FIELD xxTotalTime  AS INTEGER                  LABEL "TotTime"   FORMAT "99999"
@@ -354,6 +355,7 @@ PROCEDURE pMachineTransactions :
             ttMachineTransactions.xxTotalTime  = machtran.total_time
             ttMachineTransactions.runQty       = machtran.run_qty
             ttMachineTransactions.wasteQty     = machtran.waste_qty
+            ttMachineTransactions.runComplete  = machtran.completed
             ttMachineTransactions.xxRecKey     = machtran.rec_key
             ttMachineTransactions.xxSort       = IF cSort EQ "Start Date / Time" THEN
                                                  STRING(machtran.start_date,"99/99/9999")
