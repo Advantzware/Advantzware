@@ -33,8 +33,12 @@ DO TRANSACTION:
     {sys/inc/relmerge.i}
     {sys/inc/addrelse.i}
 END.
-cDebugLog = "logs/" + string(today, "99999999") + string(time) + "fifo.txt".
 
+FUNCTION fDebugLog RETURNS CHARACTER 
+  (INPUT ipcMessage AS CHARACTER ) FORWARD.
+
+cDebugLog = "logs/" + string(today, "99999999") + string(time) + "fifo.txt".
+lUseLogs = FALSE.
 DEFINE STREAM sDebug.
 IF lUseLogs THEN DO:
     OUTPUT STREAM sDEbug TO VALUE(cDebugLog).
@@ -135,9 +139,7 @@ DO:
 
     IF lUseCSCIndex THEN 
     DO:
-          OUTPUT STREAM sDEbug CLOSE. OUTPUT STREAM sDEbug TO VALUE(cDebugLog) append.
-          PUT STREAM sDebug UNFORMATTED "fifo -csc "  SKIP.
-        
+        fDebugLog("fifo CSC Index Option").
         fifo-loop-csc:
         DO iFifoLoopCount = 1 TO 2.
             FOR EACH fg-bin
@@ -197,7 +199,7 @@ DO:
     END. /* IF Using CSC: No Index */
     ELSE 
     DO:
-        PUT STREAM sDebug UNFORMATTED "fifo - before loop " "qty to asign" iRelQtyToAssign SKIP.
+        fDebugLog("fifo - before loop " + " qty to asign " + STRING(iRelQtyToAssign)).        
         /* Using i-no index */
         fifo-loop:
         REPEAT:
@@ -267,8 +269,8 @@ DO:
                     lFgBinFound = TRUE.
 /*                    MESSAGE "fifo in each bin loop"
                       VIEW-AS ALERT-BOX INFO BUTTONS OK. */
-                    OUTPUT STREAM sDEbug CLOSE. OUTPUT STREAM sDEbug TO VALUE(cDebugLog) append.                                
-                    PUT STREAM sDebug unformatted "run pcreatetempoerell " fg-bin.tag SKIP.
+
+                    fDebugLog("run pcreatetempoerell " + fg-bin.tag).
                     RUN pCreateTempOeRell (INPUT ROWID(fg-bin), ROWID(fg-rcpth)).
     
                     FIND FIRST reftable
@@ -279,8 +281,7 @@ DO:
                      /* Record was found, so leave the loop */
                      LEAVE loop-count.
                 END. /* end for each fg-bin */
-                          OUTPUT STREAM sDEbug CLOSE. OUTPUT STREAM sDEbug TO VALUE(cDebugLog) append.
-          PUT STREAM sDebug UNFORMATTED "next of loop "  SKIP.
+                 fDebugLog("next of loop ").
             END. /* loop-count: do iFifoLoopCount 1 to 2 */
             /*MESSAGE "ready to leave fifo loop? iRelQtyToAssing" iRelQtyToAssign
               VIEW-AS ALERT-BOX INFO BUTTONS OK. */
@@ -289,13 +290,15 @@ DO:
     END. /* Not using CSC Index */ 
 END. /* If assigning tag #'s */
 
-PUT STREAM sDebug unformatted "run pcreateOeREll " cRunMode SKIP.
+
+fDebugLog("run pcreateOeREll " + cRunMode).
 /* Based on temp-tables created, create the actual records */
 IF cRunMode ne "oe-boll" THEN
   RUN pCreateOeRell.
 ELSE 
   RUN pCreateDynamicTT.
-  OUTPUT STREAM sDebug CLOSE.
+
+OUTPUT STREAM sDebug CLOSE.
 
 
 /* ************************  Function Prototypes ********************** */
