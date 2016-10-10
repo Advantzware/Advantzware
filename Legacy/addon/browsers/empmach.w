@@ -54,7 +54,7 @@ DEFINE VARIABLE mach_m-dscr AS CHARACTER NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -122,7 +122,7 @@ DEFINE BUTTON Btn_Clear_Find
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
-     SIZE 50 BY 1 NO-UNDO.
+     SIZE 30 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -133,11 +133,11 @@ DEFINE VARIABLE browse-order AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 34 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 1.43.
+     SIZE 98 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -155,6 +155,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       empmach.machine FORMAT "x(6)":U LABEL-BGCOLOR 14
       Machine_Description(empmach.company,empmach.machine) @ mach_m-dscr COLUMN-LABEL "Description" FORMAT "X(30)":U
+            WIDTH 32.6
       empmach.gl_account FORMAT "X(25)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -210,8 +211,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 14.76
-         WIDTH              = 94.
+         HEIGHT             = 17.62
+         WIDTH              = 98.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -235,7 +236,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -269,7 +270,7 @@ ASSIGN
      _FldNameList[1]   > EMPTRACK.empmach.machine
 "empmach.machine" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
-"Machine_Description(empmach.company,empmach.machine) @ mach_m-dscr" "Description" "X(30)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Machine_Description(empmach.company,empmach.machine) @ mach_m-dscr" "Description" "X(30)" ? ? ? ? ? ? ? no ? no no "32.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > EMPTRACK.empmach.gl_account
 "empmach.gl_account" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
