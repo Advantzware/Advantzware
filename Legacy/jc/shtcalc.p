@@ -18,6 +18,7 @@ DEF BUFFER bf-job-mch2 FOR job-mch.
 DEF BUFFER bf-job-mat FOR job-mat.
 DEF BUFFER bf-item FOR ITEM.
 DEF BUFFER bf-mach FOR mach.
+DEF BUFFER bff-item FOR ITEM.
 
 DEF VAR lv-n-up LIKE job-mat.n-up NO-UNDO.
 DEF VAR ld AS DEC NO-UNDO.
@@ -25,9 +26,19 @@ DEF VAR lInsufficientQty AS LOG NO-UNDO.
 DEF VAR lv-est-type LIKE est.est-type NO-UNDO.
 DEF VAR dNewSheetQty AS DECIMAL NO-UNDO.
 DEF VAR dNewSheetTotQty AS DECIMAL NO-UNDO.
+DEF VAR cRtnChar AS CHARACTER NO-UNDO.
+DEF VAR lRecFound AS LOGICAL NO-UNDO .
+DEF VAR oeShtcalcWarm-log AS LOGICAL NO-UNDO .
+
 
 {cec/bestfitc.i SHARED}
 {sys/inc/f16to32.i}
+
+  RUN sys/ref/nk1look.p (INPUT cocode, "SHTCALCWarn", "L" /* Logical */, NO /* check by cust */, 
+                           INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                           OUTPUT cRtnChar, OUTPUT lRecFound).
+  IF lRecFound THEN
+      oeShtcalcWarm-log = LOGICAL(cRtnChar) NO-ERROR.
 
 FIND job-mat WHERE ROWID(job-mat) EQ io-rowid NO-LOCK NO-ERROR.
 
@@ -62,6 +73,19 @@ IF AVAIL job THEN DO:
       WHERE xeb.company EQ xef.company
         AND xeb.est-no  EQ xef.est-no
         AND xeb.form-no EQ xef.form-no:
+ 
+    IF oeShtcalcWarm-log THEN DO:
+         IF AVAIL xef THEN
+             FIND FIRST bff-item NO-LOCK
+             WHERE bff-item.company EQ job-mat.company
+             AND bff-item.i-no    EQ xef.board
+             AND bff-item.mat-type EQ "B" 
+             NO-ERROR.
+         IF AVAIL bff-item  AND 
+             (bff-item.cal NE xef.cal OR bff-item.procat NE xeb.procat) THEN
+             MESSAGE "Selected Board differs from Board in Job Standard." 
+                               VIEW-AS ALERT-BOX INFO BUTTONS OK .
+    END.
 
     RUN cec/bestfitc.p ("", job-mat.qty * job-mat.n-up, job-mat.qty-uom, ipxRMINo).
 
