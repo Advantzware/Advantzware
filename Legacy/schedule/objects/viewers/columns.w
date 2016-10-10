@@ -1,7 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -142,7 +141,7 @@ DEFINE BROWSE browseCols
     browseColumn.excelCol
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 83 BY 22.86 ROW-HEIGHT-CHARS .52 EXPANDABLE.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 83 BY 22.86 ROW-HEIGHT-CHARS .52 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -364,10 +363,10 @@ PROCEDURE loadColumns :
     CREATE browseColumn.
     IMPORT browseColumn.
   END.
+  INPUT CLOSE.
   IF browseColumn.colOrder EQ 0 THEN
   DELETE browseColumn.
-  INPUT CLOSE.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

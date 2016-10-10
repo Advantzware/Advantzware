@@ -258,6 +258,7 @@ END.
 &IF '{&Board}' NE 'View' &THEN
 DEFINE VARIABLE altResSeq AS INTEGER NO-UNDO.
 DEFINE VARIABLE asiCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE asiLocation AS CHARACTER NO-UNDO.
 DEFINE VARIABLE beginEstType AS INTEGER NO-UNDO.
 DEFINE VARIABLE boardLength AS DECIMAL NO-UNDO.
 DEFINE VARIABLE boardType AS CHARACTER NO-UNDO.
@@ -419,9 +420,12 @@ FUNCTION noDate RETURN LOGICAL (ipCompany AS CHARACTER):
                     AND sys-ctrl.log-fld EQ YES).
 END FUNCTION.
 
-IF VALID-HANDLE(ipContainerHandle) THEN
-RUN asiCommaList IN ipContainerHandle ('Company',OUTPUT asiCompany).
+IF VALID-HANDLE(ipContainerHandle) THEN DO:
+    RUN asiCommaList IN ipContainerHandle ('Company',OUTPUT asiCompany).
+    RUN asiCommaList IN ipContainerHandle ('Location',OUTPUT asiLocation).
+END.
 IF asiCompany EQ '' THEN asiCompany = '001'.
+IF asiLocation EQ '' THEN asiLocation = 'Main'.
 
 ASSIGN
   useDeptSort = SEARCH(findProgram('{&data}/',ID,'/useDeptSort.dat')) NE ?
@@ -546,7 +550,7 @@ FOR EACH job-hdr NO-LOCK
         AND job-mch.run-complete EQ NO
      ,FIRST mach NO-LOCK
       WHERE mach.company EQ job.company
-        AND mach.loc EQ job.loc
+        AND mach.loc EQ asiLocation
         AND mach.m-code EQ job-mch.m-code
       BREAK BY job-mch.job
             BY job-mch.frm

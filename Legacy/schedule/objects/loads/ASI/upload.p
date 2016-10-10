@@ -26,7 +26,7 @@ DISABLE TRIGGERS FOR LOAD OF job-hdr.
 DISABLE TRIGGERS FOR LOAD OF reftable.
 
 OUTPUT TO 'schedule/load.log' APPEND.
-PUT UNFORMATTED 'Start Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' by ' USERID('nosweat') SKIP.
+PUT UNFORMATTED 'Start Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('nosweat') SKIP.
 
 FOR EACH pendingJob NO-LOCK:
   jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
@@ -44,7 +44,25 @@ FOR EACH pendingJob NO-LOCK:
          AND job-mch.blank-no EQ INTEGER(ENTRY(7,pendingJob.keyValue))
          AND job-mch.pass EQ INTEGER(ENTRY(8,pendingJob.keyValue))
        NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN NEXT.
+  IF NOT AVAILABLE job-mch THEN
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
+         AND job-mch.m-code EQ pendingJob.resource
+         AND job-mch.job EQ INTEGER(ENTRY(3,pendingJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(4,pendingJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(5,pendingJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(6,pendingJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(7,pendingJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(8,pendingJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN DO:
+      PUT UNFORMATTED 'Pending:' AT 5
+          ' Resource: ' pendingJob.resource
+          ' RowIDs: ' pendingJob.rowIDs
+          ' KeyValue: ' pendingJob.keyValue
+          ' ** Not Found **' SKIP.
+      NEXT.
+  END.
   ASSIGN
     statusStr = ''
     job-mch.end-date = ?
@@ -59,13 +77,11 @@ FOR EACH pendingJob NO-LOCK:
   IF job-mch.run-complete EQ NO THEN
   job-mch.run-complete = pendingJob.jobCompleted.
   IF job-mch.m-code NE pendingJob.altResource THEN DO:
-      /*
-      PUT UNFORMATTED 'Pending: '
+      PUT UNFORMATTED 'Pending:' AT 5
           ' RowIDs: ' pendingJob.rowIDs ' - RowID: ' STRING(ROWID(job-mch))
           ' KeyValue: ' pendingJob.keyValue
           ' Current: ' job-mch.m-code
           ' New : ' pendingJob.altResource SKIP.
-      */
       job-mch.m-code = pendingJob.altResource.
   END.
   RUN updateJob (job-mch.company,job-mch.job,job-mch.start-date-su).
@@ -94,7 +110,25 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
          AND job-mch.blank-no EQ INTEGER(ENTRY(7,ttblJob.keyValue))
          AND job-mch.pass EQ INTEGER(ENTRY(8,ttblJob.keyValue))
        NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN NEXT.
+  IF NOT AVAILABLE job-mch THEN
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
+         AND job-mch.m-code EQ ttblJob.resource
+         AND job-mch.job EQ INTEGER(ENTRY(3,ttblJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(4,ttblJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(5,ttblJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(6,ttblJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(7,ttblJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(8,ttblJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN DO:
+      PUT UNFORMATTED 'ttblJob:' AT 5
+          ' Resource: ' ttblJob.resource
+          ' RowIDs: ' ttblJob.rowIDs 
+          ' KeyValue: ' ttblJob.keyValue
+          ' ** Not Found **' SKIP.
+      NEXT.
+  END.
   IF CAN-FIND(FIRST jobNotes WHERE jobNotes.jobRowID EQ jobMchRowID) THEN
   RUN check4Notes (jobMchRowID,job-mch.company,ttblJob.resource,job-mch.job,job-mch.job-no,job-mch.job-no2,job-mch.frm).
   statusStr = ''.
@@ -128,13 +162,11 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
   IF job-mch.run-complete EQ NO THEN
   job-mch.run-complete = ttblJob.jobCompleted.
   IF job-mch.m-code NE ttblJob.altResource THEN DO:
-      /*
-      PUT UNFORMATTED 'ttblJob: '
+      PUT UNFORMATTED 'ttblJob:' AT 5
           ' RowIDs: ' ttblJob.rowIDs ' - RowID: ' STRING(ROWID(job-mch))
           ' KeyValue: ' ttblJob.keyValue
           ' Current: ' job-mch.m-code
           ' New : ' ttblJob.altResource SKIP.
-      */
       job-mch.m-code = ttblJob.altResource.
   END.
   RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,

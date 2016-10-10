@@ -1249,8 +1249,10 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             btnUpdates:HANDLE IN FRAME schedulerFrame , 'BEFORE':U ).
     END. /* Page 0 */
-
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
            &IF DEFINED(UIB_is_Running) ne 0 &THEN
@@ -1264,19 +1266,23 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_board ( 2.43 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 26.76 , 157.40 ) */
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_board ,
+             btnHelp:HANDLE IN FRAME schedulerFrame , 'AFTER':U ).
     END. /* Page 1 */
-
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'schedule/objects/config.w':U ,
              INPUT  FRAME schedulerFrame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_config ).
-       RUN set-position IN h_config ( 2.10 , 1.00 ) NO-ERROR.
+       RUN set-position IN h_config ( 2.43 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 26.48 , 152.40 ) */
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_config ,
+             btnHelp:HANDLE IN FRAME schedulerFrame , 'AFTER':U ).
     END. /* Page 2 */
-
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'schedule/objects/downtime.w':U ,
@@ -1286,8 +1292,10 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_downtime ( 2.43 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 26.76 , 157.40 ) */
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_downtime ,
+             btnHelp:HANDLE IN FRAME schedulerFrame , 'AFTER':U ).
     END. /* Page 3 */
-
     WHEN 4 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'schedule/objects/resources.w':U ,
@@ -1298,6 +1306,8 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 25.71 , 92.00 ) */
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_resources ,
+             btnHelp:HANDLE IN FRAME schedulerFrame , 'AFTER':U ).
     END. /* Page 4 */
 
   END CASE.
@@ -1342,8 +1352,9 @@ PROCEDURE asiCommaList :
   DEFINE VARIABLE listValues AS CHARACTER NO-UNDO.
 
   ASSIGN
-    listValues = 'Company'
-    opValue = ENTRY(LOOKUP(listValues,ipValue),commaList).
+    listValues = 'Company,Location'
+    opValue = ENTRY(LOOKUP(ipValue,listValues),commaList)
+    .
   
 END PROCEDURE.
 
