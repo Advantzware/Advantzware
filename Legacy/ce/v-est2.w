@@ -74,7 +74,7 @@ DEF TEMP-TABLE w-ef NO-UNDO LIKE ef.
 DEF TEMP-TABLE old-ef NO-UNDO LIKE ef.
 DEF VAR cRtnChar AS CHARACTER NO-UNDO.
 DEF VAR lRecFound AS LOGICAL NO-UNDO .
-DEF VAR oeShtcalcWarm-log AS LOGICAL NO-UNDO .
+DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 
 {cec/bestfitc.i NEW SHARED}
 
@@ -1575,7 +1575,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "SHTCALCWarn", "L" /* Logical */, NO /* che
                            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                            OUTPUT cRtnChar, OUTPUT lRecFound).
   IF lRecFound THEN
-      oeShtcalcWarm-log = LOGICAL(cRtnChar) NO-ERROR.
+      lShtcalcWarm-log = LOGICAL(cRtnChar) NO-ERROR.
 
 session:data-entry-return = yes.
       
@@ -3481,15 +3481,14 @@ PROCEDURE sheet-calc2 :
      find xef where recid(xef) = recid(ef) NO-LOCK NO-ERROR.
      find xeb where recid(xeb) = recid(eb) NO-LOCK NO-ERROR.
      
-     IF oeShtcalcWarm-log THEN DO:
+     IF lShtcalcWarm-log THEN DO:
          IF AVAIL xef AND AVAIL xeb THEN
              FIND FIRST bf-item NO-LOCK
              WHERE bf-item.company EQ xef.company
              AND bf-item.i-no    EQ xef.board
              AND bf-item.mat-type EQ "B" 
              NO-ERROR.
-         IF AVAIL bf-item AND bf-item.mat-type EQ "B" AND 
-             (bf-item.cal NE xef.cal OR bf-item.procat NE xeb.procat) THEN
+         IF AVAIL bf-item AND (bf-item.cal NE xef.cal OR bf-item.procat NE xeb.procat) THEN
              MESSAGE "Selected Board differs from Board in Estimate Standard." 
                                VIEW-AS ALERT-BOX INFO BUTTONS OK .
      END.

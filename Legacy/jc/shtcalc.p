@@ -28,7 +28,7 @@ DEF VAR dNewSheetQty AS DECIMAL NO-UNDO.
 DEF VAR dNewSheetTotQty AS DECIMAL NO-UNDO.
 DEF VAR cRtnChar AS CHARACTER NO-UNDO.
 DEF VAR lRecFound AS LOGICAL NO-UNDO .
-DEF VAR oeShtcalcWarm-log AS LOGICAL NO-UNDO .
+DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 
 
 {cec/bestfitc.i SHARED}
@@ -38,7 +38,7 @@ DEF VAR oeShtcalcWarm-log AS LOGICAL NO-UNDO .
                            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                            OUTPUT cRtnChar, OUTPUT lRecFound).
   IF lRecFound THEN
-      oeShtcalcWarm-log = LOGICAL(cRtnChar) NO-ERROR.
+      lShtcalcWarm-log = LOGICAL(cRtnChar) NO-ERROR.
 
 FIND job-mat WHERE ROWID(job-mat) EQ io-rowid NO-LOCK NO-ERROR.
 
@@ -74,7 +74,7 @@ IF AVAIL job THEN DO:
         AND xeb.est-no  EQ xef.est-no
         AND xeb.form-no EQ xef.form-no:
  
-    IF oeShtcalcWarm-log THEN DO:
+    IF lShtcalcWarm-log THEN DO:
          IF AVAIL xef THEN
              FIND FIRST bff-item NO-LOCK
              WHERE bff-item.company EQ job-mat.company
