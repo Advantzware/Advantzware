@@ -2,6 +2,9 @@
 
   File: fg\fgpstallBatch.w
   
+  Usage:
+         RUN fg/fgpstallbatch.w (input '001', input 'asi', today, 'R').
+         
 ------------------------------------------------------------------------*/
 
 
@@ -9,55 +12,59 @@
 /* WFK note;  Must determine if v-corr is used anywhere !!!!!!!!!!!!!! */
 
 /* Batch Input Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-post-eom-date AS DATE NO-UNDO.
-DEFINE INPUT PARAMETER ip-run-what AS CHARACTER NO-UNDO. /* "SETUP" from initial setup (addon/sshoot/sssetups.w), else "" */
+DEFINE INPUT PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcUserID        AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ip-post-eom-date AS DATE      NO-UNDO.
+DEFINE INPUT PARAMETER ip-run-what      AS CHARACTER NO-UNDO. /* "SETUP" from initial setup (addon/sshoot/sssetups.w), else "" */
 
 /* Actual Selection Parmeters */
-DEFINE VARIABLE begin_fg-r-no  AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 0 NO-UNDO.
-DEFINE VARIABLE end_fg-r-no    AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 99999999 NO-UNDO.
-DEFINE VARIABLE begin_i-no     AS CHARACTER FORMAT "X(15)":U NO-UNDO.
-DEFINE VARIABLE end_i-no       AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" NO-UNDO.
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U NO-UNDO.
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" NO-UNDO.
-DEFINE VARIABLE begin_whs      AS CHARACTER FORMAT "X(5)":U NO-UNDO.
-DEFINE VARIABLE end_whs        AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" NO-UNDO.
-DEFINE VARIABLE begin_userid   AS CHARACTER FORMAT "X(8)":U NO-UNDO.
-DEFINE VARIABLE end_userid     AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" NO-UNDO.
-DEFINE VARIABLE ldt-from       AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 NO-UNDO.
-DEFINE VARIABLE ldt-to         AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 LABEL "To Date" NO-UNDO.
-DEFINE VARIABLE v-post-date    AS DATE      FORMAT "99/99/9999":U LABEL "Post Date" NO-UNDO.
+DEFINE VARIABLE begin_fg-r-no AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 0 NO-UNDO.
+DEFINE VARIABLE end_fg-r-no   AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 99999999 NO-UNDO.
+DEFINE VARIABLE begin_i-no    AS CHARACTER FORMAT "X(15)":U NO-UNDO.
+DEFINE VARIABLE end_i-no      AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" NO-UNDO.
+DEFINE VARIABLE begin_job-no  AS CHARACTER FORMAT "X(6)":U NO-UNDO.
+DEFINE VARIABLE end_job-no    AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" NO-UNDO.
+DEFINE VARIABLE begin_whs     AS CHARACTER FORMAT "X(5)":U NO-UNDO.
+DEFINE VARIABLE end_whs       AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" NO-UNDO.
+DEFINE VARIABLE begin_userid  AS CHARACTER FORMAT "X(8)":U NO-UNDO.
+DEFINE VARIABLE end_userid    AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" NO-UNDO.
+DEFINE VARIABLE ldt-from      AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 NO-UNDO.
+DEFINE VARIABLE ldt-to        AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 LABEL "To Date" NO-UNDO.
+DEFINE VARIABLE v-post-date   AS DATE      FORMAT "99/99/9999":U LABEL "Post Date" NO-UNDO.
+DEFINE VARIABLE tb_excel      AS LOGICAL   NO-UNDO.
 /* List of Rita codes: */
-DEFINE VARIABLE v-postlst       AS cha       NO-UNDO.
+DEFINE VARIABLE v-postlst     AS cha       NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
 {methods/defines/hndldefs.i NEW}
 /*{methods/prgsecur.i} */
-{methods/defines/globdefs.i}
+{methods/defines/globdefs.i NEW  }
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i new shared}
 
+g_sysdate   = TODAY.
+RUN pDefaultAsiValues.
 ASSIGN
-    gcompany = ipcCompany
-    gLoc     = "MAIN"
-    cocode = gcompany
-    locode = gloc
+    g_company = ipcCompany    
+    gcompany  = ipcCompany
+    gLoc      = g_loc
+    cocode    = gcompany
+    locode    = gloc
     .
     
 /* assign local vars from input parameters */
 ASSIGN
-   begin_userid = ipcUserID
-   end_userid   = ipcUserID
-   v-postlst    = ip-run-what
-   v-post-date  = ip-post-eom-date  
-   .
+    begin_userid = ipcUserID
+    end_userid   = ipcUserID
+    v-postlst    = ip-run-what
+    v-post-date  = ip-post-eom-date  
+    .
 
-DEFINE VARIABLE list-name AS cha       NO-UNDO.
-DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
-DEFINE NEW SHARED     VARIABLE choice         AS LOG       NO-UNDO.
+DEFINE            VARIABLE list-name      AS cha       NO-UNDO.
+DEFINE            VARIABLE init-dir       AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE choice         AS LOG       NO-UNDO.
 
 DEFINE            VARIABLE v-fgpostgl     AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE v-fg-value     AS DECIMAL   FORMAT "->,>>>,>>9.99".
@@ -284,102 +291,102 @@ DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-f
 IF ip-run-what EQ "" THEN 
 DO:
 PROCEDURE mail EXTERNAL "xpMail.dll" :
-    DEF INPUT PARAM mailTo AS CHAR.
-    DEF INPUT PARAM mailsubject AS CHAR.
-    DEF INPUT PARAM mailText AS CHAR.
-    DEF INPUT PARAM mailFiles AS CHAR.
-    DEF INPUT PARAM mailDialog AS LONG.
-    DEF OUTPUT PARAM retCode AS LONG.
+    DEFINE INPUT PARAMETER mailTo AS CHARACTER.
+    DEFINE INPUT PARAMETER mailsubject AS CHARACTER.
+    DEFINE INPUT PARAMETER mailText AS CHARACTER.
+    DEFINE INPUT PARAMETER mailFiles AS CHARACTER.
+    DEFINE INPUT PARAMETER mailDialog AS LONG.
+    DEFINE OUTPUT PARAMETER retCode AS LONG.
 END.
 END. /* if ip-run-what eq "" */
 
 
-    MAIN-BLOCK:
-    DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+MAIN-BLOCK:
+DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   
 
-        DO TRANSACTION:
-            {sys/inc/closejob.i FGPost}
-            {sys/inc/fgpostgl.i}   
+    DO TRANSACTION:
+        {sys/inc/closejob.i FGPost}
+        {sys/inc/fgpostgl.i}   
    
-            {sys/inc/fgemails.i}
-            {sys/inc/postdate.i}
-        END.
-        {sys/inc/adjustgl.i}
+        {sys/inc/fgemails.i}
+        {sys/inc/postdate.i}
+    END.
+    {sys/inc/adjustgl.i}
+    ASSIGN
+        v-fgpostgl = fgpostgl
+        tb_glnum   = v-fgpostgl NE "None" OR v-adjustgl
+        tgl-itemCD = YES   
+        .
+
+    IF ip-run-what EQ "" THEN 
+    DO :
+
         ASSIGN
             v-fgpostgl = fgpostgl
             tb_glnum   = v-fgpostgl NE "None" OR v-adjustgl
-            tgl-itemCD = YES   
             .
 
-        IF ip-run-what EQ "" THEN 
-        DO :
-
-            ASSIGN
-                v-fgpostgl   = fgpostgl
-                tb_glnum     = v-fgpostgl NE "None" OR v-adjustgl
-                .
-
-            IF NOT LOGICAL(tb_glnum) THEN DISABLE tb_glnum.
+        IF NOT LOGICAL(tb_glnum) THEN DISABLE tb_glnum.
  
 
-            IF postdate-log THEN
-            DO:
-                v-post-date = TODAY.
-            END.
-            ELSE
-            DO:
-                v-post-date = ?.
-            END.
- 
-            RUN init-values.
-
-            FIND FIRST period
-                WHERE period.company EQ cocode
-                AND period.pst     LE v-post-date
-                AND period.pend    GE v-post-date
-                NO-LOCK NO-ERROR.
-            IF NOT AVAILABLE period THEN 
-               RETURN NO-APPLY.
-
-            RUN print-and-post.
-           END.
-        ELSE 
+        IF postdate-log THEN
         DO:
-            /*FIND fg-rctd NO-LOCK WHERE RECID(fg-rctd) EQ INT(ip-run-what) NO-ERROR.
-            
-            IF AVAIL fg-rctd THEN
-              ASSIGN
-               ip-rowid    = ROWID(fg-rctd)
-               ip-run-what = fg-rctd.rita-code.
-            
-            ELSE ip-rowid = ?.*/
-
-            ASSIGN
-                v-post-date   = TODAY
-                t-receipt     = ip-run-what EQ "R"
-                t-ship        = ip-run-what EQ "S"
-                t-trans       = ip-run-what EQ "T"
-                t-adj         = NO
-                t-ret         = NO
-                t-setup       = ip-run-what EQ "SETUP"
-                begin_fg-r-no = 0
-                end_fg-r-no   = 2147483647
-                begin_i-no    = ""
-                end_i-no      = "zzzzzzzzzzzzzzzzzzzzzzzz"
-                ldt-from      = 01/01/0001
-                ldt-to        = 12/31/9999
-                begin_job-no  = ""
-                end_job-no    = "zzzzzzzzzzzzzzzzzzzzzzzz"
-                .
-
-            RUN print-and-post.
-
-
+            v-post-date = TODAY.
         END.
+        ELSE
+        DO:
+            v-post-date = ?.
+        END.
+ 
+        RUN init-values.
+
+        FIND FIRST period
+            WHERE period.company EQ cocode
+            AND period.pst     LE v-post-date
+            AND period.pend    GE v-post-date
+            NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE period THEN 
+            RETURN NO-APPLY.
+
+        RUN print-and-post.
+    END.
+    ELSE 
+    DO:
+        /*FIND fg-rctd NO-LOCK WHERE RECID(fg-rctd) EQ INT(ip-run-what) NO-ERROR.
+            
+        IF AVAIL fg-rctd THEN
+          ASSIGN
+           ip-rowid    = ROWID(fg-rctd)
+           ip-run-what = fg-rctd.rita-code.
+            
+        ELSE ip-rowid = ?.*/
+
+        ASSIGN
+            v-post-date   = TODAY
+            t-receipt     = ip-run-what EQ "R"
+            t-ship        = ip-run-what EQ "S"
+            t-trans       = ip-run-what EQ "T"
+            t-adj         = NO
+            t-ret         = NO
+            t-setup       = ip-run-what EQ "SETUP"
+            begin_fg-r-no = 0
+            end_fg-r-no   = 2147483647
+            begin_i-no    = ""
+            end_i-no      = "zzzzzzzzzzzzzzzzzzzzzzzz"
+            ldt-from      = 01/01/0001
+            ldt-to        = 12/31/9999
+            begin_job-no  = ""
+            end_job-no    = "zzzzzzzzzzzzzzzzzzzzzzzz"
+            .
+
+        RUN print-and-post.
+
 
     END.
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -925,7 +932,7 @@ PROCEDURE Check-Fgemail-Parm :
     IF NOT AVAILABLE buf-sys-ctrl THEN 
     DO:
         DEFINE VARIABLE l-fgemail AS LOG NO-UNDO. 
-         l-fgemail = NO.
+        l-fgemail = NO.
         /* Create the record. */
         CREATE buf-sys-ctrl.
         ASSIGN 
@@ -2670,7 +2677,7 @@ PROCEDURE fg-post :
     IF v-got-fgemail THEN 
     DO:
         IF fgPostLog THEN RUN fgPostLog ('Start Run send-fgemail').
-/*        RUN send-fgemail (v-fgemail-file).*/
+        /*        RUN send-fgemail (v-fgemail-file).*/
         IF fgPostLog THEN RUN fgPostLog ('End Run send-fgemail').
     END.  
   
@@ -2746,9 +2753,9 @@ PROCEDURE fgpostdoti:
     DEFINE VARIABLE v-grd-tot-qty   AS INTEGER   FORMAT "->>>,>>>,>>9".
     DEFINE VARIABLE v-grd-tot-value AS DECIMAL   FORMAT "->>,>>>,>>9.99<<".          
     DEFINE VARIABLE v-pr-tots       AS LOG       NO-UNDO.
-    DEFINE VARIABLE v-entrytype AS CHARACTER INITIAL "REC ,TRAN,ADJ ,SHIP,RET ,INIT".
-    DEFINE VARIABLE v-fg-qty    LIKE fg-rctd.t-qty.
-    DEFINE VARIABLE v-fg-cost   AS DECIMAL   FORMAT "->,>>>,>>9.99<<".  
+    DEFINE VARIABLE v-entrytype     AS CHARACTER INITIAL "REC ,TRAN,ADJ ,SHIP,RET ,INIT".
+    DEFINE VARIABLE v-fg-qty        LIKE fg-rctd.t-qty.
+    DEFINE VARIABLE v-fg-cost       AS DECIMAL   FORMAT "->,>>>,>>9.99<<".  
           
     FOR EACH w-fg-rctd
 
@@ -2773,9 +2780,9 @@ PROCEDURE fgpostdoti:
 
         RELEASE prod.
         /* gdm - 06150904 */
-        IF AVAIL itemfg THEN ASSIGN v-cstprt = itemfg.part-no.
+        IF AVAILABLE itemfg THEN ASSIGN v-cstprt = itemfg.part-no.
 
-        IF AVAIL itemfg THEN
+        IF AVAILABLE itemfg THEN
             FIND FIRST prodl NO-LOCK
                 WHERE prodl.company EQ cocode
                 AND prodl.procat  EQ itemfg.procat
@@ -2784,7 +2791,7 @@ PROCEDURE fgpostdoti:
                 AND prod.prolin  EQ prodl.prolin)
                 NO-ERROR.
 
-        IF AVAIL prodl THEN
+        IF AVAILABLE prodl THEN
             FIND FIRST prod
                 WHERE prod.company EQ cocode
                 AND prod.prolin  EQ prodl.prolin
@@ -2811,7 +2818,7 @@ PROCEDURE fgpostdoti:
 
             ll-wip = NO.
 
-            IF AVAIL job-hdr THEN 
+            IF AVAILABLE job-hdr THEN 
             DO:
                 /* For calculating the quantity per pallet. */
                 FIND FIRST fg-bin NO-LOCK
@@ -2824,7 +2831,7 @@ PROCEDURE fgpostdoti:
                     NO-ERROR.
 
                 v-qty-pallet = w-fg-rctd.cases *
-                    IF AVAIL fg-bin THEN fg-bin.cases-unit ELSE 1.
+                    IF AVAILABLE fg-bin THEN fg-bin.cases-unit ELSE 1.
 
                 FIND FIRST job NO-LOCK
                     WHERE job.company EQ cocode
@@ -2833,8 +2840,8 @@ PROCEDURE fgpostdoti:
                     AND job.job-no2 EQ job-hdr.job-no2
                     NO-ERROR.
 
-                IF AVAIL job AND INT(w-fg-rctd.po-no) EQ 0 AND
-                    v-fgpostgl EQ "AllItems" AND AVAIL prod THEN 
+                IF AVAILABLE job AND INT(w-fg-rctd.po-no) EQ 0 AND
+                    v-fgpostgl EQ "AllItems" AND AVAILABLE prod THEN 
                 DO:
                     ASSIGN
                         wip-amt = w-fg-rctd.t-qty / 1000 * job-hdr.std-mat-cost
@@ -2867,7 +2874,7 @@ PROCEDURE fgpostdoti:
                         WHERE po-ord.company EQ cocode
                         AND po-ord.po-no   EQ int(w-fg-rctd.po-no)
                         NO-LOCK NO-ERROR.
-                IF AVAIL po-ord THEN
+                IF AVAILABLE po-ord THEN
                     FIND FIRST po-ordl NO-LOCK
                         WHERE po-ordl.company   EQ cocode
                         AND po-ordl.po-no     EQ po-ord.po-no
@@ -2875,18 +2882,18 @@ PROCEDURE fgpostdoti:
                         AND po-ordl.deleted   EQ NO
                         AND po-ordl.item-type EQ NO
                         NO-ERROR.
-                IF AVAIL itemfg AND v-fgpostgl NE "None"       AND
-                    (AVAIL po-ordl OR v-fgpostgl EQ "AllItems") THEN 
+                IF AVAILABLE itemfg AND v-fgpostgl NE "None"       AND
+                    (AVAILABLE po-ordl OR v-fgpostgl EQ "AllItems") THEN 
                 DO:
                     IF w-fg-rctd.ext-cost NE 0  AND
                         w-fg-rctd.ext-cost NE ?  AND
-                        AVAIL prod         AND  
+                        AVAILABLE prod         AND  
                         prod.fg-mat NE ""  AND
                         prod.wip-mat NE "" THEN 
                     DO:                          
                         /* Debit FG Material */
                         FIND FIRST work-gl WHERE work-gl.actnum EQ prod.fg-mat NO-LOCK NO-ERROR.      
-                        IF NOT AVAIL work-gl THEN 
+                        IF NOT AVAILABLE work-gl THEN 
                         DO:
                             CREATE work-gl.
                             work-gl.actnum = prod.fg-mat.
@@ -2894,7 +2901,7 @@ PROCEDURE fgpostdoti:
                         work-gl.debits = work-gl.debits + w-fg-rctd.ext-cost.             
                         /* Credit WIP Material */
                         FIND FIRST work-gl WHERE work-gl.actnum EQ prod.wip-mat NO-LOCK NO-ERROR.      
-                        IF NOT AVAIL work-gl THEN 
+                        IF NOT AVAILABLE work-gl THEN 
                         DO:
                             CREATE work-gl.
                             work-gl.actnum = prod.wip-mat.
@@ -2904,7 +2911,7 @@ PROCEDURE fgpostdoti:
                 END.  
             END.
 
-            IF AVAIL job-hdr THEN 
+            IF AVAILABLE job-hdr THEN 
             DO:
                 IF LAST-OF(w-fg-rctd.i-no) THEN
                     FOR EACH mch-act FIELDS(waste)
@@ -2932,7 +2939,7 @@ PROCEDURE fgpostdoti:
                     LEAVE.
                 END.
 
-                IF AVAIL job-mat THEN 
+                IF AVAILABLE job-mat THEN 
                 DO:
                     ASSIGN 
                         v-msf[1] = w-fg-rctd.t-qty *
@@ -2968,7 +2975,7 @@ PROCEDURE fgpostdoti:
                     AND fg-bin.tag     EQ w-fg-rctd.tag
                     NO-ERROR.
         
-                IF AVAIL fg-bin THEN
+                IF AVAILABLE fg-bin THEN
                     RUN oe/invposty.p (0, fg-bin.i-no, w-fg-rctd.t-qty * -1, fg-bin.pur-uom,
                         fg-bin.std-lab-cost, fg-bin.std-fix-cost,
                         fg-bin.std-var-cost, fg-bin.std-mat-cost).
@@ -3550,6 +3557,49 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+PROCEDURE pDefaultAsiValues:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes: Copied from persist.i since code is not available without dependencies
+    ------------------------------------------------------------------------------*/
+
+    FIND FIRST usr WHERE usr.uid EQ ipcUserID NO-LOCK NO-ERROR.
+    IF AVAILABLE usr THEN
+    DO:
+        FIND FIRST company WHERE company.company EQ ipcCompany NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE company THEN
+            FIND FIRST company NO-LOCK NO-ERROR.
+
+        IF AVAILABLE usr AND AVAILABLE company THEN
+        DO:
+            FIND FIRST loc WHERE loc.company EQ company.company 
+                AND loc.loc EQ usr.loc NO-LOCK NO-ERROR.
+            IF NOT AVAILABLE loc THEN
+                FIND FIRST loc WHERE loc.company EQ company.company NO-LOCK NO-ERROR.
+            IF AVAILABLE loc THEN
+            DO:
+                ASSIGN
+                    g_company = company.company
+                    g_loc     = loc.loc
+                    g_sysdate = TODAY.
+
+                FIND FIRST period WHERE period.company EQ g_company 
+                    AND period.pstat EQ TRUE   
+                    AND period.pst LE g_sysdate   
+                    AND period.pend GE g_sysdate NO-LOCK NO-ERROR.
+                IF NOT AVAILABLE period THEN
+                    FIND LAST period WHERE period.company EQ g_company AND
+                        period.pstat EQ TRUE NO-LOCK NO-ERROR.
+                IF AVAILABLE period THEN
+                    g_period = period.pnum.
+            END.
+        END. /* avail user and company */
+    END. /* avail usr */
+
+
+
+END PROCEDURE.
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE print-and-post C-Win 
 PROCEDURE print-and-post :
     /*------------------------------------------------------------------------------
@@ -3575,7 +3625,7 @@ PROCEDURE print-and-post :
     /* Populate Temp-table records */
     RUN run-report.
 
-/*    IF fgpost-cha EQ "Before" OR fgpost-cha EQ "Both" THEN RUN show-report (1).*/
+    /*    IF fgpost-cha EQ "Before" OR fgpost-cha EQ "Both" THEN RUN show-report (1).*/
 
     choice = CAN-FIND(FIRST w-fg-rctd WHERE w-fg-rctd.has-rec).
 
@@ -3644,7 +3694,7 @@ PROCEDURE print-and-post :
                 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE fg-bin THEN 
             DO:      
-                 choice = NO.
+                choice = NO.
                 LEAVE.
             END.
         END. /* Each w-fg-rctd */
@@ -4049,8 +4099,8 @@ PROCEDURE ReprintTag :
   
     RUN create-text-file.
   
-/*    IF (NOT is-from-addons() OR SSLoadTag-log = TRUE) AND lv-found-recs THEN  */
-/*        MESSAGE "Loadtag reprint is completed." VIEW-AS ALERT-BOX INFORMATION.*/
+    /*    IF (NOT is-from-addons() OR SSLoadTag-log = TRUE) AND lv-found-recs THEN  */
+    /*        MESSAGE "Loadtag reprint is completed." VIEW-AS ALERT-BOX INFORMATION.*/
     SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
@@ -4118,13 +4168,13 @@ PROCEDURE run-report PRIVATE :
         end_job-no = FILL(" ",6 - LENGTH(TRIM(end_job-no))) + TRIM(end_job-no).
 
     ASSIGN
-/*        v-postlst   = (IF t-receipt THEN "R," ELSE "") +*/
-/*               (IF t-setup THEN "I," ELSE "") +         */
-/*               (IF t-ship THEN "S," ELSE "") +          */
-/*               (IF t-trans THEN "T," ELSE "") +         */
-/*               (IF t-adj THEN "A," ELSE "") +           */
-/*               (IF t-ret THEN "E," ELSE "") +           */
-/*               (IF tgIssue THEN "F," ELSE "")           */
+        /*        v-postlst   = (IF t-receipt THEN "R," ELSE "") +*/
+        /*               (IF t-setup THEN "I," ELSE "") +         */
+        /*               (IF t-ship THEN "S," ELSE "") +          */
+        /*               (IF t-trans THEN "T," ELSE "") +         */
+        /*               (IF t-adj THEN "A," ELSE "") +           */
+        /*               (IF t-ret THEN "E," ELSE "") +           */
+        /*               (IF tgIssue THEN "F," ELSE "")           */
         v-cost-sell = rd_print EQ "C"
         v-pr-tots2  = tb_totCstVal
         v-pr-tots   = tb_grndtotal
@@ -4167,36 +4217,36 @@ PROCEDURE run-report PRIVATE :
     END.
 
     RUN build-comp-tables.
-
-    IF v-cost-sell THEN 
-    DO:
-        /* TBD - include called wiht 2 different buffers */
-        IF rd-ItmPo EQ 1 THEN 
-        DO:
-         /*   RUN fgposti. */
-                {fg/rep/fg-post.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}
-        END.
-        ELSE 
-        DO:
-/*            RUN fgposti.*/
-                {fg/rep/fg-post.i "itemx" "v-fg-cost" "itempx" "v-tot-cost"}
-        END.
-    END.
-    ELSE 
-    DO:
-        v-hdr = "       VALUE".
-
-        IF rd-ItmPo EQ 1 THEN 
-        DO:
-             {fg/rep/fg-post.i "itemyA" "v-fg-value" "itempyA" "v-tot-value"}
-/*            RUN fgposti.*/
-        END.
-        ELSE 
-        DO:
-              {fg/rep/fg-post.i "itemy" "v-fg-value" "itempy" "v-tot-value"}
-/*            RUN fgposti.*/
-        END.
-    END.
+    /* fg-post.i is just a report */
+    /*    IF v-cost-sell THEN                                                       */
+    /*    DO:                                                                       */
+    /*        /* TBD - include called wiht 2 different buffers */                   */
+    /*        IF rd-ItmPo EQ 1 THEN                                                 */
+    /*        DO:                                                                   */
+    /*         /*   RUN fgposti. */                                                 */
+    /*                {fg/rep/fg-post.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}*/
+    /*        END.                                                                  */
+    /*        ELSE                                                                  */
+    /*        DO:                                                                   */
+    /*/*            RUN fgposti.*/                                                  */
+    /*                {fg/rep/fg-post.i "itemx" "v-fg-cost" "itempx" "v-tot-cost"}  */
+    /*        END.                                                                  */
+    /*    END.                                                                      */
+    /*    ELSE                                                                      */
+    /*    DO:                                                                       */
+    /*        v-hdr = "       VALUE".                                               */
+    /*                                                                              */
+    /*        IF rd-ItmPo EQ 1 THEN                                                 */
+    /*        DO:                                                                   */
+    /*             {fg/rep/fg-post.i "itemyA" "v-fg-value" "itempyA" "v-tot-value"} */
+    /*/*            RUN fgposti.*/                                                  */
+    /*        END.                                                                  */
+    /*        ELSE                                                                  */
+    /*        DO:                                                                   */
+    /*              {fg/rep/fg-post.i "itemy" "v-fg-value" "itempy" "v-tot-value"}  */
+    /*/*            RUN fgposti.*/                                                  */
+    /*        END.                                                                  */
+    /*    END.                                                                      */
 
     SESSION:SET-WAIT-STATE ("").
 
@@ -4241,10 +4291,10 @@ PROCEDURE ValidateFGItemRange :
                 LEAVE.
             END.
         END.
-/*        IF NOT oplOK THEN                                                                                     */
-/*            MESSAGE "FG Item # Range includes a set header but does not include all of the set's components. "*/
-/*                "Please edit range to include components."                                                    */
-/*                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.                                                     */
+    /*        IF NOT oplOK THEN                                                                                     */
+    /*            MESSAGE "FG Item # Range includes a set header but does not include all of the set's components. "*/
+    /*                "Please edit range to include components."                                                    */
+    /*                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.                                                     */
     END.
 
 
