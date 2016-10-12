@@ -611,6 +611,7 @@ FOR EACH job-hdr NO-LOCK
       startTime = fixTime(job-mch.start-time-su)
       strRowID = STRING(ROWID(job)) + ',' + STRING(ROWID(job-mch))
       keyValues = job-mch.company + ','
+                + STRING(job-mch.line) + ','
                 + job-mch.m-code + ','
                 + STRING(job-mch.job) + ','
                 + job-mch.job-no + ','
