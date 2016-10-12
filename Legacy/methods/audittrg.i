@@ -1,13 +1,12 @@
 /* audittrg.i */
 
-&Scoped-define UNIX UNIX
+&SCOPED-DEFINE UNIX UNIX
 
 DEFINE VARIABLE auditname AS CHARACTER NO-UNDO.
 DEFINE VARIABLE auditout AS CHARACTER NO-UNDO.
 DEFINE VARIABLE auditdata AS CHARACTER NO-UNDO.
 
-IF CAN-FIND(FIRST nosweat.config WHERE CAN-DO(nosweat.config.audit_tables,"{&TABLENAME}")) THEN
-DO:
+IF CAN-FIND(FIRST nosweat.config WHERE CAN-DO(nosweat.config.audit_tables,"{&TABLENAME}")) THEN DO:
   FIND FIRST nosweat.config NO-LOCK NO-ERROR.
   ASSIGN
     auditname = STRING(YEAR(TODAY),"9999") +
@@ -22,10 +21,9 @@ DO:
                nosweat.config.audit_dir
 &ENDIF
                + "~/" + auditname.
-  OUTPUT TO VALUE(auditout).
+  OUTPUT TO VALUE(auditout) APPEND.
   &IF "{&ACTION}" = "UPDATE" &THEN
-  IF old-{&TABLENAME}.rec_key NE "" THEN
-  DO:
+  IF old-{&TABLENAME}.rec_key NE "" THEN DO:
     EXPORT "{&ACTION}" {&DBNAME} "{&TABLENAME}" USERID("NOSWEAT") TODAY TIME.
     EXPORT old-{&TABLENAME}.
   END.
@@ -37,8 +35,7 @@ DO:
   EXPORT {&TABLENAME}.
   OUTPUT CLOSE.
 &IF "{&OPSYS}" = "{&UNIX}" &THEN
-  IF auditout BEGINS "." THEN
-  DO:
+  IF auditout BEGINS "." THEN DO:
     INPUT FROM VALUE(auditout) NO-ECHO.
     REPEAT:
       IMPORT UNFORMATTED auditdata.
