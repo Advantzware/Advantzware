@@ -7,5 +7,5 @@
 <connectionentry identifier="rfq"/>
 <connectionentry identifier="temp-db"/>
 <connectionentry identifier="jobs"/>
-<connectionentry identifier="smartDB"/>
+<connectionentry identifier="SmartDB"/>
 </connection>
