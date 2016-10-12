@@ -26,7 +26,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "OESellPriceXfer,OEPO#Xfer,SSBolEmail,OEDateAuto,QuoteNotes,OEPriceMatrixCheck,GLJournalPost,"
             + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
             + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
-            + "OEBOLPrompt" .
+            + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran" .
 
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -234,6 +234,16 @@ CASE ip-nk1-value:
     WHEN "OEBOLPrompt" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Prompt for BOL/INV on Order Entry Screen ",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT NO /* Logical value */).
+    WHEN "SHTCALCWarn" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Prompt for board differences on Sheet Calc button ",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT NO /* Logical value */).
+    WHEN "BOLFMTTran" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Transfer Bill of Lading Creation ",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                            INPUT NO /* Logical value */).
 END CASE.
