@@ -23,7 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -35,45 +35,45 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
-DEF SHARED VAR choice AS LOG NO-UNDO.
-DEFINE NEW SHARED VARIABLE LvOutputSelection AS CHAR NO-UNDO.
+DEFINE SHARED VARIABLE choice AS LOG NO-UNDO.
+DEFINE NEW SHARED VARIABLE LvOutputSelection AS CHARACTER NO-UNDO.
 
-DEF VAR v-fgpostgl AS CHAR NO-UNDO.
-def var v-fg-value as dec format "->,>>>,>>9.99".
-def var v-msf as dec format ">,>>9.999" extent 6.
-DEF VAR is-xprint-form AS LOG NO-UNDO.
-DEF NEW SHARED var v-print-fmt  as char NO-UNDO.
-DEF VAR ls-fax-file AS CHAR NO-UNDO.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
-DEF VAR lv-list-name LIKE list-name EXTENT 2 NO-UNDO.
-DEF VAR t-setup AS LOG NO-UNDO.
-DEF VAR lInvFrt AS LOG NO-UNDO.
-DEF VAR dBillAmt AS DECIMAL NO-UNDO.
-DEF VAR lEmailBol AS LOG NO-UNDO.
-DEF VAR ll AS LOG NO-UNDO.
+DEFINE VARIABLE v-fgpostgl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-fg-value AS DECIMAL FORMAT "->,>>>,>>9.99".
+DEFINE VARIABLE v-msf AS DECIMAL FORMAT ">,>>9.999" EXTENT 6.
+DEFINE VARIABLE is-xprint-form AS LOG NO-UNDO.
+DEFINE NEW SHARED VARIABLE v-print-fmt  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
+DEFINE VARIABLE fg-uom-list AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-list-name LIKE list-name EXTENT 2 NO-UNDO.
+DEFINE VARIABLE t-setup AS LOG NO-UNDO.
+DEFINE VARIABLE lInvFrt AS LOG NO-UNDO.
+DEFINE VARIABLE dBillAmt AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lEmailBol AS LOG NO-UNDO.
+DEFINE VARIABLE ll AS LOG NO-UNDO.
 
 DEFINE VARIABLE gv-fgemail AS LOGICAL NO-UNDO INIT ?.
-DEFINE NEW SHARED VARIABLE cShipTO AS CHAR NO-UNDO .
+DEFINE NEW SHARED VARIABLE cShipTO AS CHARACTER NO-UNDO .
 
-DEF NEW SHARED TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
+DEFINE NEW SHARED TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
     FIELD row-id   AS ROWID
     FIELD has-rec  AS LOG INIT NO
     FIELD invoiced AS LOG INIT NO
-    FIELD old-tag AS CHAR
-    FIELD ret-loc AS CHAR
-    FIELD ret-loc-bin AS CHAR 
-    FIELD blank-cust AS CHAR .
+    FIELD old-tag AS CHARACTER
+    FIELD ret-loc AS CHARACTER
+    FIELD ret-loc-bin AS CHARACTER 
+    FIELD blank-cust AS CHARACTER .
 
-DEF TEMP-TABLE tt-email NO-UNDO 
+DEFINE TEMP-TABLE tt-email NO-UNDO 
     FIELD tt-recid AS RECID
     FIELD job-no LIKE job-hdr.job-no
     FIELD job-no2 LIKE job-hdr.job-no2
     FIELD i-no LIKE itemfg.i-no
-    FIELD qty AS INT
+    FIELD qty AS INTEGER
     FIELD cust-no AS cha
     INDEX tt-cust IS PRIMARY cust-no DESCENDING .
 
@@ -81,14 +81,14 @@ DEFINE TEMP-TABLE tt-fgemail NO-UNDO
     FIELD i-no    LIKE itemfg.i-no
     FIELD po-no   LIKE oe-ordl.po-no
     FIELD ord-no  LIKE oe-ordl.ord-no
-    FIELD qty-rec AS DEC
-    FIELD recipient AS CHAR.
+    FIELD qty-rec AS DECIMAL
+    FIELD recipient AS CHARACTER.
 
-DEF TEMP-TABLE tt-posted-items
+DEFINE TEMP-TABLE tt-posted-items
     FIELD i-no LIKE w-fg-rctd.i-no
     INDEX i-no i-no.
 
-DEF TEMP-TABLE tt-set
+DEFINE TEMP-TABLE tt-set
     FIELD part-no LIKE fg-set.part-no
     INDEX i1 part-no.
 
@@ -101,19 +101,19 @@ DEF TEMP-TABLE tt-set
 {fg/invrecpt.i NEW}
 
 {sys/ref/fgoecost.i}
-DEF TEMP-TABLE tt-inv LIKE w-inv.
+DEFINE TEMP-TABLE tt-inv LIKE w-inv.
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
-DEF STREAM st-email.
-DEF STREAM logFile.
-DEF STREAM before.
-DEF STREAM after.
+DEFINE STREAM st-email.
+DEFINE STREAM logFile.
+DEFINE STREAM before.
+DEFINE STREAM after.
 
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 DEFINE STREAM excel.
 
 DEFINE BUFFER b-fg-rctd FOR fg-rctd.
-DEF BUFFER b2-fg-rctd FOR fg-rctd.
+DEFINE BUFFER b2-fg-rctd FOR fg-rctd.
 
 {sys/inc/ssfgretc.i}
 
@@ -123,47 +123,47 @@ END.
 
 {oerep/r-loadtg.i NEW}  /*w-ord for loadtag reprint */
 
-DEF VAR lvReturnChar AS CHAR NO-UNDO.
-DEF VAR lvFound AS LOG NO-UNDO.
-DEF VAR autofgissue-log AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lvReturnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lvFound AS LOG NO-UNDO.
+DEFINE VARIABLE autofgissue-log AS LOGICAL NO-UNDO.
 
-RUN sys/ref/nk1look.p (cocode, "AUTOFGISSUE", "L", no, no, "", "", 
-    Output lvReturnChar, output lvFound).
+RUN sys/ref/nk1look.p (cocode, "AUTOFGISSUE", "L", NO, NO, "", "", 
+    OUTPUT lvReturnChar, OUTPUT lvFound).
 IF lvFound THEN
     autofgissue-log = LOGICAL(lvReturnChar).
 
-DEF VAR v-loadtag AS cha INIT "ASI" NO-UNDO.
-DEF VAR v-mult AS INT NO-UNDO.
-DEF VAR v-cas-lab AS LOG NO-UNDO.
-DEF VAR v-tags AS DEC NO-UNDO.
-def var form_fid        as char no-undo initial "barcode.frm" FORMAT "X(40)".
-def var form#           as int  no-undo format "9" initial 3.
-def var n               as int no-undo initial 0.
-def var char_units      as char no-undo.
-def var copy_count      as int no-undo initial 2.
-DEF var v-out AS char FORMAT "x(40)" NO-UNDO.
+DEFINE VARIABLE v-loadtag AS cha INIT "ASI" NO-UNDO.
+DEFINE VARIABLE v-mult AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-cas-lab AS LOG NO-UNDO.
+DEFINE VARIABLE v-tags AS DECIMAL NO-UNDO.
+DEFINE VARIABLE form_fid        AS CHARACTER NO-UNDO INITIAL "barcode.frm" FORMAT "X(40)".
+DEFINE VARIABLE form#           AS INTEGER  NO-UNDO FORMAT "9" INITIAL 3.
+DEFINE VARIABLE n               AS INTEGER NO-UNDO INITIAL 0.
+DEFINE VARIABLE char_units      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE copy_count      AS INTEGER NO-UNDO INITIAL 2.
+DEFINE VARIABLE v-out AS CHARACTER FORMAT "x(40)" NO-UNDO.
 
-def stream s-form.
-def stream s-bar.
-DEF var v-po-no-source AS char FORMAT "!" init "R".
+DEFINE STREAM s-form.
+DEFINE STREAM s-bar.
+DEFINE VARIABLE v-po-no-source AS CHARACTER FORMAT "!" INIT "R".
 
-def var stx as char format 'x(01)' no-undo initial "~002".
-def var etx as char format 'x(01)' no-undo initial "~003".
-def var esc as char format 'x(01)' no-undo initial "~033".
-def var etb as char format 'x(01)' no-undo initial "~027".
-def var cr  as char format 'x(01)' no-undo initial "~015".
-def var can as char format 'x(01)' no-undo initial "~030".
-def var rs  as char format 'x(01)' no-undo initial "~036".
-def var us  as char format 'x(01)' no-undo initial "~037".
-DEF VAR tb_16ths AS LOG NO-UNDO.
-DEF BUFFER ref-lot-no FOR reftable.
-DEF VAR SSLoadTag-log AS LOGICAL NO-UNDO.
-DEF VAR lv-pdf-file     AS CHAR NO-UNDO.
+DEFINE VARIABLE stx AS CHARACTER FORMAT 'x(01)' NO-UNDO INITIAL "~002".
+DEFINE VARIABLE etx AS CHARACTER FORMAT 'x(01)' NO-UNDO INITIAL "~003".
+DEFINE VARIABLE esc AS CHARACTER FORMAT 'x(01)' NO-UNDO INITIAL "~033".
+DEFINE VARIABLE etb AS CHARACTER FORMAT 'x(01)' NO-UNDO INITIAL "~027".
+DEFINE VARIABLE cr  AS CHARACTER FORMAT 'x(01)' NO-UNDO INITIAL "~015".
+DEFINE VARIABLE can AS CHARACTER FORMAT 'x(01)' NO-UNDO INITIAL "~030".
+DEFINE VARIABLE rs  AS CHARACTER FORMAT 'x(01)' NO-UNDO INITIAL "~036".
+DEFINE VARIABLE us  AS CHARACTER FORMAT 'x(01)' NO-UNDO INITIAL "~037".
+DEFINE VARIABLE tb_16ths AS LOG NO-UNDO.
+DEFINE BUFFER ref-lot-no FOR reftable.
+DEFINE VARIABLE SSLoadTag-log AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lv-pdf-file     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "15" NO-UNDO.
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" NO-UNDO .
 
-RUN sys/ref/nk1look.p (cocode, "SSLoadTag", "L", no, no, "", "", 
-    Output lvReturnChar, output lvFound).
+RUN sys/ref/nk1look.p (cocode, "SSLoadTag", "L", NO, NO, "", "", 
+    OUTPUT lvReturnChar, OUTPUT lvFound).
 IF lvFound THEN
     SSLoadTag-log = LOGICAL(lvReturnChar).
 FIND FIRST sys-ctrl
@@ -171,20 +171,20 @@ FIND FIRST sys-ctrl
         AND sys-ctrl.name    EQ "CEMENU"
       NO-LOCK NO-ERROR.
   ASSIGN
-   tb_16ths  = AVAIL sys-ctrl AND sys-ctrl.char-fld EQ "Corrware".
-DEF VAR v-uid-sec AS LOG NO-UNDO.
-DEF VAR v-access-close AS LOG NO-UNDO.
-DEF VAR v-access-list AS CHAR NO-UNDO.
-DEF VAR v-source-handle AS HANDLE NO-UNDO.
+   tb_16ths  = AVAILABLE sys-ctrl AND sys-ctrl.char-fld EQ "Corrware".
+DEFINE VARIABLE v-uid-sec AS LOG NO-UNDO.
+DEFINE VARIABLE v-access-close AS LOG NO-UNDO.
+DEFINE VARIABLE v-access-list AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-source-handle AS HANDLE NO-UNDO.
 /*DEFINE VARIABLE v-print-fmt     as char NO-UNDO.*/
-DEFINE  VAR v-program       AS CHAR NO-UNDO.
-DEF VAR lv-prt-bypass     AS LOG NO-UNDO.  /* bypass window's printer driver */
-DEF VAR ip-run-what AS CHAR NO-UNDO .
+DEFINE  VARIABLE v-program       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-prt-bypass     AS LOG NO-UNDO.  /* bypass window's printer driver */
+DEFINE VARIABLE ip-run-what AS CHARACTER NO-UNDO .
 {custom/xprint.i}
 
 /* Invstatus to determine invoice status when created  */
-RUN sys/ref/nk1look.p (cocode, "BOLFMTTran", "C", no, no, "", "", 
-                      Output v-print-fmt, output lvFound).
+RUN sys/ref/nk1look.p (cocode, "BOLFMTTran", "C", NO, NO, "", "", 
+                      OUTPUT v-print-fmt, OUTPUT lvFound).
 
 /* Check if authorized to create PO's */
 RUN methods/prgsecur.p
@@ -265,7 +265,7 @@ FUNCTION removeChars RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
@@ -299,7 +299,7 @@ DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 71 BY 6.43.
 
-DEFINE VARIABLE td-post-trans AS LOGICAL INITIAL yes 
+DEFINE VARIABLE td-post-trans AS LOGICAL INITIAL YES 
      LABEL "Post Transfer?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -309,10 +309,10 @@ DEFINE VARIABLE td-post-trans AS LOGICAL INITIAL yes
 
 DEFINE FRAME FRAME-A
      trans_panding AT ROW 3.38 COL 12.2 COLON-ALIGNED HELP
-          "Enter the From FG Item Number" NO-LABEL WIDGET-ID 38
+          "Enter the From FG Item Number" NO-LABELS WIDGET-ID 38
      begins_ship-no AT ROW 5.29 COL 32.8 COLON-ALIGNED HELP
           "Enter the From FG Item Number"
-     rd-dest AT ROW 7.91 COL 10.2 NO-LABEL
+     rd-dest AT ROW 7.91 COL 10.2 NO-LABELS
      td-post-trans AT ROW 9.86 COL 38
      Btn_OK AT ROW 14.76 COL 18.4
      Btn_Cancel AT ROW 14.81 COL 53.4
@@ -353,15 +353,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 256
          VIRTUAL-HEIGHT     = 45.05
          VIRTUAL-WIDTH      = 256
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -389,7 +389,7 @@ ASSIGN
 ASSIGN  trans_panding:SENSITIVE IN FRAME FRAME-A =  FALSE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -444,13 +444,13 @@ DO:
 
     FIND FIRST cust WHERE cust.company = cocode AND
                      cust.active = "X" NO-LOCK NO-ERROR.
-    IF AVAIL cust THEN
+    IF AVAILABLE cust THEN
     FIND FIRST shipto NO-LOCK
         WHERE shipto.company EQ cocode
            AND shipto.ship-id EQ begins_ship-no:SCREEN-VALUE 
            AND shipto.cust-no EQ cust.cust-no NO-ERROR .
-    IF NOT AVAIL shipto THEN DO:
-        MESSAGE "Invalid ShipId, Try help..." VIEW-AS ALERT-BOX INFO BUTTONS OK .
+    IF NOT AVAILABLE shipto THEN DO:
+        MESSAGE "Invalid ShipId, Try help..." VIEW-AS ALERT-BOX INFORMATION BUTTONS OK .
         RETURN .
     END.
   END.
@@ -466,7 +466,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begins_ship-no C-Win
 ON HELP OF begins_ship-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
     FIND FIRST cust WHERE cust.company = cocode AND
                      cust.active = "X" NO-LOCK NO-ERROR.
 
@@ -483,7 +483,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -494,7 +494,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-post-trans C-Win
 ON VALUE-CHANGED OF td-post-trans IN FRAME FRAME-A /* Post Transfer? */
 DO:
-    assign {&self-name}.
+    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -505,7 +505,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begins_ship-no C-Win
 ON LEAVE OF begins_ship-no IN FRAME FRAME-A /* Beginning shipto */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 
 END.
 
@@ -520,12 +520,12 @@ END.
 
 IF ip-run-what EQ "" THEN DO:
   PROCEDURE mail EXTERNAL "xpMail.dll" :
-      DEF INPUT PARAM mailTo AS CHAR.
-      DEF INPUT PARAM mailsubject AS CHAR.
-      DEF INPUT PARAM mailText AS CHAR.
-      DEF INPUT PARAM mailFiles AS CHAR.
-      DEF INPUT PARAM mailDialog AS LONG.
-      DEF OUTPUT PARAM retCode AS LONG.
+      DEFINE INPUT PARAMETER mailTo AS CHARACTER.
+      DEFINE INPUT PARAMETER mailsubject AS CHARACTER.
+      DEFINE INPUT PARAMETER mailText AS CHARACTER.
+      DEFINE INPUT PARAMETER mailFiles AS CHARACTER.
+      DEFINE INPUT PARAMETER mailDialog AS LONG.
+      DEFINE OUTPUT PARAMETER retCode AS LONG.
  END.
 
   {sys/inc/f3helpw.i}   
@@ -599,32 +599,32 @@ PROCEDURE add-rel-assign-logic :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF INPUT PARAMETER ipr-rel-row AS ROWID NO-UNDO.
-DEF INPUT PARAMETER ipi-qty     AS INT   NO-UNDO.
-DEF VAR lv-rel-recid AS RECID NO-UNDO.
-DEF VAR adm-new-record AS LOG NO-UNDO.
-DEF BUFFER bf-oe-ordl FOR oe-ordl.
-DEF BUFFER bf-oe-ord FOR oe-ord.
-DEF BUFFER bf-oe-rel FOR oe-rel.
+ DEFINE INPUT PARAMETER ipr-rel-row AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipi-qty     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lv-rel-recid AS RECID NO-UNDO.
+DEFINE VARIABLE adm-new-record AS LOG NO-UNDO.
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+DEFINE BUFFER bf-oe-ord FOR oe-ord.
+DEFINE BUFFER bf-oe-rel FOR oe-rel.
 
 /* custom code */
-DEF BUFFER s-code FOR reftable.
-DEF VAR lv-stat AS CHAR NO-UNDO.
+DEFINE BUFFER s-code FOR reftable.
+DEFINE VARIABLE lv-stat AS CHARACTER NO-UNDO.
 FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ipr-rel-row
                     NO-LOCK NO-ERROR.
-IF NOT AVAIL bf-oe-rel THEN
+IF NOT AVAILABLE bf-oe-rel THEN
     RETURN.
 lv-rel-recid = RECID(bf-oe-rel).
 
  /* Local assign code from oe/b-ordrel.w, local-assign */
-  def var ll-ans as log no-undo.
-  def var ldt-ship as date form "99/99/9999" no-undo.
-  def buffer bf-rel for oe-rel .
-  def var ld-prev-rel-qty as int no-undo.
-  def var v-qty-sum as int no-undo.
-  DEF VAR ls-key-02 LIKE tt-report.key-02 NO-UNDO.
+  DEFINE VARIABLE ll-ans AS LOG NO-UNDO.
+  DEFINE VARIABLE ldt-ship AS DATE FORM "99/99/9999" NO-UNDO.
+  DEFINE BUFFER bf-rel FOR oe-rel .
+  DEFINE VARIABLE ld-prev-rel-qty AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-qty-sum AS INTEGER NO-UNDO.
+  DEFINE VARIABLE ls-key-02 LIKE tt-report.key-02 NO-UNDO.
 
-  DEF BUFFER b-ordl FOR oe-ordl.
+  DEFINE BUFFER b-ordl FOR oe-ordl.
   
 
   FIND FIRST bf-oe-ordl WHERE bf-oe-ordl.company EQ bf-oe-rel.company
@@ -632,11 +632,11 @@ lv-rel-recid = RECID(bf-oe-rel).
                        AND bf-oe-ordl.LINE    EQ bf-oe-rel.LINE
                      NO-LOCK NO-ERROR.
   /* Code placed here will execute PRIOR to standard behavior. */
-  if not avail bf-oe-rel and lv-rel-recid <> ? then
-     find bf-oe-rel where recid(bf-oe-rel) = lv-rel-recid.
-  ld-prev-rel-qty = if adm-new-record then 0 else bf-oe-rel.qty.
+  IF NOT AVAILABLE bf-oe-rel AND lv-rel-recid <> ? THEN
+     FIND bf-oe-rel WHERE RECID(bf-oe-rel) = lv-rel-recid.
+  ld-prev-rel-qty = IF adm-new-record THEN 0 ELSE bf-oe-rel.qty.
   
-  find bf-oe-ord of bf-oe-ordl no-lock.
+  FIND bf-oe-ord OF bf-oe-ordl NO-LOCK.
 
 
 
@@ -657,30 +657,30 @@ PROCEDURE add-rel-for-qty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER ipr-rel-row AS ROWID NO-UNDO.
-DEF INPUT PARAMETER ipi-qty     AS INT   NO-UNDO.
+DEFINE INPUT PARAMETER ipr-rel-row AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipi-qty     AS INTEGER   NO-UNDO.
 
 
-DEF BUFFER bf-oe-ordl FOR oe-ordl.
-DEF BUFFER bf-oe-ord  FOR oe-ord.
-DEF BUFFER bf-orig-oe-rel FOR oe-rel.
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+DEFINE BUFFER bf-oe-ord  FOR oe-ord.
+DEFINE BUFFER bf-orig-oe-rel FOR oe-rel.
 
 /* Code added to implement the procedure below */
-DEF VAR v-last-shipto AS CHAR.
-DEF VAR lv-rel-recid AS RECID.
-DEF BUFFER s-code FOR reftable.
-DEF VAR lv-cust-x AS CHAR.
+DEFINE VARIABLE v-last-shipto AS CHARACTER.
+DEFINE VARIABLE lv-rel-recid AS RECID.
+DEFINE BUFFER s-code FOR reftable.
+DEFINE VARIABLE lv-cust-x AS CHARACTER.
 
-def var oereleas-log like sys-ctrl.log-fld no-undo.
-def var oereleas-cha like sys-ctrl.char-fld no-undo.
+DEFINE VARIABLE oereleas-log LIKE sys-ctrl.log-fld NO-UNDO.
+DEFINE VARIABLE oereleas-cha LIKE sys-ctrl.char-fld NO-UNDO.
 
 
-find first sys-ctrl
-    where sys-ctrl.company eq cocode
-      and sys-ctrl.name    eq "OERELEAS"
-    no-lock no-error.
-IF AVAIL sys-ctrl THEN
-assign
+FIND FIRST sys-ctrl
+    WHERE sys-ctrl.company EQ cocode
+      AND sys-ctrl.name    EQ "OERELEAS"
+    NO-LOCK NO-ERROR.
+IF AVAILABLE sys-ctrl THEN
+ASSIGN
  oereleas-log = sys-ctrl.log-fld
  oereleas-cha = sys-ctrl.char-fld.
 
@@ -689,7 +689,7 @@ assign
 FIND bf-orig-oe-rel WHERE ROWID(bf-orig-oe-rel) EQ ipr-rel-row
                     NO-LOCK NO-ERROR.
 
-IF NOT AVAIL bf-orig-oe-rel THEN
+IF NOT AVAILABLE bf-orig-oe-rel THEN
     RETURN.
 FIND FIRST bf-oe-ordl WHERE bf-oe-ordl.company EQ bf-orig-oe-rel.company
                         AND bf-oe-ordl.ord-no  EQ bf-orig-oe-rel.ord-no
@@ -701,80 +701,80 @@ IF NOT AVAIL(bf-oe-ordl) THEN
 FIND bf-oe-ord WHERE bf-oe-ord.company EQ bf-oe-ordl.company
                  AND bf-oe-ord.ord-no  EQ bf-oe-ordl.ord-no
                NO-LOCK NO-ERROR.
-IF NOT AVAIL bf-oe-ord THEN
+IF NOT AVAILABLE bf-oe-ord THEN
     RETURN.
 
 
 /* Code from oe/b-ordrel.w, local-create */
-  def var v-qty-sum as int no-undo.
-  def var v-nxt-r-no as int no-undo.
-  def var v-lst-rel as date INIT TODAY no-undo.
-  def var v-pct-chg as dec no-undo.
-  def var v-ship-id like oe-rel.ship-id no-undo.
-  def var v-carrier like oe-rel.carrier no-undo.
-  def var v-num-shipto as int no-undo.
-  def var v-qty-mod as log no-undo.
-  def buffer bf-rel for oe-rel.
-  DEF BUFFER bf-cust FOR cust.
-  DEF VAR v-first-ship-id AS cha NO-UNDO.
+  DEFINE VARIABLE v-qty-sum AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-nxt-r-no AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-lst-rel AS DATE INIT TODAY NO-UNDO.
+  DEFINE VARIABLE v-pct-chg AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE v-ship-id LIKE oe-rel.ship-id NO-UNDO.
+  DEFINE VARIABLE v-carrier LIKE oe-rel.carrier NO-UNDO.
+  DEFINE VARIABLE v-num-shipto AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-qty-mod AS LOG NO-UNDO.
+  DEFINE BUFFER bf-rel FOR oe-rel.
+  DEFINE BUFFER bf-cust FOR cust.
+  DEFINE VARIABLE v-first-ship-id AS cha NO-UNDO.
   
 
   RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
   FIND FIRST bf-cust WHERE bf-cust.cust-no EQ bf-oe-ord.cust-no NO-LOCK NO-ERROR.
   ASSIGN
-    v-ship-id = IF AVAIL oe-rel THEN oe-rel.ship-id ELSE ""
-    v-carrier = IF AVAIL oe-rel THEN oe-rel.carrier ELSE ""
+    v-ship-id = IF AVAILABLE oe-rel THEN oe-rel.ship-id ELSE ""
+    v-carrier = IF AVAILABLE oe-rel THEN oe-rel.carrier ELSE ""
     .
   IF AVAIL(bf-cust) AND bf-cust.ACTIVE = "X" AND v-last-shipto GT "" THEN
       v-ship-id = v-last-shipto.
-  FIND first bf-rel where bf-rel.company = bf-oe-ord.company
-                       and bf-rel.ord-no = bf-oe-ord.ord-no
-                       and bf-rel.i-no = bf-oe-ordl.i-no 
-                       and bf-rel.LINE = bf-oe-ordl.LINE
+  FIND FIRST bf-rel WHERE bf-rel.company = bf-oe-ord.company
+                       AND bf-rel.ord-no = bf-oe-ord.ord-no
+                       AND bf-rel.i-no = bf-oe-ordl.i-no 
+                       AND bf-rel.LINE = bf-oe-ordl.LINE
                        NO-LOCK NO-ERROR.
-  v-first-ship-id = IF AVAIL bf-rel THEN bf-rel.ship-id ELSE "".
+  v-first-ship-id = IF AVAILABLE bf-rel THEN bf-rel.ship-id ELSE "".
 
 
-  lv-rel-recid = recid(oe-rel).
-  assign v-qty-sum  = 0.
+  lv-rel-recid = RECID(oe-rel).
+  ASSIGN v-qty-sum  = 0.
 
   CREATE oe-rel.
 
-  if avail bf-oe-ordl then do:
+  IF AVAILABLE bf-oe-ordl THEN DO:
 
      FIND FIRST bf-oe-ord OF bf-oe-ordl NO-LOCK.
-     for each bf-rel where bf-rel.company = bf-oe-ord.company
-                       and bf-rel.ord-no = bf-oe-ord.ord-no
-                       and bf-rel.i-no = bf-oe-ordl.i-no 
-                       and bf-rel.LINE = bf-oe-ordl.LINE
+     FOR EACH bf-rel WHERE bf-rel.company = bf-oe-ord.company
+                       AND bf-rel.ord-no = bf-oe-ord.ord-no
+                       AND bf-rel.i-no = bf-oe-ordl.i-no 
+                       AND bf-rel.LINE = bf-oe-ordl.LINE
                        NO-LOCK:
          FIND FIRST s-code
              WHERE s-code.reftable EQ "oe-rel.s-code"
                AND s-code.company  EQ STRING(bf-rel.r-no,"9999999999")
              NO-LOCK NO-ERROR.
-         IF NOT AVAIL s-code OR CAN-DO("B,S",s-code.code) THEN
+         IF NOT AVAILABLE s-code OR CAN-DO("B,S",s-code.code) THEN
            v-qty-sum = v-qty-sum + bf-rel.qty. 
-     end.
+     END.
      
 /*      if v-qty-sum GE bf-oe-ordl.qty + (bf-oe-ordl.qty * (bf-oe-ordl.over-pct / 100)) then */
 /*         message "Total Planned release quantity will exceed the Or" +                     */
 /*                         "der quantity + the Underrun %."                                  */
 /*                 view-as alert-box warning.                                                */
         
-     find first sys-ctrl where sys-ctrl.company eq cocode
-                          and sys-ctrl.name    eq "OECARIER"
-               no-lock no-error.
-     if not avail sys-ctrl then do:
-       create sys-ctrl.
-       assign sys-ctrl.company  = cocode
+     FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+                          AND sys-ctrl.name    EQ "OECARIER"
+               NO-LOCK NO-ERROR.
+     IF NOT AVAILABLE sys-ctrl THEN DO:
+       CREATE sys-ctrl.
+       ASSIGN sys-ctrl.company  = cocode
              sys-ctrl.name     = "OECARIER"
              sys-ctrl.descrip  = "Default carrier from Header or ShipTo:"
              sys-ctrl.char-fld = "ShipTo".       
-       do while true:
-          message "Default Shipping Carrier from Header or Shipto?" update sys-ctrl.char-fld.
-          if sys-ctrl.char-fld = "Header" or sys-ctrl.char-fld = "ShipTo" then leave. 
-       end.
-     end.
+       DO WHILE TRUE:
+          MESSAGE "Default Shipping Carrier from Header or Shipto?" UPDATE sys-ctrl.char-fld.
+          IF sys-ctrl.char-fld = "Header" OR sys-ctrl.char-fld = "ShipTo" THEN LEAVE. 
+       END.
+     END.
 
      RELEASE shipto.
 
@@ -784,7 +784,7 @@ IF NOT AVAIL bf-oe-ord THEN
            WHERE shipto.company EQ bf-oe-ord.company
              AND shipto.cust-no EQ bf-oe-ord.cust-no
              AND shipto.ship-id EQ v-ship-id NO-ERROR.
-           v-carrier = IF AVAIL shipto THEN shipto.carrier ELSE "".
+           v-carrier = IF AVAILABLE shipto THEN shipto.carrier ELSE "".
         END.
         ELSE IF sys-ctrl.char-fld EQ "Header" THEN v-carrier = bf-oe-ord.carrier.
      END.
@@ -801,9 +801,9 @@ IF NOT AVAIL bf-oe-ord THEN
 /*       IF shipto.ship-id EQ bf-oe-ord.cust-no OR LAST(shipto.ship-no) THEN LEAVE.     */
 /*     END.                                                                             */
 
-    IF v-carrier EQ "" AND AVAIL shipto THEN v-carrier = shipto.carrier.
+    IF v-carrier EQ "" AND AVAILABLE shipto THEN v-carrier = shipto.carrier.
      
-    assign oe-rel.company   = cocode
+    ASSIGN oe-rel.company   = cocode
            oe-rel.loc       = locode
            oe-rel.ord-no    = bf-orig-oe-rel.ord-no
            oe-rel.i-no      = bf-orig-oe-rel.i-no
@@ -832,7 +832,7 @@ IF NOT AVAIL bf-oe-ord THEN
            oe-rel.rel-date = bf-orig-oe-rel.rel-date.
 
      
-       assign oe-rel.ship-addr[1] = bf-orig-oe-rel.ship-addr[1]
+       ASSIGN oe-rel.ship-addr[1] = bf-orig-oe-rel.ship-addr[1]
               oe-rel.ship-city    = bf-orig-oe-rel.ship-city
               oe-rel.ship-state   = bf-orig-oe-rel.ship-state
               oe-rel.ship-zip     = bf-orig-oe-rel.ship-zip
@@ -848,16 +848,16 @@ IF NOT AVAIL bf-oe-ord THEN
          ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
        NO-ERROR.
   
-  IF AVAIL ref-lot-no THEN
+  IF AVAILABLE ref-lot-no THEN
     ASSIGN
        oe-rel.lot-no = ref-lot-no.CODE.
     
                        
-    if oe-rel.qty lt 0 then oe-rel.qty = 0.
+    IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
 
     oe-rel.tot-qty = oe-rel.qty.
 
-    if oe-rel.rel-date le v-lst-rel then oe-rel.rel-date = v-lst-rel + 1.
+    IF oe-rel.rel-date LE v-lst-rel THEN oe-rel.rel-date = v-lst-rel + 1.
 
 /*     if avail shipto then                                                                                */
 /*        assign oe-rel.ship-addr[1] = shipto.ship-addr[1]                                                 */
@@ -879,7 +879,7 @@ IF NOT AVAIL bf-oe-ord THEN
     RUN add-rel-assign-logic (INPUT ipr-rel-row, INPUT ipi-qty).
 
 /*     RUN create-report-record-1 (NO, oe-rel.rel-date). */
-  end.
+  END.
 
 /*   else do:                                                                     */
 /*     message " Order Line item record is not avail..." view-as alert-box error. */
@@ -898,8 +898,8 @@ PROCEDURE build-comp-tables :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF BUFFER bf-fg-rctd FOR fg-rctd.
-DEF BUFFER bf-w-fg-rctd FOR w-fg-rctd.
+DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+DEFINE BUFFER bf-w-fg-rctd FOR w-fg-rctd.
 
 /* Make sure all components are included in w-fg-rctd */
 FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "R":
@@ -914,10 +914,10 @@ FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "R":
             AND fg-set.company = w-fg-rctd.company NO-LOCK NO-ERROR.
       FIND fg-rctd WHERE fg-rctd.r-no EQ fg-rcpts.r-no
           NO-LOCK NO-ERROR.
-      IF AVAIL fg-rctd /* AND AVAIL fg-set */ THEN do:
+      IF AVAILABLE fg-rctd /* AND AVAIL fg-set */ THEN DO:
           FIND FIRST bf-w-fg-rctd WHERE bf-w-fg-rctd.row-id EQ ROWID(fg-rctd)
             NO-LOCK NO-ERROR.
-          IF NOT AVAIL bf-w-fg-rctd AND fg-rctd.rita-code EQ w-fg-rctd.rita-code THEN
+          IF NOT AVAILABLE bf-w-fg-rctd AND fg-rctd.rita-code EQ w-fg-rctd.rita-code THEN
             RUN build-tables.
       END.
     END.
@@ -935,7 +935,7 @@ FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "R":
             AND reftable.loc      EQ STRING(w-fg-rctd.r-no,"9999999999")
           NO-LOCK NO-ERROR.
     
-        IF AVAIL reftable THEN DO:
+        IF AVAILABLE reftable THEN DO:
             
             FOR EACH bf-fg-rctd 
                   WHERE bf-fg-rctd.company EQ w-fg-rctd.company
@@ -947,15 +947,15 @@ FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "R":
                     WHERE reftable.reftable EQ "fg-rctd.user-id"
                       AND reftable.company  EQ bf-fg-rctd.company
                       AND reftable.loc      EQ STRING(bf-fg-rctd.r-no,"9999999999")        
-                      AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr begins "fg-rctd: ")  
+                      AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr BEGINS "fg-rctd: ")  
                     USE-INDEX loc   NO-LOCK .
     
                   FIND fg-rctd WHERE ROWID(fg-rctd) EQ ROWID(bf-fg-rctd)
                       NO-LOCK NO-ERROR.
-                  IF AVAIL fg-rctd AND fg-rctd.rita-code NE "P" THEN DO:
+                  IF AVAILABLE fg-rctd AND fg-rctd.rita-code NE "P" THEN DO:
                       FIND FIRST bf-w-fg-rctd WHERE bf-w-fg-rctd.row-id EQ ROWID(fg-rctd)
                           NO-LOCK NO-ERROR.
-                      IF NOT AVAIL bf-w-fg-rctd AND fg-rctd.rita-code EQ w-fg-rctd.rita-code THEN
+                      IF NOT AVAILABLE bf-w-fg-rctd AND fg-rctd.rita-code EQ w-fg-rctd.rita-code THEN
                         RUN build-tables.
                   END.
                       
@@ -978,14 +978,14 @@ PROCEDURE build-tables :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/  
-DEF VAR li-max-qty AS INT NO-UNDO.
-def var v-part-qty as dec no-undo.
-def var v-set-qty as dec no-undo.
-DEF VAR v-cost AS DEC NO-UNDO.
+DEFINE VARIABLE li-max-qty AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-part-qty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-set-qty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-cost AS DECIMAL NO-UNDO.
 
-DEF BUFFER b-fg-rctd FOR fg-rctd.
-DEF BUFFER b-itemfg FOR itemfg.
-DEF BUFFER use-job FOR reftable.
+DEFINE BUFFER b-fg-rctd FOR fg-rctd.
+DEFINE BUFFER b-itemfg FOR itemfg.
+DEFINE BUFFER use-job FOR reftable.
 
 FIND FIRST itemfg
     WHERE itemfg.company EQ cocode
@@ -994,7 +994,7 @@ FIND FIRST itemfg
 FIND FIRST loc WHERE loc.company EQ itemfg.company
     AND loc.loc = itemfg.loc
   NO-LOCK NO-ERROR.
-IF AVAIL itemfg /*AND AVAIL loc*/ THEN DO TRANSACTION:
+IF AVAILABLE itemfg /*AND AVAIL loc*/ THEN DO TRANSACTION:
   li-max-qty = fg-rctd.t-qty.
 
   IF li-max-qty GE fg-rctd.t-qty THEN DO:
@@ -1026,38 +1026,38 @@ PROCEDURE calc-partial :
 ------------------------------------------------------------------------------*/
     
     /*find first item finished goods based on the item number*/
-    find first itemfg
-        where itemfg.company eq cocode
-          and itemfg.i-no    eq w-fg-rctd.i-no
-        use-index i-no no-lock no-error.
+    FIND FIRST itemfg
+        WHERE itemfg.company EQ cocode
+          AND itemfg.i-no    EQ w-fg-rctd.i-no
+        USE-INDEX i-no NO-LOCK NO-ERROR.
         
-    if avail itemfg then do:
-      find first uom
-          where uom.uom  eq itemfg.sell-uom
-            and uom.mult ne 0
-          no-lock no-error.
+    IF AVAILABLE itemfg THEN DO:
+      FIND FIRST uom
+          WHERE uom.uom  EQ itemfg.sell-uom
+            AND uom.mult NE 0
+          NO-LOCK NO-ERROR.
           
-      if itemfg.sell-uom begins "L" then
+      IF itemfg.sell-uom BEGINS "L" THEN
         v-fg-value = 0.
 
-      else
-      if itemfg.sell-uom eq "CS" then
+      ELSE
+      IF itemfg.sell-uom EQ "CS" THEN
         v-fg-value = 0.
 
-      else
-      if avail uom then
+      ELSE
+      IF AVAILABLE uom THEN
         v-fg-value = itemfg.sell-price * w-fg-rctd.partial / uom.mult.
 
-      else
+      ELSE
         v-fg-value = itemfg.sell-price * w-fg-rctd.partial / 1000.
 
-      if w-fg-rctd.rita-code eq "R" then do:
-        if v-msf[1] gt w-fg-rctd.partial * itemfg.t-sqft then
+      IF w-fg-rctd.rita-code EQ "R" THEN DO:
+        IF v-msf[1] GT w-fg-rctd.partial * itemfg.t-sqft THEN
           v-msf[2] = v-msf[2] + (v-msf[1] - (w-fg-rctd.partial * itemfg.t-sqft)).
 
         v-msf[1] = w-fg-rctd.partial * itemfg.t-sqft.
-      end.
-    end. /* avail */
+      END.
+    END. /* avail */
 
 END PROCEDURE.
 
@@ -1073,38 +1073,38 @@ PROCEDURE calc-total :
 ------------------------------------------------------------------------------*/
     
     /*find first item finished goods based on the item number*/
-    find first itemfg
-        where itemfg.company eq cocode
-          and itemfg.i-no    eq w-fg-rctd.i-no
-        use-index i-no no-lock no-error.
+    FIND FIRST itemfg
+        WHERE itemfg.company EQ cocode
+          AND itemfg.i-no    EQ w-fg-rctd.i-no
+        USE-INDEX i-no NO-LOCK NO-ERROR.
         
-    if avail itemfg then do:
-      find first uom
-          where uom.uom  eq itemfg.sell-uom
-            and uom.mult ne 0
-          no-lock no-error.
+    IF AVAILABLE itemfg THEN DO:
+      FIND FIRST uom
+          WHERE uom.uom  EQ itemfg.sell-uom
+            AND uom.mult NE 0
+          NO-LOCK NO-ERROR.
 
-      if itemfg.sell-uom begins "L" then
+      IF itemfg.sell-uom BEGINS "L" THEN
         v-fg-value = itemfg.sell-price * IF w-fg-rctd.t-qty LT 0 THEN -1 ELSE 1.
 
-      else
-      if itemfg.sell-uom eq "CS" then
+      ELSE
+      IF itemfg.sell-uom EQ "CS" THEN
         v-fg-value = itemfg.sell-price * w-fg-rctd.cases.
 
-      else
-      if avail uom then
+      ELSE
+      IF AVAILABLE uom THEN
         v-fg-value = itemfg.sell-price * ((w-fg-rctd.cases * w-fg-rctd.qty-case) / uom.mult).
 
-      else
+      ELSE
         v-fg-value = itemfg.sell-price * ((w-fg-rctd.cases * w-fg-rctd.qty-case) / 1000).
 
-      if w-fg-rctd.rita-code eq "R" then do:
-        if v-msf[1] gt w-fg-rctd.t-qty * itemfg.t-sqft then
+      IF w-fg-rctd.rita-code EQ "R" THEN DO:
+        IF v-msf[1] GT w-fg-rctd.t-qty * itemfg.t-sqft THEN
           v-msf[2] = v-msf[2] + (v-msf[1] - ((w-fg-rctd.cases * w-fg-rctd.qty-case) * itemfg.t-sqft)).
 
         v-msf[1] = (w-fg-rctd.cases * w-fg-rctd.qty-case) * itemfg.t-sqft.
-      end.
-    end. /* avail itemfg */
+      END.
+    END. /* avail itemfg */
 
 END PROCEDURE.
 
@@ -1158,8 +1158,8 @@ PROCEDURE create-loadtag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF INPUT-OUTPUT PARAM io-tag-no AS INT NO-UNDO.
-  DEF INPUT PARAM ip-total-unit LIKE w-ord.total-unit NO-UNDO.
+ DEFINE INPUT-OUTPUT PARAMETER io-tag-no AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ip-total-unit LIKE w-ord.total-unit NO-UNDO.
 
 END PROCEDURE.
 
@@ -1173,18 +1173,18 @@ PROCEDURE create-phy-count-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR lv-rno AS INT NO-UNDO.
+   DEFINE VARIABLE lv-rno AS INTEGER NO-UNDO.
 
-   DEF BUFFER b-fg-bin FOR fg-bin.
+   DEFINE BUFFER b-fg-bin FOR fg-bin.
 
    CREATE b2-fg-rctd.
 
    FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
-   IF AVAIL b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN
+   IF AVAILABLE b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN
       lv-rno = b-fg-rctd.r-no.
 
    FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
-   IF AVAIL fg-rcpth AND fg-rcpth.r-no GT lv-rno THEN
+   IF AVAILABLE fg-rcpth AND fg-rcpth.r-no GT lv-rno THEN
       lv-rno = fg-rcpth.r-no.
 
    DO WHILE TRUE:
@@ -1204,12 +1204,12 @@ PROCEDURE create-phy-count-proc :
          w-fg-rctd.std-cost = 0
          w-fg-rctd.ext-cost = 0.
 
-   assign
+   ASSIGN
       b2-fg-rctd.company = cocode
       b2-fg-rctd.r-no    = lv-rno
       b2-fg-rctd.rita-code = "C"
       b2-fg-rctd.s-num = 0
-      b2-fg-rctd.rct-date = today
+      b2-fg-rctd.rct-date = TODAY
       b2-fg-rctd.trans-time = TIME 
       b2-fg-rctd.tag = w-fg-rctd.old-tag
       b2-fg-rctd.loc = w-fg-rctd.ret-loc
@@ -1246,7 +1246,7 @@ PROCEDURE create-phy-count-proc :
         AND b-fg-bin.cust-no EQ b2-fg-rctd.cust-no
       NO-LOCK NO-ERROR.
 
-  IF AVAIL b-fg-bin THEN
+  IF AVAILABLE b-fg-bin THEN
      ASSIGN
         b2-fg-rctd.ext-cost = b2-fg-rctd.t-qty /
                            (IF b-fg-bin.pur-uom EQ "M" THEN 1000 ELSE 1) *
@@ -1263,7 +1263,7 @@ PROCEDURE create-phy-count-proc :
         loadtag.tag-no = b2-fg-rctd.tag
         NO-LOCK NO-ERROR.
         
-   IF AVAIL loadtag  AND
+   IF AVAILABLE loadtag  AND
       CAN-FIND(FIRST fg-bin WHERE
       fg-bin.company EQ cocode AND
       fg-bin.i-no    EQ b2-fg-rctd.i-no AND
@@ -1291,30 +1291,30 @@ PROCEDURE create-text-file :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR i AS INT NO-UNDO.
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lv-text AS cha NO-UNDO.
-  DEF VAR v-dept-note AS cha FORM "x(80)" EXTENT 18 NO-UNDO.
-  DEF VAR lv-middlesex-job AS CHAR FORMAT "x(9)" NO-UNDO.
-  DEF VAR lv-middlesex-po AS CHAR FORMAT "x(9)" NO-UNDO.
-  DEF VAR lv-tag-no AS INT NO-UNDO.
-  DEF VAR lv-how-many-tags AS INT NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-text AS cha NO-UNDO.
+  DEFINE VARIABLE v-dept-note AS cha FORM "x(80)" EXTENT 18 NO-UNDO.
+  DEFINE VARIABLE lv-middlesex-job AS CHARACTER FORMAT "x(9)" NO-UNDO.
+  DEFINE VARIABLE lv-middlesex-po AS CHARACTER FORMAT "x(9)" NO-UNDO.
+  DEFINE VARIABLE lv-tag-no AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-how-many-tags AS INTEGER NO-UNDO.
 
   /* gdm - 10160905*/
-  DEF VAR v-fgdsc1 LIKE itemfg.part-dscr1 NO-UNDO.
-  DEF VAR v-fgdsc2 LIKE itemfg.part-dscr2 NO-UNDO.
-  DEF VAR v-fgdsc3 LIKE itemfg.part-dscr3 NO-UNDO.
-  DEF VAR cRFIDTag AS cha NO-UNDO.
-  DEF var v-job AS char FORMAT "x(9)" NO-UNDO.
-  DEF VAR v-count AS INT NO-UNDO.
+  DEFINE VARIABLE v-fgdsc1 LIKE itemfg.part-dscr1 NO-UNDO.
+  DEFINE VARIABLE v-fgdsc2 LIKE itemfg.part-dscr2 NO-UNDO.
+  DEFINE VARIABLE v-fgdsc3 LIKE itemfg.part-dscr3 NO-UNDO.
+  DEFINE VARIABLE cRFIDTag AS cha NO-UNDO.
+  DEFINE VARIABLE v-job AS CHARACTER FORMAT "x(9)" NO-UNDO.
+  DEFINE VARIABLE v-count AS INTEGER NO-UNDO.
 
   FIND FIRST w-ord NO-ERROR.
 
   FIND FIRST sys-ctrl
-      WHERE sys-ctrl.company eq gcompany
-        AND sys-ctrl.name    eq "LOADTAG"
+      WHERE sys-ctrl.company EQ gcompany
+        AND sys-ctrl.name    EQ "LOADTAG"
       NO-LOCK NO-ERROR.
-  IF NOT AVAIL sys-ctrl THEN
+  IF NOT AVAILABLE sys-ctrl THEN
   DO TRANSACTION:
     CREATE sys-ctrl.
     ASSIGN
@@ -1333,44 +1333,44 @@ PROCEDURE create-text-file :
          v-tags    = sys-ctrl.dec-fld.
 
    IF v-loadtag = "TRIAD" THEN DO:
-        if form_fid > "" then do:   /* download the form file into the printer ~*/
-          input stream s-form from value(form_fid) no-echo.
-          _form: do while true:
-                readkey stream s-form.
-            if lastkey < 0 then leave _form.
-              put stream s-bar CONTROL chr(lastkey).
-          end.
-          input stream s-form close.
-        end.
+        IF form_fid > "" THEN DO:   /* download the form file into the printer ~*/
+          INPUT stream s-form from value(form_fid) no-echo.
+          _form: DO WHILE TRUE:
+                READKEY STREAM s-form.
+            IF LASTKEY < 0 THEN LEAVE _form.
+              PUT STREAM s-bar CONTROL CHR(LASTKEY).
+          END.
+          INPUT stream s-form close.
+        END.
 
         FOR EACH w-ord:
            v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
-           IF v-job BEGINS "-" or v-job = ? /* 9901 CAH */
-                THEN v-job = string(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
-           find first itemfg where itemfg.company = cocode
-                    and itemfg.i-no = w-ord.i-no no-lock no-error.
-        IF w-ord.total-tags gt -1 THEN DO:
+           IF v-job BEGINS "-" OR v-job = ? /* 9901 CAH */
+                THEN v-job = STRING(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
+           FIND FIRST itemfg WHERE itemfg.company = cocode
+                    AND itemfg.i-no = w-ord.i-no NO-LOCK NO-ERROR.
+        IF w-ord.total-tags GT -1 THEN DO:
           DO i = 1 TO (w-ord.total-tags + 1):
             /* select the form */
-            put stream s-bar control stx esc "E" string(form#) ",1" can etx.
+            PUT STREAM s-bar CONTROL stx esc "E" STRING(form#) ",1" can etx.
             /* 9901 CAH: done above ... 
             /* clear the variable data fields */
             put stream s-bar control stx can etx.
             */
-            char_units = (if i <= w-ord.total-tags 
-            then string(w-ord.total-unit) else "    ").  
-            def var char_date as char format 'x(10)' no-undo.
-            char_date = string(today,"99/99/9999").
+            char_units = (IF i <= w-ord.total-tags 
+            THEN STRING(w-ord.total-unit) ELSE "    ").  
+            DEFINE VARIABLE char_date AS CHARACTER FORMAT 'x(10)' NO-UNDO.
+            char_date = STRING(TODAY,"99/99/9999").
             /* 9901 CAH: Only room for 19 chars in the standard 48 pt font */
-            if length(w-ord.ship-name) > 19
-            then w-ord.ship-name = substring(w-ord.ship-name,1,19).
+            IF LENGTH(w-ord.ship-name) > 19
+            THEN w-ord.ship-name = SUBSTRING(w-ord.ship-name,1,19).
             
-            def var vcFGItem as char no-undo.
+            DEFINE VARIABLE vcFGItem AS CHARACTER NO-UNDO.
             vcFGItem = 
-                if avail itemfg then itemfg.i-no else w-ord.i-no.
-           do n = copy_count to 1 by -1:
+                IF AVAILABLE itemfg THEN itemfg.i-no ELSE w-ord.i-no.
+           DO n = copy_count TO 1 BY -1:
             /* send the variable data to the printer */
-            put stream s-bar unformatted
+            PUT STREAM s-bar UNFORMATTED
                 stx w-ord.cust-po-no    cr etx
                 stx w-ord.cust-po-no    cr etx
                 stx w-ord.cust-part-no  cr etx
@@ -1380,16 +1380,16 @@ PROCEDURE create-text-file :
                 stx char_date           cr etx
                 stx v-job               cr etx
                 stx w-ord.ord-qty       cr etx /* 9902 CAH was total-unit */
-                stx string(i)           cr etx /* 08.20 was n */
-                stx string(w-ord.total-tags + 1) cr etx /* 08.20 was copy_count */
+                stx STRING(i)           cr etx /* 08.20 was n */
+                stx STRING(w-ord.total-tags + 1) cr etx /* 08.20 was copy_count */
                 stx w-ord.ship-name     cr etx
                 stx vcFGItem            cr etx.
             /* issue the print command */    
-            put stream s-bar control     
+            PUT STREAM s-bar CONTROL     
                 stx rs "1" us "1" etb etx.
-           end.
-          end.   /* tag count loop */
-        end.  /* non zero */  
+           END.
+          END.   /* tag count loop */
+        END.  /* non zero */  
         END.    /* each w-ord */
       /*  {sys/inc/close.i "" "stream s-bar"} */
         OUTPUT CLOSE.
@@ -1431,9 +1431,9 @@ PROCEDURE create-text-file :
         v-fgdsc2 = ""
         v-fgdsc3 = "".
 
-        find first itemfg where itemfg.company eq cocode
-                            and itemfg.i-no    eq w-ord.i-no no-lock no-error.
-        if avail itemfg THEN DO:        
+        FIND FIRST itemfg WHERE itemfg.company EQ cocode
+                            AND itemfg.i-no    EQ w-ord.i-no NO-LOCK NO-ERROR.
+        IF AVAILABLE itemfg THEN DO:        
            ASSIGN w-ord.net-wt   = itemfg.weight-100 * w-ord.total-unit / 100
                   w-ord.sheet-wt = itemfg.weight-100 / 100 
                   w-ord.cust-part-no = itemfg.part-no.
@@ -1521,8 +1521,8 @@ PROCEDURE create-text-file :
                             FILL("0",6 - LENGTH(TRIM(lv-middlesex-po))) +
                             TRIM(lv-middlesex-po).
 
-        IF w-ord.total-tags gt 0 THEN DO:
-          lv-how-many-tags =  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 OR w-ord.total-tags = 1 THEN w-ord.total-tags
+        IF w-ord.total-tags GT 0 THEN DO:
+          lv-how-many-tags =  IF LOOKUP(v-loadtag,"SSLABEL,CentBox") > 0 OR w-ord.total-tags = 1 THEN w-ord.total-tags
                               ELSE (w-ord.total-tags - 1).
           DO i = 1 TO (lv-how-many-tags * w-ord.mult):
              /* loadtags generation */
@@ -1534,7 +1534,7 @@ PROCEDURE create-text-file :
              PUT UNFORMATTED "~""  removeChars(w-ord.cust-name)  "~","
               w-ord.ord-no  ","
               "~""  v-job  "~","
-              "~""  caps(removeChars(w-ord.i-no))  FORM "x(15)" "~","
+              "~""  CAPS(removeChars(w-ord.i-no))  FORM "x(15)" "~","
               "~""  removeChars(w-ord.cust-part-no) "~","
               "~""  removeChars(w-ord.cust-po-no)  "~","
               w-ord.pcs  ","
@@ -1605,7 +1605,7 @@ PROCEDURE create-text-file :
              IF LOOKUP(v-loadtag,"ASI,SSLABEL") GT 0 THEN DO:
                 
                 FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.
-                cRFIDTag = IF AVAIL rfidtag THEN rfidtag.rfidtag ELSE "".
+                cRFIDTag = IF AVAILABLE rfidtag THEN rfidtag.rfidtag ELSE "".
                 PUT UNFORMATTED "~"" SUBSTR(loadtag.tag-no,16,5) "~"," 
                                "~"" cRFIDTag "~"," .
              END.
@@ -1626,16 +1626,16 @@ PROCEDURE create-text-file :
 
              PUT SKIP.
 
-          end.
-          IF lookup(v-loadtag,"SSLABEL,CentBox") = 0 THEN
-          do v-count = 1 to w-ord.mult: /* for partial print */
+          END.
+          IF LOOKUP(v-loadtag,"SSLABEL,CentBox") = 0 THEN
+          DO v-count = 1 TO w-ord.mult: /* for partial print */
                 /* loadtags generation */
             /* IF v-count EQ 1 THEN RUN create-loadtag (INPUT-OUTPUT lv-tag-no, 0).
             */
              PUT UNFORMATTED "~""  removeChars(w-ord.cust-name)  "~","
               w-ord.ord-no  ","
               "~""  v-job  "~","
-              "~""  caps(removeChars(w-ord.i-no))  FORM "x(15)" "~","
+              "~""  CAPS(removeChars(w-ord.i-no))  FORM "x(15)" "~","
               "~""  removeChars(w-ord.cust-part-no)  "~","
               "~""  removeChars(w-ord.cust-po-no)  "~","
               w-ord.pcs  ","
@@ -1720,12 +1720,12 @@ PROCEDURE create-text-file :
                 "~"" removeChars(w-ord.lot) "~",".
 
              PUT SKIP.
-          end.
-        end.
-        delete w-ord.
-      end.
-      output close.
-    end.    /* NOT TRIAD */
+          END.
+        END.
+        DELETE w-ord.
+      END.
+      OUTPUT close.
+    END.    /* NOT TRIAD */
 
 
 END PROCEDURE.
@@ -1740,20 +1740,20 @@ PROCEDURE create-w-ord :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR lv-rel-date AS DATE NO-UNDO.
-   DEF BUFFER b-job FOR job.
-   DEF BUFFER b-job-hdr FOR job-hdr.
+   DEFINE VARIABLE lv-rel-date AS DATE NO-UNDO.
+   DEFINE BUFFER b-job FOR job.
+   DEFINE BUFFER b-job-hdr FOR job-hdr.
 
    FIND FIRST company WHERE company.company = loadtag.company NO-LOCK NO-ERROR.
    FIND FIRST itemfg WHERE itemfg.company = loadtag.company
                        AND itemfg.i-no = loadtag.i-no NO-LOCK NO-ERROR.
    FIND FIRST oe-ord WHERE oe-ord.company = loadtag.company
                        AND oe-ord.ord-no = loadtag.ord-no NO-LOCK NO-ERROR.
-   IF AVAIL oe-ord THEN 
+   IF AVAILABLE oe-ord THEN 
        FIND FIRST oe-ordl WHERE oe-ordl.company = loadtag.company
                            AND oe-ordl.ord-no = loadtag.ord-no
                            AND oe-ordl.i-no = loadtag.i-no NO-LOCK NO-ERROR.
-   IF AVAIL oe-ord AND AVAIL oe-ordl THEN DO:
+   IF AVAILABLE oe-ord AND AVAILABLE oe-ordl THEN DO:
 
       FIND FIRST cust WHERE cust.company = loadtag.company
                         AND cust.cust-no = oe-ord.cust-no NO-LOCK NO-ERROR.
@@ -1761,7 +1761,7 @@ PROCEDURE create-w-ord :
       FIND FIRST b-job NO-LOCK WHERE b-job.company = loadtag.company
                                  AND b-job.job-no  = loadtag.job-no
                                  AND b-job.job-no2 = loadtag.job-no2  NO-ERROR.
-      IF AVAIL b-job THEN
+      IF AVAILABLE b-job THEN
          FIND FIRST b-job-hdr WHERE b-job-hdr.company EQ b-job.company
                                 AND b-job-hdr.job     EQ b-job.job
                                 AND b-job-hdr.job-no  EQ b-job.job-no
@@ -1779,19 +1779,19 @@ PROCEDURE create-w-ord :
             w-ord.ord-qty      = loadtag.qty
             w-ord.po-no        = oe-ordl.po-no-po
             w-ord.i-name       = loadtag.i-name
-            w-ord.due-date     = if oe-ord.due-date ne ? then
+            w-ord.due-date     = IF oe-ord.due-date NE ? THEN
                                    oe-ord.due-date
-                                 else
-                                 if oe-ordl.req-date ne ? then
+                                 ELSE
+                                 IF oe-ordl.req-date NE ? THEN
                                    oe-ordl.req-date
-                                 else today
+                                 ELSE TODAY
             w-ord.est-no       = oe-ordl.est-no
             w-ord.form-no      = oe-ordl.form-no
             w-ord.vendor       = company.name
             w-ord.tare-wt      = 10
             w-ord.uom          = "EA"
-            w-ord.mult         = if cust.int-field[1] ne 0 then
-                                   cust.int-field[1] else v-mult
+            w-ord.mult         = IF cust.int-field[1] NE 0 THEN
+                                   cust.int-field[1] ELSE v-mult
             w-ord.dont-run-set = oe-ordl.is-a-component
             w-ord.ord-desc1    = oe-ordl.part-dscr1
             w-ord.ord-desc2    = oe-ordl.part-dscr2
@@ -1805,16 +1805,16 @@ PROCEDURE create-w-ord :
             w-ord.linenum      = oe-ordl.e-num
             w-ord.lot          = loadtag.misc-char[2].
 
-      IF AVAIL b-job-hdr THEN
+      IF AVAILABLE b-job-hdr THEN
          w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
-      IF AVAIL b-job THEN
+      IF AVAILABLE b-job THEN
          w-ord.due-date-job = IF b-job.due-date <> ? THEN STRING(b-job.due-date, "99/99/9999") ELSE "".
              
       RUN get-rel-info (OUTPUT w-ord.cust-po-no,
                         OUTPUT w-ord.rel-date,
                         OUTPUT w-ord.rel-lot#).
 
-      IF AVAIL itemfg THEN
+      IF AVAILABLE itemfg THEN
          ASSIGN w-ord.upc-no  = itemfg.upc-no
              w-ord.box-len = itemfg.l-score[50]
              w-ord.box-wid = itemfg.w-score[50]
@@ -1832,18 +1832,18 @@ PROCEDURE create-w-ord :
               style.style EQ w-ord.style
               NO-LOCK NO-ERROR.
 
-         IF AVAIL style THEN
+         IF AVAILABLE style THEN
          DO:
             w-ord.style-desc = style.dscr.
             RELEASE style.
          END.
       END.
 
-      FIND FIRST shipto WHERE shipto.company eq cocode
-            AND shipto.cust-no eq oe-ord.cust-no
-            AND shipto.ship-id eq oe-ord.cust-no
+      FIND FIRST shipto WHERE shipto.company EQ cocode
+            AND shipto.cust-no EQ oe-ord.cust-no
+            AND shipto.ship-id EQ oe-ord.cust-no
             USE-INDEX ship-id NO-LOCK NO-ERROR.
-      IF AVAIL shipto THEN
+      IF AVAILABLE shipto THEN
          ASSIGN
             w-ord.ship-name  = shipto.ship-name
             w-ord.ship-add1  = shipto.ship-add[1]
@@ -1852,14 +1852,14 @@ PROCEDURE create-w-ord :
             w-ord.ship-state = shipto.ship-state
             w-ord.ship-zip   = shipto.ship-zip.
 
-          IF NOT AVAIL eb AND AVAIL itemfg AND itemfg.est-no NE "" THEN
+          IF NOT AVAILABLE eb AND AVAILABLE itemfg AND itemfg.est-no NE "" THEN
           FIND FIRST eb
               WHERE eb.company  EQ itemfg.company
                 AND eb.est-no   EQ itemfg.est-no
                 AND eb.stock-no EQ itemfg.i-no
               NO-LOCK NO-ERROR.
 
-          IF AVAIL eb THEN
+          IF AVAILABLE eb THEN
             ASSIGN
              w-ord.flute  = eb.flute
              w-ord.test   = eb.test
@@ -1878,18 +1878,18 @@ PROCEDURE create-w-ord :
       FIND FIRST job NO-LOCK WHERE job.company = loadtag.company
                                AND job.job-no = loadtag.job-no
                                AND job.job-no2 = loadtag.job-no2  NO-ERROR.
-      IF AVAIL job THEN
+      IF AVAILABLE job THEN
          FIND FIRST job-hdr WHERE job-hdr.company EQ job.company
                 AND job-hdr.job     EQ job.job
                 AND job-hdr.job-no  EQ job.job-no
                 AND job-hdr.job-no2 EQ job.job-no2
                 AND job-hdr.i-no    EQ loadtag.i-no NO-LOCK NO-ERROR.
-      IF AVAIL job-hdr THEN DO:
+      IF AVAILABLE job-hdr THEN DO:
       
-         FIND FIRST cust WHERE cust.company eq cocode
-                          AND cust.cust-no eq job-hdr.cust-no NO-LOCK NO-ERROR.
-         FIND FIRST itemfg WHERE itemfg.company eq cocode
-                            AND itemfg.i-no    eq job-hdr.i-no NO-LOCK NO-ERROR.
+         FIND FIRST cust WHERE cust.company EQ cocode
+                          AND cust.cust-no EQ job-hdr.cust-no NO-LOCK NO-ERROR.
+         FIND FIRST itemfg WHERE itemfg.company EQ cocode
+                            AND itemfg.i-no    EQ job-hdr.i-no NO-LOCK NO-ERROR.
          
          CREATE w-ord.
          ASSIGN
@@ -1906,11 +1906,11 @@ PROCEDURE create-w-ord :
             w-ord.vendor       = company.name
             w-ord.tare-wt      = 10
             w-ord.uom          = "EA"
-            w-ord.mult         = if cust.int-field[1] ne 0 then
-                                   cust.int-field[1] else v-mult
+            w-ord.mult         = IF cust.int-field[1] NE 0 THEN
+                                   cust.int-field[1] ELSE v-mult
             w-ord.lot          = loadtag.misc-char[2].
 
-          IF AVAIL itemfg THEN
+          IF AVAILABLE itemfg THEN
              ASSIGN
                 w-ord.cust-part-no = itemfg.part-no
                 w-ord.style        = itemfg.style
@@ -1928,7 +1928,7 @@ PROCEDURE create-w-ord :
                   style.style EQ w-ord.style
                   NO-LOCK NO-ERROR.
 
-             IF AVAIL style THEN
+             IF AVAILABLE style THEN
              DO:
                 w-ord.style-desc = style.dscr.
                 RELEASE style.
@@ -1936,11 +1936,11 @@ PROCEDURE create-w-ord :
           END.
 
           FIND FIRST shipto
-              WHERE shipto.company eq cocode
-                AND shipto.cust-no eq job-hdr.cust-no
-                AND shipto.ship-id eq job-hdr.cust-no
+              WHERE shipto.company EQ cocode
+                AND shipto.cust-no EQ job-hdr.cust-no
+                AND shipto.ship-id EQ job-hdr.cust-no
               USE-INDEX ship-id NO-LOCK NO-ERROR.
-          IF AVAIL shipto THEN
+          IF AVAILABLE shipto THEN
           ASSIGN
             w-ord.ship-name  = shipto.ship-name
             w-ord.ship-add1  = shipto.ship-add[1]
@@ -1949,11 +1949,11 @@ PROCEDURE create-w-ord :
             w-ord.ship-state = shipto.ship-state
             w-ord.ship-zip   = shipto.ship-zip.
 
-          FIND FIRST est WHERE est.company eq job.company
-                AND est.est-no  eq job.est-no
+          FIND FIRST est WHERE est.company EQ job.company
+                AND est.est-no  EQ job.est-no
               NO-LOCK NO-ERROR.
           RELEASE eb.
-          IF AVAIL est THEN
+          IF AVAILABLE est THEN
           FIND FIRST eb
               WHERE eb.company   EQ est.company
                 AND eb.est-no    EQ est.est-no
@@ -1961,7 +1961,7 @@ PROCEDURE create-w-ord :
                 AND (eb.blank-no EQ job-hdr.blank-no OR job-hdr.blank-no EQ 0)
               NO-LOCK NO-ERROR.
 
-          IF AVAIL eb THEN
+          IF AVAILABLE eb THEN
             ASSIGN
              w-ord.flute      = eb.flute
              w-ord.test       = eb.test
@@ -1983,12 +1983,12 @@ PROCEDURE create-w-ord :
    ELSE IF loadtag.po-no <> 0 THEN DO:
       FIND FIRST po-ord WHERE po-ord.company = loadtag.company
                            AND po-ord.po-no = loadtag.po-no NO-LOCK NO-ERROR.
-      IF AVAIL po-ord THEN
+      IF AVAILABLE po-ord THEN
          FIND FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ po-ord.company
                                     AND po-ordl.po-no EQ po-ord.po-no
                                     AND po-ordl.i-no = loadtag.i-no
                                     USE-INDEX po-no  NO-ERROR.
-      IF AVAIL po-ordl THEN DO:
+      IF AVAILABLE po-ordl THEN DO:
          FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode
                                 AND cust.cust-no EQ po-ord.cust-no NO-ERROR.
          FIND FIRST vend NO-LOCK WHERE vend.company EQ cocode
@@ -2030,7 +2030,7 @@ PROCEDURE create-w-ord :
                  style.style EQ w-ord.style
                  NO-LOCK NO-ERROR.
          
-            IF AVAIL style THEN
+            IF AVAILABLE style THEN
             DO:
                w-ord.style-desc = style.dscr.
                RELEASE style.
@@ -2072,7 +2072,7 @@ PROCEDURE create-w-ord :
    ELSE DO:
        FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode
                                  AND itemfg.i-no EQ loadtag.i-no NO-ERROR.
-       IF AVAIL itemfg THEN DO:
+       IF AVAILABLE itemfg THEN DO:
           FIND FIRST vend NO-LOCK WHERE vend.company EQ cocode
                               AND vend.vend-no EQ itemfg.vend-no NO-ERROR.
           FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode
@@ -2113,7 +2113,7 @@ PROCEDURE create-w-ord :
                   style.style EQ w-ord.style
                   NO-LOCK NO-ERROR.
           
-             IF AVAIL style THEN
+             IF AVAILABLE style THEN
              DO:
                 w-ord.style-desc = style.dscr.
                 RELEASE style.
@@ -2163,7 +2163,7 @@ FOR EACH bf-itemfg
     NO-LOCK:
 
  FIND FIRST tt-set WHERE tt-set.part-no = bf-fg-set.part-no NO-ERROR.
- IF NOT AVAIL tt-set THEN DO:
+ IF NOT AVAILABLE tt-set THEN DO:
      CREATE tt-set.
      ASSIGN tt-set.part-no = bf-fg-set.part-no.
  END.
@@ -2182,16 +2182,16 @@ PROCEDURE crt-transfer :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-rno AS INT NO-UNDO.
-  DEF BUFFER b-fg-rctd FOR fg-rctd.
-  DEF VAR lv-rctd-rowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE lv-rno AS INTEGER NO-UNDO.
+  DEFINE BUFFER b-fg-rctd FOR fg-rctd.
+  DEFINE VARIABLE lv-rctd-rowid AS ROWID NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
-  IF AVAIL b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN lv-rno = b-fg-rctd.r-no.
+  IF AVAILABLE b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN lv-rno = b-fg-rctd.r-no.
 
   FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
-  IF AVAIL fg-rcpth AND fg-rcpth.r-no GT lv-rno THEN lv-rno = fg-rcpth.r-no.
+  IF AVAILABLE fg-rcpth AND fg-rcpth.r-no GT lv-rno THEN lv-rno = fg-rcpth.r-no.
 
   DO WHILE TRUE:
     lv-rno = lv-rno + 1.
@@ -2287,8 +2287,8 @@ PROCEDURE farmOutComp :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-DEF VAR cJob AS CHAR NO-UNDO.
-DEF VAR iJobNo2 AS INT NO-UNDO.
+DEFINE VARIABLE cJob AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iJobNo2 AS INTEGER NO-UNDO.
   cJob = "".
   iJobNo2 = 0.   
   
@@ -2312,13 +2312,13 @@ DEF VAR iJobNo2 AS INT NO-UNDO.
                   NO-LOCK NO-ERROR.
               /* assumption is that for farm jobs, order and job are always the same */
               /* This is to obtain the job-no2 since job-no is assumed to be the order # */
-              IF NOT AVAIL oe-ordl THEN
+              IF NOT AVAILABLE oe-ordl THEN
                   FIND FIRST oe-ordl WHERE oe-ordl.company EQ g_company
                       AND oe-ordl.ord-no EQ po-ordl.ord-no
                       AND oe-ordl.job-no EQ string(po-ordl.ord-no)
                       NO-LOCK NO-ERROR.
                
-              IF AVAIL oe-ordl AND oe-ordl.job-no GT "" THEN
+              IF AVAILABLE oe-ordl AND oe-ordl.job-no GT "" THEN
                   ASSIGN cJob = oe-ordl.job-no
                          iJobNo2 = oe-ordl.job-no2.
            END.
@@ -2335,7 +2335,7 @@ DEF VAR iJobNo2 AS INT NO-UNDO.
           AND job.job-no2 EQ iJobNo2
           NO-LOCK NO-ERROR.
     
-      IF AVAIL job AND cJob GT "" 
+      IF AVAILABLE job AND cJob GT "" 
                    AND w-fg-rctd.rita-code EQ "R" 
                    AND w-fg-rctd.qty GT 0 THEN DO:             
           /* Copy fg-rctd for the jobs farmout tab */
@@ -2362,52 +2362,52 @@ PROCEDURE fg-post :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def buffer b-fg-rcpts for fg-rcpts.
-  def buffer b-fg-rdtl for fg-rdtl.
-  def buffer b-fg-bin for fg-bin.
-  DEF BUFFER b-itemfg FOR itemfg.
-  def buffer b-itemfg1 for itemfg.
-  def buffer ps-rctd for fg-rctd .
-  def buffer b-po-ordl for po-ordl.
-  def buffer b-oe-ordl for oe-ordl.
-  DEF BUFFER b-w-fg-rctd FOR w-fg-rctd.
-  def var v-one-item as log.
-  def var v-dec as dec decimals 10.
-  def var v-po-no like rm-rcpt.po-no no-undo.
-  def var x as int no-undo.
-  def var i as int no-undo.
-  def var v-r-qty like fg-rctd.qty no-undo.
-  def var v-i-qty like fg-rctd.qty no-undo.
-  def var v-t-qty like fg-rctd.qty no-undo.
-  def var v-overrun-qty like fg-rctd.qty no-undo.
-  def var v-underrun-qty like fg-rctd.qty no-undo.
-  DEF VAR v-reduce-qty AS INT NO-UNDO.
-  DEF VAR v-est-no AS cha NO-UNDO.
-  def var v-recid as recid no-undo.
-  DEF VAR v-cost AS DEC NO-UNDO.
-  DEF VAR v-binqty AS INT NO-UNDO.
-  DEF VAR v-qty AS INT NO-UNDO.
-  DEF VAR v-tagcost AS DEC NO-UNDO.
-  def var ld-cvt-qty as dec no-undo.
-  def var ld-cvt-cost as dec DECIMALS 10 no-undo.
-  def var v-autobin  as cha no-undo.
-  def var v-newhdr as log no-undo. 
-  def var v-fin-qty as dec no-undo.
-  def var choice as log no-undo.
-  def var v-trnum like gl-ctrl.trnum no-undo.
-  def var uperiod as int no-undo.
-  def var sysdate as date init today no-undo.    
-  def var v-date like sysdate no-undo.
-  DEF VAR v-underrun AS DEC NO-UNDO.
-  DEF VAR v-qty-received AS INT NO-UNDO.
-  DEF VAR v-got-fgemail AS LOG NO-UNDO.
-  DEF VAR v-fgemail-file AS cha NO-UNDO.
-  DEF VAR li-tag-no AS INT NO-UNDO.
-  DEF VAR ll-qty-changed AS LOG NO-UNDO.
-  DEF VAR ll-whs-item AS LOG NO-UNDO.
-  DEF VAR v-calc-cost AS DEC NO-UNDO.
-  DEF VAR cJob LIKE oe-ordl.job-no  NO-UNDO.
-  DEF VAR iJobNo2 LIKE oe-ordl.job-no2 NO-UNDO.
+  DEFINE BUFFER b-fg-rcpts FOR fg-rcpts.
+  DEFINE BUFFER b-fg-rdtl FOR fg-rdtl.
+  DEFINE BUFFER b-fg-bin FOR fg-bin.
+  DEFINE BUFFER b-itemfg FOR itemfg.
+  DEFINE BUFFER b-itemfg1 FOR itemfg.
+  DEFINE BUFFER ps-rctd FOR fg-rctd .
+  DEFINE BUFFER b-po-ordl FOR po-ordl.
+  DEFINE BUFFER b-oe-ordl FOR oe-ordl.
+  DEFINE BUFFER b-w-fg-rctd FOR w-fg-rctd.
+  DEFINE VARIABLE v-one-item AS LOG.
+  DEFINE VARIABLE v-dec AS DECIMAL DECIMALS 10.
+  DEFINE VARIABLE v-po-no LIKE rm-rcpt.po-no NO-UNDO.
+  DEFINE VARIABLE x AS INTEGER NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-r-qty LIKE fg-rctd.qty NO-UNDO.
+  DEFINE VARIABLE v-i-qty LIKE fg-rctd.qty NO-UNDO.
+  DEFINE VARIABLE v-t-qty LIKE fg-rctd.qty NO-UNDO.
+  DEFINE VARIABLE v-overrun-qty LIKE fg-rctd.qty NO-UNDO.
+  DEFINE VARIABLE v-underrun-qty LIKE fg-rctd.qty NO-UNDO.
+  DEFINE VARIABLE v-reduce-qty AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-est-no AS cha NO-UNDO.
+  DEFINE VARIABLE v-recid AS RECID NO-UNDO.
+  DEFINE VARIABLE v-cost AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE v-binqty AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-qty AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-tagcost AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE ld-cvt-qty AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE ld-cvt-cost AS DECIMAL DECIMALS 10 NO-UNDO.
+  DEFINE VARIABLE v-autobin  AS cha NO-UNDO.
+  DEFINE VARIABLE v-newhdr AS LOG NO-UNDO. 
+  DEFINE VARIABLE v-fin-qty AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE choice AS LOG NO-UNDO.
+  DEFINE VARIABLE v-trnum LIKE gl-ctrl.trnum NO-UNDO.
+  DEFINE VARIABLE uperiod AS INTEGER NO-UNDO.
+  DEFINE VARIABLE sysdate AS DATE INIT TODAY NO-UNDO.    
+  DEFINE VARIABLE v-date LIKE sysdate NO-UNDO.
+  DEFINE VARIABLE v-underrun AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE v-qty-received AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-got-fgemail AS LOG NO-UNDO.
+  DEFINE VARIABLE v-fgemail-file AS cha NO-UNDO.
+  DEFINE VARIABLE li-tag-no AS INTEGER NO-UNDO.
+  DEFINE VARIABLE ll-qty-changed AS LOG NO-UNDO.
+  DEFINE VARIABLE ll-whs-item AS LOG NO-UNDO.
+  DEFINE VARIABLE v-calc-cost AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE cJob LIKE oe-ordl.job-no  NO-UNDO.
+  DEFINE VARIABLE iJobNo2 LIKE oe-ordl.job-no2 NO-UNDO.
   DEFINE VARIABLE fgPostLog AS LOGICAL NO-UNDO.
   /*##PN - variable for FGSetAssembly setting*/
 
@@ -2427,10 +2427,10 @@ PROCEDURE fg-post :
        /* AND period.pst     LE v-post-date
         AND period.pend    GE v-post-date*/ .
 
-  find first sys-ctrl  where sys-ctrl.company eq gcompany
-                         and sys-ctrl.name    eq "AUTOPOST"
-       no-lock no-error.
-  v-autobin = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "".
+  FIND FIRST sys-ctrl  WHERE sys-ctrl.company EQ gcompany
+                         AND sys-ctrl.name    EQ "AUTOPOST"
+       NO-LOCK NO-ERROR.
+  v-autobin = IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld ELSE "".
   RUN sys/ref/nk1look.p (INPUT cocode,
                          INPUT "FGSetAssembly",
                          INPUT "L",
@@ -2462,7 +2462,7 @@ PROCEDURE fg-post :
   END.
   FIND FIRST w-fg-rctd NO-ERROR.
   /* In case only processing rita-code F */
-  IF NOT AVAIL w-fg-rctd THEN DO:   
+  IF NOT AVAILABLE w-fg-rctd THEN DO:   
       RETURN.
   END.
    
@@ -2480,23 +2480,23 @@ PROCEDURE fg-post :
          itemfg.i-no    EQ w-fg-rctd.i-no) THEN
          NEXT.
 
-      find first fg-bin where fg-bin.company eq cocode
-                          and fg-bin.i-no    eq w-fg-rctd.i-no
-                          and fg-bin.job-no  eq w-fg-rctd.job-no
-                          and fg-bin.job-no2 eq w-fg-rctd.job-no2
-                          and fg-bin.loc     eq w-fg-rctd.loc
-                          and fg-bin.loc-bin eq w-fg-rctd.loc-bin
-                          and fg-bin.tag     eq w-fg-rctd.tag
-                          and fg-bin.cust-no eq w-fg-rctd.cust-no
-                USE-INDEX co-ino no-error.
-      IF NOT AVAIL fg-bin THEN DO:
+      FIND FIRST fg-bin WHERE fg-bin.company EQ cocode
+                          AND fg-bin.i-no    EQ w-fg-rctd.i-no
+                          AND fg-bin.job-no  EQ w-fg-rctd.job-no
+                          AND fg-bin.job-no2 EQ w-fg-rctd.job-no2
+                          AND fg-bin.loc     EQ w-fg-rctd.loc
+                          AND fg-bin.loc-bin EQ w-fg-rctd.loc-bin
+                          AND fg-bin.tag     EQ w-fg-rctd.tag
+                          AND fg-bin.cust-no EQ w-fg-rctd.cust-no
+                USE-INDEX co-ino NO-ERROR.
+      IF NOT AVAILABLE fg-bin THEN DO:
           MESSAGE "A transfer exists for item " w-fg-rctd.i-no SKIP
               "with an invalid location:" SKIP
               "  Warehouse = " w-fg-rctd.loc SKIP
               "  Bin = " w-fg-rctd.loc-bin SKIP
               "  Tag = " w-fg-rctd.tag SKIP
               "Please correct and re-run the posting process." SKIP
-              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+              VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
           RETURN "Invalid Location".
       END.
       ELSE IF fg-bin.pur-uom EQ "" THEN DO:
@@ -2506,13 +2506,13 @@ PROCEDURE fg-post :
               "  Bin = " w-fg-rctd.loc-bin SKIP
               "  Tag = " w-fg-rctd.tag SKIP
               "Please correct and re-run the posting process." SKIP
-              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+              VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
           RETURN "Invalid Location".          
       END.
       ELSE IF itemfg.prod-uom EQ "" THEN DO:
           MESSAGE "A blank cost UOM exists for item " w-fg-rctd.i-no SKIP
               "Please correct and re-run the posting process." SKIP
-              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+              VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
           RETURN "Invalid Location".          
       END.
    END.
@@ -2524,8 +2524,8 @@ PROCEDURE fg-post :
         FIRST reftable WHERE reftable.reftable EQ "fg-rctd.user-id" 
           AND reftable.company  EQ w-fg-rctd.company 
           AND reftable.loc      EQ STRING(b-w-fg-rctd.r-no,"9999999999")        
-          AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr begins "fg-rctd: ")  
-          use-index loc   NO-LOCK .
+          AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr BEGINS "fg-rctd: ")  
+          USE-INDEX loc   NO-LOCK .
 
         FIND fg-rctd WHERE ROWID(fg-rctd) = b-w-fg-rctd.row-id EXCLUSIVE-LOCK NO-ERROR.
         FIND FIRST itemfg WHERE
@@ -2533,7 +2533,7 @@ PROCEDURE fg-post :
          itemfg.i-no    EQ w-fg-rctd.i-no
          NO-LOCK NO-ERROR.
         
-        IF AVAIL fg-rctd  THEN DO:
+        IF AVAILABLE fg-rctd  THEN DO:
             /*##BL - FGSetAssembly requires the bin to match that of the character*/
             /*##BL of FGSetAssembly N-K.  If it doesn't, abort posting  */
             IF lFGSetAssembly 
@@ -2542,7 +2542,7 @@ PROCEDURE fg-post :
               AND itemfg.alloc  EQ NO THEN DO:
                 MESSAGE "The Bin location for Component " fg-rctd.i-no " must be " cFGSetAssembly "." SKIP
                     "Please correct on the Set Parts tab of FG Receiving and re-run the posting process."
-                    VIEW-AS ALERT-BOX INFO BUTTONS OK.
+                    VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
                 RETURN ERROR.
             END.
             ASSIGN b-w-fg-rctd.rita-code = "A"
@@ -2571,7 +2571,7 @@ PROCEDURE fg-post :
             itemfg.i-no    EQ w-fg-rctd.i-no
             EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
        
-       IF AVAIL itemfg THEN
+       IF AVAILABLE itemfg THEN
        DO:           
           /* If FGEMAIL is active and quantity on hand is zero and item is allocated,
              then process user data into a temp-table for processing emails later. */
@@ -2603,7 +2603,7 @@ PROCEDURE fg-post :
 
     FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-ERROR.
 
-    IF AVAIL fg-rctd THEN DO:
+    IF AVAILABLE fg-rctd THEN DO:
       ASSIGN
        fg-rctd.rita-code = "P"  /* posted */
        /*fg-rctd.post-date = v-post-date*/
@@ -2635,7 +2635,7 @@ PROCEDURE fg-post :
     IF FIRST-OF(w-fg-rctd.i-no) THEN DO:
         FIND FIRST tt-posted-items WHERE tt-posted-items.i-no = w-fg-rctd.i-no
                                    NO-LOCK NO-ERROR.
-        IF NOT AVAIL tt-posted-items THEN DO:
+        IF NOT AVAILABLE tt-posted-items THEN DO:
             CREATE tt-posted-items.
             ASSIGN tt-posted-items.i-no = w-fg-rctd.i-no.
         END.
@@ -2663,14 +2663,14 @@ PROCEDURE fg-post :
 
        IF fgPostLog THEN RUN fgPostLog ('End loadtag - Start fg-bin').
       
-       IF AVAIL loadtag THEN DO:
+       IF AVAILABLE loadtag THEN DO:
          FIND FIRST fg-bin
              WHERE fg-bin.company EQ g_company
                AND fg-bin.i-no    EQ loadtag.i-no
                AND fg-bin.tag     EQ loadtag.tag-no
                AND fg-bin.qty     GT 0
              USE-INDEX tag NO-LOCK NO-ERROR.
-         IF AVAIL fg-bin AND w-fg-rctd.rita-code = "T" AND
+         IF AVAILABLE fg-bin AND w-fg-rctd.rita-code = "T" AND
             TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) = w-fg-rctd.cases THEN /* full qty transfer*/ 
 
            ASSIGN
@@ -2825,9 +2825,9 @@ PROCEDURE fg-post :
     loop2:
     REPEAT:
        FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ cocode EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-       IF AVAIL gl-ctrl THEN
+       IF AVAILABLE gl-ctrl THEN
        DO:
-          assign
+          ASSIGN
              v-trnum       = gl-ctrl.trnum + 1
              gl-ctrl.trnum = v-trnum.
           FIND CURRENT gl-ctrl NO-LOCK.
@@ -2842,21 +2842,21 @@ PROCEDURE fg-post :
     IF fgPostLog THEN RUN fgPostLog ('End Run gl-from-work 2').
   END.
   FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
-  find first w-job no-error.
-  if avail w-job THEN DO:
+  FIND FIRST w-job NO-ERROR.
+  IF AVAILABLE w-job THEN DO:
     IF fgPostLog THEN RUN fgPostLog ('Start jc/d-jclose.p').
-    run jc/d-jclose.w.
+    RUN jc/d-jclose.w.
     IF fgPostLog THEN RUN fgPostLog ('End jc/d-jclose.p').
   END.
 
-  if v-adjustgl then do TRANSACTION:
+  IF v-adjustgl THEN DO TRANSACTION:
     /** GET next G/L TRANS. POSTING # **/
     REPEAT:
-       find first gl-ctrl where gl-ctrl.company eq cocode EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
+       FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ cocode EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
-       IF AVAIL gl-ctrl THEN
+       IF AVAILABLE gl-ctrl THEN
        DO:
-          assign
+          ASSIGN
            v-trnum       = gl-ctrl.trnum + 1
            gl-ctrl.trnum = v-trnum.
           FIND CURRENT gl-ctrl NO-LOCK.
@@ -2865,9 +2865,9 @@ PROCEDURE fg-post :
     END.
 
     IF fgPostLog THEN RUN fgPostLog ('Start For Each work-job').
-    for each work-job break by work-job.actnum:
-      create gltrans.
-      assign
+    FOR EACH work-job BREAK BY work-job.actnum:
+      CREATE gltrans.
+      ASSIGN
        gltrans.company = cocode
        gltrans.actnum  = work-job.actnum
        gltrans.jrnl    = "ADJUST"
@@ -2875,19 +2875,19 @@ PROCEDURE fg-post :
        gltrans.period  = period.pnum
        gltrans.trnum   = v-trnum.
     
-      if work-job.fg then
-        assign
+      IF work-job.fg THEN
+        ASSIGN
          gltrans.tr-amt  = - work-job.amt
          gltrans.tr-dscr = "ADJUSTMENT FG".
-      else
-        assign
+      ELSE
+        ASSIGN
          gltrans.tr-amt  = work-job.amt
          gltrans.tr-dscr = "ADJUSTMENT COGS".
 
       RELEASE gltrans.
-    end. /* each work-job */
+    END. /* each work-job */
     IF fgPostLog THEN RUN fgPostLog ('End For Each work-job').
-  end.
+  END.
 
  /* IF tg-recalc-cost THEN DO:
     FOR EACH tt-posted-items:        
@@ -2972,14 +2972,14 @@ PROCEDURE GenerateReport :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
+   DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
    DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
    DEFINE VARIABLE v-trans-lbl AS CHARACTER NO-UNDO .
    
-      case rd-dest:
-         when 1 then run output-to-printer(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
-         when 2 then run output-to-screen(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
-         when 3 then do:
+      CASE rd-dest:
+         WHEN 1 THEN RUN output-to-printer(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
+         WHEN 2 THEN RUN output-to-screen(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
+         WHEN 3 THEN DO:
               IF is-xprint-form THEN DO:
                
                   RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
@@ -3000,7 +3000,7 @@ PROCEDURE GenerateReport :
     
               END.
           END. 
-      end case.
+      END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3013,16 +3013,16 @@ PROCEDURE get-matrix :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def input parameter ip-first-disp as log no-undo.
-  DEF OUTPUT PARAMETER ext-cost AS DEC NO-UNDO.
-  def var v-len like po-ordl.s-len no-undo.
-  def var v-wid like po-ordl.s-len no-undo.
-  def var v-dep like po-ordl.s-len no-undo. 
-  def var v-bwt like po-ordl.s-len no-undo.
-  def var lv-out-qty as dec no-undo.
-  def var lv-out-cost as dec no-undo.
+  DEFINE INPUT PARAMETER ip-first-disp AS LOG NO-UNDO.
+  DEFINE OUTPUT PARAMETER ext-cost AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE v-len LIKE po-ordl.s-len NO-UNDO.
+  DEFINE VARIABLE v-wid LIKE po-ordl.s-len NO-UNDO.
+  DEFINE VARIABLE v-dep LIKE po-ordl.s-len NO-UNDO. 
+  DEFINE VARIABLE v-bwt LIKE po-ordl.s-len NO-UNDO.
+  DEFINE VARIABLE lv-out-qty AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE lv-out-cost AS DECIMAL NO-UNDO.
 
-  if not avail fg-rctd then return.  /* no records */
+  IF NOT AVAILABLE fg-rctd THEN RETURN.  /* no records */
    
   cocode = fg-rctd.company.
 
@@ -3030,43 +3030,43 @@ PROCEDURE get-matrix :
      DELETE tt-email.
  END.
 
-if ip-first-disp  and avail fg-rctd and fg-rctd.i-no <> "" then do: /* for row-display */
-  find itemfg  where itemfg.company eq cocode                           /* no screen-value used */
-                     and itemfg.i-no  eq fg-rctd.i-no /*:screen-value in browse {&browse-name}*/
-                     use-index i-no no-lock no-error.
+IF ip-first-disp  AND AVAILABLE fg-rctd AND fg-rctd.i-no <> "" THEN DO: /* for row-display */
+  FIND itemfg  WHERE itemfg.company EQ cocode                           /* no screen-value used */
+                     AND itemfg.i-no  EQ fg-rctd.i-no /*:screen-value in browse {&browse-name}*/
+                     USE-INDEX i-no NO-LOCK NO-ERROR.
 
-  find first po-ordl where po-ordl.company = fg-rctd.company
-                       and po-ordl.po-no = int(fg-rctd.po-no)
-                       and po-ordl.i-no  = fg-rctd.i-no
-                       and po-ordl.job-no = (fg-rctd.job-no)
-                       and po-ordl.job-no2 = fg-rctd.job-no2
-                       and po-ordl.item-type = no
-                       no-lock no-error.
+  FIND FIRST po-ordl WHERE po-ordl.company = fg-rctd.company
+                       AND po-ordl.po-no = int(fg-rctd.po-no)
+                       AND po-ordl.i-no  = fg-rctd.i-no
+                       AND po-ordl.job-no = (fg-rctd.job-no)
+                       AND po-ordl.job-no2 = fg-rctd.job-no2
+                       AND po-ordl.item-type = NO
+                       NO-LOCK NO-ERROR.
 
-  if not avail po-ordl AND fg-rctd.po-no <> "" then return.
+  IF NOT AVAILABLE po-ordl AND fg-rctd.po-no <> "" THEN RETURN.
   
   lv-out-qty = fg-rctd.t-qty . /* fg-rctd.qty-case. ??? */
   /* convert cost pr-uom*/
-  run rm/convcuom.p(fg-rctd.cost-uom, IF AVAIL po-ordl THEN po-ordl.cons-uom ELSE "EA",
-                    0,0,0,0,fg-rctd.std-cost, output lv-out-cost).
+  RUN rm/convcuom.p(fg-rctd.cost-uom, IF AVAILABLE po-ordl THEN po-ordl.cons-uom ELSE "EA",
+                    0,0,0,0,fg-rctd.std-cost, OUTPUT lv-out-cost).
   ext-cost = lv-out-qty * lv-out-cost.
 
-end. /* avail fg-rctd */
+END. /* avail fg-rctd */
 /* ======================================================================= */
-else if avail fg-rctd and fg-rctd.i-no <> "" then do: /* in update mode - use screen-value */
-  find itemfg  where itemfg.company eq cocode
-                and itemfg.i-no  eq fg-rctd.i-no
-                use-index i-no no-lock no-error.
+ELSE IF AVAILABLE fg-rctd AND fg-rctd.i-no <> "" THEN DO: /* in update mode - use screen-value */
+  FIND itemfg  WHERE itemfg.company EQ cocode
+                AND itemfg.i-no  EQ fg-rctd.i-no
+                USE-INDEX i-no NO-LOCK NO-ERROR.
 /*  if avail itemfg then v-dep = itemfg.s-dep.    */
-  find first po-ordl where po-ordl.company = fg-rctd.company
+  FIND FIRST po-ordl WHERE po-ordl.company = fg-rctd.company
                    /*    and po-ordl.po-no = integer(fg-rctd.po-no:screen-value in browse {&browse-name}) */
-                       and po-ordl.i-no  = fg-rctd.i-no
-                       and po-ordl.job-no = fg-rctd.job-no
-                       and po-ordl.job-no2 = fg-rctd.job-no2
-                       and po-ordl.item-type = no
-                       no-lock no-error.
+                       AND po-ordl.i-no  = fg-rctd.i-no
+                       AND po-ordl.job-no = fg-rctd.job-no
+                       AND po-ordl.job-no2 = fg-rctd.job-no2
+                       AND po-ordl.item-type = NO
+                       NO-LOCK NO-ERROR.
 
-  if not avail po-ordl AND fg-rctd.po-no <> "" then return.
+  IF NOT AVAILABLE po-ordl AND fg-rctd.po-no <> "" THEN RETURN.
     
 /*
   /* convert qty */
@@ -3081,19 +3081,19 @@ else if avail fg-rctd and fg-rctd.i-no <> "" then do: /* in update mode - use sc
 */
   lv-out-qty = fg-rctd.t-qty  .
   /* convert cost */
-  if avail po-ordl then assign v-len = po-ordl.s-len
+  IF AVAILABLE po-ordl THEN ASSIGN v-len = po-ordl.s-len
                                v-wid = po-ordl.s-wid.
-  else assign v-len = 0
+  ELSE ASSIGN v-len = 0
               v-wid = 0.
                                                                        
-  run rm/convcuom.p( fg-rctd.cost-uom,
-                     IF AVAIL po-ordl THEN po-ordl.cons-uom ELSE "EA" ,
+  RUN rm/convcuom.p( fg-rctd.cost-uom,
+                     IF AVAILABLE po-ordl THEN po-ordl.cons-uom ELSE "EA" ,
                              0,v-len,v-wid,0,
-                             fg-rctd.std-cost, output lv-out-cost).
+                             fg-rctd.std-cost, OUTPUT lv-out-cost).
 
   ext-cost = lv-out-qty * lv-out-cost.
   
-end.
+END.
 
 END PROCEDURE.
 
@@ -3108,15 +3108,15 @@ PROCEDURE get-ord-recs :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEF INPUT PARAM ip-rowid1  AS  ROWID NO-UNDO.
+  DEFINE INPUT PARAMETER ip-rowid1  AS  ROWID NO-UNDO.
 
-  DEF PARAM BUFFER b-po-ordl FOR po-ordl.
-  DEF PARAM BUFFER b-po-ord  FOR po-ord.
-  DEF PARAM BUFFER b-oe-ordl FOR oe-ordl.
-  DEF PARAM BUFFER b-oe-ord  FOR oe-ord.
-  DEF PARAM BUFFER b-ref     FOR reftable.
+  DEFINE PARAMETER BUFFER b-po-ordl FOR po-ordl.
+  DEFINE PARAMETER BUFFER b-po-ord  FOR po-ord.
+  DEFINE PARAMETER BUFFER b-oe-ordl FOR oe-ordl.
+  DEFINE PARAMETER BUFFER b-oe-ord  FOR oe-ord.
+  DEFINE PARAMETER BUFFER b-ref     FOR reftable.
 
-  DEF BUFFER b-fg-rctd FOR fg-rctd.
+  DEFINE BUFFER b-fg-rctd FOR fg-rctd.
 
   RELEASE b-po-ordl.
   RELEASE b-po-ord.
@@ -3127,7 +3127,7 @@ PROCEDURE get-ord-recs :
 
   FIND b-fg-rctd WHERE ROWID(b-fg-rctd) EQ ip-rowid1 NO-LOCK NO-ERROR.
 
-  IF AVAIL b-fg-rctd THEN DO:
+  IF AVAILABLE b-fg-rctd THEN DO:
     IF INT(b-fg-rctd.po-no) NE 0 AND b-fg-rctd.qty NE 0 THEN
     FIND FIRST b-po-ordl
         WHERE b-po-ordl.company   EQ b-fg-rctd.company
@@ -3139,14 +3139,14 @@ PROCEDURE get-ord-recs :
           AND b-po-ordl.ord-no    NE 0
         NO-LOCK NO-ERROR.
 
-    IF AVAIL b-po-ordl THEN
+    IF AVAILABLE b-po-ordl THEN
     FIND FIRST b-po-ord
         WHERE b-po-ord.company EQ b-po-ordl.company
           AND b-po-ord.po-no   EQ b-po-ordl.po-no
           AND b-po-ord.type    EQ "D"
         NO-LOCK NO-ERROR.
       
-    IF AVAIL b-po-ord THEN
+    IF AVAILABLE b-po-ord THEN
     FIND FIRST b-oe-ordl
         WHERE b-oe-ordl.company  EQ b-po-ordl.company
           AND b-oe-ordl.ord-no   EQ b-po-ordl.ord-no
@@ -3155,13 +3155,13 @@ PROCEDURE get-ord-recs :
           AND b-oe-ordl.po-no-po EQ b-po-ord.po-no
         NO-LOCK NO-ERROR.
 
-    IF AVAIL b-oe-ordl THEN
+    IF AVAILABLE b-oe-ordl THEN
     FIND FIRST b-oe-ord
         WHERE b-oe-ord.company EQ b-oe-ordl.company
           AND b-oe-ord.ord-no  EQ b-oe-ordl.ord-no
         NO-LOCK NO-ERROR.
 
-    IF AVAIL oe-ord THEN
+    IF AVAILABLE oe-ord THEN
     FIND FIRST b-ref
         WHERE b-ref.reftable EQ "fg-rctd.user-id"
           AND b-ref.company  EQ b-fg-rctd.company
@@ -3181,9 +3181,9 @@ PROCEDURE get-rel-info :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF OUTPUT PARAM op-pono LIKE w-ord.cust-po-no NO-UNDO.
-  DEF OUTPUT PARAM op-date LIKE w-ord.rel-date NO-UNDO.
-  DEF OUTPUT PARAM op-lot# LIKE w-ord.rel-lot# NO-UNDO.
+ DEFINE OUTPUT PARAMETER op-pono LIKE w-ord.cust-po-no NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-date LIKE w-ord.rel-date NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-lot# LIKE w-ord.rel-lot# NO-UNDO.
 
 
   RELEASE oe-rell.
@@ -3210,7 +3210,7 @@ PROCEDURE get-rel-info :
       LEAVE.
     END.
 
-    IF AVAIL oe-rell THEN
+    IF AVAILABLE oe-rell THEN
     FIND FIRST oe-rel WHERE oe-rel.r-no EQ oe-rell.link-no NO-LOCK NO-ERROR.
 
     ELSE
@@ -3232,7 +3232,7 @@ PROCEDURE get-rel-info :
     END.
   END.
 
-  IF NOT AVAIL oe-rel THEN
+  IF NOT AVAILABLE oe-rel THEN
   FOR EACH oe-rel NO-LOCK
       WHERE oe-rel.company  EQ oe-ordl.company
         AND oe-rel.ord-no   EQ oe-ordl.ord-no
@@ -3245,18 +3245,18 @@ PROCEDURE get-rel-info :
     LEAVE.
   END.
 
-  IF AVAIL oe-rel THEN DO:
+  IF AVAILABLE oe-rel THEN DO:
     FIND FIRST ref-lot-no NO-LOCK
         WHERE ref-lot-no.reftable EQ "oe-rel.lot-no"
           AND ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
         NO-ERROR.
-    IF AVAIL ref-lot-no THEN op-lot# = ref-lot-no.code.
+    IF AVAILABLE ref-lot-no THEN op-lot# = ref-lot-no.code.
   END.
 
   IF v-po-no-source NE "R"                    OR
-     (NOT AVAIL oe-rel AND NOT AVAIL oe-rell) THEN
+     (NOT AVAILABLE oe-rel AND NOT AVAILABLE oe-rell) THEN
     op-pono = IF v-po-no-source EQ "L" THEN oe-ordl.po-no
-                                       ELSE IF AVAIL oe-ord THEN oe-ord.po-no
+                                       ELSE IF AVAILABLE oe-ord THEN oe-ord.po-no
                                        ELSE "".
 
 END PROCEDURE.
@@ -3271,11 +3271,11 @@ PROCEDURE gl-from-work :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-run AS INT NO-UNDO.
-  DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
+  DEFINE INPUT PARAMETER ip-run AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ip-trnum AS INTEGER NO-UNDO.
   
-  def var credits as dec init 0 no-undo.
-  def var debits as dec init 0 no-undo. 
+  DEFINE VARIABLE credits AS DECIMAL INIT 0 NO-UNDO.
+  DEFINE VARIABLE debits AS DECIMAL INIT 0 NO-UNDO. 
 
   
   FIND FIRST period
@@ -3284,33 +3284,33 @@ PROCEDURE gl-from-work :
         AND period.pend    GE v-post-date*/
       NO-LOCK.
 
-  for each work-gl 
-      where (ip-run eq 1 and work-gl.job-no ne "")
-         or (ip-run eq 2 and work-gl.job-no eq "")
-      break by work-gl.actnum:
+  FOR EACH work-gl 
+      WHERE (ip-run EQ 1 AND work-gl.job-no NE "")
+         OR (ip-run EQ 2 AND work-gl.job-no EQ "")
+      BREAK BY work-gl.actnum:
       
-    assign
+    ASSIGN
      debits  = debits  + work-gl.debits
      credits = credits + work-gl.credits.
 
-    if last-of(work-gl.actnum) then do:
-      create gltrans.
-      assign
+    IF LAST-OF(work-gl.actnum) THEN DO:
+      CREATE gltrans.
+      ASSIGN
        gltrans.company = cocode
        gltrans.actnum  = work-gl.actnum
        gltrans.jrnl    = "FGPOST"
        gltrans.period  = period.pnum
        gltrans.tr-amt  = debits - credits
        /*gltrans.tr-date = v-post-date*/
-       gltrans.tr-dscr = if work-gl.job-no ne "" then "FG Receipt from Job"
-                                                 else "FG Receipt from PO"
+       gltrans.tr-dscr = IF work-gl.job-no NE "" THEN "FG Receipt from Job"
+                                                 ELSE "FG Receipt from PO"
        gltrans.trnum   = ip-trnum
        debits  = 0
        credits = 0.
 
       RELEASE gltrans.
-    end.
-  end.
+    END.
+  END.
 
 END PROCEDURE.
 
@@ -3374,15 +3374,15 @@ PROCEDURE manualFarmOut :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR cJob AS CHAR NO-UNDO.
-DEF VAR iJobNo2 AS INT NO-UNDO.
-DEF BUFFER bf-fg-rctd FOR fg-rctd.
+DEFINE VARIABLE cJob AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iJobNo2 AS INTEGER NO-UNDO.
+DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
 
   FIND itemfg WHERE itemfg.company EQ cocode 
       AND itemfg.i-no EQ w-fg-rctd.i-no
       NO-LOCK NO-ERROR.
   
-  IF NOT AVAIL itemfg THEN
+  IF NOT AVAILABLE itemfg THEN
       RETURN.
   cJob = "".
   iJobNo2 = 0.   
@@ -3407,13 +3407,13 @@ DEF BUFFER bf-fg-rctd FOR fg-rctd.
                   NO-LOCK NO-ERROR.
               /* assumption is that for farm jobs, order and job are always the same */
               /* This is to obtain the job-no2 since job-no is assumed to be the order # */
-              IF NOT AVAIL oe-ordl THEN
+              IF NOT AVAILABLE oe-ordl THEN
                   FIND FIRST oe-ordl WHERE oe-ordl.company EQ g_company
                       AND oe-ordl.ord-no EQ po-ordl.ord-no
                       AND oe-ordl.job-no EQ string(po-ordl.ord-no)
                       NO-LOCK NO-ERROR.
                
-              IF AVAIL oe-ordl AND oe-ordl.job-no GT "" THEN
+              IF AVAILABLE oe-ordl AND oe-ordl.job-no GT "" THEN
                   ASSIGN cJob = oe-ordl.job-no
                          iJobNo2 = oe-ordl.job-no2.
            END.
@@ -3425,7 +3425,7 @@ DEF BUFFER bf-fg-rctd FOR fg-rctd.
           AND job.job-no2 EQ iJobNo2
           NO-LOCK NO-ERROR.
       
-      IF AVAIL job AND cJob GT "" 
+      IF AVAILABLE job AND cJob GT "" 
                    AND w-fg-rctd.rita-code EQ "F" 
                    THEN DO:             
           
@@ -3440,7 +3440,7 @@ DEF BUFFER bf-fg-rctd FOR fg-rctd.
       END.
       FIND bf-fg-rctd WHERE ROWID(bf-fg-rctd) EQ w-fg-rctd.row-id
           EXCLUSIVE-LOCK NO-ERROR.
-      IF AVAIL bf-fg-rctd THEN
+      IF AVAILABLE bf-fg-rctd THEN
           DELETE bf-fg-rctd.
       
       
@@ -3462,40 +3462,40 @@ PROCEDURE orig :
 ------------------------------------------------------------------------------*/
    
     /*find first item finished goods based on the item number*/
-    find first itemfg
-        where itemfg.company eq cocode
-          and itemfg.i-no    eq w-fg-rctd.i-no
-        use-index i-no no-lock no-error.
+    FIND FIRST itemfg
+        WHERE itemfg.company EQ cocode
+          AND itemfg.i-no    EQ w-fg-rctd.i-no
+        USE-INDEX i-no NO-LOCK NO-ERROR.
         
-    if avail itemfg then do:
-      find first uom
-          where uom.uom  eq itemfg.sell-uom
-            and uom.mult ne 0
-          no-lock no-error.
+    IF AVAILABLE itemfg THEN DO:
+      FIND FIRST uom
+          WHERE uom.uom  EQ itemfg.sell-uom
+            AND uom.mult NE 0
+          NO-LOCK NO-ERROR.
           
-      if itemfg.sell-uom begins "L" then
+      IF itemfg.sell-uom BEGINS "L" THEN
         v-fg-value = itemfg.sell-price * IF w-fg-rctd.t-qty LT 0 THEN -1 ELSE 1.
 
-      else
-      if itemfg.sell-uom eq "CS" then
+      ELSE
+      IF itemfg.sell-uom EQ "CS" THEN
         v-fg-value = itemfg.sell-price * w-fg-rctd.cases.
 
-      else
-      if avail uom then
+      ELSE
+      IF AVAILABLE uom THEN
         v-fg-value = itemfg.sell-price * w-fg-rctd.t-qty / uom.mult.
 
-      else
+      ELSE
         v-fg-value = itemfg.sell-price * w-fg-rctd.t-qty / 1000.
 
-      if w-fg-rctd.rita-code eq "R" then do:
-        if v-msf[1] gt w-fg-rctd.t-qty * itemfg.t-sqft then
+      IF w-fg-rctd.rita-code EQ "R" THEN DO:
+        IF v-msf[1] GT w-fg-rctd.t-qty * itemfg.t-sqft THEN
           v-msf[2] = v-msf[2] + (v-msf[1] - (w-fg-rctd.t-qty * itemfg.t-sqft)).
 
         v-msf[1] = w-fg-rctd.t-qty * itemfg.t-sqft.
-      end.
-    end. /* avail itemfg */
+      END.
+    END. /* avail itemfg */
 
-    assign
+    ASSIGN
      v-msf[1] = v-msf[1] / 1000
      v-msf[2] = v-msf[2] / 1000.
 
@@ -3541,7 +3541,7 @@ PROCEDURE output-to-printer :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
+  DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
   IF is-xprint-form THEN DO:
@@ -3567,7 +3567,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
+  DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
   IF is-xprint-form THEN DO:
@@ -3575,7 +3575,7 @@ PROCEDURE output-to-screen :
      RUN printfile (FILE-INFO:FILE-NAME).
   END.
   ELSE
-     run custom/scr-rpt2.w (list-name,c-win:title,int(lv-font-no),lv-ornt,lv-prt-bypass).
+     RUN custom/scr-rpt2.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt,lv-prt-bypass).
 
 END PROCEDURE.
 
@@ -3589,8 +3589,8 @@ PROCEDURE print-and-post :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-r-no LIKE rm-rctd.r-no NO-UNDO.
-  DEF VAR lContinue AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lv-r-no LIKE rm-rctd.r-no NO-UNDO.
+  DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
   /* 11111302 - Automatically include set components instead of this validate*/
   /* RUN ValidateFGItemRange(OUTPUT lContinue). */
 /*   IF NOT lContinue THEN DO:                               */
@@ -3673,7 +3673,7 @@ PROCEDURE print-and-post :
                   AND reftable.company  EQ fg-rcpts.company
                   AND reftable.loc      EQ STRING(fg-rcpts.r-no,"9999999999")        /* component */
                   AND (reftable.dscr EQ "fg-rctd: " + STRING(lv-r-no, "9999999999")  /* set header r-no */
-                       AND reftable.dscr begins "fg-rctd: ")  
+                       AND reftable.dscr BEGINS "fg-rctd: ")  
                 USE-INDEX loc   EXCLUSIVE-LOCK:
                 reftable.dscr = "fg-rctd: " + STRING(fg-rctd.r-no, "9999999999").
               END. /* each reftable */
@@ -3707,7 +3707,7 @@ PROCEDURE print-and-post :
         AND fg-bin.i-no = ""
         AND fg-bin.loc-bin = fg-rctd.loc-bin
         NO-LOCK NO-ERROR.
-      IF NOT AVAIL fg-bin THEN DO:      
+      IF NOT AVAILABLE fg-bin THEN DO:      
         MESSAGE "Sorry, these FG Transactions cannot be processed because 1 or " +
             "more have an invalid bin. Please correct and retry. "  SKIP          
             "     Item " + fg-rctd.i-no  SKIP
@@ -3731,7 +3731,7 @@ PROCEDURE print-and-post :
 
       MESSAGE "Posting completed..." VIEW-AS ALERT-BOX.
       IF fgpost-cha EQ "After" OR fgpost-cha EQ "Both" THEN RUN show-report (2).
-      IF can-find(FIRST w-fg-rctd WHERE w-fg-rctd.rita-code EQ "T")
+      IF CAN-FIND(FIRST w-fg-rctd WHERE w-fg-rctd.rita-code EQ "T")
          THEN RUN ReprintTag.
 
     END.
@@ -3752,15 +3752,15 @@ PROCEDURE Process-FGemail-Data :
   Parameters:  item number, qty received
   Notes:       
 ------------------------------------------------------------------------------*/
- DEFINE INPUT PARAMETER pc-i-no  AS CHAR NO-UNDO.
- DEFINE INPUT PARAMETER pi-qty   AS DEC NO-UNDO.
- DEFINE INPUT PARAMETER pc-po-no AS CHAR NO-UNDO.
+ DEFINE INPUT PARAMETER pc-i-no  AS CHARACTER NO-UNDO.
+ DEFINE INPUT PARAMETER pi-qty   AS DECIMAL NO-UNDO.
+ DEFINE INPUT PARAMETER pc-po-no AS CHARACTER NO-UNDO.
 
 
  DEFINE BUFFER buf-oe-ordl FOR oe-ordl.
  DEFINE BUFFER buf-oe-ord  FOR oe-ord.
  DEFINE BUFFER bf-po-ordl FOR po-ordl.
- DEFINE VARIABLE cUserList AS CHAR NO-UNDO INIT "".
+ DEFINE VARIABLE cUserList AS CHARACTER NO-UNDO INIT "".
  DEFINE VARIABLE xOrdNo LIKE oe-ordl.ord-no NO-UNDO.
 
  
@@ -3771,7 +3771,7 @@ PROCEDURE Process-FGemail-Data :
           AND bf-po-ordl.item-type EQ NO
         NO-LOCK NO-ERROR.
 
-    IF AVAIL bf-po-ordl THEN DO:
+    IF AVAILABLE bf-po-ordl THEN DO:
         xOrdNo = bf-po-ordl.ord-no.
    /* Find user ID on each open order of item. */
         FOR EACH buf-oe-ordl   
@@ -3822,16 +3822,16 @@ PROCEDURE process-rel-stat :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER ipr-ordl-row AS ROWID NO-UNDO.
-DEF OUTPUT PARAMETER opi-stat AS INT NO-UNDO.
-DEF OUTPUT PARAMETER opi-rel-qty AS INT NO-UNDO.
-DEF OUTPUT PARAMETER opr-release AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipr-ordl-row AS ROWID NO-UNDO.
+DEFINE OUTPUT PARAMETER opi-stat AS INTEGER NO-UNDO.
+DEFINE OUTPUT PARAMETER opi-rel-qty AS INTEGER NO-UNDO.
+DEFINE OUTPUT PARAMETER opr-release AS ROWID NO-UNDO.
 
-DEF VAR v-highest-stat AS INT NO-UNDO.
-DEF VAR v-tot-rqty AS INT NO-UNDO.
-DEF VAR stat-type AS INT NO-UNDO.
-DEF VAR v-chosen-rel AS ROWID NO-UNDO.
-DEF BUFFER bf-oe-ordl FOR oe-ordl.
+DEFINE VARIABLE v-highest-stat AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-tot-rqty AS INTEGER NO-UNDO.
+DEFINE VARIABLE stat-type AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-chosen-rel AS ROWID NO-UNDO.
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 FIND FIRST bf-oe-ordl WHERE ROWID(bf-oe-ordl) EQ ipr-ordl-row NO-LOCK NO-ERROR.
 
       v-highest-stat = 0.
@@ -3852,15 +3852,15 @@ FIND FIRST bf-oe-ordl WHERE ROWID(bf-oe-ordl) EQ ipr-ordl-row NO-LOCK NO-ERROR.
                                /* AND oe-rell.po-no    EQ oe-rel.po-no */
                                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
                              USE-INDEX ord-no NO-LOCK NO-ERROR.
-          IF AVAIL oe-rel THEN
+          IF AVAILABLE oe-rel THEN
             v-tot-rqty = v-tot-rqty + oe-rel.qty.
              
             IF LOOKUP(oe-rel.stat, "S,I,L") GT 0 THEN
                 stat-type = 1.
             ELSE DO:
-                IF LOOKUP(oe-rel.stat, "A,B") GT 0 AND AVAIL oe-rell AND NOT oe-rell.printed THEN
+                IF LOOKUP(oe-rel.stat, "A,B") GT 0 AND AVAILABLE oe-rell AND NOT oe-rell.printed THEN
                         stat-type = 2.
-                IF LOOKUP(oe-rel.stat, "A,B,P,Z,C") GT 0 AND AVAIL oe-rell AND oe-rell.printed THEN
+                IF LOOKUP(oe-rel.stat, "A,B,P,Z,C") GT 0 AND AVAILABLE oe-rell AND oe-rell.printed THEN
                         stat-type = 3.
             END.
             IF stat-type GT v-highest-stat THEN
@@ -3884,19 +3884,19 @@ PROCEDURE process-releases :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR v-tot-rqty AS INT NO-UNDO.
-  DEF VAR v-rel-qty  AS INT NO-UNDO.
-  DEF VAR v-found-order LIKE oe-ord.ord-no NO-UNDO.
-  DEF VAR v-managed AS LOG NO-UNDO.
-  DEF VAR stat-type AS INT NO-UNDO.
-  DEF VAR new-qty AS INT NO-UNDO.
-  DEF VAR add-qty AS INT NO-UNDO.
-  DEF VAR v-highest-stat AS INT NO-UNDO.
-  DEF VAR v-chosen-rel AS ROWID NO-UNDO.
-  DEF VAR v-tot-rcv-qty AS INT NO-UNDO.
+  DEFINE VARIABLE v-tot-rqty AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-rel-qty  AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-found-order LIKE oe-ord.ord-no NO-UNDO.
+  DEFINE VARIABLE v-managed AS LOG NO-UNDO.
+  DEFINE VARIABLE stat-type AS INTEGER NO-UNDO.
+  DEFINE VARIABLE new-qty AS INTEGER NO-UNDO.
+  DEFINE VARIABLE add-qty AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-highest-stat AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-chosen-rel AS ROWID NO-UNDO.
+  DEFINE VARIABLE v-tot-rcv-qty AS INTEGER NO-UNDO.
 
   /* To Be Implemented */
-  DEF VAR nk-set AS LOG NO-UNDO.
+  DEFINE VARIABLE nk-set AS LOG NO-UNDO.
 
   IF fgpost-int = 1 THEN
     nk-set = TRUE.
@@ -3913,17 +3913,17 @@ PROCEDURE process-releases :
                              AND job-hdr.job-no = w-fg-rctd.job-no
                              AND job-hdr.job-no2 = w-fg-rctd.job-no2
                            NO-LOCK NO-ERROR.
-        IF AVAIL job-hdr THEN
+        IF AVAILABLE job-hdr THEN
         FIND FIRST oe-ord WHERE oe-ord.company = job-hdr.company
                             AND oe-ord.ord-no  = integer(job-hdr.job-no)
                           NO-LOCK NO-ERROR.
-        IF AVAIL oe-ord THEN
+        IF AVAILABLE oe-ord THEN
           FIND FIRST oe-ordl WHERE oe-ordl.company = oe-ord.company
                                AND oe-ordl.ord-no  = oe-ord.ord-no
                                AND oe-ordl.i-no    = w-fg-rctd.i-no
                              NO-LOCK NO-ERROR.
 
-        IF AVAIL oe-ordl THEN
+        IF AVAILABLE oe-ordl THEN
             FIND FIRST oe-rel WHERE oe-rel.company = oe-ordl.company
                                 AND oe-rel.ord-no  = oe-ordl.ord-no
                                 AND oe-rel.LINE    = oe-ordl.LINE
@@ -3932,7 +3932,7 @@ PROCEDURE process-releases :
         FIND FIRST itemfg WHERE itemfg.company EQ cocode 
                             AND itemfg.i-no    EQ w-fg-rctd.i-no
                           NO-LOCK NO-ERROR.
-        IF AVAIL oe-ordl THEN
+        IF AVAILABLE oe-ordl THEN
         RUN process-rel-stat (INPUT ROWID(oe-ordl), 
                            OUTPUT v-highest-stat, 
                            OUTPUT v-rel-qty,
@@ -3978,7 +3978,7 @@ PROCEDURE process-releases :
 
                    /* Replace release qty and actual release qty */
                    RUN replace-rel-qty (INPUT ROWID(oe-rel), INPUT new-qty).
-                   IF AVAIL oe-rell THEN
+                   IF AVAILABLE oe-rell THEN
                      RUN replace-actrel-qty (INPUT ROWID(oe-rell), INPUT new-qty).
 
                 END.
@@ -4011,14 +4011,14 @@ PROCEDURE replace-actrel-qty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER ipr-rell-row AS ROWID NO-UNDO.
-DEF INPUT PARAMETER ipi-qty     AS INT   NO-UNDO.
+DEFINE INPUT PARAMETER ipr-rell-row AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipi-qty     AS INTEGER   NO-UNDO.
 /* wfk - 11/12 - did not find any extra logic that needs to be applied 
    when oe-rell.qty is changed */
-DEF BUFFER bf-oe-rell FOR oe-rell.
+DEFINE BUFFER bf-oe-rell FOR oe-rell.
 FIND bf-oe-rell WHERE ROWID(bf-oe-rell) EQ ipr-rell-row
                 EXCLUSIVE-LOCK NO-ERROR.
-IF NOT AVAIL bf-oe-rell THEN
+IF NOT AVAILABLE bf-oe-rell THEN
     RETURN.
 bf-oe-rell.qty = ipi-qty.
 
@@ -4034,12 +4034,12 @@ PROCEDURE replace-rel-qty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER ipr-rel-row AS ROWID NO-UNDO.
-DEF INPUT PARAMETER ipi-qty     AS INT   NO-UNDO.
-DEF BUFFER bf-orig-oe-rel FOR oe-rel.
+DEFINE INPUT PARAMETER ipr-rel-row AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipi-qty     AS INTEGER   NO-UNDO.
+DEFINE BUFFER bf-orig-oe-rel FOR oe-rel.
 FIND bf-orig-oe-rel WHERE ROWID(bf-orig-oe-rel) EQ ipr-rel-row
                     EXCLUSIVE-LOCK NO-ERROR.
-IF NOT AVAIL bf-orig-oe-rel THEN
+IF NOT AVAILABLE bf-orig-oe-rel THEN
     RETURN.
 
 IF bf-orig-oe-rel.tot-qty EQ bf-orig-oe-rel.qty THEN DO:
@@ -4062,7 +4062,7 @@ PROCEDURE ReprintTag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR lv-found-recs AS LOG NO-UNDO.
+ DEFINE VARIABLE lv-found-recs AS LOG NO-UNDO.
  lv-found-recs = NO.
  FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "T"
       BY w-fg-rctd.tag
@@ -4074,8 +4074,8 @@ PROCEDURE ReprintTag :
 
      FIND FIRST loadtag WHERE loadtag.company     EQ cocode
                  AND loadtag.item-type   EQ NO
-                 AND loadtag.tag-no  eq w-fg-rctd.tag2 NO-LOCK NO-ERROR.
-  IF NOT AVAIL loadtag THEN NEXT.
+                 AND loadtag.tag-no  EQ w-fg-rctd.tag2 NO-LOCK NO-ERROR.
+  IF NOT AVAILABLE loadtag THEN NEXT.
     
   RUN create-w-ord.
   lv-found-recs = YES.
@@ -4085,7 +4085,7 @@ PROCEDURE ReprintTag :
   FIND FIRST sys-ctrl NO-LOCK 
           WHERE sys-ctrl.company EQ gcompany
             AND sys-ctrl.name    EQ "BARDIR" NO-ERROR.
-      IF NOT AVAIL sys-ctrl THEN
+      IF NOT AVAILABLE sys-ctrl THEN
           DO TRANSACTION:
           CREATE sys-ctrl.
           ASSIGN
@@ -4097,7 +4097,7 @@ PROCEDURE ReprintTag :
       v-out = sys-ctrl.descrip.
 
   IF v-out = "" THEN v-out = "c:~\ba~\label~\loadtag.txt".
-  ELSE do:
+  ELSE DO:
      IF SUBSTRING(v-out,LENGTH(v-out),1) = "/" OR
         SUBSTRING(v-out,LENGTH(v-out),1) = "\" THEN .
      ELSE v-out = v-out + "/".
@@ -4126,47 +4126,47 @@ PROCEDURE run-report PRIVATE :
 
 {sys/inc/ctrtext.i str-tit 112}.
 
-DEF VAR ext-cost AS DEC NO-UNDO.
-def var type as ch format "X" initial "R".
-def var type-prt as ch format "X(11)" init "".
-def var v-fg-qty like fg-rctd.t-qty.
-def var v-fg-cost as dec format "->,>>>,>>9.99<<".
-def var v-tot-qty as int format "->>>,>>>,>>9".
-def var v-tot-cost as dec format "->>>,>>9.99<<".
-def var v-grd-tot-qty as int format "->>>,>>>,>>9".
-def var v-grd-tot-cost as dec format "->>,>>>,>>9.99<<".                     
-def var v-grd-tot-value as dec format "->>,>>>,>>9.99<<".                     
-def var v-tot-value as dec format "->>,>>>,>>9.99".
-def var v-cum-tot as de.                                   
-def var v-tran-type as char format "x(1)".      
-def var v-entrytype as char initial "REC ,TRAN,ADJ ,SHIP,RET ,INIT".
-def var v-on like eb.num-up.
-def var v-qty-pallet as decimal format "->>,>>>,>>9" no-undo.
-def var v-whse like fg-rctd.loc.            
-def var v-one as integer format "->>,>>9" init 1.
-def var v-ftime as logical init no.
-def var v-dscr          like account.dscr.
-def var v-disp-actnum   like account.actnum.
-def var v-disp-amt      as   dec format ">>,>>>,>>9.99cr".
-def var v-hdr as char format "x(12)".
-def var v-postlst  as cha no-undo.
-DEF VAR ll-wip AS LOG NO-UNDO.
-DEF VAR li AS INT NO-UNDO.
-DEF VAR li-loop AS INT NO-UNDO.
-DEF VAR v-time AS CHAR FORMAT "X(5)" NO-UNDO.
+DEFINE VARIABLE ext-cost AS DECIMAL NO-UNDO.
+DEFINE VARIABLE type AS ch FORMAT "X" INITIAL "R".
+DEFINE VARIABLE type-prt AS ch FORMAT "X(11)" INIT "".
+DEFINE VARIABLE v-fg-qty LIKE fg-rctd.t-qty.
+DEFINE VARIABLE v-fg-cost AS DECIMAL FORMAT "->,>>>,>>9.99<<".
+DEFINE VARIABLE v-tot-qty AS INTEGER FORMAT "->>>,>>>,>>9".
+DEFINE VARIABLE v-tot-cost AS DECIMAL FORMAT "->>>,>>9.99<<".
+DEFINE VARIABLE v-grd-tot-qty AS INTEGER FORMAT "->>>,>>>,>>9".
+DEFINE VARIABLE v-grd-tot-cost AS DECIMAL FORMAT "->>,>>>,>>9.99<<".                     
+DEFINE VARIABLE v-grd-tot-value AS DECIMAL FORMAT "->>,>>>,>>9.99<<".                     
+DEFINE VARIABLE v-tot-value AS DECIMAL FORMAT "->>,>>>,>>9.99".
+DEFINE VARIABLE v-cum-tot AS de.                                   
+DEFINE VARIABLE v-tran-type AS CHARACTER FORMAT "x(1)".      
+DEFINE VARIABLE v-entrytype AS CHARACTER INITIAL "REC ,TRAN,ADJ ,SHIP,RET ,INIT".
+DEFINE VARIABLE v-on LIKE eb.num-up.
+DEFINE VARIABLE v-qty-pallet AS DECIMAL FORMAT "->>,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE v-whse LIKE fg-rctd.loc.            
+DEFINE VARIABLE v-one AS INTEGER FORMAT "->>,>>9" INIT 1.
+DEFINE VARIABLE v-ftime AS LOGICAL INIT NO.
+DEFINE VARIABLE v-dscr          LIKE account.dscr.
+DEFINE VARIABLE v-disp-actnum   LIKE account.actnum.
+DEFINE VARIABLE v-disp-amt      AS   DECIMAL FORMAT ">>,>>>,>>9.99cr".
+DEFINE VARIABLE v-hdr AS CHARACTER FORMAT "x(12)".
+DEFINE VARIABLE v-postlst  AS cha NO-UNDO.
+DEFINE VARIABLE ll-wip AS LOG NO-UNDO.
+DEFINE VARIABLE li AS INTEGER NO-UNDO.
+DEFINE VARIABLE li-loop AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-time AS CHARACTER FORMAT "X(5)" NO-UNDO.
 
-DEF VAR v-itm-lbl  AS CHAR FORMAT "x(15)" NO-UNDO.
-DEF VAR v-itm-dsh  AS CHAR FORMAT "x(15)" NO-UNDO.
-DEF VAR v-desc-lbl AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-Po-lbl   AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-vend-lbl AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-desc-dsh AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-Po-dsh   AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-vend-dsh AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-uom-lbl  AS CHAR FORMAT "x(10)" NO-UNDO.
-DEF VAR v-uom-dsh  AS CHAR FORMAT "x(10)" NO-UNDO.
-DEF VAR v-cstprt   AS CHAR FORMAT "x(15)" NO-UNDO.
-DEF VAR v-pr-tots2 LIKE v-pr-tots         NO-UNDO.
+DEFINE VARIABLE v-itm-lbl  AS CHARACTER FORMAT "x(15)" NO-UNDO.
+DEFINE VARIABLE v-itm-dsh  AS CHARACTER FORMAT "x(15)" NO-UNDO.
+DEFINE VARIABLE v-desc-lbl AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE v-Po-lbl   AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE v-vend-lbl AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE v-desc-dsh AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE v-Po-dsh   AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE v-vend-dsh AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE v-uom-lbl  AS CHARACTER FORMAT "x(10)" NO-UNDO.
+DEFINE VARIABLE v-uom-dsh  AS CHARACTER FORMAT "x(10)" NO-UNDO.
+DEFINE VARIABLE v-cstprt   AS CHARACTER FORMAT "x(15)" NO-UNDO.
+DEFINE VARIABLE v-pr-tots2 LIKE v-pr-tots         NO-UNDO.
 
  ASSIGN v-uom-lbl = "JOB #"
               v-uom-dsh = "----------".
@@ -4203,7 +4203,7 @@ END.
 
 RUN build-comp-tables.
 
-ASSIGN lv-pdf-file = init-dir + "\TransBol" + string(time) + ".pdf".
+ASSIGN lv-pdf-file = init-dir + "\TransBol" + string(TIME) + ".pdf".
 
 
 IF IS-xprint-form THEN DO:
@@ -4211,7 +4211,7 @@ IF IS-xprint-form THEN DO:
       CASE rd-dest:
           WHEN 1 THEN PUT "<PRINTER?>".
           WHEN 2 THEN PUT "<PREVIEW>".
-          WHEN 3 THEN do:
+          WHEN 3 THEN DO:
                PUT "<PDF-OUTPUT=" + lv-pdf-file + ">" FORM "x(100)".
           END.
       END CASE.
@@ -4235,27 +4235,27 @@ PROCEDURE send-fgemail :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-fgemail-file AS cha .
+  DEFINE INPUT PARAMETER ip-fgemail-file AS cha .
 
-  DEF VAR retcode AS INT NO-UNDO.
-  DEF VAR ls-to-list AS cha NO-UNDO.
-  DEF VAR lv-mailto AS cha NO-UNDO.
-  DEF VAR lv-mailsubject AS cha NO-UNDO.
-  DEF VAR lv-mailbody AS cha NO-UNDO.
-  DEF VAR lv-mailattach AS cha NO-UNDO.
-  DEF VAR v-fgemail-file AS cha NO-UNDO.
-  DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
+  DEFINE VARIABLE retcode AS INTEGER NO-UNDO.
+  DEFINE VARIABLE ls-to-list AS cha NO-UNDO.
+  DEFINE VARIABLE lv-mailto AS cha NO-UNDO.
+  DEFINE VARIABLE lv-mailsubject AS cha NO-UNDO.
+  DEFINE VARIABLE lv-mailbody AS cha NO-UNDO.
+  DEFINE VARIABLE lv-mailattach AS cha NO-UNDO.
+  DEFINE VARIABLE v-fgemail-file AS cha NO-UNDO.
+  DEFINE VARIABLE v-dir AS CHARACTER FORMAT "X(80)" NO-UNDO.
 
   /* gdm - 12170901 */
-  DEF BUFFER bf-job-hdr FOR job-hdr.
-  DEF BUFFER bf-oe-ordl FOR oe-ordl.
-  DEF BUFFER bf-itemfg FOR itemfg.
+  DEFINE BUFFER bf-job-hdr FOR job-hdr.
+  DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+  DEFINE BUFFER bf-itemfg FOR itemfg.
 
   FIND FIRST users WHERE
        users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
 
-  IF AVAIL users AND users.user_program[2] NE "" THEN
+  IF AVAILABLE users AND users.user_program[2] NE "" THEN
      v-dir = users.user_program[2] + "\".
   ELSE
      v-dir = "c:\tmp\".
@@ -4283,7 +4283,7 @@ PROCEDURE send-fgemail :
             bf-job-hdr.ord-no NE 0
             NO-LOCK NO-ERROR.
 
-       IF AVAIL bf-job-hdr THEN
+       IF AVAILABLE bf-job-hdr THEN
           FIND FIRST bf-oe-ordl WHERE
                bf-oe-ordl.company EQ g_company AND
                bf-oe-ordl.ord-no EQ bf-job-hdr.ord-no
@@ -4298,12 +4298,12 @@ PROCEDURE send-fgemail :
            tt-email.qty FORM "->>>,>>>,>>9" " " 
            tt-email.job-no + "-" + string(tt-email.job-no2,"99") FORM "x(10)"
            " " tt-email.i-no FORM "X(15)"
-           " " (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.part-no ELSE IF AVAIL bf-itemfg THEN bf-itemfg.part-no ELSE "") FORM "x(15)"
-           " " (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.po-no ELSE IF AVAIL bf-job-hdr THEN bf-job-hdr.po-no ELSE "") FORM "x(15)" 
-           " " (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.i-name ELSE IF AVAIL bf-itemfg THEN bf-itemfg.i-name ELSE "") FORM "x(30)"
+           " " (IF AVAILABLE bf-oe-ordl THEN bf-oe-ordl.part-no ELSE IF AVAILABLE bf-itemfg THEN bf-itemfg.part-no ELSE "") FORM "x(15)"
+           " " (IF AVAILABLE bf-oe-ordl THEN bf-oe-ordl.po-no ELSE IF AVAILABLE bf-job-hdr THEN bf-job-hdr.po-no ELSE "") FORM "x(15)" 
+           " " (IF AVAILABLE bf-oe-ordl THEN bf-oe-ordl.i-name ELSE IF AVAILABLE bf-itemfg THEN bf-itemfg.i-name ELSE "") FORM "x(30)"
            SKIP.
 
-       IF LAST-OF(tt-email.cust-no) THEN do:
+       IF LAST-OF(tt-email.cust-no) THEN DO:
            OUTPUT STREAM st-email CLOSE.           
            {custom/emailList.i &recKey=cust.rec_key &emailList=ls-to-list}
            IF ls-to-list NE '' THEN DO:
@@ -4328,11 +4328,11 @@ PROCEDURE Send-FGemail-Purchased :
   Parameters:  <none>
   Notes:       Purchase Order#, Customer Order#, FG Item# and quantity Received to Inventory.
 ------------------------------------------------------------------------------*/
- DEFINE VARIABLE cRecipientList   AS CHAR NO-UNDO INIT "".
- DEFINE VARIABLE cEmailSubject    AS CHAR NO-UNDO INIT "".
- DEFINE VARIABLE cEmailBody       AS CHAR NO-UNDO INIT "".
- DEFINE VARIABLE cEmailAttachment AS CHAR NO-UNDO INIT "".
- DEFINE VARIABLE iReturn          AS INT  NO-UNDO INIT ?.
+ DEFINE VARIABLE cRecipientList   AS CHARACTER NO-UNDO INIT "".
+ DEFINE VARIABLE cEmailSubject    AS CHARACTER NO-UNDO INIT "".
+ DEFINE VARIABLE cEmailBody       AS CHARACTER NO-UNDO INIT "".
+ DEFINE VARIABLE cEmailAttachment AS CHARACTER NO-UNDO INIT "".
+ DEFINE VARIABLE iReturn          AS INTEGER  NO-UNDO INIT ?.
   
 
   /* Process emails by recipient. */
@@ -4382,7 +4382,7 @@ PROCEDURE SetBOLForm :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER icFormName AS CHAR NO-UNDO.
+   DEFINE INPUT PARAMETER icFormName AS CHARACTER NO-UNDO.
    
       CASE icFormName:
          WHEN "Xprint" OR WHEN "bolfmt1" THEN
@@ -4414,62 +4414,62 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS cha NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label AS cha.
   
-  lv-frame-hdl = frame {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:first-child.
-  lv-field-hdl = lv-group-hdl:first-child .
+  lv-frame-hdl = FRAME {&frame-name}:handle.
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
   
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+        THEN DO:
+           IF lv-field-hdl:LABEL <> ? THEN 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
                      .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
                      .
-              lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
 
-  PUT STREAM before space(28)
+  PUT STREAM before SPACE(28)
       "< Selection Parameters >"
-      skip(1).
+      SKIP(1).
   
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR
+       entry(i,parm-lbl-list) NE "" THEN DO:
        
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
+                 trim(ENTRY(i,parm-lbl-list)) + ":".
                  
-      PUT STREAM before lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+      PUT STREAM before lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
  
-  PUT STREAM before fill("-",80) format "x(80)" skip.
+  PUT STREAM before FILL("-",80) FORMAT "x(80)" SKIP.
   
 END PROCEDURE.
 
@@ -4483,18 +4483,18 @@ PROCEDURE show-report :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
+  DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
   DEFINE VARIABLE v-trans-lbl AS CHARACTER NO-UNDO .
 
   list-name = lv-list-name[ip-int].
 
   
   DO WITH FRAME {&FRAME-NAME}:
-      case rd-dest :
-          when 1 then run output-to-printer.
-          when 2 then run output-to-screen.
-          when 3 then run output-to-file.
-          when 4 then do:
+      CASE rd-dest :
+          WHEN 1 THEN RUN output-to-printer.
+          WHEN 2 THEN RUN output-to-screen.
+          WHEN 3 THEN RUN output-to-file.
+          WHEN 4 THEN DO:
               /*run output-to-fax.*/
              /* {custom/asifax.i &type= "Customer"
                                &begin_cust=v-trans-lbl
@@ -4503,7 +4503,7 @@ PROCEDURE show-report :
                                &fax-body="FRAME {&FRAME-NAME}:TITLE"
                                &fax-file=list-name }*/
           END. 
-          when 5 then do:
+          WHEN 5 THEN DO:
               IF is-xprint-form THEN DO:
                  {custom/asimail.i &TYPE = "Customer"
                                 &begin_cust= v-trans-lbl
@@ -4523,7 +4523,7 @@ PROCEDURE show-report :
               END.
           END. 
          WHEN 6 THEN RUN output-to-port.
-      end case. 
+      END CASE. 
   END.
 
 END PROCEDURE.
@@ -4583,10 +4583,10 @@ FUNCTION get-act-rel-qty RETURNS INTEGER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lv-stat AS CHAR NO-UNDO.
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-stat AS CHARACTER NO-UNDO.
   
-  IF AVAIL oe-ordl THEN
+  IF AVAILABLE oe-ordl THEN
      FOR EACH oe-rel WHERE 
          oe-rel.company EQ cocode AND
          oe-rel.ord-no  EQ oe-ordl.ord-no AND
@@ -4614,9 +4614,9 @@ FUNCTION get-prod RETURNS INTEGER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR op-bal AS INT NO-UNDO.
-  IF AVAIL oe-ordl THEN
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEFINE VARIABLE op-bal AS INTEGER NO-UNDO.
+  IF AVAILABLE oe-ordl THEN
   DO:
      IF oe-ordl.job-no NE "" THEN
         FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK
@@ -4683,7 +4683,7 @@ FUNCTION get-tot-rcv-qty RETURNS INTEGER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-DEF VAR v-tot-qty AS INT NO-UNDO.           
+DEFINE VARIABLE v-tot-qty AS INTEGER NO-UNDO.           
 FOR EACH fg-rcpth
               WHERE fg-rcpth.company    EQ oe-ordl.company
                 AND fg-rcpth.i-no       EQ oe-ordl.i-no
@@ -4712,11 +4712,11 @@ FUNCTION is-from-addons RETURNS LOGICAL
 ------------------------------------------------------------------------------*/
 
 DEFINE VARIABLE hProc AS HANDLE NO-UNDO.
-DEF VAR lWasFound AS LOG NO-UNDO.
+DEFINE VARIABLE lWasFound AS LOG NO-UNDO.
 lWasFound = NO.
 hProc = SESSION:FIRST-PROCEDURE.
 DO WHILE VALID-HANDLE(hProc):
-    IF index(hProc:FILE-NAME, "addon") GT 0 THEN DO:
+    IF INDEX(hProc:FILE-NAME, "addon") GT 0 THEN DO:
           lWasFound = YES.
           LEAVE. /* found it. */
     END.

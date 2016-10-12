@@ -10,123 +10,123 @@
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
-def buffer xoe-bolh     for oe-bolh.
-def buffer xoe-boll     for oe-boll.
-def buffer xitemfg      for itemfg.
-def buffer xxreport     for report.
+DEFINE BUFFER xoe-bolh     FOR oe-bolh.
+DEFINE BUFFER xoe-boll     FOR oe-boll.
+DEFINE BUFFER xitemfg      FOR itemfg.
+DEFINE BUFFER xxreport     FOR report.
 
 {oe/rep/oe-lad.i}
 
-def var v-salesman          as   char format "x(26)".
-def var v-fob               as   char format "x(12)".
-def var v-tot-cases         as   int format "->,>>>,>>9".
-def var v-tot-palls         as   int format "->,>>>,>>9".
-def var v-tot-wt            as   dec format "->>,>>>,>>9".
+DEFINE VARIABLE v-salesman          AS   CHARACTER FORMAT "x(26)".
+DEFINE VARIABLE v-fob               AS   CHARACTER FORMAT "x(12)".
+DEFINE VARIABLE v-tot-cases         AS   INTEGER FORMAT "->,>>>,>>9".
+DEFINE VARIABLE v-tot-palls         AS   INTEGER FORMAT "->,>>>,>>9".
+DEFINE VARIABLE v-tot-wt            AS   DECIMAL FORMAT "->>,>>>,>>9".
 
-def var v-tot-pkgs          as   int format ">>9".
-def var v-pal-cnt           as   dec.
-def var v-ord-qty           like oe-ordl.qty.
-def var v-bol-qty           like oe-boll.qty.
-def var v-ship-qty          like oe-ordl.ship-qty.
-def var v-bol-wt            as   dec.
-def var v-part-dscr         as   char format "x(30)".
-def var v-part-comp         as   char format "x".
-def var v-part-qty          as   dec.
-def var v-ord-no            like oe-boll.ord-no.
-def var v-po-no             like oe-bolh.po-no.
-def var v-job-no            as   char format "x(9)" no-undo.
-def var v-phone-num         as   char format "x(13)" no-undo.
-DEF VAR v-ship-phone        AS   CHAR FORMAT "X(13)" NO-UNDO.
+DEFINE VARIABLE v-tot-pkgs          AS   INTEGER FORMAT ">>9".
+DEFINE VARIABLE v-pal-cnt           AS   DECIMAL.
+DEFINE VARIABLE v-ord-qty           LIKE oe-ordl.qty.
+DEFINE VARIABLE v-bol-qty           LIKE oe-boll.qty.
+DEFINE VARIABLE v-ship-qty          LIKE oe-ordl.ship-qty.
+DEFINE VARIABLE v-bol-wt            AS   DECIMAL.
+DEFINE VARIABLE v-part-dscr         AS   CHARACTER FORMAT "x(30)".
+DEFINE VARIABLE v-part-comp         AS   CHARACTER FORMAT "x".
+DEFINE VARIABLE v-part-qty          AS   DECIMAL.
+DEFINE VARIABLE v-ord-no            LIKE oe-boll.ord-no.
+DEFINE VARIABLE v-po-no             LIKE oe-bolh.po-no.
+DEFINE VARIABLE v-job-no            AS   CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-phone-num         AS   CHARACTER FORMAT "x(13)" NO-UNDO.
+DEFINE VARIABLE v-ship-phone        AS   CHARACTER FORMAT "X(13)" NO-UNDO.
 
-def var v-ship-name  like shipto.ship-name.
-def var v-ship-addr  like shipto.ship-addr.
-def var v-ship-city  like shipto.ship-city.
-def var v-ship-state like shipto.ship-state.
-def var v-ship-zip   like shipto.ship-zip.
-def var v-ship-addr3 as   char format "x(30)".
-def var v-comp-name  like company.name.
-def var v-comp-addr  like company.addr.
-def var v-comp-city  like company.city.
-def var v-comp-state like company.state.
-def var v-comp-zip   like company.zip.
-def var v-comp-addr3 as   char format "x(30)".
-def var v-cust-addr3 as   char format "x(30)".
-def var v-1          LIKE oe-boll.cases INIT 1 no-undo.
+DEFINE VARIABLE v-ship-name  LIKE shipto.ship-name.
+DEFINE VARIABLE v-ship-addr  LIKE shipto.ship-addr.
+DEFINE VARIABLE v-ship-city  LIKE shipto.ship-city.
+DEFINE VARIABLE v-ship-state LIKE shipto.ship-state.
+DEFINE VARIABLE v-ship-zip   LIKE shipto.ship-zip.
+DEFINE VARIABLE v-ship-addr3 AS   CHARACTER FORMAT "x(30)".
+DEFINE VARIABLE v-comp-name  LIKE company.name.
+DEFINE VARIABLE v-comp-addr  LIKE company.addr.
+DEFINE VARIABLE v-comp-city  LIKE company.city.
+DEFINE VARIABLE v-comp-state LIKE company.state.
+DEFINE VARIABLE v-comp-zip   LIKE company.zip.
+DEFINE VARIABLE v-comp-addr3 AS   CHARACTER FORMAT "x(30)".
+DEFINE VARIABLE v-cust-addr3 AS   CHARACTER FORMAT "x(30)".
+DEFINE VARIABLE v-1          LIKE oe-boll.cases INIT 1 NO-UNDO.
 
-def var v-terms like oe-ord.terms-d no-undo.
-def var v-frt-terms as char format "x(12)" no-undo.
-def var v-zone like carr-mtx.del-zone no-undo.
+DEFINE VARIABLE v-terms LIKE oe-ord.terms-d NO-UNDO.
+DEFINE VARIABLE v-frt-terms AS CHARACTER FORMAT "x(12)" NO-UNDO.
+DEFINE VARIABLE v-zone LIKE carr-mtx.del-zone NO-UNDO.
 
-def workfile w2 no-undo
-    field cases            as   int format ">9"
-    field cas-cnt          as   int format ">>>>9".
+DEFINE WORKFILE w2 NO-UNDO
+    FIELD cases            AS   INTEGER FORMAT ">9"
+    FIELD cas-cnt          AS   INTEGER FORMAT ">>>>9".
 
-def workfile w3 no-undo
-    field ship-i           as   char format "x(60)".
+DEFINE WORKFILE w3 NO-UNDO
+    FIELD ship-i           AS   CHARACTER FORMAT "x(60)".
 
-DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-contact AS cha FORM "x(20)" NO-UNDO .
+DEFINE VARIABLE v-tel AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-fax AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-contact AS cha FORM "x(20)" NO-UNDO .
 
-DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add5 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-comp-add5 AS cha FORM "x(30)" NO-UNDO.
 
-DEF VAR v-line-total AS DEC NO-UNDO.
-DEF VAR v-quo-total AS DEC NO-UNDO.
-def var v-t-tax      as   dec extent 3 NO-UNDO.
-def var v-bot-lab    as   char format "x(63)" extent 3 NO-UNDO.
-DEF VAR v-q-no LIKE oe-ord.q-no NO-UNDO.
-DEF VAR v-printline AS INT NO-UNDO.
-DEF VAR lv-display-comp AS LOG NO-UNDO.  /* display company address */
-DEF VAR lv-cust-no AS cha FORM "x(30)" NO-UNDO.
-DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
-DEF VAR lv-email AS cha FORM "x(40)" NO-UNDO.
-DEF VAR v-cusx-add1 AS cha NO-UNDO.
-DEF VAR v-cusx-add2 AS cha NO-UNDO.
-DEF VAR v-cusx-add3 AS cha NO-UNDO.
-DEF VAR v-cusx-add4 AS cha NO-UNDO.
-DEF VAR v-cusx-add5 AS cha NO-UNDO.
-DEF VAR v-cusx-email AS cha NO-UNDO.
-DEF VAR v-cusx-name AS cha NO-UNDO.
+DEFINE VARIABLE v-line-total AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-quo-total AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-t-tax      AS   DECIMAL EXTENT 3 NO-UNDO.
+DEFINE VARIABLE v-bot-lab    AS   CHARACTER FORMAT "x(63)" EXTENT 3 NO-UNDO.
+DEFINE VARIABLE v-q-no LIKE oe-ord.q-no NO-UNDO.
+DEFINE VARIABLE v-printline AS INTEGER NO-UNDO.
+DEFINE VARIABLE lv-display-comp AS LOG NO-UNDO.  /* display company address */
+DEFINE VARIABLE lv-cust-no AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE lv-comp-name AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE lv-email AS cha FORM "x(40)" NO-UNDO.
+DEFINE VARIABLE v-cusx-add1 AS cha NO-UNDO.
+DEFINE VARIABLE v-cusx-add2 AS cha NO-UNDO.
+DEFINE VARIABLE v-cusx-add3 AS cha NO-UNDO.
+DEFINE VARIABLE v-cusx-add4 AS cha NO-UNDO.
+DEFINE VARIABLE v-cusx-add5 AS cha NO-UNDO.
+DEFINE VARIABLE v-cusx-email AS cha NO-UNDO.
+DEFINE VARIABLE v-cusx-name AS cha NO-UNDO.
 
-DEF VAR lv-comp-color AS cha NO-UNDO.
-DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
-DEF VAR lv-bolfmt-int AS INT NO-UNDO.
-def var v-weight LIKE oe-boll.weight no-undo.
-def var v-job-po            as   CHAR NO-UNDO.
-DEF VAR v-phone AS cha NO-UNDO.
-DEF VAR v-shipto-contact LIKE shipto.contact NO-UNDO.
-DEF VAR v-ship-i AS cha EXTENT 4 FORM "x(60)" NO-UNDO.
-DEF VAR v-tmp-lines AS DEC NO-UNDO.
-DEF VAR v-print-barTag AS LOG NO-UNDO.
+DEFINE VARIABLE lv-comp-color AS cha NO-UNDO.
+DEFINE VARIABLE lv-other-color AS cha INIT "BLACK" NO-UNDO.
+DEFINE VARIABLE lv-bolfmt-int AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-weight LIKE oe-boll.weight NO-UNDO.
+DEFINE VARIABLE v-job-po            AS   CHARACTER NO-UNDO.
+DEFINE VARIABLE v-phone AS cha NO-UNDO.
+DEFINE VARIABLE v-shipto-contact LIKE shipto.contact NO-UNDO.
+DEFINE VARIABLE v-ship-i AS cha EXTENT 4 FORM "x(60)" NO-UNDO.
+DEFINE VARIABLE v-tmp-lines AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-print-barTag AS LOG NO-UNDO.
 
-DEFINE SHARED VARIABLE cShipTO AS CHAR NO-UNDO .
-DEF SHARED TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
+DEFINE SHARED VARIABLE cShipTO AS CHARACTER NO-UNDO .
+DEFINE SHARED TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
     FIELD row-id   AS ROWID
     FIELD has-rec  AS LOG INIT NO
     FIELD invoiced AS LOG INIT NO
-    FIELD old-tag AS CHAR
-    FIELD ret-loc AS CHAR
-    FIELD ret-loc-bin AS CHAR
-    FIELD blank-cust AS CHAR.
+    FIELD old-tag AS CHARACTER
+    FIELD ret-loc AS CHARACTER
+    FIELD ret-loc-bin AS CHARACTER
+    FIELD blank-cust AS CHARACTER.
 
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
-DEF VAR lv-net-wt as dec NO-UNDO.
-DEF VAR v-receipt-date AS DATE FORM "99/99/99" NO-UNDO.
-DEF VAR v-ship-from AS CHAR NO-UNDO.
-DEF VAR iBolno     AS INTEGER NO-UNDO .
-DEF VAR v-tot-pallets AS DECIMAL NO-UNDO .
+DEFINE VARIABLE ls-image1 AS cha NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE lv-net-wt AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-receipt-date AS DATE FORM "99/99/99" NO-UNDO.
+DEFINE VARIABLE v-ship-from AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iBolno     AS INTEGER NO-UNDO .
+DEFINE VARIABLE v-tot-pallets AS DECIMAL NO-UNDO .
 RUN GetPrintBarTag IN SOURCE-PROCEDURE (OUTPUT v-Print-BarTag) NO-ERROR.
 
-ASSIGN tmpstore = fill("-",130).
+ASSIGN tmpstore = FILL("-",130).
 
-find first sys-ctrl where sys-ctrl.company eq cocode
-                      and sys-ctrl.name    eq "BOLFMTTran" no-lock no-error.
-IF AVAIL sys-ctrl THEN 
+FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+                      AND sys-ctrl.name    EQ "BOLFMTTran" NO-LOCK NO-ERROR.
+IF AVAILABLE sys-ctrl THEN 
    ASSIGN lv-display-comp = sys-ctrl.log-fld 
           lv-bolfmt-int = sys-ctrl.int-fld.
 ELSE ASSIGN lv-display-comp = NO
@@ -137,17 +137,17 @@ ASSIGN
    FILE-INFO:FILE-NAME = ls-image1
    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
-FIND first sys-ctrl where sys-ctrl.company eq cocode
-                      and sys-ctrl.name    eq "LOGOCOLR" no-lock no-error.
-IF AVAIL sys-ctrl THEN lv-comp-color = sys-ctrl.char-fld.
+FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+                      AND sys-ctrl.name    EQ "LOGOCOLR" NO-LOCK NO-ERROR.
+IF AVAILABLE sys-ctrl THEN lv-comp-color = sys-ctrl.char-fld.
 ELSE lv-comp-color = "BLACK".
 
-find first company where company.company = cocode no-lock no-error.
+FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
 
 
 FIND FIRST cust WHERE cust.company = cocode AND
                      cust.active = "X" NO-LOCK NO-ERROR.
-IF AVAIL cust THEN
+IF AVAILABLE cust THEN
  ASSIGN v-comp-add1 = cust.addr[1]
         v-comp-add2 = cust.addr[2]
         v-comp-add3 = cust.city + ", " + cust.state + "  " + cust.zip
@@ -194,7 +194,7 @@ FOR EACH w-fg-rctd NO-LOCK :
 END.
 
 FIND FIRST w-fg-rctd NO-LOCK NO-ERROR .
-IF NOT AVAIL w-fg-rctd THEN DO:   
+IF NOT AVAILABLE w-fg-rctd THEN DO:   
       RETURN.
   END.
 IF iBolno EQ 0 THEN DO:
@@ -203,14 +203,14 @@ END.
 
 {sa/sa-sls01.i}
 
-find first oe-ctrl where oe-ctrl.company eq cocode no-lock.
+FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK.
 v-printline = 0.
 
-for each w-fg-rctd
-    break by w-fg-rctd.blank-cust:
+FOR EACH w-fg-rctd
+    BREAK BY w-fg-rctd.blank-cust:
      FIND FIRST cust WHERE cust.company = cocode AND
                          cust.active = "X" NO-LOCK NO-ERROR.
-     IF w-fg-rctd.bol-no EQ 0 THEN do:
+     IF w-fg-rctd.bol-no EQ 0 THEN DO:
          ASSIGN w-fg-rctd.bol-no =  iBolno .
          FIND FIRST fg-rctd EXCLUSIVE-LOCK 
              WHERE ROWID(fg-rctd)    EQ w-fg-rctd.row-id 
@@ -218,14 +218,14 @@ for each w-fg-rctd
          ASSIGN fg-rctd.bol-no = iBolno .
      END.
   
-    if first-of(w-fg-rctd.blank-cust) then do:
+    IF FIRST-OF(w-fg-rctd.blank-cust) THEN DO:
   
     RUN oe/custxship.p (cust.company,
                         lv-cust-no,
                         cShipTO,
                         BUFFER shipto).
 
-    assign
+    ASSIGN
      v-ship-name    = shipto.ship-name
      v-ship-addr[1] = shipto.ship-addr[1]
      v-ship-addr[2] = shipto.ship-addr[2]
@@ -244,7 +244,7 @@ for each w-fg-rctd
     IF v-phone = "" THEN v-phone = "(" + shipto.area-code + ")" + string(shipto.phone,"xxx-xxxx").
     IF v-shipto-contact = "" THEN v-shipto-contact = shipto.contact.
 
-    if shipto.broker then DO:
+    IF shipto.broker THEN DO:
        ASSIGN v-comp-add1 = cust.addr[1]
               v-comp-add2 = cust.addr[2]
               v-comp-add3   = cust.city + ", " +
@@ -263,7 +263,7 @@ for each w-fg-rctd
                 v-comp-add5 = v-cusx-add5
                 lv-email    = v-cusx-email
                 lv-comp-name = v-cusx-name.
-    assign
+    ASSIGN
        v-comp-name    = cust.name
        v-comp-addr[1] = cust.addr[1]
        v-comp-addr[2] = cust.addr[2]
@@ -271,58 +271,58 @@ for each w-fg-rctd
                         cust.state + "  " +
                         cust.zip.
 
-    if trim(v-comp-addr3) eq "," then v-comp-addr3 = "".
+    IF TRIM(v-comp-addr3) EQ "," THEN v-comp-addr3 = "".
               
-    if v-comp-addr[2] eq "" then
-      assign
+    IF v-comp-addr[2] EQ "" THEN
+      ASSIGN
        v-comp-addr[2] = v-comp-addr3
        v-comp-addr3   = "".
-    if v-ship-addr[2] eq "" then
-      assign
+    IF v-ship-addr[2] EQ "" THEN
+      ASSIGN
        v-ship-addr[2] = v-ship-addr3
        v-ship-addr3   = "".
 
-    if trim(v-ship-addr3) eq "," then v-ship-addr3 = "".
-    if trim(v-cust-addr3) eq "," then v-cust-addr3 = "".
+    IF TRIM(v-ship-addr3) EQ "," THEN v-ship-addr3 = "".
+    IF TRIM(v-cust-addr3) EQ "," THEN v-cust-addr3 = "".
 
-    assign
+    ASSIGN
      v-salesman = ""
      v-fob      = ""
      v-terms    = "" .
       .
    
-      if not available carrier then
-      find first carrier where carrier.company = cust.company
-        and carrier.carrier = shipto.carrier no-lock no-error.
+      IF NOT AVAILABLE carrier THEN
+      FIND FIRST carrier WHERE carrier.company = cust.company
+        AND carrier.carrier = shipto.carrier NO-LOCK NO-ERROR.
 
           v-salesman = cust.sman .
       
-      assign v-terms = cust.terms
-             v-frt-terms = if cust.frt-pay eq "P" then "Prepaid"
-                           else if cust.frt-pay eq "B" then "Bill"
-                           else if cust.frt-pay eq "C" then "Collect"
-                           else if cust.frt-pay eq "T" then "Third Party"
-                           else ""
+      ASSIGN v-terms = cust.terms
+             v-frt-terms = IF cust.frt-pay EQ "P" THEN "Prepaid"
+                           ELSE IF cust.frt-pay EQ "B" THEN "Bill"
+                           ELSE IF cust.frt-pay EQ "C" THEN "Collect"
+                           ELSE IF cust.frt-pay EQ "T" THEN "Third Party"
+                           ELSE ""
              v-zone = cust.del-zone.
              
-      if v-terms NE "" then
-      do:
-        find first terms where terms.t-code eq cust.terms no-lock no-error.
-        if avail terms then
-          assign v-terms = terms.dscr.
-      end.
+      IF v-terms NE "" THEN
+      DO:
+        FIND FIRST terms WHERE terms.t-code EQ cust.terms NO-LOCK NO-ERROR.
+        IF AVAILABLE terms THEN
+          ASSIGN v-terms = terms.dscr.
+      END.
       
-      v-salesman = trim(v-salesman).
+      v-salesman = TRIM(v-salesman).
       v-job-no = IF w-fg-rctd.job-no = "" THEN "" ELSE (w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,">>")).
-      if v-salesman gt '' then
-        if substr(v-salesman,length(trim(v-salesman)),1) eq "," then
-          substr(v-salesman,length(trim(v-salesman)),1) = "".
+      IF v-salesman GT '' THEN
+        IF substr(v-salesman,LENGTH(TRIM(v-salesman)),1) EQ "," THEN
+          substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".
 
-      v-fob = if cust.fob-code begins "ORIG" then "Origin" else "Destination".
+      v-fob = IF cust.fob-code BEGINS "ORIG" THEN "Origin" ELSE "Destination".
   
     {fg/rep/boltgpi.i}
 
-  end. /* first-of(cust.cust-no) */
+  END. /* first-of(cust.cust-no) */
 
   PUT SPACE(2) w-fg-rctd.i-no FORMAT "x(15)" SPACE(7)
       w-fg-rctd.tag FORMAT "x(30)"
@@ -338,7 +338,7 @@ for each w-fg-rctd
    END.
   
   
-  if last-of(w-fg-rctd.blank-cust) then do:
+  IF LAST-OF(w-fg-rctd.blank-cust) THEN DO:
      IF v-comp-addr[2] = "" THEN
            ASSIGN v-comp-addr[2] = v-comp-addr3
                   v-comp-addr3 = "".
@@ -349,7 +349,7 @@ for each w-fg-rctd
      
      /*{oe/rep/bolxprnt.i}*/
 
-    v-last-page = page-number.
+    v-last-page = PAGE-NUMBER.
 
   /*IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.*/
 
@@ -385,7 +385,7 @@ for each w-fg-rctd
   END.  /* last-of*/
 
   /*oe-bolh.printed = yes.*/
-end. /* for each w-fg-rctd  */
+END. /* for each w-fg-rctd  */
 
 
 
