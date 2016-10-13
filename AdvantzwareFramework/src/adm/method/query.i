@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r2
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Method-Library
 /*********************************************************************
 * Copyright (C) 2000 by Progress Software Corporation. All rights    *
 * reserved. Prior versions of this work may contain portions         *
@@ -8,18 +8,18 @@
 *                                                                    *
 *********************************************************************/
 /*-------------------------------------------------------------------------
-    Library     : query.i  
+    Library     : query.i
     Purpose     : Basic ADM methods for query objects
-  
+
     Syntax      : {src/adm/method/query.i}
 
     Description :
-  
+
     Author(s)   :
     Created     :
     Notes       :
-    HISTORY: 
-      
+    HISTORY:
+
 --------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -51,7 +51,7 @@
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -67,7 +67,7 @@
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: Method-Library
-   Allow: 
+   Allow:
    Frames: 0
    Add Fields to: Neither
    Other Settings: INCLUDE-ONLY
@@ -77,7 +77,7 @@
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
+/* DESIGN Window definition (used by the UIB)
   CREATE WINDOW Method-Library ASSIGN
          HEIGHT             = 15.19
          WIDTH              = 66.
@@ -85,7 +85,7 @@
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Method-Library
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/smart.i}
@@ -95,10 +95,10 @@
 &ANALYZE-RESUME
 
 
- 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Method-Library 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Method-Library
 
 
 /* ***************************  Main Block  *************************** */
@@ -114,14 +114,16 @@ ASSIGN adm-first-rowid = ?
 
 &IF DEFINED(EXCLUDE-adm-get-first) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-get-first Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-get-first Method-Library
 PROCEDURE adm-get-first :
 /* -----------------------------------------------------------
   Purpose:     Gets the first record in the default query.
   Parameters:  <none>
-  Notes:       
+  Notes:
 -------------------------------------------------------------*/
-  
+
+    DEFINE VARIABLE oGrid AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseControl NO-UNDO .
+
   &IF DEFINED(FIRST-TABLE-IN-QUERY-{&QUERY-NAME}) NE 0 &THEN
     IF NOT adm-query-opened THEN RETURN.
 
@@ -129,13 +131,13 @@ PROCEDURE adm-get-first :
     IF AVAILABLE {&FIRST-TABLE-IN-QUERY-{&QUERY-NAME}} THEN
     DO:
         IF NUM-ENTRIES("{&TABLES-IN-QUERY-{&QUERY-NAME}}":U," ":U) = 1 THEN
-            ASSIGN adm-first-rowid = 
+            ASSIGN adm-first-rowid =
                 ROWID ({&FIRST-TABLE-IN-QUERY-{&QUERY-NAME}}).
         RUN new-state ('first-record,SELF':U).
     END.
 
     RUN dispatch IN THIS-PROCEDURE ('row-changed':U) .
-    
+
   &ELSEIF DEFINED(FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}) NE 0 &THEN
     DEFINE VARIABLE browser-handle AS HANDLE  NO-UNDO.
     DEFINE VARIABLE q-stat         AS LOGICAL NO-UNDO.
@@ -146,10 +148,25 @@ PROCEDURE adm-get-first :
         RUN new-state ('no-record-available,SELF':U).
       ELSE DO:
         browser-handle = {&BROWSE-NAME}:HANDLE.
-        APPLY "HOME":U TO BROWSE {&BROWSE-NAME}.
-        q-stat = browser-handle:SELECT-FOCUSED-ROW(). 
+
+        IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive THEN DO:
+
+            oGrid = Consultingwerk.WindowIntegrationKit.Controls.WinKitControls:FromBrowseHandle(browser-handle) .
+
+            IF VALID-OBJECT (oGrid) THEN
+                oGrid:BindingSource:Position = 0 .
+            ELSE DO:
+                APPLY "HOME":U TO BROWSE {&BROWSE-NAME}.
+                q-stat = browser-handle:SELECT-FOCUSED-ROW().
+            END.
+        END.
+        ELSE DO:
+            APPLY "HOME":U TO BROWSE {&BROWSE-NAME}.
+            q-stat = browser-handle:SELECT-FOCUSED-ROW().
+        END.
+
         IF NUM-ENTRIES("{&TABLES-IN-QUERY-{&BROWSE-NAME}}":U," ":U) = 1 THEN
-            ASSIGN adm-first-rowid = 
+            ASSIGN adm-first-rowid =
                 ROWID ({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}).
         IF num-results("{&BROWSE-NAME}":U) = 1 THEN  /* Just one row */
             RUN new-state ('only-record,SELF':U).
@@ -158,7 +175,7 @@ PROCEDURE adm-get-first :
     END.
   &ENDIF
     RETURN.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -168,29 +185,31 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-adm-get-last) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-get-last Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-get-last Method-Library
 PROCEDURE adm-get-last :
 /* -----------------------------------------------------------
   Purpose:     gets the last record in the default query.
   Parameters:  <none>
-  Notes:       
+  Notes:
 -------------------------------------------------------------*/
-  
+
+    DEFINE VARIABLE oGrid AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseControl NO-UNDO .
+
   &IF DEFINED(FIRST-TABLE-IN-QUERY-{&QUERY-NAME}) NE 0 &THEN
     IF NOT adm-query-opened THEN RETURN.
-    
+
     GET LAST {&QUERY-NAME}.
-    IF AVAILABLE {&FIRST-TABLE-IN-QUERY-{&QUERY-NAME}} THEN 
+    IF AVAILABLE {&FIRST-TABLE-IN-QUERY-{&QUERY-NAME}} THEN
     DO:
         IF NUM-ENTRIES("{&TABLES-IN-QUERY-{&QUERY-NAME}}":U," ":U) = 1 THEN
-            ASSIGN adm-last-rowid = 
+            ASSIGN adm-last-rowid =
                 ROWID ({&FIRST-TABLE-IN-QUERY-{&QUERY-NAME}}).
         IF adm-last-rowid NE ? AND adm-first-rowid = adm-last-rowid THEN
             RUN new-state ('only-record,SELF':U).  /* Just one rec in dataset */
         ELSE RUN new-state ('last-record,SELF':U).
     END.
     RUN dispatch IN THIS-PROCEDURE ('row-changed':U).
-    
+
   &ELSEIF DEFINED(FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}) NE 0 &THEN
     DEFINE VARIABLE browser-handle AS HANDLE  NO-UNDO.
     DEFINE VARIABLE q-stat         AS LOGICAL NO-UNDO.
@@ -201,17 +220,32 @@ PROCEDURE adm-get-last :
         RUN new-state ('no-record-available,SELF':U).
       ELSE DO:
         browser-handle = {&BROWSE-NAME}:HANDLE.
-        APPLY "END":U TO BROWSE {&BROWSE-NAME}.
-        q-stat = browser-handle:SELECT-FOCUSED-ROW(). 
+
+        IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive THEN DO:
+
+            oGrid = Consultingwerk.WindowIntegrationKit.Controls.WinKitControls:FromBrowseHandle(browser-handle) .
+
+            IF VALID-OBJECT (oGrid) THEN
+                oGrid:FetchLast() .
+            ELSE DO:
+                APPLY "END":U TO BROWSE {&BROWSE-NAME}.
+                q-stat = browser-handle:SELECT-FOCUSED-ROW().
+            END.
+        END.
+        ELSE DO:
+            APPLY "END":U TO BROWSE {&BROWSE-NAME}.
+            q-stat = browser-handle:SELECT-FOCUSED-ROW().
+        END.
+
         IF NUM-ENTRIES("{&TABLES-IN-QUERY-{&BROWSE-NAME}}":U," ":U) = 1 THEN
-            ASSIGN adm-last-rowid = 
+            ASSIGN adm-last-rowid =
                 ROWID ({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}).
         RUN new-state ('last-record,SELF':U).
       END.
     END.
   &ENDIF
     RETURN.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -221,17 +255,19 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-adm-get-next) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-get-next Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-get-next Method-Library
 PROCEDURE adm-get-next :
 /* -----------------------------------------------------------
   Purpose:     Gets the next record in the default query.
   Parameters:  <none>
-  Notes:       
+  Notes:
 -------------------------------------------------------------*/
-  
+
+    DEFINE VARIABLE oApi  AS Consultingwerk.WindowIntegrationKit.Controls.IBrowseApi NO-UNDO .
+
   &IF DEFINED(FIRST-TABLE-IN-QUERY-{&QUERY-NAME}) NE 0 &THEN
     IF NOT adm-query-opened THEN RETURN.
-    GET NEXT {&QUERY-NAME}. 
+    GET NEXT {&QUERY-NAME}.
 
     IF AVAIL({&FIRST-TABLE-IN-QUERY-{&QUERY-NAME}}) THEN
     DO:
@@ -240,8 +276,8 @@ PROCEDURE adm-get-next :
         ELSE RUN new-state ('not-first-or-last,SELF':U).
         RUN dispatch IN THIS-PROCEDURE ('row-changed':U).
     END.
-    ELSE 
-        RUN dispatch IN THIS-PROCEDURE ('get-last':U).  
+    ELSE
+        RUN dispatch IN THIS-PROCEDURE ('get-last':U).
 
   &ELSEIF DEFINED(FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}) NE 0 &THEN
     DEFINE VARIABLE browser-handle AS HANDLE  NO-UNDO.
@@ -253,7 +289,16 @@ PROCEDURE adm-get-next :
         RUN new-state ('no-record-available,SELF':U).
       ELSE DO:
         browser-handle = {&BROWSE-NAME}:HANDLE.
-        q-stat = browser-handle:SELECT-NEXT-ROW(). 
+
+        IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive THEN DO:
+
+            ASSIGN oApi = Consultingwerk.WindowIntegrationKit.BrowseMethods:ForHandle(browser-handle) .
+
+            oApi:SELECT-NEXT-ROW() .
+        END.
+        ELSE
+            q-stat = browser-handle:SELECT-NEXT-ROW().
+
         IF adm-last-rowid = ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}})
              THEN RUN new-state ('last-record,SELF':U).
         ELSE RUN new-state ('not-first-or-last,SELF':U).
@@ -262,7 +307,7 @@ PROCEDURE adm-get-next :
     END.
   &ENDIF
     RETURN.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -272,18 +317,20 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-adm-get-prev) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-get-prev Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-get-prev Method-Library
 PROCEDURE adm-get-prev :
 /* -----------------------------------------------------------
   Purpose:     Gets the previous record in the default query.
   Parameters:  <none>
-  Notes:       
+  Notes:
 -------------------------------------------------------------*/
-  
+
+    DEFINE VARIABLE oApi  AS Consultingwerk.WindowIntegrationKit.Controls.IBrowseApi NO-UNDO .
+
   &IF DEFINED(FIRST-TABLE-IN-QUERY-{&QUERY-NAME}) NE 0 &THEN
     IF NOT adm-query-opened THEN RETURN.
-    
-    GET PREV {&QUERY-NAME}. 
+
+    GET PREV {&QUERY-NAME}.
 
     IF AVAIL({&FIRST-TABLE-IN-QUERY-{&QUERY-NAME}}) THEN
     DO:
@@ -292,7 +339,7 @@ PROCEDURE adm-get-prev :
         ELSE RUN new-state ('not-first-or-last,SELF':U).
         RUN dispatch IN THIS-PROCEDURE ('row-changed':U).
     END.
-    ELSE 
+    ELSE
         RUN dispatch IN THIS-PROCEDURE ('get-first':U).
 
   &ELSEIF DEFINED(FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}) NE 0 &THEN
@@ -305,7 +352,16 @@ PROCEDURE adm-get-prev :
         RUN new-state ('no-record-available,SELF':U).
       ELSE DO:
         browser-handle = {&BROWSE-NAME}:HANDLE.
-        q-stat = browser-handle:SELECT-PREV-ROW(). 
+
+        IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive THEN DO:
+
+            ASSIGN oApi = Consultingwerk.WindowIntegrationKit.BrowseMethods:ForHandle(browser-handle) .
+
+            oApi:SELECT-NEXT-ROW() .
+        END.
+        ELSE
+            q-stat = browser-handle:SELECT-PREV-ROW().
+
         IF adm-first-rowid = ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}})
              THEN RUN new-state ('first-record,SELF':U).
         ELSE RUN new-state ('not-first-or-last,SELF':U).
@@ -314,7 +370,7 @@ PROCEDURE adm-get-prev :
     END.
   &ENDIF
     RETURN.
-    
+
 END PROCEDURE.
 
 &ENDIF
@@ -326,12 +382,12 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-new-first-record) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-first-record Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-first-record Method-Library
 PROCEDURE new-first-record :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:
   Parameters:  <none>
-  Notes:       
+  Notes:
 ------------------------------------------------------------------------------*/
 
 DEFINE INPUT PARAMETER rRowid AS ROWID NO-UNDO.
