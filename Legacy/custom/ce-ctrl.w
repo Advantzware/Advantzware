@@ -653,6 +653,14 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    FRAME-NAME                                                           */
 /* SETTINGS FOR RADIO-SET avg_cost IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
+ASSIGN 
+       Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-buttom".
+
+ASSIGN 
+       Btn_Update:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-buttom".
+
 /* SETTINGS FOR TOGGLE-BOX ce-ctrl.comm-add IN FRAME DEFAULT-FRAME
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN ce-ctrl.comm-mrkup IN FRAME DEFAULT-FRAME
