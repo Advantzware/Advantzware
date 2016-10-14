@@ -64,7 +64,7 @@ DEFINE BUTTON btnMoveCol
      IMAGE-UP FILE "Graphics/32x32/spreadsheet_column.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "MoveCol" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Phone Info.".
+     SIZE 7.8 BY 1.81 TOOLTIP "Move Column".
 
 
 /* ************************  Frame Definitions  *********************** */

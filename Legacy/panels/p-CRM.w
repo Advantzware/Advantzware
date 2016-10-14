@@ -64,7 +64,7 @@ DEFINE BUTTON btnCRM
      IMAGE-UP FILE "Graphics/32x32/handshake.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "CRM" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Phone Info.".
+     SIZE 7.8 BY 1.81 TOOLTIP "CRM".
 
 
 /* ************************  Frame Definitions  *********************** */
