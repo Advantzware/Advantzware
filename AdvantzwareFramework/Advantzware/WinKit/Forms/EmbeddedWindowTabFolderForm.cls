@@ -977,7 +977,8 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID SelectTab (piPage AS INTEGER):
 
-        DEFINE VARIABLE oTab             AS Infragistics.Win.UltraWinTabControl.UltraTab NO-UNDO .
+        DEFINE VARIABLE oTab    AS Infragistics.Win.UltraWinTabControl.UltraTab NO-UNDO .
+        DEFINE VARIABLE hWidget AS HANDLE                                       NO-UNDO .
 
         ASSIGN lSelectingTab = TRUE .
 
@@ -989,11 +990,10 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
             THIS-OBJECT:ultraTabControl1:SelectedTab = oTab .
         END.
 
-
-
         {Consultingwerk/foreach.i ContextualTabGroup oTabGroup in this-object:ToolbarsManager:Ribbon:ContextualTabGroups}
 
             oTabGroup:Visible = (oTabGroup:Key = "page_" + STRING (piPage)) .
+
         END.
 
         IF THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups:Exists ("page_" + STRING (piPage)) THEN DO:
@@ -1011,6 +1011,21 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
                 THIS-OBJECT:ToolbarsManager:MdiParentManager:Ribbon:SelectedTab =
                     THIS-OBJECT:ToolbarsManager:Ribbon:Tabs[0]:AttachedParentTab .
 
+        // Force refresh of all tool labels
+        Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (ultraToolbarsManager1) .
+
+        {Consultingwerk/foreach.i ToolBase oTool IN ultraToolbarsManager1:Tools}
+            ASSIGN hWidget = WIDGET-HANDLE (UNBOX(oTool:Tag)) NO-ERROR .
+
+            IF VALID-HANDLE (hWidget) AND CAN-QUERY (hWidget, "LABEL":U) THEN DO:
+                oTool:SharedProps:Caption = hWidget:LABEL .
+
+                {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oInstance in oTool:SharedProps:ToolInstances }
+                    oInstance:InstanceProps:Caption = hWidget:LABEL .
+                END.
+
+            END.
+        END.
 
         FINALLY:
             ASSIGN lSelectingTab = FALSE .
