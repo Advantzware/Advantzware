@@ -3886,6 +3886,23 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
     METHOD PUBLIC STATIC VOID RefreshTools (poToolbarsManager AS UltraToolbarsManager,
                                             plIncludeVisible  AS LOGICAL):
 
+        UltraToolbarsHelper:RefreshTools (poToolbarsManager,
+                                          plIncludeVisible,
+                                          FALSE) .
+    END METHOD .
+
+    /**
+     * Purpose: Refreshs Menu items and Toolbar items based on the ABL widget
+     *          status
+     * Notes:
+     * @param poToolbarsManager The reference to the UltraToolbarsManager that contains the ButtonTools
+     * @param plIncludeVisible Logical value indicating if the Visible Attribute should be applied as well
+     * @param plUpdateInstanceCaption Logical value indicating if the Caption of the Tool Instances should be updated as well
+     */
+    METHOD PUBLIC STATIC VOID RefreshTools (poToolbarsManager       AS UltraToolbarsManager,
+                                            plIncludeVisible        AS LOGICAL,
+                                            plUpdateInstanceCaption AS LOGICAL):
+
         DEFINE VARIABLE hWidget      AS HANDLE                NO-UNDO .
         DEFINE VARIABLE lReloadImage AS LOGICAL               NO-UNDO .
 
@@ -3918,8 +3935,15 @@ CLASS Consultingwerk.Util.UltraToolbarsHelper:
                 IF hWidget:TYPE <> WidgetTypeEnum:RadioSet AND CAN-QUERY (hWidget, "LABEL":U) AND (oTool:SharedProps:Caption <> hWidget:LABEL) AND
                    (poToolbarsManager:Ribbon:Visible = FALSE
                    AND (NOT VALID-OBJECT (oChangeRibbonToolCaptionFilter) OR oChangeRibbonToolCaptionFilter:ChangeToolLabel (hWidget)))
-                   THEN
+                   THEN DO:
                        oTool:SharedProps:Caption = hWidget:LABEL .
+
+                       IF plUpdateInstanceCaption THEN DO:
+                            {Consultingwerk/foreach.i Infragistics.Win.UltraWinToolbars.ToolBase oInstance in oTool:SharedProps:ToolInstances}
+                                oInstance:InstanceProps:Caption = hWidget:LABEL .
+                            END.
+                       END.
+                END.
 
                 IF CAN-QUERY (hWidget, "TOOLTIP":U) THEN
                     oTool:SharedProps:ToolTipText = REPLACE (hWidget:TOOLTIP,

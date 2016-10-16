@@ -611,7 +611,7 @@ CLASS Consultingwerk.Util.WidgetHelper:
      * Notes:   Does not recursively process nested frames
      * @param phParent The HANDLE of the Parent FRAME, WINDOW or FIELD-GROUP
      * @param pcWidgetType A comma delimited list of WIDGET types to search for
-     * @param pcPrivateData The PRIVATE-DATA value to search for
+     * @param pcPrivateData A comma delimited list of PRIVATE-DATA values to search for
      * @return A comma-delimited list of matching WIDGET handles
      */
     METHOD PUBLIC STATIC CHARACTER FindAllWidgetsOfTypeAndPrivateData (phParent AS HANDLE,
@@ -627,7 +627,7 @@ CLASS Consultingwerk.Util.WidgetHelper:
         ASSIGN hWidget = phParent:FIRST-CHILD .
 
         DO WHILE VALID-HANDLE (hWidget):
-            IF LOOKUP (hWidget:TYPE, pcWidgetType) > 0 AND hWidget:PRIVATE-DATA = pcPrivateData THEN
+            IF LOOKUP (hWidget:TYPE, pcWidgetType) > 0 AND LOOKUP (hWidget:PRIVATE-DATA, pcPrivateData) > 0 THEN
                 ASSIGN cList = cList + STRING (hWidget) + ",":U .
 
             ASSIGN hWidget = hWidget:NEXT-SIBLING .
