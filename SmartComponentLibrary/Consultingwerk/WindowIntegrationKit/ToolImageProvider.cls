@@ -63,7 +63,8 @@ CLASS Consultingwerk.WindowIntegrationKit.ToolImageProvider IMPLEMENTS IToolImag
                /* Mike Fechner, Consultingwerk Ltd. 09.09.2011
                   Store the ABL widget's IMAGE (filename) in the Tag of the .NET Image */
                UNBOX (CAST(poButtonTool:SharedProps:AppearancesSmall:Appearance:Image,
-                           System.Drawing.Image):Tag) = phWidget:IMAGE THEN RETURN FALSE . 
+                           System.Drawing.Image):Tag) = phWidget:IMAGE THEN
+            RETURN FALSE .
         
         ELSE 
             RETURN CAN-QUERY (phWidget, "IMAGE":U) AND phWidget:IMAGE > "":U .

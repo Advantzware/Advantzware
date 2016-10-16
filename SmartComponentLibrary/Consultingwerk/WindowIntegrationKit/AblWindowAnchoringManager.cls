@@ -350,7 +350,7 @@ CLASS Consultingwerk.WindowIntegrationKit.AblWindowAnchoringManager:
                       
         SetWidgetAnchorStyles (phWidget, anchor) .                      
 
-    END.
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Sets Anchoring for an ABL Widget                                                                      
@@ -374,7 +374,8 @@ CLASS Consultingwerk.WindowIntegrationKit.AblWindowAnchoringManager:
                       System.Windows.Forms.AnchorStyles).
                       
         SetWidgetAnchorStyles (phWidget, anchor) .                      
-    END.
+
+    END METHOD .
 
     /*------------------------------------------------------------------------------
         Purpose: Sets Anchoring for an ABL Widget                                                                      
@@ -403,6 +404,6 @@ CLASS Consultingwerk.WindowIntegrationKit.AblWindowAnchoringManager:
                       System.Windows.Forms.AnchorStyles).
                       
         SetWidgetAnchorStyles (phWidget, anchor) .                      
-    END.
+    END METHOD .
 
 END CLASS.
