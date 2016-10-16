@@ -55,7 +55,7 @@ svStartJobNo2 svEndJobNo svEndJobNo2 svAllItemNo svStartItemNo svEndItemNo ~
 svAllCAD svStartCAD svEndCAD svStartDueDate btnCalendar-3 ~
 svStartDueDateOption svEndDueDate btnCalendar-4 svEndDueDateOption ~
 svAllUserID svStartUserID svEndUserID svAllSalesRep svStartSalesRep ~
-svEndSalesRep svPrimarySort svJobStatus svPrimarySort-2 svOrderStatus ~
+svEndSalesRep svPrimarySort svSecondarySort svJobStatus svOrderStatus ~
 svWIPQty svSubRpt_PrintJobQtyDetails svDropOrderUnderrun ~
 svIncludeZeroOrderBalanceItems svIncludeZeroQtyActReleaseQty ~
 svIncludeJobsQOH svIncludeZeroQtyWIPItems svIncludeInactiveItems 
@@ -68,7 +68,7 @@ endItemName svAllCAD svStartCAD svEndCAD svStartDueDate ~
 svStartDueDateOption svEndDueDate svEndDueDateOption svAllUserID ~
 svStartUserID startUserIDName svEndUserID endUserIDName svAllSalesRep ~
 svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
-svPrimarySort svJobStatus svPrimarySort-2 svOrderStatus svWIPQty ~
+svPrimarySort svSecondarySort svJobStatus svOrderStatus svWIPQty ~
 svSubRpt_PrintJobQtyDetails svDropOrderUnderrun ~
 svIncludeZeroOrderBalanceItems svIncludeZeroQtyActReleaseQty ~
 svIncludeJobsQOH svIncludeZeroQtyWIPItems svIncludeInactiveItems 
@@ -187,7 +187,7 @@ DEFINE VARIABLE svEndDueDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
-DEFINE VARIABLE svEndItemNo AS CHARACTER FORMAT "X(8)" 
+DEFINE VARIABLE svEndItemNo AS CHARACTER FORMAT "X(15)" 
      LABEL "End Item" 
      VIEW-AS FILL-IN 
      SIZE 22 BY 1.
@@ -198,7 +198,7 @@ DEFINE VARIABLE svEndJobNo AS CHARACTER FORMAT "X(6)"
      SIZE 9 BY 1.
 
 DEFINE VARIABLE svEndJobNo2 AS INTEGER FORMAT ">9" INITIAL 0 
-     LABEL ":" 
+     LABEL "" 
      VIEW-AS FILL-IN 
      SIZE 4 BY 1.
 
@@ -248,7 +248,7 @@ DEFINE VARIABLE svStartJobNo AS CHARACTER FORMAT "X(6)"
      SIZE 9 BY 1.
 
 DEFINE VARIABLE svStartJobNo2 AS INTEGER FORMAT ">9" INITIAL 0 
-     LABEL ":" 
+     LABEL "" 
      VIEW-AS FILL-IN 
      SIZE 4 BY 1.
 
@@ -263,7 +263,7 @@ DEFINE VARIABLE svStartPONumber AS CHARACTER FORMAT "X(15)"
      SIZE 22 BY 1.
 
 DEFINE VARIABLE svStartSalesRep AS CHARACTER FORMAT "X(3)" 
-     LABEL "Start Sales Rep#" 
+     LABEL "Start Sales Rep" 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1.
 
@@ -297,7 +297,7 @@ DEFINE VARIABLE svPrimarySort AS CHARACTER INITIAL "Customer"
 "Sales Rep", "Sales Rep"
      SIZE 68 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svPrimarySort-2 AS CHARACTER INITIAL "PO" 
+DEFINE VARIABLE svSecondarySort AS CHARACTER INITIAL "PO" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "PO", "PO",
@@ -474,17 +474,17 @@ DEFINE FRAME F-Main
      svAllSalesRep AT ROW 22.43 COL 22 HELP
           "All Sales Reps?" WIDGET-ID 108
      svStartSalesRep AT ROW 23.62 COL 20 COLON-ALIGNED HELP
-          "Enter Beginning Sales Rep#" WIDGET-ID 112
+          "Enter Beginning Sales Rep" WIDGET-ID 112
      startSalesRepName AT ROW 23.62 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 106
      svEndSalesRep AT ROW 24.81 COL 20 COLON-ALIGNED HELP
           "Enter Ending Sales Rep" WIDGET-ID 110
      endSalesRepName AT ROW 24.81 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 104
      svPrimarySort AT ROW 26 COL 22 HELP
           "Select Primary Sort Option" NO-LABEL WIDGET-ID 84
+     svSecondarySort AT ROW 27.19 COL 22 HELP
+          "Select Secondary Sort Option" NO-LABEL WIDGET-ID 202
      svJobStatus AT ROW 28.38 COL 22 HELP
           "Select Job Status" NO-LABEL WIDGET-ID 210
-     svPrimarySort-2 AT ROW 28.38 COL 22 HELP
-          "Select Secondary Sort Option" NO-LABEL WIDGET-ID 202
      svOrderStatus AT ROW 29.57 COL 22 HELP
           "Select Order Status" NO-LABEL WIDGET-ID 214
      svWIPQty AT ROW 30.76 COL 22 HELP
@@ -505,12 +505,12 @@ DEFINE FRAME F-Main
           "Select to Include Inactive Items" WIDGET-ID 228
      "Primary Sort By:" VIEW-AS TEXT
           SIZE 15 BY 1 AT ROW 26 COL 6 WIDGET-ID 90
-     "Secondary Sort By:" VIEW-AS TEXT
-          SIZE 19 BY 1 AT ROW 27.19 COL 2 WIDGET-ID 208
+     "Order Status:" VIEW-AS TEXT
+          SIZE 13 BY 1 AT ROW 29.57 COL 8 WIDGET-ID 244
      "Job Status:" VIEW-AS TEXT
           SIZE 11 BY 1 AT ROW 28.38 COL 10 WIDGET-ID 242
-     "Order Status:" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 29.57 COL 9 WIDGET-ID 244
+     "Secondary Sort By:" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 27.19 COL 3 WIDGET-ID 208
      "WIP Qty:" VIEW-AS TEXT
           SIZE 9 BY 1 AT ROW 30.76 COL 12 WIDGET-ID 246
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -1025,7 +1025,7 @@ END.
 
 &Scoped-define SELF-NAME svStartSalesRep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartSalesRep sObject
-ON LEAVE OF svStartSalesRep IN FRAME F-Main /* Start Sales Rep# */
+ON LEAVE OF svStartSalesRep IN FRAME F-Main /* Start Sales Rep */
 DO:
     startSalesRepName:SCREEN-VALUE = {aoa/fSetDescription.i}
 END.
