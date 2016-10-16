@@ -996,6 +996,8 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
 
         END.
 
+        ultraToolbarsManager1:RefreshMerge () .
+
         IF THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups:Exists ("page_" + STRING (piPage)) THEN DO:
             THIS-OBJECT:ToolbarsManager:Ribbon:SelectedTab =
                 THIS-OBJECT:ToolbarsManager:Ribbon:ContextualTabGroups["page_" + STRING (piPage)]:Tabs[0] .
