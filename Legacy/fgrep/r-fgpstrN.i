@@ -219,8 +219,20 @@ for each tt-report where tt-report.term-id eq "" no-lock,
                        NO-LOCK NO-ERROR.
     IF AVAIL loadtag THEN
       FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.
-
+   
     find first fg-bin
+          where fg-bin.company eq fg-rcpth.company
+            and fg-bin.job-no  eq fg-rcpth.job-no
+            and fg-bin.job-no2 eq fg-rcpth.job-no2
+            and fg-bin.i-no    eq fg-rcpth.i-no
+            and fg-bin.loc     eq fg-rdtlh.loc
+            and fg-bin.loc-bin eq fg-rdtlh.loc-bin
+            and fg-bin.tag     eq fg-rdtlh.tag
+            and fg-bin.po-no   eq fg-rcpth.po-no
+            AND fg-bin.bol-no  EQ fg-rdtlh.bol-no
+          use-index job no-lock no-error.
+    IF NOT AVAIL fg-bin THEN 
+        find first fg-bin
           where fg-bin.company eq fg-rcpth.company
             and fg-bin.job-no  eq fg-rcpth.job-no
             and fg-bin.job-no2 eq fg-rcpth.job-no2
@@ -378,6 +390,10 @@ for each tt-report where tt-report.term-id eq "" no-lock,
                  WHEN "shipto" THEN cVarValue = v-shipto .
                  WHEN "shipname" THEN cVarValue = v-shipto-name  .
                  WHEN "order-no" THEN cVarValue = string(order-no,">>>>>>>")  .
+                 WHEN "bef-qty" THEN cVarValue = IF AVAIL fg-bin THEN  string(fg-bin.qty,"->>>>>>>>9") ELSE ""   .
+                 WHEN "bin-qty" THEN do:
+                      cVarValue =  STRING(v-fg-qty - (IF AVAIL fg-bin THEN  fg-bin.qty ELSE 0),"->>>>>>>>9")  .
+                 END.
             END CASE.
               
             cExcelVarValue = cVarValue.
