@@ -916,23 +916,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close C-Win
 ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
 DO:
-  IF {&SELF-NAME}:LABEL = "&Close" THEN do:
-    run spec-%or$ (.01).
-
+  IF {&SELF-NAME}:LABEL = "&Close" THEN DO:
+    RUN spec-%or$ (.01).
     APPLY "CLOSE" TO THIS-PROCEDURE.
-  end.
-
+  END.
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE {&LIST-1}
-            rd-sp-1 rd-sp-2 rd-sp-3.
-
+    DISABLE {&LIST-1} rd-sp-1 rd-sp-2 rd-sp-3.
     ASSIGN
       {&SELF-NAME}:LABEL = "&Close"
-      Btn_Update:LABEL = "&Update".
-
+      Btn_Update:LABEL = "&Update"
+      .
     RUN enable_UI.
   END.
+  {src/winkit/triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -945,34 +942,26 @@ ON CHOOSE OF Btn_Update IN FRAME DEFAULT-FRAME /* Update */
 DO:
   IF {&SELF-NAME}:LABEL = "&Update" THEN
   DO WITH FRAME {&FRAME-NAME}:
-    ENABLE {&LIST-1}
-           rd-sp-1 rd-sp-2 rd-sp-3.
-
+    ENABLE {&LIST-1} rd-sp-1 rd-sp-2 rd-sp-3.
     ASSIGN
       {&SELF-NAME}:LABEL = "&Save"
-      Btn_Close:LABEL = "&Cancel".
-
+      Btn_Close:LABEL = "&Cancel"
+      .
     APPLY "ENTRY" TO ce-ctrl.e-num.
   END.
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
-    run validate no-error.
-    if error-status:error then return no-apply.
-
-    DISABLE {&LIST-1}
-            rd-sp-1 rd-sp-2 rd-sp-3.
-
+    RUN VALIDATE NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    DISABLE {&LIST-1} rd-sp-1 rd-sp-2 rd-sp-3.
     ASSIGN
       {&SELF-NAME}:LABEL = "&Update"
-      Btn_Close:LABEL = "&Close".
-    find current ce-ctrl exclusive-lock.
-    ASSIGN {&LIST-1}
-           rd-sp-1 rd-sp-2 rd-sp-3.
-
+      Btn_Close:LABEL = "&Close"
+      .
+    FIND CURRENT ce-ctrl EXCLUSIVE-LOCK.
+    ASSIGN {&LIST-1} rd-sp-1 rd-sp-2 rd-sp-3.
     RUN reftable-values (NO).
   END.
-
-
   {src/winkit/triggerend.i}
 END.
 

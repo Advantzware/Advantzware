@@ -98,7 +98,7 @@ ASSIGN
 {methods/browsers/{&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.i}
   &ENDIF
 &ENDIF
-/*{methods/template/brwsrtrg.i}*/
+{methods/template/brwsrtrg.i}
 {methods/enhance.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -116,30 +116,30 @@ PROCEDURE Change-Order :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM b-order AS CHARACTER NO-UNDO.
 
-/*  DO WITH FRAME {&FRAME-NAME}:                                       */
-/*    ASSIGN                                                           */
-/*      browse-order:SCREEN-VALUE = b-order                            */
-/*      browse-order.                                                  */
-/*                                                                     */
-/*    IF ll-order-set THEN                                             */
-/*      RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).*/
-/*                                                                     */
-/*    CASE browse-order:                                               */
-/*      {methods/template/chngord.i 1}                                 */
-/*      {methods/template/chngord.i 2}                                 */
-/*      {methods/template/chngord.i 3}                                 */
-/*      {methods/template/chngord.i 4}                                 */
-/*      {methods/template/chngord.i 5}                                 */
-/*      {methods/template/chngord.i 6}                                 */
-/*      {methods/template/chngord.i 7}                                 */
-/*      {methods/template/chngord.i 8}                                 */
-/*      {methods/template/chngord.i 9}                                 */
-/*      {methods/template/chngord.i 10}                                */
-/*      {methods/template/chngord.i 11}                                */
-/*      {methods/template/chngord.i 12}                                */
-/*      {methods/template/chngord.i 13}                                */
-/*    END CASE.                                                        */
-/*  END.                                                               */
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+      browse-order:SCREEN-VALUE = b-order
+      browse-order.
+
+    IF ll-order-set THEN
+      RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+
+    CASE browse-order:
+      {methods/template/chngord.i 1}
+      {methods/template/chngord.i 2}
+      {methods/template/chngord.i 3}
+      {methods/template/chngord.i 4}
+      {methods/template/chngord.i 5}
+      {methods/template/chngord.i 6}
+      {methods/template/chngord.i 7}
+      {methods/template/chngord.i 8}
+      {methods/template/chngord.i 9}
+      {methods/template/chngord.i 10}
+      {methods/template/chngord.i 11}
+      {methods/template/chngord.i 12}
+      {methods/template/chngord.i 13}
+    END CASE.
+  END.
 
 END PROCEDURE.
 
@@ -153,9 +153,9 @@ PROCEDURE Clear_Auto_Find :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-/*  ASSIGN                                              */
-/*    auto_find:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''*/
-/*    auto_find.                                        */
+  ASSIGN
+    auto_find:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''
+    auto_find.
 
 END PROCEDURE.
 
@@ -199,28 +199,28 @@ PROCEDURE Find-Record :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER b-order AS CHARACTER NO-UNDO.
 
-/*  DO WITH FRAME {&FRAME-NAME}:                                     */
-/*    ASSIGN                                                         */
-/*      browse-order:SCREEN-VALUE = b-order                          */
-/*      browse-order.                                                */
-/*    IF ll-order-set THEN                                           */
-/*    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).*/
-/*    CASE browse-order:                                             */
-/*      {methods/template/findrecd.i 1}                              */
-/*      {methods/template/findrecd.i 2}                              */
-/*      {methods/template/findrecd.i 3}                              */
-/*      {methods/template/findrecd.i 4}                              */
-/*      {methods/template/findrecd.i 5}                              */
-/*      {methods/template/findrecd.i 6}                              */
-/*      {methods/template/findrecd.i 7}                              */
-/*      {methods/template/findrecd.i 8}                              */
-/*      {methods/template/findrecd.i 9}                              */
-/*      {methods/template/findrecd.i 10}                             */
-/*      {methods/template/findrecd.i 11}                             */
-/*      {methods/template/findrecd.i 12}                             */
-/*      {methods/template/findrecd.i 13}                             */
-/*    END CASE.                                                      */
-/*  END.                                                             */
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+      browse-order:SCREEN-VALUE = b-order
+      browse-order.
+    IF ll-order-set THEN
+    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+    CASE browse-order:
+      {methods/template/findrecd.i 1}
+      {methods/template/findrecd.i 2}
+      {methods/template/findrecd.i 3}
+      {methods/template/findrecd.i 4}
+      {methods/template/findrecd.i 5}
+      {methods/template/findrecd.i 6}
+      {methods/template/findrecd.i 7}
+      {methods/template/findrecd.i 8}
+      {methods/template/findrecd.i 9}
+      {methods/template/findrecd.i 10}
+      {methods/template/findrecd.i 11}
+      {methods/template/findrecd.i 12}
+      {methods/template/findrecd.i 13}
+    END CASE.
+  END.
   
 END PROCEDURE.
 
