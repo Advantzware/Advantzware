@@ -96,8 +96,9 @@ ar-cashl.inv-date ar-cashl.amt-due ar-cashl.amt-paid
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -111,9 +112,25 @@ ar-cashl.inv-date ar-cashl.amt-due ar-cashl.amt-paid
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 37 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 55 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 139 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -157,6 +174,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 9.57 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 9.57 COL 70 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 9.57 COL 126 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 9.57 COL 2
+     RECT-4 AT ROW 9.33 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -261,7 +287,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -299,7 +325,7 @@ DO:
              END.
              RETURN NO-APPLY.
         END.
-
+        
     END CASE.
 END.
 
@@ -508,7 +534,7 @@ PROCEDURE check-onaccount :
 
   IF ar-cash.check-amt NE lv-tmp-amt THEN DO:
     RUN create-onaccount.
-
+    
     RUN display-header.
 
     RUN dispatch ("open-query").
@@ -569,7 +595,7 @@ PROCEDURE create-onaccount :
         if avail account THEN assign bf-cashl.actnum = account.actnum.
       end.
     END.
-
+  
     bf-cashl.amt-paid = bf-cashl.amt-paid + (ar-cash.check-amt - lv-tmp-amt).
   END.
 
@@ -761,7 +787,7 @@ PROCEDURE local-create-record :
                              account.actnum  = ar-ctrl.cash-act no-lock no-error.
     if avail account THEN assign ar-cashl.actnum = account.actnum.
   end.
-
+  
   /*if available account then lv-account-recid = RECID(account). /* for displaying*/
     display ar-cashl.actnum + " " + 
             account.dscr format "x(35)" @ ar-cashl.actnum.
@@ -841,7 +867,7 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   APPLY "entry" TO ar-cashl.inv-no IN BROWSE {&browse-name}.
-
+  
   ll-reapply = NO.
 
 END PROCEDURE.
@@ -863,6 +889,7 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
+    APPLY "value-changed" TO browse-order.
   END.
 
 END PROCEDURE.
@@ -925,7 +952,7 @@ PROCEDURE reopen-header :
 ------------------------------------------------------------------------------*/
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
   RUN reopen-query IN WIDGET-HANDLE(char-hdl).
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -940,7 +967,7 @@ PROCEDURE repo-query :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
-
+    
   DO WITH FRAME {&FRAME-NAME}:
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
     IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ("row-changed").

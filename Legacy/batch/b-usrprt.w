@@ -101,8 +101,9 @@ user-print.batch NE "" ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -125,9 +126,25 @@ FUNCTION display-parms RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 60 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 55 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -172,6 +189,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 19.33 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 19.33 COL 132 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 19.33 COL 2
+     RECT-4 AT ROW 19.1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -300,7 +326,7 @@ user-print.batch NE """"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -456,7 +482,7 @@ FUNCTION display-parms RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   DEF VAR i AS INT NO-UNDO.
-
+  
   v-fld-value = "".
   DO i = 1 TO 100:
      /*
@@ -477,7 +503,7 @@ FUNCTION display-parms RETURNS CHARACTER
           v-fld-value
          VIEW-AS ALERT-BOX.
    */
-
+     
   END.
   RETURN v-fld-value.   /* Function return value. */
 

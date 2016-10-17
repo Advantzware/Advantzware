@@ -121,8 +121,9 @@ AND rm-rctd.qty LT 0 NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -159,9 +160,25 @@ FUNCTION onlyOneForm RETURNS LOGICAL
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 37 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 74 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 144 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -214,6 +231,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 16.71 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 16.71 COL 92 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 16.71 COL 131 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 16.71 COL 2
+     RECT-4 AT ROW 16.48 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -342,7 +368,7 @@ AND rm-rctd.qty LT 0"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -358,7 +384,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-
+   
    RUN new-state in phandle ('update-begin':U).
 
 END.
@@ -378,7 +404,7 @@ DO:
  ASSIGN
     ll-help-run = YES
     char-val = "".
-
+ 
  case focus:NAME:
      when "i-no" then do:
             RUN rm/g-joblk.w (OUTPUT lv-search).  /* search job or item */
@@ -386,7 +412,7 @@ DO:
                 RUN windows/l-jobmat.w (rm-rctd.company,rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},
                                         rm-rctd.job-no2:SCREEN-VALUE,rm-rctd.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT help-recid).
                 IF help-recid <> ? THEN RUN DISPLAY-jobmat (help-recid).
-
+                
             END.
             ELSE DO:
              /* company,industry,mat-type,i-code,i-no, output, output */
@@ -486,7 +512,7 @@ ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:  /* display calculated field */
   /* def var ii as int.
    ii = if avail rm-rctd then integer(rm-rctd.po-no) else 0.
-
+   
    if avail rm-rctd then    run get-matrix (true).
 */
 END.
@@ -500,7 +526,7 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
-
+  
   ASSIGN
    ll-help-run = NO
    lv-i-no     = ""
@@ -557,15 +583,15 @@ END.
 ON LEAVE OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:
   DEFINE VARIABLE lvTag AS CHARACTER NO-UNDO.
-
+  
   IF LASTKEY NE -1 THEN  DO:
     lvTag = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
-
+    
     RUN valid-issued-tag NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     {addon/loadtags/disptagr.i "RMItem" lvTag}
-
+    
     rm-rctd.po-no:SCREEN-VALUE = ''.
 
     RUN valid-issued-tag NO-ERROR.
@@ -573,7 +599,7 @@ DO:
 
     RUN valid-loc-bin-tag (3) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    
     IF adm-new-record THEN
     DO:
        FIND FIRST rm-rdtlh WHERE
@@ -584,12 +610,12 @@ DO:
             rm-rdtlh.rita-code EQ "I" AND
             rm-rdtlh.qty GT 0
             NO-LOCK NO-ERROR.
-
+       
        IF AVAIL rm-rdtlh THEN DO:
-
+       
          FOR EACH rm-rcpth OF rm-rdtlh
              NO-LOCK BREAK BY rm-rcpth.trans-date DESC:
-
+              
              ASSIGN
                rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = rm-rcpth.pur-uom
                rm-rctd.cost:SCREEN-VALUE = STRING(rm-rdtlh.cost)
@@ -602,15 +628,15 @@ DO:
                rm-rctd.b-num:SCREEN-VALUE = STRING(rm-rdtlh.b-num).
              LEAVE.
          END.
-
+       
          RUN update-qty-proc.
        END. /* avail rm-rdtlh*/
     END.
 
-
-
+       
+    
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    
     APPLY 'ENTRY' TO rm-rctd.loc IN BROWSE {&BROWSE-NAME}.
 
     RETURN NO-APPLY.
@@ -700,7 +726,7 @@ END.
 ON ENTRY OF rm-rctd.job-no IN BROWSE Browser-Table /* Job */
 DO:
   IF rm-rctd.job-no:READ-ONLY IN BROWSE {&browse-name} THEN RETURN NO-APPLY.
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -714,13 +740,13 @@ DO:
 
     RUN valid-job-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    
     RUN valid-job-no2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    
     RUN valid-i-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    
     RUN validate-jobmat (YES) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -917,7 +943,7 @@ DO:
        RETURN NO-APPLY.
     END.
     run get-matrix (false).
-
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1055,7 +1081,7 @@ PROCEDURE display-jobmat :
        rm-rctd.b-num:SCREEN-VALUE = string(job-mat.blank-no).
     END.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1132,7 +1158,7 @@ if ip-first-disp  AND avail rm-rctd and rm-rctd.i-no <> "" then do: /* for row-d
         ASSIGN lv-qty-uom = rm-rctd.pur-uom
                lv-cost-uom = rm-rctd.cost-uom.
   end.
-
+  
   /* convert qty    pr-qty-uom or po-ordl.pr-uom cons-uom*/
  /* run rm/convquom.p(rm-rctd.pur-uom,
                     po-ordl.cons-uom,
@@ -1142,7 +1168,7 @@ if ip-first-disp  AND avail rm-rctd and rm-rctd.i-no <> "" then do: /* for row-d
                          input v-dep,
                          input rm-rctd.qty,
                          output lv-out-qty).
-
+  
   /* convert cost pr-uom*/
   run rm/convcuom.p(rm-rctd.cost-uom, po-ordl.cons-uom,
                     v-bwt, v-len, v-wid, v-dep,
@@ -1157,7 +1183,7 @@ if ip-first-disp  AND avail rm-rctd and rm-rctd.i-no <> "" then do: /* for row-d
                         v-dep,
                         rm-rctd.qty,
                         output lv-out-qty).
-
+  
   /* convert cost pr-uom*/
   run custom/convcuom.p(cocode,
                         rm-rctd.cost-uom,
@@ -1169,7 +1195,7 @@ if ip-first-disp  AND avail rm-rctd and rm-rctd.i-no <> "" then do: /* for row-d
                         rm-rctd.cost, output lv-out-cost).
 
    ext-cost = lv-out-qty * lv-out-cost.
-
+  
   /*disp ext-cost with browse {&BROWSE-NAME}. it's displayed automatically */
  /* message "after calc:" po-ordl.cons-uom rm-rctd.cost-uom lv-out-cost ext-cost.
   */
@@ -1186,7 +1212,7 @@ if avail rm-rctd and rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} <> "" th
                 and item.i-no  eq rm-rctd.i-no:screen-value in browse {&BROWSE-NAME}
                       use-index i-no no-lock no-error.
   if avail item then v-dep = item.s-dep.    
-
+  
         find first job where job.company eq cocode
                          and job.job-no  eq rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
                          and job.job-no2 eq integer(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
@@ -1202,7 +1228,7 @@ if avail rm-rctd and rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} <> "" th
                  no-lock:
                v-job-up = v-job-up + job-hdr.n-on.  
              end.
-
+             
              find first job-mat where job-mat.company eq cocode
                                   and job-mat.job     eq job.job
                                   and job-mat.i-no    eq rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
@@ -1333,7 +1359,7 @@ if avail rm-rctd and rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} <> "" th
   IF lv-uom NE lv-qty-uom THEN
     run rm/convquom.p(lv-uom, lv-qty-uom, v-bwt, v-len, v-wid, v-dep,
                       lv-out-qty / v-out, output lv-out-qty).
-
+  
   /* convert cost */
   IF rm-rctd.cost-uom:screen-value in browse {&BROWSE-NAME} EQ lv-cost-uom THEN
     lv-out-cost = dec(rm-rctd.cost:screen-value in browse {&BROWSE-NAME}).
@@ -1485,7 +1511,7 @@ PROCEDURE local-enable-fields :
   DEF VAR li AS INT NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
@@ -1498,7 +1524,7 @@ PROCEDURE local-enable-fields :
       APPLY 'cursor-left' TO {&BROWSE-NAME}.
     END.    
   END.
-
+  
 
 END PROCEDURE.
 
@@ -1515,7 +1541,7 @@ PROCEDURE local-update-record :
   DEF VAR lv-tag AS CHAR NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   RUN valid-po-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
@@ -1558,14 +1584,14 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN .
 
   lv-tag = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   RUN rmrep\rmloadtg3.w(INPUT yes, INPUT lv-tag, INPUT DECIMAL(rm-rctd.qty:SCREEN-VALUE) * -1).
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
       APPLY 'CURSOR-LEFT':U TO {&BROWSE-NAME}.
@@ -1628,7 +1654,7 @@ PROCEDURE lookup-job-mat :
             AND xitem.i-no     EQ job-mat.rm-i-no
             AND xitem.mat-type EQ item.mat-type
           NO-LOCK
-
+          
           BREAK BY job-mat.frm
                 BY job-mat.blank-no:
 
@@ -1643,14 +1669,14 @@ PROCEDURE lookup-job-mat :
       END.
 
       IF ll-lookup THEN fil_id = ?.
-
+      
       IF count-mat NE 1 OR ll-lookup THEN RUN rm/g-itmchg.w.
-
+      
       FIND FIRST item-chg WHERE RECID(item-chg) EQ fil_id NO-LOCK NO-ERROR.
       IF AVAIL item-chg THEN fil_id = item-chg.rec-id.
     END.
   END.
-
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1713,7 +1739,7 @@ PROCEDURE multi-issues :
       DELETE tt-selected.
     END.    
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1812,7 +1838,7 @@ PROCEDURE new-i-no :
       END.
     END.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1828,7 +1854,7 @@ PROCEDURE new-job-no :
   DEF VAR lv-job-no LIKE rm-rctd.job-no NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-
+    
     IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
       ASSIGN
        lv-job-no = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
@@ -1859,7 +1885,7 @@ PROCEDURE new-job-no :
           ASSIGN
            rm-rctd.s-num:SCREEN-VALUE = "1" /*string(job-hdr.frm) */
            rm-rctd.b-num:SCREEN-VALUE = "1". /* string(job-hdr.blank-no) */
-
+            
       END.
     END.
   END.
@@ -1939,7 +1965,7 @@ PROCEDURE scan-next :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
   RUN auto-add IN WIDGET-HANDLE(char-hdl).
 
@@ -1998,11 +2024,11 @@ PROCEDURE tag-method :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output parameter op-tag# as log no-undo.
-
-
+ 
+  
   {rm/tag#.i}
   op-tag# = v-tag#.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2019,7 +2045,7 @@ PROCEDURE tag-sequence :
   def var v-tag-seq as int no-undo.
   def var v-locode as cha no-undo.
   def buffer xrm-rctd for rm-rctd.
-
+  
   assign v-tag-seq = 0
          v-locode  = "".
 
@@ -2098,7 +2124,7 @@ PROCEDURE update-qty-proc :
    DEF VAR qty-bal AS DEC DECIMALS 6 NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-
+   
       FOR EACH rm-rdtlh WHERE
           rm-rdtlh.company EQ cocode AND
           rm-rdtlh.tag EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} AND
@@ -2109,17 +2135,17 @@ PROCEDURE update-qty-proc :
           rm-rdtlh.rita-code EQ "I" 
           NO-LOCK,
           FIRST rm-rcpth OF rm-rdtlh NO-LOCK:
-
+          
           lv-out-qty = rm-rdtlh.qty.
-
+          
           IF rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} NE
              rm-rcpth.pur-uom THEN DO:
-
+            
              ASSIGN
                v-bwt = display-dimension('B')
                v-len = display-dimension('L')
                v-wid = display-dimension('W').
-
+            
              find item  where item.company eq cocode                           /* no screen-value used */
                    and item.i-no  eq rm-rctd.i-no:screen-value in browse {&BROWSE-NAME}
                       use-index i-no no-lock no-error.
@@ -2127,7 +2153,7 @@ PROCEDURE update-qty-proc :
                v-dep = item.s-dep.
                RELEASE ITEM.
             END.
-
+          
             run custom/convquom.p(cocode,
                           rm-rcpth.pur-uom,
                           rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name},
@@ -2138,10 +2164,10 @@ PROCEDURE update-qty-proc :
                           rm-rdtlh.qty,
                           output lv-out-qty).
           END.
-
+          
           ASSIGN qty-bal = qty-bal + lv-out-qty.
          END.
-
+       
          rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(qty-bal * -1).
    END.
 END PROCEDURE.
@@ -2174,9 +2200,9 @@ PROCEDURE valid-all :
 
   RUN valid-return-qty NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
+  
   lv-new-record = adm-new-record.
-
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2246,7 +2272,7 @@ PROCEDURE valid-i-no :
 
     LEAVE.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2304,7 +2330,7 @@ PROCEDURE valid-job-no :
 
 
   DO WITH FRAME {&FRAME-NAME}:
-
+    
       ASSIGN
        lv-job-no = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} =
@@ -2356,7 +2382,7 @@ PROCEDURE valid-job-no2 :
   Notes:       
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&FRAME-NAME}:
-
+    
       FIND FIRST job NO-LOCK
            WHERE job.company EQ cocode
              AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
@@ -2415,7 +2441,7 @@ PROCEDURE valid-job-tag :
                rm-rctd-1.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) AND
                rm-rctd-1.r-no NE INT(rm-rctd.r-no:SCREEN-VALUE IN BROWSE {&browse-name}) AND
                rm-rctd-1.rita-code EQ 'I').
-
+   
    IF dup-var THEN DO:
      MESSAGE "Duplicate Tag/Job No." VIEW-AS ALERT-BOX ERROR.
      APPLY "ENTRY":U TO rm-rctd.tag IN BROWSE {&BROWSE-NAME}.
@@ -2568,12 +2594,12 @@ PROCEDURE valid-return-qty :
     rm-rdtlh.rita-code EQ "I" 
     NO-LOCK,
     FIRST rm-rcpth OF rm-rdtlh NO-LOCK:
-
+    
     lv-out-qty = rm-rdtlh.qty.
 
     IF rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} NE
       rm-rcpth.pur-uom THEN DO:
-
+    
       ASSIGN
         v-bwt = display-dimension('B')
         v-len = display-dimension('L')
@@ -2609,7 +2635,7 @@ PROCEDURE valid-return-qty :
   END.
   ELSE IF DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN
     rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(-1 * DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name})).
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2671,7 +2697,7 @@ PROCEDURE validate-jobmat :
             USE-INDEX seq-idx NO-LOCK NO-ERROR.
 
     IF NOT AVAIL job-mat AND rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
-
+       
        MESSAGE "Invalid Job."
            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
        APPLY "entry" TO rm-rctd.job-no.
@@ -2692,11 +2718,11 @@ FUNCTION calc-ext-cost RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-
+  
   RUN get-matrix (TRUE).
 
   RETURN ext-cost.
-
+  
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2754,13 +2780,13 @@ FUNCTION display-dimension RETURNS DECIMAL
                           v-len-num = 12.
         end.
     end.
-
+      
     IF ip-dim = "W" THEN ld-dim = v-wid-num.
     ELSE IF ip-dim = "L" THEN ld-dim = v-len-num.
     ELSE IF ip-dim = "B" THEN ld-dim = v-btw.
-
+   
   END.
-
+  
   RETURN ld-dim.   /* Function return value. */
 
 END FUNCTION.
@@ -2805,7 +2831,7 @@ FUNCTION onlyOneForm RETURNS LOGICAL
       lastForm = bJobMat.frm.
     END. /* avail bjobmat */
   END. /* avail job */
-
+  
   RETURN firstForm EQ lastForm.
 
 END FUNCTION.

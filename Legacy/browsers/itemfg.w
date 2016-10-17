@@ -90,9 +90,9 @@ itemfg.est-no itemfg.cad-no itemfg.spc-no itemfg.stocked itemfg.q-onh
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
-&Scoped-Define DISPLAYED-OBJECTS   fi_sortby 
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_sortby 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -106,7 +106,15 @@ itemfg.est-no itemfg.cad-no itemfg.spc-no itemfg.stocked itemfg.q-onh
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 60 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      LABEL "Sorted By" 
@@ -114,7 +122,15 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U
      SIZE 41 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 139 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     SIZE 145 BY 2.86.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -164,7 +180,16 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 18.14 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 19.33 COL 10 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 19.33 COL 73 HELP
+          "CLEAR AUTO FIND Value"
      fi_sortby AT ROW 19.33 COL 102 COLON-ALIGNED
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 18.14 COL 2
+     RECT-4 AT ROW 17.67 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -287,7 +312,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -373,7 +398,7 @@ DO:
   RUN get-link-handle IN adm-broker-hdl(WIDGET-HANDLE(char-hdl), "page-source", OUTPUT char-hdl).
   IF itemfg.isaset THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6) NO-ERROR.
   ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6) NO-ERROR.
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -486,11 +511,11 @@ PROCEDURE local-open-query :
   IF NUM-RESULTS("{&BROWSE-NAME}":U) GT 0 THEN RUN dispatch ('get-last':U).
   IF AVAIL itemfg THEN
   lvLastRowID  = ROWID(itemfg).
-
+    
   IF NUM-RESULTS("{&BROWSE-NAME}":U) GT 0 THEN RUN dispatch ('get-first':U).
   IF AVAIL itemfg THEN
   lvFirstRowID  = ROWID(itemfg).
-
+  
   APPLY "value-changed" TO BROWSE {&browse-name}.
   APPLY "entry" TO BROWSE {&browse-name}.
 
@@ -508,7 +533,7 @@ PROCEDURE navigate-browser :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipNavType AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opNavType AS CHARACTER NO-UNDO.
-
+ 
   IF ipNavType NE '' THEN
   CASE ipNavType:
     WHEN 'F' THEN RUN dispatch ('get-first':U).
@@ -517,10 +542,10 @@ PROCEDURE navigate-browser :
     WHEN 'P' THEN RUN dispatch ('get-prev':U).
     WHEN 'G' THEN RUN lookup-eb.
   END CASE.
-
+    
   IF ROWID(itemfg) EQ lvLastRowID THEN
   opNavType = 'L'.
-
+      
   IF ROWID(itemfg) EQ lvFirstRowID THEN
   opNavType = IF opNavType EQ 'L' THEN 'B' ELSE 'F'.
 
@@ -537,10 +562,10 @@ PROCEDURE repo-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input parameter ip-rowid as rowid no-undo.
-
-
+  
+  
   run dispatch in this-procedure ("open-query").
-
+  
   reposition {&browse-name} to rowid ip-rowid no-error.
 
   run dispatch in this-procedure ("row-changed").

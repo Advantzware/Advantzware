@@ -102,9 +102,9 @@ msf-cost (1) @ v-msf-cost
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
- tb_show-qty
-&Scoped-Define DISPLAYED-OBJECTS  fi_sortby  tb_show-qty
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find tb_show-qty
+&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find tb_show-qty
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -137,7 +137,15 @@ FUNCTION msf-cost RETURNS DECIMAL
 DEFINE VARIABLE h_p-rmcost AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      LABEL "Sorted By" 
@@ -145,12 +153,20 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U
      SIZE 30 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 46 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_show-qty AS LOGICAL INITIAL NO 
      LABEL "Show Bins with Qty = 0 ?" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY .81 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -190,8 +206,17 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 16.48 COL 5 HELP
+          "Select Browser Sort Order" NO-LABEL
      tb_show-qty AT ROW 18.50 COL 104 
      fi_sortby AT ROW 16.48 COL 64 COLON-ALIGNED
+     auto_find AT ROW 16.48 COL 108 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 16.48 COL 131 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 16.48 COL 1
+     RECT-4 AT ROW 16.24 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -306,7 +331,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -359,10 +384,11 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL  B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browse-order B-table-Win
+ON VALUE-CHANGED OF browse-order IN FRAME F-Main
 DO:
-  APPLY "entry" TO  .
-.
+  APPLY "entry" TO auto_find .
+  auto_find:SCREEN-VALUE = "" .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -372,8 +398,8 @@ END.
 ON VALUE-CHANGED OF tb_show-qty IN FRAME F-Main
 DO:
     ASSIGN tb_show-qty .
-    APPLY "entry" TO  .
-.
+    APPLY "entry" TO auto_find .
+    auto_find:SCREEN-VALUE = "" .
     RUN dispatch ("open-query") .
 END.
 
@@ -482,7 +508,7 @@ PROCEDURE calc-cost :
 
   DEF BUFFER bf-rm-bin FOR rm-bin.
   DEF BUFFER bf-item FOR item.
-
+    
 
   v-override = NO.
 
@@ -494,7 +520,7 @@ PROCEDURE calc-cost :
         VIEW-AS ALERT-BOX ERROR.
     RETURN NO-APPLY.
   END.
-
+     
   IF v-override THEN DO:
     /*find bf-rm-bin where recid(bf-rm-bin) = recid(rm-bin).
     lv-cost = rm-bin.cost.

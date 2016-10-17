@@ -97,12 +97,12 @@ ASI.wiptag.fg-i-name BEGINS tb_fg-i-name AND ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tb_tag-no tb_rm-loc tb_rm-bin ~
+&Scoped-Define ENABLED-OBJECTS RECT-4 tb_tag-no tb_rm-loc tb_rm-bin ~
 tb_job-no tb_job-no2 tb_rm-i-no tb_rm-i-name tb_fg-i-no tb_fg-i-name ~
-   Browser-Table 
+browse-order auto_find Btn_Clear_Find Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS tb_tag-no tb_rm-loc tb_rm-bin tb_job-no ~
-tb_job-no2 tb_rm-i-no tb_rm-i-name tb_fg-i-no tb_fg-i-name  ~
-fi_sortby  
+tb_job-no2 tb_rm-i-no tb_rm-i-name tb_fg-i-no tb_fg-i-name browse-order ~
+fi_sortby auto_find 
 
 /* Custom List Definitions                                              */
 /* filterFields,List-2,List-3,List-4,List-5,List-6                      */
@@ -118,7 +118,15 @@ tb_job-no2 tb_rm-i-no tb_rm-i-name tb_fg-i-no tb_fg-i-name
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      LABEL "Sorted By" 
@@ -171,7 +179,15 @@ DEFINE VARIABLE tb_tag-no AS CHARACTER FORMAT "X(20)"
      SIZE 30.8 BY 1
      BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 63 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
@@ -247,7 +263,13 @@ DEFINE FRAME F-Main
           "Enter Item Number." NO-LABEL WIDGET-ID 2
      tb_fg-i-name AT ROW 1.71 COL 123.2 COLON-ALIGNED HELP
           "Enter finished goods item name." NO-LABEL WIDGET-ID 6
+     browse-order AT ROW 3.14 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 3.14 COL 78 COLON-ALIGNED
+     auto_find AT ROW 3.14 COL 111 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 3.14 COL 132 HELP
+          "CLEAR AUTO FIND Value"
      Browser-Table AT ROW 4.33 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "FG Item" VIEW-AS TEXT
@@ -268,12 +290,15 @@ DEFINE FRAME F-Main
      "RM Whs" VIEW-AS TEXT
           SIZE 10.6 BY .62 AT ROW 1.05 COL 34.6
           FGCOLOR 9 FONT 6
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 3.14 COL 2
      "Job" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.05 COL 61.6
           FGCOLOR 9 FONT 6
      "FG Name" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.05 COL 129.2 WIDGET-ID 8
           FGCOLOR 9 FONT 6
+     RECT-4 AT ROW 2.91 COL 1
      RECT-5 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -334,7 +359,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table  F-Main */
+/* BROWSE-TAB Browser-Table Btn_Clear_Find F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -427,7 +452,7 @@ ASI.wiptag.fg-i-name BEGINS tb_fg-i-name AND
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -510,7 +535,7 @@ DO:
             assign
              focus:screen-value in browse {&BROWSE-NAME} = ENTRY(1,char-val)
              tb_job-no2:screen-value = ENTRY(2,char-val).
-
+            
          END.
 END.
 
@@ -584,7 +609,7 @@ DO:
          if char-val <> "" then do:
             assign
              focus:screen-value in browse {&BROWSE-NAME} = ENTRY(1,char-val).
-
+            
          END.
 END.
 

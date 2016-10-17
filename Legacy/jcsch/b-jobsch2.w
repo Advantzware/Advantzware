@@ -117,8 +117,8 @@ job-mch.end-date
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS lv-start-date btn-go Browser-Table ~
-
-&Scoped-Define DISPLAYED-OBJECTS lv-start-date   
+browse-order auto_find Btn_Clear_Find RECT-4 
+&Scoped-Define DISPLAYED-OBJECTS lv-start-date browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -187,7 +187,15 @@ DEFINE BUTTON btn-go
      LABEL "Go" 
      SIZE 15 BY 1.14.
 
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 36 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-start-date AS DATE FORMAT "99/99/9999":U 
      LABEL "Start Date" 
@@ -195,7 +203,15 @@ DEFINE VARIABLE lv-start-date AS DATE FORMAT "99/99/9999":U
      SIZE 18 BY 1
      FONT 6 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 55 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     SIZE 121 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -248,6 +264,15 @@ DEFINE FRAME F-Main
      btn-go AT ROW 1.24 COL 59
      Browser-Table AT ROW 2.67 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 19.1 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 19.1 COL 70 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 19.1 COL 108 HELP
+          "CLEAR AUTO FIND Value"
+     RECT-4 AT ROW 18.86 COL 1
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 19.1 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -349,7 +374,7 @@ OPEN QUERY {&SELF-NAME}
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -425,7 +450,7 @@ DO:
   IF LENGTH(SELF:SCREEN-VALUE) = 5 THEN DO:
        MESSAGE SELF:SCREEN-VALUE VIEW-AS ALERT-BOX.
       self:SCREEN-VALUE = SELF:SCREEN-VALUE + STRING(YEAR(TODAY)).
-
+      
    END.
 END.
 
@@ -514,7 +539,7 @@ PROCEDURE build-table :
       DO i = 1 TO 10:
          tt-sch.colour[i] = eb.i-code[i].
       END.
-
+             
   END.
 
 END PROCEDURE.
@@ -555,7 +580,7 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -688,7 +713,7 @@ FUNCTION display-color RETURNS CHARACTER
   END.
   ELSE RETURN "".   /* Function return value. */
 
-
+  
 
 END FUNCTION.
 
@@ -707,7 +732,7 @@ FUNCTION display-due-date RETURNS DATE
           AND oe-ord.job-no2 EQ job-mch.job-no2 no-lock no-error.
    IF AVAIL oe-ord THEN   RETURN oe-ord.due-date.
    ELSE RETURN ?.
-
+   
 
 END FUNCTION.
 
@@ -748,7 +773,7 @@ FUNCTION display-po-no RETURNS INTEGER
             and po-ordl.s-num   eq job-mch.frm
             and po-ordl.i-no    eq job-mch.i-no
             NO-LOCK NO-ERROR.
-
+ 
 
 
   IF AVAIL po-ordl THEN RETURN po-ordl.po-no.

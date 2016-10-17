@@ -30,7 +30,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+ 
 &SCOPED-DEFINE yellowColumnsName ar-inv
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
@@ -85,9 +85,9 @@ ar-inv.cust-name ar-inv.inv-date ar-inv.gross ar-inv.paid ar-inv.due
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
- TG_posted 
-&Scoped-Define DISPLAYED-OBJECTS  fi_sortby  TG_posted 
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find TG_posted 
+&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find TG_posted 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -101,14 +101,30 @@ ar-inv.cust-name ar-inv.inv-date ar-inv.gross ar-inv.paid ar-inv.due
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 60 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 44 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 42 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 DEFINE VARIABLE TG_posted AS LOGICAL INITIAL no 
      LABEL "Posted" 
@@ -155,8 +171,17 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 19.71 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 19.71 COL 43 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     auto_find AT ROW 19.71 COL 70 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 19.71 COL 132 HELP
+          "CLEAR AUTO FIND Value"
      TG_posted AT ROW 19.81 COL 47.6 WIDGET-ID 4
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 19.71 COL 2
+     RECT-4 AT ROW 19.48 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -268,7 +293,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -327,7 +352,7 @@ END.
 ON VALUE-CHANGED OF TG_posted IN FRAME F-Main /* Posted */
 DO:
   ASSIGN TG_posted.
-
+  
   RUN local-open-query.
 
 END.
@@ -409,6 +434,7 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.
   APPLY "value-changed" TO {&browse-name} IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.

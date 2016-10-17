@@ -63,7 +63,7 @@ DO TRANSACTION:
    {sys/inc/sstransf.i}
    {sys/inc/sspostfgcontags.i}
 END.
-
+   
 
 DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd FIELD row-id   AS ROWID
                                     FIELD has-rec  AS LOG INIT NO
@@ -166,8 +166,9 @@ fg-rctd.rita-code = "T" NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-5 ~
-
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 RECT-5 browse-order ~
+auto_find Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -190,9 +191,25 @@ FUNCTION calc-ext-cost RETURNS DECIMAL
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 30 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 85 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -244,6 +261,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 2 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 16.71 COL 7 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 16.71 COL 101 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 16.71 COL 133 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 16.71 COL 3
+     RECT-4 AT ROW 16.48 COL 2
      RECT-5 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -365,7 +391,7 @@ fg-rctd.rita-code = ""T"""
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -381,7 +407,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-
+   
    RUN new-state IN phandle ('update-begin':U).
 
 END.
@@ -398,7 +424,7 @@ DO:
  DEF BUFFER bf-tmp FOR fg-rctd.
 
  IF NOT AVAIL fg-rctd THEN FIND fg-rctd WHERE RECID(fg-rctd) = lv-recid NO-LOCK NO-ERROR. 
-
+ 
  DEF VAR ll-tag# AS LOG NO-UNDO.
  ll-help-run = YES.
  CASE FOCUS:NAME :
@@ -461,7 +487,7 @@ DO:
                      VIEW-AS ALERT-BOX ERROR.
                  RETURN NO-APPLY.
                END.
-
+             
                ASSIGN fg-rctd.job-no:SCREEN-VALUE = loadtag.job-no 
                     fg-rctd.job-no2:SCREEN-VALUE = STRING(loadtag.job-no2)
                     /*   fg-rctd.ord-no:SCREEN-VALUE = STRING(loadtag.ord-no) */
@@ -513,14 +539,14 @@ DO:
      /*WHEN "tag2" THEN DO:
        RUN fgbin2-help.
      END.
-
+     
      when "loc2" then do:
            run windows/l-loc.w (fg-rctd.company,fg-rctd.loc2:screen-value, output char-val).
            if char-val <> "" then do :
               assign fg-rctd.loc2:screen-value in  browse {&browse-name}  = entry(1,char-val).             
               APPLY "tab" TO fg-rctd.loc2.
            end.
-
+           
            return no-apply.   
      end.
      when "loc-bin2" then do:
@@ -545,7 +571,7 @@ ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:  /* display calculated field */
   /* def var ii as int.
    ii = if avail fg-rctd then integer(fg-rctd.po-no) else 0.
-
+   
    if avail fg-rctd then    run get-matrix (true).
 */
 END.
@@ -597,7 +623,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.tag IN BROWSE Browser-Table /* From!Tag */
 DO:
-
+    
   IF LASTKEY NE -1 THEN DO:
     RUN leave-tag .
     IF RETURN-VALUE <> "" THEN RETURN NO-APPLY.
@@ -673,7 +699,7 @@ DO:
      END.
   END.
         */
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -996,7 +1022,7 @@ DO WITH FRAME {&FRAME-NAME}:
        fg-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.loc-bin
        fg-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name}     = fg-bin.tag.
 
-
+      
     END.
   END.
   */
@@ -1013,7 +1039,7 @@ PROCEDURE fgpostlog :
   Notes:       
 ------------------------------------------------------------------------------*/
  DEFINE INPUT PARAMETER ipLogText AS CHARACTER NO-UNDO.
-
+        
  PUT STREAM logFile UNFORMATTED STRING(TODAY,'99.99.9999') ' '
      STRING(TIME,'hh:mm:ss am') ' : ' ipLogText SKIP.
 
@@ -1046,11 +1072,11 @@ PROCEDURE gl-from-work :
 ------------------------------------------------------------------------------*/
  DEF INPUT PARAM ip-run AS INT NO-UNDO.
   DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
-
+  
   DEF VAR credits AS DEC INIT 0 NO-UNDO.
   DEF VAR debits AS DEC INIT 0 NO-UNDO. 
 
-
+  
   FIND FIRST period
       WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -1061,7 +1087,7 @@ PROCEDURE gl-from-work :
       WHERE (ip-run EQ 1 AND work-gl.job-no NE "")
          OR (ip-run EQ 2 AND work-gl.job-no EQ "")
       BREAK BY work-gl.actnum:
-
+      
     ASSIGN
      debits  = debits  + work-gl.debits
      credits = credits + work-gl.credits.
@@ -1141,7 +1167,7 @@ PROCEDURE leave-tag :
     IF ERROR-STATUS:ERROR THEN RETURN "error".
 
     /*=== get it from valid-job-loct-bin-tag
-
+    
     FIND FIRST loadtag WHERE loadtag.company = g_company
                     AND loadtag.ITEM-type = NO
                     AND loadtag.tag-no = fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
@@ -1174,8 +1200,8 @@ PROCEDURE leave-tag :
                                     INT(fg-rctd.partial:SCREEN-VALUE)
                                     ,"->>>,>>>,>>9.99").*/
                     .
-
-
+                                  
+                                    
 
     /*
     IF sstransf-char = "Pallet" THEN
@@ -1189,7 +1215,7 @@ PROCEDURE leave-tag :
        ELSE APPLY "entry" TO fg-rctd.loc2 IN BROWSE {&browse-name}.
     END.
 
-
+   
     IF sstransf-int = 1 THEN
     DO:
         FOR LAST  b-fg-rctd FIELDS (b-fg-rctd.loc2 b-fg-rctd.loc-bin2) 
@@ -1201,7 +1227,7 @@ PROCEDURE leave-tag :
 
           ASSIGN fg-rctd.loc2:SCREEN-VALUE = b-fg-rctd.loc2
                  fg-rctd.loc-bin2:SCREEN-VALUE = b-fg-rctd.loc-bin2.
-
+          
 /*           DISPLAY b-fg-rctd.loc2 @ fg-rctd.loc2          */
 /*                   b-fg-rctd.loc-bin2  @ fg-rctd.loc-bin2 */
 /*                   WITH FRAME {&FRAME-NAME}.              */
@@ -1228,7 +1254,7 @@ PROCEDURE leave-tag2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
      FIND FIRST loadtag WHERE loadtag.company = g_company
                     AND loadtag.ITEM-type = NO
                     AND loadtag.tag-no = fg-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
@@ -1245,7 +1271,7 @@ PROCEDURE leave-tag2 :
            APPLY 'entry' TO fg-rctd.tag2 .
            RETURN "error".
         END.
-
+        
      END.
      IF fg-rctd.i-no:SCREEN-VALUE <> loadtag.i-no THEN DO:
                   MESSAGE "To Item is different from From Item."
@@ -1274,7 +1300,7 @@ PROCEDURE leave-tag2 :
             fg-rctd.loc-bin2:SCREEN-VALUE = loadtag.loc-bin
             fg-rctd.tag2:SCREEN-VALUE = loadtag.tag-no.
 
-
+     
 
 END PROCEDURE.
 
@@ -1405,7 +1431,7 @@ PROCEDURE local-assign-record :
          v-tag-no = v-tag-no + 1.
      END. /* repeat */
      IF v-tag-no = 0 THEN v-tag-no = 1.
-
+  
      CREATE bf-tag.
      BUFFER-COPY loadtag EXCEPT loadtag.tag-no TO bf-tag.
      ASSIGN bf-tag.tag-no       = /*string(ip-tag-no,"99999") + STRING(w-ord.i-no,"x(15)") */
@@ -1585,7 +1611,7 @@ PROCEDURE local-disable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   IF VALID-HANDLE(hd-post-child) THEN  hd-post-child:SENSITIVE = YES.
             /* value assigned from local-enable-fields*/
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1598,11 +1624,11 @@ PROCEDURE local-enable-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
    /* Code placed here will execute PRIOR to standard behavior. */
-
+   
  /* def var out-hd-lst as cha no-undo.
   def var ii as int no-undo.
   def var hd-next as widget-handle no-undo.
-
+   
   /* Code placed here will execute PRIOR to standard behavior. */
   run get-link-handle in adm-broker-hdl (this-procedure,"record-target", output out-hd-lst).
   hd-post = widget-handle(out-hd-lst).  /* procedure */
@@ -1640,7 +1666,7 @@ PROCEDURE local-enable-fields :
 
   END.
   */
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1696,19 +1722,19 @@ PROCEDURE local-update-record :
   /*
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
   RUN valid-loc2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
   RUN valid-loc-bin2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
+  
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
 
   RUN scan-next.  
   v-dumb = NO NO-ERROR.
@@ -1764,7 +1790,7 @@ PROCEDURE post-finish-goods :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DEF BUFFER b-fg-rcpts FOR fg-rcpts.
   DEF BUFFER b-fg-rdtl FOR fg-rdtl.
   DEF BUFFER b-fg-bin FOR fg-bin.
@@ -1870,7 +1896,7 @@ PROCEDURE post-finish-goods :
           FIND FIRST fg-bin WHERE fg-bin.company = fg-rctd.company
                               AND fg-bin.tag  = fg-rctd.tag
                             NO-LOCK NO-ERROR.
-
+      
       IF fgPostLog THEN RUN fgPostLog ('End fg/fg-post.i - Start fg/fgemails.i').
       IF w-fg-rctd.rita-code = "R" THEN DO:
          {fg/fgemails.i}
@@ -1910,7 +1936,7 @@ PROCEDURE post-finish-goods :
       IF LAST-OF(w-fg-rctd.tag) THEN DO:
         IF TRIM(w-fg-rctd.tag) NE "" THEN 
         /* Ensure Bin/Tags Qty is correct.  Task 01270602 */
-
+        
         FOR EACH fg-bin NO-LOCK
             WHERE fg-bin.company EQ g_company
               AND fg-bin.i-no    EQ loadtag.i-no
@@ -1947,7 +1973,7 @@ PROCEDURE post-finish-goods :
                 AND fg-bin.job-no2 = loadtag.job-no2*/
                 /* AND fg-bin.qty     GT 0 */
               USE-INDEX tag NO-LOCK NO-ERROR.
-
+          
           IF w-fg-rctd.rita-code = "T" AND /*loadtag.tot-cases = w-fg-rctd.cases*/
              TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) = w-fg-rctd.cases THEN  /* full qty transfer*/ 
             ASSIGN
@@ -2038,13 +2064,13 @@ PROCEDURE post-finish-goods :
                 gl-ctrl.trnum = v-trnum.
 
          FIND CURRENT gl-ctrl NO-LOCK.
-
+         
          IF fgPostLog THEN RUN fgPostLog ('Begin Run gl-from-work 1').         
          RUN gl-from-work (1, v-trnum).
          IF fgPostLog THEN RUN fgPostLog ('End 1 - Begin Run gl-from-work 2').
          RUN gl-from-work (2, v-trnum).
          IF fgPostLog THEN RUN fgPostLog ('End Run gl-from-work 2').
-
+         
          LEAVE.
         END. /* IF AVAIL gl-ctrl */
       END. /* REPEAT */
@@ -2231,7 +2257,7 @@ PROCEDURE valid-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST itemfg
         WHERE itemfg.company EQ cocode
@@ -2306,7 +2332,7 @@ PROCEDURE valid-job-loc-bin-tag :
         APPLY 'entry' TO fg-rctd.tag .
         RETURN ERROR.
      END.
-
+     
      ASSIGN
       li-fieldc = TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
       li-fieldc = FILL(" ",6 - LENGTH(li-fieldc)) + li-fieldc
@@ -2513,7 +2539,7 @@ PROCEDURE valid-qty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   (fg-rctd.cases * fg-rctd.qty-case) + fg-rctd.partial.
 END PROCEDURE.
 
@@ -2529,7 +2555,7 @@ PROCEDURE valid-tag2 :
 ------------------------------------------------------------------------------*/
    /*
      DO WITH FRAME {&FRAME-NAME}:
-
+  
     FIND FIRST fg-bin
         WHERE fg-bin.company  EQ cocode
           AND fg-bin.i-no     EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}

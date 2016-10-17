@@ -57,7 +57,7 @@ DEF TEMP-TABLE tt-invl FIELD tt-recid AS RECID
                        FIELD IS-SELECTED AS LOG COLUMN-LABEL "S" VIEW-AS TOGGLE-BOX
                        FIELD qty LIKE inv-head.tot-ord
                        INDEX i1 tt-recid.
-
+                       
 
 DEF VAR historyQty AS DECIMAL NO-UNDO.
 DEF VAR historyPrice LIKE inv-head.tot-ord NO-UNDO.
@@ -169,9 +169,9 @@ DEFINE QUERY external_tables FOR cust.
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table ~
- rsSearch lv-search btn-reset fi_sortby tgSelect
-&Scoped-Define DISPLAYED-OBJECTS   rsSearch lv-search ~
+&Scoped-Define ENABLED-OBJECTS br_table browse-order btn_clear_find ~
+auto_find rsSearch lv-search btn-reset fi_sortby tgSelect
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find rsSearch lv-search ~
 fi_sortby tgSelect
 
 /* Custom List Definitions                                              */
@@ -248,8 +248,15 @@ DEFINE BUTTON btn-reset
      LABEL "Clear Search" 
      SIZE 15 BY 1.1.
 
+DEFINE BUTTON btn_clear_find 
+     LABEL "Clear" 
+     SIZE 15 BY 1.14.
 
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Find" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      LABEL "Sort" 
@@ -262,6 +269,13 @@ DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U
      SIZE 45 BY 1
      BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "Selected", 1,
+"Bol", 2,
+"Date", 3
+     SIZE 12 BY 3 NO-UNDO.
 
 DEFINE VARIABLE tgSelect AS LOGICAL
      VIEW-AS TOGGLE-BOX NO-UNDO.
@@ -309,6 +323,10 @@ DEFINE BROWSE br_table
 
 DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
+     browse-order AT ROW 7.91 COL 17 NO-LABEL WIDGET-ID 4
+     btn_clear_find AT ROW 8.62 COL 16 WIDGET-ID 10
+     auto_find AT ROW 9.33 COL 14 COLON-ALIGNED WIDGET-ID 8
+     tgSelect AT ROW 17.67 COL 100 LABEL "Sel/Unsel"
      rsSearch AT ROW 17.67 COL 3 NO-LABEL WIDGET-ID 12
      lv-search AT ROW 17.67 COL 35 COLON-ALIGNED
      btn-reset AT ROW 17.67 COL 83
@@ -379,16 +397,16 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-.
+       auto_find:HIDDEN IN FRAME F-Main           = TRUE.
 
 ASSIGN 
-.
+       browse-order:HIDDEN IN FRAME F-Main           = TRUE.
 
 ASSIGN 
        br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 ASSIGN 
-.
+       btn_clear_find:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -451,7 +469,7 @@ ELSE
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -490,7 +508,7 @@ ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 or return of self
 DO:
 RUN setChecked.
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -555,7 +573,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
-
+   
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}  
 END.
@@ -566,7 +584,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-LEAVE OF br_table IN FRAME F-Main
 DO:
-
+    
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
    {src/adm/template/brsleave.i}
@@ -619,7 +637,7 @@ DO:
    ll-refresh = NO.
    DO WITH FRAME {&FRAME-NAME}:
     RUN setChecked.
-
+     
    END.
 
 
@@ -656,9 +674,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL  B-table-Win
-ON CHOOSE OF  IN FRAME F-Main /* Clear */
+&Scoped-define SELF-NAME btn_clear_find
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_clear_find B-table-Win
+ON CHOOSE OF btn_clear_find IN FRAME F-Main /* Clear */
 DO:
   RUN startSearch.
 APPLY 'value-changed' TO BROWSE {&browse-name}.
@@ -752,7 +770,7 @@ PROCEDURE add-order-records :
        BREAK BY ASI.inv-head.cust-no BY inv-head.inv-date BY inv-head.inv-no:
 
       DO:
-
+         
          FIND FIRST tt-invl WHERE tt-invl.tt-recid = RECID(inv-head)
               NO-ERROR.
          IF NOT AVAIL tt-invl THEN DO:
@@ -824,7 +842,7 @@ PROCEDURE build-table :
        BREAK BY ASI.inv-head.cust-no 
              BY inv-head.inv-date 
              BY inv-head.bol-no:
-
+      
       IF LAST-OF(inv-head.bol-no) THEN DO:
          FIND FIRST tt-invl WHERE tt-invl.tt-recid = RECID(inv-head)
               NO-ERROR.
@@ -939,7 +957,7 @@ PROCEDURE get-row-id :
       FOR EACH tt-invl WHERE tt-invl.IS-SELECTED:
 
           FIND FIRST inv-head WHERE RECID(inv-head) EQ tt-invl.tt-recid NO-LOCK NO-ERROR.
-
+          
           IF AVAIL inv-head THEN
             ASSIGN op-rowid-list = op-rowid-list + string(ROWID(inv-head)) + ","
                    op-qty-list = op-qty-list + string(tt-invl.qty) + ",".
@@ -949,7 +967,7 @@ PROCEDURE get-row-id :
   END.
   ASSIGN op-rowid-list = TRIM(op-rowid-list, ",")
          op-qty-list   = TRIM(op-qty-list, ",").
-
+  
 
 
 END PROCEDURE.
@@ -977,7 +995,7 @@ PROCEDURE setChecked :
       DO li = 1 TO br_table:NUM-SELECTED-ROWS:
           br_table:FETCH-SELECTED-ROW (li) NO-ERROR.
           IF tgSelect:SCREEN-VALUE = "YES" THEN
-
+          
                  tt-invl.IS-SELECTED = YES.
           ELSE
                  tt-invl.IS-SELECTED = NO.
@@ -1062,7 +1080,7 @@ PROCEDURE local-open-query :
   DEF VAR lv-bol-no AS INT NO-UNDO.
   DEF VAR lv-item-no AS cha NO-UNDO.
   DEF VAR char-hdl AS cha NO-UNDO.
-
+ 
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN build-table.
@@ -1074,7 +1092,7 @@ PROCEDURE local-open-query :
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
   RUN get-item-no IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-bol-no, OUTPUT lv-item-no). 
-
+  
   IF lv-bol-no NE 0 THEN DO WITH FRAME {&FRAME-NAME}:
      ASSIGN rsSearch .     
      IF lv-search-by EQ "Cust" THEN
@@ -1088,7 +1106,7 @@ PROCEDURE local-open-query :
 
      IF AVAIL tt-invl THEN REPOSITION {&browse-name} TO ROWID ROWID(tt-invl) NO-ERROR.
   END.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

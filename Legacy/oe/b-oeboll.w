@@ -146,9 +146,9 @@ oe-boll.freight oe-boll.p-c
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
- fi_By fi_SortByLabel fi_AutoFindLabel 
-&Scoped-Define DISPLAYED-OBJECTS  fi_sortby  fi_By ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find fi_By fi_SortByLabel fi_AutoFindLabel 
+&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find fi_By ~
 fi_SortByLabel fi_AutoFindLabel 
 
 /* Custom List Definitions                                              */
@@ -214,7 +214,14 @@ FUNCTION get-release RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 27 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_AutoFindLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Auto Find:" 
       VIEW-AS TEXT 
@@ -233,7 +240,15 @@ DEFINE VARIABLE fi_SortByLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Sort By:"
       VIEW-AS TEXT 
      SIZE 7.4 BY .62 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Order", 1
+     SIZE 43 BY .95 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -308,10 +323,17 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 7.67 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 7.67 COL 56 COLON-ALIGNED NO-LABEL
+     auto_find AT ROW 7.67 COL 101.6 COLON-ALIGNED HELP
+          "Enter Auto Find Value" NO-LABEL
+     Btn_Clear_Find AT ROW 7.71 COL 131.2 HELP
+          "CLEAR AUTO FIND Value"
      fi_By AT ROW 7.71 COL 2 NO-LABEL
      fi_SortByLabel AT ROW 7.86 COL 49.6 NO-LABEL
      fi_AutoFindLabel AT ROW 7.86 COL 93.8 NO-LABEL
+     RECT-4 AT ROW 7.43 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -464,7 +486,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -595,8 +617,8 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
-
-
+    
+    
 
 END.
 
@@ -653,14 +675,14 @@ DO:
             AND oe-rel.i-no  EQ oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND oe-rel.stat NE "C"
           NO-ERROR.
-
+    
       IF NOT AVAIL oe-rel THEN
       FIND FIRST oe-rel NO-LOCK
           WHERE oe-rel.company EQ oe-bolh.company
             AND oe-rel.ord-no  EQ INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name})
             AND oe-rel.i-no  EQ oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name}  
           NO-ERROR.
-
+    
       IF AVAIL oe-rel THEN
           oe-boll.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = oe-rel.po-no.
   END.
@@ -689,7 +711,7 @@ DO:
             AND oe-rel.i-no  EQ oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND oe-rel.stat EQ "P"
           NO-ERROR.
-
+    
       IF AVAIL oe-rel THEN
           oe-boll.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = oe-rel.po-no.
   END.
@@ -1088,7 +1110,7 @@ PROCEDURE apply-tag-selections :
   Notes:       To be implemented at a later date to reduce time record
                locks held
 ------------------------------------------------------------------------------*/
-
+ 
 DEF BUFFER xoe-rell FOR oe-rell.
 
 DEF VAR ip-run AS INT INIT 2 NO-UNDO.
@@ -1179,7 +1201,7 @@ DEF BUFFER xoe-boll FOR oe-boll.
 
     /*   v-qty = w-bin.to-apply. */
      v-qty = w-bin.qty.
-
+     
      /* this does a leave if the v-qty is zero */
      {oe/sel-bins.i "oe-bol"}
      op-rowid-list = op-rowid-list + STRING(ROWID(oe-boll)) + ",".
@@ -1233,7 +1255,7 @@ PROCEDURE apply-value-changed :
     RUN local-open-query.
     APPLY 'value-changed' TO BROWSE Browser-Table.
     APPLY "Entry" TO hFirstColumn.
-
+    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
     /* To ensure vertical scrollbar is enabled when required */
@@ -1359,7 +1381,7 @@ PROCEDURE calc-wgt :
            STRING(DEC(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}) /
                  100 * (IF AVAIL itemfg THEN itemfg.weight-100 ELSE 0),
                  oe-boll.weight:FORMAT IN BROWSE {&browse-name}).
-
+    
     IF BOLWt-log THEN DO:      
 
       RELEASE loadtag.
@@ -1373,7 +1395,7 @@ PROCEDURE calc-wgt :
            ASSIGN oe-boll.weight:SCREEN-VALUE IN BROWSE {&browse-name} 
                          = STRING(INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}) * 
                                   loadtag.misc-dec[1] + loadtag.misc-dec[3]).
-
+        
     END.
 
   END. /* Do with frame */
@@ -1453,11 +1475,11 @@ DEF VAR v-qty-prior AS INT NO-UNDO.
     else do:
         DISABLE TRIGGERS FOR LOAD OF oe-relh.
         {oe/bollrell.i}
-
-
-
+    
+    
+    
         delete oe-boll.
-
+    
     END.
 
 
@@ -1503,7 +1525,7 @@ PROCEDURE display-orditm :
   DEF BUFFER xoe-rell FOR oe-rell.
 
   find first oe-rell where recid(oe-rell) = ip-recid NO-LOCK NO-ERROR.
-
+      
   if not avail oe-rell or oe-rell.s-code eq "I" then do:
     message "ERROR: Line Item is INVOICE ONLY" VIEW-AS ALERT-BOX ERROR.
     RETURN ERROR.
@@ -1539,7 +1561,7 @@ PROCEDURE display-orditm :
          oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name} = string(oe-rell.cases)
          oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = string(oe-rell.qty-case)
          .
-
+  
 
 END PROCEDURE.
 
@@ -1624,7 +1646,7 @@ PROCEDURE job-help :
        oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}  = ENTRY(1,char-val)
        oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(2,char-val).
   END.  
-
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1765,7 +1787,7 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
       OR v-pallets  NE oe-boll.tot-pallets 
       OR adm-new-record)
       AND (v-freight EQ oe-boll.freight) THEN DO:
-
+    
       RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT dFreight).
     END.
     ELSE DO:
@@ -1775,14 +1797,14 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
            IF AVAIL(oe-bolh) THEN
              dFreight = b-oe-bolh.freight.
     END.
-
+     
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:       
        RUN calc-freight-header IN WIDGET-HANDLE(char-hdl) (INPUT dFreight).
        RUN dispatch IN WIDGET-HANDLE(char-hdl) ('display-fields').
     END.
-
+     
     /* RUN calc-all-freight. */
   END. /* if freight modified or new record */
 
@@ -1793,7 +1815,7 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
       b-oe-boll.company EQ oe-bolh.company AND
       b-oe-boll.b-no    EQ oe-bolh.b-no AND
       ROWID(b-oe-boll) NE ROWID(oe-boll) EXCLUSIVE-LOCK:
-
+  
      oe-bolh.tot-pallets = oe-bolh.tot-pallets + b-oe-boll.tot-pallets.
 
   END.
@@ -1813,7 +1835,7 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
 
   DISPLAY oe-boll.weight
           oe-boll.freight WITH BROWSE {&browse-name}.
-
+  
   /* #PN# If the scheduled release and actual release had to be created  */
   /* #PN# then make sure the oe-rell created has the same values entered */
   /* #PN# on the BOL Line                                                */
@@ -1861,7 +1883,7 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
         bf2-oe-boll.bol-line = iLastBolLine.
   END.
   iLastBolLine = iLastBolLine + 1.
-
+  
   IF oe-boll.bol-line EQ 0 THEN        
      oe-boll.bol-line = iLastBolLine.
 
@@ -1877,7 +1899,7 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
       AND bf3-oe-boll.i-no EQ oe-boll.i-no
       AND bf3-oe-boll.r-no EQ 0
     USE-INDEX bol-line NO-LOCK NO-ERROR.
-
+  
   IF AVAIL bf3-oe-boll AND bf3-oe-boll.r-no EQ 0 AND AVAIL bf-oe-boll THEN DO:    
     oe-boll.r-no = bf-oe-boll.r-no.        
   END.
@@ -1909,7 +1931,7 @@ PROCEDURE local-copy-record :
     FIND FIRST itemfg OF oe-boll NO-LOCK NO-ERROR.
   END.
 
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
 
@@ -1954,7 +1976,7 @@ PROCEDURE local-create-record :
        lv-copy-lot-no = "".
     END.
   END.
-
+   
   ELSE
     ASSIGN
      oe-boll.company = oe-bolh.company
@@ -1994,7 +2016,7 @@ PROCEDURE local-delete-record :
       AND bf-boll.bol-no  = oe-boll.bol-no
     NO-LOCK:
       li-boll-cnt = li-boll-cnt + 1.
-
+                   
   END.
   /* 03111302 if only one record, must delete entire bol */
   IF li-boll-cnt LE 1 THEN DO:
@@ -2033,7 +2055,7 @@ PROCEDURE local-delete-record :
      DISABLE TRIGGERS FOR LOAD OF oe-relh.
      /* wfk - taken out for task 10111304 */
       /* {oe/bollrell.i}  */
-
+     
      RUN oe/bollrell.p (INPUT ROWID(oe-boll), INPUT YES /* single line delete */).
 
      RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
@@ -2043,7 +2065,7 @@ PROCEDURE local-delete-record :
       DISABLE TRIGGERS FOR LOAD OF oe-relh.
       {oe/bollrell.i}
       */
-
+  
 /*   RUN oe/reduce-actrel.p (INPUT v-rel-row, INPUT v-rell-row, INPUT v-qty-prior). */
   RUN update-rel-qty (INPUT ROWID(oe-boll), INPUT v-qty-prior, INPUT 0).
 
@@ -2058,7 +2080,7 @@ PROCEDURE local-delete-record :
   IF AVAIL oe-bolh THEN
   DO:
     oe-bolh.tot-pallets = 0.
-
+   
     FOR EACH b2-oe-boll WHERE b2-oe-boll.company EQ oe-bolh.company
                          AND b2-oe-boll.b-no    EQ oe-bolh.b-no
                          AND b2-oe-boll.deleted = NO:
@@ -2084,7 +2106,7 @@ PROCEDURE local-delete-record :
   END.
 
   RUN redisplay-header.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2130,7 +2152,7 @@ PROCEDURE local-enable-fields :
   DO li-cnt = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
     APPLY "cursor-left" TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.
   END.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
@@ -2176,7 +2198,7 @@ PROCEDURE local-exit :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2219,7 +2241,7 @@ PROCEDURE local-update-record :
   DEF VAR rOeBoll AS ROWID NO-UNDO.
   DEF VAR rAddedOeBoll AS ROWID NO-UNDO.
   DEF BUFFER bf3-oe-boll FOR oe-boll.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   IF adm-new-record THEN
     rAddedOeBoll = ROWID(oe-boll).
@@ -2255,7 +2277,7 @@ PROCEDURE local-update-record :
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(oe-boll.weight:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
        RUN calc-wgt.
-
+    
     /*pressing enter*/
     IF LASTKEY EQ 13 OR (adm-new-record AND INT(oe-boll.tot-pallets:SCREEN-VALUE) EQ 0) THEN
     DO:
@@ -2277,7 +2299,7 @@ PROCEDURE local-update-record :
     IF adm-new-record AND INT(fgBin:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
       fgBin:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fgBinScreen()).
   END. /* do with frame */
-
+ 
   FIND FIRST bf-oe-boll WHERE bf-oe-boll.company EQ oe-bolh.company
      AND bf-oe-boll.bol-no EQ oe-bolh.bol-no
      AND bf-oe-boll.i-no = oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2287,7 +2309,7 @@ PROCEDURE local-update-record :
     AND bf-oe-ordl.ord-no EQ INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name})
     AND bf-oe-ordl.i-no EQ oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
     NO-LOCK NO-ERROR.
-
+  
   lWasAdded = FALSE.
   IF adm-new-record THEN DO:
 
@@ -2313,10 +2335,10 @@ PROCEDURE local-update-record :
         END.
         ELSE
           RETURN NO-APPLY.
-
-
+        
+          
     END. /* if not avail bf-oe-boll */
-
+      
   END. /* if adm-new-record */
 
 
@@ -2328,7 +2350,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-
+  
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -2395,10 +2417,10 @@ DEF BUFFER bf-itemfg FOR itemfg.
       .
         oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(
           DEC(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}) - (DEC(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}) * DEC(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}))).
-
+        
         IF DEC(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}) GE DEC(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}) AND fg-bin.partial-count EQ 0 THEN
           oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(TRUNC(DEC(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}) / DEC(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),0)).
-
+        
         oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DEC(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}) - (DEC(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}) * 
                                                                 DEC(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}))).
 
@@ -2457,7 +2479,7 @@ PROCEDURE new-release :
      oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(oe-rell.partial).
 
     RUN value-changed-qty.
-
+    
     RUN oe/pallcalc2.p (INPUT cocode,
                         INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
                         INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
@@ -2487,7 +2509,7 @@ PROCEDURE new-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     DEF VAR v-tot-pallets AS INT NO-UNDO.
     RUN set-local-vars.
@@ -2498,7 +2520,7 @@ PROCEDURE new-tag :
             AND fg-bin.tag      EQ trim(lv-tag)
             AND fg-bin.i-no     EQ trim(lv-i-no)
         USE-INDEX tag NO-LOCK NO-ERROR.
-
+        
       IF AVAIL fg-bin THEN DO:
       ASSIGN
          oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}  = fg-bin.job-no
@@ -2560,7 +2582,7 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
    ASSIGN oe-bolh.tot-pallets = 0
           dTotFreight         = 0
           tot-other-freight   = 0.
-
+   
 
    /* Obtain the total freight for all lines on BOL */
    FOR EACH bf-oe-boll
@@ -2685,7 +2707,7 @@ DEF BUFFER bf-boll FOR oe-boll.
    RUN oe/d-selbin.w (2, ROWID(oe-boll), lv-all-or-one, oe-boll.i-no,
                       OUTPUT lv-rowids).
    ASSIGN v-rel-row = ROWID(oe-boll) .
-
+   
    IF lv-rowids NE "" THEN DO:
      RUN dispatch ('open-query').
      FOR EACH w-rowid:
@@ -2697,7 +2719,7 @@ DEF BUFFER bf-boll FOR oe-boll.
          w-rowid = ENTRY(li,lv-rowids).
        END.
      END.
-
+     
      DO WHILE AVAIL oe-boll AND CAN-FIND(FIRST w-rowid):
        FIND FIRST w-rowid WHERE w-rowid EQ STRING(ROWID(oe-boll)) NO-ERROR.
        IF AVAIL w-rowid THEN DO:       
@@ -2800,7 +2822,7 @@ DEF BUFFER bf-boll FOR oe-boll.
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
 
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
-
+  
        RUN calc-freight-header IN WIDGET-HANDLE(char-hdl) (INPUT dTotFreight).
        RUN dispatch IN WIDGET-HANDLE(char-hdl) ('display-fields').
    END.
@@ -3280,7 +3302,7 @@ PROCEDURE valid-qty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+      
   IF NOT ll-qty-warned THEN DO WITH FRAME {&FRAME-NAME}:
     ll-qty-warned = YES.
 
@@ -3301,7 +3323,7 @@ PROCEDURE valid-qty :
        oe-ordl.qty * (1 + (oe-ordl.over-pct / 100)) THEN
       MESSAGE "Qty Shipped will exceed Qty Ordered + Allowable Overrun..."  VIEW-AS ALERT-BOX.
   END.
-
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3348,7 +3370,7 @@ PROCEDURE valid-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     RUN set-local-vars.
 
@@ -3373,7 +3395,7 @@ PROCEDURE valid-tag :
       APPLY "entry" TO oe-boll.tag IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.
-
+  
     IF lv-tag NE "" AND fgrecpt-int = 1 and
        NOT can-find(FIRST fg-bin WHERE fg-bin.company EQ cocode
                                     AND fg-bin.tag     EQ lv-tag
@@ -3401,18 +3423,18 @@ PROCEDURE value-changed-qty :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-oe-boll FOR oe-boll.
-
+  
   DEF VAR li-all-qty AS INT NO-UNDO.
   DEF VAR lv-line LIKE oe-boll.line NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
 
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     RUN calc-qty.
 
     IF adm-new-record AND NOT adm-adding-record THEN
     FIND FIRST b-oe-boll WHERE ROWID(b-oe-boll) EQ lv-copy-rowid NO-LOCK NO-ERROR.
-
+               
     IF lv-rell-rowid NE ? THEN
     FIND oe-rell WHERE ROWID(oe-rell) EQ lv-rell-rowid NO-LOCK NO-ERROR.
 
@@ -3422,7 +3444,7 @@ PROCEDURE value-changed-qty :
     lv-line = IF AVAIL oe-rell   THEN oe-rell.line   ELSE
               IF AVAIL b-oe-boll THEN b-oe-boll.line ELSE
               IF AVAIL oe-boll   THEN oe-boll.line   ELSE 0.
-
+  
     FIND FIRST oe-ordl
         WHERE oe-ordl.company EQ cocode
           AND oe-ordl.ord-no  EQ INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -3554,7 +3576,7 @@ FUNCTION get-cost RETURNS DECIMAL
 ------------------------------------------------------------------------------*/
   IF li-cost:VISIBLE IN BROWSE Browser-Table EQ NO THEN
      RETURN 0.
-
+    
   DEF VAR v-t-cost AS DEC DECIMALS 4 NO-UNDO.
   DEF VAR v-uom AS CHAR NO-UNDO.
   def var v-cost AS DEC DECIMALS 4 extent 4 NO-UNDO.
@@ -3582,7 +3604,7 @@ FUNCTION get-cost RETURNS DECIMAL
           and fg-bin.job-no  eq oe-boll.job-no
           and fg-bin.job-no2 eq oe-boll.job-no2
         no-lock no-error.
-
+  
     if avail fg-bin and fg-bin.std-tot-cost ne 0 then
       assign
        v-cost-m[1] = fg-bin.std-lab-cost
@@ -3590,7 +3612,7 @@ FUNCTION get-cost RETURNS DECIMAL
        v-cost-m[3] = fg-bin.std-var-cost
        v-cost-m[4] = fg-bin.std-mat-cost
        v-uom       = fg-bin.pur-uom.
-
+       
     else
     if avail job-hdr and job-hdr.std-tot-cost ne 0 then
       assign
@@ -3599,7 +3621,7 @@ FUNCTION get-cost RETURNS DECIMAL
        v-cost-m[3] = job-hdr.std-var-cost
        v-cost-m[4] = job-hdr.std-mat-cost
        v-uom       = "M".
-
+       
     else   
       assign
        v-cost-m[1] = itemfg.std-lab-cost
@@ -3615,13 +3637,13 @@ FUNCTION get-cost RETURNS DECIMAL
        if v-uom ne "M" then
           run sys/ref/convcuom3.p(cocode,v-uom, "M", 0, 0, 0, 0,
                                  v-cost-m[i], output v-cost-m[i]).
-
+       
        v-cost[i] = v-cost[i] + (v-cost-m[i] * oe-boll.qty / 1000).
     end.
-
+  
   do i = 1 to 4:
      v-cost[i] = v-cost[i] / (oe-boll.qty / 1000).
-
+    
      if v-cost[i] eq ? then v-cost[i] = 0.
   end.
 

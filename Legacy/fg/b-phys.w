@@ -117,9 +117,9 @@ fg-rctd.rita-code = "C" NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-5 Browser-Table ~
-
-&Scoped-Define DISPLAYED-OBJECTS  fi_sortby  
+&Scoped-Define ENABLED-OBJECTS RECT-4 RECT-5 Browser-Table browse-order ~
+auto_find Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -142,14 +142,30 @@ FUNCTION calc-ext-cost RETURNS DECIMAL
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 117 BY .95 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 44 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 93 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 2.62.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -221,7 +237,16 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1.24 COL 2 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 16.48 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 16.48 COL 98 COLON-ALIGNED NO-LABEL
+     auto_find AT ROW 17.67 COL 11 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 17.67 COL 131 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 16.48 COL 2
+     RECT-4 AT ROW 16.24 COL 1
      RECT-5 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -354,7 +379,7 @@ fg-rctd.rita-code = ""C"""
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -372,7 +397,7 @@ DO:
 
 
   IF NOT AVAIL fg-rctd THEN FIND fg-rctd WHERE RECID(fg-rctd) EQ lv-recid NO-LOCK NO-ERROR. 
-
+ 
   ASSIGN
    ll-help-run = YES
    lw-focus    = FOCUS.
@@ -456,7 +481,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-
+   
    RUN new-state in phandle ('update-begin':U).
 END.
 
@@ -469,7 +494,7 @@ ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:  /* display calculated field */
   /* def var ii as int.
    ii = if avail rm-rctd then integer(rm-rctd.po-no) else 0.
-
+   
    if avail rm-rctd then    run get-matrix (true).
 */
 END.
@@ -483,7 +508,7 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
-
+  
   ll-help-run = no.
 END.
 
@@ -922,7 +947,7 @@ PROCEDURE crt-transfer :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
   DEF BUFFER b-fg-rctd FOR fg-rctd.
   DEF VAR lv-rctd-rowid AS ROWID NO-UNDO.
@@ -1110,7 +1135,7 @@ PROCEDURE fgbin-help :
     END.
 
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1129,7 +1154,7 @@ PROCEDURE get-def-values :
         and itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
       no-lock no-error.
   fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
-
+      
   IF adm-new-record THEN DO:
     find first fg-ctrl where fg-ctrl.company eq cocode no-lock no-error.
     /*assign
@@ -1159,13 +1184,13 @@ PROCEDURE get-def-values :
           where cust.company eq cocode
             and cust.active  eq "X"
           no-lock no-error.
-
+                                
       if avail cust then do:
         find first shipto
             where shipto.company eq cocode
               and shipto.cust-no eq cust.cust-no  
             no-lock no-error.
-
+           
         if avail shipto then do:
           find first fg-bin
               where fg-bin.company eq cocode
@@ -1278,7 +1303,7 @@ PROCEDURE local-assign-record :
   DEF VAR ld-cost AS DEC NO-UNDO.
   DEF VAR lv-uom AS CHAR NO-UNDO.
 
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
     ld-t-qty = DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}).
@@ -1362,9 +1387,9 @@ PROCEDURE local-create-record :
 
   /* gdm - */
   DEF VAR v_rct-date LIKE fg-rctd.rct-date NO-UNDO.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
   IF AVAIL b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN lv-rno = b-fg-rctd.r-no.
 
@@ -1383,7 +1408,7 @@ PROCEDURE local-create-record :
 
   FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
   IF AVAIL fg-rcpth AND fg-rcpth.r-no GT lv-rno THEN lv-rno = fg-rcpth.r-no.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
@@ -1461,7 +1486,7 @@ PROCEDURE local-disable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   if valid-handle(hd-post-child) then  hd-post-child:sensitive = yes.
             /* value assigned from local-enable-fields*/
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1478,7 +1503,7 @@ PROCEDURE local-enable-fields :
   def var hd-next as widget-handle no-undo.
   DEF VAR li AS INT NO-UNDO.
 
-
+   
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
@@ -1518,7 +1543,7 @@ PROCEDURE local-enable-fields :
 
   apply "entry" to fg-rctd.rct-date in browse {&browse-name}.
   return no-apply.
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1531,7 +1556,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
-
+   
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1581,7 +1606,7 @@ PROCEDURE local-update-record :
        RUN crt-transfer.
     END.
   END.
-
+  
   RUN repo-query (ROWID(fg-rctd)).
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
@@ -1694,8 +1719,8 @@ PROCEDURE repo-query :
  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
  DO WITH FRAME {&FRAME-NAME}:
-    RUN clear_.
-    RUN change-order (:SCREEN-VALUE). 
+    RUN clear_auto_find.
+    RUN change-order (browse-order:SCREEN-VALUE). 
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
   END.
   RUN dispatch ('row-changed').
@@ -1762,7 +1787,7 @@ PROCEDURE trans-count :
                fg-rctd.loc-bin:SCREEN-VALUE + "," +
                fg-rctd.loc:SCREEN-VALUE + "," +
                fg-rctd.loc-bin:SCREEN-VALUE .
-
+             
   RUN fg/d-phys.w (INPUT-OUTPUT lv-wh-list).
   IF lv-wh-list <> "" THEN DO:
      MESSAGE "Are you sure to transfer all physical counts for item "
@@ -1773,14 +1798,14 @@ PROCEDURE trans-count :
 
         DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
         DEF VAR lv-rctd-rowid AS ROWID NO-UNDO.
-
+        
         lv-rno = 0.
         FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
         IF AVAIL b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN lv-rno = b-fg-rctd.r-no.
-
+    
         FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
         IF AVAIL fg-rcpth AND fg-rcpth.r-no GT lv-rno THEN lv-rno = fg-rcpth.r-no.
-
+    
         DO WHILE TRUE:
           lv-rno = lv-rno + 1.
           FIND FIRST fg-rcpth WHERE fg-rcpth.r-no EQ lv-rno USE-INDEX r-no NO-LOCK NO-ERROR.
@@ -1789,7 +1814,7 @@ PROCEDURE trans-count :
           IF AVAIL b-fg-rctd THEN NEXT.
           LEAVE.
         END.
-
+    
         /*FOR EACH b-fg-rctd WHERE recid(b-fg-rctd) <> RECID(fg-rctd) 
                            AND b-fg-rctd.i-no = fg-rctd.i-no
                            AND b-fg-rctd.tag = fg-rctd.tag:
@@ -1811,7 +1836,7 @@ PROCEDURE trans-count :
                           /*AND fg-bin.qty > 0*/  NO-LOCK:  
          IF fg-bin.loc NE b-fg-rctd.loc OR  fg-bin.loc-bin NE b-fg-rctd.loc-bin
          THEN DO:
-
+         
              CREATE b2-fg-rctd.
              BUFFER-COPY b-fg-rctd EXCEPT b-fg-rctd.r-no TO b2-fg-rctd.
              ASSIGN b2-fg-rctd.r-no = lv-rno
@@ -1823,7 +1848,7 @@ PROCEDURE trans-count :
                     b2-fg-rctd.partial = 0
                     b2-fg-rctd.t-qty = 0.
              lv-rno = lv-rno + 1.
-
+             
          END. */
              CREATE b2-fg-rctd.
              BUFFER-COPY b-fg-rctd EXCEPT b-fg-rctd.r-no TO b2-fg-rctd.
@@ -1834,12 +1859,12 @@ PROCEDURE trans-count :
                     b-fg-rctd.partial = 0
                     b-fg-rctd.t-qty = 0.
              lv-rno = lv-rno + 1.
-
+            
         END.  /* for each fg-bin*/
         RUN repo-query (ROWID(fg-rctd)).
      END. /* ll-ans */
   END. /*lv-wh-list <> ""*/
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1852,7 +1877,7 @@ PROCEDURE valid-cust-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     IF fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
        NOT CAN-FIND(FIRST cust
@@ -1888,7 +1913,7 @@ PROCEDURE valid-i-no :
       RETURN ERROR.
     END.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1945,7 +1970,7 @@ PROCEDURE valid-job-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&frame-name}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
         FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
@@ -2003,7 +2028,7 @@ PROCEDURE valid-job-no2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+                                                         
   DO WITH FRAME {&frame-name}:
     IF TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE TRIM(lv-job-no)  OR
        DEC(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE DEC(lv-job-no2) THEN
@@ -2112,7 +2137,7 @@ PROCEDURE valid-tag :
                       AND fg-bin.job-no2 = int(fg-rctd.job-no2:SCREEN-VALUE)
                       NO-LOCK NO-ERROR.
     IF AVAIL fg-bin THEN DO:
-
+     
       /*MESSAGE "Invalid Tag#, try help..." VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.*/
        ASSIGN fg-rctd.cases:SCREEN-VALUE = STRING(TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0))
@@ -2161,7 +2186,7 @@ PROCEDURE validate-record :
         END.
      END.
   END.
-
+  
   FIND FIRST loc WHERE loc.company = cocode
                         AND loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
                         NO-LOCK NO-ERROR.
@@ -2170,7 +2195,7 @@ PROCEDURE validate-record :
           APPLY "entry" TO fg-rctd.loc.
           RETURN ERROR.
   END.
-
+  
   FIND FIRST fg-bin WHERE fg-bin.company = cocode 
                       AND fg-bin.i-no = ""
                       AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2184,7 +2209,7 @@ PROCEDURE validate-record :
   /* ===== tag validation =====*/
   IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> ""
   THEN DO:
-
+  
     FIND FIRST bf-tmp WHERE bf-tmp.company = cocode AND
                             bf-tmp.tag = fg-rctd.tag:SCREEN-VALUE
                         AND RECID(bf-tmp) <> RECID(fg-rctd)

@@ -102,9 +102,9 @@ asi.mach.m-code = wiptag-mch.m-code NO-LOCK, ~
     ~{&OPEN-QUERY-Browser-Table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
-&Scoped-Define DISPLAYED-OBJECTS  fi_sortby  
+&Scoped-Define ENABLED-OBJECTS RECT-4 Browser-Table browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find 
 
 /* Custom List Definitions                                              */
 /* filterFields,List-2,List-3,List-4,List-5,List-6                      */
@@ -118,7 +118,15 @@ asi.mach.m-code = wiptag-mch.m-code NO-LOCK, ~
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U INITIAL "Machine Dept" 
      LABEL "Sorted By" 
@@ -126,7 +134,15 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U INITIAL "Machine Dept"
      SIZE 22 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 63 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -167,7 +183,16 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1.24 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 17.43 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 17.43 COL 78 COLON-ALIGNED
+     auto_find AT ROW 17.43 COL 111 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 17.43 COL 132 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 17.43 COL 2
+     RECT-4 AT ROW 17.19 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -228,14 +253,14 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table  F-Main */
+/* BROWSE-TAB Browser-Table RECT-4 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-.
-.
+       browse-order:HIDDEN IN FRAME F-Main           = TRUE
+       browse-order:PRIVATE-DATA IN FRAME F-Main     = 
                 "1".
 
 ASSIGN 
@@ -295,7 +320,7 @@ asi.mach.m-code = asi.wiptag-mch.m-code"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -324,7 +349,7 @@ DO:
 /*                                                                                                     */
 /*       END.                                                                                          */
 /*   END CASE.                                                                                         */
-
+  
 
 END.
 
@@ -332,9 +357,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL  B-table-Win
-ON ENTRY OF  IN FRAME F-Main /* Auto Find */
+&Scoped-define SELF-NAME auto_find
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL auto_find B-table-Win
+ON ENTRY OF auto_find IN FRAME F-Main /* Auto Find */
 DO:
   MESSAGE "ENTRY INTO BROWSE" VIEW-AS ALERT-BOX.
 END.
@@ -391,7 +416,7 @@ DO:
       RUN reopen-query IN WIDGET-HANDLE(char-hdl).
       MESSAGE "Reopened query in browse" VIEW-AS ALERT-BOX.
   END.
-
+     
 
 END.
 
@@ -535,8 +560,8 @@ PROCEDURE local-row-changed :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
-
+ 
+ 
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -572,7 +597,7 @@ PROCEDURE refresh-brwse :
 /*   ELSE MESSAGE "VALID-HANDLE(WIDGET-HANDLE(char-hdl))" SKIP     */
 /*               "char-hdl " char-hdl                              */
 /*       VALID-HANDLE(WIDGET-HANDLE(char-hdl)) VIEW-AS ALERT-BOX.  */
-
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

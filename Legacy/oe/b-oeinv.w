@@ -103,9 +103,9 @@ ASI.inv-head.multi-invoice = no NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
- fi_By fi_AutoFindLabel 
-&Scoped-Define DISPLAYED-OBJECTS   fi_By ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find fi_By fi_AutoFindLabel 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_By ~
 fi_AutoFindLabel 
 
 /* Custom List Definitions                                              */
@@ -136,7 +136,14 @@ FUNCTION getStatus RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 41 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_AutoFindLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Auto Find:" 
       VIEW-AS TEXT 
@@ -151,7 +158,15 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U
      SIZE 38 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 73 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -190,9 +205,16 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 19.33 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 19.33 COL 37 COLON-ALIGNED NO-LABEL
+     auto_find AT ROW 19.33 COL 87.4 COLON-ALIGNED HELP
+          "Enter Auto Find Value" NO-LABEL
+     Btn_Clear_Find AT ROW 19.38 COL 130.8 HELP
+          "CLEAR AUTO FIND Value"
      fi_By AT ROW 19.38 COL 2.6 NO-LABEL
      fi_AutoFindLabel AT ROW 19.57 COL 79 NO-LABEL
+     RECT-4 AT ROW 19.1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -321,7 +343,7 @@ ASI.inv-head.multi-invoice = no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -496,7 +518,7 @@ PROCEDURE pushpin-image-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
-
+   
    DEF VAR v-att AS LOG NO-UNDO.
    DEF VAR lv-ord-no AS CHAR NO-UNDO.
    DEF VAR v-ord-no AS INT NO-UNDO.
@@ -504,7 +526,7 @@ PROCEDURE pushpin-image-proc :
    FIND FIRST inv-line OF inv-head
         WHERE inv-line.ord-no NE 0
         NO-LOCK NO-ERROR.
-
+  
    IF NOT AVAIL inv-line THEN
       FIND FIRST inv-misc OF inv-head
            WHERE inv-misc.ord-no NE 0
@@ -516,14 +538,14 @@ PROCEDURE pushpin-image-proc :
                   IF AVAIL inv-misc THEN STRING(inv-misc.ord-no)
                   ELSE
                   STRING(0)
-
+    
     v-att = CAN-FIND(FIRST asi.attach WHERE
             attach.company = cocode and
             attach.rec_key = ip-rec_key AND
             (attach.est-no eq lv-ord-no OR ATTACH.est-no EQ "")).
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachcust-target':U, OUTPUT char-hdl).
-
+  
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN pushpin-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
 END PROCEDURE.
@@ -584,19 +606,19 @@ DEF VAR v-totqty LIKE inv-line.qty NO-UNDO.
 
 IF AVAIL inv-head THEN DO:
    ASSIGN li-ord-no = f-ordno().
-
+  
    IF li-ord-no NE 0 THEN DO:
-
+  
       FIND FIRST bf-oe-ord NO-LOCK 
         WHERE bf-oe-ord.company EQ inv-head.company 
           AND bf-oe-ord.ord-no  EQ li-ord-no NO-ERROR.
-
+     
       FOR EACH bf-inv-line OF inv-head NO-LOCK
           BREAK BY bf-inv-line.line
                 BY bf-inv-line.i-no:
-
+        
           IF FIRST-OF(bf-inv-line.i-no) THEN DO:
-
+         
              ASSIGN v-totqty = 0.
              FOR EACH inv-line FIELDS(ship-qty) NO-LOCK
                WHERE inv-line.company EQ bf-inv-line.company 
@@ -606,9 +628,9 @@ IF AVAIL inv-head THEN DO:
                  AND inv-line.i-no    EQ bf-inv-line.i-no:
                  ASSIGN v-totqty = v-totqty + inv-line.ship-qty.
              END.
-
+             
              IF v-totqty NE bf-inv-line.qty THEN DO:
-
+            
                 ASSIGN inv-head.inv-no:BGCOLOR IN BROWSE {&BROWSE-NAME}    = 12
                        inv-head.cust-no:BGCOLOR IN BROWSE {&BROWSE-NAME}   = 12
                        inv-head.cust-name:BGCOLOR IN BROWSE {&BROWSE-NAME} = 12
@@ -619,7 +641,7 @@ IF AVAIL inv-head THEN DO:
                        inv-head.t-inv-rev:BGCOLOR IN BROWSE {&BROWSE-NAME} = 12
                        ls-status:BGCOLOR IN BROWSE {&BROWSE-NAME}          = 12
                        inv-head.r-no:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 12.
-
+               
                 LEAVE.
              END.
           END.
@@ -693,7 +715,7 @@ FUNCTION f-ordno RETURNS INTEGER
       NO-ERROR.
   lf-ord-no = IF AVAIL inv-line THEN inv-line.ord-no ELSE
               IF AVAIL inv-misc THEN inv-misc.ord-no ELSE 0.
-
+  
   RETURN lf-ord-no.   /* Function return value. */
 
 END FUNCTION.

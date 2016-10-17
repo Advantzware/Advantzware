@@ -41,7 +41,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
-
+  
 DEF BUFFER b-ar-mcash FOR ar-mcash.
 DEF BUFFER bf-reftable FOR reftable.
 DEF BUFFER bf2-reftable FOR reftable.
@@ -106,8 +106,9 @@ reftable.code2    = tt-mcash.check-no NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -130,9 +131,25 @@ FUNCTION get_checkno RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 60 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 55 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -171,6 +188,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 19.33 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 19.33 COL 132 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 19.33 COL 2
+     RECT-4 AT ROW 19.1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -281,7 +307,7 @@ reftable.code2    = tt-mcash.check-no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -375,20 +401,20 @@ PROCEDURE create-tt :
   Notes:       
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&FRAME-NAME}:
-     ASSIGN  .
+     ASSIGN browse-order auto_find.
 
-.
+     IF browse-order = 1 THEN
         v-posted = NO.
      ELSE
         v-posted = YES.
-
+   
      FOR EACH b-ar-mcash WHERE 
          b-ar-mcash.company = g_company AND
          b-ar-mcash.posted EQ v-posted AND
-         b-ar-mcash.payer BEGINS 
+         b-ar-mcash.payer BEGINS auto_find
          NO-LOCK
          BY b-ar-mcash.payer:
-
+    
          FIND FIRST bf-reftable WHERE
               bf-reftable.reftable = "AR-MCASH" AND
               bf-reftable.company  = b-ar-mcash.company AND
@@ -410,16 +436,16 @@ PROCEDURE create-tt :
               tt-mcash.curr-code[1] = b-ar-mcash.curr-code[1] AND
               tt-mcash.check-no = v-check-no
               NO-ERROR.
-
+         
          IF NOT AVAIL tt-mcash THEN
          DO:
             CREATE tt-mcash.
             BUFFER-COPY b-ar-mcash EXCEPT check-amt TO tt-mcash
                ASSIGN tt-mcash.check-no = v-check-no.
          END.
-
+    
          tt-mcash.check-amt = tt-mcash.check-amt + b-ar-mcash.check-amt.
-
+    
          RELEASE tt-mcash.
      END.
   END.
@@ -536,7 +562,7 @@ PROCEDURE repos-to-new :
 
          REPOSITION {&browse-name} TO ROWID ROWID(tt-mcash).
          APPLY "VALUE-CHANGED" TO {&browse-name} IN FRAME {&FRAME-NAME}.
-
+         
          LEAVE.
       END.
    END.

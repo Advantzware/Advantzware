@@ -94,9 +94,9 @@ item.q-ono item.q-comm item.cons-uom
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
-&Scoped-Define DISPLAYED-OBJECTS  fi_sortby  
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -110,14 +110,29 @@ item.q-ono item.q-comm item.cons-uom
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear" 
+     SIZE 8 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 24.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 38 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 56 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 143 BY 1.67.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -164,7 +179,16 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 17.91 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 17.91 COL 62 COLON-ALIGNED NO-LABEL
+     auto_find AT ROW 17.91 COL 103 COLON-ALIGNED HELP
+          "Enter Auto Find Value" NO-LABEL
+     Btn_Clear_Find AT ROW 17.91 COL 130 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 17.91 COL 2
+     RECT-4 AT ROW 17.67 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -285,7 +309,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -333,7 +357,7 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
-
+  
   /* not for corrugated item 
   if avail item and item.i-code = "E" then do:
      run get-link-handle in adm-broker-hdl(this-procedure, "container-source", output char-hdl).
@@ -443,10 +467,10 @@ PROCEDURE export-xl :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-RUN rm/dRMExport.w (INPUT ,
-                     INPUT ,
+RUN rm/dRMExport.w (INPUT auto_find,
+                     INPUT browse-order,
                      INPUT "2").
-/* RUN cec/citm-exp.w (,). */
+/* RUN cec/citm-exp.w (auto_find,browse-order). */
 
 
 END PROCEDURE.
@@ -508,10 +532,11 @@ PROCEDURE local-open-query :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN dispatch ('get-last':U).
   IF AVAILABLE item THEN lvLastRowID = ROWID(item).
-
+    
   RUN dispatch ('get-first':U).
   IF AVAILABLE item THEN lvFirstRowID = ROWID(item).
-
+  
+  APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.
   APPLY "value-changed" TO BROWSE {&browse-name}.
 
 END PROCEDURE.
@@ -588,7 +613,7 @@ PROCEDURE navigate-browser :
     WHEN 'N' THEN 
     do:
        RUN dispatch ('get-next':U).
-
+      
        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"history-target", OUTPUT char-hdl).
        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
           RUN new-item IN WIDGET-HANDLE(char-hdl).
@@ -600,10 +625,10 @@ PROCEDURE navigate-browser :
            RUN new-item IN WIDGET-HANDLE(char-hdl).
     END.
   END CASE.
-
+    
   IF ROWID(item) EQ lvLastRowID THEN
   opNavType = 'L'.
-
+      
   IF ROWID(item) EQ lvFirstRowID THEN
   opNavType = IF opNavType EQ 'L' THEN 'B' ELSE 'F'.
 
@@ -623,17 +648,17 @@ PROCEDURE refresh-query :
   def var i as int no-undo.
   def var lv-rowid as rowid no-undo.  /* current record's rowid */
   def var lv-stat as log no-undo.
-
+  
   lv-rowid = if avail item then rowid(item)  else ?.
   i = browse {&browse-name}:focused-row.
-
+  
  /*  run dispatch ('open-query') .   - update yes/no message pop-up */
 /* {&open-query-{&browse-name}} */
 
-
+  
   {&open-query-{&browse-name}}
   lv-stat = browse {&browse-name}:set-repositioned-row(i,"always").
-
+  
   reposition {&browse-name} to rowid ip-rowid /*lv-rowid*/ .
   run dispatch ('row-available'). 
 

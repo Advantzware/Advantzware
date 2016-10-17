@@ -82,9 +82,9 @@ DEF VAR v-col-move AS LOG NO-UNDO INIT TRUE.
     ~{&OPEN-QUERY-Browser-Table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
-&Scoped-Define DISPLAYED-OBJECTS   fi_sortBy 
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_sortBy 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -98,14 +98,30 @@ DEF VAR v-col-move AS LOG NO-UNDO INIT TRUE.
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortBy AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 28 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 55 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -136,9 +152,18 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 18.86 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 18.86 COL 70 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 18.86 COL 98 HELP
+          "CLEAR AUTO FIND Value"
      fi_sortBy AT ROW 18.86 COL 115 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      "Sort:" VIEW-AS TEXT
           SIZE 5 BY .95 AT ROW 18.86 COL 112 WIDGET-ID 14
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 18.86 COL 2
+     RECT-4 AT ROW 18.62 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -231,7 +256,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH reconcile WHERE ~{&KEY-PHRASE} ~{&SORTBY-PHRASE
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -639,10 +664,10 @@ IF AVAILABLE b-prgrms THEN DO:
        NOT CAN-DO(b-prgrms.can_delete,ENTRY(num-groups,g_groups)) THEN
     NEXT.
 
-
+    
     IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups))
           THEN v-can-update = YES.
-
+    
 
     group-ok = yes.
     /*LEAVE. */

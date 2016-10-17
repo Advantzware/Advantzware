@@ -51,8 +51,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS lv-search 
-&Scoped-Define DISPLAYED-OBJECTS  lv-search 
+&Scoped-Define ENABLED-OBJECTS RECT-4 browse-order lv-search Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order lv-search 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -87,19 +87,38 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
 DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 45 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Tag#", 1
+     SIZE 11 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     SIZE 116 BY 1.43.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     browse-order AT ROW 1.24 COL 5 HELP
+          "Select Browser Sort Order" NO-LABEL
      lv-search AT ROW 1.24 COL 14 COLON-ALIGNED HELP
           "Enter Auto Find Value" NO-LABEL
+     Btn_Clear_Find AT ROW 1.24 COL 62 HELP
+          "CLEAR AUTO FIND Value"
+     "By" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 1.24 COL 2
+     RECT-4 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -172,15 +191,15 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL  V-table-Win
-ON CHOOSE OF  IN FRAME F-Main /* Clear Find */
+&Scoped-define SELF-NAME Btn_Clear_Find
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Clear_Find V-table-Win
+ON CHOOSE OF Btn_Clear_Find IN FRAME F-Main /* Clear Find */
 DO:
     DEF VAR char-hdl AS cha NO-UNDO.
     lv-search = "".
@@ -246,7 +265,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

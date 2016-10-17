@@ -47,7 +47,7 @@ DEF {&NEW} SHARED VAR g_lookup-var AS cha NO-UNDO.
 {sys/inc/VAR.i "new shared" }
 ASSIGN cocode = g_company
        locode = g_loc.
-
+      
 {oe/oe-sysct1.i NEW}
 
 DEF VAR ll-inquiry AS LOG NO-UNDO.
@@ -115,8 +115,9 @@ ar-invl.s-pct[3] ar-invl.s-comm[3]
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -153,9 +154,25 @@ FUNCTION get-i-dscr RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 60 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 55 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -228,6 +245,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 7.43 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 7.43 COL 70 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 7.43 COL 132 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 7.43 COL 2
+     RECT-4 AT ROW 7.19 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -369,7 +395,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -387,7 +413,7 @@ DO:
   phandle = WIDGET-HANDLE(char-hdl).
 
   RUN new-state in phandle ('update-begin':U).
-
+    
   IF NOT ll-inquiry THEN RUN new-state in phandle ('update-begin':U).
 END.
 
@@ -452,7 +478,7 @@ DO:
   /* This code displays initial values for newly added or copied rows. */
   RUN get-link-handle IN adm-broker-hdl
                     (THIS-PROCEDURE, "dont-enable-source", OUTPUT char-hdl).
-
+                      
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN RETURN NO-APPLY.
 
   {src/adm/template/brsentry.i}
@@ -896,7 +922,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   FIND FIRST ar-ctrl WHERE ar-ctrl.company = ar-inv.company NO-LOCK NO-ERROR.
-
+   
   FIND FIRST cust WHERE
        cust.company EQ ar-inv.company AND
        cust.cust-no EQ ar-inv.cust-no
@@ -914,7 +940,7 @@ PROCEDURE local-create-record :
          ar-invl.actnum = IF AVAIL ar-ctrl THEN ar-ctrl.sales ELSE ""
          ar-invl.sman[1] = IF AVAIL cust THEN cust.sman ELSE ""
          ar-invl.s-pct[1] = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0.
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -962,7 +988,7 @@ PROCEDURE local-enable-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   IF ar-inv.posted THEN DO:
      MESSAGE "Invoice already posted. No Editing allowed!" VIEW-AS ALERT-BOX ERROR.
@@ -1024,7 +1050,7 @@ PROCEDURE local-update-record :
   RUN reopen-query IN WIDGET-HANDLE(char-hdl).
   FIND CURRENT ar-invl NO-LOCK NO-ERROR.
   RUN dispatch ('display-fields').
-
+      
   IF v-oecomm-cha NE "Manual" THEN RUN show-comm (NO).
 
   IF ll-new-record THEN RUN auto-add.

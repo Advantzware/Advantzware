@@ -44,7 +44,7 @@ ASSIGN cocode = g_company
 
 DEF BUFFER b-ref1 FOR reftable.
 DEF BUFFER b-ref2 FOR reftable.
-
+    
 DEF NEW SHARED VAR factor# AS DECIMAL NO-UNDO.
 DEF NEW SHARED VAR v-default-gl-log AS LOG NO-UNDO.
 DEF NEW SHARED VAR v-default-gl-cha AS cha NO-UNDO.
@@ -109,8 +109,9 @@ ASI.po-ordl.line LT 99999999 NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -140,9 +141,25 @@ FUNCTION getOrdQty RETURNS DECIMAL
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 60 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 55 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -194,6 +211,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 14.57 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 14.57 COL 70 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 14.57 COL 132 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 14.57 COL 2
+     RECT-4 AT ROW 14.33 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -311,7 +337,7 @@ ASI.po-ordl.line LT 99999999"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -322,7 +348,7 @@ ASI.po-ordl.line LT 99999999"
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
-
+    
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"buttons-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) 
        THEN RUN browser-dbclicked IN WIDGET-HANDLE(char-hdl).
@@ -591,7 +617,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   IF AVAIL(po-ordl) AND  po-ordl.item-type = NO  THEN
     FIND itemfg WHERE itemfg.company EQ po-ordl.company
       AND itemfg.i-no EQ po-ordl.i-no
@@ -721,7 +747,7 @@ PROCEDURE set-rec-key :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     APPLY "value-changed" TO BROWSE {&browse-name}.
   END.

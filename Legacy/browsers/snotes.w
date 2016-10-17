@@ -95,9 +95,9 @@ rec_key.table_name prgmxref.prgmname
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table Btn_Search ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table Btn_Search RECT-4 auto_find ~
 Btn_Run word_search 
-&Scoped-Define DISPLAYED-OBJECTS   word_search 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find word_search 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -111,6 +111,10 @@ Btn_Run word_search
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
 DEFINE BUTTON Btn_Run 
      IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
@@ -129,8 +133,20 @@ DEFINE VARIABLE word_search AS CHARACTER
      SIZE 131 BY 1.67
      BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 65 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 43 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 147 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -164,9 +180,18 @@ DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      Btn_Search AT ROW 18.86 COL 1
+     browse-order AT ROW 17.67 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 17.67 COL 67 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 17.67 COL 134 HELP
+          "CLEAR AUTO FIND Value"
      Btn_Run AT ROW 18.86 COL 140
      word_search AT ROW 18.86 COL 9 HELP
           "Enter Text to Search using '&' as 'AND' and/or '!' as 'OR'" NO-LABEL
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 17.67 COL 2
+     RECT-4 AT ROW 17.43 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -230,7 +255,14 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR RADIO-SET browse-order IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
+                "2".
 
+/* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -260,7 +292,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -323,6 +355,7 @@ END.
 ON CHOOSE OF Btn_Search IN FRAME F-Main
 DO:
   ASSIGN word_search.
+  APPLY "VALUE-CHANGED" TO browse-order IN FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */

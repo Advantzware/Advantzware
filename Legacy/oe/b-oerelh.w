@@ -93,8 +93,9 @@ use-index delpost NO-LOCK, ~
     ~{&OPEN-QUERY-Browser-Table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
+&Scoped-Define ENABLED-OBJECTS Browser-Table browse-order auto_find ~
+Btn_Clear_Find RECT-4 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -108,9 +109,25 @@ use-index delpost NO-LOCK, ~
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 32 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 74 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     SIZE 135 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -148,6 +165,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 19.33 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 19.33 COL 89 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 19.33 COL 123 HELP
+          "CLEAR AUTO FIND Value"
+     RECT-4 AT ROW 19.1 COL 1
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 19.33 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -257,7 +283,7 @@ use-index delpost"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -372,7 +398,8 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  apply "value-changed" to browse-order in frame {&frame-name}.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -388,12 +415,12 @@ PROCEDURE reopen-query :
     def input param ip-recid as recid no-undo.
     def var lv-recid as recid no-undo.
 
-
+   
     lv-recid = if ip-recid <> ? then ip-recid /* add */ else recid(oe-relh).
     run dispatch ('open-query').
     reposition {&browse-name} to recid lv-recid.
     run dispatch ('row-changed').
-
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

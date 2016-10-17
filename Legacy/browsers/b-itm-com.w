@@ -101,9 +101,9 @@ item-comm.industrial-percent item-comm.comm-rate-percent
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
-&Scoped-Define DISPLAYED-OBJECTS  fi_sortby  
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -126,14 +126,30 @@ FUNCTION ValidDec RETURNS DECIMAL
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 30 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 31 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 58 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 146 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -188,7 +204,16 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 19.14 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 19.14 COL 58 COLON-ALIGNED NO-LABEL
+     auto_find AT ROW 19.14 COL 100.8 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 19.14 COL 132.8 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 19 COL 2
+     RECT-4 AT ROW 18.91 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -315,7 +340,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -481,9 +506,9 @@ PROCEDURE import-excel :
    FOR EACH tt-item-comm:
       DELETE tt-item-comm.
    END.
-
+   
    DO WITH FRAME {&FRAME-NAME}:
-
+   
       SYSTEM-DIALOG GET-FILE chFile 
                     TITLE "Select File to Import"
                     FILTERS "Excel File (*.xls,*.xlsx) " "*.xls,*.xlsx"
@@ -491,7 +516,7 @@ PROCEDURE import-excel :
                     MUST-EXIST
                     USE-FILENAME
                     UPDATE v-ok.
-
+     
       IF v-ok THEN DO:
          IF LENGTH(chFile) LT 4 OR
             (SUBSTR(chFile,LENGTH(chFile) - 3) NE ".xls" AND 
@@ -500,34 +525,34 @@ PROCEDURE import-excel :
                 VIEW-AS ALERT-BOX ERROR BUTTONS OK.
             LEAVE.
          END.
-
+     
          SESSION:SET-WAIT-STATE ("general").
-
+   
          /* Initialize Excel. */
          CREATE "Excel.Application" chExcelApplication NO-ERROR.
-
+     
          /* Check if Excel got initialized. */
          IF NOT (VALID-HANDLE (chExcelApplication)) THEN DO:
             MESSAGE "Unable to Start Excel." VIEW-AS ALERT-BOX ERROR.
             RETURN ERROR. 
          END.
-
+     
          /* Open our Excel File. */  
          chExcelApplication:VISIBLE = FALSE.
          chWorkbook = chExcelApplication:Workbooks:OPEN(chfile) NO-ERROR.
-
+     
          /* Do not display Excel error messages. */
          chExcelApplication:DisplayAlerts = FALSE NO-ERROR.
-
+     
          /* Go to the Active Sheet. */
          chWorkbook:WorkSheets(1):Activate NO-ERROR.
-
+     
          ASSIGN
             chWorkSheet = chExcelApplication:Sheets:ITEM(1).
 
          REPEAT:
             IF chWorkSheet:Range("A" + STRING(v-RowCount)):VALUE = ? THEN LEAVE.
-
+ 
             CREATE tt-item-comm.
             ASSIGN
                tt-item-comm.company            = cocode
@@ -559,7 +584,7 @@ PROCEDURE import-excel :
                v-RowCount = v-RowCount + 1.
          END.
       END.
-
+      
       /*Free memory*/
       chWorkbook = chExcelApplication:Workbooks:CLOSE() NO-ERROR.
       RELEASE OBJECT chWorkbook NO-ERROR.
@@ -574,7 +599,7 @@ PROCEDURE import-excel :
             PUT UNFORMATTED "Invalid Customer Number " + '"' + tt-item-comm.cust-no + '"' + ", in row " + STRING(tt-item-comm.row-no) + "." SKIP.
             tt-item-comm.valid = FALSE.
          END.
-
+         
          FIND FIRST b-itemfg WHERE b-itemfg.company = tt-item-comm.company
                                AND b-itemfg.cust-no = tt-item-comm.cust-no
                                AND b-itemfg.i-no    = tt-item-comm.i-no NO-LOCK NO-ERROR.
@@ -600,7 +625,7 @@ PROCEDURE import-excel :
                tt-item-comm.i-name     = b-itemfg.i-name
                tt-item-comm.part-dscr1 = b-itemfg.part-dscr1
                tt-item-comm.part-dscr2 = b-itemfg.part-dscr2.
-
+         
 /*          IF CAN-FIND(FIRST b-item-comm WHERE b-item-comm.company = tt-item-comm.company                                                                                                             */
 /*                                          AND b-item-comm.cust-no = tt-item-comm.cust-no                                                                                                             */
 /*                                          AND b-item-comm.i-no    = tt-item-comm.i-no) THEN DO:                                                                                                      */
@@ -702,8 +727,8 @@ PROCEDURE repo-query :
 
 
   DO WITH FRAME {&FRAME-NAME}:
-    RUN clear_.
-    RUN change-order (:SCREEN-VALUE).
+    RUN clear_auto_find.
+    RUN change-order (browse-order:SCREEN-VALUE).
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
   END.
 
@@ -773,7 +798,7 @@ FOR EACH b-item-comm WHERE
           b-itemfg.company = cocode AND
           b-itemfg.i-no    = b-item-comm.i-no
           NO-LOCK:
-
+   
     ASSIGN 
        b-item-comm.base-cost = b-itemfg.avg-cost
        b-item-comm.zz-char[3] = b-itemfg.prod-uom.

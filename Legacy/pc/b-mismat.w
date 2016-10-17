@@ -90,8 +90,9 @@ pc-misc.blank-no pc-misc.m-code pc-misc.cost pc-misc.cost-m
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -105,9 +106,25 @@ pc-misc.blank-no pc-misc.m-code pc-misc.cost pc-misc.cost-m
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 45 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 67 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -166,6 +183,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 17.19 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 17.19 COL 82 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 17.19 COL 131 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 17.19 COL 1
+     RECT-4 AT ROW 16.95 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -275,7 +301,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -301,7 +327,7 @@ DO:
                           pc-misc.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = string(job-hdr.job-no2)
                           pc-misc.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = job-hdr.i-no
                           li-help-job = job-hdr.job.
-
+                            
 
              END.
         END.
@@ -338,7 +364,7 @@ DO:
                              substr(input pc-misc.m-code,5,1) le "5")   then
                                   pc-misc.dscr:SCREEN-VALUE = ef.mis-cost[int(substr(
                                                    input pc-misc.m-code,5,1))].
-
+      
                           if substr(input pc-misc.m-code,4,1) eq "M" then
                                 pc-misc.dscr:SCREEN-VALUE = pc-misc.dscr:SCREEN-VALUE + " - Mat".      
                           ELSE if substr(input pc-misc.m-code,4,1) eq "L" then
@@ -500,7 +526,7 @@ DO:
                              substr(input pc-misc.m-code,5,1) le "5")   then
                                   pc-misc.dscr:SCREEN-VALUE = ef.mis-cost[int(substr(
                                                    input pc-misc.m-code,5,1))].
-
+      
                           if substr(input pc-misc.m-code,4,1) eq "M" then
                                 pc-misc.dscr:SCREEN-VALUE = pc-misc.dscr:SCREEN-VALUE + " - Mat".      
                           ELSE if substr(input pc-misc.m-code,4,1) eq "L" then
@@ -509,7 +535,7 @@ DO:
                     END. /* AVAIL job*/
        end.  /* else */          
     END.
-
+    
     */
 END.
 
@@ -612,7 +638,7 @@ PROCEDURE local-create-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   ASSIGN pc-misc.company = g_company
          pc-misc.misc-date = TODAY
          pc-misc.opn = YES.
@@ -620,8 +646,8 @@ PROCEDURE local-create-record :
   FIND LAST bf-misc WHERE bf-misc.company = g_company 
                       AND bf-misc.misc-date = pc-misc.misc-date            
        USE-INDEX date-idx NO-LOCK NO-ERROR.
-
-
+  
+  
   IF AVAIL bf-misc THEN pc-misc.ml = bf-misc.ml .
 
 END PROCEDURE.
@@ -660,7 +686,7 @@ PROCEDURE local-update-record :
 
   RUN validate-job .    
   IF RETURN-VALUE = "ERROR" THEN RETURN.
-
+  
   RUN validate-job2.    
   IF RETURN-VALUE = "ERROR" THEN RETURN.
 
@@ -823,7 +849,7 @@ PROCEDURE validate-job :
       RETURN "ERROR".
    END.
 
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -927,7 +953,7 @@ PROCEDURE validate-prep :
                              substr(input pc-misc.m-code,5,1) le "5")   then
                                   pc-misc.dscr:SCREEN-VALUE = ef.mis-cost[int(substr(
                                                    input pc-misc.m-code,5,1))].
-
+      
                           if substr(input pc-misc.m-code,4,1) eq "M" then
                                 pc-misc.dscr:SCREEN-VALUE = pc-misc.dscr:SCREEN-VALUE + " - Mat".      
                           ELSE if substr(input pc-misc.m-code,4,1) eq "L" then

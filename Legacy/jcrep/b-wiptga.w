@@ -167,9 +167,9 @@ wiptag-mch.spare-char-4 wiptag-mch.spare-int-1 wiptag-mch.produced-qty
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-5 ~
-
-&Scoped-Define DISPLAYED-OBJECTS  fi_sortby  
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 RECT-5 browse-order ~
+Btn_Clear_Find auto_find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -199,14 +199,29 @@ FUNCTION getDesc RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear" 
+     SIZE 8 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 35 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 73 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -256,8 +271,13 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 2 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 16.71 COL 7 HELP
+          "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 16.71 COL 79 COLON-ALIGNED NO-LABEL
+     Btn_Clear_Find AT ROW 16.71 COL 92
+     auto_find AT ROW 16.71 COL 115 COLON-ALIGNED HELP
           "Enter Auto Find Value" NO-LABEL
+     RECT-4 AT ROW 16.48 COL 2
      RECT-5 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -324,16 +344,16 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-.
+       auto_find:VISIBLE IN FRAME F-Main          = FALSE.
 
 ASSIGN 
-.
+       browse-order:VISIBLE IN FRAME F-Main          = FALSE.
 
 ASSIGN 
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 ASSIGN 
-.
+       Btn_Clear_Find:VISIBLE IN FRAME F-Main          = FALSE.
 
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -381,7 +401,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -530,7 +550,7 @@ DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
  /*  {src/adm/template/brsleave.i}  */
-
+   
     if keyfunction(lastkey) = "page-up" or 
       keyfunction(lastkey) = "page-down" or
       keyfunction(lastkey) = "cursor-up" or
@@ -542,7 +562,7 @@ DO:
   /* {est/brsleave.i} */  /* same as src but update will be same as add record*/
 
    RUN check-modified IN THIS-PROCEDURE ('clear':U) NO-ERROR. 
-
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -736,7 +756,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wiptag-mch.produced-qty Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF wiptag-mch.produced-qty IN BROWSE Browser-Table /* Tag Qty Produced */
 DO:
-
+  
   DEF VAR v-override AS LOG NO-UNDO.
   IF v-qty-checked = NO THEN DO:
     RUN validate-qty (OUTPUT v-override).
@@ -745,7 +765,7 @@ DO:
       /*RETURN. */
     END.
   END.
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -886,7 +906,7 @@ DEF BUFFER bf-wiptag-mch FOR wiptag-mch.
                             AND bf-wiptag-mch.tag-no = bf-wiptag.tag-no                          
                           NO-LOCK
                           BY bf-wiptag-mch.rec_key.
-
+         
         ASSIGN v-last-machine = bf-wiptag-mch.m-code
                v-produced-qty = bf-wiptag-mch.produced-qty.
       END.
@@ -1044,11 +1064,11 @@ PROCEDURE local-enable-fields :
   DEF VAR li AS INT NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
-.
-.
+  browse-order:VISIBLE IN FRAME f-main = NO.
+  auto_find:VISIBLE IN FRAME f-main = NO.
   fi_sortby:VISIBLE IN FRAME f-main = NO.
 
 END PROCEDURE.
@@ -1245,7 +1265,7 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i} 
   END CASE.
-
+  
   IF p-state = "update-begin" THEN
     APPLY "entry" TO wiptag-mch.tag-no IN BROWSE {&browse-name}.
 END PROCEDURE.
@@ -1422,9 +1442,9 @@ PROCEDURE validate-qty :
           IF NOT ll THEN DO:
               wiptag-mch.produced-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING( v-produced-qty ).
               opv-override = NO.
-
+              
           END.
-
+          
       END.
       v-qty-checked = YES.
   END.

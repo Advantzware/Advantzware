@@ -76,8 +76,9 @@ emailcod.description CheckNotice() @ vlShipNotice
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-5 ~
-  btnSelectAll btnClear 
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 RECT-5 browse-order ~
+auto_find Btn_Clear_Find btnSelectAll btnClear 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -108,9 +109,25 @@ DEFINE BUTTON btnSelectAll
      LABEL "Select All" 
      SIZE 15 BY 1.14.
 
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 31.2 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 35.4 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 57 BY 2.38.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -145,8 +162,17 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 11.71 COL 12.6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 12.67 COL 10.8 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 12.67 COL 44.2 HELP
+          "CLEAR AUTO FIND Value"
      btnSelectAll AT ROW 14.29 COL 13
      btnClear AT ROW 14.29 COL 29.6
+     "By:" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 11.62 COL 9.2
+     RECT-4 AT ROW 11.52 COL 1
      RECT-5 AT ROW 14.05 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -243,7 +269,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -254,7 +280,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main /* E-Mail Notification System */
 DO:
-
+  
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -436,7 +462,7 @@ PROCEDURE AutoCreateRBOLPrt :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ 
   IF vrPhone EQ ? THEN DO:
   {&OPEN-QUERY-Browser-Table}
   END.
@@ -489,7 +515,7 @@ PROCEDURE ClearAll :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   FOR EACH emailcod WHERE emailcod.emailcod > '' NO-LOCK:
 
     FIND FIRST reftable EXCLUSIVE-LOCK
@@ -604,7 +630,7 @@ PROCEDURE SendAll :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   FOR EACH emailcod WHERE emailcod.emailcod > '' NO-LOCK:
 
     IF NOT CAN-FIND (FIRST reftable NO-LOCK
@@ -689,7 +715,7 @@ FUNCTION CheckNotice RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-
+    
     IF CAN-FIND (FIRST reftable NO-LOCK
                  WHERE reftable.rec_key = STRING (vrPhone)
                    AND reftable.CODE    = emailcod.emailcod

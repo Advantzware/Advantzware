@@ -86,8 +86,9 @@ e-itemfg-vend.vend-no e-itemfg-vend.setups[1]
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
-
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -101,9 +102,24 @@ e-itemfg-vend.vend-no e-itemfg-vend.setups[1]
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear" 
+     SIZE 7 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY 1 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 30 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     SIZE 58 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -132,6 +148,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 15.76 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 15.76 COL 36 COLON-ALIGNED HELP
+          "Enter Auto Find Value" NO-LABEL
+     Btn_Clear_Find AT ROW 15.76 COL 51 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 15.76 COL 2
+     RECT-4 AT ROW 15.52 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -229,7 +254,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -357,7 +382,7 @@ PROCEDURE get-eb-record :
   Notes:       
 ------------------------------------------------------------------------------*/
  def output parameter op-eb-recid as recid no-undo.
-
+  
  op-eb-recid = recid(eb).
 
 END PROCEDURE.
@@ -373,7 +398,7 @@ PROCEDURE get-item-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output parameter op-item-recid as recid no-undo.
-
+  
   op-item-recid = recid(e-itemfg).
 END PROCEDURE.
 
@@ -389,7 +414,7 @@ PROCEDURE local-open-query :
   def buffer bf-itemfg for itemfg.
   def var ll-first-rec as log.
   DEF BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -417,7 +442,7 @@ PROCEDURE local-open-query :
                        AND e-itemfg-vend.blank-no = eb.blank-no
                        AND e-itemfg-vend.i-no    EQ ""
                        AND e-itemfg-vend.vend-no EQ "") THEN DO:
-
+        
         create e-itemfg-vend.
         ASSIGN e-itemfg-vend.company = e-itemfg.company
                e-itemfg-vend.item-type = NO
@@ -428,9 +453,9 @@ PROCEDURE local-open-query :
                e-itemfg-vend.run-qty[1] = 99999999.
      END.
   end.
-
+  
   if ll-first-rec then run dispatch ('open-query').
-
+            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

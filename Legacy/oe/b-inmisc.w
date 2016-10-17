@@ -104,9 +104,9 @@ inv-misc.spare-int-1 inv-misc.spare-int-2
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table ~
- fi_By fi_AutoFindLabel 
-&Scoped-Define DISPLAYED-OBJECTS   fi_By ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find fi_By fi_AutoFindLabel 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_By ~
 fi_AutoFindLabel 
 
 /* Custom List Definitions                                              */
@@ -121,7 +121,14 @@ fi_AutoFindLabel
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 60 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_AutoFindLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Auto Find:" 
       VIEW-AS TEXT 
@@ -131,7 +138,15 @@ DEFINE VARIABLE fi_By AS CHARACTER FORMAT "X(256)":U INITIAL "By:"
       VIEW-AS TEXT 
      SIZE 3.6 BY .62 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 55 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -242,8 +257,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 14.81 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 14.81 COL 70 COLON-ALIGNED HELP
+          "Enter Auto Find Value" NO-LABEL
+     Btn_Clear_Find AT ROW 14.81 COL 132 HELP
+          "CLEAR AUTO FIND Value"
      fi_By AT ROW 14.86 COL 2.4 NO-LABEL
      fi_AutoFindLabel AT ROW 15.05 COL 61.6 NO-LABEL
+     RECT-4 AT ROW 14.57 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -385,7 +407,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -836,7 +858,7 @@ PROCEDURE local-create-record :
   IF AVAIL inv-line THEN
       ASSIGN inv-misc.spare-char-2 = inv-line.i-no
              inv-misc.est-no = inv-line.est-no.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -918,7 +940,7 @@ PROCEDURE local-update-record :
 
   RUN valid-s-pct (0) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1058,7 +1080,7 @@ PROCEDURE new-s-man :
       END.
     END.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1239,7 +1261,7 @@ PROCEDURE valid-inv-i-no :
       END.
     END.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1331,7 +1353,7 @@ PROCEDURE valid-s-man :
               ELSE
               IF ip-int EQ 2 THEN inv-misc.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name}
                              ELSE inv-misc.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name}.
-
+    
     IF lv-sman NE "" THEN DO:
       IF NOT CAN-FIND(FIRST sman
                       WHERE sman.company EQ cocode
@@ -1361,7 +1383,7 @@ PROCEDURE valid-s-man :
          inv-misc.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name} = "0".
     END.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1378,7 +1400,7 @@ PROCEDURE valid-s-pct :
 
   DEF VAR ld-pct AS DEC NO-UNDO.
 
-
+   
   DO WITH FRAME {&FRAME-NAME}:
     ld-pct = IF ip-int EQ 1 THEN DEC(inv-misc.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name})
              ELSE
@@ -1402,7 +1424,7 @@ PROCEDURE valid-s-pct :
       RETURN ERROR.
     END.
   END.
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

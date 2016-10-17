@@ -145,7 +145,7 @@ and (IF fi_item-decr BEGINS '*' THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
 fi_est-no fi_rfq fi_part-no fi_item-decr btnGO btnShowPrevious btnShowNext ~
 Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS fi_q-no fi_quo-date fi_cust-no fi_contact ~
-fi_est-no fi_rfq fi_part-no fi_item-decr fi_sortby   
+fi_est-no fi_rfq fi_part-no fi_item-decr fi_sortby browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* filterFields,List-2,List-3,List-4,List-5,List-6                      */
@@ -176,7 +176,15 @@ DEFINE BUTTON btnShowPrevious
      SIZE 20 BY 1
      FONT 6.
 
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 34 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_contact AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -224,6 +232,11 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U
      SIZE 44 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 73 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -287,6 +300,12 @@ DEFINE FRAME F-Main
      fi_sortby AT ROW 2.91 COL 89 COLON-ALIGNED
      Browser-Table AT ROW 4.1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 19.33 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 19.33 COL 89 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 19.33 COL 126 HELP
+          "CLEAR AUTO FIND Value"
      "Estimate" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1 COL 61.8
           FGCOLOR 9 FONT 6
@@ -375,10 +394,25 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN auto_find IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       auto_find:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR RADIO-SET browse-order IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       browse-order:HIDDEN IN FRAME F-Main           = TRUE.
+
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2"
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
+/* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       Btn_Clear_Find:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR FILL-IN fi_contact IN FRAME F-Main
    ALIGN-L 1                                                            */
@@ -461,7 +495,7 @@ and quoteitm.part-dscr1 BEGINS fi_item-decr"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -590,7 +624,7 @@ DO:
    RUN windows/l-est2.w (INPUT g_company,"", INPUT focus:screen-value, OUTPUT char-val).
         if char-val ne "" then 
             find eb where recid(eb) eq int(entry(1,char-val)) no-lock no-error.
-
+        
            if avail eb then do:
             assign
              FOCUS:SCREEN-VALUE          = eb.est-no   .
@@ -756,7 +790,7 @@ PROCEDURE getValueFields :
                                  AND bQuotehd.cust-no <> ""
                                  AND ( (lookup(bQuotehd.cust-no,custcount) <> 0 ) OR custcount = "") 
                                  AND bQuotehd.q-no LE q-noValue[2] NO-ERROR.
-
+    
     DO WHILE AVAILABLE(bQuotehd):
       ASSIGN
         i = i + 1
@@ -778,7 +812,7 @@ PROCEDURE getValueFields :
     fi_part-no = ''
     fi_item-decr = ''.
   DISPLAY {&filterFields} WITH FRAME {&FRAME-NAME}.
-
+  
   RUN openQuery.
 
 END PROCEDURE.
@@ -818,7 +852,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
  APPLY "value-changed" TO {&browse-name} IN FRAME {&FRAME-NAME} .
-
+ 
 
 END PROCEDURE.
 
@@ -843,7 +877,7 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -893,7 +927,7 @@ STRING(quotehd.q-no,'>>>>>9') ~{&SORTED}
             ELSE quoteitm.part-no BEGINS fi_part-no) ~
             AND (IF fi_item-decr BEGINS '*' THEN quoteitm.part-dscr1 MATCHES fi_item-decr ~
                 ELSE quoteitm.part-dscr1 BEGINS fi_item-decr)  {&SORTBY-PHRASE}.
-
+                     
   IF sortBy THEN DO:
     /*IF fi_part-no EQ '' AND
        fi_item-decr EQ '' THEN*/  /*task 12051306 */
@@ -982,7 +1016,7 @@ PROCEDURE resetQuery :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipQNo AS INTEGER NO-UNDO.
-
+                              
   DO WITH FRAME {&FRAME-NAME}:
     RUN dispatch ('open-query':U).
     ASSIGN
