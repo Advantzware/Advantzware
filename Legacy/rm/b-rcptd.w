@@ -100,6 +100,7 @@ DEFINE NEW SHARED TEMP-TABLE tt-selected NO-UNDO
 DO TRANSACTION:
     {sys/inc/rmrecpt.i}
     {sys/inc/rmunderover.i}
+    {sys/inc/poholdreceipts.i}  /* ticket 17372 */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3855,7 +3856,13 @@ PROCEDURE valid-po-no :
                 WHERE po-ord.company EQ po-ordl.company
                 AND po-ord.po-no   EQ po-ordl.po-no
                 NO-LOCK NO-ERROR.
-
+                
+            IF AVAILABLE po-ord AND po-ord.stat = "H" AND POHoldRct-log THEN DO: /* ticket 17372 */
+              MESSAGE "Unable to receive goods or materials for a purchase order that is on hold!"
+                      VIEW-AS ALERT-BOX error. 
+              RETURN ERROR.
+            END.
+      
             IF rmrecpt-cha EQ "POPUP"         AND
                 ip-type EQ 1                   AND
                 AVAILABLE po-ord                   AND
