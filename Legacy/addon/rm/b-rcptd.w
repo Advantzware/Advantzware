@@ -159,9 +159,9 @@ OR (lv-do-what NE "Delete" AND rm-rctd.qty GE 0)) NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-4 RECT-5 Browser-Table browse-order ~
-auto_find Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find 
+&Scoped-Define ENABLED-OBJECTS RECT-5 Browser-Table ~
+
+&Scoped-Define DISPLAYED-OBJECTS  fi_sortby  
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -198,30 +198,14 @@ FUNCTION display-dimension RETURNS DECIMAL
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 37 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 74 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 144 BY 1.43.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -279,16 +263,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1.24 COL 2 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 16.71 COL 7 HELP
-          "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 16.71 COL 61 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     auto_find AT ROW 16.71 COL 93 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 16.71 COL 132 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 16.71 COL 3
-     RECT-4 AT ROW 16.48 COL 2
      RECT-5 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -425,7 +400,7 @@ OR (lv-do-what NE ""Delete"" AND rm-rctd.qty GE 0))"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -451,7 +426,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
+
    RUN new-state in phandle ('update-begin':U).
 
 END.
@@ -495,7 +470,7 @@ DO:
              if not avail item then find first item where item.company = rm-rctd.company and
                                                           item.i-no = entry(2,char-val)
                                       no-lock no-error.
-             
+
              assign rm-rctd.loc:screen-value in browse {&BROWSE-NAME} =  item.loc
                     rm-rctd.loc-bin:screen-value in browse {&BROWSE-NAME} =  item.loc-bin
                     .
@@ -602,7 +577,7 @@ DO:
               assign focus:screen-value in  browse {&BROWSE-NAME}  = entry(1,char-val)
                      /*rm-rctd.loc-bin:screen-value in browse {&BROWSE-NAME} = entry(2,char-val) */
                      .
-             
+
            end.
            return no-apply.   
      end.
@@ -614,7 +589,7 @@ DO:
                     /* rm-rctd.qty:screen-value = entry(3,char-val)
                      rm-rctd.tag:screen-value = entry(4,char-val)*/
                      .
-             
+
            end.
            return no-apply.   
      end.
@@ -774,7 +749,7 @@ DO:
            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
         END.
         {addon/loadtags/disptagr.i "RMItem" rm-rctd.tag:SCREEN-VALUE}
-      
+
         IF lv-do-what EQ "Delete" THEN DO:
             FIND FIRST rm-bin
                 WHERE rm-bin.company EQ g_company
@@ -799,7 +774,7 @@ DO:
         IF lv-do-what EQ 'Delete' THEN
         rm-rctd.qty:SCREEN-VALUE = STRING(DEC(rm-rctd.qty:SCREEN-VALUE) * -1).
         APPLY "leave" TO rm-rctd.i-no IN BROWSE {&browse-name}.
-        
+
         IF NOT v-ssrmscan THEN do:
           APPLY "row-leave" TO BROWSE {&browse-name}.
           RETURN NO-APPLY.
@@ -1156,7 +1131,7 @@ DO:
    IF LASTKEY NE -1 THEN DO WITH FRAME {&FRAME-NAME}:
       RUN valid-qty NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-      
+
       RUN get-matrix (NO).
    END.
 END.
@@ -1307,7 +1282,7 @@ PROCEDURE convert-vend-comp-curr :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT-OUTPUT PARAMETER ip-cost AS DEC DECIMALS 4 NO-UNDO.
-    
+
    FIND FIRST b-po-ord WHERE
         b-po-ord.company EQ po-ordl.company AND
         b-po-ord.po-no   EQ po-ordl.po-no
@@ -1451,7 +1426,7 @@ DO WITH FRAME {&FRAME-NAME}:
         rm-rctd.loc-bin = IF AVAILABLE rm-bin THEN rm-bin.loc-bin ELSE ''.
     END.
   END.
-  
+
   IF rm-rctd.loc:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     EQ "" OR
      rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} EQ "" THEN DO:
     FIND FIRST cust
@@ -1516,7 +1491,7 @@ PROCEDURE display-po-info :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-rm-rctd FOR rm-rctd.
-  
+
   DEF VAR lv-i-no LIKE rm-rctd.i-no NO-UNDO.
   DEF VAR lv-locode like locode.
   DEF VAR li-tag-seq as int.
@@ -1536,9 +1511,9 @@ PROCEDURE display-po-info :
       lv-setup                                               = po-ordl.setup
       lv-cost                                                = po-ordl.cost
       ll-warned = NO.
-    
+
      RUN po-cost.
-    
+
      IF rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE lv-i-no THEN DO:
        FIND FIRST ITEM
            WHERE item.company EQ rm-rctd.company
@@ -1579,7 +1554,7 @@ PROCEDURE display-po-job :
        lv-rowid  = ROWID(po-ordl).
       IF li-po-cnt GT 1 THEN LEAVE.
     END.
- 
+
     IF li-po-cnt GT 1 THEN DO:
       lv-rowid = ?.
       RUN windows/l-poitmw.w (YES, rm-rctd.company, rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},
@@ -1627,7 +1602,7 @@ PROCEDURE get-matrix :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input parameter ip-first-disp as log no-undo.
-  
+
   def var v-len like po-ordl.s-len no-undo.
   def var v-wid like po-ordl.s-len no-undo.
   def var v-dep like po-ordl.s-len no-undo. 
@@ -1641,7 +1616,7 @@ PROCEDURE get-matrix :
   /* gdm - 07210901 */
   DEF VAR v-po-cost LIKE po-ordl.cost NO-UNDO.
   DEF VAR v-po-cuom LIKE lv-cost-uom  NO-UNDO. 
-  
+
 if avail rm-rctd then
 if ip-first-disp AND
    rm-rctd.i-no ne "" then DO WITH FRAME {&FRAME-NAME}: /* for row-display */
@@ -1699,7 +1674,7 @@ if ip-first-disp AND
         if v-wid eq 0 then v-wid = if avail item and item.r-wid ne 0 then item.r-wid else if avail item then item.s-wid else 0.
         if v-bwt eq 0 then v-bwt = if avail item then item.basis-w else 0.    
   end.
-  
+
   /* convert qty    pr-qty-uom or po-ordl.pr-uom cons-uom*/
  /* run rm/convquom.p(rm-rctd.pur-uom,
                     po-ordl.cons-uom,
@@ -1709,7 +1684,7 @@ if ip-first-disp AND
                          input v-dep,
                          input rm-rctd.qty,
                          output lv-out-qty).
-  
+
   /* convert cost pr-uom*/
   run rm/convcuom.p(rm-rctd.cost-uom, po-ordl.cons-uom,
                     v-bwt, v-len, v-wid, v-dep,
@@ -1749,7 +1724,7 @@ if ip-first-disp AND
      lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
 
   ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
-  
+
 end.
 
 ELSE
@@ -1776,9 +1751,9 @@ if NOT ip-first-disp                                        AND
                        and po-ordl.job-no2 = integer(rm-rctd.job-no2:screen-value)
                        and po-ordl.item-type = yes
                        and po-ordl.s-num = integer(rm-rctd.s-num:screen-value)
-                       
+
                            no-lock no-error.
-  
+
   if avail po-ordl then do:
      assign  v-len = po-ordl.s-len
              v-wid = po-ordl.s-wid
@@ -1817,7 +1792,7 @@ if NOT ip-first-disp                                        AND
      ASSIGN  v-po-cost = lv-out-cost 
              v-po-cuom = lv-cost-uom .
   end.
-    
+
   /* convert qty */
 
   IF rm-rctd.pur-uom:screen-value in browse {&browse-name} EQ lv-qty-uom THEN
@@ -1861,7 +1836,7 @@ if NOT ip-first-disp                                        AND
                               v-bwt, v-len, v-wid, v-dep,
                               dec(rm-rctd.cost:screen-value in browse {&browse-name}),
                               output lv-out-cost).
- 
+
   /*
   /*add in setup charge*/
   IF lv-setup NE 0 AND lv-out-qty NE 0 AND
@@ -2010,7 +1985,7 @@ PROCEDURE local-create-record :
   IF ERROR-STATUS:ERROR THEN
     MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
@@ -2020,7 +1995,7 @@ PROCEDURE local-create-record :
    rm-rctd.company   = cocode
    rm-rctd.r-no      = li-nxt-r-no
    rm-rctd.rita-code = "R".
-  
+
   IF adm-adding-record THEN DO:
     ASSIGN
      rm-rctd.s-num = 0
@@ -2161,7 +2136,7 @@ PROCEDURE local-update-record :
      RUN valid-delete-tag NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-   
+
   RUN validate-record NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
@@ -2189,7 +2164,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   /* create a negative receipt for NON INVENTORY items item.inv-by-cust = yes */
   FIND ITEM NO-LOCK WHERE item.company = rm-rctd.company 
                       AND item.i-no = rm-rctd.i-no NO-ERROR.
@@ -2272,13 +2247,13 @@ PROCEDURE po-cost :
            lv-cost = po-ordl.cost
            ll-add-setup = IF AVAIL po-ord AND po-ord.type NE "S" THEN YES
                           ELSE NO.
-    
+
      rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom.
 
      RUN rm/getpocst.p (BUFFER po-ordl,
                         rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name},
                         INPUT-OUTPUT lv-cost).
-    
+
      RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).
      RUN convert-vend-comp-curr(INPUT-OUTPUT lv-setup).     
 
@@ -2387,10 +2362,10 @@ PROCEDURE tag-method :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output parameter op-tag# as log no-undo.
-  
+
   {rm/tag#.i}
   op-tag# = v-tag#.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2406,7 +2381,7 @@ PROCEDURE tag-sequence :
   def var v-tag-seq as int no-undo.
   def var v-locode as cha no-undo.
   def buffer xrm-rctd for rm-rctd.
-  
+
   assign v-tag-seq = 0
          v-locode  = "".
 
@@ -2543,7 +2518,7 @@ PROCEDURE valid-i-no :
   DEF VAR v-msg AS CHAR NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
 
-        
+
   DO WITH FRAME {&FRAME-NAME}:
     rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
 
@@ -2560,7 +2535,7 @@ PROCEDURE valid-i-no :
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
       IF NOT AVAIL po-ordl THEN v-msg = "Invalid PO Line Item, try help".
-       
+
       ELSE
       FIND FIRST po-ord WHERE
            po-ord.company EQ po-ordl.company AND
@@ -2647,7 +2622,7 @@ PROCEDURE valid-job-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
 
@@ -2694,7 +2669,7 @@ PROCEDURE valid-job-no2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
 
@@ -2738,7 +2713,7 @@ PROCEDURE valid-po-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
       FIND FIRST po-ordl
@@ -2779,7 +2754,7 @@ PROCEDURE valid-qty :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2792,7 +2767,7 @@ PROCEDURE valid-s-num :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
 
@@ -2854,7 +2829,7 @@ PROCEDURE valid-tag :
        RETURN ERROR.
     END.
   END.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2920,7 +2895,7 @@ PROCEDURE validate-record :
           APPLY "entry" TO rm-rctd.loc.
           RETURN ERROR.
   END.
-  
+
   FIND FIRST rm-bin WHERE rm-bin.company = g_company
                       AND rm-bin.i-no = ""
                       AND rm-bin.loc = rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2948,8 +2923,8 @@ FUNCTION calc-ext-cost RETURNS DECIMAL
 
   RUN get-matrix (YES).
   return ext-cost.
-  
-  
+
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3035,11 +3010,11 @@ FUNCTION display-dimension RETURNS DECIMAL
         end.
       end.
     END.
-      
+
     IF ip-dim = "W" THEN ld-dim = v-wid-num.
     ELSE IF ip-dim = "L" THEN ld-dim = v-len-num.
   END.
-  
+
   RETURN ld-dim.   /* Function return value. */
 
 END FUNCTION.

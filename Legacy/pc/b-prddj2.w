@@ -22,7 +22,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
- 
+
 &SCOPED-DEFINE yellowColumnsName tt-prdd
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
@@ -134,9 +134,8 @@ tt-prdd.complete
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -166,30 +165,14 @@ FUNCTION display-time RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 60 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 70 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -248,16 +231,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 10.29 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 10.29 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     auto_find AT ROW 10.29 COL 70 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 10.29 COL 132 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 10.29 COL 2
-     RECT-4 AT ROW 10.05 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -356,7 +330,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-prdd
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -967,7 +941,7 @@ PROCEDURE item-help :
     RUN windows/l-jobit2.w (g_company, pc-prdd.job-no, pc-prdd.job-no2, lv-jobitm, OUTPUT char-val, OUTPUT rec-val).
     IF char-val NE "" THEN DO:
       ASSIGN tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name}      = ENTRY(2,char-val).
-      
+
       /*Don't apply blank number if machine is sheet or roll fed - task 02281303*/
       FIND FIRST bf-mach WHERE bf-mach.company = cocode 
           AND bf-mach.m-code = tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
@@ -1103,13 +1077,13 @@ PROCEDURE local-assign-record :
   ll-job-mch = NO.
   FOR EACH tt-job-mch:
     FIND FIRST job-mch WHERE ROWID(job-mch) EQ tt-job-mch.row-id NO-ERROR.
-    
+
     IF NOT AVAIL job-mch THEN CREATE job-mch.
     BUFFER-COPY tt-job-mch TO job-mch NO-ERROR.
 
     IF tt-job-mch.row-id EQ ? THEN DO:
       IF ERROR-STATUS:ERROR THEN DELETE job-mch.
-      
+
       IF AVAIL job-mch THEN DO:
         ASSIGN
          ll-job-mch       = YES
@@ -1203,7 +1177,7 @@ PROCEDURE local-assign-record :
         AND pc-prdh.shift      EQ tt-prdd.shift:
     DELETE pc-prdh.
   END.
-    
+
   RUN pc/pcprdd3u.p (v-bf-prdd-rowid) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN "adm-error".
 
@@ -1220,7 +1194,7 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
   DEF VAR ll-delete AS LOG NO-UNDO.
 
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   ll-delete = tt-prdd.row-id EQ ROWID(pc-prdd) AND tt-prdd.m-code EQ "".
 
@@ -1255,7 +1229,7 @@ PROCEDURE local-create-record :
                        AND pc-prdh.TRANS-date = pc-prdd.op-date
                        AND pc-prdh.shift = pc-prdd.shift
                        NO-LOCK NO-ERROR.
-  
+
   FIND mach WHERE mach.company = g_company AND
                   mach.m-code = pc-prdh.m-code 
                   NO-LOCK NO-ERROR.
@@ -1364,7 +1338,7 @@ PROCEDURE local-enable-fields :
   end.
 
   ll-no-frm = v-est-type EQ 1.
-  
+
   FIND FIRST mach
       WHERE mach.company EQ g_company
         AND mach.m-code  EQ tt-prdd.m-code
@@ -1402,7 +1376,7 @@ PROCEDURE local-end-update :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'end-update':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- 
+
   IF lv-adding-mode THEN DO:      
     RUN repo-query (ROWID(tt-prdd)).
     RUN auto-add-next.     
@@ -1422,13 +1396,12 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN build-table.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    APPLY "VALUE-CHANGED" TO browse-order.
   END.
 
 END PROCEDURE.
@@ -1529,7 +1502,7 @@ PROCEDURE new-hh :
   DEF VAR lv-hh AS CHAR NO-UNDO.
   DEF VAR lv-mm AS CHAR NO-UNDO.
 
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      lv-hh = SUBSTR(FOCUS:SCREEN-VALUE IN BROWSE {&browse-name},1,2)
@@ -1601,7 +1574,7 @@ PROCEDURE new-m-code :
         NO-LOCK NO-ERROR.
 
     IF AVAIL mach THEN DO:
-      
+
       ASSIGN
        lv-depts[1] = CAPS(mach.dept[1])
        lv-depts[2] = CAPS(mach.dept[2])
@@ -1624,7 +1597,7 @@ PROCEDURE new-m-code :
       ASSIGN
        lv-frm = job-mch.frm
        lv-blk = job-mch.blank-no.
-        
+
     FIND FIRST job-hdr
         WHERE job-hdr.company   EQ pc-prdd.company
           AND job-hdr.job-no    EQ pc-prdd.job-no
@@ -1634,7 +1607,7 @@ PROCEDURE new-m-code :
         NO-LOCK NO-ERROR.
     IF AVAIL job-hdr THEN DO:
       tt-prdd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = job-hdr.i-no.
-      
+
       FIND FIRST itemfg
           WHERE itemfg.company EQ job-hdr.company
             AND itemfg.i-no    EQ job-hdr.i-no
@@ -1666,7 +1639,7 @@ PROCEDURE new-mm :
   DEF VAR lv-hh AS CHAR NO-UNDO.
   DEF VAR lv-mm AS CHAR NO-UNDO.
 
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      lv-hh = SUBSTR(FOCUS:SCREEN-VALUE IN BROWSE {&browse-name},1,2)
@@ -1747,9 +1720,9 @@ PROCEDURE proc-form-cmplt :
       ASSIGN
        v-set  = itemfg.i-no
        v-qty  = pc-prdd.qty.
-            
+
       RUN fg/checkset.p (RECID(itemfg), ?, INPUT-OUTPUT v-qty).
-          
+
       IF v-qty LT pc-prdd.qty THEN DO:
         choice = NO.
         MESSAGE "Insufficient components for AUTOPOST, process anyway?"
@@ -1789,10 +1762,10 @@ PROCEDURE proc-form-cmplt :
        fg-bin.last-cost    = job-hdr.std-tot-cost
        fg-bin.unit-count   = itemfg.case-count.
     END.
-      
+
     IF fg-bin.cases-unit   LE 0 THEN fg-bin.cases-unit   = 1.
     IF fg-bin.units-pallet LE 0 THEN fg-bin.units-pallet = 1.
-    
+
     FIND FIRST b-reftable
         WHERE b-reftable.reftable EQ "ts/jobdata.p"
           AND b-reftable.company  EQ cocode
@@ -1851,7 +1824,7 @@ PROCEDURE proc-form-cmplt :
            mach-part.company EQ mach.company AND
            mach-part.m-code EQ mach.m-code
            EXCLUSIVE-LOCK:
-           
+
            mach-part.total-impressions-run = mach-part.total-impressions-run
                                            + tt-prdd.qty + tt-prdd.waste.
 
@@ -1898,7 +1871,7 @@ PROCEDURE proc-form-cmplt :
       RUN est/ef-#out.p (ROWID(ef), OUTPUT v-on).
       v-on = v-up * v-on.
     END.
-                      
+
     find first est-op
         where est-op.company eq est.company
           and est-op.est-no  eq est.est-no
@@ -1921,7 +1894,7 @@ PROCEDURE proc-form-cmplt :
 
     v-on = v-on / v-up.
   end.
-           
+
   v-up-hs = 1.
 
   if job-mch.dept eq "HS" and
@@ -1974,14 +1947,14 @@ PROCEDURE proc-form-cmplt :
        fg-rctd.i-no       = reftable.code2
        fg-rctd.job-no     = job-hdr.job-no
        fg-rctd.job-no2    = job-hdr.job-no2.
-                 
+
       assign
        v-up  = 1
        v-out = 1.
-      
+
       if avail est and mach.p-type ne "B" then do:
         run sys/inc/numup.p (est.company, est.est-no, job-mch.frm, output v-up).
-                 
+
         find first est-op
             where est-op.company eq est.company
               and est-op.est-no  eq est.est-no
@@ -2013,7 +1986,7 @@ PROCEDURE proc-form-cmplt :
       if fg-rctd.t-qty le 0 then fg-rctd.cases = 0.
 
       release fg-bin.
-      
+
       FIND FIRST b-reftable
           WHERE b-reftable.reftable EQ "ts/jobdata.p"
             AND b-reftable.company  EQ cocode
@@ -2022,13 +1995,13 @@ PROCEDURE proc-form-cmplt :
 
       IF AVAIL b-reftable THEN 
       FIND FIRST fg-bin WHERE RECID(fg-bin) EQ INT(b-reftable.code2) NO-LOCK NO-ERROR.
-      
+
       IF AVAIL fg-bin THEN
         ASSIGN
          v-loc       = fg-bin.loc
          v-loc-bin   = fg-bin.loc-bin
          fg-rctd.tag = fg-bin.tag.
-                
+
       ELSE
         RUN fg/autopost.p (ROWID(itemfg), fg-rctd.job-no, fg-rctd.job-no2,
                            OUTPUT v-loc, OUTPUT v-loc-bin).
@@ -2100,7 +2073,7 @@ PROCEDURE proc-set-cmplt :
    def var v-on        like eb.num-up NO-UNDO.
    DEF VAR h_updbin AS HANDLE NO-UNDO.
    DEF VAR li-units AS INT NO-UNDO.
-   
+
    DEF BUFFER b-reftable FOR reftable.
 
    FIND FIRST job WHERE job.company EQ cocode
@@ -2144,9 +2117,9 @@ PROCEDURE proc-set-cmplt :
       ASSIGN
        v-set  = itemfg.i-no
        v-qty  = pc-prdd.qty.
-            
+
       RUN fg/checkset.p (RECID(itemfg), ?, INPUT-OUTPUT v-qty).
-          
+
       IF v-qty LT pc-prdd.qty THEN DO:
         choice = NO.
         MESSAGE "Insufficient components for AUTOPOST, process anyway?"
@@ -2186,10 +2159,10 @@ PROCEDURE proc-set-cmplt :
        fg-bin.last-cost    = job-hdr.std-tot-cost
        fg-bin.unit-count   = itemfg.case-count.
     END.
-      
+
     IF fg-bin.cases-unit   LE 0 THEN fg-bin.cases-unit   = 1.
     IF fg-bin.units-pallet LE 0 THEN fg-bin.units-pallet = 1.
-    
+
     FIND FIRST b-reftable
         WHERE b-reftable.reftable EQ "ts/jobdata.p"
           AND b-reftable.company  EQ cocode
@@ -2268,7 +2241,7 @@ PROCEDURE proc-set-cmplt :
            EXCLUSIVE-LOCK:
            mach-part.total-impressions-run = mach-part.total-impressions-run
                                            + tt-prdd.qty + tt-prdd.waste.
-              
+
            FIND FIRST reftable WHERE
                 reftable.reftable EQ "MACHPARTHOURS" AND
                 reftable.company  EQ mach-part.company AND
@@ -2313,7 +2286,7 @@ PROCEDURE proc-set-cmplt :
              (if ef.n-out   eq 0 then 1 else ef.n-out) *
              (if ef.n-out-l eq 0 then 1 else ef.n-out-l) *
              (if ef.n-out-d eq 0 then 1 else ef.n-out-d).
-                      
+
     find first est-op
         where est-op.company eq est.company
           and est-op.est-no  eq est.est-no
@@ -2336,7 +2309,7 @@ PROCEDURE proc-set-cmplt :
 
     v-on = v-on / v-up.
   end.
-           
+
   v-up-hs = 1.
 
   if job-mch.dept eq "HS" and
@@ -2390,14 +2363,14 @@ PROCEDURE proc-set-cmplt :
        fg-rctd.i-no       = job-hdr.i-no
        fg-rctd.job-no     = job-hdr.job-no
        fg-rctd.job-no2    = job-hdr.job-no2.
-                 
+
       assign
        v-up  = 1
        v-out = 1.
-      
+
       if avail est and mach.p-type ne "B" then do:
         run sys/inc/numup.p (est.company, est.est-no, job-mch.frm, output v-up).
-                 
+
         find first est-op
             where est-op.company eq est.company
               and est-op.est-no  eq est.est-no
@@ -2429,7 +2402,7 @@ PROCEDURE proc-set-cmplt :
       if fg-rctd.t-qty le 0 then fg-rctd.cases = 0.
 
       release fg-bin.
-      
+
       FIND FIRST b-reftable
           WHERE b-reftable.reftable EQ "ts/jobdata.p"
             AND b-reftable.company  EQ cocode
@@ -2438,13 +2411,13 @@ PROCEDURE proc-set-cmplt :
 
       IF AVAIL b-reftable THEN 
       FIND FIRST fg-bin WHERE RECID(fg-bin) EQ INT(b-reftable.code2) NO-LOCK NO-ERROR.
-      
+
       IF AVAIL fg-bin THEN
         ASSIGN
          v-loc       = fg-bin.loc
          v-loc-bin   = fg-bin.loc-bin
          fg-rctd.tag = fg-bin.tag.
-                
+
       ELSE
         RUN fg/autopost.p (ROWID(itemfg), fg-rctd.job-no, fg-rctd.job-no2,
                            OUTPUT v-loc, OUTPUT v-loc-bin).
@@ -2486,7 +2459,7 @@ PROCEDURE proc-set-cmplt :
 ===    */
 
    /* end of fg receipt creation */
- 
+
   RELEASE fg-rctd.
   RELEASE job.
 
@@ -2521,9 +2494,9 @@ PROCEDURE repo-query :
   END.
 
   REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
-  
+
   RUN dispatch ('row-changed').
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2664,7 +2637,7 @@ PROCEDURE update-plate-die :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-upd-type AS   CHAR NO-UNDO.
   DEF INPUT PARAM ip-est-type LIKE est.est-type NO-UNDO.
-  
+
   IF AVAIL itemfg THEN DO:
       IF ip-upd-type EQ "P" AND itemfg.plate-no NE "" THEN
       FIND FIRST prep
@@ -2700,7 +2673,7 @@ PROCEDURE update-plate-die :
             reftable.loc      = prep.loc
             reftable.code     = prep.CODE. 
         END.
-        
+
         ASSIGN
           reftable.code2    = tt-prdd.job-no
           reftable.val[1]   = tt-prdd.job-no2.
@@ -2760,7 +2733,7 @@ PROCEDURE valid-blank-no :
   END.
 
   IF ll-no-blk OR NOT ip-changed THEN RUN display-item.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2818,7 +2791,7 @@ PROCEDURE valid-frm :
   END.
 
   IF ll-no-frm OR NOT ip-changed THEN RUN display-item.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2866,7 +2839,7 @@ PROCEDURE valid-i-no :
 
     IF ip-changed THEN RUN new-job-hdr.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2932,7 +2905,7 @@ PROCEDURE valid-pass :
 
   DEF BUFFER b-tt-job-mch FOR tt-job-mch.
 
-           
+
   DO WITH FRAME {&FRAME-NAME}:
     lv-m-code = tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name}.
 
@@ -3064,7 +3037,7 @@ PROCEDURE valid-pass :
 
         IF choice THEN DO:
           CREATE tt-job-mch.
-          
+
           IF AVAIL job-mch THEN
             BUFFER-COPY job-mch TO tt-job-mch
             ASSIGN
@@ -3102,11 +3075,11 @@ PROCEDURE valid-pass :
             v-save-n-out = tt-job-mch.n-out.
             tt-job-mch.n-on = tt-job-mch.n-on * tt-job-mch.n-out.
           END.
-          
+
           IF avail(job-mch) AND actual-entered(job-mch.m-code, job-mch.job) = YES THEN DO:
             /* task 08281203 - create 2nd record to copy instead of replace */
             CREATE tt-job-mch.
-            
+
             IF AVAIL job-mch THEN
               BUFFER-COPY job-mch TO tt-job-mch
               ASSIGN
@@ -3114,7 +3087,7 @@ PROCEDURE valid-pass :
                tt-job-mch.m-code = v-save-original-mach /* job-mch.m-code */
                tt-job-mch.row-id = ?
                tt-job-mch.xtra-copy = TRUE.
-          
+
             ELSE
               ASSIGN
                tt-job-mch.row-id   = ?
@@ -3129,21 +3102,21 @@ PROCEDURE valid-pass :
                tt-job-mch.dept     = pc-prdd.dept
                tt-job-mch.n-out    = 0
                tt-job-mch.n-on     = 0.
-          
+
             IF tt-job-mch.n-out EQ 0 THEN tt-job-mch.n-out = 1.
-          
+
             IF tt-job-mch.n-on  EQ 0 THEN RUN get-num-on.
-          
+
             IF CAN-DO("CR,RC,GU",pc-prdd.dept) THEN DO:
               tt-job-mch.n-on = tt-job-mch.n-on / tt-job-mch.n-out.
-          
+
   /*            MESSAGE "Please enter #out for this pass?"
                   UPDATE tt-job-mch.n-out. */
 
               tt-job-mch.n-out = v-save-n-out.
-          
+
               tt-job-mch.n-on = tt-job-mch.n-on * tt-job-mch.n-out.
-            
+
             END. 
           END.                          
         END.
@@ -3194,7 +3167,7 @@ FUNCTION display-time RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  
+
   RETURN STRING(ip-time,"HH:MM") .   /* Function return value. */
 
 END FUNCTION.

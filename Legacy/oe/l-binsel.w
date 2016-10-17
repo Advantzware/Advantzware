@@ -98,7 +98,7 @@ DEF VAR lv-first-time AS LOG INIT YES NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table rd-sort /*Btn_Select*/ ~
-/*Btn_Deselect*/ lv-search Btn_Clear_Find Btn_OK 
+/*Btn_Deselect*/ lv-search  Btn_OK 
 &Scoped-Define DISPLAYED-OBJECTS rd-sort lv-search 
 
 /* Custom List Definitions                                              */
@@ -114,10 +114,6 @@ DEF VAR lv-first-time AS LOG INIT YES NO-UNDO.
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
 DEFINE BUTTON Btn_Deselect 
      LABEL "Unselect All" 
@@ -189,11 +185,7 @@ DEFINE FRAME Dialog-Frame
      Btn_Deselect AT ROW 18.86 COL 144*/
      lv-search AT ROW 20.05 COL 11 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 20.05 COL 130 HELP
-          "CLEAR AUTO FIND Value"
      Btn_OK AT ROW 20.05 COL 144
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY .76 AT ROW 18.86 COL 2
      SPACE(151.59) SKIP(1.61)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -222,7 +214,7 @@ ASSIGN
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
 ASSIGN  tt-select:VISIBLE IN BROWSE {&browse-name} = FALSE.
-      
+
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -241,7 +233,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-binsel WHERE ~{&KEY-PHRASE} ~{&SORTBY-PHRASE
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -265,7 +257,7 @@ ON ANY-PRINTABLE OF Browser-Table IN FRAME Dialog-Frame
 DO:
   IF lv-first-time THEN ASSIGN lv-search:SCREEN-VALUE = ""
                                lv-first-time = NO.
-                                
+
   lv-search:SCREEN-VALUE = lv-search:SCREEN-VALUE + KEYLABEL(LASTKEY).
   APPLY "leave" TO lv-search.
 END.
@@ -288,9 +280,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Clear_Find
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Clear_Find Dialog-Frame
-ON CHOOSE OF Btn_Clear_Find IN FRAME Dialog-Frame /* Clear Find */
+&Scoped-define SELF-NAME 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL  Dialog-Frame
+ON CHOOSE OF  IN FRAME Dialog-Frame /* Clear Find */
 DO:
   ASSIGN lv-search:SCREEN-VALUE = "".
          lv-search = "".
@@ -468,7 +460,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 DEC(tt-binsel.case-count:SCREEN-VALUE IN BROWSE {&browse-name}))).
   END.
 
-   
+
   locode = g_loc.
 
   FIND oe-relh WHERE ROWID(oe-relh) EQ ip-rowid-h NO-LOCK NO-ERROR.
@@ -503,7 +495,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                         AND tt-binsel.i-no    EQ oe-ordl.i-no
                         AND (tt-binsel.job-no    EQ oe-ordl.job-no  ) NO-LOCK NO-ERROR.
         IF NOT AVAIL tt-binsel THEN do:
-          
+
         CREATE tt-binsel.
         BUFFER-COPY fg-bin TO tt-binsel
         ASSIGN
@@ -518,11 +510,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         IF TRIM(tt-binsel.job#) EQ "-00" THEN tt-binsel.job# = "".
         END.
-        
+
       END.
     END.
   END.
-  
+
   IF CAN-FIND(FIRST tt-binsel) THEN DO:
     FRAME dialog-frame:TITLE = "FG Item " + TRIM(FRAME dialog-frame:TITLE) +
                                " from Open Order Line Items of Cust#: " +
@@ -570,7 +562,7 @@ PROCEDURE create-oe-rell :
     RUN oe/rell-qty.p (ROWID(oe-ordl), OUTPUT li-rel-qty).
 
     li-rel-qty = oe-ordl.qty - li-rel-qty.
- 
+
     IF li-rel-qty GT 0 THEN DO:
       {oe/oe-rell.a}
       ASSIGN
@@ -656,7 +648,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY rd-sort lv-search 
       WITH FRAME Dialog-Frame.
-  ENABLE Browser-Table rd-sort /*Btn_Select Btn_Deselect*/ lv-search Btn_Clear_Find 
+  ENABLE Browser-Table rd-sort /*Btn_Select Btn_Deselect*/ lv-search  
          Btn_OK 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
@@ -701,7 +693,7 @@ PROCEDURE set-output :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /*IF CAN-FIND(FIRST tt-binsel WHERE tt-select EQ YES) THEN
   MESSAGE "This will create release lines for all bins/tags selected from browser." SKIP
           "Do you want to continue?"
@@ -719,7 +711,7 @@ PROCEDURE set-output :
           WHERE ROWID(fg-bin) EQ tt-binsel.row-id
             AND tt-select EQ YES
           NO-LOCK NO-ERROR.
-    
+
       IF AVAIL fg-bin THEN DO:
 
         IF fg-bin.ord-no NE 0 THEN
@@ -728,7 +720,7 @@ PROCEDURE set-output :
               AND oe-ord.ord-no  EQ fg-bin.ord-no
               AND oe-ord.cust-no EQ oe-relh.cust-no
               AND oe-ord.opened  EQ YES:
-            
+
           RUN create-oe-rell.
         END.
         ELSE IF CAN-FIND(FIRST job-hdr WHERE
@@ -749,7 +741,7 @@ PROCEDURE set-output :
                        oe-ord.opened EQ YES
                        NO-LOCK
                  BY job-hdr.ord-no:
-                 
+
                  RUN create-oe-rell.
              END.
         ELSE
@@ -761,7 +753,7 @@ PROCEDURE set-output :
           RUN create-oe-rell.
         END.
       END.
-          
+
       GET NEXT {&browse-name}.
     END.
   END.

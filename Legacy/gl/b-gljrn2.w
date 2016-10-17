@@ -90,9 +90,8 @@ gl-jrnl.actnum gl-jrnl.dscr gl-jrnl.tr-amt
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -129,25 +128,9 @@ FUNCTION display-debit RETURNS DECIMAL
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 60 BY 1 DROP-TARGET NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -185,14 +168,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 10.52 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 10.52 COL 70 COLON-ALIGNED
-     Btn_Clear_Find AT ROW 10.52 COL 132 HELP
           "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 10.52 COL 2
-     RECT-4 AT ROW 10.29 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -289,7 +265,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -319,7 +295,7 @@ DO:
   DEF VAR char-val AS cha NO-UNDO.
   DEF VAR lk-recid AS RECID NO-UNDO.
 
-  
+
   CASE FOCUS:NAME:   
     WHEN "actnum" THEN DO:
       RUN windows/l-acct3.w (gl-jrn.company,"T",FOCUS:SCREEN-VALUE, OUTPUT char-val).
@@ -357,13 +333,13 @@ DO:
   /* This code displays initial values for newly added or copied rows. */
   RUN get-link-handle IN adm-broker-hdl
                     (THIS-PROCEDURE, "dont-enable-source", OUTPUT char-hdl).
-                      
+
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN RETURN NO-APPLY.
-  
+
   {src/adm/template/brsentry.i}
 
   IF NOT adm-adding-record AND NOT adm-brs-in-update THEN RETURN NO-APPLY.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -420,7 +396,7 @@ DO:
 /*      RUN valid-actnum NO-ERROR.                   */
 /*     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.   */
   END.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -447,7 +423,7 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
- 
+
 {methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -531,7 +507,7 @@ PROCEDURE local-add-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   IF gl-jrn.posted THEN DO:
      MESSAGE "GL Entry already Posted. No Adding allowed." VIEW-AS ALERT-BOX ERROR.
      RETURN.
@@ -593,7 +569,7 @@ PROCEDURE local-delete-record :
   IF NOT adm-new-record THEN DO:
     {custom/askdel.i}
   END.
-  
+
   FIND CURRENT gl-jrn .
   IF gl-jrnl.tr-amt > 0 THEN ASSIGN gl-jrn.tdeb = gl-jrn.tdeb - gl-jrnl.tr-amt.
   ELSE gl-jrn.tcred = gl-jrn.tcred - gl-jrnl.tr-amt.
@@ -603,7 +579,7 @@ PROCEDURE local-delete-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   RUN redisplay-header.
 
 END PROCEDURE.
@@ -641,7 +617,7 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   APPLY "entry" TO gl-jrnl.actnum IN BROWSE {&browse-name}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -660,7 +636,6 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.
 
   IF AVAIL gl-jrnl THEN
   DO:
@@ -718,7 +693,7 @@ PROCEDURE new-actnum :
   DO WITH FRAME {&FRAME-NAME}:
 
      lv-acct-dscr:SCREEN-VALUE IN BROWSE {&browse-name} = "". 
-   
+
     FIND account
         WHERE account.company EQ g_company
           AND account.type    NE "T"
@@ -731,7 +706,7 @@ PROCEDURE new-actnum :
       lv-acct-dscr:SCREEN-VALUE IN BROWSE {&browse-name} = account.dscr.
     END.
   END.
-  
+
 
 END PROCEDURE.
 
@@ -933,7 +908,7 @@ FUNCTION display-debit RETURNS DECIMAL
 ------------------------------------------------------------------------------*/
   IF AVAIL gl-jrnl AND gl-jrnl.tr-amt > 0 THEN RETURN gl-jrnl.tr-amt.
   ELSE RETURN 0.00.   /* Function return value. */
-  
+
 
 END FUNCTION.
 

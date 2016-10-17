@@ -95,9 +95,9 @@ get-lot-no() @ lv-lot-no inv-line.sman[1] inv-line.sname[1]
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find fi_By fi_AutoFindLabel 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_By ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+ fi_By fi_AutoFindLabel 
+&Scoped-Define DISPLAYED-OBJECTS   fi_By ~
 fi_AutoFindLabel 
 
 /* Custom List Definitions                                              */
@@ -128,14 +128,7 @@ FUNCTION get-lot-no RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 60 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_AutoFindLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Auto Find:" 
       VIEW-AS TEXT 
@@ -145,15 +138,7 @@ DEFINE VARIABLE fi_By AS CHARACTER FORMAT "X(256)":U INITIAL "By:"
       VIEW-AS TEXT 
      SIZE 3.6 BY .62 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -191,15 +176,8 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 17.67 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 17.67 COL 70 COLON-ALIGNED HELP
-          "Enter Auto Find Value" NO-LABEL
-     Btn_Clear_Find AT ROW 17.67 COL 132 HELP
-          "CLEAR AUTO FIND Value"
      fi_By AT ROW 17.81 COL 2 NO-LABEL
      fi_AutoFindLabel AT ROW 17.95 COL 61.4 NO-LABEL
-     RECT-4 AT ROW 17.43 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -313,7 +291,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -447,7 +425,7 @@ END.
 
 if avail inv-line then do:
    {custom/askdel.i}
-   
+
   /*  find inv-line where recid(inv-line) = fil_id2 no-error no-wait.
     if not avail inv-line and locked inv-line then do:
       bell.
@@ -485,7 +463,7 @@ if avail inv-line then do:
   lv-dumb = browse {&browse-name}:delete-current-row().
 
   run dispatch ('row-changed').
-  
+
   session:set-wait-state("").
 
 END PROCEDURE.
@@ -519,7 +497,7 @@ PROCEDURE get-line-est :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output parameter op-est-no as cha no-undo.
-  
+
   op-est-no = if available inv-line then inv-line.est-no else "".
 END PROCEDURE.
 
@@ -553,7 +531,7 @@ PROCEDURE reopen-query :
   DEF VAR CHAR-hdl AS cha NO-UNDO.
 
   def buffer bf-line for inv-line.
-  
+
   run dispatch ('open-query').
   if ip-recid = ? then do:
      find last bf-line where bf-line.company = inv-head.company
@@ -622,38 +600,38 @@ DEF VAR v-difqty LIKE inv-line.qty NO-UNDO.
 DEF VAR v-totqty LIKE inv-line.qty NO-UNDO.
 
 IF AVAIL inv-line THEN DO:
-    
+
    IF inv-line.ord-no NE 0 THEN DO:
-  
+
       FIND FIRST bf-oe-ordl NO-LOCK
         WHERE bf-oe-ordl.company  EQ inv-line.company 
           AND bf-oe-ordl.ord-no   EQ inv-line.ord-no  
           AND bf-oe-ordl.i-no     EQ inv-line.i-no NO-ERROR.
-      
+
       FIND FIRST bf-oe-ord NO-LOCK 
         WHERE bf-oe-ord.company EQ bf-oe-ordl.company
           AND bf-oe-ord.ord-no  EQ bf-oe-ordl.ord-no  NO-ERROR.
-      
+
       FOR EACH bf-inv-line FIELDS(ship-qty) NO-LOCK
         WHERE bf-inv-line.company EQ inv-line.company 
           AND bf-inv-line.inv-no  EQ inv-line.inv-no  
           AND bf-inv-line.line    EQ inv-line.line 
           AND bf-inv-line.ord-no  EQ inv-line.ord-no
           AND bf-inv-line.i-no    EQ inv-line.i-no:
-     
+
         ASSIGN v-totqty = v-totqty + bf-inv-line.ship-qty.
       END.
-     
+
       IF v-totqty NE inv-line.qty THEN DO:
-     
+
         /* UNDERRUN */
         IF inv-line.qty GT v-totqty THEN
            ASSIGN v-difqty = inv-line.qty * (bf-oe-ord.under-pct / 100).
-     
+
         /* OVERRUN */
         IF inv-line.qty LT v-totqty THEN
            ASSIGN v-difqty = inv-line.qty * (bf-oe-ord.over-pct / 100).
-     
+
         IF (inv-line.qty LT v-totqty AND
             ((inv-line.qty - v-totqty) * -1) NE v-difqty) OR 
            (inv-line.qty GT v-totqty AND
@@ -707,17 +685,17 @@ FUNCTION display-bolno RETURNS character
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
- 
+
 
  IF AVAIL inv-line THEN DO:
-     
+
      FIND FIRST oe-bolh WHERE oe-bolh.company = inv-line.company AND
                               oe-bolh.b-no = inv-line.b-no NO-LOCK NO-ERROR.
-     
+
      IF AVAIL oe-bolh THEN RETURN string(oe-bolh.bol-no,">>>>>>>9").
      ELSE RETURN "".   /* Function return value. */
 
-     
+
 
   END.
   ELSE RETURN "".

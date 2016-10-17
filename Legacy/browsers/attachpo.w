@@ -93,7 +93,7 @@ v-po-no <> "" and attach.est-no = v-po-no) ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 btnRun browse-order ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table btnRun ~
 btCopyFromItem 
 
 /* Custom List Definitions                                              */
@@ -127,25 +127,9 @@ DEFINE BUTTON btnRun
      LABEL "" 
      SIZE 7.8 BY 1.38 TOOLTIP "Run Program".
 
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 41 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -175,14 +159,7 @@ DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      btnRun AT ROW 17.67 COL 44
-     browse-order AT ROW 17.91 COL 2 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 17.91 COL 66.2 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 17.91 COL 97.2 HELP
-          "CLEAR AUTO FIND Value"
      btCopyFromItem AT ROW 17.91 COL 114 WIDGET-ID 2
-     RECT-4 AT ROW 17.67 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -246,18 +223,6 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN auto_find IN FRAME F-Main
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       auto_find:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR RADIO-SET browse-order IN FRAME F-Main
-   NO-DISPLAY                                                           */
-/* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
-   NO-ENABLE                                                            */
-ASSIGN 
-       Btn_Clear_Find:HIDDEN IN FRAME F-Main           = TRUE.
-
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -289,7 +254,7 @@ v-po-no <> """" and attach.est-no = v-po-no)
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -345,7 +310,7 @@ DO:
   v-i-no = "".
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
     RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key).
-    
+
     FIND FIRST po-ordl WHERE po-ordl.rec_key = lv-rec_key NO-LOCK NO-ERROR.
     IF AVAIL po-ordl THEN
         v-i-no = po-ordl.i-no.
@@ -491,7 +456,7 @@ PROCEDURE local-open-query :
   {methods/run_link.i "CONTAINER-SOURCE" "Get-ip-rec_key" "(OUTPUT ip-rec_key)"}
 
   {sys/ref/attachpologic.i}
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
@@ -543,21 +508,21 @@ DEF VAR lv-from-rec_key AS CHAR NO-UNDO.
 /* Accept list of attachments to copy from itemfg and create in PO */
 
 FOR EACH tt-mis WHERE tt-mis.selekt = YES:
-    
+
     FIND bf-item-attach WHERE ROWID(bf-item-attach) = tt-mis.sel-rowid
          NO-LOCK NO-ERROR.
     IF NOT AVAIL bf-item-attach THEN
         NEXT.
-    
+
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
     RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key).
 
     FIND FIRST po-ord WHERE po-ord.rec_key = lv-rec_key NO-LOCK NO-ERROR.
-    
+
     IF NOT AVAIL po-ord THEN
     DO:
        FIND FIRST po-ordl WHERE po-ordl.rec_key = lv-rec_key NO-LOCK NO-ERROR.
-  
+
        IF AVAIL po-ordl THEN
        DO:
           FIND FIRST po-ord WHERE
@@ -568,7 +533,7 @@ FOR EACH tt-mis WHERE tt-mis.selekt = YES:
           IF AVAIL po-ord THEN
              lv-rec_key = po-ord.rec_key.
        END.
-          
+
     END.
 
     FIND FIRST bf-attach WHERE bf-attach.rec_key EQ lv-rec_key 
@@ -578,7 +543,7 @@ FOR EACH tt-mis WHERE tt-mis.selekt = YES:
     /* Already Attached? */
     IF AVAIL bf-attach THEN
         NEXT.
-    
+
     CREATE bf-attach.
     BUFFER-COPY bf-item-attach EXCEPT rec_key TO bf-attach.
 
@@ -589,15 +554,15 @@ FOR EACH tt-mis WHERE tt-mis.selekt = YES:
 
 /*   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl). */
 /*   RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key).                         */
-  
+
 /*   FIND FIRST po-ord WHERE po-ord.rec_key = lv-rec_key NO-LOCK NO-ERROR. */
-  
+
   IF AVAIL po-ord THEN
      v-po-no = STRING(po-ord.po-no).
   ELSE
   DO:
      FIND FIRST po-ordl WHERE po-ordl.rec_key = lv-rec_key NO-LOCK NO-ERROR.
-  
+
      IF AVAIL po-ordl THEN
      DO:
         FIND FIRST po-ord WHERE
@@ -610,7 +575,7 @@ FOR EACH tt-mis WHERE tt-mis.selekt = YES:
      END.
   END.
 
-  
+
   ASSIGN bf-attach.creat-date = TODAY
          bf-attach.est-no = v-po-no.
 END.

@@ -191,8 +191,7 @@ po-ordl.item-type = no ~
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table Btn_Add Btn_Select-PO ~
 Btn_Unselect-PO Btn_Select-Tag Btn_Delete Btn_Remove Btn_LoadTags ~
-Btn_LoadTags-2 browse-order auto_find Btn_Clear_Find ttbl-browse RECT-4 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+Btn_LoadTags-2    ttbl-browse  
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -210,10 +209,6 @@ DEFINE BUTTON Btn_Add
      LABEL "&Add Line(s) to Loadtag" 
      SIZE 35 BY .95.
 
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 11 BY 1
-     FONT 4.
 
 DEFINE BUTTON Btn_Delete 
      LABEL "&Delete Selected Lines from Loadtag" 
@@ -243,20 +238,8 @@ DEFINE BUTTON Btn_Unselect-PO
      LABEL "&Unselect All Lines for Loadtag" 
      SIZE 35 BY .95.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 44 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 96 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -349,17 +332,8 @@ DEFINE FRAME F-Main
      Btn_Remove AT ROW 7.19 COL 99
      Btn_LoadTags AT ROW 8.38 COL 99
      Btn_LoadTags-2 AT ROW 8.38 COL 99
-     browse-order AT ROW 9.1 COL 7 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 9.1 COL 63 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 9.1 COL 85 HELP
-          "CLEAR AUTO FIND Value"
      ttbl-browse-2 AT ROW 10.52 COL 1
      ttbl-browse AT ROW 10.52 COL 1
-     RECT-4 AT ROW 8.86 COL 1
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 9.1 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -419,7 +393,7 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
 /* BROWSE-TAB Browser-Table 1 F-Main */
-/* BROWSE-TAB ttbl-browse-2 Btn_Clear_Find F-Main */
+/* BROWSE-TAB ttbl-browse-2  F-Main */
 /* BROWSE-TAB ttbl-browse ttbl-browse-2 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -498,7 +472,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttbl-roll.
 */  /* BROWSE ttbl-browse-2 */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -696,10 +670,10 @@ DO:
   END.
   assign v-label   = sys-ctrl.descrip + "sheet.lbl"
          v-exp-dir = sys-ctrl.descrip + "fgload.txt".
-  
-  
+
+
 /*****************/
-  
+
 /*  output to c:\pnpbar\rmload.txt. */
   output to value(v-exp-dir).
 
@@ -707,7 +681,7 @@ DO:
 
   assign v-sheet = false.
   FOR EACH ttbl EXCLUSIVE-LOCK:
-  
+
     do i = 1 to (ttbl.no-of-tags /*+ (if ttbl.partial gt 0 then 1 else 0)*/ ):
 
       find first itemfg where itemfg.company = cocode
@@ -824,7 +798,7 @@ DO:
                       + "~"".
           put a format "x(255)" skip.
         end.       
-      
+
       /* generate loadtag file */
       lv-tag-no = i.
       REPEAT:
@@ -835,7 +809,7 @@ DO:
          IF AVAIL loadtag THEN lv-tag-no = lv-tag-no + 1.
          ELSE LEAVE.
       END. /* repeat*/
-      
+
       CREATE loadtag.
       ASSIGN loadtag.company = g_company
              loadtag.tag-no = STRING(ttbl.i-no,"x(15)") + STRING(lv-tag-no,"99999")
@@ -855,7 +829,7 @@ DO:
              .
       END. /* do = x */
 
-    
+
 
       /*if ttbl.partial gt 0 and
          i eq (ttbl.no-of-tags + (if ttbl.partial gt 0 then 1 else 0)) */
@@ -913,7 +887,7 @@ DO:
              .
       end.
     end. /* do i = 1 to ttbl.no-of-tags */    
-   
+
     DELETE ttbl.
   END.
 
@@ -931,11 +905,11 @@ DO:
   */
     hide ttbl-browse no-pause.
     hide Btn_LoadTags no-pause.
-    
+
     enable ttbl-browse-2 with frame {&frame-name}.
     enable Btn_LoadTags-2 with frame {&frame-name}.   
     {&OPEN-QUERY-ttbl-browse-2}
-    
+
   end.
 */
   {&OPEN-QUERY-ttbl-browse}
@@ -982,7 +956,7 @@ DO:
       UPDATE sys-ctrl.int-fld.
   END.
   assign v-num-tags = sys-ctrl.int-fld.
- 
+
   FIND FIRST sys-ctrl
     WHERE sys-ctrl.company eq cocode
     AND sys-ctrl.name    eq "BARDIR"
@@ -1002,9 +976,9 @@ DO:
   END.
   assign v-label   = sys-ctrl.descrip + "roll.lbl"
          v-exp-dir = sys-ctrl.descrip + "fgload1.txt".
-  
+
 /*****************/
-  
+
 /*  output to c:\pnpbar\rmload1.txt. */
   output to value(v-exp-dir). 
 
@@ -1081,7 +1055,7 @@ DO:
         end.
         assign rm-rdtl.loc-bin = sys-ctrl.char-fld.
       end.
-   
+
       if asi.rm-rctd.loc-bin = "" and avail sys-ctrl 
       then asi.rm-rctd.loc-bin = sys-ctrl.char-fld.
 
@@ -1121,7 +1095,7 @@ DO:
 
 /*        {po/pol-dims.i}  */
 /* The code below is pol-dims.i minus the do for job-mat statement */
-     
+
      if (v-len eq 0 or v-wid eq 0 or v-bwt eq 0) then do:
        find first job
            where job.company eq cocode
@@ -1138,10 +1112,10 @@ DO:
                and job-mat.i-no    eq po-ordl.i-no
              no-lock
              by job-mat.frm desc:
-                  
+
            if job-mat.frm eq po-ordl.s-num then leave.
          end.
-              
+
          if avail job-mat then
            assign
             v-len = if v-len eq 0 then job-mat.len     else v-len
@@ -1168,7 +1142,7 @@ DO:
               run rm/convcuom.p
                 (po-ordl.pr-uom, v-cost-uom, v-bwt, v-len, v-wid, 0,
                  po-ordl.cost, output rm-rdtl.cost).
-                 
+
            assign asi.rm-rctd.cost-uom = po-ordl.pr-uom
                   asi.rm-rctd.cost = po-ordl.cost.      
         end.
@@ -1235,7 +1209,7 @@ DO:
                             string(v-tag-seq,"999") +
                             string(ttbl.count,"9999")
           .
-          
+
       end. /* if tag-meth and po-no ne "" */
 
        /* What QTY for RM receipt ????????  */
@@ -1251,7 +1225,7 @@ DO:
         ("LF",po-ordl.cons-uom, v-bwt, v-len, v-wid, 0, 
                                ttbl-roll.lf, output rm-rdtl.qty).
         asi.rm-rctd.qty = rm-rdtl.qty.
-        
+
       end.
       /* put "PO#,JOB#,PART#,LF,WEIGHT,TAG,TAGFIELD" skip.  */
       /* Create text file to print loadtags */
@@ -1275,7 +1249,7 @@ DO:
                     + "~"".
         put a format "x(255)" skip.
       end.
-       
+
 /*
     end. /* do i = 1 to ttbl-roll.no-of-tags */
 */
@@ -1284,7 +1258,7 @@ DO:
   END.
 
   output close.
-  
+
   os-command no-wait value("c:\barone\bin\labels.exe " + v-label).
 /*  os-command no-wait value("c:\barone\bin\labels.exe c:\barone\labels\p&p2.lbl"). */
 

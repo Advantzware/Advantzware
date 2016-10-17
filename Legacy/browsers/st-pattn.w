@@ -95,9 +95,8 @@ ASSIGN
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -111,25 +110,9 @@ Btn_Clear_Find
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 36 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 33 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 126 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -162,15 +145,6 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 19.33 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 74 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 113 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     RECT-4 AT ROW 19.1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -277,7 +251,7 @@ reftable ,  strap, pattern.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -372,7 +346,7 @@ DO:
 
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
                  filters "JPG Files    (*.jpg)" "*.jpg",
@@ -384,7 +358,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
     RETURN.
 END.
@@ -480,9 +454,9 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
-   
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -555,7 +529,7 @@ PROCEDURE local-delete-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -615,7 +589,7 @@ PROCEDURE local-update-record :
      APPLY "entry" TO reftable.CODE.
      RETURN.
   END.
-  
+
   FIND FIRST bf-ref WHERE bf-ref.reftable = "STACK" AND bf-ref.company = ""
                       AND bf-ref.loc = "" 
                       AND bf-ref.CODE = reftable.CODE:SCREEN-VALUE
@@ -627,7 +601,7 @@ PROCEDURE local-update-record :
      APPLY "entry" TO reftable.CODE.
      RETURN.
   END.
-     
+
   RUN valid-code2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -727,7 +701,7 @@ PROCEDURE valid-formula :
   Purpose:     
   Parameters:  <none>
   Notes:  TASK # 07090916
-  
+
   THIS WILL VALIDATE THE CHARACTERS ENTERED IN THE FORMULA FIELD.
   ONLY THE FOLLOWING ARE VALID CHARACTERS IN THIS FIELD 
   " 0 1 2 3 4 5 6 7 8 9 . + - * / L W D T F J B O S I".
@@ -736,7 +710,7 @@ PROCEDURE valid-formula :
 DEF VAR v-vldchr AS CHAR            NO-UNDO 
     INIT " 0123456789.+-*/LWDTFJBOSI".
 DEF VAR v-chr    AS CHAR FORMAT "x" NO-UNDO.
-                                    
+
 DEF VAR v-loop   AS INT             NO-UNDO.
 DEF VAR v-flg    AS LOG             NO-UNDO.
 
@@ -753,7 +727,7 @@ DO v-loop = 1 TO LENGTH(v-forml):
                                  ELSE ASSIGN v-flg = NO.
 
   IF NOT v-flg THEN LEAVE.
-  
+
 END.
 
 IF NOT v-flg THEN DO:

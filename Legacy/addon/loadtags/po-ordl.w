@@ -203,9 +203,9 @@ and po-ordl.stat <> "C" and po-ordl.item-type  NO-LOCK ~
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-1 RECT-4 Btn_Add Btn_Select-PO ~
+&Scoped-Define ENABLED-OBJECTS BROWSE-1 Btn_Add Btn_Select-PO ~
 Btn_Unselect-PO Btn_Select-Tag Btn_Delete Btn_Remove Btn_LoadTags ~
-Btn_LoadTags-2 rd-sort lv-search Btn_Clear_Find ttbl-browse 
+Btn_LoadTags-2 rd-sort lv-search  ttbl-browse 
 &Scoped-Define DISPLAYED-OBJECTS rd-sort lv-search 
 
 /* Custom List Definitions                                              */
@@ -224,10 +224,6 @@ DEFINE BUTTON Btn_Add
      LABEL "&Add Line(s) to Loadtag" 
      SIZE 35 BY .95.
 
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 11 BY 1
-     FONT 4.
 
 DEFINE BUTTON Btn_Delete 
      LABEL "&Delete Selected Lines from Loadtag" 
@@ -269,9 +265,6 @@ DEFINE VARIABLE rd-sort AS INTEGER
 "Item#", 2
      SIZE 44 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 96 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -362,13 +355,8 @@ DEFINE FRAME F-Main
           "Select Browser Sort Order" NO-LABEL
      lv-search AT ROW 9.1 COL 63 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 9.1 COL 85 HELP
-          "CLEAR AUTO FIND Value"
      ttbl-browse-2 AT ROW 10.52 COL 1
      ttbl-browse AT ROW 10.52 COL 1
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 9.1 COL 2
-     RECT-4 AT ROW 8.86 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -428,7 +416,7 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
 /* BROWSE-TAB BROWSE-1 1 F-Main */
-/* BROWSE-TAB ttbl-browse-2 Btn_Clear_Find F-Main */
+/* BROWSE-TAB ttbl-browse-2  F-Main */
 /* BROWSE-TAB ttbl-browse ttbl-browse-2 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -497,7 +485,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttbl-roll.
 */  /* BROWSE ttbl-browse-2 */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -510,7 +498,7 @@ ON ANY-PRINTABLE OF BROWSE-1 IN FRAME F-Main
 DO:
    if lv-first-time then assign lv-search:screen-value = ""
                                 lv-first-time = no.
-                                
+
    lv-search:screen-value = lv-search:screen-value + keylabel(lastkey).
    apply "leave" to lv-search.
 END.
@@ -572,9 +560,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Clear_Find
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Clear_Find B-table-Win
-ON CHOOSE OF Btn_Clear_Find IN FRAME F-Main /* Clear Find */
+&Scoped-define SELF-NAME 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL  B-table-Win
+ON CHOOSE OF  IN FRAME F-Main /* Clear Find */
 DO:
   assign lv-search:screen-value = "".
          lv-search = "".
@@ -663,9 +651,9 @@ DO:
   END.
   assign v-label   = sys-ctrl.descrip + "century2.lbl". /*"sheet.lbl"*/
          v-exp-dir = sys-ctrl.descrip + "rmtag.txt" . /*rmload.txt".*/
-  
+
 /*****************/
-  
+
 /*  output to c:\pnpbar\rmload.txt. */  
   output to value(v-exp-dir).
 
@@ -673,7 +661,7 @@ DO:
 
   assign v-sheet = false.
   FOR EACH ttbl EXCLUSIVE-LOCK:
-  
+
     do i = 1 to (ttbl.no-of-tags + (if ttbl.partial gt 0 then 1 else 0)):
 
       find first item where item.company = cocode
@@ -748,10 +736,10 @@ DO:
         end.
         assign rm-rdtl.loc-bin = sys-ctrl.char-fld.
       end.
-      
+
       if asi.rm-rctd.loc-bin = "" and avail sys-ctrl 
       then asi.rm-rctd.loc-bin = sys-ctrl.char-fld.
-      
+
       find first item where item.company eq cocode
                         and item.i-no    eq rm-rcpt.i-no
                       no-lock no-error.     
@@ -801,7 +789,7 @@ DO:
                                and job-mat.i-no    eq po-ordl.i-no
                    no-lock
                    by job-mat.frm desc:
-                  
+
                    if job-mat.frm eq po-ordl.s-num then leave.
              end.              
              if avail job-mat then  assign  v-len = if v-len eq 0 then job-mat.len     else v-len
@@ -903,7 +891,7 @@ DO:
                asi.rm-rctd.qty = ttbl.count.
 
       end.
-      
+
       /* put "PO#,JOB#,PART#,W+L,QTY,TAG" skip. */  
       /* Create text file to print loadtags */
         /*  PUT unformatted
@@ -923,7 +911,7 @@ DO:
              /* generate loadtag file */
              lv-tag-no = v-tag-seq.
              REPEAT:
-             
+
                FIND FIRST loadtag WHERE loadtag.company = cocode
                            AND loadtag.item-type = YES
                            AND loadtag.tag-no = STRING(ttbl.po-no,"9999999") +
@@ -934,7 +922,7 @@ DO:
                IF AVAIL loadtag THEN v-tag-seq = v-tag-seq + 1.
                ELSE LEAVE.
              END. /* repeat*/
-      
+
              CREATE loadtag.
              ASSIGN loadtag.company = cocode
              loadtag.tag-no = STRING(ttbl.po-no,"9999999") +
@@ -995,7 +983,7 @@ DO:
           end.
         end.  
       end.  /* do x = */
-       
+
       if ttbl.partial gt 0 and
          i eq (ttbl.no-of-tags + (if ttbl.partial gt 0 then 1 else 0)) then
       do /* x = 1 to v-num-tags: */  :
@@ -1016,7 +1004,7 @@ DO:
                 IF AVAIL loadtag THEN v-tag-seq = v-tag-seq + 1.
                 ELSE LEAVE.
              END. /* repeat*/
-      
+
              CREATE loadtag.
              ASSIGN loadtag.company = cocode
              loadtag.tag-no = STRING(ttbl.po-no,"9999999") +
@@ -1083,11 +1071,11 @@ DO:
   */
     hide ttbl-browse no-pause.
     hide Btn_LoadTags no-pause.
-    
+
     enable ttbl-browse-2 with frame {&frame-name}.
     enable Btn_LoadTags-2 with frame {&frame-name}.   
     {&OPEN-QUERY-ttbl-browse-2}
-    
+
   end.
 
   {&OPEN-QUERY-ttbl-browse}
@@ -1157,9 +1145,9 @@ DO:
   END.
   assign v-label   = sys-ctrl.descrip + "roll.lbl"
          v-exp-dir = sys-ctrl.descrip + "rmload1.txt".
-  
+
 /*****************/
-  
+
 /*  output to c:\pnpbar\rmload1.txt. */
   output to value(v-exp-dir). 
 
@@ -1236,7 +1224,7 @@ DO:
         end.
         assign rm-rdtl.loc-bin = sys-ctrl.char-fld.
       end.
-   
+
       if asi.rm-rctd.loc-bin = "" and avail sys-ctrl 
       then asi.rm-rctd.loc-bin = sys-ctrl.char-fld.
 
@@ -1276,7 +1264,7 @@ DO:
 
 /*        {po/pol-dims.i}  */
 /* The code below is pol-dims.i minus the do for job-mat statement */
-     
+
      if (v-len eq 0 or v-wid eq 0 or v-bwt eq 0) then do:
        find first job
            where job.company eq cocode
@@ -1293,10 +1281,10 @@ DO:
                and job-mat.i-no    eq po-ordl.i-no
              no-lock
              by job-mat.frm desc:
-                  
+
            if job-mat.frm eq po-ordl.s-num then leave.
          end.
-              
+
          if avail job-mat then
            assign
             v-len = if v-len eq 0 then job-mat.len     else v-len
@@ -1323,7 +1311,7 @@ DO:
               run rm/convcuom.p
                 (po-ordl.pr-uom, v-cost-uom, v-bwt, v-len, v-wid, 0,
                  po-ordl.cost, output rm-rdtl.cost).
-                 
+
            assign asi.rm-rctd.cost-uom = po-ordl.pr-uom
                   asi.rm-rctd.cost = po-ordl.cost.      
         end.
@@ -1390,7 +1378,7 @@ DO:
                             string(v-tag-seq,"999") +
                             string(ttbl.count,"9999")
           .
-          
+
       end. /* if tag-meth and po-no ne "" */
 
        /* What QTY for RM receipt ????????  */
@@ -1406,7 +1394,7 @@ DO:
         ("LF",po-ordl.cons-uom, v-bwt, v-len, v-wid, 0, 
                                ttbl-roll.lf, output rm-rdtl.qty).
         asi.rm-rctd.qty = rm-rdtl.qty.
-        
+
       end.
       /* put "PO#,JOB#,PART#,LF,WEIGHT,TAG,TAGFIELD" skip.  */
       /* Create text file to print loadtags */
@@ -1445,7 +1433,7 @@ DO:
                 IF AVAIL loadtag THEN v-tag-seq = v-tag-seq + 1.
                 ELSE LEAVE.
              END. /* repeat*/
-      
+
              CREATE loadtag.
              ASSIGN loadtag.company = cocode
              loadtag.tag-no = STRING(ttbl-roll.po-no,"9999999") +
@@ -1469,7 +1457,7 @@ DO:
              .
         END.
       end.
-       
+
 /*
     end. /* do i = 1 to ttbl-roll.no-of-tags */
 */
@@ -1478,7 +1466,7 @@ DO:
   END.
 
   output close.
-  
+
 /*  os-command no-wait value("c:\barone\bin\labels.exe " + v-label). */
 /*  os-command no-wait value("c:\barone\bin\labels.exe c:\barone\labels\p&p2.lbl"). */
 
@@ -1571,7 +1559,7 @@ END.
 ON VALUE-CHANGED OF rd-sort IN FRAME F-Main
 DO:
    &scoped-define IAMWHAT LOOKUP   
-         
+
     assign rd-sort.
     case rd-sort:
         {srtord.i 1}

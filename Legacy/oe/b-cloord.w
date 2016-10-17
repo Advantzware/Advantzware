@@ -79,10 +79,10 @@ oe-ord.job-no oe-ord.job-no2 oe-ord.j-no
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS tb_open fi_cust-no fi_i-no fi_part-no ~
 fi_ord-no tb_closed fi_po-no fi_est-no fi_job-no fi_job-no2 btn_go btn_show ~
-Browser-Table browse-order auto_find Btn_Clear_Find RECT-4 
+Browser-Table     
 &Scoped-Define DISPLAYED-OBJECTS tb_open fi_cust-no fi_i-no fi_part-no ~
 fi_ord-no tb_closed fi_po-no fi_est-no fi_job-no fi_job-no2 fi_sort-by ~
-browse-order auto_find 
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -96,10 +96,6 @@ browse-order auto_find
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
 DEFINE BUTTON btn_go 
      LABEL "&Go" 
@@ -109,10 +105,6 @@ DEFINE BUTTON btn_show
      LABEL "&Show All" 
      SIZE 12 BY 1.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 60 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "X(8)":U 
      LABEL "Customer#" 
@@ -167,15 +159,7 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 72 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 145 BY 1.43.
 
 DEFINE VARIABLE tb_closed AS LOGICAL INITIAL yes 
      LABEL "Closed Orders" 
@@ -242,15 +226,6 @@ DEFINE FRAME F-Main
      fi_sort-by AT ROW 3.86 COL 63 COLON-ALIGNED
      Browser-Table AT ROW 5.52 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 19.33 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 132 HELP
-          "CLEAR AUTO FIND Value"
-     RECT-4 AT ROW 19.1 COL 1
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -353,7 +328,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 

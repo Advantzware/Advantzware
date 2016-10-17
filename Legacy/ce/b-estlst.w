@@ -104,9 +104,8 @@ ASI.est.est-type >= 1 and est.est-type <= 4 NO-LOCK, ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -129,25 +128,9 @@ FUNCTION display-cw-dim RETURNS DECIMAL
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 97 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 148 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -208,15 +191,6 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 19.33 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 113 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 136 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     RECT-4 AT ROW 19.1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -341,7 +315,7 @@ ASI.est.est-type >= 1 and est.est-type <= 4"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -444,23 +418,23 @@ PROCEDURE create-est :
   */
 
   REPEAT:
-  
+
     find first ce-ctrl where
          ce-ctrl.company = gcompany and
          ce-ctrl.loc = gloc
          EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-   
+
     IF AVAIL ce-ctrl THEN
     DO:
        ASSIGN
        li-new-estnum = ce-ctrl.e-num + 1
        ce-ctrl.e-num = li-new-estnum.
-   
+
        FIND CURRENT ce-ctrl NO-LOCK.
        LEAVE.
     END.
   END.
-  
+
   create est.  
   assign ll-new-record = yes
          est.est-type = 1
@@ -472,14 +446,14 @@ PROCEDURE create-est :
          est.est-date = today
          est.mod-date = ?
          cocode = gcompany.
-            
-       
+
+
 
    {sys/ref/est-add.i est}     
 
    run crt-est-childrecord.  /* create ef,eb,est-prep */
-   
-   
+
+
    run local-open-query.  
    RUN set-attribute-list in adm-broker-hdl ('Is-First-Est = Yes').
 
@@ -497,12 +471,12 @@ PROCEDURE crt-est-childrecord :
 ------------------------------------------------------------------------------*/
   def var i as int no-undo.
   def buffer bb for eb.
- 
+
   create est-qty.
   assign est-qty.company = gcompany
          est-qty.est-no =  est.est-no
          est-qty.eqty = 0.
-          
+
   create ef.
   assign
    ef.est-type  = 1
@@ -563,7 +537,7 @@ PROCEDURE crt-est-childrecord :
      if eb.cas-cnt eq 0 then eb.cas-cnt =
               if avail itemfg then itemfg.case-count else item.box-case.
   end.  /* avail item */
-    
+
   RUN est/BuildDefaultPreps.p(BUFFER est,
                               BUFFER ef,
                               INPUT 1,
@@ -624,7 +598,7 @@ PROCEDURE local-hide :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer bf-first for est.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -634,7 +608,7 @@ PROCEDURE local-hide :
                             bf-first.est-type <= 4
                             no-lock no-error.
   if not avail bf-first then run create-est.
-  
+
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'hide':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
@@ -650,19 +624,18 @@ PROCEDURE local-open-query :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  apply "value-changed" to browse-order in frame {&frame-name}.
-   
+
   RUN dispatch ('get-last':U).
   IF AVAIL eb THEN
     ASSIGN lv-last-rowid2 = ROWID(ef).
-    
+
   RUN dispatch ('get-first':U).
   IF AVAIL eb THEN
     ASSIGN lv-frst-rowid2 = ROWID(ef).
@@ -681,36 +654,36 @@ PROCEDURE navigate-browser :
 ------------------------------------------------------------------------------*/
   def input  parameter ip-nav-type as char.
   def output parameter op-nav-type as char.
-  
+
   def var lv-rowid      as rowid no-undo.
   def var lv-frst-rowid as rowid no-undo.
   def var lv-last-rowid as rowid no-undo.
-  
-  
+
+
   lv-rowid = if avail est then rowid(est) else ?.
-  
+
   run dispatch ('get-last':U).
   if avail est then lv-last-rowid = rowid(est).
-  
+
   run dispatch ('get-first':U).
   if avail est then lv-frst-rowid = rowid(est).
-  
+
   if lv-rowid ne ? then
     reposition {&browse-name} to rowid lv-rowid.
-       
+
   case ip-nav-type:
     when "F" then run dispatch ('get-first':U).
     when "L" then run dispatch ('get-last':U).
     when "N" then run dispatch ('get-next':U).
     when "P" then run dispatch ('get-prev':U).
   end case.
-    
+
   if rowid(est) eq lv-last-rowid then
     op-nav-type = "L".
-      
+
   if rowid(est) eq lv-frst-rowid then
     op-nav-type = if op-nav-type eq "L" then "B" else "F".
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -725,7 +698,7 @@ PROCEDURE navigate-browser2 :
 ------------------------------------------------------------------------------*/
   DEF INPUT  PARAMETER ip-nav-type AS CHAR.
   DEF OUTPUT PARAMETER op-nav-type AS CHAR.
-  
+
   DEF VAR hld-rowid AS ROWID NO-UNDO.
 
 
@@ -743,13 +716,13 @@ PROCEDURE navigate-browser2 :
                   END.
     WHEN "G" THEN RUN lookup-eb.
   END CASE.
-    
+
   IF ROWID(ef) EQ lv-last-rowid2 THEN
     op-nav-type = "L".
-      
+
   IF ROWID(ef) EQ lv-frst-rowid2 THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -763,10 +736,10 @@ PROCEDURE New_Record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input parameter ip-rowid as rowid no-undo.
-  
-  
+
+
   run local-open-query.
-  
+
   do with frame {&frame-name}:
     reposition {&browse-name} to rowid ip-rowid no-error.
     run dispatch ('row-changed').
@@ -774,8 +747,8 @@ PROCEDURE New_Record :
     apply "value-changed" to {&browse-name}.
     return no-apply.  
   end.
-  
-  
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -790,13 +763,13 @@ PROCEDURE RefreshRow :
 ------------------------------------------------------------------------------*/
   define input parameter pcMode     as character no-undo.
   define input parameter prRowIdent as rowid     no-undo.
-   
+
   if pcMode = 'newRecord':U then do:
 
     run local-open-query.
 
     reposition browser-table to rowid prrowident.
-  
+
     /*do while true:
       if available est then
          if (prrowident <> ? and rowid(est) = prRowIdent) /*or
@@ -870,7 +843,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
 ------------------------------------------------------------------------------*/
   def var out-dim as dec no-undo.
   def var k_frac as dec init 6.25 no-undo.
-  
+
   if ip-is-corr-style and ip-dim <> 0 then 
      /*round(trunc({1},0) + (({1} - trunc({1},0)) / K_FRAC),2)   sys/inc/k16.i */
      out-dim = round(trunc(ip-dim,0) + ((ip-dim - trunc(ip-dim,0)) / K_FRAC),2).
