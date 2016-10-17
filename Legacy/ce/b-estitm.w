@@ -2989,16 +2989,18 @@ PROCEDURE custom-row-changed :
 ------------------------------------------------------------------------------*/
   DEF VAR char-hdl AS CHAR NO-UNDO.
 
+RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"form-blank-target",OUTPUT char-hdl).
 
   IF lv-repo EQ "ON" AND AVAIL eb THEN DO:
-    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"form-blank-target",OUTPUT char-hdl).
-
+    
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("OFF").
-      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+      /*RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).*/
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
     END.
   END.
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
 
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
 
