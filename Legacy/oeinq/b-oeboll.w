@@ -98,9 +98,9 @@ oe-boll.s-code get-cost() @ li-cost
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS printBOL printSBOL Browser-Table RECT-4 ~
-browse-order auto_find Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order FI_moveCol auto_find 
+&Scoped-Define ENABLED-OBJECTS printBOL printSBOL Browser-Table ~
+
+&Scoped-Define DISPLAYED-OBJECTS  FI_moveCol  
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -123,10 +123,6 @@ FUNCTION get-cost RETURNS DECIMAL
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
 DEFINE BUTTON printBOL 
      IMAGE-UP FILE "Graphics/32x32/printer_gearwheel.png":U
@@ -140,25 +136,13 @@ DEFINE BUTTON printSBOL
      LABEL "" 
      SIZE 9 BY 2.14 TOOLTIP "Print BOL".
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 40 BY 1 NO-UNDO.
 
 DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 19 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 57 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 149 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -208,16 +192,7 @@ DEFINE FRAME F-Main
      printSBOL AT ROW 18.62 COL 141
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 17.43 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
      FI_moveCol AT ROW 17.43 COL 62 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     auto_find AT ROW 17.43 COL 93 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 17.43 COL 136 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 17.43 COL 2
-     RECT-4 AT ROW 17.19 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -339,7 +314,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -435,7 +410,7 @@ DO:
             RETURN.
           END.
        END.
-       
+
        RUN custom/setUserPrint.p (g_company,'r-bolpr2.',
                                'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted',
                                oe-bolh.cust-no + ',' + oe-bolh.cust-no + ',' +
@@ -445,7 +420,7 @@ DO:
        RUN oerep/r-bolpr2.w.
        {methods/run_link.i "CONTAINER-SOURCE" "moveToTop"}
 
-       
+
     END.
   END.
 END.
@@ -620,7 +595,7 @@ FUNCTION get-cost RETURNS DECIMAL
 ------------------------------------------------------------------------------*/
   IF li-cost:VISIBLE IN BROWSE Browser-Table EQ NO THEN
      RETURN 0.
-    
+
   DEF VAR v-t-cost AS DEC DECIMALS 4 NO-UNDO.
   DEF VAR v-uom AS CHAR NO-UNDO.
   def var v-cost AS DEC DECIMALS 4 extent 4 NO-UNDO.
@@ -648,7 +623,7 @@ FUNCTION get-cost RETURNS DECIMAL
           and fg-bin.job-no  eq oe-boll.job-no
           and fg-bin.job-no2 eq oe-boll.job-no2
         no-lock no-error.
-  
+
     if avail fg-bin and fg-bin.std-tot-cost ne 0 then
       assign
        v-cost-m[1] = fg-bin.std-lab-cost
@@ -656,7 +631,7 @@ FUNCTION get-cost RETURNS DECIMAL
        v-cost-m[3] = fg-bin.std-var-cost
        v-cost-m[4] = fg-bin.std-mat-cost
        v-uom       = fg-bin.pur-uom.
-       
+
     else
     if avail job-hdr and job-hdr.std-tot-cost ne 0 then
       assign
@@ -665,7 +640,7 @@ FUNCTION get-cost RETURNS DECIMAL
        v-cost-m[3] = job-hdr.std-var-cost
        v-cost-m[4] = job-hdr.std-mat-cost
        v-uom       = "M".
-       
+
     else   
       assign
        v-cost-m[1] = itemfg.std-lab-cost
@@ -681,13 +656,13 @@ FUNCTION get-cost RETURNS DECIMAL
        if v-uom ne "M" then
           run sys/ref/convcuom3.p(cocode,v-uom, "M", 0, 0, 0, 0,
                                  v-cost-m[i], output v-cost-m[i]).
-       
+
        v-cost[i] = v-cost[i] + (v-cost-m[i] * oe-boll.qty / 1000).
     end.
-  
+
   do i = 1 to 4:
      v-cost[i] = v-cost[i] / (oe-boll.qty / 1000).
-    
+
      if v-cost[i] eq ? then v-cost[i] = 0.
   end.
 

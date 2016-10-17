@@ -32,7 +32,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 {sys/inc/var.i NEW SHARED}
-    
+
 ASSIGN
  cocode = g_company
  locode = g_loc.
@@ -118,9 +118,8 @@ ar-cashl.actnum ar-cashl.dscr
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -143,25 +142,9 @@ FUNCTION display-account RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 60 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -212,15 +195,6 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 9.81 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 9.81 COL 70 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 9.81 COL 132 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 9.81 COL 2
-     RECT-4 AT ROW 9.57 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -329,7 +303,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -346,7 +320,7 @@ DO:
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
   phandle = WIDGET-HANDLE(char-hdl).
-    
+
   IF NOT ll-inquiry THEN RUN new-state in phandle ('update-begin':U).
 END.
 
@@ -440,7 +414,7 @@ DO:
     APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
     RETURN NO-APPLY.
   END.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -455,11 +429,11 @@ DO:
   DEF VAR v-old-inv-date AS CHAR NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-  
+
      IF LASTKEY NE -1 THEN DO:
         RUN valid-inv-no (FOCUS) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-       
+
         IF v-armemo-log AND INT(ar-cashl.inv-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 AND
            NOT ll-is-a-return THEN DO:
 
@@ -470,7 +444,7 @@ DO:
 
            RUN ar/d-selinl.w (v-old-inv-no,
                              ROWID(ar-cashl)).
-         
+
            RUN dispatch ("display-fields").
 
            /*when hitting cancel from d-selinl.w, was blanking out invoice and bal due*/
@@ -906,9 +880,9 @@ PROCEDURE local-create-record :
     ELSE find first account where account.company = ar-cash.company and
                              account.actnum  = ar-ctrl.cash-act no-lock no-error.
     if avail account THEN assign ar-cashl.actnum = account.actnum.
-    
+
   end.
-  
+
   if available account then lv-account-recid = RECID(account). /* for displaying*/
   /*  display ar-cashl.actnum + " " + 
             account.dscr format "x(35)" @ ar-cashl.actnum.
@@ -945,7 +919,7 @@ PROCEDURE local-delete-record :
   IF ll-is-a-return THEN RUN recalc-check-amt.
 
   RUN redisplay-header.
-    
+
 
 END PROCEDURE.
 
@@ -984,7 +958,7 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
@@ -1094,7 +1068,7 @@ PROCEDURE local-update-record :
 
   IF ll-new-record THEN RUN auto-add.
   ELSE RUN reset-adm.
-         
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1111,12 +1085,12 @@ PROCEDURE new-actnum :
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN
         lv-account-recid = ?.
-    
+
      FIND FIRST account WHERE
           account.company EQ g_company AND
           account.actnum  EQ ar-cashl.actnum:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
-    
+
      account_dscr:SCREEN-VALUE IN BROWSE {&browse-name} = IF AVAIL account THEN account.dscr ELSE "".
   END.
 
@@ -1137,7 +1111,7 @@ PROCEDURE printInv :
         b-ar-inv.cust-no EQ ar-cashl.cust-no AND
         b-ar-inv.inv-no  EQ ar-cashl.inv-no
         NO-LOCK NO-ERROR.
-  
+
    IF AVAILABLE b-ar-inv THEN DO:
      RUN custom/setUserPrint.p (b-ar-inv.company,'ar-inv_.',
                                 'begin_inv,end_inv,begin_cust,end_cust,tb_reprint,tb_posted',
@@ -1164,7 +1138,7 @@ PROCEDURE recalc-check-amt :
 
   IF AVAIL ar-cash THEN DO:
     ar-cash.check-amt = 0.
-        
+
     FOR EACH bf-cashl WHERE bf-cashl.c-no EQ ar-cash.c-no NO-LOCK:
       ar-cash.check-amt = ar-cash.check-amt +
                           (bf-cashl.amt-paid + bf-cashl.amt-disc).
@@ -1416,7 +1390,7 @@ PROCEDURE valid-inv-act :
               "Is this right line item to enter?"
               VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
               UPDATE ll. 
-      
+
       IF ll THEN RETURN.        
       ELSE APPLY "entry" TO ar-cashl.inv-no IN BROWSE {&browse-name}. 
       RETURN ERROR.

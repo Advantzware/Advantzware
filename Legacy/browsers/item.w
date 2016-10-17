@@ -52,7 +52,7 @@ DEFINE VARIABLE lvFirstRowID AS ROWID NO-UNDO.
 DEFINE VARIABLE lvLastRowID AS ROWID NO-UNDO.
 DEF VAR v-called-setCellColumns AS LOG NO-UNDO.
 DEF VAR v-col-move AS LOG NO-UNDO INIT TRUE.
-    
+
 ASSIGN
  cocode = g_company
  locode = g_loc.
@@ -100,9 +100,9 @@ item.q-ono item.q-comm item.cons-uom
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order ~
-Btn_Clear_Find auto_find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_sortby 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+
+&Scoped-Define DISPLAYED-OBJECTS   fi_sortby 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -116,30 +116,14 @@ Btn_Clear_Find auto_find
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear" 
-     SIZE 8 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Find" 
-     VIEW-AS FILL-IN 
-     SIZE 24.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 31.2 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 56 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 144 BY 1.67.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -186,16 +170,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 18.24 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     Btn_Clear_Find AT ROW 18.24 COL 130.6 HELP
-          "CLEAR AUTO FIND Value"
-     auto_find AT ROW 18.29 COL 100 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
      fi_sortby AT ROW 18.33 COL 61.8 COLON-ALIGNED NO-LABEL
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 18.24 COL 2
-     RECT-4 AT ROW 17.91 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -316,7 +291,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -455,10 +430,10 @@ PROCEDURE export-xl :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-RUN rm/dRMExport.w (INPUT auto_find,
-                    INPUT browse-order,
+RUN rm/dRMExport.w (INPUT ,
+                    INPUT ,
                     INPUT "1").
-/* RUN fg/fitm-exp.w (auto_find,browse-order). */
+/* RUN fg/fitm-exp.w (,). */
 
 
 END PROCEDURE.
@@ -520,11 +495,10 @@ PROCEDURE local-open-query :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN dispatch ('get-last':U).
   IF AVAILABLE item THEN lvLastRowID  = ROWID(item).
-    
+
   RUN dispatch ('get-first':U).
   IF AVAILABLE item THEN lvFirstRowID  = ROWID(item).
-  
-  APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.
+
   APPLY "value-changed" TO BROWSE {&browse-name}.
 
 END PROCEDURE.
@@ -603,7 +577,7 @@ PROCEDURE navigate-browser :
     WHEN 'N' THEN 
     do:
        RUN dispatch ('get-next':U).
-      
+
        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"history-target", OUTPUT char-hdl).
        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
           RUN new-item IN WIDGET-HANDLE(char-hdl).
@@ -615,10 +589,10 @@ PROCEDURE navigate-browser :
            RUN new-item IN WIDGET-HANDLE(char-hdl).
     END.
   END CASE.
-    
+
   IF ROWID(item) EQ lvLastRowID THEN
   opNavType = 'L'.
-      
+
   IF ROWID(item) EQ lvFirstRowID THEN
   opNavType = IF opNavType EQ 'L' THEN 'B' ELSE 'F'.
 

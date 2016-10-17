@@ -85,9 +85,8 @@ DEFINE QUERY external_tables FOR users.
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 auto_find browse-order ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS auto_find browse-order 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -101,25 +100,9 @@ Btn_Clear_Find
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 34.2 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 23 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 90 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -147,15 +130,6 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     auto_find AT ROW 10.33 COL 38 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     browse-order AT ROW 10.38 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     Btn_Clear_Find AT ROW 10.38 COL 77 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 10.38 COL 2
-     RECT-4 AT ROW 10.14 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -255,7 +229,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH usercust WHERE
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -367,7 +341,7 @@ PROCEDURE del-selected :
         UPDATE v-delflg.
 
     IF NOT v-delflg THEN RETURN NO-APPLY.
-    
+
     DO WITH FRAME {&frame-name}:
 
         IF v-delflg THEN
@@ -379,13 +353,13 @@ PROCEDURE del-selected :
          DO v-lcnt = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
 
             {&browse-name}:FETCH-SELECTED-ROW (v-lcnt) NO-ERROR.
-            
+
             IF AVAIL cust THEN DO:
-                
+
                 CREATE tt-delCust.
                 ASSIGN
                     tt-delCust.t-custRowId = ROWID(usercust).
-                        
+
                 RELEASE tt-delCust.
             END.
         END.

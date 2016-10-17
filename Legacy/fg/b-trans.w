@@ -106,9 +106,9 @@ fg-rctd.rita-code = "T" NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-4 RECT-5 Browser-Table browse-order ~
-auto_find Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find 
+&Scoped-Define ENABLED-OBJECTS RECT-5 Browser-Table ~
+
+&Scoped-Define DISPLAYED-OBJECTS  fi_sortby  
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -131,30 +131,14 @@ FUNCTION calc-ext-cost RETURNS DECIMAL
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 118 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 42 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 96 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 2.62.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -225,16 +209,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 2 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 16.48 COL 7 HELP
-          "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 16.48 COL 102 COLON-ALIGNED NO-LABEL
-     auto_find AT ROW 17.67 COL 12 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 17.67 COL 133 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 16.48 COL 3
-     RECT-4 AT ROW 16.24 COL 2
      RECT-5 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -370,7 +345,7 @@ fg-rctd.rita-code = ""T"""
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -386,7 +361,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
+
    RUN new-state in phandle ('update-begin':U).
 
 END.
@@ -401,7 +376,7 @@ DO:
  DEF VAR lv-rowid AS ROWID NO-UNDO.
 
  IF NOT avail fg-rctd then find fg-rctd where recid(fg-rctd) = lv-recid no-lock no-error. 
- 
+
  def var ll-tag# as log no-undo.
  ll-help-run = yes.
  case focus:name :
@@ -467,7 +442,7 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
-  
+
   ll-help-run = no.
 END.
 
@@ -873,11 +848,11 @@ DEF VAR lv-rowid AS ROWID NO-UNDO.
        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.loc-bin
        fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}     = fg-bin.tag
        fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.cust-no.
-       
+
       IF fg-bin.loc  = "MAIN" THEN
            IF fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""  THEN
                fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}      = CAPS(fg-bin.loc) .
-      
+
       RUN new-bin.
     END.
   END.
@@ -971,7 +946,7 @@ PROCEDURE local-assign-record :
      fg-bin.tag NE ""            AND
      fg-bin.tag EQ fg-rctd.tag2  AND lv-new-tag-number-chosen THEN      
     RUN fg/mkloadtg.p (ROWID(fg-rctd), 0 /*fg-rctd.cases*/, INPUT-OUTPUT fg-rctd.tag2).
-  
+
   lv-new-tag-number-chosen = ?.
 
 END PROCEDURE.
@@ -1007,7 +982,7 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
   DEF BUFFER b-fg-rctd FOR fg-rctd.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-rno = 0.
   FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
@@ -1095,7 +1070,7 @@ PROCEDURE local-disable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   if valid-handle(hd-post-child) then  hd-post-child:sensitive = yes.
             /* value assigned from local-enable-fields*/
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1112,7 +1087,7 @@ PROCEDURE local-enable-fields :
   def var hd-next as widget-handle no-undo.
   DEF VAR li AS INT NO-UNDO.
 
-   
+
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
@@ -1146,7 +1121,7 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   apply "entry" to fg-rctd.rct-date in browse {&browse-name}.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1162,7 +1137,7 @@ PROCEDURE local-update-record :
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* when new record created from last row, get error "No fg-rctd" record ava */
   IF NOT AVAIL fg-rctd THEN
   FIND fg-rctd WHERE RECID(fg-rctd) EQ lv-recid NO-LOCK NO-ERROR.
@@ -1193,7 +1168,7 @@ PROCEDURE local-update-record :
       APPLY 'cursor-left' TO {&BROWSE-NAME}.
     END.
   END.
-  
+
   lv-new-tag-number-chosen = ?.
 
 END PROCEDURE.
@@ -1224,7 +1199,7 @@ PROCEDURE new-bin :
           AND fg-bin.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.cust-no EQ fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
-    
+
     IF AVAIL fg-bin THEN
       ASSIGN
        fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fg-bin.case-count)
@@ -1252,7 +1227,7 @@ PROCEDURE new-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
 
     IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
@@ -1261,7 +1236,7 @@ PROCEDURE new-tag :
             AND fg-bin.tag      EQ trim(fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name})
             AND fg-bin.i-no     EQ trim(fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name})
         USE-INDEX tag NO-LOCK NO-ERROR.
-        
+
       IF AVAIL fg-bin THEN DO:
       ASSIGN
          fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}  = fg-bin.job-no
@@ -1270,7 +1245,7 @@ PROCEDURE new-tag :
          fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.loc-bin
          fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}     = fg-bin.tag
          fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.cust-no .
-        
+
          IF fg-bin.loc  = "MAIN" THEN
            IF fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""  THEN
                fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}      = CAPS(fg-bin.loc) .
@@ -1297,8 +1272,8 @@ PROCEDURE repo-query :
 
 
   DO WITH FRAME {&FRAME-NAME}:
-    RUN clear_auto_find.
-    RUN change-order (browse-order:SCREEN-VALUE).
+    RUN clear_.
+    RUN change-order (:SCREEN-VALUE).
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
   END.
 
@@ -1358,7 +1333,7 @@ PROCEDURE valid-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST itemfg
         WHERE itemfg.company EQ cocode
@@ -1385,7 +1360,7 @@ PROCEDURE valid-job-loc-bin-tag :
   DEF VAR lv-fields AS CHAR INIT "job-no,job-no2,loc,loc-bin,tag,cust-no" NO-UNDO.
   DEF VAR li-field# AS INT NO-UNDO.
   DEF VAR li-fieldc AS CHAR NO-UNDO.
-  
+
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
@@ -1402,10 +1377,10 @@ PROCEDURE valid-job-loc-bin-tag :
 
     IF li-field# LT 4                                              AND
        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN li-field# = 4.
-        
+
     IF li-field# LT 5                                          AND
        fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN li-field# = 5.
-        
+
     IF li-field# LT 6                                              AND
        fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN li-field# = 6.
 
@@ -1441,11 +1416,11 @@ PROCEDURE valid-job-loc-bin-tag :
        fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}  = CAPS(fg-bin.cust-no)
        fg-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name}     = IF adm-new-record THEN CAPS(fg-bin.tag) ELSE CAPS(fg-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name})
        fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}  = CAPS(fg-bin.cust-no).
-       
+
        IF fg-bin.loc  = "MAIN" THEN 
            IF fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""  THEN
                fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}      = CAPS(fg-bin.loc) .
-       
+
        IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND lv-new-tag-number-chosen = ? 
            AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} EQ fg-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name}  THEN DO:
            IF fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name} NE  STRING(TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count, 0)) 
@@ -1576,7 +1551,7 @@ PROCEDURE valid-qty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   (fg-rctd.cases * fg-rctd.qty-case) + fg-rctd.partial.
 END PROCEDURE.
 

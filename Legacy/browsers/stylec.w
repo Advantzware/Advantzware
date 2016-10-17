@@ -84,9 +84,8 @@ DEF SHARED VAR flute-val AS CHAR NO-UNDO .
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -100,25 +99,9 @@ Btn_Clear_Find
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 31 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 34 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -145,15 +128,6 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 19.33 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 48 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 81 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     RECT-4 AT ROW 19.1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -248,7 +222,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -286,7 +260,7 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
-  
+
 /* ========== tried to force update button enabled on page 2 but not working == 
      modification is done on panel on page 2 (p-updsav.w -> state-changed
      ===================================================================
@@ -295,7 +269,7 @@ DO:
    def var tmp-char as cha no-undo.
    def var lv-hdl as handle no-undo.
    def var ll-deleted as log no-undo.
-    
+
    ll-deleted = no.
    run get-attribute in adm-broker-hdl ('IS-DELETED').
    if return-value = "yes" then ll-deleted = yes.
@@ -306,7 +280,7 @@ DO:
        RUN request-attribute IN adm-broker-hdl
             (INPUT widget-handle(char-hdl), INPUT 'TABLEIO-TARGET':U,
              INPUT 'Query-Position':U).  
-     
+
      lv-hdl = widget-handle(char-hdl).
      def var h_stylec as handle no-undo.
      def var cont-hdl as cha no-undo.
@@ -332,7 +306,7 @@ DO:
              "query-position: " RETURN-VALUE skip
              "viewer link:" tmp-char valid-handle(widget-handle(tmp-char))
              .
-             
+
      run set-attribute-list in adm-broker-hdl ("IS-DELETED=no").
     */  
      adm-panel-state = 'initial':U.
@@ -453,12 +427,11 @@ PROCEDURE refresh-query :
   def var i as int no-undo.
   def var lv-rowid as rowid no-undo.  /* current record's rowid */
   def var lv-stat as log no-undo.
-  
+
   lv-rowid = if avail style then rowid(style)  else ?.
   i = browse {&browse-name}:focused-row.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
-    APPLY "value-changed" TO browse-order.
   END.
 
   reposition {&browse-name} to rowid ip-rowid NO-ERROR.
@@ -520,7 +493,7 @@ PROCEDURE export-xl :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-RUN fg/styl-exp.w (auto_find,browse-order,flute-val).
+RUN fg/styl-exp.w (,,flute-val).
 
 
 END PROCEDURE.

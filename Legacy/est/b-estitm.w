@@ -144,9 +144,8 @@ eb.style ef.board ef.cal eb.procat eb.wid eb.len eb.dep eb.i-col eb.i-coat
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -160,25 +159,9 @@ Btn_Clear_Find
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 49 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -236,15 +219,6 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 15.52 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 15.52 COL 80 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 15.52 COL 132 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 15.52 COL 2
-     RECT-4 AT ROW 15.29 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -371,7 +345,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -387,7 +361,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
+
    RUN new-state in phandle ('update-begin':U).
 
 END.
@@ -419,9 +393,9 @@ DO:
            run copy-from-est.
            /*run copy-from-est2.*/
            lv-part-no-prev = eb.part-no.
-           
+
            return no-apply. 
-           
+
       end.
       when "stock-no" then do:
         /* run windows/l-itemfg.w  (gcompany, output char-val). */
@@ -431,14 +405,14 @@ DO:
            find xef of xeb where xef.company = xeb.company and
                                  xef.est-no = xeb.est-no
                           no-lock no-error.
-   
+
            run copy-from-est.
            /*run copy-from-est2. */
-  
+
            return no-apply.
       end.
       when "style" then do:
-     
+
            ls-cur-val = focus:screen-value.
            run windows/l-style.w (gcompany,ls-cur-val, output char-val).
            if char-val <> "" then do:
@@ -606,7 +580,7 @@ DO:
        otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
    /*===================
@@ -630,7 +604,7 @@ DO:
                                else if cust.frt-pay = "T" then "Third Party"
                                else ""
                      .                
-   
+
                  find sman where sman.company = gcompany and
                               sman.sman = cust.sman:screen-value
                               no-lock no-error.
@@ -768,8 +742,8 @@ DO:
                  eb.wid:screen-value = string(itemfg.w-score[50])
                  eb.dep:screen-value = string(itemfg.d-score[50])
                  .
-          
-    
+
+
         end.
     end.  /* modified */    
 
@@ -819,7 +793,7 @@ DO:
                                eb.i-col:screen-value in browse {&browse-name} = string(xeb.i-col)                               
                                eb.i-coat:screen-value in browse {&browse-name} = string(xeb.i-coat)
                                .
-  
+
              run  copy-from-est.                  
            end.
        end.    
@@ -832,7 +806,7 @@ DO:
            find xef where xef.company = xeb.company and
                           xef.est-no = xeb.est-no 
                 no-lock no-error.
-           
+
            run copy-from-est.
            run copy-from-est2.
           */  
@@ -849,9 +823,9 @@ DO:
        end.    
     end.            /* else */  
   end. /* adm-new-record */ 
- 
+
   else if not adm-new-record and lastkey <> -1 then do:  /* update existing records */
-  
+
     find first itemfg where itemfg.company = gcompany and
                             itemfg.i-no = eb.stock-no:screen-value in browse {&browse-name}
                       no-lock no-error.
@@ -882,7 +856,7 @@ END.
 ON LEAVE OF eb.style IN BROWSE Browser-Table /* Style */
 DO:
    if is-item-copied-from-est then return.
-   
+
    if eb.style:modified in browse {&browse-name} then do:
      find style where style.company = gcompany and
                       style.style = eb.style:screen-value in browse {&browse-name}
@@ -977,18 +951,18 @@ PROCEDURE calc-blank-size :
 ------------------------------------------------------------------------------*/
  /* calc blank W,L SqIn */
    def buffer bf-eb for eb .
-   
+
    find xest where recid(xest) = recid(est) no-lock.
    find xef where recid(xef) = recid(ef) no-lock.
    find xeb where recid(xeb) = recid(eb) no-lock.
-   
+
    find style where style.company = eb.company and
                     style.style = eb.style
                     no-lock no-error.
    if avail style then do:
       run est/u2kinc1.p .
       run est/u2kinc2.p .
-      
+
       find bf-eb of eb exclusive-lock.    
       assign bf-eb.t-wid = (formule[1])
           bf-eb.t-len = (formule[2])
@@ -1019,7 +993,7 @@ PROCEDURE calc-pass :
       def buffer alt-item for item .
       def var choice as log no-undo.
       def buffer bf-eb for eb.
-      
+
       find first style where style.company = eb.company and
                  style.style = eb.style no-lock no-error.
       if avail style then do:
@@ -1051,7 +1025,7 @@ PROCEDURE calc-pass :
                                       alt-item.i-no     = ce-ctrl.def-coat
                                       no-lock no-error.
       end.
-   
+
       save_id = recid(item). save_id2 = recid(alt-item).
       j = (integer(eb.i-col:screen-value in browse {&browse-name})
           + integer(eb.i-coat:screen-value in browse {&browse-name})  ) 
@@ -1066,7 +1040,7 @@ PROCEDURE calc-pass :
        end.
       end.     
  commented to recalc every time */
- 
+
       find bf-eb of eb exclusive-lock.    
       if choice then do i = 1 to 10:
          if i le integer(eb.i-col:screen-value) then do with frame {&frame-name}:
@@ -1092,13 +1066,13 @@ PROCEDURE calc-pass :
                      bf-eb.i-code[i] = ""
                      bf-eb.i-dscr[i] = "" 
                      bf-eb.i-%[i]    = 0.  
-        
+
          end.
          if j <> 0 and i modulo j = 0 then counter = counter + 1.
          if counter > (eb.i-pass) then counter = eb.i-pass.
-      
+
       end.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1119,14 +1093,14 @@ PROCEDURE copy-from-est :
 message "copy-from-est     " 
         recid(xef) "," recid(ef) skip
         recid(xeb) "," recid(eb) .
-          
+
   find bf-new-eb where recid(bf-new-eb) = recid(eb).
   find bf-new-ef where recid(bf-new-ef) = recid(ef).
-  
+
   buffer-copy xeb except xeb.company xeb.est-no to bf-new-eb .
   buffer-copy xef except xef.company xef.est-no to bf-new-ef.
-  
-  
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1168,12 +1142,12 @@ PROCEDURE crt-est-childrecord :
   def var i as int no-undo.
   def buffer bb for eb.
   def buffer bf for ef.
- 
+
   create est-qty.
   assign est-qty.company = gcompany
          est-qty.est-no =  est.est-no
          est-qty.eqty = 0.
-          
+
   create ef.
   assign
    ef.est-type  = 1
@@ -1315,7 +1289,7 @@ find first sys-ctrl
       and sys-ctrl.name    eq "SETPRINT"
     no-lock no-error.
 if avail sys-ctrl then v-alloc = sys-ctrl.log-fld.
-       
+
 find first cust  where cust.company eq gcompany
                    and cust.cust-no eq xeb.cust-no
     no-lock no-error.
@@ -1357,7 +1331,7 @@ IF v-FGFreightClass AND xeb.dest-code GT "" AND itemfg.frt-class = "" THEN
 {sys/inc/fgcascnt.i itemfg xeb}
 
 {sys/inc/updfgdim.i "xeb"}
-   
+
 
 END PROCEDURE.
 
@@ -1384,7 +1358,7 @@ PROCEDURE crt-new-est :
                            no-lock.
   li-new-estnum = ce-ctrl.e-num + 1.
   ll-new-record = yes.
-    
+
   assign est.est-type = 1
          est.company = gcompany
          est.loc = gloc
@@ -1395,7 +1369,7 @@ PROCEDURE crt-new-est :
          est.mod-date = ?
          .
    display est.est-no est.est-date with browse {&browse-name}.
-            
+
    assign cocode = gcompany
          .      
    {sys/ref/est-add.i est}     
@@ -1414,7 +1388,7 @@ PROCEDURE crt-new-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1430,14 +1404,14 @@ PROCEDURE delete-est-childrecord :
   def input parameter ip-est-no like est.est-no no-undo.
   def input parameter ip-comp like est.company no-undo.
   def buffer d-est-qty for est-qty.
-    
+
 message "del-ch   " ip-est-no ip-comp.
 
   for each d-est-qty where est-qty.company = ip-comp 
                      and est-qty.est-no = ip-est-no
                      :
        message "in del" d-est-qty.est-no.
-       
+
      for each eb where eb.company = d-est-qty.company 
                    and eb.est-no = d-est-qty.est-no
                    and eb.eqty = d-est-qty.eqty:
@@ -1460,7 +1434,7 @@ message "del-ch   " ip-est-no ip-comp.
                     and est-op.est-no = ip-est-no:
       delete est-op.
   end.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1490,13 +1464,13 @@ PROCEDURE local-add-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+
   /*  run est/d-addwht.w  (output ls-add-what).  for combo estimate only */
   ls-add-what = "est".
   if ls-add-what = "" then return no-apply.  /* cancel from dialog box */
-    
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
 
@@ -1518,11 +1492,11 @@ PROCEDURE local-assign-record :
 
   if not avail eb then find eb where recid(eb) = lv-eb-recid no-lock.
   if not avail ef then find ef where recid(ef) = lv-ef-recid no-lock.
-  
+
   /* Change 4th enabled record lock status PROGRESS only does upto 3 records 
      est,est-qty,eb,ef (ef has still no-lock status) */
   FIND CURRENT ef EXCLUSIVE-LOCK NO-ERROR NO-WAIT.  
-        
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -1589,7 +1563,7 @@ PROCEDURE local-assign-record :
                                 eb.lock = style.dim-fit
                                 eb.tuck = style.dim-tk.                 
      if eb.gluelap <> 0 then eb.lin-in = eb.dep.
- 
+
      run calc-pass.
      run calc-blank-size.
 
@@ -1608,17 +1582,17 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-    
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   if ls-add-what = "est" then run crt-new-est.
   else if ls-add-what = "item" then run crt-new-item.
- 
+
   assign lv-eb-recid = recid(eb) 
          lv-ef-recid = recid(ef).
- 
+
 
 END PROCEDURE.
 
@@ -1633,7 +1607,7 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
   def var lv-est-no like est.est-no no-undo.
   def var lv-comp like est.company no-undo.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
     MESSAGE "Delete Currently Selected Record?"
              VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE response AS LOGICAL.
@@ -1661,7 +1635,7 @@ PROCEDURE local-delete-record :
                     and est-op.est-no = lv-est-no:
       delete est-op.
   end.
-  
+
 
 END PROCEDURE.
 
@@ -1696,7 +1670,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var li-row-num as int no-undo.
-    
+
   /* Code placed here will execute PRIOR to standard behavior. */
   /* == validation ===== */
      if /*(eb.style:screen-value in browse {&browse-name} <> "" and */
@@ -1753,7 +1727,7 @@ PROCEDURE local-update-record :
              apply "entry" to eb.dep.
              return no-apply.
      end.
- 
+
 
   /* ====== end validation =======*/
 
@@ -1773,7 +1747,7 @@ PROCEDURE local-update-record :
                            exclusive-lock.
      ce-ctrl.e-num = li-new-estnum.
   end.
- 
+
  /*if ll-new-record then do:  refresh for eqty in update mode   */
       RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).

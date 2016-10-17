@@ -109,9 +109,8 @@ rm-rctd.rita-code = "T" NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-4 RECT-5 Browser-Table browse-order ~
-auto_find Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS RECT-5 Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -134,25 +133,9 @@ FUNCTION calc-ext-cost RETURNS DECIMAL
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 34 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 75 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 144 BY 1.43.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -204,15 +187,6 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 2 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 16.71 COL 7 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 16.71 COL 96 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 16.71 COL 132 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 16.71 COL 3
-     RECT-4 AT ROW 16.48 COL 2
      RECT-5 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -329,7 +303,7 @@ rm-rctd.rita-code = ""T"""
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -345,7 +319,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
+
    RUN new-state in phandle ('update-begin':U).
 
 END.
@@ -362,9 +336,9 @@ DO:
  def var recid-val as recid no-undo.
  def var rowid-val as rowid no-undo.
 
- 
+
  IF NOT avail rm-rctd then find rm-rctd where recid(rm-rctd) = lv-recid no-lock no-error. 
- 
+
  ll-help-run = yes.
 
  case focus:name :
@@ -416,7 +390,7 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
-  
+
   ll-help-run = no.
 END.
 
@@ -808,7 +782,7 @@ PROCEDURE local-create-record :
          .
   disp rm-rctd.rct-date with browse {&browse-name}. 
   lv-recid = recid(rm-rctd).  
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -855,7 +829,7 @@ PROCEDURE local-disable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   if valid-handle(hd-post-child) then  hd-post-child:sensitive = yes.
             /* value assigned from local-enable-fields*/
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -870,7 +844,7 @@ PROCEDURE local-enable-fields :
   def var out-hd-lst as cha no-undo.
   def var ii as int no-undo.
   def var hd-next as widget-handle no-undo.
-   
+
   /* Code placed here will execute PRIOR to standard behavior. */
   run get-link-handle in adm-broker-hdl (this-procedure,"record-target", output out-hd-lst).
   hd-post = widget-handle(out-hd-lst).  /* procedure */
@@ -888,7 +862,7 @@ PROCEDURE local-enable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   apply "entry" to rm-rctd.tag2 in browse {&browse-name}.
   return no-apply.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -905,7 +879,7 @@ PROCEDURE local-update-record :
 
   /* when new record created from last row, get error "No rm-rctd" record ava */
   if not avail rm-rctd then find rm-rctd where recid(rm-rctd) = lv-recid no-error.
-  
+
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -917,7 +891,7 @@ PROCEDURE local-update-record :
 
   RUN valid-loc-bin2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1201,7 +1175,7 @@ PROCEDURE valid-loc-bin2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
@@ -1234,7 +1208,7 @@ PROCEDURE valid-loc-bin2 :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1247,7 +1221,7 @@ PROCEDURE valid-loc2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
@@ -1270,7 +1244,7 @@ PROCEDURE valid-loc2 :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

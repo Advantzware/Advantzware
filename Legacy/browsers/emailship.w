@@ -97,8 +97,7 @@ shipto.ship-name phone.attention phone.titlcode phone.rec_key
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table btnDelete btnSelectAll ~
-btnClearAll browse-order auto_find Btn_Clear_Find RECT-4 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+btnClearAll     
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -140,25 +139,9 @@ DEFINE BUTTON btnSelectAll
      LABEL "&Select All" 
      SIZE 16 BY 1.
 
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 59 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 121 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -199,15 +182,6 @@ DEFINE FRAME F-Main
      btnDelete AT ROW 1.95 COL 123
      btnSelectAll AT ROW 3.14 COL 123
      btnClearAll AT ROW 4.33 COL 123
-     browse-order AT ROW 8.38 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 8.38 COL 74 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 8.38 COL 108 HELP
-          "CLEAR AUTO FIND Value"
-     RECT-4 AT ROW 8.14 COL 1
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 8.38 COL 2
      " Selected" VIEW-AS TEXT
           SIZE 16 BY .81 AT ROW 1 COL 123
           BGCOLOR 2 FGCOLOR 15 
@@ -318,7 +292,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -464,7 +438,7 @@ PROCEDURE deleteEmailCode :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   MESSAGE 'Deleted Selected Records?' 
@@ -477,7 +451,7 @@ PROCEDURE deleteEmailCode :
   DO i = 1 TO {&BROWSE-NAME}:NUM-SELECTED-ROWS IN FRAME {&FRAME-NAME}:
 
     {&BROWSE-NAME}:FETCH-SELECTED-ROW (i) NO-ERROR.
-    
+
     IF NOT AVAILABLE phone THEN NEXT.
 
     FIND FIRST emaildtl EXCLUSIVE-LOCK
@@ -497,7 +471,7 @@ PROCEDURE deleteEmailCode :
 
   {methods/run_link.i "Refresh-Source" "refreshQuery"}
 
-  APPLY 'RETURN':U TO auto_find IN FRAME {&FRAME-NAME}.
+  APPLY 'RETURN':U TO  IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -530,8 +504,7 @@ PROCEDURE refreshQuery :
   Notes:       
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&FRAME-NAME}:
-    auto_find:SCREEN-VALUE = ''.
-    APPLY 'VALUE-CHANGED':U TO browse-order.
+.
   END.
 
 END PROCEDURE.

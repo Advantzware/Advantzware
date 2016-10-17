@@ -109,9 +109,8 @@ rm-rctd.rita-code = "C" NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -134,25 +133,9 @@ FUNCTION calc-ext-cost RETURNS DECIMAL
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 28 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 78 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 140 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -195,15 +178,6 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 10.76 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 10.76 COL 96 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 10.81 COL 127 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 10.76 COL 2
-     RECT-4 AT ROW 10.52 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -311,7 +285,7 @@ rm-rctd.rita-code = ""C"""
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -327,7 +301,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
+
    RUN new-state IN phandle ('update-begin':U).
 
 END.
@@ -343,7 +317,7 @@ DO:
 
 
  IF NOT AVAIL rm-rctd THEN FIND rm-rctd WHERE RECID(rm-rctd) = lv-recid NO-LOCK NO-ERROR. 
- 
+
  DEF VAR ll-tag# AS LOG NO-UNDO.
  ll-help-run = YES.
  CASE FOCUS:NAME :
@@ -393,7 +367,7 @@ ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:  /* display calculated field */
   /* def var ii as int.
    ii = if avail rm-rctd then integer(rm-rctd.po-no) else 0.
-   
+
    if avail rm-rctd then    run get-matrix (true).
 */
 END.
@@ -407,7 +381,7 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
-  
+
   ll-help-run = NO.
 END.
 
@@ -681,7 +655,7 @@ PROCEDURE crt-pcount :
       bf-rctd.rct-date = lv-date-ent.
   lv-date-ent = ?.
  END.
- 
+
 
 END PROCEDURE.
 
@@ -769,14 +743,14 @@ PROCEDURE local-assign-statement :
          IF NOT lAddZeroBin THEN DO:
              RUN windows/l-rmibn1.w (2, rm-rctd.company, rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}, rm-rctd.loc2, rm-rctd.loc-bin2, rm-rctd.tag2, OUTPUT lv-rowid).
              FIND rm-bin WHERE ROWID(rm-bin) EQ lv-rowid NO-LOCK NO-ERROR.
-             
+
              IF NOT AVAIL rm-bin THEN DO:
                APPLY "entry" TO rm-rctd.loc-bin IN BROWSE {&browse-name}.
                RETURN ERROR.
              END. /* if not avail rm-bin */
          END.
       END. /* If not can-find */
-     
+
     END.
 
    /* Dispatch standard ADM method.                             */
@@ -786,13 +760,13 @@ PROCEDURE local-assign-statement :
    FIND FIRST item WHERE item.company EQ cocode
                      AND item.i-no    EQ rm-rctd.i-no NO-LOCK NO-ERROR.
    IF AVAIL item THEN rm-rctd.pur-uom = item.cons-uom.
-      
+
    FIND FIRST rm-bin WHERE rm-bin.company EQ cocode
                        AND rm-bin.i-no    EQ rm-rctd.i-no
                        AND rm-bin.loc     EQ rm-rctd.loc
                        AND rm-bin.loc-bin EQ rm-rctd.loc-bin
                        AND rm-bin.tag     EQ rm-rctd.tag NO-LOCK NO-ERROR.
-  
+
    IF NOT AVAIL rm-bin THEN DO:
       FIND rm-bin WHERE ROWID(rm-bin) EQ lv-rowid NO-LOCK NO-ERROR.
       IF AVAIL rm-bin THEN DO:
@@ -921,7 +895,7 @@ PROCEDURE local-disable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   IF VALID-HANDLE(hd-post-child) THEN  hd-post-child:SENSITIVE = YES.
             /* value assigned from local-enable-fields*/
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -975,7 +949,7 @@ PROCEDURE local-enable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   APPLY "entry" TO rm-rctd.rct-date IN BROWSE {&browse-name}.
   RETURN NO-APPLY.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -995,7 +969,6 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    APPLY "value-changed" TO browse-order.
   END.
 
 END PROCEDURE.
@@ -1048,7 +1021,7 @@ PROCEDURE new-bin :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST rm-bin 
         WHERE rm-bin.company EQ cocode
@@ -1078,8 +1051,8 @@ PROCEDURE repo-query :
  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
  DO WITH FRAME {&FRAME-NAME}:
-    RUN clear_auto_find.
-    RUN change-order (browse-order:SCREEN-VALUE). 
+    RUN clear_.
+    RUN change-order (:SCREEN-VALUE). 
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
   END.
   RUN dispatch ('row-changed').
@@ -1298,7 +1271,7 @@ PROCEDURE valid-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   IF rmrecpt-int EQ 1 THEN DO:
     FIND FIRST loadtag WHERE loadtag.company = g_company
                          AND loadtag.item-type = YES

@@ -57,7 +57,7 @@ DEF TEMP-TABLE tt-ordl FIELD tt-recid AS RECID
                        FIELD sell-price AS DEC
                        FIELD qt-uom AS CHAR
                        INDEX i1 tt-recid.
-                       
+
 
 DEF VAR historyQty AS DECIMAL NO-UNDO.
 DEF VAR historyPrice LIKE itemfg.total-std-cost NO-UNDO.
@@ -203,9 +203,9 @@ DEFINE QUERY external_tables FOR cust.
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table browse-order btn_clear_find ~
-auto_find rsSearch lv-search btn-reset Btn_move-sort fi_sortby 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find rsSearch lv-search ~
+&Scoped-Define ENABLED-OBJECTS br_table ~
+ rsSearch lv-search btn-reset Btn_move-sort fi_sortby 
+&Scoped-Define DISPLAYED-OBJECTS   rsSearch lv-search ~
 fi_sortby 
 
 /* Custom List Definitions                                              */
@@ -282,19 +282,12 @@ DEFINE BUTTON btn-reset
      LABEL "Clear Search" 
      SIZE 15 BY 1.1.
 
-DEFINE BUTTON btn_clear_find 
-     LABEL "Clear" 
-     SIZE 15 BY 1.14.
 
 DEFINE BUTTON Btn_move-sort 
      LABEL "Move Columns" 
      SIZE 16 BY 1.1
      BGCOLOR 14 .
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Find" 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      LABEL "Sort" 
@@ -307,13 +300,6 @@ DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U
      SIZE 29 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET VERTICAL
-     RADIO-BUTTONS 
-          "Selected", 1,
-"Item", 2,
-"Qty", 3
-     SIZE 12 BY 3 NO-UNDO.
 
 DEFINE VARIABLE rsSearch AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -358,10 +344,6 @@ DEFINE BROWSE br_table
 
 DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
-     browse-order AT ROW 7.91 COL 17 NO-LABEL WIDGET-ID 4
-     btn_clear_find AT ROW 8.62 COL 16 WIDGET-ID 10
-     auto_find AT ROW 9.33 COL 14 COLON-ALIGNED WIDGET-ID 8
-     rsSearch AT ROW 17.67 COL 3 NO-LABEL WIDGET-ID 12
      lv-search AT ROW 17.67 COL 75 COLON-ALIGNED
      btn-reset AT ROW 17.67 COL 108
      Btn_move-sort AT ROW 17.67 COL 124 WIDGET-ID 4
@@ -432,16 +414,16 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       auto_find:HIDDEN IN FRAME F-Main           = TRUE.
+.
 
 ASSIGN 
-       browse-order:HIDDEN IN FRAME F-Main           = TRUE.
+.
 
 ASSIGN 
        br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 ASSIGN 
-       btn_clear_find:HIDDEN IN FRAME F-Main           = TRUE.
+.
 
 /* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -529,7 +511,7 @@ ELSE
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -557,10 +539,10 @@ DO:
    DEF VAR lv-cost AS DEC DECIMALS 4 NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
- 
+
      case focus:name:
        when "qt-uom" then do:
-             
+
              run windows/l-uom.w (focus:screen-value, output char-val).
              if char-val <> "" then do:
                 assign tt-ordl.qt-uom:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val).
@@ -641,7 +623,7 @@ DO:
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
       RETURN NO-APPLY.
     END.
-      
+
     IF tt-ordl.IS-SELECTED:SCREEN-VALUE IN BROWSE {&browse-name} = "YES"
       AND  DEC(tt-ordl.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}) LE 0 THEN DO:
       APPLY 'entry' TO tt-ordl.sell-price IN BROWSE {&browse-name}.
@@ -730,7 +712,7 @@ IF NOT FOCUS:NAME EQ "is-selected" THEN DO:
 /*       IF AVAIL tt-ordl THEN                                       */
 /*       IF tt-ordl.e-qty:MODIFIED AND tt-ordl.IS-SELECTED = NO THEN */
 /*           ASSIGN tt-ordl.IS-SELECTED = YES ll-refresh = TRUE.     */
-     
+
    END.
 
 
@@ -759,7 +741,7 @@ IF NOT FOCUS:NAME EQ "is-selected" THEN DO:
     APPLY 'entry' TO tt-ordl.e-qty IN BROWSE {&browse-name}.
   END.
 END.
-       
+
 
 
 
@@ -784,9 +766,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_clear_find
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_clear_find B-table-Win
-ON CHOOSE OF btn_clear_find IN FRAME F-Main /* Clear */
+&Scoped-define SELF-NAME 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL  B-table-Win
+ON CHOOSE OF  IN FRAME F-Main /* Clear */
 DO:
   RUN startSearch.
 APPLY 'value-changed' TO BROWSE {&browse-name}.
@@ -876,7 +858,7 @@ DO:
   fi_sortBy:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sortDisplay.
   ASSIGN fi_sortby.  
   APPLY 'leave' TO lv-search.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -922,7 +904,7 @@ END.
 
 ON LEAVE OF tt-ordl.e-qty IN BROWSE br_table /* Qty */
 DO:
-  
+
   IF tt-ordl.IS-SELECTED:SCREEN-VALUE IN BROWSE {&browse-name} EQ "YES" THEN
   RUN validate-qty NO-ERROR.
 
@@ -982,7 +964,7 @@ END.
 
 /* Necessary since the checkbox is in focus by default */
 ON ANY-PRINTABLE ANYWHERE DO:
-  
+
    IF LOOKUP(FOCUS:NAME, "e-qty,sell-price,qt-uom,lv-search") GT 0 THEN 
     RETURN.
    if lv-first-time then assign lv-search = ""
@@ -1053,7 +1035,7 @@ DO WITH FRAME f-main:
 /*           sortColumn  = "Item#"                         */
 /*           lv-sort-by = "item no".                       */
 /*       sortby = YES.                                     */
-      
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1072,10 +1054,10 @@ PROCEDURE add-order-records :
 DEF VAR ab AS CHAR.
 ab = lv-search:SCREEN-VALUE IN FRAME {&FRAME-NAME} .
 
-         
+
   FOR EACH ASI.itemfg OF ASI.cust WHERE itemfg.i-no = lv-search:SCREEN-VALUE IN FRAME {&FRAME-NAME} 
            NO-LOCK
-  
+
        BREAK BY ASI.itemfg.i-no:
 
       DO:
@@ -1146,7 +1128,7 @@ DEF BUFFER bfCust FOR Cust.
          FIND FIRST tt-ordl WHERE tt-ordl.tt-recid = RECID(itemfg)
               NO-ERROR.
          IF NOT AVAIL tt-ordl THEN DO:
-           
+
              CREATE tt-ordl.
              ASSIGN tt-ordl.tt-recid   = RECID(itemfg)
                     tt-ordl.ord-no     = itemfg.last-count
@@ -1162,12 +1144,12 @@ DEF BUFFER bfCust FOR Cust.
           AND itemfg.cust-no EQ ASI.bfCust.cust-no 
           AND itemfg.stat = "A" NO-LOCK
          BREAK BY ASI.itemfg.i-no BY itemfg.beg-date :
-  
+
         IF LAST-OF(itemfg.i-no) THEN DO:
            FIND FIRST tt-ordl WHERE tt-ordl.tt-recid = RECID(itemfg)
                 NO-ERROR.
            IF NOT AVAIL tt-ordl THEN DO:
-             
+
                CREATE tt-ordl.
                ASSIGN tt-ordl.tt-recid   = RECID(itemfg)
                       tt-ordl.ord-no     = itemfg.last-count
@@ -1291,7 +1273,7 @@ PROCEDURE get-row-id :
   DEF OUTPUT PARAM op-uom-list AS CHAR NO-UNDO.
   DEF VAR li AS INT NO-UNDO.              
   APPLY 'row-leave' TO BROWSE br_table.
-  
+
   RELEASE itemfg.
   DO WITH FRAME f-main:
       IF AVAIL tt-ordl THEN
@@ -1326,7 +1308,7 @@ PROCEDURE get-row-id :
          op-qty-list   = TRIM(op-qty-list, ",")
          op-price-list   = TRIM(op-price-list, ",")
          op-uom-list   = TRIM(op-uom-list, ",").
-  
+
 
 
 END PROCEDURE.
@@ -1411,7 +1393,7 @@ PROCEDURE local-open-query :
   DEF VAR lv-ord-no AS INT NO-UNDO.
   DEF VAR lv-item-no AS cha NO-UNDO.
   DEF VAR char-hdl AS cha NO-UNDO.
- 
+
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN build-table.
@@ -1423,7 +1405,7 @@ PROCEDURE local-open-query :
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
   RUN get-item-no IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-ord-no, OUTPUT lv-item-no).
- 
+
   IF lv-item-no <> "" THEN DO WITH FRAME {&FRAME-NAME}:
      ASSIGN rsSearch .     
      IF lv-search-by EQ "item no" THEN
@@ -1437,7 +1419,7 @@ PROCEDURE local-open-query :
 
      IF AVAIL tt-ordl THEN REPOSITION {&browse-name} TO ROWID ROWID(tt-ordl) NO-ERROR.
   END.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1513,7 +1495,7 @@ PROCEDURE set-search :
   Notes:       
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&FRAME-NAME}:
-  
+
       IF rsSearch:SCREEN-VALUE = "Item" THEN 
       ASSIGN
       fi_sortby:SCREEN-VALUE = "Item - Descending"
@@ -1681,7 +1663,7 @@ IF (cUom EQ "" OR LOOKUP(cUom, cUomList) = 0) AND dQty GT 0 THEN DO:
    RETURN ERROR.
  END.
 
-     
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1722,7 +1704,7 @@ FUNCTION f-price RETURNS DECIMAL
   */
   ld-price = itemfg.total-std-cost.
   IF ld-price EQ 0 THEN DO:
-       
+
 DEF VAR opUom AS CHAR.
 RUN oe/pricelookup.p (INPUT cust.cust-no,
                       INPUT itemfg.i-no,

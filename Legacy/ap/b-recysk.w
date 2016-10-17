@@ -94,9 +94,8 @@ use-index si-reconciled NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table browse-order auto_find ~
-Btn_Clear_Find Btn_Select Btn_Deselect RECT-4 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+ Btn_Select Btn_Deselect  
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -119,10 +118,6 @@ FUNCTION vend-name RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
 DEFINE BUTTON Btn_Deselect 
      LABEL "Unselect All" 
@@ -132,20 +127,8 @@ DEFINE BUTTON Btn_Select
      LABEL "Select All" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 60 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 145 BY 2.86.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -178,17 +161,8 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 17.43 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 17.43 COL 70 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 17.43 COL 132 HELP
-          "CLEAR AUTO FIND Value"
      Btn_Select AT ROW 18.62 COL 82
      Btn_Deselect AT ROW 18.62 COL 101
-     RECT-4 AT ROW 17.19 COL 1
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 17.43 COL 2
      "Highlight checks to select for reconcilation" VIEW-AS TEXT
           SIZE 42 BY 1.14 AT ROW 18.62 COL 28
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -293,7 +267,7 @@ use-index si-reconciled"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -457,7 +431,7 @@ PROCEDURE create-temp :
 
     REPOSITION {&browse-name} TO ROW 1 NO-ERROR.
   END.  
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -494,7 +468,7 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -95,7 +95,6 @@ rm-rctd.rita-code = "R" NO-LOCK ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS br_table 
-&Scoped-Define DISPLAYED-OBJECTS browse-order 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -155,25 +154,13 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
 DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
      SIZE 42 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Tag#", 1
-     SIZE 31 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 144 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -212,13 +199,8 @@ DEFINE BROWSE br_table
 
 DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
-     browse-order AT ROW 15.05 COL 17 HELP
-          "Select Browser Sort Order" NO-LABEL
      lv-search AT ROW 15.05 COL 84 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 15.05 COL 127 HELP
-          "CLEAR AUTO FIND Value"
-     RECT-4 AT ROW 15.29 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -279,25 +261,15 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR RADIO-SET browse-order IN FRAME F-Main
-   NO-ENABLE                                                            */
-ASSIGN 
-       browse-order:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
-   NO-ENABLE                                                            */
-ASSIGN 
-       Btn_Clear_Find:HIDDEN IN FRAME F-Main           = TRUE.
-
 /* SETTINGS FOR FILL-IN lv-search IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        lv-search:HIDDEN IN FRAME F-Main           = TRUE.
 
-/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+/* SETTINGS FOR RECTANGLE  IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-       RECT-4:HIDDEN IN FRAME F-Main           = TRUE.
+       :HIDDEN IN FRAME F-Main           = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -343,7 +315,7 @@ rm-rctd.rita-code = ""R"""
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -548,7 +520,7 @@ DO:
                      /*rm-rctd.qty:screen-value = entry(3,char-val)
                    rm-rctd.tag:screen-value = entry(4,char-val)*/
                      .
-             
+
            end.
            return no-apply.   
        end.
@@ -717,11 +689,11 @@ or return of lv-search
 DO:
         DEF VAR char-hdl AS cha NO-UNDO.
 
-        assign browse-order
+        assign 
                lv-search.
         &scoped-define IAMWHAT Search
         &scoped-define where-statement begins lv-search
-        case browse-order:
+        case :
             {srtord2.i 1}
             /*{srtord2.i 2}  */
         end.     
@@ -857,7 +829,7 @@ PROCEDURE do-search :
         &scoped-define IAMWHAT Search
         &scoped-define where-statement begins lv-search
         /*
-        case browse-order:
+        case :
             {srtord2.i 1}
             /*{srtord2.i 2}  */
         end.     
@@ -932,7 +904,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN scan-next.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1035,7 +1007,7 @@ PROCEDURE validate-record :
           APPLY "entry" TO rm-rctd.loc.
           RETURN ERROR.
   END.
-  
+
   FIND FIRST rm-bin WHERE rm-bin.company = g_company
                       AND rm-bin.i-no = ""
                       AND rm-bin.loc = rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}

@@ -125,9 +125,8 @@ ar-cashl.amt-disc ar-cashl.amt-paid ar-cashl.actnum
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -171,25 +170,9 @@ FUNCTION display-account RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 24 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 87 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -240,15 +223,6 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 10.76 COL 7 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 10.76 COL 105 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 10.76 COL 132 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 10.76 COL 2
-     RECT-4 AT ROW 10.52 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -360,7 +334,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -542,7 +516,7 @@ DO:
          MESSAGE "Discount cannot be entered on account." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
       END.
-          
+
    END.
 END.
 
@@ -600,7 +574,7 @@ DO:
 
       ASSIGN 
           v-inv-bal:SCREEN-VALUE = STRING(calc-inv-bal(YES), "->>,>>>,>>9.99").
-        
+
    END.
 END.
 
@@ -755,7 +729,7 @@ PROCEDURE create-onaccount :
   DEF VAR z AS INT NO-UNDO.
   DEF VAR ld-unapplied AS DEC NO-UNDO.
   DEF VAR choice AS LOG NO-UNDO.
-  
+
   FOR EACH bf-cashl NO-LOCK
       WHERE bf-cashl.c-no EQ ar-cash.c-no
         AND NOT CAN-FIND(FIRST ar-c-memo
@@ -822,7 +796,7 @@ PROCEDURE create-onaccount :
         assign bf-cashl.amt-paid = bf-cashl.amt-paid + ld-unapplied.
      else
        assign bf-cashl.amt-paid = bf-cashl.amt-paid.
-     
+
        op-all-applied = YES.
        RUN reopen-query.
        RETURN.
@@ -1082,7 +1056,7 @@ PROCEDURE local-create-record :
                              account.actnum  = ar-ctrl.cash-act no-lock no-error.
     if avail account THEN assign ar-cashl.actnum = account.actnum.
   end.
-  
+
   if available account then lv-account-recid = RECID(account). /* for displaying*/
   /*  display ar-cashl.actnum + " " + 
             account.dscr format "x(35)" @ ar-cashl.actnum.
@@ -1110,7 +1084,7 @@ PROCEDURE local-delete-record :
   IF NOT adm-new-record THEN DO:
     {custom/askdel.i}
   END.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
@@ -1182,7 +1156,7 @@ PROCEDURE local-update-record :
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEF VAR lv-rowid AS ROWID NO-UNDO.
 
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   /*=-== validateion ==== */
   lv-rowid = ROWID(ar-cashl).
@@ -1194,12 +1168,12 @@ PROCEDURE local-update-record :
   END.
   ELSE ll-new-record = adm-new-record.
 
- 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- 
+
   RUN redisplay-header.
 
   IF ll-new-record THEN RUN auto-add.
@@ -1223,7 +1197,7 @@ PROCEDURE printInv :
         b-ar-inv.cust-no EQ ar-cashl.cust-no AND
         b-ar-inv.inv-no  EQ ar-cashl.inv-no
         NO-LOCK NO-ERROR.
-  
+
    IF AVAILABLE b-ar-inv THEN DO:
      RUN custom/setUserPrint.p (b-ar-inv.company,'ar-inv_.',
                                 'begin_inv,end_inv,begin_cust,end_cust,tb_reprint,tb_posted',
@@ -1349,7 +1323,7 @@ PROCEDURE validate-line :
   DO WITH FRAME {&FRAME-NAME}:
      IF ar-cashl.inv-no:MODIFIED IN BROWSE {&browse-name} THEN DO:
         RELEASE bf-cashl.
-       
+
         IF NOT ll-from-memo THEN
            FIND FIRST bf-cashl WHERE bf-cashl.c-no = ar-cashl.c-no
                                  AND bf-cashl.inv-no = INT(ar-cashl.inv-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -1364,7 +1338,7 @@ PROCEDURE validate-line :
            APPLY "entry" TO ar-cashl.inv-no.
            RETURN "ValidationERROR".
         END.
-       
+
         FIND FIRST ar-inv WHERE ar-inv.company = g_company 
                             AND ar-inv.posted
                             AND ar-inv.cust-no = ar-cash.cust-no
@@ -1382,7 +1356,7 @@ PROCEDURE validate-line :
            APPLY "entry" TO ar-cashl.inv-no.
            RETURN "ValidationERROR".
         END.
-       
+
         IF NOT lv-inv-displayed THEN
            RUN display-arinv (recid(ar-inv)).
 
@@ -1392,7 +1366,7 @@ PROCEDURE validate-line :
            IF choice THEN
               MESSAGE "Allow overpayment on invoice?" VIEW-AS ALERT-BOX QUESTION
                       BUTTON YES-NO UPDATE choice.
-           
+
            IF NOT choice THEN DO:
               MESSAGE "Amount being applied may not exceed the invoice amount." VIEW-AS ALERT-BOX ERROR.
               ASSIGN ar-cashl.amt-paid:SCREEN-VALUE = STRING(ar-inv.due)
@@ -1400,7 +1374,7 @@ PROCEDURE validate-line :
            END.
         END.
         END.
-       
+
         FIND FIRST account WHERE account.company = g_company AND
                                  account.TYPE <> "T" AND
                                  account.actnum = ar-cashl.actnum:SCREEN-VALUE
@@ -1411,20 +1385,20 @@ PROCEDURE validate-line :
            RETURN "ValidationERROR".
         END.
         account_dscr:SCREEN-VALUE = display-account() .                      
-       
+
         IF INPUT ar-cashl.inv-no = 0 AND INPUT ar-cashl.amt-disc <> 0 THEN DO:
            MESSAGE "Discount can not be entered on account." VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO ar-cashl.amt-disc IN BROWSE {&browse-name}.
            RETURN "ValidationERROR".
         END.
-       
+
         IF INPUT ar-cashl.amt-disc = 0 AND INPUT ar-cashl.amt-paid = 0 THEN DO:
            MESSAGE "Line Item Total must be greater than 0."
                 VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO ar-cashl.amt-paid IN BROWSE {&browse-name}.
            RETURN "ValidationERROR".           
         END.
-       
+
         IF NOT ll-from-memo THEN DO:
            lv-tot-pay = INPUT ar-cashl.amt-paid - INPUT ar-cashl.amt-disc .
            FOR EACH bf-cashl OF ar-cash NO-LOCK
@@ -1434,7 +1408,7 @@ PROCEDURE validate-line :
                                     AND ar-c-memo.code EQ bf-cashl.rec_key):
              lv-tot-pay = lv-tot-pay + bf-cashl.amt-paid - bf-cashl.amt-disc.
            END. 
-          
+
            IF lv-tot-pay > ar-cash.check-amt THEN DO:
               MESSAGE "Amount being applied may not exceed the check amount..."
                  VIEW-AS ALERT-BOX ERROR.
@@ -1442,7 +1416,7 @@ PROCEDURE validate-line :
               RETURN "ValidationERROR".
            END.
         END.
-       
+
         IF INPUT ar-cashl.inv-no = 0 AND INPUT ar-cashl.amt-paid LT 0 THEN DO:
            MESSAGE "Total Applied cannot be negative." VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO ar-cashl.amt-paid IN BROWSE {&browse-name}.
@@ -1466,7 +1440,7 @@ FUNCTION calc-inv-bal RETURNS DECIMAL
 ------------------------------------------------------------------------------*/
   DEF VAR v-amt-due  LIKE ar-cashl.amt-due  NO-UNDO.
   DEF VAR v-amt-paid LIKE ar-cashl.amt-paid NO-UNDO.
-  
+
 
   IF ip-browser AND AVAIL ar-cashl THEN
     ASSIGN
@@ -1509,7 +1483,7 @@ FUNCTION calc-paid-amt RETURNS DECIMAL
 
   /* Function return value. */
   RETURN ld-amt-paid - (IF ar-cash.posted THEN 0 ELSE ld-amt-disc).
-         
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1564,7 +1538,7 @@ FUNCTION display-account RETURNS CHARACTER
        ELSE RETURN "". 
   END.
   RETURN "".
-    
+
 
 END FUNCTION.
 

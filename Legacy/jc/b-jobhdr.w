@@ -47,7 +47,7 @@ RUN sys/ref/nk1look.p (g_company, "OEJobHold", "L", NO, NO, "", "",
 
 IF llRecFound THEN
     OEJobHold-log = LOGICAL(lcReturn) NO-ERROR.  
-    
+
 &SCOPED-DEFINE sortby-phrase BY job-hdr.frm BY job-hdr.blank-no
 
 /* don't send job-hdr.rec_key to notes. send job.rec_key instead */
@@ -105,9 +105,8 @@ job-hdr.po-no job-hdr.due-date
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-4 RECT-5 Browser-Table browse-order ~
-auto_find Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS RECT-5 Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -121,25 +120,9 @@ auto_find Btn_Clear_Find
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 55 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -207,15 +190,6 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1.24 COL 2 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 9.1 COL 8 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 9.1 COL 74 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 9.1 COL 132 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 9.1 COL 3
-     RECT-4 AT ROW 8.86 COL 1
      RECT-5 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -342,7 +316,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -358,7 +332,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
+
    RUN new-state IN phandle ('update-begin':U).
 END.
 
@@ -724,7 +698,7 @@ PROCEDURE local-assign-record :
   DEF VAR li-old-qty AS INT NO-UNDO.
 
   DEF BUFFER job-qty-changed FOR reftable.
-   
+
   /* Code placed here will execute PRIOR to standard behavior. */
   li-old-qty = job-hdr.qty.
 
@@ -734,7 +708,7 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */ 
   IF job-hdr.qty NE li-old-qty THEN DO:
      RUN dispatch ('display-fields').
-     
+
      FIND FIRST itemfg
          WHERE itemfg.company EQ job-hdr.company
            AND itemfg.i-no    EQ job-hdr.i-no.
@@ -776,7 +750,7 @@ PROCEDURE local-assign-record :
              itemfg-loc.q-ono = itemfg-loc.q-ono - li-old-qty + job-hdr.qty.
      END.
 
-    
+
      itemfg.q-avail = itemfg.q-onh + itemfg.q-ono - itemfg.q-alloc.
      IF AVAIL itemfg-loc THEN
          itemfg-loc.q-avail = itemfg-loc.q-onh + itemfg-loc.q-ono - itemfg-loc.q-alloc.
@@ -785,7 +759,7 @@ PROCEDURE local-assign-record :
 
      RUN fg/comp-upd.p (RECID(itemfg), li-old-qty * -1, "q-ono", job.est-no).
      RUN fg/comp-upd.p (RECID(itemfg), job-hdr.qty, "q-ono", job.est-no).
-    
+
      FIND FIRST job-qty-changed
          WHERE job-qty-changed.reftable EQ "job.qty-changed"
            AND job-qty-changed.company  EQ job.company
@@ -856,7 +830,7 @@ PROCEDURE local-enable-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -929,13 +903,13 @@ PROCEDURE local-update-record :
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
    RUN valid-due-date NO-ERROR.
-   
+
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       RUN validate-i-no NO-ERROR.
-      
+
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
-    
+
+
    /* rtc 08/28/08 begin */
    IF job-hdr.ord-no NE INT(job-hdr.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}) THEN DO:
          FIND FIRST b-oe-ordl WHERE
@@ -943,21 +917,21 @@ PROCEDURE local-update-record :
                 AND b-oe-ordl.opened    EQ YES 
                 AND b-oe-ordl.ord-no    EQ INT(job-hdr.ord-no:SCREEN-VALUE IN BROWSE {&browse-name})
                 AND b-oe-ordl.i-no      EQ job-hdr.i-no NO-LOCK NO-ERROR.
-                
+
             IF AVAIL b-oe-ordl THEN DO:
                job-hdr.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = b-oe-ordl.po-no.
-               
+
                IF OEJobHold-log THEN DO:
                    FIND FIRST bf-oe-ord WHERE bf-oe-ord.company EQ b-oe-ordl.company
                      AND bf-oe-ord.ord-no EQ b-oe-ordl.ord-no
                      NO-LOCK NO-ERROR.
-                     
+
                    IF bf-oe-ord.stat EQ "H" THEN DO:
-                       
+
                      FIND FIRST bf-job WHERE bf-job.job EQ job-hdr.job NO-LOCK NO-ERROR.
                      IF AVAIL bf-job AND bf-job.stat NE "H" THEN DO:
                          FIND CURRENT bf-job EXCLUSIVE-LOCK NO-ERROR.
-                         
+
                          IF AVAIL bf-job THEN 
                            ASSIGN bf-job.stat = "H"
                                   lJobStatWasChanged = TRUE.
@@ -996,7 +970,7 @@ PROCEDURE rebuild-stds :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
-                              
+
   IF job.est-no NE "" THEN DO:
 
     IF job.stat = "Z" OR job.stat = "C" THEN DO:
@@ -1085,7 +1059,7 @@ PROCEDURE Refresh-RecordSource :
  RUN get-link-handle IN adm-broker-hdl (lv-handle,"record-source", OUTPUT char-hdl).
 
  RUN reopen-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1099,7 +1073,7 @@ PROCEDURE repo-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-                                                                
+
   DO WITH FRAME {&FRAME-NAME}:
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
     IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ('row-changed').

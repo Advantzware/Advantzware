@@ -101,9 +101,8 @@ quote-vendor-item.i-coldscr
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table ~
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -140,25 +139,9 @@ FUNCTION display-uom RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 39 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 130 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -207,15 +190,6 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 7.67 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 7.67 COL 76 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 7.67 COL 117 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 7.67 COL 2
-     RECT-4 AT ROW 7.43 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -329,7 +303,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -345,7 +319,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
+
    RUN new-state in phandle ('update-begin':U).
 END.
 
@@ -416,7 +390,7 @@ DO:
      by pressing the Save button on an Update SmartPanel. */
   /* {src/adm/template/brsleave.i} */
      {brsleave.i}
-     
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -428,10 +402,10 @@ ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
-  
+
   IF AVAIL {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}} THEN 
   BROWSE {&browse-name}:FETCH-SELECTED-ROW(1).
-      
+
    {src/adm/template/brschnge.i}
    /*{methods/template/local/setvalue.i}*/
 END.
@@ -723,7 +697,7 @@ PROCEDURE local-assign-record :
     END.
   END.
 
-    
+
 
 END PROCEDURE.
 
@@ -739,13 +713,13 @@ PROCEDURE local-create-record :
   def var li-next-line as int no-undo.
 
   DEF BUFFER bquote-vendor-item FOR quote-vendor-item.
-  
+
   find last bquote-vendor-item use-index q-line where bquote-vendor-item.company = quote-vendor.company
                                          and bquote-vendor-item.loc = quote-vendor.loc
                                          and bquote-vendor-item.q-no = quote-vendor.q-no
                  no-lock no-error.
   li-next-line = if avail bquote-vendor-item then bquote-vendor-item.line + 1 else 1.
-                 
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -758,7 +732,7 @@ PROCEDURE local-create-record :
          quote-vendor-item.line = li-next-line
          quote-vendor-item.upd-date = TODAY
          quote-vendor-item.upd-user = USERID("nosweat").
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -846,9 +820,8 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.
   RUN dispatch ("get-first").
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -907,7 +880,7 @@ PROCEDURE new-part-no :
           AND (itemfg.cust-no EQ quote-vendor.cust-no OR
                itemfg.i-code  EQ "S")
         NO-LOCK NO-ERROR.
-    
+
     IF AVAIL itemfg THEN DO:
       ASSIGN
        quote-vendor-item.part-dscr1:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name
@@ -1001,7 +974,7 @@ PROCEDURE valid-part-no :
       APPLY "entry" TO quote-vendor-item.part-no IN BROWSE {&browse-name}. 
       RETURN ERROR.
     END.
-    
+
   END.
 
 END PROCEDURE.
@@ -1054,7 +1027,7 @@ FUNCTION display-price RETURNS DECIMAL
           AND ASI.quote-vendor-qty.loc = ASI.quote-vendor-item.loc
           AND ASI.quote-vendor-qty.q-no = ASI.quote-vendor-item.q-no
           AND ASI.quote-vendor-qty.line = ASI.quote-vendor-item.line  USE-INDEX qt-qty NO-LOCK NO-ERROR.
-  
+
 
   IF AVAIL quote-vendor-qty THEN RETURN quote-vendor-qty.price.
   ELSE IF AVAIL quote-vendor-item THEN RETURN quote-vendor-item.price.
@@ -1098,7 +1071,7 @@ FUNCTION display-uom RETURNS CHARACTER
           AND ASI.quote-vendor-qty.loc = ASI.quote-vendor-item.loc
           AND ASI.quote-vendor-qty.q-no = ASI.quote-vendor-item.q-no
           AND ASI.quote-vendor-qty.line = ASI.quote-vendor-item.line  USE-INDEX qt-qty NO-LOCK NO-ERROR.
-  
+
 
   IF AVAIL quote-vendor-qty THEN RETURN quote-vendor-qty.uom.
   ELSE IF AVAIL quote-vendor-item THEN RETURN quote-vendor-item.uom.

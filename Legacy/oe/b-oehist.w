@@ -53,7 +53,7 @@ DEF TEMP-TABLE tt-ordl FIELD tt-recid AS RECID
                        FIELD IS-SELECTED AS LOG COLUMN-LABEL "S" VIEW-AS TOGGLE-BOX
                        FIELD e-qty LIKE oe-ordl.qty
                        INDEX i1 tt-recid.
-                       
+
 
 DEF VAR historyQty AS DECIMAL NO-UNDO.
 DEF VAR historyPrice LIKE oe-ordl.price NO-UNDO.
@@ -188,9 +188,9 @@ DEFINE QUERY external_tables FOR cust.
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table browse-order btn_clear_find Btn_move-sort ~
-auto_find rsSearch lv-search btn-reset btn_detail fi_sortby 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find rsSearch lv-search ~
+&Scoped-Define ENABLED-OBJECTS br_table Btn_move-sort ~
+ rsSearch lv-search btn-reset btn_detail fi_sortby 
+&Scoped-Define DISPLAYED-OBJECTS   rsSearch lv-search ~
 fi_sortby 
 
 /* Custom List Definitions                                              */
@@ -267,9 +267,6 @@ DEFINE BUTTON btn-reset
      LABEL "Clear Search" 
      SIZE 15 BY 1.1.
 
-DEFINE BUTTON btn_clear_find 
-     LABEL "Clear" 
-     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn_detail 
      LABEL "&Detail" 
@@ -280,10 +277,6 @@ DEFINE BUTTON Btn_move-sort
      SIZE 16 BY 1.1
      BGCOLOR 14  .
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Find" 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      LABEL "Sort" 
@@ -302,13 +295,6 @@ DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U
      SIZE 29 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET VERTICAL
-     RADIO-BUTTONS 
-          "Selected", 1,
-"Order", 2,
-"Qty", 3
-     SIZE 12 BY 3 NO-UNDO.  
 
 DEFINE VARIABLE rsSearch AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -354,10 +340,6 @@ DEFINE BROWSE br_table
 
 /*DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
-     browse-order AT ROW 7.91 COL 17 NO-LABEL WIDGET-ID 4 
-     btn_clear_find AT ROW 8.62 COL 16 WIDGET-ID 10
-     auto_find AT ROW 9.33 COL 14 COLON-ALIGNED WIDGET-ID 8
-     Btn_move-sort AT ROW 17.67 COL 10 WIDGET-ID 4
      rsSearch AT ROW 17.67 COL 3 NO-LABEL WIDGET-ID 12 
      lv-search AT ROW 17.67 COL 35 COLON-ALIGNED
      btn-reset AT ROW 17.67 COL 83
@@ -371,10 +353,6 @@ DEFINE BROWSE br_table
 
 DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
-     browse-order AT ROW 7.91 COL 17 NO-LABEL WIDGET-ID 4
-     btn_clear_find AT ROW 8.62 COL 16 WIDGET-ID 10
-     auto_find AT ROW 9.33 COL 14 COLON-ALIGNED WIDGET-ID 8
-     rsSearch AT ROW 17.67 COL 3 NO-LABEL WIDGET-ID 12
      lv-search AT ROW 17.67 COL 35 COLON-ALIGNED
      btn-reset AT ROW 17.67 COL 67
      Btn_move-sort AT ROW 17.67 COL 83 WIDGET-ID 4
@@ -446,16 +424,16 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       auto_find:HIDDEN IN FRAME F-Main           = TRUE.
+.
 
 ASSIGN 
-       browse-order:HIDDEN IN FRAME F-Main           = TRUE. 
+.
 
 ASSIGN 
        br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 ASSIGN 
-       btn_clear_find:HIDDEN IN FRAME F-Main           = TRUE.
+.
 
 /* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -518,7 +496,7 @@ ELSE
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -674,7 +652,7 @@ DO:
       IF AVAIL tt-ordl THEN
       IF tt-ordl.e-qty:MODIFIED AND tt-ordl.IS-SELECTED = NO THEN
           ASSIGN tt-ordl.IS-SELECTED = YES ll-refresh = TRUE.
-     
+
    END.
 
 
@@ -687,7 +665,7 @@ DO:
            ASSIGN tt-ordl.IS-SELECTED = YES ll-refresh = TRUE.
        END.
    END.
-   
+
    ll-mouse-click = NO.
 
 
@@ -734,9 +712,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_clear_find
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_clear_find B-table-Win
-ON CHOOSE OF btn_clear_find IN FRAME F-Main /* Clear */
+&Scoped-define SELF-NAME 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL  B-table-Win
+ON CHOOSE OF  IN FRAME F-Main /* Clear */
 DO:
   RUN startSearch.
 APPLY 'value-changed' TO BROWSE {&browse-name}.
@@ -808,7 +786,7 @@ DO:
       ASSIGN
           lv-sort-by  = "Item" 
           sortColumn  = "Item#" .
-      
+
   /* User clicked on column heading so don't change selection */
   ASSIGN fi_sortby.
   ASSIGN 
@@ -830,7 +808,7 @@ DO:
   sortDisplay = TRIM(sortColumn + ' - ' + STRING(ll-sort-asc,'Ascending/Descending')).
   fi_sortBy:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sortDisplay.
   APPLY 'LEAVE' TO lv-search.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -865,7 +843,7 @@ DO WITH FRAME f-main:
       lv-sort-by-lab = "Order#" 
       sortColumn  = "Order#"
       lv-sort-by = "Order#" .
-  
+
   ELSE
       ASSIGN
           fi_sortby:SCREEN-VALUE = "Item# - Descending"
@@ -873,7 +851,7 @@ DO WITH FRAME f-main:
           sortColumn  = "Item#" 
           lv-sort-by = "Item".
       sortby = YES.
-      
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1069,7 +1047,7 @@ PROCEDURE get-row-id :
   END.
   ASSIGN op-rowid-list = TRIM(op-rowid-list, ",")
          op-qty-list   = TRIM(op-qty-list, ",").
-  
+
 
 
 END PROCEDURE.
@@ -1132,7 +1110,7 @@ PROCEDURE local-initialize :
     fi_sortby:SCREEN-VALUE = "Item# - Descending".
     sortby = YES.
   END. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
@@ -1144,7 +1122,7 @@ PROCEDURE local-initialize :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN setQtyPrice (0, 0, "", NO).
   APPLY "entry" TO BROWSE {&browse-name}.
-  
+
 
 END PROCEDURE.
 
@@ -1160,7 +1138,7 @@ PROCEDURE local-open-query :
   DEF VAR lv-ord-no AS INT NO-UNDO.
   DEF VAR lv-item-no AS cha NO-UNDO.
   DEF VAR char-hdl AS cha NO-UNDO.
- 
+
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN build-table.
@@ -1172,7 +1150,7 @@ PROCEDURE local-open-query :
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
   RUN get-item-no IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-ord-no, OUTPUT lv-item-no).
- 
+
   IF lv-item-no <> "" THEN DO WITH FRAME {&FRAME-NAME}:
      ASSIGN rsSearch .     
      IF lv-search-by EQ "ITEM" THEN
@@ -1186,7 +1164,7 @@ PROCEDURE local-open-query :
 
      IF AVAIL tt-ordl THEN REPOSITION {&browse-name} TO ROWID ROWID(tt-ordl) NO-ERROR.
   END.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
