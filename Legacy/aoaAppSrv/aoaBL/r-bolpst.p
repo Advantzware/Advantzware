@@ -60,7 +60,7 @@ DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDebugLog AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUseLogs AS LOGICAL NO-UNDO.
 /* for sel-bins */
-DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
+DEFINE NEW SHARED VARIABLE out-recid AS RECID NO-UNDO.
 DEFINE BUFFER xoe-boll FOR oe-boll.
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE STREAM sDebug.
@@ -268,24 +268,32 @@ PROCEDURE pAutoSelectTags:
     IF NOT AVAILABLE oe-ordl THEN 
         RETURN.
   
+    FIND FIRST oe-rell NO-LOCK 
+       WHERE oe-rell.r-no EQ xoe-boll.r-no
+       NO-ERROR.
+       
+    IF AVAILABLE oe-rell THEN 
+    FIND FIRST oe-rel WHERE oe-rel.r-no EQ oe-rell.link-no
+        NO-ERROR. 
+        
+    IF NOT AVAILABLE oe-rel THEN   
     FIND FIRST oe-rel NO-LOCK
         WHERE oe-rel.company EQ oe-ordl.company
         AND oe-rel.ord-no  EQ oe-ordl.ord-no
             AND oe-rel.i-no    EQ oe-ordl.i-no
             AND oe-rel.line    EQ oe-ordl.line
             AND oe-rel.stat    EQ "P"
-            AND oe-rel.link-no GT 0 
-            AND oe-rel.rel-no  GT 0
             NO-ERROR.
+            
     fDebugMsg("avail oerel " + STRING(AVAILABLE(oe-rel))).
     IF NOT AVAILABLE oe-rel THEN 
         RETURN.
     FIND FIRST oe-relh NO-LOCK
-        WHERE oe-relh.r-no eq oe-boll.r-no 
+        WHERE oe-relh.r-no EQ oe-boll.r-no 
         NO-ERROR.
 
     fDebugMsg("avail oe-relh" + STRING(AVAILABLE(oe-relh))).        
-    IF NOT AVAIL oe-relh THEN
+    IF NOT AVAILABLE oe-relh THEN
       RETURN.
       
     out-recid = RECID(oe-relh).
@@ -655,7 +663,7 @@ PROCEDURE pPostBols :
                      lTaglessBOLExists = TRUE.
                 END.
                 fDebugMsg("decide to lTaglessBolExists " + string(lTaglessBOLExists)).                
-                IF AVAIL w-except OR lTaglessBOLExists THEN DO:
+                IF AVAILABLE w-except OR lTaglessBOLExists THEN DO:
                 
                     /* Try to assign tags to fulfill BOL Qty */
                     FOR EACH bf-oe-boll NO-LOCK                   
