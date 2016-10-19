@@ -26,18 +26,37 @@ DISABLE TRIGGERS FOR LOAD OF job-hdr.
 DISABLE TRIGGERS FOR LOAD OF reftable.
 
 OUTPUT TO 'schedule/load.log' APPEND.
-PUT UNFORMATTED 'Start Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' by ' USERID('nosweat') SKIP.
+PUT UNFORMATTED 'Start Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('nosweat') SKIP.
 
 FOR EACH pendingJob NO-LOCK:
   jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
+  /*
   FIND job-mch EXCLUSIVE-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
   IF NOT AVAILABLE job-mch AND pendingJob.keyValue NE '' THEN
+  */
   FIND FIRST job-mch EXCLUSIVE-LOCK
        WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
-         AND job-mch.m-code EQ ENTRY(2,pendingJob.keyValue)
-         AND job-mch.job EQ INTEGER(ENTRY(3,pendingJob.keyValue))
-         AND job-mch.job-no EQ ENTRY(4,pendingJob.keyValue)
-         AND job-mch.job-no2 EQ INTEGER(ENTRY(5,pendingJob.keyValue)) NO-ERROR.
+         AND job-mch.line EQ INTEGER(ENTRY(2,pendingJob.keyValue))
+         AND job-mch.m-code EQ ENTRY(3,pendingJob.keyValue)
+         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
+         AND job-mch.line EQ INTEGER(ENTRY(2,pendingJob.keyValue))
+         AND job-mch.m-code EQ pendingJob.resource
+         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
+       NO-ERROR.
   IF NOT AVAILABLE job-mch THEN NEXT.
   ASSIGN
     statusStr = ''
@@ -48,12 +67,11 @@ FOR EACH pendingJob NO-LOCK:
     job-mch.start-date = ?
     job-mch.start-date-su = ?
     job-mch.start-time = 0
-    job-mch.start-time-su = 0.
+    job-mch.start-time-su = 0
+    .
   /* only change if not already run-complete */
   IF job-mch.run-complete EQ NO THEN
   job-mch.run-complete = pendingJob.jobCompleted.
-  IF job-mch.m-code NE pendingJob.altResource THEN
-  job-mch.m-code = pendingJob.altResource.
   RUN updateJob (job-mch.company,job-mch.job,job-mch.start-date-su).
   DO i = 2 TO NUM-ENTRIES(customValueList):
     IF NOT pendingJob.jobStatus[i - 1] THEN
@@ -66,15 +84,55 @@ END. /* each pendingJob */
 
 FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
   jobMchRowID = TO-ROWID(ENTRY(2,ttblJob.rowIDs)).
+  /*
   FIND job-mch EXCLUSIVE-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
   IF NOT AVAILABLE job-mch AND ttblJob.keyValue NE '' THEN
+  */
   FIND FIRST job-mch EXCLUSIVE-LOCK
        WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
-         AND job-mch.m-code EQ ENTRY(2,ttblJob.keyValue)
-         AND job-mch.job EQ INTEGER(ENTRY(3,ttblJob.keyValue))
-         AND job-mch.job-no EQ ENTRY(4,ttblJob.keyValue)
-         AND job-mch.job-no2 EQ INTEGER(ENTRY(5,ttblJob.keyValue)) NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN NEXT.
+         AND job-mch.line EQ INTEGER(ENTRY(2,ttblJob.keyValue))
+         AND job-mch.m-code EQ ENTRY(3,ttblJob.keyValue)
+         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
+         AND job-mch.line EQ INTEGER(ENTRY(2,ttblJob.keyValue))
+         AND job-mch.m-code EQ ttblJob.resource
+         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN DO:
+      PUT UNFORMATTED 'ttblJob:' AT 5
+          ' Resource: ' ttblJob.resource
+          ' AltResource: ' ttblJob.altResource
+          ' RowIDs: ' ttblJob.rowIDs 
+          ' KeyValue: ' ttblJob.keyValue
+          ' SB Run? : ' ttblJob.jobCompleted
+          ' ** Not Found **' SKIP.
+      NEXT.
+  END.
+  
+  IF STRING(ROWID(job-mch)) NE ENTRY(2,ttblJob.rowIDs) THEN DO:
+      PUT UNFORMATTED 'ttblJob: ** RowID Error **' AT 5
+          ' Resource: ' ttblJob.resource
+          ' RowIDs: ' ttblJob.rowIDs ' - RowID: ' STRING(ROWID(job-mch))
+          ' KeyValue: ' ttblJob.keyValue
+          ' Run?: ' job-mch.run-complete
+          ' SB Run? : ' ttblJob.jobCompleted
+          ' Current: ' job-mch.m-code
+          ' New : ' ttblJob.altResource SKIP.
+  END.
+  
   IF CAN-FIND(FIRST jobNotes WHERE jobNotes.jobRowID EQ jobMchRowID) THEN
   RUN check4Notes (jobMchRowID,job-mch.company,ttblJob.resource,job-mch.job,job-mch.job-no,job-mch.job-no2,job-mch.frm).
   statusStr = ''.
@@ -89,7 +147,8 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
   IF SUBSTR(ttblJob.jobSort,1,8) NE lvJob THEN
   ASSIGN
     lvJob = SUBSTR(ttblJob.jobSort,1,8)
-    lvResSeq = 0.
+    lvResSeq = 0
+    .
   ASSIGN
     lvResSeq = lvResSeq + 1
   /*job-mch.line = ttblJob.altResSeq*/
@@ -103,18 +162,32 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
     job-mch.end-date = ttblJob.endDate
     job-mch.end-time = ttblJob.endTime
     job-mch.anchored = ttblJob.jobLocked
-    job-mch.lag-time = ttblJob.lagTime.
+    job-mch.lag-time = ttblJob.lagTime
+    .
   /* only change if not already run-complete */
-  IF job-mch.run-complete EQ NO THEN
-  job-mch.run-complete = ttblJob.jobCompleted.
-  IF job-mch.m-code NE ttblJob.altResource THEN
-  job-mch.m-code = ttblJob.altResource.
+  IF job-mch.run-complete EQ NO THEN DO:
+      IF ttblJob.jobCompleted THEN
+      PUT UNFORMATTED 'ttblJob:' AT 5
+          ' RowIDs: ' ttblJob.rowIDs ' - RowID: ' STRING(ROWID(job-mch))
+          ' KeyValue: ' ttblJob.keyValue
+          ' Run?: ' job-mch.run-complete
+          ' SB Run? : ' ttblJob.jobCompleted SKIP.
+      job-mch.run-complete = ttblJob.jobCompleted.
+  END.
+  IF job-mch.m-code NE ttblJob.altResource THEN DO:
+      PUT UNFORMATTED 'ttblJob:' AT 5
+          ' RowIDs: ' ttblJob.rowIDs ' - RowID: ' STRING(ROWID(job-mch))
+          ' KeyValue: ' ttblJob.keyValue
+          ' Current: ' job-mch.m-code
+          ' New : ' ttblJob.altResource SKIP.
+      job-mch.m-code = ttblJob.altResource.
+  END.
   RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,
                      job-mch.frm,ttblJob.resource,ttblJob.liveUpdate).
   /* set job-hdr start date based on earliest job-mch start date */
   IF FIRST-OF(ttblJob.jobSort) THEN DO:
     FIND FIRST job-hdr OF job-mch EXCLUSIVE-LOCK NO-ERROR.
-    IF NOT AVAILABLE job-hdr THEN NEXT.
+    IF AVAILABLE job-hdr THEN
     FOR EACH job-mch NO-LOCK
         WHERE job-mch.company EQ job-hdr.company
           AND job-mch.j-no EQ job-hdr.j-no BY job-mch.start-date:
@@ -128,7 +201,7 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
   END. /* first-of */
 END. /* each ttbljob */
 
-PUT UNFORMATTED '  End Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' by ' USERID('nosweat') SKIP(1).
+PUT UNFORMATTED '  End Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('nosweat') SKIP(1).
 OUTPUT CLOSE.
 
 MESSAGE 'Schedule Board Save (upload) Complete.' VIEW-AS ALERT-BOX.

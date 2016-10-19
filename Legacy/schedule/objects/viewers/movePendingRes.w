@@ -1,7 +1,6 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
@@ -90,9 +89,9 @@ useDeptSort = SEARCH(findProgram('{&data}/',ID,'/useDeptSort.dat')) NE ?.
     ~{&OPEN-QUERY-browseJob}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 btnFilter btnPrint btnMoveResource ~
-btnRefresh jobPhrase btnSort resources browseJob 
-&Scoped-Define DISPLAYED-OBJECTS jobPhrase resources sortableColumns 
+&Scoped-Define ENABLED-OBJECTS resources btnFilter btnPrint btnMoveResource ~
+btnRefresh RECT-1 jobPhrase btnSort browseJob 
+&Scoped-Define DISPLAYED-OBJECTS resources jobPhrase sortableColumns 
 
 /* Custom List Definitions                                              */
 /* ttblResourceFields,phraseFields,List-3,List-4,List-5,List-6          */
@@ -151,7 +150,7 @@ DEFINE VARIABLE sortableColumns AS CHARACTER FORMAT "X(256)":U INITIAL " Sortabl
      BGCOLOR 14  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 149.6 BY 1.19.
 
 /* Query definitions                                                    */
@@ -171,12 +170,14 @@ DEFINE BROWSE browseJob
   pendingJob.jobCompleted
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 149.6 BY 8.33 ROW-HEIGHT-CHARS .52.
+    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 149.6 BY 8.33.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     resources AT ROW 1 COL 109.4 HELP
+          "Select Resource"
      btnFilter AT ROW 1.05 COL 31 HELP
           "Click to Set Filter Values"
      btnPrint AT ROW 1.05 COL 69 HELP
@@ -187,8 +188,6 @@ DEFINE FRAME F-Main
           "Click to Refresh Resource Browser"
      jobPhrase AT ROW 1.1 COL 5 COLON-ALIGNED
      btnSort AT ROW 1.1 COL 55
-     resources AT ROW 1.1 COL 104.6 HELP
-          "Select Resource"
      browseJob AT ROW 2.19 COL 1
      sortableColumns AT ROW 1.1 COL 35 COLON-ALIGNED NO-LABEL
      RECT-1 AT ROW 1 COL 1
@@ -247,7 +246,7 @@ END.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB browseJob resources F-Main */
+/* BROWSE-TAB browseJob btnSort F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 9.67

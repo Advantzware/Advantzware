@@ -64,7 +64,7 @@ DEFINE VARIABLE popupHandle AS HANDLE NO-UNDO.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME browseJob
 
@@ -86,8 +86,8 @@ DEFINE VARIABLE popupHandle AS HANDLE NO-UNDO.
     ~{&OPEN-QUERY-browseJob}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnFilter btnPrint btnDataCollection ~
-btnRefresh resources RECT-1 jobPhrase btnSort btnGoTo browseJob 
+&Scoped-Define ENABLED-OBJECTS resources btnFilter btnPrint ~
+btnDataCollection btnRefresh RECT-1 jobPhrase btnSort btnGoTo browseJob 
 &Scoped-Define DISPLAYED-OBJECTS resources jobPhrase sortableColumns 
 
 /* Custom List Definitions                                              */
@@ -171,12 +171,14 @@ DEFINE BROWSE browseJob
   ttblJob.jobCompleted
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 149.6 BY 8.33 ROW-HEIGHT-CHARS .52.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 149.6 BY 8.33.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     resources AT ROW 1 COL 106.4 HELP
+          "Select Resource"
      btnFilter AT ROW 1.05 COL 31 HELP
           "Click to Set Filter Values"
      btnPrint AT ROW 1.05 COL 69 HELP
@@ -185,8 +187,6 @@ DEFINE FRAME F-Main
           "Click to Access Data Collection"
      btnRefresh AT ROW 1.05 COL 100 HELP
           "Click to Refresh Resource Browser"
-     resources AT ROW 1.05 COL 107.4 HELP
-          "Select Resource"
      jobPhrase AT ROW 1.1 COL 5 COLON-ALIGNED
      btnSort AT ROW 1.1 COL 55
      btnGoTo AT ROW 1.1 COL 75
@@ -248,7 +248,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE                                                          */
+   NOT-VISIBLE FRAME-NAME                                               */
 /* BROWSE-TAB browseJob btnGoTo F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE

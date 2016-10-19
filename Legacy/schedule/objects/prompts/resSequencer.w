@@ -1,7 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -63,7 +62,7 @@ END PROCEDURE.
 &Scoped-define PROCEDURE-TYPE Dialog-Box
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 &Scoped-define BROWSE-NAME jobID
 
@@ -140,12 +139,12 @@ DEFINE VARIABLE jobPhrase AS CHARACTER FORMAT "X(256)":U
      SIZE 24 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-11
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 7 BY 4.29
      BGCOLOR 5 .
 
 DEFINE RECTANGLE RECT-14
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 7 BY 1.67
      BGCOLOR 4 .
 
@@ -165,7 +164,7 @@ DEFINE BROWSE jobID
       jobID.job
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 25 BY 21.19 ROW-HEIGHT-CHARS .52.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 25 BY 21.19.
 
 DEFINE BROWSE ttblJob
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttblJob Dialog-Frame _FREEFORM
@@ -181,7 +180,7 @@ DEFINE BROWSE ttblJob
   origResSeq LABEL 'OrigSeq' FORMAT '>>9'
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 100 BY 21.19 ROW-HEIGHT-CHARS .52.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 100 BY 21.19.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -222,7 +221,7 @@ DEFINE FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-                                                                        */
+   FRAME-NAME                                                           */
 /* BROWSE-TAB jobID jobPhrase Dialog-Frame */
 /* BROWSE-TAB ttblJob jobID Dialog-Frame */
 ASSIGN 

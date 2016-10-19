@@ -6,7 +6,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 85
+&SCOPED-DEFINE nextUserField 88
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -72,6 +72,25 @@ CREATE ttblRptLayout.
   
 FUNCTION comma RETURNS CHARACTER (ipValue AS CHARACTER):
   RETURN IF ipValue NE '' THEN ',' ELSE ''.
+END FUNCTION.
+
+FUNCTION fDueQty RETURNS CHARACTER (ipiRunQty AS INTEGER,ipiProdQty AS INTEGER,
+                                    ipdUnder% AS DECIMAL,ipdOver% AS DECIMAL):
+    DEFINE VARIABLE dDueQty AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dMinQty AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dMaxQty AS DECIMAL NO-UNDO.
+
+    ASSIGN
+        dMinQty = IF ipdUnder% NE 0 THEN ipiRunQty * ipdUnder% ELSE ipiRunQty
+        dMaxQty = IF ipdOver%  NE 0 THEN ipiRunQty * ipdOver%  ELSE ipiRunQty
+        .
+    
+    IF ipiProdQty LT dMinQty THEN
+    dDueQty = ipiRunQty - ipiProdQty.
+
+    IF dDueQty LT 0 THEN dDueQty = 0.
+    
+    RETURN LEFT-TRIM(STRING(dDueQty,'zzz,zzz,zz9')).
 END FUNCTION.
 
 FUNCTION getItemName RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARACTER,
@@ -173,7 +192,7 @@ END FUNCTION.
 FUNCTION prodQty RETURNS CHARACTER (ipCompany AS CHARACTER,ipResource AS CHARACTER,
                                     ipJobNo AS CHARACTER,ipJobNo2 AS INTEGER,
                                     ipFrm AS INTEGER,ipBlankNo AS INTEGER,
-                                    ipProdQtyProgram AS CHARACTER):
+                                    ipPass AS INTEGER,ipProdQtyProgram AS CHARACTER):
   DEFINE VARIABLE prodQty AS INTEGER NO-UNDO.
 
   IF NOT ufProdQty THEN RETURN ''.
@@ -181,7 +200,7 @@ FUNCTION prodQty RETURNS CHARACTER (ipCompany AS CHARACTER,ipResource AS CHARACT
   IF traceON THEN
   PUT UNFORMATTED 'Function prodQty @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
   
-  RUN VALUE(ipProdQtyProgram) (ipCompany,ipResource,ipJobNo,ipJobNo2,ipFrm,ipBlankNo,OUTPUT prodQty).
+  RUN VALUE(ipProdQtyProgram) (ipCompany,ipResource,ipJobNo,ipJobNo2,ipFrm,ipBlankNo,ipPass,OUTPUT prodQty).
   RETURN LEFT-TRIM(STRING(prodQty,'zzz,zzz,zz9')).
 END FUNCTION.
 
@@ -239,6 +258,7 @@ END.
 &IF '{&Board}' NE 'View' &THEN
 DEFINE VARIABLE altResSeq AS INTEGER NO-UNDO.
 DEFINE VARIABLE asiCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE asiLocation AS CHARACTER NO-UNDO.
 DEFINE VARIABLE beginEstType AS INTEGER NO-UNDO.
 DEFINE VARIABLE boardLength AS DECIMAL NO-UNDO.
 DEFINE VARIABLE boardType AS CHARACTER NO-UNDO.
@@ -400,9 +420,12 @@ FUNCTION noDate RETURN LOGICAL (ipCompany AS CHARACTER):
                     AND sys-ctrl.log-fld EQ YES).
 END FUNCTION.
 
-IF VALID-HANDLE(ipContainerHandle) THEN
-RUN asiCommaList IN ipContainerHandle ('Company',OUTPUT asiCompany).
+IF VALID-HANDLE(ipContainerHandle) THEN DO:
+    RUN asiCommaList IN ipContainerHandle ('Company',OUTPUT asiCompany).
+    RUN asiCommaList IN ipContainerHandle ('Location',OUTPUT asiLocation).
+END.
 IF asiCompany EQ '' THEN asiCompany = '001'.
+IF asiLocation EQ '' THEN asiLocation = 'Main'.
 
 ASSIGN
   useDeptSort = SEARCH(findProgram('{&data}/',ID,'/useDeptSort.dat')) NE ?
@@ -527,7 +550,7 @@ FOR EACH job-hdr NO-LOCK
         AND job-mch.run-complete EQ NO
      ,FIRST mach NO-LOCK
       WHERE mach.company EQ job.company
-        AND mach.loc EQ job.loc
+        AND mach.loc EQ asiLocation
         AND mach.m-code EQ job-mch.m-code
       BREAK BY job-mch.job
             BY job-mch.frm
@@ -588,10 +611,14 @@ FOR EACH job-hdr NO-LOCK
       startTime = fixTime(job-mch.start-time-su)
       strRowID = STRING(ROWID(job)) + ',' + STRING(ROWID(job-mch))
       keyValues = job-mch.company + ','
+                + STRING(job-mch.line) + ','
                 + job-mch.m-code + ','
                 + STRING(job-mch.job) + ','
                 + job-mch.job-no + ','
-                + STRING(job-mch.job-no2)
+                + STRING(job-mch.job-no2) + ','
+                + STRING(job-mch.frm) + ','
+                + STRING(job-mch.blank-no) + ','
+                + STRING(job-mch.pass)
       timeSpan = calcJobTime(job-mch.mr-hr,job-mch.run-hr)
       unitFound = NO
       userField = ''
@@ -676,6 +703,8 @@ FOR EACH job-hdr NO-LOCK
           dueDate = oe-ord.due-date
           prodDate = oe-ord.prod-date
           userField[36] = setUserField(36,getSalesRep(oe-ord.company,oe-ord.sman[1]))
+          userField[86] = setUserField(86,STRING(oe-ord.under-pct,'>>9.99'))
+          userField[87] = setUserField(87,STRING(oe-ord.over-pct,'>>9.99'))
           salesRepFound = YES
           .
       END. /* avail oe-ord */
@@ -692,6 +721,8 @@ FOR EACH job-hdr NO-LOCK
       ASSIGN
         userField[82] = setUserField(82,STRING(oe-ordl.prom-date,'99/99/9999'))
         userField[84] = setUserField(84,STRING(oe-ordl.t-price))
+        userField[86] = setUserField(86,STRING(oe-ordl.under-pct,'>>9.99'))
+        userField[87] = setUserField(87,STRING(oe-ordl.over-pct,'>>9.99'))
         .
       FIND FIRST oe-ord OF oe-ordl NO-LOCK NO-ERROR.
       IF AVAILABLE oe-ord THEN DO:
@@ -924,12 +955,14 @@ FOR EACH job-hdr NO-LOCK
       userField[54] = setUserField(54,IF runMSF LT 1000 THEN STRING(runMSF,'->>>,>>9.99999') ELSE '')
       userField[57] = ''
       userField[57] = setUserField(57,prodQty(job-mch.company,job-mch.m-code,job-mch.job-no,
-                                              job-mch.job-no2,job-mch.frm,job-mch.blank-no,prodQtyProgram)) WHEN prodQtyProgram NE ?
+                                              job-mch.job-no2,job-mch.frm,job-mch.blank-no,
+                                              job-mch.pass,prodQtyProgram)) WHEN prodQtyProgram NE ?
       userField[58] = setUserField(58,IF AVAILABLE ef THEN STRING(ef.gsh-len,'>>9.9999') ELSE '')
       userField[59] = setUserField(59,IF AVAILABLE ef THEN STRING(ef.gsh-wid,'>>9.9999') ELSE '')
       userField[60] = setUserField(60,IF AVAILABLE eb THEN eb.cas-no ELSE '')
       userField[64] = setUserField(64,IF AVAILABLE itemfg THEN itemfg.part-no ELSE '')
       userField[83] = setUserField(83,job.stat)
+      userField[85] = setUserField(85,fDueQty(INT(userField[15]),INT(userField[57]),DEC(userField[86]),DEC(userField[87])))
       jobDescription = jobText
       .
     IF AVAILABLE itemfg AND NOT job-mch.run-qty * itemfg.t-sqft / 1000 LT 1000000 THEN
@@ -1131,7 +1164,7 @@ FOR EACH job-hdr NO-LOCK
       &jobSequence=job-mch.seq-no
       &startTime=startTime
       &timeSpan=timeSpan
-      &jobLocked=job-mch.anchored
+      &jobLocked=NO
       &dueDate=dueDate
       &prodDate=prodDate
       &customValue=customVal
@@ -1679,6 +1712,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[82] = 'Mfg Date'        userWidth[82] = 15
     userLabel[83] = 'Job Status'      userWidth[83] = 12
     userLabel[84] = 'Total Price'     userWidth[84] = 20
+    userLabel[85] = 'Due Qty'         userWidth[85] = 12
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1742,8 +1776,8 @@ PROCEDURE setUseFields:
     ufIPJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64]
-    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20]
-    ufOEOrdl = useField[82] OR useField[84]
+    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85]
+    ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]
     ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]
     ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35]
     ufProdQty = useField[57]

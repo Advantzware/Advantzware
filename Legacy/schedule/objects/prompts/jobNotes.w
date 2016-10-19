@@ -40,7 +40,7 @@ DEFINE VARIABLE buffNoteRowID AS ROWID NO-UNDO.
 
 {{&includes}/ttblJob.i}
 
-DEFINE BUFFER buffJobNotes FOR jobNotes.
+DEFINE BUFFER buffJobNotes FOR TEMP-TABLE jobNotes.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

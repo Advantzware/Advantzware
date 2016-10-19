@@ -1,7 +1,6 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
@@ -75,7 +74,7 @@ DEFINE BUFFER bPJob FOR pendingJob.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME browseJob
 
@@ -99,9 +98,9 @@ DEFINE BUFFER bPJob FOR pendingJob.
     ~{&OPEN-QUERY-browseJob}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-5 RECT-6 btnFilter ~
-btnPrint btnComplete btnMoveResource btnRefresh resources jobPhrase btnSort ~
-browseJob instructions4Steps 
+&Scoped-Define ENABLED-OBJECTS resources btnFilter btnPrint btnComplete ~
+btnMoveResource btnRefresh RECT-1 RECT-2 RECT-3 RECT-5 RECT-6 jobPhrase ~
+btnSort browseJob instructions4Steps 
 &Scoped-Define DISPLAYED-OBJECTS resources jobPhrase dateTime newDate ~
 newHour newMinute newAMPM setDateTimeOptions relatedJobs ~
 setPlacementOptions instructions4Steps sortableColumns 
@@ -111,7 +110,7 @@ setPlacementOptions instructions4Steps sortableColumns
 &Scoped-define ttblResourceFields btnPrint 
 &Scoped-define phraseFields btnPrint jobPhrase 
 &Scoped-define dateTimeFields newDate newHour newMinute newAMPM 
-&Scoped-define btnFunctions RECT-2 RECT-3 RECT-5 RECT-6 btnSetSeq btnUpdate ~
+&Scoped-define btnFunctions btnSetSeq RECT-2 RECT-3 RECT-5 RECT-6 btnUpdate ~
 dateTime newDate btnCalendar newHour newMinute newAMPM btnCurrentDateTime ~
 setDateTimeOptions btnSetDateTime relatedJobs setPlacementOptions ~
 btnScheduleJob btn4Steps btnSelectedOnly 
@@ -298,31 +297,31 @@ DEFINE VARIABLE setPlacementOptions AS INTEGER INITIAL 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 149 BY 1.19.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 24 BY 2.62
      BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 24 BY 3.33
      BGCOLOR 9 .
 
 DEFINE RECTANGLE RECT-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 24 BY 5
      BGCOLOR 2 .
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 24 BY 1.91
      BGCOLOR 14 .
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 24 BY 7.62
      BGCOLOR 12 .
 
@@ -350,12 +349,14 @@ DEFINE BROWSE browseJob
       pendingJob.jobSequence
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 125 BY 21.19 ROW-HEIGHT-CHARS .52.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 125 BY 21.19.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     resources AT ROW 1 COL 109.4 HELP
+          "Select Resource"
      btnFilter AT ROW 1.05 COL 31 HELP
           "Click to Set Filter Values"
      btnPrint AT ROW 1.05 COL 69 HELP
@@ -368,8 +369,6 @@ DEFINE FRAME F-Main
           "Click to Auto Set Sequence Based on Currently Sorted Order"
      btnRefresh AT ROW 1.05 COL 104 HELP
           "Click to Refresh Resource Browser"
-     resources AT ROW 1.05 COL 108.6 HELP
-          "Select Resource"
      jobPhrase AT ROW 1.1 COL 4 COLON-ALIGNED
      btnSort AT ROW 1.1 COL 55
      btnUpdate AT ROW 1.1 COL 93
@@ -395,10 +394,10 @@ DEFINE FRAME F-Main
           "Click to Execute 4 Step Scheduling of Job"
      btnSelectedOnly AT ROW 23.62 COL 2
      sortableColumns AT ROW 1.1 COL 35 COLON-ALIGNED NO-LABEL
-     "&1 Job:" VIEW-AS TEXT
-          SIZE 6 BY 1 AT ROW 2.19 COL 2
      "      Job's Resources" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 10.76 COL 2
+     "&1 Job:" VIEW-AS TEXT
+          SIZE 6 BY 1 AT ROW 2.19 COL 2
      RECT-1 AT ROW 1 COL 1
      RECT-2 AT ROW 3.38 COL 1
      RECT-3 AT ROW 6.24 COL 1
@@ -459,7 +458,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB browseJob dateTime F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
