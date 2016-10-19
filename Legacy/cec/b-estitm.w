@@ -370,7 +370,7 @@ DEFINE BROWSE br-estitm
       eb.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
             COLUMN-FONT 2
       eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U COLUMN-FONT 2
-      eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 19.2
+      eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 21
             COLUMN-FONT 2
       display-combo-qty () @ est-qty.eqty WIDTH 10.2
       eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 COLUMN-FONT 2
@@ -539,7 +539,7 @@ ASSIGN
      _FldNameList[5]   > ASI.eb.part-dscr1
 "eb.part-dscr1" "Item Name" ? "character" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.eb.stock-no
-"eb.stock-no" "FG Item#" ? "character" ? ? 2 ? ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.stock-no" "FG Item#" ? "character" ? ? 2 ? ? ? yes ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > "_<CALC>"
 "display-combo-qty () @ est-qty.eqty" ? ? ? ? ? ? ? ? ? no ? no no "10.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.eb.style
@@ -2354,12 +2354,14 @@ PROCEDURE auto-create-item :
     
          END.
          ELSE DO:
-           IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
+           IF  v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
              FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
              i = LENGTH(lv-i-no).
              IF i GT 2 THEN
              SUBSTRING(lv-i-no, i - 1, 2) = "00".
          END.
+        
+
          bf-eb.stock-no = lv-i-no.
          
         FIND xeb WHERE ROWID(xeb) = ROWID(bf-eb) NO-LOCK.
@@ -2385,8 +2387,6 @@ PROCEDURE auto-create-item :
       IF v-est-fg1 EQ "Hughes" THEN DO:
           RUN fg/hughesfg.p (ROWID(xeb), OUTPUT lv-i-no).
       END.
-      ELSE
-        IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
   END.
 
   FIND FIRST tt-stock-no WHERE tt-stock-no.eb-row-id = ROWID(xeb)
@@ -2752,7 +2752,7 @@ PROCEDURE calc-layout4Artios :
       /*
       IF xef.m-code EQ "" THEN xef.m-code = ceroute-chr.
 
-      find first mach {sys/look/machW.i}
+      find first mach {sys/look/mach.w}
             and mach.m-code eq xef.m-code use-index m-code no-lock no-error.
       if avail mach then 
             assign
@@ -4583,18 +4583,24 @@ PROCEDURE custom-row-changed :
 ------------------------------------------------------------------------------*/
   DEF VAR char-hdl AS CHAR NO-UNDO.
 
+
+RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"form-blank-target",OUTPUT char-hdl).
+
   IF lv-repo EQ "ON" AND AVAIL eb THEN DO:
     
       IF AVAIL eb AND eb.est-type = 8 THEN
        BROWSE {&browse-name}:REFRESH().
-    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"form-blank-target",OUTPUT char-hdl).
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("OFF").
-      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+      /*RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).*/
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
     END.
   END.
+
+  IF AVAIL eb AND  VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+
 
 END PROCEDURE.
 
@@ -4836,12 +4842,12 @@ DEF VAR li AS INT NO-UNDO.
                   eb.num-len = 1
                   eb.num-up = 1.
 
-               IF ll-add-set-part-2 THEN
-               DO:
+               /*IF ll-add-set-part-2 THEN
+               DO:*/ /* ticket 15488 */
                   find xest where recid(xest) = recid(est).
                   find xef where recid(xef) = recid(ef).
                   find xeb where recid(xeb) = recid(eb).
-               END.
+              /* END.*/
                run cec/calc-dim.p .
             END.
          END.
@@ -4872,7 +4878,7 @@ DEF VAR li AS INT NO-UNDO.
              BY est-op.op-pass
              BY est-op.rec_key:
         
-           {sys/inc/outstrPL.i est-op SHARE}  
+           {sys/inc/machposw.i est-op SHARE}  
            ASSIGN
             li          = li + 1
             est-op.line = li.
@@ -5138,7 +5144,8 @@ PROCEDURE local-assign-record :
   DEF VAR v-count AS INT NO-UNDO.
   DEF VAR v-w-array AS DEC EXTENT 30 NO-UNDO.  
   DEF VAR cNewRep AS CHAR NO-UNDO.
-
+  DEFINE VARIABLE is2PieceBox AS LOG NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
    lv-hld-cust   = eb.cust-no
@@ -5152,7 +5159,8 @@ PROCEDURE local-assign-record :
    lv-hld-len    = eb.len
    lv-hld-dep    = eb.dep
    lv-hld-style  = eb.style
-   lv-hld-board  = ef.board.
+   lv-hld-board  = ef.board
+   is2PieceBox = no.
 
   {est/blankcp2.i}
 
@@ -5171,6 +5179,14 @@ PROCEDURE local-assign-record :
   FIND CURRENT eb EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
   viEQtyPrev = eb.eqty.
+  
+  IF est.est-type EQ 6 AND can-find(bf-eb WHERE bf-eb.company = est.company AND bf-eb.est-no = est.est-no AND bf-eb.blank-no > 0)
+     AND can-find(FIRST b-eb WHERE b-eb.company = est.company AND b-eb.est-no = est.est-no AND b-eb.form-no = 0 and
+                           b-eb.part-no = eb.part-no AND b-eb.stock-no = eb.stock-no AND b-eb.part-dscr1 = eb.part-dscr1
+                           AND b-eb.len = eb.len AND b-eb.wid = eb.wid AND b-eb.dep = eb.dep)
+              /* OR  (est.est-type EQ 5 AND eb.yld-qty GE 2) */   
+  THEN ASSIGN is2PieceBox = YES.
+       
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -5558,6 +5574,20 @@ PROCEDURE local-assign-record :
   IF eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN
       RUN copy-2-form-zero.
 
+  IF is2PieceBox THEN DO:
+     FIND b-eb WHERE b-eb.company = est.company AND b-eb.est-no = est.est-no AND b-eb.form-no = 0 AND b-eb.blank-no = 0 EXCLUSIVE-LOCK.
+     ASSIGN b-eb.stock-no = eb.stock-no
+            b-eb.part-no = eb.part-no
+            b-eb.part-dscr1 = eb.part-dscr1
+            b-eb.part-dscr2 = eb.part-dscr2
+            b-eb.procat = eb.procat
+            b-eb.len = eb.len
+            b-eb.wid = eb.wid
+            b-eb.dep = eb.dep
+            .         
+     RELEASE b-eb.       
+  END.
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5626,6 +5656,10 @@ PROCEDURE local-copy-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE VARIABLE v-neweb-est AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE li AS INT NO-UNDO.
+   DEFINE VARIABLE ll-dumb AS LOG NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   {custom/checkuse.i}
@@ -5633,16 +5667,37 @@ PROCEDURE local-copy-record :
   RUN ce/d-cpwhat.w (OUTPUT lv-copy-what).
   IF lv-copy-what = "" THEN RETURN.
 
-  ASSIGN lv-ef-copy-frid = recid(ef)
-         lv-eb-copy-frid = RECID(eb)
-         ll-is-copy-record = YES.
+  IF lv-copy-what EQ "copy" THEN do:
+      RUN ce/copyestN.w (lv-copy-what, est.est-no, OUTPUT v-neweb-est ) .
+      IF v-neweb-est NE "" THEN do:
+          FIND FIRST est WHERE est.company EQ cocode
+              AND est.est-no EQ FILL(" ",8 - LENGTH(TRIM(v-neweb-est))) + TRIM(v-neweb-est) NO-LOCK NO-ERROR .
+          
+          IF AVAIL est THEN do:
+              FIND FIRST eb WHERE eb.company = est.company
+                  AND eb.est-no = est.est-no NO-LOCK NO-ERROR .
 
-  RUN set-or-combo.
+              RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
+              /* refresh browser for new record */
+              RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+              RUN New_Record IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
 
-  /* Code placed here will execute AFTER standard behavior.    */
+              ll-dumb = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
+          END.
+      END.
+  END.
+  ELSE DO:
+      ASSIGN lv-ef-copy-frid = recid(ef)
+          lv-eb-copy-frid = RECID(eb)
+          ll-is-copy-record = YES.
+
+      RUN set-or-combo.
+
+      /* Dispatch standard ADM method.                             */
+      RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
+  END.
+      /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 
@@ -5662,7 +5717,8 @@ PROCEDURE local-create-record :
 
   DEF BUFFER b-eb FOR eb.
   DEF BUFFER b-ef FOR ef.
-
+      IF AVAIL eb THEN
+          v-rowid-eb  = ROWID(eb).
   /* Code placed here will execute PRIOR to standard behavior. */
   if avail est then li-form# = est.form-qty. /* for set creation on crt-new-set */
     
@@ -7751,8 +7807,14 @@ PROCEDURE update-set :
              bf-eb-header.blank-no EQ 0
              NO-LOCK NO-ERROR.
 
-     IF NOT v-assem-partition OR (NOT AVAIL bf-eb-header) THEN
+     IF NOT v-assem-partition OR (NOT AVAIL bf-eb-header) THEN do:
+
+         FIND xest WHERE RECID(xest) = RECID(est) NO-LOCK.
+         FIND xef WHERE RECID(xef) = RECID(ef) NO-LOCK.
+         FIND xeb WHERE RECID(xeb) = RECID(eb) NO-LOCK.
+
         RUN cec/d-updset.w (RECID(eb),6).
+     END.
      ELSE
         RUN cec/d-updsetpart.w(INPUT ROWID(est),
                                INPUT ROWID(bf-eb-header)).
@@ -7793,6 +7855,36 @@ PROCEDURE valid-64-dec :
     IF NOT AVAIL tt-64-dec  THEN
       op-error = YES.
     ELSE  op-dec = tt-64-dec.DEC .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user B-table-Win 
+PROCEDURE valid-cust-user :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ custcount = "".
+DEF VAR lActive AS LOG NO-UNDO.
+RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'EC',
+                            INPUT YES,
+                            OUTPUT lActive).
+ {sys/inc/chblankcust.i ""EC""}
+  
+  IF ou-log THEN
+    DO WITH FRAME {&FRAME-NAME}:
+      IF LOOKUP(eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},custcount) = 0 THEN do:
+          MESSAGE "Customer is not on Users Customer List.  "  SKIP
+              "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO eb.cust-no .
+          RETURN ERROR.
+      END.
+    END.
 
 END PROCEDURE.
 
@@ -7882,38 +7974,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user B-table-Win 
-PROCEDURE valid-cust-user :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- custcount = "".
-DEF VAR lActive AS LOG NO-UNDO.
-RUN sys/ref/CustList.p (INPUT cocode,
-                            INPUT 'EC',
-                            INPUT YES,
-                            OUTPUT lActive).
- {sys/inc/chblankcust.i}
-  
-  IF ou-log THEN
-    DO WITH FRAME {&FRAME-NAME}:
-      IF LOOKUP(eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},custcount) = 0 THEN do:
-          MESSAGE "Customer is not on Users Customer List.  "  SKIP
-              "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO eb.cust-no .
-          RETURN ERROR.
-      END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-part-no B-table-Win 
 PROCEDURE valid-part-no :
