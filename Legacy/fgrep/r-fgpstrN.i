@@ -265,64 +265,27 @@ for each tt-report where tt-report.term-id eq "" no-lock,
             ASSIGN v-stnd-cost = fg-bin.std-tot-cost.
         ELSE IF AVAIL itemfg THEN
             ASSIGN v-stnd-cost = itemfg.total-std-cost.
-    
+        iBinQtyb = 0.
+        IF fg-rcpth.rita-code = "C" THEN
+            FOR EACH bf-fg-rcpth NO-LOCK
+              WHERE bf-fg-rcpth.company EQ cocode 
+                AND bf-fg-rcpth.i-no EQ fg-rcpth.i-no
+                AND bf-fg-rcpth.job-no EQ fg-rcpth.job-no
+                AND bf-fg-rcpth.job-no2 EQ fg-rcpth.job-no2
+                AND bf-fg-rcpth.po-no EQ fg-rcpth.po-no
+                AND bf-fg-rcpth.rita-code EQ "R" ,
+               EACH bf-fg-rdtlh NO-LOCK WHERE
+                    bf-fg-rdtlh.r-no EQ bf-fg-rcpth.r-no
+                AND bf-fg-rdtlh.loc EQ fg-rdtlh.loc
+                AND bf-fg-rdtlh.loc-bin EQ fg-rdtlh.loc-bin
+                AND bf-fg-rdtlh.tag EQ fg-rdtlh.tag
+                AND bf-fg-rdtlh.cust-no EQ fg-rdtlh.cust-no 
+                AND bf-fg-rdtlh.bol-no EQ fg-rdtlh.bol-no
+                AND bf-fg-rdtlh.inv-no EQ fg-rdtlh.inv-no :
+            iBinQtyb = iBinQtyb +  bf-fg-rdtlh.qty  .
+        END.
 
-    /*
-    display fg-rcpth.trans-date  WHEN {sys/inc/rptDisp.i "fg-rcpth.trans-date"}
-            fg-rcpth.i-no        WHEN {sys/inc/rptDisp.i "fg-rcpth.i-no"}
-            fg-rcpth.i-name      WHEN {sys/inc/rptDisp.i "fg-rcpth.i-name"} 
-            fg-rcpth.po-no       WHEN {sys/inc/rptDisp.i "fg-rcpth.po-no"} 
-            po-ord.vend-no       when avail po-ord AND fg-rcpth.po-no <> "" AND {sys/inc/rptDisp.i "po-ord.vend-no"} 
-            fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2) WHEN fg-rcpth.job-no GT "" AND {sys/inc/rptDisp.i "fg-rcpth.job-no"} @ fg-rcpth.job-no                      
-            v-tran-type WHEN {sys/inc/rptDisp.i "v-tran-type"} 
-            substring(rfidtag.rfidtag, 13)  WHEN AVAIL(rfidtag) AND {sys/inc/rptDisp.i "rfidtag.rfidtag"} @ rfidtag.rfidtag
-            v-tag WHEN {sys/inc/rptDisp.i "v-tag"} @ fg-rdtlh.tag
-            v-cases WHEN {sys/inc/rptDisp.i "v-cases"} 
-            v-qty-case WHEN {sys/inc/rptDisp.i "v-qty-case"} 
-            v-fg-qty WHEN {sys/inc/rptDisp.i "v-fg-qty"} 
-            fg-rdtlh.loc-bin WHEN {sys/inc/rptDisp.i "fg-rdtlh.loc-bin"} 
-            lv-cost-uom  WHEN {sys/inc/rptDisp.i "lv-cost-uom"}      
-            v-fg-cost   WHEN {sys/inc/rptDisp.i "v-fg-cost"}      
-            v-fg-value  WHEN {sys/inc/rptDisp.i "v-fg-value"} 
-            with frame itemxT DOWN STREAM-IO WIDTH 200.
-        /*down with frame itemxT.   */
-  */
-
-    /*
-    IF {sys/inc/rptDisp.i "fg-rcpth.trans-date"} THEN 
-        PUT fg-rcpth.trans-date cspace.
-    IF {sys/inc/rptDisp.i "fg-rcpth.i-no"} THEN 
-        PUT fg-rcpth.i-no cSpace.
-    IF {sys/inc/rptDisp.i "fg-rcpth.i-name"} THEN 
-        PUT fg-rcpth.i-name cSpace.
-    IF {sys/inc/rptDisp.i "fg-rcpth.po-no"} THEN 
-        PUT fg-rcpth.po-no cSpace.
-    IF AVAIL po-ord AND {sys/inc/rptDisp.i "po-ord.vend-no"} THEN 
-        PUT po-ord.vend-no cSpace.
-    IF fg-rcpth.job-no GT "" AND {sys/inc/rptDisp.i "fg-rcpth.job-no"} THEN
-       PUT fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2) cSpace.
-    IF {sys/inc/rptDisp.i "v-tran-type"} THEN 
-        PUT v-tran-type cSpace.
-    IF AVAIL(rfidtag) AND {sys/inc/rptDisp.i "rfidtag.rfidtag"} THEN
-       PUT substring(rfidtag.rfidtag, 13)  cSpace.
-    IF {sys/inc/rptDisp.i "v-tag"} THEN
-       PUT v-tag cSpace.
-    IF {sys/inc/rptDisp.i "v-cases"}  THEN
-       PUT v-cases cSpace.
-    IF {sys/inc/rptDisp.i "v-qty-case"}  THEN
-       PUT     v-qty-case cSpace.
-    IF {sys/inc/rptDisp.i "v-fg-qty"}  THEN
-       PUT     v-fg-qty cSpace.
-    IF {sys/inc/rptDisp.i "fg-rdtlh.loc-bin"}  THEN
-       PUT     fg-rdtlh.loc-bin cSpace .
-    IF {sys/inc/rptDisp.i "lv-cost-uom"}       THEN
-       PUT     lv-cost-uom  cSpace.
-    IF {sys/inc/rptDisp.i "v-fg-cost"}   THEN
-       PUT     v-fg-cost cSpace .
-    IF {sys/inc/rptDisp.i "v-fg-value"}  THEN
-       PUT v-fg-value cSpace.
-    PUT SKIP.
-    */
+   
     BUFFER bitemfg:FIND-BY-ROWID(ROWID(itemfg), NO-LOCK) .
     ASSIGN cDisplay = ""
            cTmpField = ""
@@ -390,9 +353,9 @@ for each tt-report where tt-report.term-id eq "" no-lock,
                  WHEN "shipto" THEN cVarValue = v-shipto .
                  WHEN "shipname" THEN cVarValue = v-shipto-name  .
                  WHEN "order-no" THEN cVarValue = string(order-no,">>>>>>>")  .
-                 WHEN "bef-qty" THEN cVarValue = IF AVAIL fg-bin THEN  string(fg-bin.qty,"->>>>>>>>9") ELSE ""   .
+                 WHEN "bef-qty" THEN cVarValue = string(iBinQtyb,"->>>>>>>>9")    .
                  WHEN "bin-qty" THEN do:
-                      cVarValue =  STRING(v-fg-qty - (IF AVAIL fg-bin THEN  fg-bin.qty ELSE 0),"->>>>>>>>9")  .
+                      cVarValue =  STRING(v-fg-qty - iBinQtyb,"->>>>>>>>9")  .
                  END.
             END CASE.
               
