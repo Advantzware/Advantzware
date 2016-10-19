@@ -62,6 +62,9 @@ DEFINE VARIABLE lv-ext-price AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lv-price-string AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-total AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-job-no AS CHARACTER NO-UNDO .
+DEFINE VARIABLE d-bar-line AS DECIMAL NO-UNDO .
+DEFINE VARIABLE iCountLine AS INTEGER NO-UNDO .
+DEFINE VARIABLE iv-comp-unit AS INTEGER NO-UNDO .
 
 ASSIGN tmpstore = FILL("-",130).
 
@@ -83,7 +86,8 @@ ASSIGN v-comp-add1 = ""
        v-comp-add4 = ""
        v-comp-add5 = ""
        lv-email = ""
-       lv-comp-name = "".
+       lv-comp-name = ""
+       d-bar-line   = 4.3 .
 
 IF ll-display-comp THEN DO:
    FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode AND
@@ -113,11 +117,11 @@ FORMAT
 FORMAT
   tt-rell.loc-bin  AT 12  FORMAT "x(9)"
   v-tag AT 29 FORMAT "x(15)"
-  oe-ordl.part-dscr1 at 44 FORMAT "x(30)" 
+  /*oe-ordl.part-dscr1 at 46 FORMAT "x(30)" */
   tt-rell.partial  TO 83 
   lv-partial FORMAT ">>>" TO 93  skip
-    oe-ordl.part-no AT 29
-    oe-ordl.part-dscr2 AT 44 FORMAT "x(30)"
+   /* oe-ordl.i-name AT 29*/
+    /*oe-ordl.part-dscr2 AT 46 FORMAT "x(30)"*/
   
   WITH DOWN FRAME relprint-2 NO-BOX NO-LABEL STREAM-IO WIDTH 110.
 
@@ -280,11 +284,13 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
         IF xoe-rell.partial GT 0 THEN lv-tot-cases = lv-tot-cases + 1.
         xoe-rell.printed = YES.
       END. /* each xoe-rell */
+      FIND FIRST tt-rell NO-LOCK
+           WHERE tt-rell.po-no NE "" NO-ERROR.
 
       {oe/rep/relindc2.i}
          
       FOR EACH tt-rell
-          BY tt-rell.i-no
+        BREAK  BY tt-rell.i-no
           BY tt-rell.po-no
           BY tt-rell.ord-no
           BY tt-rell.line
@@ -336,10 +342,20 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                       IF xx LE EXTENT(locbin) THEN locbin[xx] = fg-bin.loc-bin.
                    END.
                 END.
+
+                FIND FIRST fg-bin where fg-bin.company eq cocode
+                              and fg-bin.i-no    eq itemfg.i-no
+                              and fg-bin.job-no = tt-rell.job-no
+                              AND fg-bin.job-no2 = tt-rell.job-no2 NO-LOCK NO-ERROR.
+                IF AVAIL fg-bin THEN
+                    ASSIGN iv-comp-unit = trunc((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) .
+                    ELSE iv-comp-unit = 0 .
+
+
              END.
              lv-partial = IF tt-rell.partial GT 0 THEN 1 ELSE 0.
 
-             DISPLAY
+            /* DISPLAY
               tt-rell.ord-no
               tt-rell.po-no
               tt-rell.i-no
@@ -347,9 +363,37 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
               tt-rell.cases @ tt-rell.qty
               oe-ordl.i-name   WHEN AVAILABLE oe-ordl  SKIP
               WITH FRAME relprint STREAM-IO NO-BOX NO-LABELS WIDTH 120.
-              DOWN WITH FRAME relprint.
+              DOWN WITH FRAME relprint.*/
+
               
-              v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(INTEGER(oe-ordl.job-no2), "99" ) .
+              ASSIGN iCountLine = 0 .
+              PUT  oe-ordl.part-no FORMAT "x(15)" SPACE(1)
+                  "<UNITS=INCHES><AT=" + STRING(d-bar-line)  + ",1.5><FROM><AT=+.22,+2><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE=" +
+                   STRING(tt-rell.i-no) + ">" FORM "x(100)" "<P10>" 
+                   "<AT=,2.3>" tt-rell.i-no FORM "x(15)"  SPACE(1) .
+              PUT "<R-2> "
+                   IF AVAIL oe-ordl THEN oe-ordl.i-name ELSE "" FORMAT "x(30)" SPACE(1)
+                   tt-rell.qty-case SPACE(4)
+                   tt-rell.cases FORMAT "->>>>" SKIP .
+
+                ASSIGN iCountLine = 1 . 
+
+                IF AVAILABLE oe-ordl THEN
+                    DO i = 1 to 3:
+                    lv-partial = IF i EQ 1 AND tt-rell.partial GT 0 THEN 1 ELSE 0.
+                    v-part-dscr = IF i EQ 1 THEN oe-ordl.part-dscr1
+                    ELSE IF i EQ 2 THEN oe-ordl.part-dscr2
+                    ELSE   "" .
+                           IF v-part-dscr NE "" THEN PUT v-part-dscr AT 46 FORMAT "x(25)" .
+                           IF lv-partial GT 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
+                           IF s-print-part-no OR lv-partial GT 0 OR v-part-dscr NE "" THEN DO: 
+                               PUT SKIP.
+                               v-printline = v-printline + 1.
+                               ASSIGN iCountLine = iCountLine + 1 .
+                           END.
+                END.
+
+                  v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(INTEGER(oe-ordl.job-no2), "99" ) .
               IF s-print-pricing THEN
               DO:
                  RUN calc-ext-cost(OUTPUT lv-price, OUTPUT lv-ext-price).
@@ -357,27 +401,48 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                  lv-price-string = TRIM(STRING(lv-price,"-ZZ,ZZZ,ZZ9.9999") + "/" + oe-ordl.pr-uom)
                  v-total = v-total + lv-ext-price
                  v-printline = v-printline + 1.
-                 PUT v-job-no FORMAT "X(11)" lv-price-string AT 44 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
+                 PUT lv-price-string AT 46 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
+                 ASSIGN iCountLine = iCountLine + 1 .
               END.
-              ELSE
-                PUT v-job-no FORMAT "X(11)"  .
+              
 
-              DISPLAY
+
+            /*  DISPLAY
                tt-rell.loc-bin  
                v-tag
-               oe-ordl.part-no WHEN s-print-part-no
-               oe-ordl.part-dscr1 WHEN AVAILABLE oe-ordl   /* CTS */
-               oe-ordl.part-dscr2 WHEN AVAILABLE oe-ordl /*bsm*/    
+               /*oe-ordl.i-name WHEN s-print-part-no*/
+               /*oe-ordl.part-dscr1 WHEN AVAILABLE oe-ordl   /* CTS */*/
+               /*oe-ordl.part-dscr2 WHEN AVAILABLE oe-ordl /*bsm*/    */
                tt-rell.partial WHEN tt-rell.partial GT 0
                lv-partial WHEN lv-partial NE 0
                WITH FRAME relprint-2 STREAM-IO NO-BOX NO-LABELS WIDTH 120.
-               DOWN WITH FRAME relprint-2.
+               DOWN WITH FRAME relprint-2.*/
+
+               PUT SKIP v-job-no FORMAT "X(11)" 
+                    tt-rell.loc FORMAT "x(6)" AT 46 SPACE(1)
+                    tt-rell.loc-bin FORMAT "x(8)" space(1)
+                    iv-comp-unit FORMAT "->>>>" .
+
+               v-printline = v-printline + 1.
+               
+               ASSIGN iCountLine = iCountLine + 1 .
+               IF NOT LAST(tt-rell.i-no) THEN
+                 PUT  SKIP(2).
 
               v-printline = v-printline + 4 + IF xx GE 4 THEN 1 ELSE 0 .
+             IF iCountLine = 1 THEN
+                   ASSIGN d-bar-line = d-bar-line + 0.5 .
+               ELSE IF iCountLine = 2 THEN
+                   ASSIGN d-bar-line = d-bar-line + 0.7 .
+               ELSE IF iCountLine = 3 THEN
+                   ASSIGN d-bar-line = d-bar-line + 0.8 .
+               ELSE
+                   ASSIGN d-bar-line = d-bar-line + 0.9 .
+
           END.
           ELSE DO:
 
-            DISPLAY
+          /*  DISPLAY
               tt-rell.ord-no
               tt-rell.po-no  AT 12
               tt-rell.i-no   AT 29
@@ -385,42 +450,66 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
               tt-rell.cases @ tt-rell.qty 
               WITH FRAME ln-s-comp STREAM-IO NO-BOX NO-LABELS WIDTH 120.
              v-printline = v-printline + 2.
-            DOWN WITH FRAME ln-s-comp.
+            DOWN WITH FRAME ln-s-comp.*/
+
+               ASSIGN iCountLine = 0 .
+               PUT  oe-ordl.part-no FORMAT "x(15)" SPACE(1)
+                  "<UNITS=INCHES><AT=" + STRING(d-bar-line)  + ",1.5><FROM><AT=+.22,+2><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE=" +
+                   STRING(tt-rell.i-no) + ">" FORM "x(100)" "<P10>" 
+                   "<AT=,2.3>" tt-rell.i-no FORM "x(15)"  SPACE(1) .
+              PUT "<R-2> "
+                   IF AVAIL oe-ordl THEN oe-ordl.i-name ELSE "" FORMAT "x(30)" SPACE(1)
+                   tt-rell.qty-case SPACE(4)
+                   tt-rell.cases SPACE(1) SKIP .
+               
+               ASSIGN iCountLine = 1 .
 
              v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(INTEGER(oe-ordl.job-no2), "99" ) .
 
               PUT v-job-no FORMAT "X(11)"  .
-                                           
-            IF s-print-pricing THEN
+
+            IF AVAILABLE oe-ordl THEN
+            DO i = 1 to 3:
+              lv-partial = IF i EQ 1 AND tt-rell.partial GT 0 THEN 1 ELSE 0.
+              v-part-dscr = IF i EQ 1 THEN oe-ordl.part-dscr1
+                            ELSE IF i EQ 2 THEN oe-ordl.part-dscr2
+                            ELSE   "" .
+              IF v-part-dscr NE "" THEN PUT v-part-dscr AT 46 FORMAT "x(25)" .
+              IF lv-partial GT 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
+              IF s-print-part-no OR lv-partial GT 0 OR v-part-dscr NE "" THEN DO: 
+                 PUT SKIP.
+                 v-printline = v-printline + 1.
+                 ASSIGN iCountLine = iCountLine + 1 .
+              END.
+              
+            END.
+             IF s-print-pricing THEN
                DO:
                   RUN calc-ext-cost(OUTPUT lv-price, OUTPUT lv-ext-price).
                   ASSIGN
                   lv-price-string = TRIM(STRING(lv-price,"-ZZ,ZZZ,ZZ9.9999") + "/" + oe-ordl.pr-uom)
                   v-total = v-total + lv-ext-price
                   v-printline = v-printline + 1.
-                  PUT lv-price-string AT 44 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
+                  PUT lv-price-string AT 46 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
+                  ASSIGN iCountLine = iCountLine + 1 .
                END.
+               IF NOT LAST(tt-rell.i-no) THEN
+                 PUT  SKIP(2).
+               IF iCountLine = 1 THEN
+                   ASSIGN d-bar-line = d-bar-line + 0.5 .
+               ELSE IF iCountLine = 2 THEN
+                   ASSIGN d-bar-line = d-bar-line + 0.7 .
+               ELSE IF iCountLine = 3 THEN
+                   ASSIGN d-bar-line = d-bar-line + 0.8 .
+               ELSE
+                   ASSIGN d-bar-line = d-bar-line + 0.9 .
 
-            IF AVAILABLE oe-ordl THEN
-            DO i = 1 to 3:
-              lv-partial = IF i EQ 1 AND tt-rell.partial GT 0 THEN 1 ELSE 0.
-              v-part-dscr = IF i EQ 1 THEN oe-ordl.i-name
-                            ELSE IF i EQ 2 THEN oe-ordl.part-dscr1
-                            ELSE   oe-ordl.part-dscr2.
-              IF i EQ 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 29.              
-              IF v-part-dscr NE "" THEN PUT v-part-dscr AT 44 FORMAT "x(25)" .
-              IF lv-partial GT 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
-              IF s-print-part-no OR lv-partial GT 0 OR v-part-dscr NE "" THEN DO: 
-                 PUT SKIP.
-                 v-printline = v-printline + 1.
-              END.
-              
-            END.
+
           END.
         END.  /* v-header */
         ELSE DO:
 
-          DISPLAY
+         /* DISPLAY
             tt-rell.ord-no
             tt-rell.po-no       AT 12
             /*tt-rell.loc-bin     AT 23   FORMAT "x(5)"   WHEN v-p-bin*/
@@ -428,41 +517,74 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
             tt-rell.qty-case @ oe-ordl.qty TO 83
             tt-rell.cases @ tt-rell.qty
             WITH FRAME ln-s.
-          DOWN WITH FRAME ln-s STREAM-IO NO-BOX NO-LABELS WIDTH 120.
+          DOWN WITH FRAME ln-s STREAM-IO NO-BOX NO-LABELS WIDTH 120.*/
+           
+          ASSIGN iCountLine = 0 .
+           PUT  oe-ordl.part-no FORMAT "x(15)" SPACE(1)
+                  "<UNITS=INCHES><AT=" + STRING(d-bar-line)  + ",1.5><FROM><AT=+.22,+2><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE=" +
+                   STRING(tt-rell.i-no) + ">" FORM "x(100)" "<P10>" 
+                   "<AT=,2.3>" tt-rell.i-no FORM "x(15)"  SPACE(1) .
+              PUT "<R-2> "
+                   IF AVAIL oe-ordl THEN oe-ordl.i-name ELSE "" FORMAT "x(30)" SPACE(1)
+                   tt-rell.qty-case SPACE(4)
+                   tt-rell.cases SPACE(1) SKIP .
+               ASSIGN d-bar-line = d-bar-line + 0.7 .
+
           v-printline = v-printline + 1.
+          ASSIGN iCountLine = 1 .
 
            v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(int(oe-ordl.job-no2), "99" ) .
-
+            IF NOT v-p-bin THEN
               PUT v-job-no FORMAT "X(11)"  .
 
-          IF s-print-pricing AND AVAILABLE oe-ordl THEN
+          IF AVAILABLE oe-ordl THEN
+          DO:
+             DO i = 1 to 3:
+                 lv-partial = IF i EQ 1 AND tt-rell.partial GT 0 THEN 1 ELSE 0.
+                 v-part-dscr = IF i EQ 1 THEN oe-ordl.part-dscr1
+                               ELSE IF i EQ 2 THEN oe-ordl.part-dscr2
+                               ELSE   "".
+                 IF v-part-dscr NE "" THEN PUT v-part-dscr AT 46 FORMAT "x(25)" .
+                 IF lv-partial GT 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
+                 IF s-print-part-no OR lv-partial GT 0 OR v-part-dscr NE "" THEN DO: 
+                    PUT SKIP.
+                    v-printline = v-printline + 1.
+                    ASSIGN iCountLine = iCountLine + 1 .
+                 END.
+             END.
+          END.
+
+           IF s-print-pricing AND AVAILABLE oe-ordl THEN
           DO:
              RUN calc-ext-cost(OUTPUT lv-price, OUTPUT lv-ext-price).
              ASSIGN
              lv-price-string = TRIM(STRING(lv-price,"-ZZ,ZZZ,ZZ9.9999") + "/" + oe-ordl.pr-uom)
              v-total = v-total + lv-ext-price
              v-printline = v-printline + 1.
-             PUT lv-price-string AT 44 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
+             PUT lv-price-string AT 46 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
+             ASSIGN iCountLine = iCountLine + 1 .
           END.
+              IF v-p-bin THEN do:
+                  PUT SKIP v-job-no FORMAT "X(11)" 
+                    tt-rell.loc FORMAT "x(8)" AT 46 SPACE(1)
+                    tt-rell.loc-bin FORMAT "x(10)" space(1) .
+                  ASSIGN iCountLine = iCountLine + 1 .
+                  v-printline = v-printline + 1.
+              END.
+              IF NOT LAST(tt-rell.i-no) THEN
+                 PUT  SKIP(2).
 
-          IF AVAILABLE oe-ordl THEN
-          DO:
-             DO i = 1 to 3:
-                 lv-partial = IF i EQ 1 AND tt-rell.partial GT 0 THEN 1 ELSE 0.
-                 v-part-dscr = IF i EQ 1 THEN oe-ordl.i-name
-                               ELSE IF i EQ 2 THEN oe-ordl.part-dscr1
-                               ELSE   oe-ordl.part-dscr2.
-                 IF i EQ 1 AND v-p-bin THEN PUT tt-rell.loc-bin     AT 9   FORMAT "x(9)" .
-                 IF i EQ 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 29.              
-                 IF v-part-dscr NE "" THEN PUT v-part-dscr AT 44 FORMAT "x(25)" .
-                 IF lv-partial GT 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
-                 IF s-print-part-no OR lv-partial GT 0 OR v-part-dscr NE "" THEN DO: 
-                    PUT SKIP.
-                    v-printline = v-printline + 1.
-                 END.
-             END.
-          END.
+              IF iCountLine = 1 THEN
+                   ASSIGN d-bar-line = d-bar-line + 0.5 .
+               ELSE IF iCountLine = 2 THEN
+                   ASSIGN d-bar-line = d-bar-line + 0.7 .
+               ELSE IF iCountLine = 3 THEN
+                   ASSIGN d-bar-line = d-bar-line + 0.8 .
+               ELSE
+                   ASSIGN d-bar-line = d-bar-line + 0.9 .
+
         END.
+          
 
         /*put skip(1).
         v-printline = v-printline + 1.*/
@@ -470,6 +592,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                PAGE .
                v-printline = 0.
                {oe/rep/relindc2.i}.
+               d-bar-line   = 4.3  .
         END.
 
         IF v-print-components THEN DO: /* display componets of set */
@@ -523,7 +646,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
       END. /* FOR EACH tt-rell */
 
 IF s-print-pricing THEN
-   PUT "Total:" AT 73 v-total FORMAT "->>,>>>,>>9.99" TO 93.
+   PUT "Total:" AT 74 v-total FORMAT "->>,>>>,>>9.99" TO 93.
 
 ASSIGN v-ship-i[1] = IF AVAILABLE oe-rel THEN oe-rel.ship-i[1] ELSE ""
        v-ship-i[2] = IF AVAILABLE oe-rel THEN oe-rel.ship-i[2] ELSE ""
