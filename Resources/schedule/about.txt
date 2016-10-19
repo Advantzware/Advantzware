@@ -12,6 +12,11 @@
 
  History:
 
+ v3.003 (updated 10.19.2016)
+ * ability to clear status checkoffs
+ * ability to clear sb job notes
+ * ability to return all jobs to pending
+
  v3.002 (updated 9.19.2016)
  * added field "due qty"
  * added field "underrun%"

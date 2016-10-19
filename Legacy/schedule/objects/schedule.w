@@ -553,7 +553,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAbout W-Win
 ON CHOOSE OF btnAbout IN FRAME schedulerFrame
 DO:
-  RUN {&prompts}/about.w ('{&Board}',ID).
+  RUN {&prompts}/about.w ('{&Board}',ID,THIS-PROCEDURE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
