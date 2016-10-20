@@ -592,7 +592,15 @@ ASSIGN
         END. /*  DO v-i = 1 TO 5: */
         /**** END code from Hughes for printing ink ****/
         ASSIGN cCustpo-name = "".
-        /* cust po from rel */
+        /* cust po from rel */ 
+        RELEASE reftable .
+         IF est.est-type = 6 THEN
+             FIND FIRST xoe-rel NO-LOCK
+              WHERE xoe-rel.company EQ xoe-ordl.company
+                AND xoe-rel.ord-no  EQ xoe-ordl.ord-no
+                AND xoe-rel.i-no    EQ v-fg
+              NO-ERROR.
+         
          IF AVAILABLE xoe-rel THEN
              FIND FIRST reftable NO-LOCK WHERE
              reftable.reftable EQ "oe-rel.lot-no" AND
@@ -602,10 +610,10 @@ ASSIGN
          IF AVAILABLE reftable THEN
              ASSIGN
              cCustpo-name      = reftable.CODE . 
+        
          IF AVAILABLE xoe-rel AND cCustpo-name = "" THEN
-             ASSIGN cCustpo-name = (IF xoe-rel.po-no NE "" THEN xoe-rel.po-no ELSE IF AVAILABLE xoe-ordl THEN xoe-ordl.po-no ELSE "") .  .
-
-
+             ASSIGN cCustpo-name = (IF xoe-rel.po-no NE "" AND AVAIL xoe-rel THEN xoe-rel.po-no ELSE IF AVAILABLE xoe-ordl THEN xoe-ordl.po-no ELSE "") .  .
+        
         DISPLAY  
            "<B>" WHEN  NOT vll-is-a-set
            "<C75>Order Qty: " + trim(STRING(v-ord-qty,">,>>>,>>9")) FORM "x(30)" 
