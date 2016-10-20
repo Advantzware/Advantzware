@@ -16,6 +16,7 @@
  * ability to clear status checkoffs
  * ability to clear sb job notes
  * ability to return all jobs to pending
+ * correct label colors for sbStatus.w
 
  v3.002 (updated 9.19.2016)
  * added field "due qty"
