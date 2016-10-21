@@ -37,7 +37,7 @@
       "<R29><C63><FROM><R31><C63><LINE>" 
       /*"<R29><C68><FROM><R31><C68><LINE>" SKIP   */         
       /*"<R29><C77><FROM><R31><C77><LINE>"*/
-      "<=6><R+1>    Item#                 TAG #                              Quantities        Weight        " SKIP(1)
+      "<=6><R+1>    Item#                 TAG #                              Quantities           Weight        " SKIP(1)
       .
        
    v-printline = v-printline + 21.

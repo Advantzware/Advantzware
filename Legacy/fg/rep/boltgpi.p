@@ -325,7 +325,7 @@ FOR EACH w-fg-rctd
   END. /* first-of(cust.cust-no) */
 
   PUT SPACE(2) w-fg-rctd.i-no FORMAT "x(15)" SPACE(7)
-      w-fg-rctd.tag FORMAT "x(30)"
+      w-fg-rctd.tag FORMAT "x(30)" SPACE(5)
       (w-fg-rctd.qty-case * w-fg-rctd.cases ) + w-fg-rctd.partial SPACE(10)
       w-fg-rctd.tot-wt SKIP .
     
