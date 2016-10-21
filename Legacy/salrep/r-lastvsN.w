@@ -645,7 +645,7 @@ DO:
 
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1630,6 +1630,7 @@ DEF VAR v-profitMtd AS DEC NO-UNDO.
 DEF VAR v-costTotal AS DEC  FORM "->,>>>,>>>,>>9.99" NO-UNDO.
 DEF VAR v-costTotalYtd AS DEC  FORM "->,>>>,>>>,>>9.99" NO-UNDO.
 DEF VAR v-costTotalMtd AS DEC  FORM "->,>>>,>>>,>>9.99" NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 ASSIGN
  str-tit2 = c-win:title
@@ -1643,7 +1644,8 @@ ASSIGN
  v-ytd      = rd_print BEGINS "Y"
  v-sort     = if rd_sort begins "C" then "C" else
               if rd_sort eq "High Sales" then "S" else "M"
- v-inc-fc   = tb_fin-chg.
+ v-inc-fc   = tb_fin-chg
+ lSelected  = tb_cust-list .
 
 IF tb_round THEN DO:
 /*   IF tb_msf THEN DO:                                                           */
@@ -1722,6 +1724,12 @@ fdate[1] = period.pst.
 {sys/inc/lastyear.i fdate[3] fdate[4]}
 {sys/inc/lastyear.i tdate[3] tdate[4]}
 
+IF lselected THEN DO:
+      FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+      IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+      FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+      IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
 
 if not v-ytd then tdate[1] = v-date.
 
