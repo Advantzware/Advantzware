@@ -2423,7 +2423,7 @@ DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh .
         AND bf-fg-rcpth.job-no EQ fg-rcpth.job-no
         AND bf-fg-rcpth.job-no2 EQ fg-rcpth.job-no2
         AND bf-fg-rcpth.po-no EQ fg-rcpth.po-no
-        AND bf-fg-rcpth.rita-code EQ "R" ,
+        AND bf-fg-rcpth.rita-code NE "C" ,
        EACH bf-fg-rdtlh NO-LOCK WHERE
             bf-fg-rdtlh.r-no EQ bf-fg-rcpth.r-no
         AND bf-fg-rdtlh.loc EQ fg-rdtlh.loc
@@ -2431,10 +2431,9 @@ DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh .
         AND bf-fg-rdtlh.tag EQ fg-rdtlh.tag
         AND bf-fg-rdtlh.cust-no EQ fg-rdtlh.cust-no 
         AND bf-fg-rdtlh.bol-no EQ fg-rdtlh.bol-no
-        AND bf-fg-rdtlh.inv-no EQ fg-rdtlh.inv-no :
-        
+        AND bf-fg-rdtlh.inv-no EQ fg-rdtlh.inv-no BY fg-rcpth.trans-date DESC :
       iBinQtyb = iBinQtyb +  bf-fg-rdtlh.qty  .
-    
+      LEAVE .
   END.
      
   ASSIGN iBinQtya = fg-rdtlh.qty  
