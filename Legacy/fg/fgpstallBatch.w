@@ -39,7 +39,7 @@ DEFINE VARIABLE v-postlst     AS cha       NO-UNDO.
 
 {methods/defines/hndldefs.i NEW}
 /*{methods/prgsecur.i} */
-{methods/defines/globdefs.i NEW  }
+{methods/defines/globdefs.i &NEW=NEW GLOBAL}
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i new shared}
@@ -2336,10 +2336,10 @@ PROCEDURE fg-post :
                 IF gv-fgemail = YES AND (itemfg.q-onh = 0 AND itemfg.q-alloc > 0) THEN
                     RUN Process-FGemail-Data (INPUT itemfg.i-no, w-fg-rctd.t-qty,w-fg-rctd.po-no).
 
-                IF fgPostLog THEN RUN fgPostLog ('Start fg/fg-post.i ' + TRIM(itemfg.i-no)).
+                IF fgPostLog THEN RUN fgPostLog ('Start fg/fg-postBatch.i ' + TRIM(itemfg.i-no)).
           
           /* itemfg gets updated here. */
-                    {fg/fg-post.i w-fg-rctd w-fg-rctd}
+                    {fg/fg-postBatch.i w-fg-rctd w-fg-rctd}
           
                 IF autofgissue-log THEN
                     RUN farmOutComp.
@@ -2352,7 +2352,7 @@ PROCEDURE fg-post :
             END. /* IF AVAIL itemfg */
         END. /* loop1 REPEAT */
     
-        IF fgPostLog THEN RUN fgPostLog ('End fg/fg-post.i - Start fg/fgemails.i').
+        IF fgPostLog THEN RUN fgPostLog ('End fg/fg-postBatch.i - Start fg/fgemails.i').
         IF w-fg-rctd.rita-code = "R" THEN 
         DO:
         {fg/fgemails.i}
@@ -4224,12 +4224,12 @@ PROCEDURE run-report PRIVATE :
     /*        IF rd-ItmPo EQ 1 THEN                                                 */
     /*        DO:                                                                   */
     /*         /*   RUN fgposti. */                                                 */
-    /*                {fg/rep/fg-post.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}*/
+                {fg/rep/fg-postBatch.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}
     /*        END.                                                                  */
     /*        ELSE                                                                  */
     /*        DO:                                                                   */
     /*/*            RUN fgposti.*/                                                  */
-    /*                {fg/rep/fg-post.i "itemx" "v-fg-cost" "itempx" "v-tot-cost"}  */
+                {fg/rep/fg-postBatch.i "itemx" "v-fg-cost" "itempx" "v-tot-cost"}
     /*        END.                                                                  */
     /*    END.                                                                      */
     /*    ELSE                                                                      */
@@ -4238,12 +4238,12 @@ PROCEDURE run-report PRIVATE :
     /*                                                                              */
     /*        IF rd-ItmPo EQ 1 THEN                                                 */
     /*        DO:                                                                   */
-    /*             {fg/rep/fg-post.i "itemyA" "v-fg-value" "itempyA" "v-tot-value"} */
+             {fg/rep/fg-postBatch.i "itemyA" "v-fg-value" "itempyA" "v-tot-value"}
     /*/*            RUN fgposti.*/                                                  */
     /*        END.                                                                  */
     /*        ELSE                                                                  */
     /*        DO:                                                                   */
-    /*              {fg/rep/fg-post.i "itemy" "v-fg-value" "itempy" "v-tot-value"}  */
+              {fg/rep/fg-postBatch.i "itemy" "v-fg-value" "itempy" "v-tot-value"}
     /*/*            RUN fgposti.*/                                                  */
     /*        END.                                                                  */
     /*    END.                                                                      */
