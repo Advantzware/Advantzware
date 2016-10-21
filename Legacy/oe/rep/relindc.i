@@ -431,13 +431,15 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
 
               v-printline = v-printline + 4 + IF xx GE 4 THEN 1 ELSE 0 .
              IF iCountLine = 1 THEN
-                   ASSIGN d-bar-line = d-bar-line + 0.5 .
+                   ASSIGN d-bar-line = d-bar-line + 0.7 .
                ELSE IF iCountLine = 2 THEN
                    ASSIGN d-bar-line = d-bar-line + 0.7 .
                ELSE IF iCountLine = 3 THEN
                    ASSIGN d-bar-line = d-bar-line + 0.8 .
+               ELSE IF iCountLine = 4 THEN
+                   ASSIGN d-bar-line = d-bar-line + 1 .
                ELSE
-                   ASSIGN d-bar-line = d-bar-line + 0.9 .
+                   ASSIGN d-bar-line = d-bar-line + 1.2 .
 
           END.
           ELSE DO:
@@ -459,7 +461,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                    "<AT=,2.3>" tt-rell.i-no FORM "x(15)"  SPACE(1) .
               PUT "<R-2> "
                    IF AVAIL oe-ordl THEN oe-ordl.i-name ELSE "" FORMAT "x(30)" SPACE(1)
-                   tt-rell.qty-case SPACE(4)
+                   tt-rell.qty-case SPACE(3)
                    tt-rell.cases SPACE(1) SKIP .
                
                ASSIGN iCountLine = 1 .
@@ -495,14 +497,17 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                END.
                IF NOT LAST(tt-rell.i-no) THEN
                  PUT  SKIP(2).
+               
                IF iCountLine = 1 THEN
-                   ASSIGN d-bar-line = d-bar-line + 0.5 .
+                   ASSIGN d-bar-line = d-bar-line + 0.7 .
                ELSE IF iCountLine = 2 THEN
                    ASSIGN d-bar-line = d-bar-line + 0.7 .
                ELSE IF iCountLine = 3 THEN
                    ASSIGN d-bar-line = d-bar-line + 0.8 .
+               ELSE IF iCountLine = 4 THEN
+                   ASSIGN d-bar-line = d-bar-line + 1 .
                ELSE
-                   ASSIGN d-bar-line = d-bar-line + 0.9 .
+                   ASSIGN d-bar-line = d-bar-line + 1.2 .
 
 
           END.
@@ -575,13 +580,15 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                  PUT  SKIP(2).
 
               IF iCountLine = 1 THEN
-                   ASSIGN d-bar-line = d-bar-line + 0.5 .
+                   ASSIGN d-bar-line = d-bar-line + 0.7 .
                ELSE IF iCountLine = 2 THEN
                    ASSIGN d-bar-line = d-bar-line + 0.7 .
                ELSE IF iCountLine = 3 THEN
                    ASSIGN d-bar-line = d-bar-line + 0.8 .
+                ELSE IF iCountLine = 4 THEN
+                   ASSIGN d-bar-line = d-bar-line + 1 .
                ELSE
-                   ASSIGN d-bar-line = d-bar-line + 0.9 .
+                   ASSIGN d-bar-line = d-bar-line + 1.2 .
 
         END.
           
