@@ -2230,9 +2230,6 @@ DEFINE VARIABLE v-SheetSize AS cha NO-UNDO.
 DEFINE VARIABLE v-Caliper AS cha NO-UNDO.
 DEFINE VARIABLE cFieldName AS cha NO-UNDO.
 DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
-DEFINE VARIABLE iBinQtyb AS INTEGER NO-UNDO .
-DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth .
-DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh .
 {ce/msfcalc.i}
 
 FORM fg-rcpth.trans-date            LABEL "DATE"   FORMAT "99/99/99"

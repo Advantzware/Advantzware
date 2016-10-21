@@ -449,8 +449,8 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       get-vend-no() @ vend-no COLUMN-LABEL "Vendor" FORMAT "x(8)":U
       get-vend-info() @ vend-name COLUMN-LABEL "Name" FORMAT "x(25)":U
-      get-fg-qty(1) @ iBinQtyBef  COLUMN-LABEL "Before Qty" FORMAT "->>>>>>9":U
-      get-fg-qty(2) @ iBinQty  COLUMN-LABEL "Bin Change" FORMAT "->>>>>>9":U
+      get-fg-qty(1) @ iBinQtyBef  COLUMN-LABEL "Before Qty" FORMAT "->>>>>>>":U
+      get-fg-qty(2) @ iBinQty  COLUMN-LABEL "Bin Change" FORMAT "->>>>>>>":U
       
   ENABLE
       fg-rcpth.i-no
@@ -675,9 +675,9 @@ reftable.loc      EQ STRING(fg-rcpth.r-no,""9999999999"")"
     _FldNameList[30]   > "_<CALC>"
 "get-vend-info () @ vend-name" "Name" "Character" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
     _FldNameList[31]   > "_<CALC>"
-"get-fg-qty (1) @ iBinQtyBef" "Before Qty" "->>>>>>9" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-fg-qty (1) @ iBinQtyBef" "Before Qty" "->>>>>>>" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
     _FldNameList[32]   > "_<CALC>"
-"get-fg-qty (2) @ iBinQty" "Bin Change" "->>>>>>9" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-fg-qty (2) @ iBinQty" "Bin Change" "->>>>>>>" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -2411,31 +2411,24 @@ DEFINE VARIABLE iReturnVal AS INTEGER NO-UNDO.
 DEFINE VARIABLE iBinQtyb AS INTEGER NO-UNDO.
 DEFINE VARIABLE iBinQtya AS INTEGER NO-UNDO.
 DEFINE VARIABLE iBinQtydeff AS INTEGER NO-UNDO.
-DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth .
-DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh .
 
   iBinQtyb = 0 .  
-
- IF fg-rcpth.rita-code = "C" THEN DO:
-  FOR EACH bf-fg-rcpth NO-LOCK
-      WHERE bf-fg-rcpth.company EQ cocode 
-        AND bf-fg-rcpth.i-no EQ fg-rcpth.i-no
-        AND bf-fg-rcpth.job-no EQ fg-rcpth.job-no
-        AND bf-fg-rcpth.job-no2 EQ fg-rcpth.job-no2
-        AND bf-fg-rcpth.po-no EQ fg-rcpth.po-no
-        AND bf-fg-rcpth.rita-code EQ "R" ,
-       EACH bf-fg-rdtlh NO-LOCK WHERE
-            bf-fg-rdtlh.r-no EQ bf-fg-rcpth.r-no
-        AND bf-fg-rdtlh.loc EQ fg-rdtlh.loc
-        AND bf-fg-rdtlh.loc-bin EQ fg-rdtlh.loc-bin
-        AND bf-fg-rdtlh.tag EQ fg-rdtlh.tag
-        AND bf-fg-rdtlh.cust-no EQ fg-rdtlh.cust-no 
-        AND bf-fg-rdtlh.bol-no EQ fg-rdtlh.bol-no
-        AND bf-fg-rdtlh.inv-no EQ fg-rdtlh.inv-no :
-        
-      iBinQtyb = iBinQtyb +  bf-fg-rdtlh.qty  .
-    
-  END.
+  FIND FIRST fg-bin NO-LOCK
+      WHERE fg-bin.company EQ cocode 
+        AND fg-bin.i-no EQ fg-rcpth.i-no
+        AND fg-bin.job-no EQ fg-rcpth.job-no
+        AND fg-bin.job-no2 EQ fg-rcpth.job-no2
+        AND fg-bin.loc EQ fg-rdtlh.loc
+        AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
+        AND fg-bin.tag EQ fg-rdtlh.tag
+        AND fg-bin.cust-no EQ fg-rdtlh.cust-no 
+        AND fg-bin.bol-no EQ fg-rdtlh.bol-no
+        AND fg-bin.inv-no EQ fg-rdtlh.inv-no 
+        AND fg-bin.po-no EQ fg-rcpth.po-no  NO-ERROR .
+  IF AVAIL fg-bin THEN
+  iBinQtyb =  fg-bin.qty  .
+      
+ 
      
   ASSIGN iBinQtya = fg-rdtlh.qty  
       iBinQtydeff = iBinQtya - iBinQtyb .
@@ -2444,15 +2437,7 @@ DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh .
        iReturnVal = iBinQtyb .
   ELSE 
        iReturnVal = iBinQtydeff.
-
- END. /* fg-rcpth.rita-code = "C" */
- ELSE DO:
-     IF ip-int = 1 THEN
-       iReturnVal = 0 .
-   ELSE 
-       iReturnVal = fg-rdtlh.qty .
-
- END.
+  
 
  RETURN iReturnVal .
 
