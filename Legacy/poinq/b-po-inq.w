@@ -103,8 +103,7 @@ DEF VAR v-paidflg AS LOG NO-UNDO.
           AND po-ordl.due-date  GE fi_due-date      ~
           AND ((po-ordl.opened  AND tb_open)   OR    ~
                (NOT po-ordl.opened AND tb_closed))  ~
-          AND (po-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "") ~
-          AND (IF tb_hold THEN po-ord.stat = "H" ELSE true)
+          AND (po-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each11                           ~
     FOR EACH po-ordl                                ~
@@ -278,10 +277,10 @@ ap-invl ap-inv ap-ctrl
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS fi_po-no fi_vend-no fi_i-no fi_vend-i-no ~
 fi_due-date fi_job-no fi_job-no2 tb_unpaid tb_paid btn_go btn_show btn_prev ~
-Browser-Table tb_open tb_closed RECT-1 tb_approved tb_hold
+Browser-Table tb_open tb_closed RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_po-no fi_vend-no fi_i-no fi_vend-i-no ~
 fi_due-date fi_job-no fi_job-no2 tb_unpaid tb_paid fi_sort-by FI_moveCol ~
-tb_open tb_closed tb_approved tb_hold
+tb_open tb_closed 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -352,7 +351,7 @@ DEFINE BUTTON btn_show
 
 DEFINE VARIABLE fi_due-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      VIEW-AS FILL-IN 
-     SIZE 15 BY 1
+     SIZE 17 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U 
@@ -362,13 +361,13 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
 
 DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
      VIEW-AS FILL-IN 
-     SIZE 10 BY 1
+     SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 5 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
@@ -378,7 +377,7 @@ DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U
 
 DEFINE VARIABLE fi_po-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1
+     SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
@@ -400,17 +399,7 @@ DEFINE VARIABLE fi_vend-no AS CHARACTER FORMAT "X(8)":U
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 148 BY 3.57.
-     
-DEFINE VARIABLE tb_approved AS LOGICAL INITIAL no 
-     LABEL "Approvd" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 13 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_hold AS LOGICAL INITIAL no 
-     LABEL "Hold" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 11 BY .81 NO-UNDO.
-          
 DEFINE VARIABLE tb_closed AS LOGICAL INITIAL NO 
      LABEL "Closed" 
      VIEW-AS TOGGLE-BOX
@@ -432,7 +421,7 @@ DEFINE VARIABLE tb_paid AS LOGICAL INITIAL NO
 DEFINE VARIABLE tb_unpaid AS LOGICAL INITIAL YES 
      LABEL "UnPaid" 
      VIEW-AS TOGGLE-BOX
-     SIZE 12 BY 1
+     SIZE 13 BY 1
      FGCOLOR 9  NO-UNDO.
 
 /* Query definitions                                                    */
@@ -541,49 +530,47 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     tb_approved AT ROW 1.33 COL 135 WIDGET-ID 12
-     fi_po-no AT ROW 2.19 COL 2.6 NO-LABEL
-     fi_vend-no AT ROW 2.19 COL 13 COLON-ALIGNED NO-LABEL
-     fi_i-no AT ROW 2.19 COL 28.4 COLON-ALIGNED NO-LABEL
-     fi_vend-i-no AT ROW 2.19 COL 52.8 COLON-ALIGNED NO-LABEL
-     fi_due-date AT ROW 2.19 COL 77.2 COLON-ALIGNED NO-LABEL
-     fi_job-no AT ROW 2.19 COL 93.4 COLON-ALIGNED NO-LABEL
-     fi_job-no2 AT ROW 2.19 COL 106 COLON-ALIGNED
-     tb_unpaid AT ROW 1.24 COL 122.8
-     tb_paid AT ROW 1.24 COL 113
+     fi_po-no AT ROW 2.19 COL 3 NO-LABEL
+     fi_vend-no AT ROW 2.19 COL 16.2 COLON-ALIGNED NO-LABEL
+     fi_i-no AT ROW 2.19 COL 31.6 COLON-ALIGNED NO-LABEL
+     fi_vend-i-no AT ROW 2.19 COL 56 COLON-ALIGNED NO-LABEL
+     fi_due-date AT ROW 2.19 COL 80.4 COLON-ALIGNED NO-LABEL
+     fi_job-no AT ROW 2.19 COL 97.8 COLON-ALIGNED NO-LABEL
+     fi_job-no2 AT ROW 2.19 COL 114.6 COLON-ALIGNED
+     tb_unpaid AT ROW 1.33 COL 134.6
+     tb_paid AT ROW 1.33 COL 122.6
      btn_go AT ROW 3.38 COL 2.2
      btn_show AT ROW 3.38 COL 49
-     fi_sort-by AT ROW 3.38 COL 76.4 COLON-ALIGNED
+     fi_sort-by AT ROW 3.38 COL 81.4 COLON-ALIGNED
      btn_prev AT ROW 3.38 COL 14
      btn_next AT ROW 3.38 COL 34
-     FI_moveCol AT ROW 3.38 COL 134 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     FI_moveCol AT ROW 3.38 COL 135.2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      Browser-Table AT ROW 4.57 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     tb_open AT ROW 2.14 COL 113 WIDGET-ID 10
-     tb_closed AT ROW 2.14 COL 123.2 WIDGET-ID 8
-     tb_hold AT ROW 2.19 COL 135.2 WIDGET-ID 14
+     tb_open AT ROW 2.24 COL 122.6 WIDGET-ID 10
+     tb_closed AT ROW 2.24 COL 134.6 WIDGET-ID 8
      "Vendor#" VIEW-AS TEXT
-          SIZE 10 BY .95 AT ROW 1.24 COL 17
+          SIZE 10 BY .95 AT ROW 1.24 COL 20.2
           FGCOLOR 9 
      "Browser Col. Mode:" VIEW-AS TEXT
-          SIZE 22.6 BY .62 AT ROW 3.62 COL 112.2 WIDGET-ID 6
+          SIZE 22.6 BY .62 AT ROW 3.62 COL 114.6 WIDGET-ID 6
           FONT 6
      "PO#" VIEW-AS TEXT
-          SIZE 6 BY .95 AT ROW 1.24 COL 6.4
+          SIZE 6 BY .95 AT ROW 1.24 COL 7
           BGCOLOR 8 FGCOLOR 9 
      "RM/FG Item#" VIEW-AS TEXT
-          SIZE 16 BY .95 AT ROW 1.24 COL 33.4
+          SIZE 16 BY .95 AT ROW 1.24 COL 36.6
           FGCOLOR 9 
      "Start Due Date" VIEW-AS TEXT
-          SIZE 18 BY .95 AT ROW 1.24 COL 78.6
+          SIZE 18 BY .95 AT ROW 1.24 COL 82.4
           FGCOLOR 9 
      "Vendor Item#" VIEW-AS TEXT
-          SIZE 17 BY .95 AT ROW 1.24 COL 56.8
+          SIZE 17 BY .95 AT ROW 1.24 COL 60
           FGCOLOR 9 
      "Job#" VIEW-AS TEXT
-          SIZE 7 BY .86 AT ROW 1.24 COL 99.6
+          SIZE 7 BY .86 AT ROW 1.24 COL 106.8
           FGCOLOR 9 
-     RECT-1 AT ROW 1 COL 1     
+     RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 

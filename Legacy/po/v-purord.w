@@ -57,14 +57,13 @@ DEFINE TEMP-TABLE tt-ord-no
     FIELD LINE   AS INTEGER
     FIELD ord-no AS INTEGER .
 
+DO TRANSACTION:
+    {sys/inc/aptax.i}
+END.
+
 ASSIGN 
     cocode = g_company
     locode = g_loc.
-    
-DO TRANSACTION:
-    {sys/inc/aptax.i}
-    {sys/ref/postatus.i} 
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -97,18 +96,18 @@ po-ord.tax-gr po-ord.terms po-ord.frt-pay po-ord.fob-code po-ord.t-freight
 &Scoped-define ENABLED-TABLES po-ord
 &Scoped-define FIRST-ENABLED-TABLE po-ord
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
-RECT-1 RECT-13 
+RECT-1 
 &Scoped-Define DISPLAYED-FIELDS po-ord.po-no po-ord.po-date po-ord.type ~
 po-ord.stat po-ord.vend-no po-ord.ship-id po-ord.ship-name ~
 po-ord.ship-addr[1] po-ord.ship-addr[2] po-ord.ship-city po-ord.ship-state ~
 po-ord.ship-zip po-ord.buyer po-ord.contact po-ord.due-date ~
 po-ord.last-ship-date po-ord.under-pct po-ord.over-pct po-ord.carrier ~
 po-ord.tax-gr po-ord.terms po-ord.frt-pay po-ord.fob-code po-ord.t-freight ~
-po-ord.tax po-ord.t-cost po-ord.approved-date po-ord.approved-id 
+po-ord.tax po-ord.t-cost 
 &Scoped-define DISPLAYED-TABLES po-ord
 &Scoped-define FIRST-DISPLAYED-TABLE po-ord
-&Scoped-Define DISPLAYED-OBJECTS fc_app_time lv_vend-name lv_vend-add1 ~
-lv_vend-add2 lv_vend-city lv_vend-state lv_vend-zip shipAreaCode shipPhone ~
+&Scoped-Define DISPLAYED-OBJECTS lv_vend-name lv_vend-add1 lv_vend-add2 ~
+lv_vend-city lv_vend-state lv_vend-zip shipAreaCode shipPhone ~
 lv_vend-area-code lv_vend-phone typeDescr 
 
 /* Custom List Definitions                                              */
@@ -164,11 +163,6 @@ DEFINE BUTTON btnCalendar-3
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
-DEFINE VARIABLE fc_app_time AS CHARACTER FORMAT "X(8)":U 
-     LABEL "Time" 
-     VIEW-AS FILL-IN 
-     SIZE 10 BY 1 NO-UNDO.
-
 DEFINE VARIABLE lv_vend-add1 AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
      SIZE 42 BY 1 NO-UNDO.
@@ -215,17 +209,12 @@ DEFINE VARIABLE typeDescr AS CHARACTER FORMAT "X(256)":U INITIAL "Type Descripti
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 147 BY 15.48.
-
-DEFINE RECTANGLE RECT-13
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 19 BY 3.57.
+     SIZE 144 BY 15.48.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fc_app_time AT ROW 2.91 COL 134.8 COLON-ALIGNED WIDGET-ID 8
      btnCalendar-1 AT ROW 1.24 COL 68.4
      po-ord.po-no AT ROW 1.24 COL 23 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -305,6 +294,9 @@ DEFINE FRAME F-Main
           LABEL "Tax Code"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
+     po-ord.terms AT ROW 11.48 COL 83 COLON-ALIGNED FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -312,9 +304,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     po-ord.terms AT ROW 11.48 COL 83 COLON-ALIGNED FORMAT "x(5)"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
      po-ord.frt-pay AT ROW 13.86 COL 85 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -338,22 +327,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
      typeDescr AT ROW 1.24 COL 88 COLON-ALIGNED NO-LABEL
-     po-ord.approved-date AT ROW 1.95 COL 134.8 COLON-ALIGNED WIDGET-ID 2
-          LABEL "Date"
-          VIEW-AS FILL-IN 
-          SIZE 10 BY 1
-     po-ord.approved-id AT ROW 3.95 COL 134.8 COLON-ALIGNED WIDGET-ID 4
-          LABEL "By"
-          VIEW-AS FILL-IN 
-          SIZE 10 BY 1
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 15.05 COL 78
      "Freight Payment:" VIEW-AS TEXT
           SIZE 19 BY .81 AT ROW 13.86 COL 65
-     "Approved" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.24 COL 130.2 WIDGET-ID 12
      RECT-1 AT ROW 1 COL 1
-     RECT-13 AT ROW 1.71 COL 129 WIDGET-ID 10
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -416,10 +394,6 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN po-ord.approved-date IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
-/* SETTINGS FOR FILL-IN po-ord.approved-id IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
@@ -428,8 +402,6 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR FILL-IN po-ord.carrier IN FRAME F-Main
    EXP-FORMAT                                                           */
-/* SETTINGS FOR FILL-IN fc_app_time IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv_vend-add1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv_vend-add2 IN FRAME F-Main
@@ -961,9 +933,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE change-page-logic V-table-Win 
 PROCEDURE change-page-logic :
 /*------------------------------------------------------------------------------
@@ -1175,21 +1144,11 @@ PROCEDURE hold-release :
      IF choice THEN DO:  
         DEFINE BUFFER bf-po-ord FOR po-ord.
         FIND bf-po-ord EXCLUSIVE-LOCK WHERE RECID(bf-po-ord) EQ recid(po-ord) NO-ERROR.
-        IF bf-po-ord.stat = "H" then
-           ASSIGN bf-po-ord.approved-date = today
-                  bf-po-ord.approved-id = userid('nosweat')
-                  bf-po-ord.approved-time = TIME. 
-        ELSE ASSIGN bf-po-ord.approved-date = ?
-                  bf-po-ord.approved-id = ""
-                  bf-po-ord.approved-time = 0.           
-        bf-po-ord.stat = IF bf-po-ord.stat EQ "H" THEN "O" ELSE "H".   
-        
+        bf-po-ord.stat = IF bf-po-ord.stat EQ "H" THEN "O" ELSE "H".    
      END.
      FIND CURRENT bf-po-ord NO-LOCK NO-ERROR.
      FIND CURRENT po-ord NO-LOCK NO-ERROR.
-     IF AVAILABLE po-ord THEN 
-        DISPLAY po-ord.stat po-ord.approved-date po-ord.approved-id po-ord.approved-time
-             WITH FRAME {&FRAME-NAME}.
+     IF AVAILABLE po-ord THEN DISPLAY po-ord.stat WITH FRAME {&FRAME-NAME}.
  END.
 
 END PROCEDURE.
@@ -1612,8 +1571,9 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   
-  RUN sys/ref/asiseq.p (cocode,'po_seq',OUTPUT iNextPO) NO-ERROR.
   
+  RUN sys/ref/asiseq.p (cocode,'po_seq',OUTPUT iNextPO) NO-ERROR.
+
   ASSIGN po-ord.company        = cocode
          po-ord.po-no          = inextPO         
          po-ord.po-date        = TODAY
@@ -1629,11 +1589,6 @@ PROCEDURE local-create-record :
   {po/pouserid.i}
   DISPLAY po-ord.po-no WITH FRAME {&FRAME-NAME}.
 
-  IF trim(v-postatus-cha) = "Hold" THEN DO:
-     po-ord.stat = "H" .
-     DISPLAY po-ord.stat WITH FRAME {&frame-name}.
-  END.
-  
   IF NOT copy-record THEN ls-drop-custno = "".
 
   CREATE b-po-ordl.
@@ -1669,7 +1624,7 @@ PROCEDURE local-create-record :
  FIND CURRENT po-ordl NO-LOCK NO-ERROR.
  FIND CURRENT b-po-ordl NO-LOCK NO-ERROR.
  FIND CURRENT reftable NO-LOCK NO-ERROR.
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1691,9 +1646,6 @@ PROCEDURE local-display-fields :
   RUN setTypeDescr.
   IF AVAILABLE po-ord THEN RUN display-vend.
   v-copied-from = INTEGER(po-ord.po-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  
-  fc_app_time:SCREEN-VALUE = IF AVAILABLE po-ord THEN string(po-ord.approved-time,"HH:MM") ELSE "".
-   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
