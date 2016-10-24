@@ -301,7 +301,7 @@ FOR EACH w-oe-rell USE-INDEX idx,
     EMPTY TEMP-TABLE w-bin.
     
     i = 0.
-    FOR EACH bf-w-oe-rell WHERE bf-w-oe-rell.po-no = w-oe-rell.po-no
+   /* FOR EACH bf-w-oe-rell WHERE bf-w-oe-rell.po-no = w-oe-rell.po-no
         AND bf-w-oe-rell.i-no = w-oe-rell.i-no AND bf-w-oe-rell.ord-no = w-oe-rell.ord-no .
       CREATE w-bin.
       ASSIGN
@@ -316,7 +316,7 @@ FOR EACH w-oe-rell USE-INDEX idx,
       w-bin.w-set-no = bf-w-oe-rell.set-no
       i        = i + 1.
       
-    END.
+    END.*/
 
     /*IF s-print-what-item EQ "S" THEN
       RUN consolidate-bins.*/
@@ -488,9 +488,8 @@ FOR EACH w-oe-rell USE-INDEX idx,
             BY w-bin.w-qty[1] desc:
 
       ASSIGN
-      v-bin = w-bin.w-tag + "/" +
-      TRIM(w-bin.w-loc) + "/" +
-      TRIM(w-bin.w-bin).
+      v-bin = TRIM(w-bin.w-loc) + "/" +
+      TRIM(w-bin.w-bin) + "/" + w-bin.w-tag  .
       
       IF TRIM(v-bin) EQ "//" THEN v-bin = "".
       
