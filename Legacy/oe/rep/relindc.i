@@ -87,7 +87,7 @@ ASSIGN v-comp-add1 = ""
        v-comp-add5 = ""
        lv-email = ""
        lv-comp-name = ""
-       d-bar-line   = 4.3 .
+       d-bar-line   = 4.45 .
 
 IF ll-display-comp THEN DO:
    FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode AND
@@ -599,7 +599,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                PAGE .
                v-printline = 0.
                {oe/rep/relindc2.i}.
-               d-bar-line   = 4.3  .
+               d-bar-line   = 4.45  .
         END.
 
         IF v-print-components THEN DO: /* display componets of set */
