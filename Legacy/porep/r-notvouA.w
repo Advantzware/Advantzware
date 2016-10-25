@@ -118,12 +118,13 @@ form temp-po-rec.vend-no    COLUMN-LABEL "Vendor"
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_date end_date ~
 begin_po-no end_po-no begin_po-i-no end_po-i-no begin_rdate end_rdate ~
-begin_vend end_vend scr-neg-rec rd_sort rd-dest lv-ornt lines-per-page ~
-lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+begin_vend end_vend scr-neg-rec tb_in-po rd_sort rd-dest lv-ornt ~
+lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_po-no end_po-no ~
 begin_po-i-no end_po-i-no begin_rdate end_rdate begin_vend end_vend ~
-scr-neg-rec rd_sort rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file 
+scr-neg-rec tb_in-po rd_sort rd-dest lv-ornt lines-per-page lv-font-no ~
+lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -244,11 +245,11 @@ DEFINE VARIABLE rd_sort AS CHARACTER
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 92 BY 9.29.
+     SIZE 92 BY 9.05.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 8.81.
+     SIZE 94 BY 9.52.
 
 DEFINE VARIABLE scr-neg-rec AS LOGICAL INITIAL no 
      LABEL "Show Negative Receipts?" 
@@ -260,6 +261,11 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
+
+DEFINE VARIABLE tb_in-po AS LOGICAL INITIAL no 
+     LABEL "Include Closed POs?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
@@ -292,8 +298,9 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Vendor Number"
      end_vend AT ROW 6.29 COL 68 COLON-ALIGNED HELP
           "Enter Ending Vendor Number"
-     scr-neg-rec AT ROW 7.57 COL 29 WIDGET-ID 2
-     rd_sort AT ROW 8.62 COL 29 NO-LABEL
+     scr-neg-rec AT ROW 7.52 COL 29 WIDGET-ID 2
+     tb_in-po AT ROW 8.43 COL 29 WIDGET-ID 4
+     rd_sort AT ROW 9.38 COL 29 NO-LABEL
      rd-dest AT ROW 11.71 COL 6 NO-LABEL
      lv-ornt AT ROW 11.95 COL 31 NO-LABEL
      lines-per-page AT ROW 11.95 COL 84 COLON-ALIGNED
@@ -307,13 +314,13 @@ DEFINE FRAME FRAME-A
      btn-ok AT ROW 19.81 COL 19
      btn-cancel AT ROW 19.81 COL 57
      "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 8.62 COL 21
+          SIZE 8 BY .62 AT ROW 9.33 COL 21
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 10.76 COL 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 10.76 COL 3
-     RECT-6 AT ROW 10.29 COL 2
+     RECT-6 AT ROW 10.52 COL 2
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -903,14 +910,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_date end_date begin_po-no end_po-no begin_po-i-no end_po-i-no 
-          begin_rdate end_rdate begin_vend end_vend scr-neg-rec rd_sort rd-dest 
-          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file 
+          begin_rdate end_rdate begin_vend end_vend scr-neg-rec tb_in-po rd_sort 
+          rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
+          tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_date end_date begin_po-no end_po-no begin_po-i-no 
          end_po-i-no begin_rdate end_rdate begin_vend end_vend scr-neg-rec 
-         rd_sort rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         tb_in-po rd_sort rd-dest lv-ornt lines-per-page lv-font-no 
+         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1034,7 +1041,7 @@ display "" with frame r-top.
 
   for each po-ordl
       where po-ordl.company   eq cocode
-        AND po-ordl.opened    EQ YES
+        AND (po-ordl.opened    EQ YES OR ( tb_in-po AND NOT po-ordl.opened) )
         and po-ordl.i-no      ge fitm
         and po-ordl.i-no      le titm
         and po-ordl.po-no     ge fpo
@@ -1267,7 +1274,7 @@ display "" with frame r-top.
 
   for each po-ordl
       where po-ordl.company   eq cocode
-        AND po-ordl.opened    EQ YES
+        AND (po-ordl.opened    EQ YES OR ( tb_in-po AND NOT po-ordl.opened) )
         and po-ordl.i-no      ge fitm
         and po-ordl.i-no      le titm
         and po-ordl.po-no     ge fpo
