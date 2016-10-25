@@ -22,7 +22,7 @@
            "<R4><C50><#3>" SKIP
            "<FArial><P14><=#3><P12>" SKIP
                    "<=#3><B>Ticket #: " 
-                   "<UNITS=INCHES><AT=.25,6><FROM><AT=+.55,+2><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE=" +
+                   "<UNITS=INCHES><AT=.48,6><FROM><AT=+.55,+2><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE=" +
                    STRING(oe-relh.release#) + ">" FORM "x(100)" "</B><P10>" 
                    "<AT=,6.9>" oe-relh.release# FORM "->>>>>>9" SKIP(1)
                    "<=#3><R+3>Print Date:" v-ticket-date   FORM "99/99/9999"     SKIP
