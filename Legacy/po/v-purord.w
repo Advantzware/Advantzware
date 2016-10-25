@@ -167,7 +167,7 @@ DEFINE BUTTON btnCalendar-3
 DEFINE VARIABLE fc_app_time AS CHARACTER FORMAT "X(8)":U 
      LABEL "Time" 
      VIEW-AS FILL-IN 
-     SIZE 10 BY 1 NO-UNDO.
+     SIZE 12 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv_vend-add1 AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
@@ -215,17 +215,17 @@ DEFINE VARIABLE typeDescr AS CHARACTER FORMAT "X(256)":U INITIAL "Type Descripti
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 147 BY 15.48.
+     SIZE 148 BY 15.48.
 
 DEFINE RECTANGLE RECT-13
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 19 BY 3.57.
+     SIZE 21 BY 3.57.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fc_app_time AT ROW 2.91 COL 134.8 COLON-ALIGNED WIDGET-ID 8
+     fc_app_time AT ROW 2.91 COL 133.8 COLON-ALIGNED WIDGET-ID 8
      btnCalendar-1 AT ROW 1.24 COL 68.4
      po-ord.po-no AT ROW 1.24 COL 23 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -338,14 +338,14 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
      typeDescr AT ROW 1.24 COL 88 COLON-ALIGNED NO-LABEL
-     po-ord.approved-date AT ROW 1.95 COL 134.8 COLON-ALIGNED WIDGET-ID 2
+     po-ord.approved-date AT ROW 1.95 COL 133.8 COLON-ALIGNED WIDGET-ID 2
           LABEL "Date"
           VIEW-AS FILL-IN 
-          SIZE 10 BY 1
-     po-ord.approved-id AT ROW 3.95 COL 134.8 COLON-ALIGNED WIDGET-ID 4
+          SIZE 12 BY 1
+     po-ord.approved-id AT ROW 3.95 COL 133.8 COLON-ALIGNED WIDGET-ID 4
           LABEL "By"
           VIEW-AS FILL-IN 
-          SIZE 10 BY 1
+          SIZE 12 BY 1
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 15.05 COL 78
      "Freight Payment:" VIEW-AS TEXT
@@ -353,7 +353,7 @@ DEFINE FRAME F-Main
      "Approved" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 1.24 COL 130.2 WIDGET-ID 12
      RECT-1 AT ROW 1 COL 1
-     RECT-13 AT ROW 1.71 COL 129 WIDGET-ID 10
+     RECT-13 AT ROW 1.71 COL 128 WIDGET-ID 10
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -961,9 +961,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE change-page-logic V-table-Win 
 PROCEDURE change-page-logic :
 /*------------------------------------------------------------------------------
@@ -1187,9 +1184,11 @@ PROCEDURE hold-release :
      END.
      FIND CURRENT bf-po-ord NO-LOCK NO-ERROR.
      FIND CURRENT po-ord NO-LOCK NO-ERROR.
-     IF AVAILABLE po-ord THEN 
-        DISPLAY po-ord.stat po-ord.approved-date po-ord.approved-id po-ord.approved-time
+     IF AVAILABLE po-ord THEN DO: 
+        DISPLAY po-ord.stat po-ord.approved-date po-ord.approved-id 
              WITH FRAME {&FRAME-NAME}.
+        fc_app_time:SCREEN-VALUE = IF AVAILABLE po-ord THEN string(po-ord.approved-time,"HH:MM") ELSE "".
+     END.        
  END.
 
 END PROCEDURE.

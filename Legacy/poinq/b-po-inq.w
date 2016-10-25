@@ -103,19 +103,19 @@ DEF VAR v-paidflg AS LOG NO-UNDO.
           AND po-ordl.due-date  GE fi_due-date      ~
           AND ((po-ordl.opened  AND tb_open)   OR    ~
                (NOT po-ordl.opened AND tb_closed))  ~
-          AND (po-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "") ~
-          AND (IF tb_hold THEN po-ord.stat = "H" ELSE true)
-
+          AND (po-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
+          
 &SCOPED-DEFINE for-each11                           ~
     FOR EACH po-ordl                                ~
         WHERE {&key-phrase}                         ~
           AND po-ordl.opened
 
 &SCOPED-DEFINE for-each2                   ~
-    FIRST po-ord WHERE                ~
+    FIRST po-ord NO-LOCK WHERE                ~
           po-ord.company EQ po-ordl.company AND ~
           po-ord.po-no EQ po-ordl.po-no ~
-    NO-LOCK
+          AND (IF tb_hold THEN po-ord.stat = "H" ELSE true) ~
+          AND (IF tb_approved THEN po-ord.stat <> "H" ELSE true)
 
 &SCOPED-DEFINE for-each3                   ~
     FIRST reftable NO-LOCK                 ~
@@ -402,7 +402,7 @@ DEFINE RECTANGLE RECT-1
      SIZE 148 BY 3.57.
      
 DEFINE VARIABLE tb_approved AS LOGICAL INITIAL no 
-     LABEL "Approvd" 
+     LABEL "Not Hold" 
      VIEW-AS TOGGLE-BOX
      SIZE 13 BY .81 NO-UNDO.
 
@@ -875,7 +875,9 @@ DO:
      fi_due-date
      ll-first = NO
      tb_open
-     tb_closed.
+     tb_closed
+     tb_hold
+     tb_approved.
 
     RUN dispatch ("open-query").
 
