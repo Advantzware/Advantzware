@@ -14,6 +14,8 @@ DEFINE        VARIABLE iRelQtyToAssign LIKE oe-rell.qty NO-UNDO.
 DEFINE        VARIABLE iRelQtyTotal    AS INTEGER NO-UNDO.
 DEFINE        VARIABLE iFifoLoopCount  AS INTEGER NO-UNDO.
 DEFINE        VARIABLE iFifoLoopCount2 AS INTEGER NO-UNDO.
+DEFINE        VARIABLE iOnBOL          AS INTEGER NO-UNDO.
+DEFINE        VARIABLE iAvailable      AS INTEGER NO-UNDO.
 DEFINE        VARIABLE cINo            LIKE oe-rell.i-no NO-UNDO.
 DEFINE        VARIABLE cPoNo           LIKE oe-rell.po-no NO-UNDO.
 DEFINE        VARIABLE iOrdNo          LIKE oe-rell.ord-no NO-UNDO.
@@ -267,9 +269,32 @@ DO:
 
 
                     lFgBinFound = TRUE.
-/*                    MESSAGE "fifo in each bin loop"
-                      VIEW-AS ALERT-BOX INFO BUTTONS OK. */
 
+                    iOnBOL = 0.
+                    FOR  EACH oe-boll FIELDS(qty job-no job-no2) NO-LOCK
+                      WHERE oe-boll.company EQ fg-bin.company                      
+                        AND oe-boll.i-no    EQ fg-bin.i-no
+                        AND oe-boll.loc     EQ fg-bin.loc
+                        AND oe-boll.loc-bin EQ fg-bin.loc-bin
+                        AND oe-boll.tag     EQ fg-bin.tag
+                        AND oe-boll.cust-no EQ fg-bin.cust-no
+                      USE-INDEX i-no,
+                      FIRST oe-bolh FIELDS(company b-no) NO-LOCK
+                        WHERE oe-bolh.b-no EQ oe-boll.b-no
+                          AND oe-bolh.posted  EQ NO:
+            
+                       IF fg-bin.job-no NE "" AND
+                         NOT(oe-boll.job-no EQ fg-bin.job-no AND
+                            oe-boll.job-no2 EQ fg-bin.job-no2) THEN
+                         NEXT.
+                     
+                       iOnBOL = iOnBOL + oe-boll.qty.
+                    END.
+                    iAvailable = fg-bin.qty - iOnBOL.
+                    
+                    IF NOT ((iAvailable      GT 0 AND iFifoLoopCount EQ 2) OR
+                            (iAvailable      GE iRelQtyToAssign AND iFifoLoopCount EQ 1)) THEN 
+                            NEXT.
                     fDebugLog("run pcreatetempoerell " + fg-bin.tag).
                     RUN pCreateTempOeRell (INPUT ROWID(fg-bin), ROWID(fg-rcpth)).
     
