@@ -64,7 +64,7 @@ DEFINE VARIABLE ttblJobRowID AS ROWID NO-UNDO.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME browseJob
 
@@ -184,7 +184,7 @@ ENABLE
 
 DEFINE FRAME F-Main
      jobPhrase AT ROW 1.1 COL 4 COLON-ALIGNED
-     resources AT ROW 1.1 COL 29 HELP
+     resources AT ROW 1.1 COL 27.8 HELP
           "Select Resource"
      btnUpdatesPending AT ROW 1.1 COL 73
      customCheckoffValue AT ROW 1.1 COL 105 HELP
@@ -245,7 +245,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB browseJob customCheckoffValue F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -522,6 +522,7 @@ PROCEDURE local-initialize :
         ttblJob.startDate = {{&includes}/firstDate.i}
         ttblJob.endDate = {{&includes}/lastDate.i}.
   END.
+  RUN setColorDynamic.
   RUN getConfiguration.
   customCheckoffValue:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(customCheckoff).
   RUN getResources.
@@ -567,6 +568,20 @@ PROCEDURE setCellLabels :
       cellColumn[i]:WIDTH-CHARS = IF LENGTH(cellColumn[i]:LABEL) GT 4 THEN
                                   LENGTH(cellColumn[i]:LABEL) * 1.2 ELSE 4.
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setColorDynamic sObject 
+PROCEDURE setColorDynamic :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {{&includes}\setColorDynamic.i}
 
 END PROCEDURE.
 

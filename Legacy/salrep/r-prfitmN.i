@@ -16,13 +16,12 @@
      v-date = "" 
      v-order-date = "".
 
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-        each cust
+    FOR each cust
         where cust.company eq cocode
-          and cust.cust-no EQ ttCustList.cust-no /*fcust*/
-        /*  and cust.cust-no le tcust*/
+          AND cust.cust-no GE fcust
+          AND cust.cust-no LE tcust
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+          AND ttCustList.log-fld no-lock) else true)
         no-lock:
         {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
       {sa/sa-sls03.i "fdate" "tdate"}
@@ -403,7 +402,7 @@
          v-marg = v-amt[1] - v-cst[1].
          
       else do:*/
-        v-brdc = v-cst[1] / (v-qty[1] / 1000).
+      v-brdc = v-cst[1]   /*/ (v-qty[1] / 1000)*/   .
         
     /*    if v-unit eq "U" then
           v-marg = (v-amt[1] - v-cst[1]) / (v-qty[1] / 1000).
@@ -635,7 +634,7 @@
              v-marg = v-amt[2] - v-cst[2].
              
           else do:*/
-            v-brdc = v-cst[2] / (v-qty[2] / 1000).
+            v-brdc = v-cst[2] /*/ (v-qty[2] / 1000)*/  .
         
         /*    if v-unit eq "U" then
               v-marg = (v-amt[2] - v-cst[2]) / (v-qty[2] / 1000).
@@ -741,7 +740,7 @@
              v-marg = v-amt[3] - v-cst[3].
              
           else do:*/
-            v-brdc = v-cst[3] / (v-qty[3] / 1000).
+            v-brdc = v-cst[3] /*/ (v-qty[3] / 1000)*/  .
         
           /*  if v-unit eq "U" then
               v-marg = (v-amt[3] - v-cst[3]) / (v-qty[3] / 1000).
@@ -857,7 +856,7 @@
       end.
       
       else do:*/
-        v-brdc = v-cst[4] / (v-qty[4] / 1000).
+        v-brdc = v-cst[4] /*/ (v-qty[4] / 1000)*/ .
         
      /*   if v-unit eq "U" then
           v-marg = (v-amt[4] - v-cst[4]) / (v-qty[4] / 1000).

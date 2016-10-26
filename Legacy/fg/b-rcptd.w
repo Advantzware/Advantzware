@@ -91,6 +91,7 @@ DO TRANSACTION:
   {sys/inc/fgsecur.i}
   {sys/inc/rfidtag.i}
   {sys/inc/relmerge.i}
+  {sys/inc/POHoldReceipts.i}  /* ticket 17372 */
 END.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
@@ -4913,7 +4914,13 @@ PROCEDURE valid-po-no :
           WHERE po-ord.company EQ po-ordl.company
             AND po-ord.po-no   EQ po-ordl.po-no
           NO-LOCK NO-ERROR.
-
+          
+      IF AVAILABLE po-ord AND po-ord.stat = "H" AND POHoldRct-log THEN DO: /* ticket 17372 */
+         MESSAGE "Unable to receive goods or materials for a purchase order that is on hold!"
+         VIEW-AS ALERT-BOX error. 
+         RETURN ERROR.
+      END.
+      
       /* WFK - Task 09261318 - Don't pull qty from PO if there is a tag per Joe, */
       /* so not running create-from-po if there is                               */
       IF ip-type EQ 1                   AND

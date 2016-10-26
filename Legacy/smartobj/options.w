@@ -319,9 +319,9 @@ PROCEDURE dept-pen-image :
    DO WITH FRAME {&FRAME-NAME}:
 
       IF NOT ip-log THEN
-         Select_Notes:LOAD-IMAGE("Graphics/edit.ico").
+         Select_Notes:LOAD-IMAGE("Graphics/32x32/edit.ico").
       ELSE
-         Select_Notes:LOAD-IMAGE("Graphics/edit_star.ico").
+         Select_Notes:LOAD-IMAGE("Graphics/32x32/edit_star.ico").
    END.
 END PROCEDURE.
 

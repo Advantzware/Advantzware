@@ -65,6 +65,8 @@ DEFINE BUFFER xoe-boll FOR oe-boll.
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE STREAM sDebug.
 lUseLogs = NO. /* Use debug logging */
+if search("logs/" + "r-bolpst" + ".txt") ne ? then 
+  lUseLogs = true.
 cDebugLog = "logs/" + "r-bolpst" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,10)) + ".txt".
 IF lUseLogs THEN 
   OUTPUT STREAM sDebug TO VALUE(cDebugLog).
@@ -209,6 +211,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              .
           IF lPost = YES AND ttPostBolCreateInvoice.reason EQ "" THEN 
             ttPostBolCreateInvoice.reason = "Undetermined".
+          FIND FIRST w-except 
+              WHERE w-except.bol-no EQ ttPostBolCreateInvoice.bolNo
+              NO-ERROR. 
+          IF AVAILABLE w-except THEN 
+            ttPostBolCreateInvoice.reason = "Insufficient Inventory".
         END.
           
     END.    
@@ -377,8 +384,21 @@ PROCEDURE pAutoSelectTags:
     END.
     fDebugMsg("selected qty " + STRING(li-selected-qty) ).
     /* Was not able to assign full quantity from tagged inventory */
-    IF li-selected-qty LT xoe-boll.qty THEN 
+    IF li-selected-qty LT xoe-boll.qty THEN DO:
+        
+        CREATE w-nopost.
+        ASSIGN
+            w-nopost.ord-no   = xoe-boll.ord-no
+            w-nopost.i-no     = xoe-boll.i-no
+            w-nopost.bol-no   = xoe-boll.BOL-no
+            w-nopost.rel-no   = xoe-boll.REL-no
+            w-nopost.b-ord-no = xoe-boll.b-ord-no
+            w-nopost.cust-no  = xoe-boll.cust-no
+            w-nopost.po-no    = xoe-boll.PO-NO
+            w-nopost.reason   = "Insufficient Inventory"
+            .        
       RETURN.
+    END.
       
     /* If full quantity was selected, then process creation of oe-boll lines */
     v-qty     = xoe-boll.qty.    

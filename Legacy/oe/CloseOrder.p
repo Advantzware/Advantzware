@@ -500,11 +500,24 @@ ELSE DO: /*all other cases*/
                     opcReason = 'Not Closed. Requirements for allowable underrun met but job inventory still exists.' + cQtyMessage
                     .
         END.
-        ELSE
-            ASSIGN 
+        ELSE do:
+            FIND FIRST inv-line NO-LOCK 
+                 WHERE inv-line.company EQ ipbf-oe-ordl.company
+                   AND inv-line.i-no EQ ipbf-oe-ordl.i-no
+                   AND inv-line.ord-no EQ ipbf-oe-ordl.ord-no
+                   AND inv-line.job-no EQ ipbf-oe-ordl.job-no
+                   AND inv-line.job-no2 EQ ipbf-oe-ordl.job-no2
+                   NO-ERROR.
+            IF AVAIL inv-line  THEN
+                ASSIGN 
+                    opcStatus = ipbf-oe-ordl.stat
+                    opcReason = 'Not Closed. Requirements for allowable underrun met but job inventory still exists.' + cQtyMessage  .
+            
+            ELSE ASSIGN 
                 opcStatus = 'C'
-                opcReason = 'Closed. Requirements for allowable underrun met.' + cQtyMessage
-                .
+                opcReason = 'Closed. Requirements for allowable underrun met.' + cQtyMessage  .
+        END.  /* else do  */
+               
     END.
     ELSE
         ASSIGN 

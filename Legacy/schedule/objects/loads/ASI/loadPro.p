@@ -258,6 +258,7 @@ END.
 &IF '{&Board}' NE 'View' &THEN
 DEFINE VARIABLE altResSeq AS INTEGER NO-UNDO.
 DEFINE VARIABLE asiCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE asiLocation AS CHARACTER NO-UNDO.
 DEFINE VARIABLE beginEstType AS INTEGER NO-UNDO.
 DEFINE VARIABLE boardLength AS DECIMAL NO-UNDO.
 DEFINE VARIABLE boardType AS CHARACTER NO-UNDO.
@@ -419,9 +420,12 @@ FUNCTION noDate RETURN LOGICAL (ipCompany AS CHARACTER):
                     AND sys-ctrl.log-fld EQ YES).
 END FUNCTION.
 
-IF VALID-HANDLE(ipContainerHandle) THEN
-RUN asiCommaList IN ipContainerHandle ('Company',OUTPUT asiCompany).
+IF VALID-HANDLE(ipContainerHandle) THEN DO:
+    RUN asiCommaList IN ipContainerHandle ('Company',OUTPUT asiCompany).
+    RUN asiCommaList IN ipContainerHandle ('Location',OUTPUT asiLocation).
+END.
 IF asiCompany EQ '' THEN asiCompany = '001'.
+IF asiLocation EQ '' THEN asiLocation = 'Main'.
 
 ASSIGN
   useDeptSort = SEARCH(findProgram('{&data}/',ID,'/useDeptSort.dat')) NE ?
@@ -546,7 +550,7 @@ FOR EACH job-hdr NO-LOCK
         AND job-mch.run-complete EQ NO
      ,FIRST mach NO-LOCK
       WHERE mach.company EQ job.company
-        AND mach.loc EQ job.loc
+        AND mach.loc EQ asiLocation
         AND mach.m-code EQ job-mch.m-code
       BREAK BY job-mch.job
             BY job-mch.frm
@@ -607,10 +611,14 @@ FOR EACH job-hdr NO-LOCK
       startTime = fixTime(job-mch.start-time-su)
       strRowID = STRING(ROWID(job)) + ',' + STRING(ROWID(job-mch))
       keyValues = job-mch.company + ','
+                + STRING(job-mch.line) + ','
                 + job-mch.m-code + ','
                 + STRING(job-mch.job) + ','
                 + job-mch.job-no + ','
-                + STRING(job-mch.job-no2)
+                + STRING(job-mch.job-no2) + ','
+                + STRING(job-mch.frm) + ','
+                + STRING(job-mch.blank-no) + ','
+                + STRING(job-mch.pass)
       timeSpan = calcJobTime(job-mch.mr-hr,job-mch.run-hr)
       unitFound = NO
       userField = ''
@@ -1156,7 +1164,7 @@ FOR EACH job-hdr NO-LOCK
       &jobSequence=job-mch.seq-no
       &startTime=startTime
       &timeSpan=timeSpan
-      &jobLocked=job-mch.anchored
+      &jobLocked=NO
       &dueDate=dueDate
       &prodDate=prodDate
       &customValue=customVal

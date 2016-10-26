@@ -1,0 +1,15 @@
+ADD FIELD "reason" OF "job" AS character 
+  FORMAT "x(2)"
+  INITIAL ""
+  LABEL "Reason"
+  POSITION 60
+  MAX-WIDTH 4
+  ORDER 590
+
+ADD FIELD "emailTo" OF "emailcod" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Email To"
+  POSITION 5
+  MAX-WIDTH 100
+  ORDER 40

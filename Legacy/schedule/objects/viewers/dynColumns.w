@@ -1,7 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -75,7 +74,7 @@ DEFINE TEMP-TABLE colOrder NO-UNDO
 &Scoped-define PROCEDURE-TYPE Dialog-Box
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 &Scoped-define BROWSE-NAME browseJob
 
@@ -235,22 +234,22 @@ DEFINE VARIABLE selectedColumn AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-10
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 17 BY 1.14
      BGCOLOR 7 .
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 17 BY 1.14
      BGCOLOR 12 .
 
 DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 18 BY 1.14
      BGCOLOR 14 .
 
 DEFINE RECTANGLE RECT-9
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 22 BY 1.14
      BGCOLOR 15 .
 
@@ -300,37 +299,37 @@ DEFINE VARIABLE ruler-3 AS CHARACTER FORMAT "X(256)":U INITIAL "1234567890123456
      BGCOLOR 0 FGCOLOR 15 FONT 2 NO-UNDO.
 
 DEFINE RECTANGLE availableFields
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 154.6 BY 1.91
      BGCOLOR 7 .
 
 DEFINE RECTANGLE excelRect
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 83 BY 5
      BGCOLOR 2 .
 
 DEFINE RECTANGLE line-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 154.6 BY 1.43.
 
 DEFINE RECTANGLE line-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 154.6 BY 1.43.
 
 DEFINE RECTANGLE line-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 154.6 BY 1.43.
 
 DEFINE RECTANGLE line-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 154.6 BY 1.43.
 
 DEFINE RECTANGLE line-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 154.6 BY 1.43.
 
 DEFINE RECTANGLE line-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 154.6 BY 1.43.
 
 DEFINE VARIABLE excelOrder AS CHARACTER 
@@ -414,15 +413,15 @@ DEFINE FRAME Dialog-Frame
      "Locked Column" VIEW-AS TEXT
           SIZE 15 BY .71 AT ROW 1.48 COL 85
           BGCOLOR 12 
-     "Sortable Column" VIEW-AS TEXT
-          SIZE 16 BY .71 AT ROW 1.48 COL 102
-          BGCOLOR 14 
-     "Hidden Column" VIEW-AS TEXT
-          SIZE 15 BY .71 AT ROW 1.48 COL 142
-          BGCOLOR 7 
      "Non-Sortable Column" VIEW-AS TEXT
           SIZE 20 BY .71 AT ROW 1.48 COL 120
           BGCOLOR 15 
+     "Hidden Column" VIEW-AS TEXT
+          SIZE 15 BY .71 AT ROW 1.48 COL 142
+          BGCOLOR 7 
+     "Sortable Column" VIEW-AS TEXT
+          SIZE 16 BY .71 AT ROW 1.48 COL 102
+          BGCOLOR 14 
      RECT-7 AT ROW 1.24 COL 84
      RECT-8 AT ROW 1.24 COL 101
      RECT-9 AT ROW 1.24 COL 119
@@ -450,31 +449,31 @@ DEFINE FRAME layoutFrame
           "Click to Move Current Column and Row Down"
      ruler-2 AT ROW 1.71 COL 1 NO-LABEL
      ruler-3 AT ROW 2.43 COL 1 NO-LABEL
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 6.48 COL 1
-          BGCOLOR 0 FGCOLOR 15 FONT 2
-     "Available Fields" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 14.1 COL 13
-          BGCOLOR 14 
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 5.05 COL 1
+     "Unused Layout Fields:" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 12.19 COL 2
+     "6" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 10.76 COL 1
           BGCOLOR 0 FGCOLOR 15 FONT 2
      "1" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 3.62 COL 1
           BGCOLOR 0 FGCOLOR 15 FONT 2
-     "6" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 10.76 COL 1
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 5.05 COL 1
+          BGCOLOR 0 FGCOLOR 15 FONT 2
+     "Available Fields" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 14.1 COL 13
+          BGCOLOR 14 
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 6.48 COL 1
+          BGCOLOR 0 FGCOLOR 15 FONT 2
+     "4" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 7.91 COL 1
           BGCOLOR 0 FGCOLOR 15 FONT 2
      "Excel Column Order" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 14.1 COL 56
           BGCOLOR 14 
      "5" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 9.33 COL 1
-          BGCOLOR 0 FGCOLOR 15 FONT 2
-     "Unused Layout Fields:" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 12.19 COL 2
-     "4" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 7.91 COL 1
           BGCOLOR 0 FGCOLOR 15 FONT 2
      line-1 AT ROW 3.14 COL 1
      line-2 AT ROW 4.57 COL 1
@@ -511,7 +510,7 @@ DEFINE FRAME layoutFrame
 ASSIGN FRAME layoutFrame:FRAME = FRAME Dialog-Frame:HANDLE.
 
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-                                                                        */
+   FRAME-NAME                                                           */
 /* BROWSE-TAB browseJob selectedColumn Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE

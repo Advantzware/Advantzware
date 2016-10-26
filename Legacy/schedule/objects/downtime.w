@@ -1,7 +1,6 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
@@ -84,7 +83,7 @@ END PROCEDURE.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME downtimeFrame
 &Scoped-define BROWSE-NAME resourceBrowseSource
 
@@ -318,22 +317,22 @@ DEFINE VARIABLE calendarMonth AS INTEGER
      BGCOLOR 15 FONT 6 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 0  
+     EDGE-PIXELS 0    
      SIZE 21 BY 26.76
      BGCOLOR 7 .
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 18 BY 10.24
      BGCOLOR 7 .
 
 DEFINE RECTANGLE RECT-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 21 BY 1.67
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 18 BY 4.05
      BGCOLOR 14 .
 
@@ -357,7 +356,7 @@ DEFINE BROWSE resourceBrowseSource
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 32 BY 26.76
-         TITLE "Source Resources" ROW-HEIGHT-CHARS .62 EXPANDABLE.
+         TITLE "Source Resources" ROW-HEIGHT-CHARS .62 FIT-LAST-COLUMN.
 
 DEFINE BROWSE resourceBrowseTarget
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS resourceBrowseTarget sObject _FREEFORM
@@ -366,7 +365,7 @@ DEFINE BROWSE resourceBrowseTarget
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 32 BY 26.76
-         TITLE "Target Resources" ROW-HEIGHT-CHARS .62 EXPANDABLE.
+         TITLE "Target Resources" ROW-HEIGHT-CHARS .62 FIT-LAST-COLUMN.
 
 DEFINE BROWSE timeBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS timeBrowse sObject _FREEFORM
@@ -378,7 +377,7 @@ DEFINE BROWSE timeBrowse
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 52 BY 26.76
-         TITLE "Resource Downtime" ROW-HEIGHT-CHARS .62 EXPANDABLE.
+         TITLE "Resource Downtime" ROW-HEIGHT-CHARS .62 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -486,7 +485,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME downtimeFrame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB resourceBrowseSource 1 downtimeFrame */
 /* BROWSE-TAB timeBrowse resourceBrowseSource downtimeFrame */
 /* BROWSE-TAB resourceBrowseTarget timeBrowse downtimeFrame */

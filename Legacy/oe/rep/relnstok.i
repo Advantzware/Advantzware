@@ -267,10 +267,14 @@ FOR EACH w-oe-rell USE-INDEX idx,
   itemfg.i-no EQ w-oe-rell.i-no
   NO-LOCK
   BREAK BY w-oe-rell.ord-no DESC
-  BY w-oe-rell.set-no
-  BY w-oe-rell.seq
-  BY w-oe-rell.po-no
-  BY w-oe-rell.i-no
+    BY w-oe-rell.loc 
+    BY w-oe-rell.loc-bin 
+    BY w-oe-rell.set-no
+    BY w-oe-rell.seq
+    BY w-oe-rell.po-no
+    BY w-oe-rell.i-no
+     
+ 
    :
   
   IF FIRST-OF(w-oe-rell.i-no) THEN     
@@ -314,8 +318,84 @@ FOR EACH w-oe-rell USE-INDEX idx,
       
     END.
 
-    IF s-print-what-item EQ "S" THEN
-      RUN consolidate-bins.
+    /*IF s-print-what-item EQ "S" THEN
+      RUN consolidate-bins.*/
+
+    for each fg-bin
+               where fg-bin.company  eq cocode
+                 and fg-bin.i-no     eq w-oe-rell.i-no
+                 and fg-bin.qty      gt 0
+               no-lock:
+          
+               IF NOT(
+                  ((s-print-what-item = "R") OR
+                   (LOOKUP(s-print-what-item,"I,S") > 0 AND
+                    fg-bin.loc >= s-print-loc-from AND
+                    fg-bin.loc <= s-print-loc-to AND
+                    fg-bin.loc-bin >= s-print-bin-from AND
+                    fg-bin.loc-bin <= s-print-bin-to))) THEN
+                  NEXT.
+              
+               IF s-print-what-item = "R" AND
+                  NOT CAN-FIND(FIRST oe-rell
+                                    WHERE oe-rell.company  EQ w-oe-rell.company
+                                      AND oe-rell.r-no     EQ w-oe-rell.r-no
+                                      AND oe-rell.ord-no   EQ w-oe-rell.ord-no
+                                      AND oe-rell.i-no     EQ w-oe-rell.i-no
+                                      AND oe-rell.line     EQ w-oe-rell.line
+                                      AND oe-rell.rel-no   EQ w-oe-rell.rel-no
+                                      AND oe-rell.b-ord-no EQ w-oe-rell.b-ord-no
+                                      AND oe-rell.po-no    EQ w-oe-rell.po-no
+                                      AND oe-rell.loc      EQ fg-bin.loc
+                                      AND oe-rell.loc-bin  EQ fg-bin.loc-bin
+                                      AND oe-rell.tag      EQ fg-bin.tag) THEN
+                  NEXT.
+              
+               create w-bin.
+               assign
+                w-bin.w-tag    = fg-bin.tag
+                w-bin.w-loc    = fg-bin.loc
+                w-bin.w-bin    = fg-bin.loc-bin
+                w-bin.w-qty[1] = fg-bin.qty
+                w-bin.w-qty[2] = fg-bin.qty
+                w-bin.w-unit-count = fg-bin.case-count
+                w-bin.w-units = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0)
+                w-bin.w-i-no = fg-bin.i-no
+                i        = i + 1.
+              
+               /*IF s-print-what-item NE "S" THEN
+                  FOR EACH fg-rcpth FIELDS(r-no trans-date) WHERE
+                      fg-rcpth.company eq fg-bin.company AND
+                      fg-rcpth.i-no    eq fg-bin.i-no AND
+                      fg-rcpth.job-no  eq fg-bin.job-no AND
+                      fg-rcpth.job-no2 eq fg-bin.job-no2
+                      NO-LOCK,
+                      first fg-rdtlh FIELDS(trans-time) where
+                      fg-rdtlh.r-no eq fg-rcpth.r-no AND
+                      fg-rdtlh.loc  eq fg-bin.loc AND
+                      fg-rdtlh.loc-bin eq fg-bin.loc-bin AND
+                      fg-rdtlh.tag     eq fg-bin.tag AND
+                      fg-rdtlh.cust-no EQ fg-bin.cust-no
+                      no-lock
+                      by fg-rcpth.trans-date
+                      BY fg-rdtlh.trans-time
+                      by fg-rcpth.r-no
+                      /*by fg-rcpth.job-no
+                      by fg-rcpth.job-no2
+                      by fg-bin.qty*/ :
+                 
+                      w-bin.w-date-time = STRING(YEAR(fg-rcpth.trans-date),"9999")
+                                        + STRING(MONTH(fg-rcpth.trans-date),"99")
+                                        + STRING(DAY(fg-rcpth.trans-date),"99")
+                                        + STRING(fg-rdtlh.trans-time,"999999").
+                 
+                      LEAVE.
+                  END.
+               ELSE
+                  w-bin.w-date-time = "29991201000000".*/
+
+               RELEASE w-bin.
+           end. /*each fg-bin*/
     
     FOR EACH w-bin
       BREAK BY w-bin.w-loc
@@ -366,6 +446,9 @@ FOR EACH w-oe-rell USE-INDEX idx,
     
     FOR EACH w-bin
       BREAK BY w-bin.w-date-time
+      BY w-bin.w-loc
+      BY w-bin.w-bin
+      BY w-bin.w-tag
       BY w-bin.w-qty[2] desc
       BY w-bin.w-qty[1] desc:
       IF w-bin.w-par EQ "" AND w-bin.w-loc EQ "" AND w-bin.w-bin EQ "" THEN DELETE w-bin.
@@ -374,6 +457,9 @@ FOR EACH w-oe-rell USE-INDEX idx,
     lv-part-qty-printed = NO.
     FOR EACH w-bin
       BREAK BY w-bin.w-date-time
+      BY w-bin.w-loc
+      BY w-bin.w-bin
+      BY w-bin.w-tag
       BY w-bin.w-qty[2] desc
       BY w-bin.w-qty[1] desc:
       IF LAST(w-bin.w-date-time) AND (w-bin.w-loc NE "" OR w-bin.w-bin NE "") THEN
@@ -394,7 +480,10 @@ FOR EACH w-oe-rell USE-INDEX idx,
     /* Do actual detail printing */
     FOR EACH w-bin
       BREAK BY w-bin.w-date-time
-            BY w-bin.w-i-no
+            BY w-bin.w-loc
+            BY w-bin.w-bin 
+            BY w-bin.w-tag
+            /*BY w-bin.w-i-no*/
             BY w-bin.w-qty[2] desc
             BY w-bin.w-qty[1] desc:
 
@@ -505,7 +594,7 @@ FOR EACH w-oe-rell USE-INDEX idx,
       
       DOWN {2} WITH FRAME rel-mid.
       
-    END.  /* for eacn w-bin*/
+    END.  /* for eacn w-bin  */
     v-rel-qty = 0.
   END.  /* last-of(w-oe-rell.po-no) */
 END. /* for each w-oe-rell */
@@ -565,6 +654,9 @@ DEF BUFFER bf-itemfg FOR itemfg.
 
 FOR EACH w-bin WHERE w-bin.w-par EQ ""
   BY w-bin.w-date-time
+  BY w-bin.w-loc
+  BY w-bin.w-bin
+  BY w-bin.w-tag
   BY w-bin.w-qty[2] desc
   BY w-bin.w-qty[1] desc:
   
@@ -575,6 +667,9 @@ END.
 
 FOR EACH w-bin WHERE w-bin.w-par EQ ""
   BY w-bin.w-date-time
+  BY w-bin.w-loc
+  BY w-bin.w-bin
+  BY w-bin.w-tag
   BY w-bin.w-qty[2] desc
   BY w-bin.w-qty[1] desc:
   w-bin.w-par = IF w-oe-rell.seq EQ 0 THEN oe-ordl.i-name
@@ -584,6 +679,9 @@ END.
 
 FOR EACH w-bin WHERE w-bin.w-par EQ ""
   BY w-bin.w-date-time
+  BY w-bin.w-loc
+  BY w-bin.w-bin
+  BY w-bin.w-tag
   BY w-bin.w-qty[2] desc
   BY w-bin.w-qty[1] desc:
   w-bin.w-par = IF w-oe-rell.seq EQ 0 THEN oe-ordl.part-dscr1
@@ -593,6 +691,9 @@ END.
 
 FOR EACH w-bin WHERE w-bin.w-par EQ ""
   BY w-bin.w-date-time
+  BY w-bin.w-loc
+  BY w-bin.w-bin
+  BY w-bin.w-tag
   BY w-bin.w-qty[2] desc
   BY w-bin.w-qty[1] desc:
   w-bin.w-par = IF w-oe-rell.seq EQ 0 THEN oe-ordl.part-dscr2
@@ -602,6 +703,9 @@ END.
 
 FOR EACH w-bin WHERE w-bin.w-par EQ ""
   BY w-bin.w-date-time
+  BY w-bin.w-loc
+  BY w-bin.w-bin
+  BY w-bin.w-tag
   BY w-bin.w-qty[2] desc
   BY w-bin.w-qty[1] desc:
   w-bin.w-par = itemfg.part-dscr3.
@@ -610,6 +714,9 @@ END.
 
 FOR EACH w-bin WHERE w-bin.w-par EQ ""
   BY w-bin.w-date-time
+  BY w-bin.w-loc
+  BY w-bin.w-bin
+  BY w-bin.w-tag
   BY w-bin.w-qty[2] desc
   BY w-bin.w-qty[1] desc:
   IF w-oe-rell.po-no NE "" THEN w-bin.w-par = "PO#: " + w-oe-rell.po-no.
@@ -618,6 +725,9 @@ END.
 
 FOR EACH w-bin WHERE w-bin.w-par EQ ""
   BY w-bin.w-date-time
+  BY w-bin.w-loc
+  BY w-bin.w-bin
+  BY w-bin.w-tag
   BY w-bin.w-qty[2] desc
   BY w-bin.w-qty[1] desc:
 

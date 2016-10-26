@@ -42,11 +42,13 @@ def var lv-first-time as log init yes no-undo.
 
 &global-define IAMWHAT LOOKUP
 
-
+{methods/defines/hndldefs.i}
 {custom/gcompany.i}
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
+
+{custom/getcmpny.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -72,9 +74,11 @@ def var lv-first-time as log init yes no-undo.
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 ventype.TYPE ~
 ventype.dscr 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
-&Scoped-define QUERY-STRING-Browser-1 FOR EACH ventype WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-1 FOR EACH ventype WHERE ~{&KEY-PHRASE} ~
+    AND ventype.company = gcompany NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH ventype WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH ventype WHERE ~{&KEY-PHRASE} ~
+    AND ventype.company = gcompany NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 ventype
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ventype
