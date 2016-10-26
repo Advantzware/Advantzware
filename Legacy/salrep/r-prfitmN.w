@@ -610,7 +610,7 @@ DO:
   
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1549,151 +1549,11 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(350)" NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VARIABLE excelheader AS CHAR NO-UNDO.
 
-/*IF tl_color = YES THEN 
-      v-label9 = " Colors".
-   ELSE
-      v-label9 = " ". */
-      
-
- /*
-form header
-     skip(1)
-     "        "
-     "Invoice"
-     v-label6
-     "Prod "
-     "            "
-     "    Item"
-     "  Total"
-     "     "
-     "               "
-     "    "
-     "           "
-     "           "
-     "         "
-     "         "
-     skip
-
-     "Customer"
-     " Number"
-     v-label7
-     "Categ"
-     " Qty Shipped"
-     "    SqFt"
-     "    MSF"
-     "$/MSF"
-     v-label1
-     v-label2
-     v-label3
-     v-label4
-     v-label5
-     v-label9
-     skip
-
-     "--------"
-     "-------"
-     "---------------"
-     "-----"
-     "------------"
-     "--------"
-     "-------"
-     "-----"
-     "---------------"
-     "----"
-     "-----------"
-     "-----------"
-     "---------"
-     "---------"
-     SKIP
-    with frame r-top down stream-io width 350.
-
-form header
-     skip(1)
-     "        "
-     "          "
-     "          "
-     "Invoice"
-     v-label6
-     "Prod "
-     "            "
-     "    Item"
-     "  Total"
-     "     "
-     "               "
-     "    "
-     "           "
-     "           "
-     "         "
-     "             "
-     skip
-
-     "Customer"
-     "Order Date"
-     "Ship Date "
-     " Number"
-     v-label7
-     "Categ"
-     " Qty Shipped"
-     "    SqFt"
-     "    MSF"
-     "$/MSF"
-     "Estimate#"
-     "Style  Flute"
-     "Test"
-     "  Length"
-     "Width"
-     " Depth"
-      v-label9
-     skip
-
-     "--------"
-     "----------"
-     "----------"
-     "-------"
-     "---------------"
-     "-----"
-     "------------"
-     "--------"
-     "-------"
-     "-----"
-     "---------"
-     "------ -----" 
-     "------" 
-     "------" 
-     "------" 
-     "------" 
-     "------"
-     SKIP
-    with frame r-top2 down stream-io width 195.
-
-form v-cust-no            column-label "Customer"
-     v-order-date
-     v-date                                      
-     w-data.inv-no
-     space(2)
-     w-data.i-no
-     itemfg.procat        column-label "Prod!Categ"
-     v-qty[1]             format "->>>,>>>,>>>"
-     itemfg.t-sqft        column-label "Item!SqFt"
-     v-msf[1]             format "->>9.99"
-     v-$msf               format "->>>9"
-     SPACE(5)
-     v-est-no FORMAT "X(5)"
-     v-style
-     v-flute
-     space(3)
-     v-test
-     v-len              
-     v-wid
-     v-dep 
-     SPACE(4)
-     x-v-color FORMAT "x(2)"
-    with no-labels frame itemb down stream-io width 195.  */
 
 find first fg-ctrl where fg-ctrl.company eq cocode no-lock.
 
@@ -1710,43 +1570,17 @@ assign
  fdate          = begin_inv-date
  tdate          = end_inv-date
  sort-by-cust   = rd_sort EQ "Customer#"
- v-cost1        = "1"      
+ v-cost1        = "4"      
  /*v-unit         = SUBSTR(rd_show2,1,1)*/
  /*v-cost3        = SUBSTR(rd_show3,1,1)*/
- v-inc-fc       = tb_fin-chg.
+ v-inc-fc       = tb_fin-chg
+ lSelected      = tb_cust-list.
 
 IF v-cost2 THEN DO: 
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
   v-cost2 = ll-secure. 
 END.
- /* IF RS_fgitem-cust-part-no = "FG Item" THEN
-     ASSIGN
-         v-label6 = "               "
-         v-label7 = "FG Item        ".
-  ELSE
-     ASSIGN
-         v-label6 = "Customer       "
-         v-label7 = "Part No        ". 
-
-  IF TB_style-flute-test-lwd = NO THEN DO:
-     if v-unit eq "E" then 
-       assign
-        v-label1 = "    Invoice Amt"
-        v-label2 = ""
-        v-label3 = "   Inv Cost"
-        v-label4 = " Inv Margin".
-        
-     else do:
-       assign
-        v-label1 = "     Unit Price"
-        v-label2 = "UOM"
-        v-label3 = "     Cost/M".
-       
-       v-label4 = if v-unit eq "C" then "   Cost/MSF" else "   Margin/M".
-     end.
-        
-     v-label5 = if v-cost3 eq "C" then "    Cost%" else "  Profit%".
-  END. */
+ 
 
 
  DEF VAR cslist AS cha NO-UNDO.
@@ -1781,63 +1615,21 @@ if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(fi_file).
-
- /*  IF RS_fgitem-cust-part-no = "FG Item" THEN
-      v-label8 = "FG Item".
-   ELSE
-      v-label8 = "Customer Part No".
-
-   
-
-   IF TB_style-flute-test-lwd = NO THEN DO:
-      EXPORT STREAM excel DELIMITER ","       
-         "Customer"
-         "Invoice#"
-          v-label8
-         "Prod Categ"
-         "Qty Shipped"
-         "Item SquFT"
-         "Total MSF"
-         "$/MSF"
-         "Unit Price"
-         "UOM"
-         "Cost/M"
-         "Margin/M"
-         "Cost%"
-         v-label9
-         SKIP.
-   END.
-   ELSE DO:
-      EXPORT STREAM excel DELIMITER ","       
-         "Customer"
-         "Order date"
-         "Ship Date"
-         "Invoice#"
-         v-label8
-         "Prod Categ"
-         "Qty Shipped"
-         "Item SquFT"
-         "Total MSF"
-         "$/MSF"
-         "Unit Price"
-         "UOM"
-         "Invoice Amt"
-         "Estimate#"
-         "Style"
-         "Flute"
-         "Test"
-         "Length"
-         "Width"
-         "Depth"
-         v-label9
-         SKIP.
-   END.       */
+ 
 PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 /*IF TB_style-flute-test-lwd = NO THEN */
    display "" with frame r-top.
 /*ELSE
    display "" with frame r-top2. */
+
+
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
 
 SESSION:SET-WAIT-STATE ("general").
 
