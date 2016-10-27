@@ -680,137 +680,137 @@ DEFINE VARIABLE jobMovingDisplay AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 14  NO-UNDO.
 
 DEFINE RECTANGLE boardGrid-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-10
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-11
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-12
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-13
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-14
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-15
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-16
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-17
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-18
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-19
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-20
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-21
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-22
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-23
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-24
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-7
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-8
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE boardGrid-9
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.4 BY 24.38
      FGCOLOR 0 .
 
 DEFINE RECTANGLE intervalRect
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 157 BY 1.14
      BGCOLOR 15 .
 
 DEFINE RECTANGLE resourceGrid
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 27 BY 24.38
      BGCOLOR 8 .
 
 DEFINE RECTANGLE settingsRect
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 157 BY 1.19
      BGCOLOR 7 .
 
@@ -2064,7 +2064,7 @@ PROCEDURE buildJob :
     threeDIdx = 0.
   DO i = 1 TO resourceIdx:
     currentWidget = resourceWidget[i].
-    FOR EACH ttblJob EXCLUSIVE-LOCK
+    FOR EACH ttblJob
         WHERE ttblJob.resource EQ currentWidget:NAME
           AND ((ttblJob.startDate GE intDate[1]
           AND ttblJob.startDate LE intDate[24])
@@ -2379,8 +2379,7 @@ PROCEDURE createJob :
   pWidget:TOOLTIP = jobToolTip + '~n~nStatus: ' + jobStatus().
   IF '{&Board}' EQ 'Basic' THEN
   pWidget:SCREEN-VALUE = jobDescriptn.
-  /*
-  {{&includes}/tooltip.i}*/
+  /* {{&includes}/tooltip.i} */
   
 END PROCEDURE.
 
@@ -3362,6 +3361,103 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFromPending s-object 
+PROCEDURE pFromPending :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE priorEndDate AS DATE NO-UNDO.
+    DEFINE VARIABLE priorEndTime AS INTEGER NO-UNDO.
+    DEFINE VARIABLE priorDateTime AS INTEGER NO-UNDO INITIAL ?.
+
+    DEFINE BUFFER bPendingJob FOR pendingJob.
+
+    FOR EACH bPendingJob
+        BY bPendingJob.job
+        BY bPendingJob.resourceSequence
+        :
+      ASSIGN
+        bPendingJob.startDate = TODAY
+        bPendingJob.startTime = TIME
+        .
+      RUN newEnd (bPendingJob.timeSpan,bPendingJob.startDate,bPendingJob.startTime,
+                  OUTPUT bPendingJob.endDate,OUTPUT bPendingJob.endTime).
+    END. /* each bpendingjob */
+    
+    FOR EACH bPendingJob
+        BREAK BY bPendingJob.dueDate
+              BY bPendingJob.job
+              BY bPendingJob.resourceSequence
+        :
+        CREATE ttblJob.
+        BUFFER-COPY bPendingJob TO ttblJob.
+        ASSIGN
+          ttblJob.origStartDate = bPendingJob.startDate
+          ttblJob.origStartTime = bPendingJob.startTime
+          ttblJob.origEndDate = bPendingJob.endDate
+          ttblJob.origEndTime = bPendingJob.endTime
+          .
+        ttblJob.startDateTime = numericDateTime(ttblJob.startDate,ttblJob.startTime).
+        ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
+        ASSIGN
+          ttblJob.jobBGColor = jobBGColor()
+          ttblJob.jobFGColor = jobFGColor()
+          .
+        IF priorDateTime NE ? AND priorDateTime GE ttblJob.startDateTime THEN DO:
+          ASSIGN
+            ttblJob.startDate = priorEndDate
+            ttblJob.startTime = priorEndTime
+            .
+          RUN newEnd (ttblJob.timeSpan,ttblJob.startDate,ttblJob.startTime,
+                      OUTPUT ttblJob.endDate,OUTPUT ttblJob.endTime).
+          ttblJob.startDateTime = numericDateTime(ttblJob.startDate,ttblJob.startTime).
+          ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
+          ASSIGN
+            ttblJob.jobBGColor = jobBGColor()
+            ttblJob.jobFGColor = jobFGColor()
+            .
+        END.
+        RUN firstAvailable (ttblJob.resource,ROWID(ttblJob),ttblJob.timeSpan,
+                            INPUT-OUTPUT ttblJob.startDateTime,
+                            INPUT-OUTPUT ttblJob.endDateTime,
+                            INPUT-OUTPUT ttblJob.startDate,
+                            INPUT-OUTPUT ttblJob.startTime,
+                            INPUT-OUTPUT ttblJob.endDate,
+                            INPUT-OUTPUT ttblJob.endTime
+                            ).
+        RUN getPriorJobResource (ttblJob.job,ttblJob.resourceSequence,ttblJob.startDateTime,
+                                 INPUT-OUTPUT ttblJob.startDate,INPUT-OUTPUT ttblJob.startTime).
+        RUN newEnd (ttblJob.timeSpan,ttblJob.startDate,ttblJob.startTime,
+                    OUTPUT ttblJob.endDate,OUTPUT ttblJob.endTime).
+        RUN downtimeSpan (ttblJob.resource,ttblJob.timeSpan,ttblJob.startDate,ttblJob.startTime,
+                          OUTPUT ttblJob.endDate,OUTPUT ttblJob.endTime,OUTPUT ttblJob.downtimeSpan).
+        ttblJob.startDateTime = numericDateTime(ttblJob.startDate,ttblJob.startTime).
+        ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
+        ASSIGN
+          ttblJob.jobBGColor = jobBGColor()
+          ttblJob.jobFGColor = jobFGColor()
+          .
+        ASSIGN
+          priorEndDate = ttblJob.endDate
+          priorEndTime = ttblJob.endTime
+          priorDateTime = ttblJob.endDateTime
+          .
+        
+        RUN pSetResourceSequence (bPendingJob.resource).
+        ttblJob.sequenced = YES.
+        IF LAST-OF(bPendingJob.job) THEN
+        priorDateTime = ?.
+        DELETE bPendingJob.
+    END. /* each bpendingjob */
+    RUN buildBoard (NO).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE print s-object 
 PROCEDURE print :
 /*------------------------------------------------------------------------------
@@ -3384,6 +3480,29 @@ PROCEDURE print :
     resourceValueHi = ipResource.
   RUN {&prompts}/fieldFilter.w PERSISTENT SET hdle ('{&Board}','','',NO,NO,THIS-PROCEDURE,'print').
   RUN setPopup IN containerHandle (4,hdle).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetResourceSequence s-object 
+PROCEDURE pSetResourceSequence :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipResource AS CHARACTER NO-UNDO.
+
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+
+  FOR EACH buffJob EXCLUSIVE-LOCK WHERE buffJob.resource EQ ipResource
+      BY buffJob.startDate BY buffJob.startTime:
+    ASSIGN
+      i = i + 1
+      buffJob.jobSequence = i.
+  END.
 
 END PROCEDURE.
 

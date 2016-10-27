@@ -39,6 +39,19 @@ FUNCTION resourceSequence RETURNS CHARACTER (ipValue AS INTEGER):
   RETURN IF AVAILABLE buffUseTable THEN buffUseTable.resource ELSE ''.
 END FUNCTION.
 
+FUNCTION routing RETURNS CHARACTER ():
+  DEFINE VARIABLE cRouting AS CHARACTER NO-UNDO.
+
+  FOR EACH buffUseTable NO-LOCK
+      WHERE buffUseTable.job EQ {&useTable}.job
+      BY buffUseTable.resourceSequence
+      :
+      cRouting = cRouting + buffUseTable.resource + ','.
+  END.
+  cRouting = TRIM(cRouting,',').
+  RETURN cRouting.
+END FUNCTION.
+
 FUNCTION sortBy RETURNS CHARACTER:
   CASE sortByValue:
     WHEN 'Due Date' THEN
@@ -112,6 +125,8 @@ PROCEDURE buildLines:
       RUN loadField ({&useTable}.resourceDescription).
       WHEN 'resourceSequence' THEN
       RUN loadField (STRING({&useTable}.resourceSequence,lvFieldFormat)).
+      WHEN 'routing' THEN
+      RUN loadField (routing()).
       WHEN 'skipLine' THEN DO:
         RUN loadField ('skipLine').
         skipLine = YES.

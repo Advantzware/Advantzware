@@ -618,7 +618,8 @@ FOR EACH job-hdr NO-LOCK
                 + STRING(job-mch.job-no2) + ','
                 + STRING(job-mch.frm) + ','
                 + STRING(job-mch.blank-no) + ','
-                + STRING(job-mch.pass)
+                + STRING(job-mch.pass) + ','
+                + job-mch.rec_key
       timeSpan = calcJobTime(job-mch.mr-hr,job-mch.run-hr)
       unitFound = NO
       userField = ''
