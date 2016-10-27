@@ -123,24 +123,24 @@ vend.remit vend.r-add1 vend.r-add2 vend.r-city vend.r-state vend.r-zip ~
 vend.r-country vend.r-postal vend.check-memo vend.type vend.contact ~
 vend.buyer vend.area-code vend.phone vend.fax-area vend.fax vend.fax-prefix ~
 vend.fax-country vend.over-pct vend.under-pct vend.actnum vend.curr-code ~
-vend.tax-gr vend.code-1099 vend.an-edi-vend vend.terms vend.disc-% ~
+vend.tax-gr vend.code-1099 vend.an-edi-vend cb_paytype vend.terms vend.disc-% ~
 vend.rebate-% vend.frt-pay vend.disc-days vend.carrier vend.fob-code ~
 vend.loc 
 &Scoped-define ENABLED-TABLES vend
 &Scoped-define FIRST-ENABLED-TABLE vend
-&Scoped-Define ENABLED-OBJECTS cb_paytype RECT-1 RECT-29 RECT-30 RECT-31 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-29 RECT-30 RECT-31 
 &Scoped-Define DISPLAYED-FIELDS vend.vend-no vend.active vend.name ~
 vend.add1 vend.add2 vend.city vend.state vend.zip vend.country vend.Postal ~
 vend.tax-id vend.remit vend.r-add1 vend.r-add2 vend.r-city vend.r-state ~
 vend.r-zip vend.r-country vend.r-postal vend.check-memo vend.type ~
 vend.contact vend.buyer vend.area-code vend.phone vend.fax-area vend.fax ~
 vend.fax-prefix vend.fax-country vend.over-pct vend.under-pct vend.actnum ~
-vend.actdscr vend.curr-code vend.tax-gr vend.code-1099 vend.an-edi-vend ~
+vend.actdscr vend.curr-code vend.tax-gr vend.code-1099 vend.an-edi-vend cb_paytype ~
 vend.terms vend.disc-% vend.po-export vend.rebate-% vend.frt-pay ~
 vend.disc-days vend.carrier vend.fob-code vend.loc 
 &Scoped-define DISPLAYED-TABLES vend
 &Scoped-define FIRST-DISPLAYED-TABLE vend
-&Scoped-Define DISPLAYED-OBJECTS cb_paytype ventype_Dscr buyer_buyer-n ~
+&Scoped-Define DISPLAYED-OBJECTS ventype_Dscr buyer_buyer-n ~
 terms_dscr carrier_dscr curr_dscr 
 
 /* Custom List Definitions                                              */
