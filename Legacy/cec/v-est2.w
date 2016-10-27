@@ -82,13 +82,7 @@ DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 assign cocode = g_company
        locode = g_loc.
 {sys/inc/f16to32.i}
-
- RUN sys/ref/nk1look.p (INPUT cocode, "SHTCALCWarn", "L" /* Logical */, NO /* check by cust */, 
-                           INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-                           OUTPUT cRtnChar, OUTPUT lRecFound).
-  IF lRecFound THEN
-      lShtcalcWarm-log = LOGICAL(cRtnChar) NO-ERROR.
-
+ 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -4588,20 +4582,6 @@ PROCEDURE sheet-calc2 :
                      no-lock no-error.
      find xef where recid(xef) = recid(ef) NO-LOCK NO-ERROR.
      find xeb where recid(xeb) = recid(eb) NO-LOCK NO-ERROR.
-     
-     IF lShtcalcWarm-log THEN DO:
-         IF AVAIL xef AND AVAIL xeb THEN
-             FIND FIRST bf-item NO-LOCK
-             WHERE bf-item.company EQ xef.company
-             AND bf-item.i-no    EQ xef.board
-             AND bf-item.mat-type EQ "B" 
-             NO-ERROR.
-         
-         IF AVAIL bf-item AND (bf-item.cal NE xef.cal OR bf-item.procat NE xeb.procat) THEN
-             MESSAGE "Selected Board differs from Board in Estimate Standard." 
-                               VIEW-AS ALERT-BOX INFO BUTTONS OK .
-     END.
-     
      
      run cec/bestfitc.p (ef.m-code:SCREEN-VALUE IN FRAME {&FRAME-NAME}, 0, "","").
 
