@@ -33,13 +33,7 @@ DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 
 {cec/bestfitc.i SHARED}
 {sys/inc/f16to32.i}
-
-  RUN sys/ref/nk1look.p (INPUT cocode, "SHTCALCWarn", "L" /* Logical */, NO /* check by cust */, 
-                           INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-                           OUTPUT cRtnChar, OUTPUT lRecFound).
-  IF lRecFound THEN
-      lShtcalcWarm-log = LOGICAL(cRtnChar) NO-ERROR.
-
+  
 FIND job-mat WHERE ROWID(job-mat) EQ io-rowid NO-LOCK NO-ERROR.
 
 io-rowid = ?.
@@ -73,20 +67,7 @@ IF AVAIL job THEN DO:
       WHERE xeb.company EQ xef.company
         AND xeb.est-no  EQ xef.est-no
         AND xeb.form-no EQ xef.form-no:
- 
-    IF lShtcalcWarm-log THEN DO:
-         IF AVAIL xef THEN
-             FIND FIRST bff-item NO-LOCK
-             WHERE bff-item.company EQ job-mat.company
-             AND bff-item.i-no    EQ xef.board
-             AND bff-item.mat-type EQ "B" 
-             NO-ERROR.
-         IF AVAIL bff-item  AND 
-             (bff-item.cal NE xef.cal OR bff-item.procat NE xeb.procat) THEN
-             MESSAGE "Selected Board differs from Board in Job Standard." 
-                               VIEW-AS ALERT-BOX INFO BUTTONS OK .
-    END.
-
+   
     RUN cec/bestfitc.p ("", job-mat.qty * job-mat.n-up, job-mat.qty-uom, ipxRMINo).
 
     FIND FIRST tt-ef NO-ERROR.
