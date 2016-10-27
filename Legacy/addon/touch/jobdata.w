@@ -822,7 +822,7 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
      ASSIGN lv-timer = lv-timer + 1
            time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTR(STRING(lv-timer,'HH:MM AM'),1,2)
            time-minute:SCREEN-VALUE = SUBSTR(STRING(lv-timer,'HH:MM AM'),4,2)
-           Btn_AMPM:LABEL = SUBSTR(STRING(lv-timer,'HH:MM AM'),7,2).
+           /*Btn_AMPM:LABEL = SUBSTR(STRING(lv-timer,'HH:MM AM'),7,2)*/  .
   
   
 END PROCEDURE.
