@@ -87,7 +87,7 @@ ASSIGN v-comp-add1 = ""
        v-comp-add5 = ""
        lv-email = ""
        lv-comp-name = ""
-       d-bar-line   = 4.45 .
+       d-bar-line   = 4.55 .
 
 IF ll-display-comp THEN DO:
    FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode AND
@@ -382,8 +382,8 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                     DO i = 1 to 3:
                     lv-partial = IF i EQ 1 AND tt-rell.partial GT 0 THEN 1 ELSE 0.
                     v-part-dscr = IF i EQ 1 THEN oe-ordl.part-dscr1
-                    ELSE IF i EQ 2 THEN oe-ordl.part-dscr2
-                    ELSE   "" .
+                    /*ELSE IF i EQ 2 THEN oe-ordl.part-dscr2*/
+                       ELSE   "" .
                            IF v-part-dscr NE "" THEN PUT v-part-dscr AT 46 FORMAT "x(25)" .
                            IF lv-partial GT 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
                            IF s-print-part-no OR lv-partial GT 0 OR v-part-dscr NE "" THEN DO: 
@@ -474,7 +474,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
             DO i = 1 to 3:
               lv-partial = IF i EQ 1 AND tt-rell.partial GT 0 THEN 1 ELSE 0.
               v-part-dscr = IF i EQ 1 THEN oe-ordl.part-dscr1
-                            ELSE IF i EQ 2 THEN oe-ordl.part-dscr2
+                            /*ELSE IF i EQ 2 THEN oe-ordl.part-dscr2*/
                             ELSE   "" .
               IF v-part-dscr NE "" THEN PUT v-part-dscr AT 46 FORMAT "x(25)" .
               IF lv-partial GT 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
@@ -547,8 +547,8 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
              DO i = 1 to 3:
                  lv-partial = IF i EQ 1 AND tt-rell.partial GT 0 THEN 1 ELSE 0.
                  v-part-dscr = IF i EQ 1 THEN oe-ordl.part-dscr1
-                               ELSE IF i EQ 2 THEN oe-ordl.part-dscr2
-                               ELSE   "".
+                              /* ELSE IF i EQ 2 THEN oe-ordl.part-dscr2*/
+                               ELSE   "" .
                  IF v-part-dscr NE "" THEN PUT v-part-dscr AT 46 FORMAT "x(25)" .
                  IF lv-partial GT 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
                  IF s-print-part-no OR lv-partial GT 0 OR v-part-dscr NE "" THEN DO: 
@@ -599,7 +599,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                PAGE .
                v-printline = 0.
                {oe/rep/relindc2.i}.
-               d-bar-line   = 4.45  .
+               d-bar-line   = 4.55  .
         END.
 
         IF v-print-components THEN DO: /* display componets of set */
