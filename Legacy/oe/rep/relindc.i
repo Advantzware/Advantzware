@@ -323,7 +323,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
               AND oe-ordl.i-no    EQ tt-rell.i-no
               AND oe-ordl.line    EQ tt-rell.line
              NO-ERROR.
-   
+  
         IF v-headers THEN DO:
           FIND itemfg OF tt-rell NO-LOCK NO-ERROR.
           locbin = "".
@@ -401,7 +401,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                  lv-price-string = TRIM(STRING(lv-price,"-ZZ,ZZZ,ZZ9.9999") + "/" + oe-ordl.pr-uom)
                  v-total = v-total + lv-ext-price
                  v-printline = v-printline + 1.
-                 PUT lv-price-string AT 46 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
+                 PUT v-job-no FORMAT "X(11)" lv-price-string AT 46 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
                  ASSIGN iCountLine = iCountLine + 1 .
               END.
               
@@ -417,7 +417,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                lv-partial WHEN lv-partial NE 0
                WITH FRAME relprint-2 STREAM-IO NO-BOX NO-LABELS WIDTH 120.
                DOWN WITH FRAME relprint-2.*/
-
+              IF NOT s-print-pricing THEN
                PUT SKIP v-job-no FORMAT "X(11)" 
                     tt-rell.loc FORMAT "x(6)" AT 46 SPACE(1)
                     tt-rell.loc-bin FORMAT "x(8)" space(1)
@@ -539,7 +539,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
           ASSIGN iCountLine = 1 .
 
            v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(int(oe-ordl.job-no2), "99" ) .
-            IF NOT v-p-bin THEN
+            IF NOT v-p-bin AND NOT s-print-pricing THEN
               PUT v-job-no FORMAT "X(11)"  .
 
           IF AVAILABLE oe-ordl THEN
@@ -566,10 +566,10 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
              lv-price-string = TRIM(STRING(lv-price,"-ZZ,ZZZ,ZZ9.9999") + "/" + oe-ordl.pr-uom)
              v-total = v-total + lv-ext-price
              v-printline = v-printline + 1.
-             PUT lv-price-string AT 46 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
+             PUT v-job-no FORMAT "X(11)" lv-price-string AT 46 FORMAT "X(20)" lv-ext-price FORMAT "->>,>>>,>>9.99" TO 93.
              ASSIGN iCountLine = iCountLine + 1 .
           END.
-              IF v-p-bin THEN do:
+              IF v-p-bin AND NOT s-print-pricing THEN do:
                   PUT SKIP v-job-no FORMAT "X(11)" 
                     tt-rell.loc FORMAT "x(8)" AT 46 SPACE(1)
                     tt-rell.loc-bin FORMAT "x(10)" space(1) .
