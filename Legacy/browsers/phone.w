@@ -236,7 +236,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -388,7 +388,7 @@ PROCEDURE pCRM :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN CRM/crmContacts.w (ip-rec_key).
+    RUN CRM/crmContacts.w (cocode,ip-rec_key).
     {&OPEN-QUERY-Browser-Table}
 
 END PROCEDURE.
