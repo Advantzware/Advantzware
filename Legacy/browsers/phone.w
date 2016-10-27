@@ -60,7 +60,7 @@ DEFINE VARIABLE ip-rec_key AS CHARACTER NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -88,8 +88,8 @@ phone.fax phone.e_mail
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table auto_find Btn_Clear_Find ~
-RECT-4 
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 auto_find ~
+Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
@@ -130,8 +130,8 @@ DEFINE VARIABLE browse-order AS INTEGER
      SIZE 28 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 117 BY 1.43.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 118 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -160,7 +160,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 34
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 117 BY 12
+    WITH NO-ASSIGN SEPARATORS SIZE 118 BY 13.57
          FONT 2.
 
 
@@ -169,15 +169,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 13.57 COL 6 HELP
+     browse-order AT ROW 14.81 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 13.57 COL 43 COLON-ALIGNED HELP
+     auto_find AT ROW 14.81 COL 43 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 13.57 COL 104 HELP
+     Btn_Clear_Find AT ROW 14.81 COL 105 HELP
           "CLEAR AUTO FIND Value"
-     RECT-4 AT ROW 13.33 COL 1
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 13.43 COL 2
+          SIZE 4 BY 1 AT ROW 14.67 COL 2
+     RECT-4 AT ROW 14.57 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -210,8 +210,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 14.71
-         WIDTH              = 117.
+         HEIGHT             = 15
+         WIDTH              = 118.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -235,7 +235,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -260,14 +260,14 @@ ASSIGN
      _TblOptList       = "USED"
      _Where[1]         = "phone.table_rec_key = ip-rec_key"
      _FldNameList[1]   > NOSWEAT.phone.attention
-"phone.attention" ? ? "character" ? ? ? ? ? ? no ? no no "29" yes no no "U" "" ""
+"phone.attention" ? ? "character" ? ? ? ? ? ? no ? no no "29" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = NOSWEAT.phone.phone_city_code
      _FldNameList[3]   = NOSWEAT.phone.phone
      _FldNameList[4]   = NOSWEAT.phone.phone_ext
      _FldNameList[5]   = NOSWEAT.phone.fax_city_code
      _FldNameList[6]   = NOSWEAT.phone.fax
      _FldNameList[7]   > NOSWEAT.phone.e_mail
-"phone.e_mail" "E-Mail Address" ? "character" ? ? ? ? ? ? no ? no no "34" yes no no "U" "" ""
+"phone.e_mail" "E-Mail Address" ? "character" ? ? ? ? ? ? no ? no no "34" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -376,6 +376,35 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRM B-table-Win 
+PROCEDURE pCRM :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN CRM/crmContacts.w (cocode,ip-rec_key).
+    {&OPEN-QUERY-Browser-Table}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRMType B-table-Win 
+PROCEDURE pCRMType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCRMType AS CHARACTER NO-UNDO INITIAL "crmContacts.".
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

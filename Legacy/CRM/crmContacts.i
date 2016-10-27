@@ -17,6 +17,7 @@ PROCEDURE pApplyCRM:
             cPhone = REPLACE(cPhone,"(","")
             cPhone = REPLACE(cPhone,")","")
             cPhone = REPLACE(cPhone,"x","")
+            cPhone = REPLACE(cPhone,".","")
             ttCRMContacts.phoneAttention = ttCRMContacts.crmFirstName + " " + ttCRMContacts.crmLastName
             ttCRMContacts.phoneCityCode  = SUBSTR(cPhone,1,3)
             ttCRMContacts.phonePhone     = SUBSTR(cPhone,4,7)
