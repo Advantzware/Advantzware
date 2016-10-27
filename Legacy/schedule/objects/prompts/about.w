@@ -54,13 +54,13 @@ DEFINE VARIABLE ipContainerHandle AS HANDLE    NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-4 aboutBox btnClearCheckoffs ~
-btnClearNotes btnReturnToPending btnSave btnRestore 
+btnClearNotes btnReturnToPending btnFromPending btnSave btnRestore 
 &Scoped-Define DISPLAYED-OBJECTS aboutBox version 
 
 /* Custom List Definitions                                              */
 /* adminFunction,List-2,List-3,List-4,List-5,List-6                     */
 &Scoped-define adminFunction btnClearCheckoffs btnClearNotes ~
-btnReturnToPending btnSave btnRestore 
+btnReturnToPending btnFromPending btnSave btnRestore 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -81,6 +81,11 @@ DEFINE BUTTON btnClearNotes
      IMAGE-UP FILE "schedule/images/notetack.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.1 TOOLTIP "Clear Notes".
+
+DEFINE BUTTON btnFromPending 
+     IMAGE-UP FILE "schedule/images/pendingjobs.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.1 TOOLTIP "Schedule From Pending".
 
 DEFINE BUTTON btnRestore 
      IMAGE-UP FILE "schedule/images/rollback.bmp":U
@@ -122,6 +127,8 @@ DEFINE FRAME Dialog-Frame
           "Clear Notes" WIDGET-ID 4
      btnReturnToPending AT ROW 16.76 COL 12 HELP
           "Return To Pending" WIDGET-ID 6
+     btnFromPending AT ROW 16.76 COL 17 HELP
+          "Schedule From Pending" WIDGET-ID 8
      btnSave AT ROW 16.76 COL 79 HELP
           "Save Configuration Data Files"
      btnRestore AT ROW 16.76 COL 84 HELP
@@ -160,6 +167,8 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnClearCheckoffs IN FRAME Dialog-Frame
    1                                                                    */
 /* SETTINGS FOR BUTTON btnClearNotes IN FRAME Dialog-Frame
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnFromPending IN FRAME Dialog-Frame
    1                                                                    */
 /* SETTINGS FOR BUTTON btnRestore IN FRAME Dialog-Frame
    1                                                                    */
@@ -205,6 +214,17 @@ END.
 ON CHOOSE OF btnClearNotes IN FRAME Dialog-Frame
 DO:
   RUN pClearNotes.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnFromPending
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFromPending Dialog-Frame
+ON CHOOSE OF btnFromPending IN FRAME Dialog-Frame
+DO:
+  RUN pFromPending.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -307,7 +327,7 @@ PROCEDURE enable_UI :
   DISPLAY aboutBox version 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-4 aboutBox btnClearCheckoffs btnClearNotes btnReturnToPending 
-         btnSave btnRestore 
+         btnFromPending btnSave btnRestore 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -336,11 +356,9 @@ PROCEDURE pClearCheckoffs :
         :
         DELETE reftable.
     END. /* each reftable */
+    RUN pReload IN ipContainerHandle.
     SESSION:SET-WAIT-STATE("").
-    MESSAGE
-        "Status Checkoffs Cleared" SKIP
-        "Perform a RELOAD without SAVING"
-        VIEW-AS ALERT-BOX.
+    MESSAGE "Status Checkoffs Cleared" VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
 
@@ -367,11 +385,33 @@ PROCEDURE pClearNotes :
         :
         DELETE reftable.
     END. /* each reftable */
+    RUN pReload IN ipContainerHandle.
     SESSION:SET-WAIT-STATE("").
+    MESSAGE "Job Notes Cleared" VIEW-AS ALERT-BOX.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFromPending Dialog-Frame 
+PROCEDURE pFromPending :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
     MESSAGE
-        "Job Notes Cleared" SKIP
-        "Perform a RELOAD without SAVING"
-         VIEW-AS ALERT-BOX.
+        "WARNING: This process will move all" SKIP
+        "currently Pending Jobs to the Board." SKIP
+        "Continue?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.
+    IF NOT lContinue THEN RETURN.
+    SESSION:SET-WAIT-STATE("General").
+    IF VALID-HANDLE(ipContainerHandle) THEN
+    RUN pFromPending IN ipContainerHandle.
+    SESSION:SET-WAIT-STATE("").
+    MESSAGE "All Jobs Scheduled from Pending" VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
 
@@ -489,11 +529,9 @@ PROCEDURE pReturnToPending :
         END. /* each job-mch */
     END. /* each job-hdr */
     RELEASE job-mch.
+    RUN pReload IN ipContainerHandle.
     SESSION:SET-WAIT-STATE("").
-    MESSAGE
-        "All Jobs Returned to Pending" SKIP
-        "Perform a RELOAD without SAVING"
-         VIEW-AS ALERT-BOX.
+    MESSAGE "All Jobs Returned to Pending" VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
 
