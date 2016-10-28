@@ -40,6 +40,10 @@ FOR EACH mach
   LEAVE.
 END.*/
 
+/* rtark - 10.28.2016 */
+IF {&TABLENAME}.spare-char-1 EQ "" THEN
+{&TABLENAME}.spare-char-1 = {&TABLENAME}.m-code.
+
 IF {&TABLENAME}.start-date GT TODAY + 180 THEN
   {&TABLENAME}.start-date = TODAY + 180.
 
