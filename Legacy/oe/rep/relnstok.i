@@ -45,7 +45,7 @@ INDEX w-loc w-loc w-bin
 INDEX w-par w-par w-date-time
 INDEX w-date-time w-date-time.
 
-DEFINE TEMP-TABLE w-bin-file NO-UNDO 
+DEFINE TEMP-TABLE tt-bin-file NO-UNDO 
     FIELD ord-no       AS INTEGER
     FIELD w-i-no       AS CHARACTER
     FIELD w-loc        AS CHARACTER
@@ -115,20 +115,20 @@ DEFINE VARIABLE lv-other-color     AS cha              INIT "BLACK" NO-UNDO.
 DEFINE VARIABLE v-partial-qty      AS INT              NO-UNDO.
 DEFINE VARIABLE lv-part-qty-printed AS LOG             NO-UNDO.
 
-DEFINE SHARED VARIABLE s-print-what-item  AS cha              NO-UNDO.
-DEFINE SHARED VARIABLE s-print-loc-from   AS cha              NO-UNDO.
-DEFINE SHARED VARIABLE s-print-loc-to     AS cha              NO-UNDO.
-DEFINE SHARED VARIABLE s-print-bin-from   AS cha              NO-UNDO.
-DEFINE SHARED VARIABLE s-print-bin-to     AS cha              NO-UNDO.
+DEFINE SHARED VARIABLE s-print-what-item  AS CHARACTER        NO-UNDO.
+DEFINE SHARED VARIABLE s-print-loc-from   AS CHARACTER        NO-UNDO.
+DEFINE SHARED VARIABLE s-print-loc-to     AS CHARACTER        NO-UNDO.
+DEFINE SHARED VARIABLE s-print-bin-from   AS CHARACTER        NO-UNDO.
+DEFINE SHARED VARIABLE s-print-bin-to     AS CHARACTER        NO-UNDO.
 DEFINE SHARED VARIABLE v-print-components AS LOGICAL          NO-UNDO.
 DEFINE SHARED VARIABLE s-print-part-no    AS LOGICAL          NO-UNDO.
 
 
-FORMAT w-oe-rell.ord-no                 TO 6
+FORMAT w-oe-rell.ord-no          TO 6
 v-bin                            AT 8    FORMAT "x(35)"
 w-bin.w-par                      AT 44   FORMAT "x(25)"
 w-bin.w-unit-count               TO 76   FORMAT "->>>>>"
-w-bin.w-units                     TO 83   FORMAT "->>>>>"
+w-bin.w-units                    TO 83   FORMAT "->>>>>"
 v-tot-rqty                       TO 93   FORMAT "->>>>>>>>"
 v-rs                             AT 97   FORM "x(2)"
 WITH DOWN FRAME rel-mid NO-BOX no-label STREAM-IO WIDTH 98.
@@ -262,7 +262,7 @@ FOR EACH oe-rell
 END.
 
 {oe/rep/relnstok2.i}
-    EMPTY TEMP-TABLE w-bin-file.
+    EMPTY TEMP-TABLE tt-bin-file.
     EMPTY TEMP-TABLE tt-item.
 
  /* for sorting logic  */
@@ -321,12 +321,12 @@ END.
                                       AND oe-rell.tag      EQ fg-bin.tag) THEN
                   NEXT.
               
-               create w-bin-file.
+               create tt-bin-file.
                assign
-                w-bin-file.w-loc    = fg-bin.loc
-                w-bin-file.w-bin    = fg-bin.loc-bin
-                w-bin-file.w-i-no   = fg-bin.i-no
-                w-bin-file.ord-no   = w-oe-rell.ord-no .
+                tt-bin-file.w-loc    = fg-bin.loc
+                tt-bin-file.w-bin    = fg-bin.loc-bin
+                tt-bin-file.w-i-no   = fg-bin.i-no
+                tt-bin-file.ord-no   = w-oe-rell.ord-no .
                i        = i + 1.
               
               
@@ -344,12 +344,12 @@ END.
         AND b-ship.cust-no EQ b-cust.cust-no
         NO-LOCK NO-ERROR.
         IF avail b-ship THEN DO:
-          CREATE w-bin-file.
+          CREATE tt-bin-file.
           ASSIGN
-          w-bin-file.w-loc = b-ship.loc
-          w-bin-file.w-bin = b-ship.loc-bin
-          w-bin-file.w-i-no = w-oe-rell.i-no
-          w-bin-file.ord-no = w-oe-rell.ord-no
+          tt-bin-file.w-loc = b-ship.loc
+          tt-bin-file.w-bin = b-ship.loc-bin
+          tt-bin-file.w-i-no = w-oe-rell.i-no
+          tt-bin-file.ord-no = w-oe-rell.ord-no
           i     = i + 1 .
          
         END.
@@ -357,33 +357,33 @@ END.
     END.
 
     IF i = 0 THEN do:
-          create w-bin-file.
+          create tt-bin-file.
                assign
-                w-bin-file.w-loc    = ""
-                w-bin-file.w-bin    = ""
-                w-bin-file.w-i-no   = w-oe-rell.i-no
-                w-bin-file.ord-no   = w-oe-rell.ord-no .
+                tt-bin-file.w-loc    = ""
+                tt-bin-file.w-bin    = ""
+                tt-bin-file.w-i-no   = w-oe-rell.i-no
+                tt-bin-file.ord-no   = w-oe-rell.ord-no .
     END.
   END. /* last-of i-no */
 END. /* for each w-oe-rell */
 
 
-FOR EACH w-bin-file NO-LOCK 
-    BREAK BY w-bin-file.ord-no 
+FOR EACH tt-bin-file NO-LOCK 
+    BREAK BY tt-bin-file.ord-no 
           
-       BY w-bin-file.w-loc
-       BY w-bin-file.w-bin  .
+       BY tt-bin-file.w-loc
+       BY tt-bin-file.w-bin  .
     
     FIND FIRST tt-item NO-LOCK
-         WHERE tt-item.w-i-no = w-bin-file.w-i-no AND 
-              tt-item.w-ord-no = w-bin-file.ord-no NO-ERROR.
+         WHERE tt-item.w-i-no = tt-bin-file.w-i-no AND 
+              tt-item.w-ord-no = tt-bin-file.ord-no NO-ERROR.
          IF NOT AVAIL tt-item THEN do:
         CREATE tt-item.
         ASSIGN
-            tt-item.w-i-no = w-bin-file.w-i-no
-            tt-item.w-ord-no = w-bin-file.ord-no .
+            tt-item.w-i-no = tt-bin-file.w-i-no
+            tt-item.w-ord-no = tt-bin-file.ord-no .
     END.
-END. /* foR EACH w-bin-f */
+END. /* foR EACH tt-bin-file */
 
 EMPTY TEMP-TABLE w-bin.
 FOR EACH tt-item NO-LOCK:
