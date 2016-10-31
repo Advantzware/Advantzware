@@ -30,8 +30,10 @@ PUT UNFORMATTED 'Start Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:
 
 FOR EACH pendingJob NO-LOCK:
   jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
+  /*
   FIND job-mch EXCLUSIVE-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
   IF NOT AVAILABLE job-mch AND pendingJob.keyValue NE '' THEN
+  */
   FIND FIRST job-mch EXCLUSIVE-LOCK
        WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
          AND job-mch.m-code EQ ENTRY(3,pendingJob.keyValue)
@@ -41,6 +43,7 @@ FOR EACH pendingJob NO-LOCK:
          AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
          AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
          AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
+         AND ROWID(job-mch) EQ jobMchRowID
        NO-ERROR.
   IF NOT AVAILABLE job-mch THEN
   FIND FIRST job-mch EXCLUSIVE-LOCK
@@ -52,8 +55,31 @@ FOR EACH pendingJob NO-LOCK:
          AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
          AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
          AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
+         AND ROWID(job-mch) EQ jobMchRowID
        NO-ERROR.
   IF NOT AVAILABLE job-mch THEN NEXT.
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
+         AND job-mch.m-code EQ pendingJob.resource
+         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN NEXT.
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
+         AND job-mch.m-code EQ ENTRY(3,pendingJob.keyValue)
+         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN
   ASSIGN
     statusStr = ''
     job-mch.end-date = ?
@@ -80,11 +106,37 @@ END. /* each pendingJob */
 
 FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
   jobMchRowID = TO-ROWID(ENTRY(2,ttblJob.rowIDs)).
+  /*
   FIND job-mch EXCLUSIVE-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
   IF NOT AVAILABLE job-mch AND ttblJob.keyValue NE '' THEN
+  */
   FIND FIRST job-mch EXCLUSIVE-LOCK
        WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
          AND job-mch.m-code EQ ENTRY(3,ttblJob.keyValue)
+         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
+         AND ROWID(job-mch) EQ jobMchRowID
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
+         AND job-mch.m-code EQ ttblJob.resource
+         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
+         AND ROWID(job-mch) EQ jobMchRowID
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
+         AND job-mch.m-code EQ ttblJob.resource
          AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
          AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
          AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
@@ -95,7 +147,7 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
   IF NOT AVAILABLE job-mch THEN
   FIND FIRST job-mch EXCLUSIVE-LOCK
        WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
-         AND job-mch.m-code EQ ttblJob.resource
+         AND job-mch.m-code EQ ENTRY(3,ttblJob.keyValue)
          AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
          AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
          AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
@@ -113,7 +165,6 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
           ' ** Not Found **' SKIP.
       NEXT.
   END.
-  
   IF STRING(ROWID(job-mch)) NE ENTRY(2,ttblJob.rowIDs) THEN DO:
       PUT UNFORMATTED 'ttblJob: ** RowID Error **' AT 5
           ' Resource: ' ttblJob.resource
@@ -144,7 +195,6 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
     .
   ASSIGN
     lvResSeq = lvResSeq + 1
-  /*job-mch.line = ttblJob.altResSeq*/
     job-mch.seq-no = ttblJob.jobSequence
     job-mch.start-date-su = ttblJob.startDate
     job-mch.start-time-su = ttblJob.startTime
