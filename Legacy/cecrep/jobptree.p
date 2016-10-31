@@ -594,13 +594,24 @@ ASSIGN
         ASSIGN cCustpo-name = "".
         /* cust po from rel */ 
         RELEASE reftable .
-         IF est.est-type = 6 THEN
-             FIND FIRST xoe-rel NO-LOCK
-              WHERE xoe-rel.company EQ xoe-ordl.company
-                AND xoe-rel.ord-no  EQ xoe-ordl.ord-no
-                AND xoe-rel.i-no    EQ v-fg
-              NO-ERROR.
-         
+          IF est.est-type = 6 THEN 
+          DO:  /*Added to test for Unassembled vs. Assembled Set - ticket 18161*/ 
+              FIND FIRST fg-set NO-LOCK
+                  WHERE fg-set.company EQ est.company
+                  AND fg-set.part-no EQ v-fg
+                  NO-ERROR.
+              IF AVAIL fg-set 
+                  AND CAN-FIND(FIRST itemfg 
+                  WHERE itemfg.company EQ fg-set.company
+                  AND itemfg.i-no EQ fg-set.set-no
+                  AND itemfg.alloc)
+                  THEN
+                  FIND FIRST xoe-rel NO-LOCK
+                      WHERE xoe-rel.company EQ xoe-ordl.company
+                      AND xoe-rel.ord-no  EQ xoe-ordl.ord-no
+                      AND xoe-rel.i-no    EQ v-fg
+                      NO-ERROR.
+          END.
          IF AVAILABLE xoe-rel THEN
              FIND FIRST reftable NO-LOCK WHERE
              reftable.reftable EQ "oe-rel.lot-no" AND
