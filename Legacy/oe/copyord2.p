@@ -1124,7 +1124,7 @@ PROCEDURE copyOrder :
       EXCLUSIVE-LOCK:
     
     CREATE b-oe-ordl.
-    BUFFER-COPY oe-ordl EXCEPT rec_key job-no job-no2 ord-no oe-ordl.t-inv-qty oe-ordl.t-ship-qty TO b-oe-ordl
+    BUFFER-COPY oe-ordl EXCEPT rec_key job-no job-no2 ord-no oe-ordl.t-inv-qty oe-ordl.t-ship-qty oe-ordl.po-no-po TO b-oe-ordl
     ASSIGN
      b-oe-ordl.company   = b-oe-ord.company
      b-oe-ordl.ord-no    = b-oe-ord.ord-no  
