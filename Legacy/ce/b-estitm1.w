@@ -3811,10 +3811,21 @@ PROCEDURE local-assign-record :
        lv-box-des = "N".
     
   END.
-
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"boxdes-target",OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN
-    RUN build-box IN WIDGET-HANDLE(ENTRY(1,char-hdl)) (lv-box-des).
+  
+  DO li = 1 TO 2:
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"box-calc-target",OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN DO:
+      RUN build-box IN WIDGET-HANDLE(ENTRY(1,char-hdl)) (lv-box-des).
+      li = 2.
+    END.
+    ELSE
+    IF li EQ 1 THEN DO:
+      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+         RUN init-box-design IN WIDGET-HANDLE(char-hdl) (THIS-PROCEDURE).
+      ELSE li = 2.
+    END.
+  END.
 
   IF eb.pur-man THEN ef.nc = NO.
   IF adm-new-record AND eb.pur-man THEN RUN create-e-itemfg-vend.
