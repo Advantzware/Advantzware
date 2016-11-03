@@ -1,7 +1,7 @@
 /* ttCRMContacts.i */
 
 DEFINE TEMP-TABLE ttCRMContacts NO-UNDO
-    {aoaAppSrv/ttFields.i}
+    {aoa/tempTable/ttFields.i}
     FIELD tickerSymbol   AS CHARACTER LABEL "CRM Ticker"     FORMAT "x(8)"
     FIELD crmFirstName   AS CHARACTER LABEL "CRM First Name" FORMAT "x(20)"
     FIELD crmLastName    AS CHARACTER LABEL "CRM Last Name"  FORMAT "x(20)"
