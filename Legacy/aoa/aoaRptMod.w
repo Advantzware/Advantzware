@@ -884,7 +884,7 @@ PROCEDURE pGetAOAFiles :
     DEFINE VARIABLE cMenuID   AS CHARACTER NO-UNDO.
 
     FILE-INFO:FILE-NAME = "aoa/datFiles/Report.dat".
-    INPUT FROM VALUE(SEARCH(FILE-INFO:FULL-PATHNAME)) NO-ECHO.
+    INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     REPEAT:
         IMPORT cModule cAOAFile cProgID cMenuID.
         CREATE ttAOA.
@@ -1087,9 +1087,8 @@ PROCEDURE pOpenAOAProgram :
     DEFINE VARIABLE hAppSrv  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hTable   AS HANDLE    NO-UNDO.
 
-    MESSAGE ipcID
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    INPUT FROM VALUE(ipcID) NO-ECHO.
+    FILE-INFO:FILE-NAME = ipcID.
+    INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     REPEAT:
         cTxt = "".
         IMPORT UNFORMATTED cTxt.
@@ -1155,7 +1154,8 @@ PROCEDURE pPublish :
         publishLog = REPLACE(publishBat,".bat",".log")
         .
 
-    OUTPUT TO VALUE(publishBat).
+    FILE-INFO:FILE-NAME = publishBat.
+    OUTPUT TO VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     PUT UNFORMATTED
         publishExe " ~"" aoaRptFile "~" guest password > "
         REPLACE(publishBat,".bat",".log") SKIP.
@@ -1165,7 +1165,8 @@ PROCEDURE pPublish :
     OS-COMMAND SILENT VALUE(publishBat).
     SESSION:SET-WAIT-STATE("").
 
-    INPUT FROM VALUE(publishLog) NO-ECHO.
+    FILE-INFO:FILE-NAME = publishLog.
+    INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     DO WHILE TRUE ON ENDKEY UNDO, LEAVE:
        IMPORT UNFORMATTED txtLine.
        IF logText NE "" THEN logText = logText + CHR(10).
@@ -1492,7 +1493,8 @@ FUNCTION fGetScript RETURNS CHARACTER
     DEFINE VARIABLE cScript AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDatTxt AS CHARACTER NO-UNDO.
 
-    INPUT FROM VALUE("aoa\vbScript\Rpt." + ipScriptDatFile + ".dat") NO-ECHO.
+    FILE-INFO:FILE-NAME = "aoa\vbScript\Rpt." + ipScriptDatFile + ".dat".
+    INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     REPEAT:
         IMPORT UNFORMATTED cDatTxt.
         cScript = cScript + cDatTxt + CHR(10).

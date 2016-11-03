@@ -1528,7 +1528,8 @@ PROCEDURE pGenerateInclude :
 
     IF NOT CAN-DO("ASI,NoSweat",USERID("NoSweat")) THEN RETURN.
 
-    OUTPUT TO VALUE("aoa/includes/p" + REPLACE(aoaTitle," ","") + ".i").
+    FILE-INFO:FILE-NAME = "aoa/includes/p" + REPLACE(aoaTitle," ","") + ".i".
+    OUTPUT TO VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     PUT UNFORMATTED
         "/* p" REPLACE(aoaTitle," ","") ".i - auto generated "
         STRING(TODAY,"99.99.9999") " @ " STRING(TIME,"hh:mm:ss am")
@@ -2430,7 +2431,8 @@ FUNCTION fGetModule RETURNS CHARACTER
     DEFINE VARIABLE cModule    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cProgramID AS CHARACTER NO-UNDO.
 
-    INPUT FROM "aoa/datFiles/Report.dat" NO-ECHO.
+    FILE-INFO:FILE-NAME = "aoa/datFiles/Report.dat".
+    INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     REPEAT:
         IMPORT cModule ^ cProgramID.
         IF cProgramID EQ ipProgramID THEN LEAVE.
