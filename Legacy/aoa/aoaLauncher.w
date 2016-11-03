@@ -329,7 +329,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLaunch C-Win
 ON CHOOSE OF btnLaunch IN FRAME DEFAULT-FRAME /* Launch */
 DO:
-  RUN VALUE("aoa" + ttAOA.module + "/" + ttAOA.progID + "p").
+  RUN VALUE("aoa/" + ttAOA.progID + "p").
   RETURN NO-APPLY.
 END.
 
@@ -429,7 +429,7 @@ PROCEDURE pGetAOAFiles :
     DEFINE VARIABLE cProgID   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMenuID   AS CHARACTER NO-UNDO.
 
-    FILE-INFO:FILE-NAME = "aoaDAT/" + ipcLaunchDat + ".dat".
+    FILE-INFO:FILE-NAME = "aoa/datFiles/" + ipcLaunchDat + ".dat".
     INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     REPEAT:
         IMPORT cModule cAOAFile cProgID cMenuID.
@@ -443,7 +443,7 @@ PROCEDURE pGetAOAFiles :
     END. /* repeat */
     INPUT CLOSE.
 
-    FILE-INFO:FILE-NAME = "aoaDAT/Module.dat".
+    FILE-INFO:FILE-NAME = "aoa/datFiles/Module.dat".
     INPUT FROM VALUE(SEARCH(FILE-INFO:FULL-PATHNAME)) NO-ECHO.
     REPEAT:
         IMPORT cModule cModDescr.

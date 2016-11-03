@@ -32,7 +32,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE aoaMultiplier 150
+&SCOPED-DEFINE aoaMultiplier 140
 
 /* Parameters Definitions ---                                           */
 
@@ -597,7 +597,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDetailOnFormat C-Win
 ON CHOOSE OF btnDetailOnFormat IN FRAME DEFAULT-FRAME /* Detail OnFormat */
 DO:
-  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.Detail.OnFormat.dat.
+  OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.Detail.OnFormat.dat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -608,7 +608,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupFooterOnFormat C-Win
 ON CHOOSE OF btnGroupFooterOnFormat IN FRAME DEFAULT-FRAME /* Group Footer OnFormat */
 DO:
-  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.GroupFooter.OnFormat.dat.
+  OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupFooter.OnFormat.dat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -619,7 +619,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupHeaderOnFormat C-Win
 ON CHOOSE OF btnGroupHeaderOnFormat IN FRAME DEFAULT-FRAME /* Group Header OnFormat */
 DO:
-  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.GroupHeader.OnFormat.dat.
+  OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupHeader.OnFormat.dat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -630,7 +630,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnReportEnd C-Win
 ON CHOOSE OF btnOnReportEnd IN FRAME DEFAULT-FRAME /* OnReportEnd */
 DO:
-  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.OnReportEnd.dat.
+  OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportEnd.dat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -641,7 +641,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnReportStart C-Win
 ON CHOOSE OF btnOnReportStart IN FRAME DEFAULT-FRAME /* OnReportStart */
 DO:
-  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.OnReportStart.dat.
+  OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportStart.dat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -744,10 +744,10 @@ END.
 ON DEFAULT-ACTION OF ttProgID IN FRAME DEFAULT-FRAME /* Prog ID */
 DO:
     ASSIGN
-        cID = "aoa" + ttAOA.module + "/" + ttAOA.progID + "p"
+        cID = "aoa/" + ttAOA.progID + "p"
         cID = SEARCH(cID)
         .
-    RUN pOpenAOAProgram (cID).
+    RUN pOpenAOAProgram (ttAOA.module, cID).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -883,7 +883,7 @@ PROCEDURE pGetAOAFiles :
     DEFINE VARIABLE cProgID   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMenuID   AS CHARACTER NO-UNDO.
 
-    FILE-INFO:FILE-NAME = "aoaDAT/Report.dat".
+    FILE-INFO:FILE-NAME = "aoa/datFiles/Report.dat".
     INPUT FROM VALUE(SEARCH(FILE-INFO:FULL-PATHNAME)) NO-ECHO.
     REPEAT:
         IMPORT cModule cAOAFile cProgID cMenuID.
@@ -934,6 +934,7 @@ PROCEDURE pGetReportFields :
     EMPTY TEMP-TABLE ttParameter.
 
     aoaReportWidth = hReport:PrintWidth.
+    DISPLAY aoaReportWidth WITH FRAME {&FRAME-NAME}.
     DO ix = 0 TO hReport:Sections:Count - 1:
         cName = hReport:Sections:Item(ix):Name.
         DO iy = 0 TO hReport:Sections:Item(ix):Controls:Count - 1:
@@ -1077,16 +1078,18 @@ PROCEDURE pOpenAOAProgram :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcModule AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcID     AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cTxt     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cScopDef AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAppSrv  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hAppSrv  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hTable   AS HANDLE    NO-UNDO.
 
-    INPUT FROM VALUE(ipID) NO-ECHO.
+    MESSAGE ipcID
+        VIEW-AS ALERT-BOX INFO BUTTONS OK.
+    INPUT FROM VALUE(ipcID) NO-ECHO.
     REPEAT:
         cTxt = "".
         IMPORT UNFORMATTED cTxt.
@@ -1106,13 +1109,8 @@ PROCEDURE pOpenAOAProgram :
                 ENTRY(1,cTxt," ") = ""
                 ENTRY(2,cTxt," ") = ""
                 aoaReportTitle = TRIM(cTxt)
-                idx = R-INDEX(ipID,"\")
-                aoaRptFile = SEARCH("aoaReports\"
-                           + SUBSTR(ipID,idx - 2,2) + "\"
-                           + aoaReportTitle + ".rpa")
-                cAppSrv = "aoaAppSrv\"
-                        + ENTRY(NUM-ENTRIES(ipID,"\") - 1,ipID,"\")
-                        + ".p"
+                aoaRptFile = SEARCH("aoa\reports\" + aoaReportTitle + ".rpa")
+                cAppSrv = "aoa\appServer\aoa" + ipcModule + ".p"
                 .
         END CASE.
     END. /* repeat */
@@ -1152,8 +1150,8 @@ PROCEDURE pPublish :
     DEFINE VARIABLE txtLine    AS CHARACTER NO-UNDO.
 
     ASSIGN
-        publishBat = SEARCH("aoaReports\PublishReport.bat")
-        publishExe = SEARCH("aoaReports\PublishReport.exe")
+        publishBat = SEARCH("aoa\publish\PublishReport.bat")
+        publishExe = SEARCH("aoa\publish\PublishReport.exe")
         publishLog = REPLACE(publishBat,".bat",".log")
         .
 
@@ -1469,7 +1467,7 @@ PROCEDURE pUpdate :
 ------------------------------------------------------------------------------*/
     FOR EACH ttAOA:
         ASSIGN
-            cID = "aoa" + ttAOA.module + "/" + ttAOA.progID + "p"
+            cID = "aoa/" + ttAOA.progID + "p"
             cID = SEARCH(cID)
             .
         RUN pOpenAOAProgram (cID).
@@ -1494,7 +1492,7 @@ FUNCTION fGetScript RETURNS CHARACTER
     DEFINE VARIABLE cScript AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDatTxt AS CHARACTER NO-UNDO.
 
-    INPUT FROM VALUE("aoaReports\Rpt." + ipScriptDatFile + ".dat") NO-ECHO.
+    INPUT FROM VALUE("aoa\vbScript\Rpt." + ipScriptDatFile + ".dat") NO-ECHO.
     REPEAT:
         IMPORT UNFORMATTED cDatTxt.
         cScript = cScript + cDatTxt + CHR(10).
