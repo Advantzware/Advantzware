@@ -29,9 +29,10 @@ ASSIGN
  cocode = g_company.
 
 DEFINE TEMP-TABLE tt-file NO-UNDO
-          FIELD tfile      AS CHARACTER FORMAT "x(100)"
+          FIELD tfile      AS CHARACTER FORMAT "x(150)"
           FIELD createDate AS DATE
-          FIELD createTime AS INTEGER.
+          FIELD createTime AS INTEGER
+          FIELD extfile    AS CHAR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -48,8 +49,8 @@ DEFINE TEMP-TABLE tt-file NO-UNDO
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS del_date btnOk BtnCancel 
-&Scoped-Define DISPLAYED-OBJECTS del_date scr-text 
+&Scoped-Define ENABLED-OBJECTS del_date file_format btnOk BtnCancel 
+&Scoped-Define DISPLAYED-OBJECTS del_date file_format scr-text 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -62,7 +63,7 @@ DEFINE TEMP-TABLE tt-file NO-UNDO
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON BtnCancel AUTO-END-KEY DEFAULT 
@@ -79,6 +80,11 @@ DEFINE VARIABLE del_date AS DATE FORMAT "99/99/9999":U
      VIEW-AS FILL-IN 
      SIZE 27 BY 1 NO-UNDO.
 
+DEFINE VARIABLE file_format AS CHARACTER FORMAT "X(100)":U INITIAL "ped,DB,lbi,srt,rcd" 
+     LABEL "Files Format" 
+     VIEW-AS FILL-IN 
+     SIZE 41.4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE scr-text AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 53 BY .62 NO-UNDO.
@@ -87,10 +93,11 @@ DEFINE VARIABLE scr-text AS CHARACTER FORMAT "X(256)":U
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     del_date AT ROW 3.57 COL 16.6 COLON-ALIGNED
+     del_date AT ROW 2.57 COL 16.6 COLON-ALIGNED
+     file_format AT ROW 4.24 COL 16.6 COLON-ALIGNED WIDGET-ID 2
      btnOk AT ROW 6.33 COL 17
      BtnCancel AT ROW 6.33 COL 32
-     scr-text AT ROW 1.62 COL 3.2 COLON-ALIGNED NO-LABELS
+     scr-text AT ROW 1.62 COL 3.2 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -120,15 +127,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 80
          VIRTUAL-HEIGHT     = 16
          VIRTUAL-WIDTH      = 80
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -145,7 +152,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN scr-text IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -210,7 +217,7 @@ FIND FIRST users WHERE
 
    DO WITH FRAME {&FRAME-NAME}:
 
-      ASSIGN del_date .
+      ASSIGN del_date file_format .
  
       SESSION:SET-WAIT-STATE("general"). 
 
@@ -223,11 +230,13 @@ FIND FIRST users WHERE
           
           ASSIGN 
               tt-file.createDate = FILE-INFO:FILE-CREATE-DATE
-              tt-file.createtime = FILE-INFO:FILE-CREATE-TIME.
+              tt-file.createtime = FILE-INFO:FILE-CREATE-TIME 
+              tt-file.extfile = SUBSTRING(tt-file.tfile,INDEX(tt-file.tfile,".") + 1)  .
       END.
-      
+     
       FOR EACH tt-file NO-LOCK
-          WHERE tt-file.createDate LE (del_date - 1)
+          WHERE tt-file.createDate LE (del_date - 1) AND
+               LOOKUP(tt-file.extfile,file_format) NE 0 
                BY tt-file.createDate BY tt-file.createtime:
           
             IF tt-file.tfile EQ "." THEN NEXT .
@@ -321,9 +330,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY del_date scr-text 
+  DISPLAY del_date file_format scr-text 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE del_date btnOk BtnCancel 
+  ENABLE del_date file_format btnOk BtnCancel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
