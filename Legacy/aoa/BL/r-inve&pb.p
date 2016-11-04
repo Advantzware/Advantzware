@@ -13,12 +13,13 @@
 /* Invoice Post Update GL.rpa */
 {aoa/tempTable/ttInvoicePostUpdateGL.i}
 
+{sys/ref/CustList.i NEW}
+    
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttInvoicePostUpdateGL.
 {aoa/includes/pInvoicePostUpdateGL.i}
 
 /* Local Variable Definitions ---                                       */
-{sys/ref/CustList.i NEW}
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}

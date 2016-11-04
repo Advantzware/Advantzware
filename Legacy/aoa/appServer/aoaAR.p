@@ -36,8 +36,6 @@
 /* CRM Customers.rpa */
 {CRM/ttCRMCustomers.i}
 
-{sys/ref/CustList.i NEW}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -42,8 +42,6 @@
 /* Recap Product Category.rpa */
 {aoa/tempTable/ttRecapProductCategory.i}
 
-{sys/ref/CustList.i NEW}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

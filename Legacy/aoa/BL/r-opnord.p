@@ -2,6 +2,7 @@
 
 /* temp-table definitions */
 {aoa/tempTable/ttOpenOrderReport.i}
+
 {sys/ref/CustList.i NEW}
 
 /* Parameters Definitions ---                                           */

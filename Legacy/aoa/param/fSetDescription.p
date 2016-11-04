@@ -25,6 +25,14 @@ CASE iphObject:NAME:
              NO-ERROR.
         IF AVAILABLE cust THEN opcDescription = cust.name.
     END.
+    WHEN "svStartCustPart" OR WHEN "svEndCustPart" THEN DO:
+        cRange = REPLACE(cRange,"CustPart","").
+        FIND FIRST cust-part NO-LOCK
+             WHERE cust-part.company EQ ipcCompany
+               AND cust-part.part-no EQ iphObject:SCREEN-VALUE
+             NO-ERROR.
+        IF AVAILABLE cust THEN opcDescription = cust-part.i-name.
+    END.
     WHEN "svStartCurrency" OR WHEN "svEndCurrency" THEN DO:
         cRange = REPLACE(cRange,"Currency","").
         FIND FIRST currency NO-LOCK
@@ -87,6 +95,14 @@ CASE iphObject:NAME:
                AND shift.shift   EQ INTEGER(iphObject:SCREEN-VALUE)
              NO-ERROR.
         IF AVAILABLE shift THEN opcDescription = shift.descr.
+    END.
+    WHEN "svStartStyle" OR WHEN "svEndStyle" THEN DO:
+        cRange = REPLACE(cRange,"Style","").
+        FIND FIRST style NO-LOCK
+             WHERE style.company EQ ipcCompany
+               AND style.style   EQ iphObject:SCREEN-VALUE
+             NO-ERROR.
+        IF AVAILABLE style THEN opcDescription = style.dscr.
     END.
     WHEN "svStartTerms" OR WHEN "svEndTerms" THEN DO:
         cRange = REPLACE(cRange,"Terms","").

@@ -9,7 +9,7 @@
 {aoa/tempTable/ttProductionAnalysis.i}
 /* Machine Productivity.rpa */
 {aoa/tempTable/ttMachineProductivity.i}
-{sys/ref/CustList.i}
+{sys/ref/CustList.i NEW}
 
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttMachineProductivity.

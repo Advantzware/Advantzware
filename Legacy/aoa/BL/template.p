@@ -7,7 +7,8 @@
 
 /* Template.rpa */
 {aoa/tempTable/ttTemplate.i}
-{sys/ref/CustList.i}
+
+{sys/ref/CustList.i NEW}
 
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttTemplate.

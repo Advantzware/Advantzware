@@ -5,7 +5,7 @@
 /* Recap Product Category.rpa */
 {aoa/tempTable/ttRecapProductCategory.i}
 
-{sys/ref/CustList.i}
+{sys/ref/CustList.i NEW}
 
 DEFINE TEMP-TABLE w-data NO-UNDO
     FIELD ord-no  LIKE oe-ord.ord-no

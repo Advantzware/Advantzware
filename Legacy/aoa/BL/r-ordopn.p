@@ -7,7 +7,8 @@
 
 /* Open Order Report.rpa */ 
 {aoa/tempTable/ttOpenOrderReport.i}
-{sys/ref/CustList.i}
+
+{sys/ref/CustList.i NEW}
 
 DEFINE TEMP-TABLE tt-fg-bin NO-UNDO LIKE fg-bin.
 

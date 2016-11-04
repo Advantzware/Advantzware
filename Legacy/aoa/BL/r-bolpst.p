@@ -28,6 +28,7 @@ DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}
     
+/* subject business logic */
 ASSIGN
     cocode = ipcCompany
     locode = cLocation

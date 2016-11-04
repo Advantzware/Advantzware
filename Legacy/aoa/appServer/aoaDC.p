@@ -24,8 +24,6 @@
 /* Machine Productivity.rpa */
 {aoa/tempTable/ttMachineProductivity.i}
 
-{sys/ref/CustList.i NEW}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
