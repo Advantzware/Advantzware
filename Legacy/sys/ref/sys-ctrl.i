@@ -190,7 +190,7 @@ ASSIGN
  str-init[107] = ",Indiana,Dee"
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
- str-init[110] = ",HOP,Xprint,AllWest,PremierPkg"  
+ str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule"  
  str-init[111] = ",Positive Pay"
  str-init[112] = ",DuplicateFGDayClient" 
  str-init[113] = ",Trailer" 
