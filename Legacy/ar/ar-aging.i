@@ -624,15 +624,15 @@ END.
            ELSE
               v-type = "PY".
 
-           ASSIGN
-              v-cr-db-amt = ar-cashl.amt-paid * -1
-              v-disc-amt = ar-cashl.amt-disc * -1.
+                ASSIGN
+                    v-cr-db-amt = ar-cashl.amt-paid  * -1 
+                    v-disc-amt = ar-cashl.amt-disc  * -1 .
 
            /*IF v-type = "PY" AND v-cr-db-amt GT 0 THEN
               v-cr-db-amt = v-cr-db-amt * -1.
            ELSE*/
-            IF v-type EQ "VD" AND v-cr-db-amt LT 0 THEN
-              v-cr-db-amt = v-cr-db-amt * -1.
+           /* IF v-type EQ "VD" AND v-cr-db-amt LT 0 THEN
+              v-cr-db-amt = v-cr-db-amt * -1.*/
         END.
 
         if v-disc-amt ne 0 then do:
@@ -849,16 +849,16 @@ END.
             END.
          ELSE
             v-type = "PY".
-
-         ASSIGN
-           v-cr-db-amt = ar-cashl.amt-paid * -1
-           v-disc-amt = ar-cashl.amt-disc * -1.
+      
+                ASSIGN
+                    v-cr-db-amt = ar-cashl.amt-paid * -1 
+                    v-disc-amt = ar-cashl.amt-disc  * -1 .
 
          /*IF v-type = "PY" AND v-cr-db-amt GT 0 THEN
             v-cr-db-amt = v-cr-db-amt * -1.
          ELSE*/
-          IF v-type EQ "VD" AND v-cr-db-amt LT 0 THEN
-            v-cr-db-amt = v-cr-db-amt * -1.
+          /*IF v-type EQ "VD" AND v-cr-db-amt LT 0 THEN
+            v-cr-db-amt = v-cr-db-amt * -1.*/
       END.
 
       if first-unapp then do:
