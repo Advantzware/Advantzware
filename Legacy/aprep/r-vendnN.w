@@ -1250,8 +1250,10 @@ FOR EACH company WHERE
 
        IF ap-ledger.tr-date LT v-date[2] THEN
          v-tot-lyd = v-tot-lyd + v-amt.
-        
-       dtotyear = dtotyear + v-amt .
+
+       IF ap-ledger.tr-date GE v-date[3] AND 
+           ap-ledger.tr-date LT DATE(STRING(MONTH(end_date)) + "/" + STRING(DAY(end_date)) + "/" + STRING( YEAR(end_date) - 1 )) THEN
+         dtotyear = dtotyear + v-amt .
      END.
 
      FOR EACH ap-inv FIELDS(due)
