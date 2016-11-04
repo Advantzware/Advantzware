@@ -4595,6 +4595,14 @@ PROCEDURE custom-row-changed :
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
     END.
   END.
+  ELSE IF eb.est-type = 6 THEN DO:
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"form-blank-target",OUTPUT char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) AND AVAIL eb THEN DO:
+          RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("OFF").
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+      RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
+     END.                                               
+  END.
 
 END PROCEDURE.
 
