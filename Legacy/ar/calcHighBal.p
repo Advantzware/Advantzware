@@ -120,7 +120,7 @@ PROCEDURE buildTempTable :
     DEF VAR fi_tchk LIKE ar-cash.check-no NO-UNDO.
     DEF VAR cocode LIKE ar-cash.company NO-UNDO.
     DEF VAR v-gltrans-desc AS CHAR NO-UNDO.
-
+    DEFINE VARIABLE iDayRange AS INT NO-UNDO.
 
     FOR EACH tt-arinq:
         DELETE tt-arinq.
@@ -134,6 +134,9 @@ PROCEDURE buildTempTable :
         fi_fchk = 0
         fi_tchk = 2147483647.
 
+    iDayRange = getHighBalDays(cocode).
+    IF iDayRange EQ 0 THEN iDayRange = 9999 .
+
     FIND FIRST cust WHERE RECID(cust) EQ RECID(ipbf-cust) NO-LOCK NO-ERROR.
 
     FOR EACH ar-inv NO-LOCK
@@ -141,7 +144,7 @@ PROCEDURE buildTempTable :
         AND ar-inv.cust-no   EQ ipbf-cust.cust-no
         AND ar-inv.posted    EQ YES
         AND ar-inv.terms     NE "CASH"
-        AND ar-inv.inv-date  GE (TODAY - 9999) /*THis is to match the limits on AQ2*/
+        AND ar-inv.inv-date  GE (TODAY - iDayRange /*9999*/ ) /*THis is to match the limits on AQ2*/
         USE-INDEX ar-inv
         BY ar-inv.inv-date
         BY ar-inv.inv-no:
