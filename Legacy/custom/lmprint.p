@@ -141,18 +141,8 @@ IF  lLabelMatrixLock THEN DO:
 
 END.
 
-
-RUN custom/getregvalue.p (INPUT "HKEY_LOCAL_MACHINE", 
-                          INPUT "SOFTWARE",
-                          INPUT "Teklynx\Label Matrix",
-                          INPUT "PATH",
-                          OUTPUT cPath).
-
-cPath = TRIM(cPath,"\").
-
-
-ASSIGN
-  cPath = cPath + "\lmwprint.exe "
+RUN pGetExecutionPath(OUTPUT cPath). /*Gets the LMPrint.exe execution path*/
+  
   cFileName = "/L=" + ipcLabelFile.
 
 /* Specify a "lock" file for LM to remove when done printing */
@@ -186,6 +176,47 @@ RUN ShellExecute{&A} IN hpApi(0,
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-pGetExecutionPath) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetExecutionPath Procedure
+PROCEDURE pGetExecutionPath:
+/*------------------------------------------------------------------------------
+ Purpose: Finds the correct call to the execution path for LMWprint.exe
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER opcPath AS CHARACTER NO-UNDO.
+
+RUN custom/getregvalue.p (INPUT "HKEY_LOCAL_MACHINE", 
+                          INPUT "SOFTWARE",
+                          INPUT "Teklynx\Label Matrix",
+                          INPUT "PATH",
+                          OUTPUT opcPath).
+IF opcPath NE ? THEN DO:
+    ASSIGN
+        opcPath = TRIM(opcPath,"\")
+        opcPath = opcPath + "\lmwprint.exe ".
+END.
+ELSE DO:  /*Newer Operating Systems*/
+    RUN custom/getregvalue.p (INPUT "HKEY_LOCAL_MACHINE", 
+                              INPUT "SOFTWARE",
+                              INPUT "Classes\Label Matrix Document\shell\open\command\print\command",
+                              INPUT "",
+                              OUTPUT opcPath).
+    opcPath = TRIM(opcPath,"%1").
+  
+END.
+IF opcPath EQ ? THEN 
+    MESSAGE "Unable to find Label Matrix print program." VIEW-AS ALERT-BOX ERROR.  
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-win_breakPath) = 0 &THEN
 
