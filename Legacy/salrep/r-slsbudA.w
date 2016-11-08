@@ -59,6 +59,8 @@ DEF VAR edate AS DATE EXTENT 2 NO-UNDO.
 
 DEF VAR v-enable-fg AS LOG NO-UNDO.
 DEF VAR v-prod-line-mode AS LOG NO-UNDO.
+DEF VAR cRtnChar AS CHAR NO-UNDO .
+DEF VAR lRecFound AS CHAR NO-UNDO .
 
 DEF STREAM excel.
 
@@ -1073,7 +1075,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    END.
 
   /* gdm - 03090904 */
-    FIND FIRST sys-ctrl NO-LOCK
+    /*FIND FIRST sys-ctrl NO-LOCK
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name EQ "SalesBudget" NO-ERROR.
     IF NOT AVAIL sys-ctrl THEN DO:
@@ -1085,7 +1087,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             sys-ctrl.descrip = "Budget Report".
     END.
    
-    RELEASE sys-ctrl.
+    RELEASE sys-ctrl.*/
+   RUN sys/ref/nk1look.p (INPUT cocode, "SalesBudget", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
 /* gdm - 0309094 end */
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN

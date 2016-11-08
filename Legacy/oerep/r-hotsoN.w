@@ -43,9 +43,6 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
-
-/*{sys/inc/custlistform.i cFormatValue }*/
-
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive  AS LOGICAL     NO-UNDO.
 
@@ -1973,8 +1970,8 @@ PROCEDURE CustList :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-    /*RUN sys/ref/CustListManager.w(INPUT cocode,
-                                  INPUT 'OZ8').*/
+    RUN sys/ref/CustListManager.w(INPUT cocode,
+                                  INPUT 'OZ8').
 
 END PROCEDURE.
 

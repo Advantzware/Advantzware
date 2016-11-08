@@ -43,7 +43,6 @@ assign
  cocode = gcompany
  locode = gloc.
 
-/*{sys/inc/custlistform.i ""AL1"" }*/
 
 {sys/ref/CustList.i NEW}
     
@@ -554,7 +553,7 @@ DO:
   END.
 
   RUN GetSelectionList.
-  /*run run-report. */
+  run run-report. 
 
   case rd-dest:
        when 1 then run output-to-printer.
@@ -940,16 +939,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
-  /*RUN init-proc NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN.*/  
+  RUN init-proc NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN.  
 
-  /*RUN DisplaySelectionList.*/
+  RUN DisplaySelectionList.
   RUN enable_UI.
   {methods/nowait.i}
-     /* RUN sys/inc/CustListForm.p ( "AL1",cocode, 
+   RUN sys/inc/CustListForm.p ( "AL1",cocode, 
                                OUTPUT ou-log,
-                               OUTPUT ou-cust-int) .*/
-  /*DO WITH FRAME {&FRAME-NAME}:
+                               OUTPUT ou-cust-int) .
+  DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_cust.
@@ -958,11 +957,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN sys/ref/CustList.p (INPUT cocode,
                           INPUT 'AL1',
                           INPUT NO,
-                          OUTPUT glCustListActive).*/
+                          OUTPUT glCustListActive).
 
-  /*{sys/inc/chblankcust.i ""AL1""}*/
+  {sys/inc/chblankcust.i ""AL1""}
 
- /* IF ou-log THEN DO:
+  IF ou-log THEN DO:
       ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -986,7 +985,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list = NO
         .
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
-   END.*/
+   END.
   
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
