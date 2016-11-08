@@ -20,53 +20,56 @@
 
 /* ***************************  Main Block  *************************** */
 
-RUN UpdateVendorPaymentType.
+RUN pUpdateVendorPaymentType.
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE UpdateVendorPaymentType:
+PROCEDURE pCheckPayMaster:
+    /*------------------------------------------------------------------------------
+     Purpose: Creates a payment-type record if it does not exist
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPaper AS LOGICAL NO-UNDO.
+
+    IF NOT CAN-FIND(FIRST payment-type WHERE payment-type.company EQ ipcCompany AND payment-type.type EQ ipcType) THEN 
+    DO:
+        CREATE payment-type.
+        ASSIGN
+            payment-type.company    = company.company
+            payment-type.type       = ipcType
+            payment-type.dscr       = ipcDescription
+            payment-type.paperCheck = iplPaper
+            .
+    END. 
+
+END PROCEDURE.
+
+PROCEDURE pUpdateVendorPaymentType:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     FOR EACH company NO-LOCK:
-        CREATE payment-type.
-        ASSIGN
-            payment-type.company    = company.company
-            payment-type.type       = "Check"
-            payment-type.dscr       = "Paper Check"
-            payment-type.paperCheck = YES
-            .
-        CREATE payment-type.
-        ASSIGN
-            payment-type.company    = company.company
-            payment-type.type       = "Bill Pay"
-            payment-type.dscr       = "Online Bill Pay"
-            payment-type.paperCheck = NO
-            .
-        CREATE payment-type.
-        ASSIGN
-            payment-type.company    = company.company
-            payment-type.type       = "Credit Card"
-            payment-type.dscr       = "Credit Card"
-            payment-type.paperCheck = NO
-            .
-        CREATE payment-type.
-        ASSIGN
-            payment-type.company    = company.company
-            payment-type.type       = "ACH"
-            payment-type.dscr       = "ACH Electronic Transfer"
-            payment-type.paperCheck = NO
-            .
+        /*Set Payment Type Defaults*/
+        RUN pCheckPayMaster (company.company,"Check","Paper Check",YES).
+        RUN pCheckPayMaster (company.company,"Bill Pay","Online Bill Pay",NO).
+        RUN pCheckPayMaster (company.company,"Credit Card","Credit Card",NO).
+        RUN pCheckPayMaster (company.company,"ACH","ACH Electronic Transfer",NO).
+        
+        /*Convert spare-int values to payment-type*/
         FOR EACH vend 
             WHERE vend.company EQ company.company:
-            IF vend.spare-int-1 = 1 THEN vend.payment-type = "Credit Card".
-            IF vend.spare-int-2 = 1 THEN vend.payment-type = "Bill Pay".
-            ELSE vend.payment-type = "Check".
+            IF vend.spare-int-1 = 1 THEN vend.payment-type = "ACH".
+            ELSE IF vend.spare-int-2 = 1 THEN vend.payment-type = "Bill Pay".
+                ELSE vend.payment-type = "Check".
                
         END.
     END.
 END PROCEDURE.
+
 
 
 
