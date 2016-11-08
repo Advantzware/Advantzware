@@ -64,7 +64,7 @@ DEFINE BUTTON btnMoveCol
      IMAGE-UP FILE "Graphics/32x32/spreadsheet_column.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Phone" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Phone Info.".
+     SIZE 7.8 BY 1.81 TOOLTIP "Change Move/Sort Column Mode".
 
 
 /* ************************  Frame Definitions  *********************** */
