@@ -38,9 +38,14 @@ LOAD ipcFolder BASE-KEY ipcBaseKey.
 
 USE ipcFolder.
 
-GET-KEY-VALUE SECTION ipcSection
-  KEY ipcKey
-  VALUE opcValue.
+IF ipcKey EQ "" THEN
+    GET-KEY-VALUE SECTION ipcSection
+      KEY DEFAULT
+      VALUE opcValue.
+ELSE  
+    GET-KEY-VALUE SECTION ipcSection
+      KEY ipcKey
+      VALUE opcValue.
 
 UNLOAD ipcFolder.
 
