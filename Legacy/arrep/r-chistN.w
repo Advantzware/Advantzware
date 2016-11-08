@@ -26,7 +26,8 @@ CREATE WIDGET-POOL.
 DEF VAR list-name as cha no-undo.
 DEF VAR init-dir AS CHA NO-UNDO.
 DEF VAR lv-comp-curr AS cha NO-UNDO.
-
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -42,7 +43,7 @@ assign
  cocode = gcompany
  locode = gloc.
 
-{sys/inc/custlistform.i ""AL1"" }
+/*{sys/inc/custlistform.i ""AL1"" }*/
 
 {sys/ref/CustList.i NEW}
     
@@ -75,6 +76,10 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEF VAR v-header-chk AS LOG NO-UNDO.
+DEFINE VARIABLE postdate-log like sys-ctrl.log-fld no-undo.
+DEFINE VARIABLE postdate-dat like sys-ctrl.date-fld no-undo.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 
 
 ASSIGN cTextListToSelect = "CUSTOMER,NAME,CHECK #,DATE,CASH RECVD,INVOICE#,ORIGINAL AMT,AMT APPLIED,DISCOUNT,ON ACT PYMTS"
@@ -90,7 +95,19 @@ DEF TEMP-TABLE tt-post NO-UNDO FIELD row-id AS ROWID
                                FIELD ex-rate LIKE currency.ex-rate INIT 1
                                FIELD curr-amt LIKE ar-cash.check-amt
                                FIELD actnum LIKE account.actnum.
-{sys/inc/postdate.i}
+/*{sys/inc/postdate.i}*/
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    postdate-log = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "DT" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+ IF lRecFound THEN
+     postdate-dat = DATE(cRtnChar) NO-ERROR. 
 /*
 DO TRANSACTION:
   {sys/inc/postdate.i}
@@ -537,7 +554,7 @@ DO:
   END.
 
   RUN GetSelectionList.
-  run run-report. 
+  /*run run-report. */
 
   case rd-dest:
        when 1 then run output-to-printer.
@@ -923,14 +940,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
-  RUN init-proc NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN.  
+  /*RUN init-proc NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN.*/  
 
-  RUN DisplaySelectionList.
+  /*RUN DisplaySelectionList.*/
   RUN enable_UI.
   {methods/nowait.i}
-
-  DO WITH FRAME {&FRAME-NAME}:
+     /* RUN sys/inc/CustListForm.p ( "AL1",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .*/
+  /*DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_cust.
@@ -939,11 +958,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN sys/ref/CustList.p (INPUT cocode,
                           INPUT 'AL1',
                           INPUT NO,
-                          OUTPUT glCustListActive).
+                          OUTPUT glCustListActive).*/
 
-  {sys/inc/chblankcust.i ""AL1""}
+  /*{sys/inc/chblankcust.i ""AL1""}*/
 
-  IF ou-log THEN DO:
+ /* IF ou-log THEN DO:
       ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -967,7 +986,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list = NO
         .
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
-   END.
+   END.*/
   
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.

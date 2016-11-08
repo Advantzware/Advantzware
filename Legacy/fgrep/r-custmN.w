@@ -22,6 +22,9 @@ CREATE WIDGET-POOL.
 DEF VAR list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
+
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
@@ -37,7 +40,7 @@ ASSIGN
  locode = gloc.
 
 
-{sys/inc/custlistform.i ""IR6"" }
+/*{sys/inc/custlistform.i ""IR6"" }*/
 
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
@@ -1055,6 +1058,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   
   {methods/nowait.i}
+  
+  RUN sys/inc/CustListForm.p ( "IR6",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
