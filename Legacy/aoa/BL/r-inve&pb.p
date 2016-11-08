@@ -1798,6 +1798,20 @@ PROCEDURE list-post-inv :
             DO:
          
                 /* Create temp-table without detail info */
+                FIND FIRST ttInvoicePostUpdateGL
+                  WHERE ttInvoicePostUpdateGL.invNo             = inv-head.inv-no
+                    AND ttInvoicePostUpdateGL.invDate           = inv-head.inv-date
+                    AND ttInvoicePostUpdateGL.custNo            = inv-head.cust-no
+                    AND ttInvoicePostUpdateGL.custName          = inv-head.cust-name
+                    AND ttInvoicePostUpdateGL.orderNumber       = v-ord-no
+                    AND  ttInvoicePostUpdateGL.invoiceQty        = iInvoiceQty
+                    AND ttInvoicePostUpdateGL.totInvoicefreight = inv-head.t-inv-freight
+                    AND ttInvoicePostUpdateGL.totInvoiceTax     = inv-head.t-inv-tax
+                    AND ttInvoicePostUpdateGL.miscTot           = dMiscTotal
+                    AND ttInvoicePostUpdateGL.lineTot           = dLineTot
+                    AND ttInvoicePostUpdateGL.iInvRev           = inv-head.t-inv-rev
+                    NO-ERROR .
+                IF NOT AVAILABLE ttInvoicePostUpdateGL THEN DO:
                 CREATE ttInvoicePostUpdateGL.
                 ASSIGN
                     ttInvoicePostUpdateGL.invNo             = inv-head.inv-no
@@ -1817,7 +1831,7 @@ PROCEDURE list-post-inv :
                         ttInvoicePostUpdateGL.weightPerTon = ld-t[2]
                         ttInvoicePostUpdateGL.pricePerTon  = ld-pton
                         .
-              
+                 END.
             END.
           
             ELSE 
@@ -1850,6 +1864,30 @@ PROCEDURE list-post-inv :
                 
                     END.
                     dprofit = dProfit / 100.
+                    
+                FIND FIRST ttInvoicePostUpdateGL
+                  WHERE ttInvoicePostUpdateGL.invNo             = inv-head.inv-no
+                    AND ttInvoicePostUpdateGL.invDate           = inv-head.inv-date
+                    AND ttInvoicePostUpdateGL.custNo            = inv-head.cust-no
+                    AND ttInvoicePostUpdateGL.custName          = inv-head.cust-name
+                    AND ttInvoicePostUpdateGL.orderNumber       = v-ord-no
+                    AND  ttInvoicePostUpdateGL.invoiceQty        = iInvoiceQty
+                    AND ttInvoicePostUpdateGL.totInvoicefreight = inv-head.t-inv-freight
+                    AND ttInvoicePostUpdateGL.totInvoiceTax     = inv-head.t-inv-tax
+                    AND ttInvoicePostUpdateGL.miscTot           = dMiscTotal
+                    AND ttInvoicePostUpdateGL.lineTot           = dLineTot
+                    AND ttInvoicePostUpdateGL.iInvRev           = inv-head.t-inv-rev
+                    AND ttInvoicePostUpdateGL.iNo               = w-inv-line.i-no
+                    AND ttInvoicePostUpdateGL.iName             = w-inv-line.i-name
+                    AND ttInvoicePostUpdateGL.qty               = w-inv-line.qty
+                    AND ttInvoicePostUpdateGL.invQty            = w-inv-line.inv-qty
+                    AND ttInvoicePostUpdateGL.shipQty           = w-inv-line.ship-qty
+                    AND ttInvoicePostUpdateGL.price             = w-inv-line.price
+                    AND ttInvoicePostUpdateGL.uom               = w-inv-line.uom
+                    AND ttInvoicePostUpdateGL.TotPrice          = w-inv-line.t-price
+                    AND ttInvoicePostUpdateGL.profit            = dProfit                    
+                    NO-ERROR .
+                IF NOT AVAILABLE ttInvoicePostUpdateGL THEN DO:                    
                     CREATE ttInvoicePostUpdateGL.
                     ASSIGN
                         ttInvoicePostUpdateGL.invNo             = inv-head.inv-no
@@ -1882,6 +1920,7 @@ PROCEDURE list-post-inv :
                             ttInvoicePostUpdateGL.weightPerTon = ld-t[1] 
                             ttInvoicePostUpdateGL.pricePerTon  = ld-pton
                             .
+                   END. /* if createing temp table record */
                     DELETE w-inv-line.
 
                 END.

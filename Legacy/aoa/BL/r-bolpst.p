@@ -66,6 +66,8 @@ DEFINE BUFFER xoe-boll FOR oe-boll.
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE STREAM sDebug.
 lUseLogs = NO. /* Use debug logging */
+if search("logs/" + "r-bolpst" + ".txt") ne ? then 
+  lUseLogs = true.
 cDebugLog = "logs/" + "r-bolpst" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,10)) + ".txt".
 IF lUseLogs THEN 
   OUTPUT STREAM sDebug TO VALUE(cDebugLog).
@@ -274,14 +276,21 @@ PROCEDURE pAutoSelectTags:
     IF NOT AVAILABLE oe-ordl THEN 
         RETURN.
   
+    FIND FIRST oe-rell NO-LOCK 
+       WHERE oe-rell.r-no EQ xoe-boll.r-no
+       NO-ERROR.
+       
+    IF AVAILABLE oe-rell THEN 
+    FIND FIRST oe-rel WHERE oe-rel.r-no EQ oe-rell.link-no
+        NO-ERROR. 
+        
+    IF NOT AVAILABLE oe-rel THEN   
     FIND FIRST oe-rel NO-LOCK
         WHERE oe-rel.company EQ oe-ordl.company
         AND oe-rel.ord-no  EQ oe-ordl.ord-no
             AND oe-rel.i-no    EQ oe-ordl.i-no
             AND oe-rel.line    EQ oe-ordl.line
             AND oe-rel.stat    EQ "P"
-            AND oe-rel.link-no GT 0 
-            AND oe-rel.rel-no  GT 0
             NO-ERROR.
     fDebugMsg("avail oerel " + STRING(AVAILABLE(oe-rel))).
     IF NOT AVAILABLE oe-rel THEN 
