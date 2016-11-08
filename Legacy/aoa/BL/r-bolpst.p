@@ -27,7 +27,7 @@ DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}
-{custom/globdefs.i NEW}
+{custom/globdefs.i &NEW=NEW}
 
 /* subject business logic */
 ASSIGN
