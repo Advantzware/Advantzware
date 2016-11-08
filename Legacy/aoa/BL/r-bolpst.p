@@ -22,7 +22,7 @@ DEFINE OUTPUT PARAMETER TABLE FOR ttPostBOLCreateInvoice.
 DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)":U.
 
 /* Local Variable Definitions ---                                       */
-{sys/ref/CustList.i}
+{sys/ref/CustList.i NEW}
 {methods/defines/hndldefs.i &new=NEW}
 {custom/gcompany.i}
 {custom/gloc.i}
