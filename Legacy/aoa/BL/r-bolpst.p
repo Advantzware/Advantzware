@@ -27,11 +27,14 @@ DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}
-    
+{custom/globdefs.i NEW}
+
 /* subject business logic */
 ASSIGN
     cocode = ipcCompany
     locode = cLocation
+    g_company = ipcCompany
+    g_loc     = cLocation
     .
 {oe/oe-bolp1.i NEW}
 {oe/d-selbin.i NEW} /* w-bin definition */
