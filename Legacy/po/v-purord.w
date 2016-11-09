@@ -1566,6 +1566,56 @@ PROCEDURE local-assign-record :
 
          END.
   END.
+
+  IF lv-prev-vend-no NE po-ord.vend-no THEN DO:
+     MESSAGE "Do you want to update the Item Cost for all line items?"
+         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-anse AS LOG.
+     
+     IF ll-anse THEN 
+         FOR EACH po-ordl EXCLUSIVE-LOCK WHERE po-ordl.company = po-ord.company
+                            AND po-ordl.po-no = po-ord.po-no:
+          IF po-ordl.item-type EQ YES THEN DO:
+              FIND FIRST ITEM NO-LOCK 
+                  WHERE ITEM.i-no EQ po-ordl.i-no
+                    AND ITEM.company EQ cocode NO-ERROR.
+              IF AVAIL ITEM THEN
+              FOR EACH e-item OF item NO-LOCK, 
+                  EACH e-item-vend OF e-item 
+                  WHERE e-item-vend.item-type = yes 
+                  AND e-item-vend.vend-no EQ po-ord.vend-no NO-LOCK:
+                  DO i = 1 TO 10:
+                      IF po-ordl.ord-qty LE  e-item-vend.run-qty[i]  THEN do:
+                          ASSIGN
+                              po-ordl.cost = e-item-vend.run-cost[i] .
+                          LEAVE.
+                      END.
+                  END.
+              END.
+
+          END.  /* if po-ordl.item-type */
+          ELSE DO:
+              FIND FIRST itemfg NO-LOCK
+                   WHERE itemfg.company EQ cocode 
+                     AND itemfg.i-no EQ po-ordl.i-no NO-ERROR .
+              IF AVAIL itemfg THEN
+              FOR EACH e-itemfg OF itemfg NO-LOCK, 
+                  EACH e-itemfg-vend OF e-itemfg 
+                  WHERE e-itemfg-vend.est-no eq ""
+                    AND e-itemfg-vend.vend-no EQ po-ord.vend-no NO-LOCK :
+                  DO i = 1 TO 10:
+                      IF po-ordl.ord-qty LE  e-itemfg-vend.run-qty[i]  THEN do:
+                          ASSIGN
+                              po-ordl.cost = e-itemfg-vend.run-cost[i] .
+                          LEAVE.
+                      END.
+                  END.
+              END. /* for each */
+
+          END.  /* else ddo*/
+            
+     END.
+  END.  /* change vender */
+
   FIND CURRENT po-ord NO-LOCK NO-ERROR.
 END PROCEDURE.
 
