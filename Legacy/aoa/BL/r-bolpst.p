@@ -15,6 +15,8 @@
 /* Post BOL Create Invoice.rpa */
 {aoa/tempTable/ttPostBolCreateInvoice.i}
 
+{sys/ref/CustList.i NEW}
+
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttPostBOLCreateInvoice.
 {aoa/includes/pPostBOLCreateInvoice.i}
@@ -22,7 +24,6 @@ DEFINE OUTPUT PARAMETER TABLE FOR ttPostBOLCreateInvoice.
 DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)":U.
 
 /* Local Variable Definitions ---                                       */
-{sys/ref/CustList.i NEW}
 {methods/defines/hndldefs.i &new=NEW}
 {custom/gcompany.i}
 {custom/gloc.i}

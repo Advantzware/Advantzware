@@ -13,11 +13,9 @@
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttFinishedGoodsExport.
 {aoa/includes/pFinishedGoodsExport.i}
-/* set parameter values here if not running from parameter screen */
 
 /* local variables */
-
-DEFINE BUFFER b-itemfg FOR itemfg.
+DEFINE BUFFER bItemFG FOR itemfg.
 
 DEFINE VARIABLE cStyle          LIKE eb.style                         NO-UNDO.
 DEFINE VARIABLE dLen            LIKE eb.len                           NO-UNDO.
@@ -37,49 +35,54 @@ DEFINE VARIABLE cCoat           AS   CHARACTER FORM "x(10)" EXTENT 10 NO-UNDO.
 DEFINE VARIABLE cCaseCount      LIKE itemfg.case-count                NO-UNDO.
 DEFINE VARIABLE cPalletCount    LIKE itemfg.case-count                NO-UNDO.
 DEFINE VARIABLE cCasesPerPallet LIKE itemfg.case-count                NO-UNDO.
-DEFINE VARIABLE dClip           LIKE ITEM.cal                         NO-UNDO.
+DEFINE VARIABLE dClip           LIKE item.cal                         NO-UNDO.
 DEFINE VARIABLE cTrNno          AS   CHARACTER INIT ""                NO-UNDO.
 DEFINE VARIABLE cTrName         AS   CHARACTER INIT ""                NO-UNDO.
 DEFINE VARIABLE cCasNo          AS   CHARACTER INIT ""                NO-UNDO.
 DEFINE VARIABLE cCasName        AS   CHARACTER INIT ""                NO-UNDO.
 DEFINE VARIABLE cSpecNote       AS   CHARACTER                        NO-UNDO.
 DEFINE VARIABLE i               AS   INTEGER                          NO-UNDO.
-DEFINE VARIABLE dfuncAlloc      AS   CHARACTER                        NO-UNDO.
+DEFINE VARIABLE dFuncAlloc      AS   CHARACTER                        NO-UNDO.
 DEFINE VARIABLE cShipMethod     AS   CHARACTER                        NO-UNDO.
 DEFINE VARIABLE iPeriod         AS   INTEGER                          NO-UNDO.
 
- FIND FIRST period WHERE period.company EQ ipcCompany 
-     AND period.pstat EQ TRUE   
-     AND period.pst LE today
-     AND period.pend GE today NO-LOCK NO-ERROR.
- IF NOT AVAILABLE period THEN
-     FIND LAST period WHERE period.company EQ ipcCompany  AND
-     period.pstat EQ TRUE NO-LOCK NO-ERROR.
- IF AVAILABLE period THEN
-     iPeriod = period.pnum.
-
+FIND FIRST period NO-LOCK
+     WHERE period.company EQ ipcCompany 
+       AND period.pstat EQ TRUE
+       AND period.pst   LE TODAY
+       AND period.pend  GE TODAY
+     NO-ERROR.
+IF NOT AVAILABLE period THEN
+FIND LAST period NO-LOCK
+     WHERE period.company EQ ipcCompany
+       AND period.pstat   EQ TRUE
+     NO-ERROR.
+IF AVAILABLE period THEN
+iPeriod = period.pnum.
 
 /* subject business logic */
-FOR EACH b-itemfg NO-LOCK 
-    WHERE b-itemfg.company EQ ipcCompany
-      AND b-itemfg.i-no GE cStartItemNo
-      AND b-itemfg.i-no LE cEndItemNo
-      AND b-itemfg.i-name GE cStartItemName
-      AND b-itemfg.i-name LE cEndItemName
-      AND b-itemfg.part-no GE cStartCustPart
-      AND b-itemfg.part-no LE cEndCustPart
-      AND b-itemfg.cust-no GE cStartCustNo
-      AND b-itemfg.cust-no LE cEndCustNo
-      AND b-itemfg.est-no GE cStartEstimate
-      AND b-itemfg.est-no LE cEndEstimate
-      AND b-itemfg.style GE cStartStyle
-      AND b-itemfg.style LE cEndStyle
-      AND b-itemfg.procat GE cStartProdCategory
-      AND b-itemfg.procat LE cEndProdCategory
-      AND ( ((b-itemfg.stat = "A" OR b-itemfg.stat = "" ) AND lActive ) 
-            OR (b-itemfg.stat = "I" AND lInactive ) )
+FOR EACH bItemFG NO-LOCK 
+    WHERE bItemFG.company EQ ipcCompany
+      AND bItemFG.i-no    GE cStartItemNo
+      AND bItemFG.i-no    LE cEndItemNo
+      AND bItemFG.i-name  GE cStartItemName
+      AND bItemFG.i-name  LE cEndItemName
+      AND bItemFG.part-no GE cStartCustPart
+      AND bItemFG.part-no LE cEndCustPart
+      AND bItemFG.cust-no GE cStartCustNo
+      AND bItemFG.cust-no LE cEndCustNo
+      AND bItemFG.est-no  GE cStartEstimate
+      AND bItemFG.est-no  LE cEndEstimate
+      AND bItemFG.style   GE cStartStyle
+      AND bItemFG.style   LE cEndStyle
+      AND bItemFG.procat  GE cStartProdCategory
+      AND bItemFG.procat  LE cEndProdCategory
+      AND (((bItemFG.stat EQ "A"
+       OR bItemFG.stat    EQ "")
+      AND lActive)
+       OR (bItemFG.stat   EQ "I"
+      AND lInactive))
     :
-   
     ASSIGN
         dLen = 0     
         dWid = 0    
@@ -98,41 +101,45 @@ FOR EACH b-itemfg NO-LOCK
         cCaseCount = 0
         cPalletCount = 0
         cCasesPerPallet = 0 
-        dClip  =  0.
-
-    cSpecNote = "".
-    
-    IF lSpecNote THEN do:
+        dClip = 0
+        cSpecNote = ""
+        .
+    IF lSpecNote THEN DO:
         FOR EACH notes NO-LOCK 
-            WHERE notes.rec_key EQ b-itemfg.rec_key
-             /* AND CAN-DO(v-dept,notes.note_code) */ :
-            IF AVAILABLE notes THEN cSpecNote = cSpecNote + " " + notes.note_text.
+            WHERE notes.rec_key EQ bItemFG.rec_key
+            :
+            IF AVAILABLE notes THEN
+            cSpecNote = cSpecNote + " " + notes.note_text.
         END.
     END.
 
     FIND FIRST est NO-LOCK
          WHERE est.company EQ ipcCompany
-           AND est.est-no  EQ b-itemfg.est-no NO-ERROR.
-    
-    IF b-itemfg.ship-meth THEN
-        ASSIGN cCaseCount = b-itemfg.case-count
-        cPalletCount = 0.
+           AND est.est-no  EQ bItemFG.est-no
+         NO-ERROR.
+    IF bItemFG.ship-meth THEN
+    ASSIGN
+        cCaseCount = bItemFG.case-count
+        cPalletCount = 0
+        .
     ELSE
-        ASSIGN cCaseCount = 0
-            cPalletCount = b-itemfg.case-count.
+    ASSIGN
+        cCaseCount = 0
+        cPalletCount = bItemFG.case-count
+        .
     
     FIND FIRST eb NO-LOCK 
-        WHERE eb.company EQ ipcCompany
-          AND eb.est-no EQ b-itemfg.est-no 
-          AND eb.stock-no EQ b-itemfg.i-no NO-ERROR.
+        WHERE eb.company  EQ ipcCompany
+          AND eb.est-no   EQ bItemFG.est-no 
+          AND eb.stock-no EQ bItemFG.i-no NO-ERROR.
     
     IF AVAILABLE eb THEN DO:
         FIND FIRST ef NO-LOCK
              WHERE ef.company EQ ipcCompany
-               AND ef.est-no  EQ b-itemfg.est-no 
+               AND ef.est-no  EQ bItemFG.est-no 
                AND ef.form-no EQ eb.form-no NO-ERROR.
         FIND FIRST style NO-LOCK 
-            WHERE style.company EQ b-itemfg.company
+            WHERE style.company EQ bItemFG.company
               AND style.style   EQ eb.style NO-ERROR. 
         ASSIGN
             cStyle = IF AVAILABLE style THEN style.dscr ELSE eb.style
@@ -151,43 +158,44 @@ FOR EACH b-itemfg NO-LOCK
             cCaseCount = eb.cas-cnt
             cPalletCount = eb.tr-cnt
             cCasesPerPallet = eb.cas-pal
-                .  
+            .
+        FIND FIRST item NO-LOCK 
+            WHERE item.company EQ eb.company
+              AND item.i-no EQ eb.tr-no NO-ERROR.
 
-        FIND FIRST ITEM NO-LOCK 
-            WHERE ITEM.company EQ eb.company
-              AND ITEM.i-no EQ eb.tr-no NO-ERROR.
-
-        IF AVAILABLE ITEM THEN cTrName = ITEM.i-NAME.
-        FIND FIRST ITEM NO-LOCK 
-            WHERE ITEM.company EQ eb.company
-              AND ITEM.i-no EQ eb.cas-no NO-ERROR.
-        IF AVAILABLE ITEM THEN cCasName = ITEM.i-NAME.
-        FIND FIRST ITEM NO-LOCK 
-            WHERE ITEM.company EQ eb.company
-              AND ITEM.i-no EQ cBoard NO-ERROR.
-        IF AVAILABLE ITEM THEN dClip = ITEM.cal . 
+        IF AVAILABLE item THEN cTrName = item.i-name.
+        FIND FIRST item NO-LOCK 
+            WHERE item.company EQ eb.company
+              AND item.i-no    EQ eb.cas-no NO-ERROR.
+        IF AVAILABLE item THEN cCasName = item.i-name.
+        FIND FIRST item NO-LOCK 
+            WHERE item.company EQ eb.company
+              AND item.i-no    EQ cBoard NO-ERROR.
+        IF AVAILABLE item THEN dClip = item.cal. 
         
-        ASSIGN iInkCnt = 1
-            iCoatCnt = 1. 
+        ASSIGN
+            iInkCnt  = 1
+            iCoatCnt = 1
+            . 
         DO i = 1 TO 10:
             IF eb.est-type LE 4 THEN DO:
                 IF eb.i-code2[i] NE "" THEN DO:
-                    FIND FIRST ITEM NO-LOCK 
-                        WHERE ITEM.company EQ ipcCompany
-                          AND ITEM.i-no EQ eb.i-code2[i] NO-ERROR.
-                    IF AVAILABLE ITEM AND ITEM.mat-type EQ "V" THEN 
+                    FIND FIRST item NO-LOCK 
+                        WHERE item.company EQ ipcCompany
+                          AND item.i-no EQ eb.i-code2[i] NO-ERROR.
+                    IF AVAILABLE item AND item.mat-type EQ "V" THEN 
                         ASSIGN cCoat[iCoatCnt] = eb.i-code2[i]
                         iCoatCnt = iCoatCnt + 1.
                     ELSE ASSIGN cInk[iInkCnt] = eb.i-code2[i]
                         iInkCnt = iInkCnt + 1.
                 END.
             END.
-            else DO:
+            ELSE DO:
                 IF eb.i-code[i] NE "" THEN DO:
-                    FIND FIRST ITEM NO-LOCK 
-                        WHERE ITEM.company EQ ipcCompany
-                          AND ITEM.i-no EQ eb.i-code[i] NO-ERROR.
-                    IF AVAIL ITEM AND ITEM.mat-type EQ "V" THEN 
+                    FIND FIRST item NO-LOCK 
+                        WHERE item.company EQ ipcCompany
+                          AND item.i-no EQ eb.i-code[i] NO-ERROR.
+                    IF AVAIL item AND item.mat-type EQ "V" THEN 
                         ASSIGN cCoat[iCoatCnt] = eb.i-code[i]
                         iCoatCnt = iCoatCnt + 1.
                     ELSE ASSIGN cInk[iInkCnt] = eb.i-code[i]
@@ -197,116 +205,115 @@ FOR EACH b-itemfg NO-LOCK
         END.
     END.
     
-    CASE b-itemfg.ship-meth :
+    CASE bItemFG.ship-meth :
         WHEN YES THEN
             cShipMethod = "Case".
         WHEN NO THEN
             cShipMethod = "Pallet".
     END CASE.
-    
 
-    CASE b-itemfg.alloc :
+    CASE bItemFG.alloc :
         WHEN YES THEN
-            dfuncAlloc = "Unassembled".
+            dFuncAlloc = "Unassembled".
         WHEN NO THEN
-            dfuncAlloc = "Assembled".
+            dFuncAlloc = "Assembled".
         OTHERWISE
-            dfuncAlloc = "Assembled w/Part Receipts".
+            dFuncAlloc = "Assembled w/Part Receipts".
     END CASE.
     
     CREATE ttFinishedGoodsExport.
     ASSIGN 
-        ttFinishedGoodsExport.itemNo            = b-itemfg.i-no                  
-        ttFinishedGoodsExport.itemName          = b-itemfg.i-name                
-        ttFinishedGoodsExport.custPartNo        = b-itemfg.part-no                             
-        ttFinishedGoodsExport.custNo            = b-itemfg.cust-no                             
-        ttFinishedGoodsExport.custName          = b-itemfg.cust-name                           
-        ttFinishedGoodsExport.estimate          = b-itemfg.est-no                              
-        ttFinishedGoodsExport.style             = b-itemfg.style                               
-        ttFinishedGoodsExport.category          = b-itemfg.procat                              
-        ttFinishedGoodsExport.categoryDescr     = b-itemfg.procat-desc         
-        ttFinishedGoodsExport.categoryDescr1    = b-itemfg.part-dscr1          
-        ttFinishedGoodsExport.categoryDescr2    = b-itemfg.part-dscr2                          
-        ttFinishedGoodsExport.categoryDescr3    = b-itemfg.part-dscr3                          
-        ttFinishedGoodsExport.stockCust         = b-itemfg.i-code                              
-        ttFinishedGoodsExport.die               = b-itemfg.die-no                              
-        ttFinishedGoodsExport.plate             = b-itemfg.plate-no                            
-        ttFinishedGoodsExport.upc               = b-itemfg.upc-no                              
-        ttFinishedGoodsExport.cad               = b-itemfg.cad-no 
-        ttFinishedGoodsExport.qualitySpc        = b-itemfg.spc-no                              
-        ttFinishedGoodsExport.stocked           = b-itemfg.stocked                             
-        ttFinishedGoodsExport.setHeader         = b-itemfg.isaset                              
-        ttFinishedGoodsExport.aGROUP            = b-itemfg.spare-char-1                        
-        ttFinishedGoodsExport.exemptFromDisc    = b-itemfg.exempt-disc                         
-        ttFinishedGoodsExport.pm                = b-itemfg.pur-man                             
-        ttFinishedGoodsExport.sellPrice         = b-itemfg.sell-price                          
-        ttFinishedGoodsExport.sellPriceUom      = b-itemfg.sell-uom                            
-        ttFinishedGoodsExport.typeCode          = b-itemfg.type-code                           
-        ttFinishedGoodsExport.currency          = b-itemfg.curr-code[1]
-        ttFinishedGoodsExport.warehouse         = b-itemfg.def-loc                             
-        ttFinishedGoodsExport.bin               = b-itemfg.def-loc-bin                         
-        ttFinishedGoodsExport.inventoryClass    = b-itemfg.class                               
-        ttFinishedGoodsExport.cycleCountCode    = b-itemfg.cc-code                             
-        ttFinishedGoodsExport.prodcode          = b-itemfg.prod-code                           
-        ttFinishedGoodsExport.aCOUNT            = b-itemfg.case-count 
-        ttFinishedGoodsExport.weight            = b-itemfg.weight-100                          
-        ttFinishedGoodsExport.freezeWeight      = b-itemfg.spare-int-1                         
-        ttFinishedGoodsExport.pknote            = b-itemfg.prod-notes                          
-        ttFinishedGoodsExport.freightClass      = b-itemfg.frt-class                           
-        ttFinishedGoodsExport.freightClassDesc  = b-itemfg.frt-class-dscr                      
-        ttFinishedGoodsExport.stdMaterialCost    = b-itemfg.std-mat-cost                        
-        ttFinishedGoodsExport.stdLaborCost      = b-itemfg.std-lab-cost                        
-        ttFinishedGoodsExport.stdVarOHCost      = b-itemfg.std-var-cost                        
-        ttFinishedGoodsExport.stdFixOHCost      = b-itemfg.std-fix-cost                        
-        ttFinishedGoodsExport.totalStdCost      = b-itemfg.total-std-cost      
-        ttFinishedGoodsExport.averageCost       = b-itemfg.avg-cost
-        ttFinishedGoodsExport.lastCost          = b-itemfg.last-cost 
-        ttFinishedGoodsExport.costUOM           = b-itemfg.prod-uom            
-        ttFinishedGoodsExport.fullCost          = b-itemfg.spare-dec-1         
-        ttFinishedGoodsExport.varied            = b-itemfg.spare-char-2        
-        ttFinishedGoodsExport.taxable           = b-itemfg.taxable             
-        ttFinishedGoodsExport.astatus           = b-itemfg.stat                
+        ttFinishedGoodsExport.itemNo            = bItemFG.i-no                  
+        ttFinishedGoodsExport.itemName          = bItemFG.i-name                
+        ttFinishedGoodsExport.custPartNo        = bItemFG.part-no                             
+        ttFinishedGoodsExport.custNo            = bItemFG.cust-no                             
+        ttFinishedGoodsExport.custName          = bItemFG.cust-name                           
+        ttFinishedGoodsExport.estimate          = bItemFG.est-no                              
+        ttFinishedGoodsExport.style             = bItemFG.style                               
+        ttFinishedGoodsExport.category          = bItemFG.procat                              
+        ttFinishedGoodsExport.categoryDescr     = bItemFG.procat-desc         
+        ttFinishedGoodsExport.categoryDescr1    = bItemFG.part-dscr1          
+        ttFinishedGoodsExport.categoryDescr2    = bItemFG.part-dscr2                          
+        ttFinishedGoodsExport.categoryDescr3    = bItemFG.part-dscr3                          
+        ttFinishedGoodsExport.stockCust         = bItemFG.i-code                              
+        ttFinishedGoodsExport.die               = bItemFG.die-no                              
+        ttFinishedGoodsExport.plate             = bItemFG.plate-no                            
+        ttFinishedGoodsExport.upc               = bItemFG.upc-no                              
+        ttFinishedGoodsExport.cad               = bItemFG.cad-no 
+        ttFinishedGoodsExport.qualitySpc        = bItemFG.spc-no                              
+        ttFinishedGoodsExport.stocked           = bItemFG.stocked                             
+        ttFinishedGoodsExport.setHeader         = bItemFG.isaset                              
+        ttFinishedGoodsExport.aGROUP            = bItemFG.spare-char-1                        
+        ttFinishedGoodsExport.exemptFromDisc    = bItemFG.exempt-disc                         
+        ttFinishedGoodsExport.pm                = bItemFG.pur-man                             
+        ttFinishedGoodsExport.sellPrice         = bItemFG.sell-price                          
+        ttFinishedGoodsExport.sellPriceUom      = bItemFG.sell-uom                            
+        ttFinishedGoodsExport.typeCode          = bItemFG.type-code                           
+        ttFinishedGoodsExport.currency          = bItemFG.curr-code[1]
+        ttFinishedGoodsExport.warehouse         = bItemFG.def-loc                             
+        ttFinishedGoodsExport.bin               = bItemFG.def-loc-bin                         
+        ttFinishedGoodsExport.inventoryClass    = bItemFG.class                               
+        ttFinishedGoodsExport.cycleCountCode    = bItemFG.cc-code                             
+        ttFinishedGoodsExport.prodcode          = bItemFG.prod-code                           
+        ttFinishedGoodsExport.aCOUNT            = bItemFG.case-count 
+        ttFinishedGoodsExport.weight            = bItemFG.weight-100                          
+        ttFinishedGoodsExport.freezeWeight      = bItemFG.spare-int-1                         
+        ttFinishedGoodsExport.pknote            = bItemFG.prod-notes                          
+        ttFinishedGoodsExport.freightClass      = bItemFG.frt-class                           
+        ttFinishedGoodsExport.freightClassDesc  = bItemFG.frt-class-dscr                      
+        ttFinishedGoodsExport.stdMaterialCost   = bItemFG.std-mat-cost                        
+        ttFinishedGoodsExport.stdLaborCost      = bItemFG.std-lab-cost                        
+        ttFinishedGoodsExport.stdVarOHCost      = bItemFG.std-var-cost                        
+        ttFinishedGoodsExport.stdFixOHCost      = bItemFG.std-fix-cost                        
+        ttFinishedGoodsExport.totalStdCost      = bItemFG.total-std-cost      
+        ttFinishedGoodsExport.averageCost       = bItemFG.avg-cost
+        ttFinishedGoodsExport.lastCost          = bItemFG.last-cost 
+        ttFinishedGoodsExport.costUOM           = bItemFG.prod-uom            
+        ttFinishedGoodsExport.fullCost          = bItemFG.spare-dec-1         
+        ttFinishedGoodsExport.varied            = bItemFG.spare-char-2        
+        ttFinishedGoodsExport.taxable           = bItemFG.taxable             
+        ttFinishedGoodsExport.astatus           = bItemFG.stat                
         ttFinishedGoodsExport.shipMeth          = cShipMethod
-        ttFinishedGoodsExport.vendor1           = b-itemfg.vend-no             
-        ttFinishedGoodsExport.vendor1Item       = b-itemfg.vend-item           
-        ttFinishedGoodsExport.vendor2           = b-itemfg.vend2-no
-        ttFinishedGoodsExport.vendor2Item       = b-itemfg.vend2-item 
-        ttFinishedGoodsExport.stocked2          = b-itemfg.stocked
-        ttFinishedGoodsExport.setAllocation     = dfuncAlloc  
-        ttFinishedGoodsExport.reorderPolicy     = b-itemfg.ord-policy          
-        ttFinishedGoodsExport.reorderLevel      = b-itemfg.ord-level           
-        ttFinishedGoodsExport.minOrder          = b-itemfg.ord-min             
-        ttFinishedGoodsExport.maxOrder          = b-itemfg.ord-max             
-        ttFinishedGoodsExport.purchasedQtyUOM   = b-itemfg.pur-uom             
-        ttFinishedGoodsExport.leadTimeDays      = b-itemfg.lead-days           
-        ttFinishedGoodsExport.begDate           = b-itemfg.beg-date            
-        ttFinishedGoodsExport.begBalance        = b-itemfg.beg-bal             
-        ttFinishedGoodsExport.qtyOnHand         = b-itemfg.q-onh               
-        ttFinishedGoodsExport.qtyOnOrd          = b-itemfg.q-ono               
-        ttFinishedGoodsExport.qtyAllocated      = b-itemfg.q-alloc             
-        ttFinishedGoodsExport.qtyBackordered    = b-itemfg.q-back              
-        ttFinishedGoodsExport.qtyAvailable      = b-itemfg.q-avail
-        ttFinishedGoodsExport.qtyOrderedPTD     = b-itemfg.q-ptd               
-        ttFinishedGoodsExport.qtyOrderedYTD     = b-itemfg.q-ord-ytd 
-        ttFinishedGoodsExport.qtyOrderedLastYr  = b-itemfg.u-ord 
-        ttFinishedGoodsExport.qtyProducedPTD    = b-itemfg.q-prod-ptd          
-        ttFinishedGoodsExport.qtyProducedYTD    = b-itemfg.q-prod-ytd          
-        ttFinishedGoodsExport.qtyProducedLastYr = b-itemfg.u-prod  
-        ttFinishedGoodsExport.qtyShippedPTD     = b-itemfg.q-ship-ptd          
-        ttFinishedGoodsExport.qtyShippedYTD     = b-itemfg.q-ship-ytd          
-        ttFinishedGoodsExport.qtyShippedLastYr  = b-itemfg.u-ship 
-        ttFinishedGoodsExport.qtyInvoicedPTD    = b-itemfg.q-inv-ptd           
-        ttFinishedGoodsExport.qtyInvoicedYTD    = b-itemfg.q-inv-ytd
-        ttFinishedGoodsExport.qtyInvoicedLastYr = b-itemfg.u-inv
-        ttFinishedGoodsExport.totalMsfYTD       = b-itemfg.ytd-msf   
-        ttFinishedGoodsExport.totalMsfLastYr    = b-itemfg.lyytd-msf
-        ttFinishedGoodsExport.boxLength         = b-itemfg.l-score[50]           
-        ttFinishedGoodsExport.boxWidth          = b-itemfg.w-score[50]         
-        ttFinishedGoodsExport.boxDepth          = b-itemfg.d-score[50]         
-        ttFinishedGoodsExport.blankLength       = b-itemfg.t-len        
-        ttFinishedGoodsExport.blankWidth        = b-itemfg.t-wid              
-        ttFinishedGoodsExport.totalSqIn         = b-itemfg.t-sqin               
-        ttFinishedGoodsExport.totalSqFt         = b-itemfg.t-sqft 
+        ttFinishedGoodsExport.vendor1           = bItemFG.vend-no             
+        ttFinishedGoodsExport.vendor1Item       = bItemFG.vend-item           
+        ttFinishedGoodsExport.vendor2           = bItemFG.vend2-no
+        ttFinishedGoodsExport.vendor2Item       = bItemFG.vend2-item 
+        ttFinishedGoodsExport.stocked2          = bItemFG.stocked
+        ttFinishedGoodsExport.setAllocation     = dFuncAlloc  
+        ttFinishedGoodsExport.reorderPolicy     = bItemFG.ord-policy          
+        ttFinishedGoodsExport.reorderLevel      = bItemFG.ord-level           
+        ttFinishedGoodsExport.minOrder          = bItemFG.ord-min             
+        ttFinishedGoodsExport.maxOrder          = bItemFG.ord-max             
+        ttFinishedGoodsExport.purchasedQtyUOM   = bItemFG.pur-uom             
+        ttFinishedGoodsExport.leadTimeDays      = bItemFG.lead-days           
+        ttFinishedGoodsExport.begDate           = bItemFG.beg-date            
+        ttFinishedGoodsExport.begBalance        = bItemFG.beg-bal             
+        ttFinishedGoodsExport.qtyOnHand         = bItemFG.q-onh               
+        ttFinishedGoodsExport.qtyOnOrd          = bItemFG.q-ono               
+        ttFinishedGoodsExport.qtyAllocated      = bItemFG.q-alloc             
+        ttFinishedGoodsExport.qtyBackordered    = bItemFG.q-back              
+        ttFinishedGoodsExport.qtyAvailable      = bItemFG.q-avail
+        ttFinishedGoodsExport.qtyOrderedPTD     = bItemFG.q-ptd               
+        ttFinishedGoodsExport.qtyOrderedYTD     = bItemFG.q-ord-ytd 
+        ttFinishedGoodsExport.qtyOrderedLastYr  = bItemFG.u-ord 
+        ttFinishedGoodsExport.qtyProducedPTD    = bItemFG.q-prod-ptd          
+        ttFinishedGoodsExport.qtyProducedYTD    = bItemFG.q-prod-ytd          
+        ttFinishedGoodsExport.qtyProducedLastYr = bItemFG.u-prod  
+        ttFinishedGoodsExport.qtyShippedPTD     = bItemFG.q-ship-ptd          
+        ttFinishedGoodsExport.qtyShippedYTD     = bItemFG.q-ship-ytd          
+        ttFinishedGoodsExport.qtyShippedLastYr  = bItemFG.u-ship 
+        ttFinishedGoodsExport.qtyInvoicedPTD    = bItemFG.q-inv-ptd           
+        ttFinishedGoodsExport.qtyInvoicedYTD    = bItemFG.q-inv-ytd
+        ttFinishedGoodsExport.qtyInvoicedLastYr = bItemFG.u-inv
+        ttFinishedGoodsExport.totalMsfYTD       = bItemFG.ytd-msf   
+        ttFinishedGoodsExport.totalMsfLastYr    = bItemFG.lyytd-msf
+        ttFinishedGoodsExport.boxLength         = bItemFG.l-score[50]           
+        ttFinishedGoodsExport.boxWidth          = bItemFG.w-score[50]         
+        ttFinishedGoodsExport.boxDepth          = bItemFG.d-score[50]         
+        ttFinishedGoodsExport.blankLength       = bItemFG.t-len        
+        ttFinishedGoodsExport.blankWidth        = bItemFG.t-wid              
+        ttFinishedGoodsExport.totalSqIn         = bItemFG.t-sqin               
+        ttFinishedGoodsExport.totalSqFt         = bItemFG.t-sqft 
         ttFinishedGoodsExport.aColor1           = cInk[1]
         ttFinishedGoodsExport.aColor2           = cInk[2]
         ttFinishedGoodsExport.aColor3           = cInk[3]
@@ -329,17 +336,10 @@ FOR EACH b-itemfg NO-LOCK
         ttFinishedGoodsExport.skidCode          = cTrNno            
         ttFinishedGoodsExport.skidName          = cTrName            
         ttFinishedGoodsExport.skidQty           = cPalletCount            
-        ttFinishedGoodsExport.specCode1         = cSpecNote .
-        
-        if iPeriod gt 0 then
-        assign
-        ttFinishedGoodsExport.totalMsfPTD       = (b-itemfg.ptd-msf[iPeriod])  .
-        
-END.  /* FOR EACH b-itemfg */     
+        ttFinishedGoodsExport.specCode1         = cSpecNote
+        .
+        IF iPeriod GT 0 THEN
+        ttFinishedGoodsExport.totalMsfPTD       = (bItemFG.ptd-msf[iPeriod]).
+END.  /* FOR EACH bItemFG */     
                                    
 {aoa/BL/pBuildCustList.i}
- 
-                              
-                                    
-/**************** use "aoa/BL/blankLength      template.p" as an example ***************/
-                                  

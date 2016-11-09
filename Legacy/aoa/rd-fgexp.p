@@ -7,6 +7,7 @@
 &SCOPED-DEFINE aoaParam YES
 &SCOPED-DEFINE aoaColumns YES
 &SCOPED-DEFINE aoaCustListForm IF1
+&SCOPED-DEFINE excelOnly
 &SCOPED-DEFINE test NO
 
 {aoa/includes/aoaParam.i}

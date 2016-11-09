@@ -60,7 +60,7 @@ DEFINE TEMP-TABLE ttPageHeader NO-UNDO
     FIELD phOrder        AS INTEGER   LABEL "Order"         FORMAT ">>>9"
     FIELD phName         AS CHARACTER LABEL "Name"          FORMAT "x(30)"
     FIELD phCaption      AS CHARACTER LABEL "Caption"       FORMAT "x(20)"
-    FIELD phLeft         AS INTEGER   LABEL "Position"      FORMAT ">>>>9"
+    FIELD phLeft         AS INTEGER   LABEL "Position"      FORMAT ">>>>>9"
     FIELD phWidth        AS INTEGER   LABEL "Width"         FORMAT ">>>9"
     FIELD phAlignment    AS INTEGER   LABEL "Alignment"     FORMAT "9"
     FIELD phSectionItem  AS INTEGER   LABEL "SectionItem"   FORMAT ">>9"
@@ -87,7 +87,7 @@ DEFINE TEMP-TABLE ttSection NO-UNDO
     FIELD secSection      AS CHARACTER LABEL "Section"      FORMAT "x(30)"
     FIELD secName         AS CHARACTER LABEL "Name"         FORMAT "x(40)"
     FIELD secDataField    AS CHARACTER LABEL "DataField"    FORMAT "x(20)"
-    FIELD secLeft         AS INTEGER   LABEL "Position"     FORMAT ">>>>9"
+    FIELD secLeft         AS INTEGER   LABEL "Position"     FORMAT ">>>>>9"
     FIELD secWidth        AS INTEGER   LABEL "Width"        FORMAT ">>>9"
     FIELD secAlignment    AS INTEGER   LABEL "Alignment"    FORMAT "9"
     FIELD secOutputFormat AS CHARACTER LABEL "OutputFormat" FORMAT "x(30)"
@@ -294,7 +294,7 @@ DEFINE VARIABLE aoaReportTitle AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE aoaReportWidth AS INTEGER FORMAT ">>>,>>9":U INITIAL 0 
      LABEL "Report Width" 
      VIEW-AS FILL-IN 
-     SIZE 10 BY 1
+     SIZE 11 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE aoaRptFile AS CHARACTER FORMAT "X(256)":U 
