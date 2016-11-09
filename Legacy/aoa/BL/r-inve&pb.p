@@ -23,7 +23,7 @@ DEFINE OUTPUT PARAMETER TABLE FOR ttInvoicePostUpdateGL.
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}
-
+{custom/globdefs.i &NEW=NEW}
 DEFINE VARIABLE cListName   AS cha       NO-UNDO.
 DEFINE VARIABLE cInitDir    AS CHA       NO-UNDO.
 DEFINE VARIABLE cCompCurr   AS cha       NO-UNDO.
@@ -33,6 +33,8 @@ DEFINE VARIABLE dProfit     AS DECIMAL   NO-UNDO.
 ASSIGN
     gcompany = ipcCompany
     cocode   = gcompany
+    g_company = ipcCompany
+   
     .
     
 FIND FIRST company NO-LOCK WHERE company.company EQ cocode  NO-ERROR.
@@ -234,6 +236,7 @@ ASSIGN /* gLoc = "main" */
        v-post = lpost
        v-detail = lInvoiceReportDetail /* Required since not part of parameters */
        locode = gloc
+       g_loc = gloc
        .
 
 RUN pPrintPost.
