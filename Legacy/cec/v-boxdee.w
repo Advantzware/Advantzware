@@ -742,8 +742,8 @@ run dispatch in widget-handle(char-hdl) ('open-query').
 RUN build-screen.
 
 RUN release-shared-buffers.
-FIND CURRENT box-design-line NO-LOCK.
-FIND CURRENT box-design-hdr NO-LOCK. 
+FIND CURRENT box-design-line NO-LOCK NO-ERROR.
+FIND CURRENT box-design-hdr NO-LOCK NO-ERROR. 
 SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
