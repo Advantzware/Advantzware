@@ -54,7 +54,7 @@ CASE iphObject:NAME:
              WHERE itemfg.company EQ ipcCompany
                AND itemfg.i-no    EQ iphObject:SCREEN-VALUE
              NO-ERROR.
-        IF AVAILABLE itemfg THEN opcDescription = itemfg.i-dscr.
+        IF AVAILABLE itemfg THEN opcDescription = itemfg.i-name.
     END.
     WHEN "svStartLoc" OR WHEN "svEndLoc" THEN DO:
         cRange = REPLACE(cRange,"Loc","").
@@ -115,8 +115,7 @@ CASE iphObject:NAME:
     WHEN "svStartUserID" OR WHEN "svEndUserID" THEN DO:
         cRange = REPLACE(cRange,"UserID","").
         FIND FIRST users NO-LOCK
-             WHERE cust.company  EQ ipcCompany
-               AND users.user_id EQ iphObject:SCREEN-VALUE
+             WHERE users.user_id EQ iphObject:SCREEN-VALUE
              NO-ERROR.
         IF AVAILABLE users THEN opcDescription = users.user_name.
     END.
