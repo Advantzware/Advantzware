@@ -41,6 +41,8 @@ FUNCTION fDebugLog RETURNS CHARACTER
 
 cDebugLog = "logs/" + string(today, "99999999") + string(time) + "fifo.txt".
 lUseLogs = FALSE.
+IF SEARCH("logs/fifo.txt") NE ?  THEN
+   lUseLogs = TRUE.
 DEFINE STREAM sDebug.
 IF lUseLogs THEN DO:
     OUTPUT STREAM sDEbug TO VALUE(cDebugLog).

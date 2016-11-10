@@ -14,7 +14,18 @@
 
 /* Post BOL Create Invoice.rpa */
 {aoa/tempTable/ttPostBolCreateInvoice.i}
+DEFINE NEW SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_track_usage AS LOGICAL NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_header_line AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_groups AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE init_menu AS LOGICAL NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_developer AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_version AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_rec_key AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_pageno AS INTEGER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_mainmenu AS WIDGET-HANDLE NO-UNDO.
 
+g_lookup-var = "".
 {sys/ref/CustList.i NEW}
 
 /* Parameters Definitions ---                                           */
@@ -300,7 +311,7 @@ PROCEDURE pAutoSelectTags:
     IF NOT AVAILABLE oe-rel THEN 
         RETURN.
     FIND FIRST oe-relh NO-LOCK
-        WHERE oe-relh.r-no eq oe-boll.r-no 
+        WHERE oe-relh.r-no eq xoe-boll.r-no 
         NO-ERROR.
 
     fDebugMsg("avail oe-relh" + STRING(AVAILABLE(oe-relh))).        
