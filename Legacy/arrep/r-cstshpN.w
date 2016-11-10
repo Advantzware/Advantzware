@@ -39,6 +39,8 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE excelHeader AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -55,7 +57,7 @@ ASSIGN
   locode = gloc.
 
 
-{sys/inc/custlistform.i ""AR13"" }
+/*{sys/inc/custlistform.i ""AR13"" }*/
 
 {sys/ref/CustList.i NEW}
        
@@ -1094,6 +1096,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   
   {methods/nowait.i}
+
+  RUN sys/inc/CustListForm.p ( "AR13",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}

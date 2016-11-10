@@ -22,6 +22,9 @@ CREATE WIDGET-POOL.
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
+
 DEF STREAM excel.
 
 {methods/defines/hndldefs.i}
@@ -38,7 +41,7 @@ assign
  cocode = gcompany
  locode = gloc.
 
-{sys/inc/custlistform.i ""IL1"" }
+/*{sys/inc/custlistform.i ""IL1"" }*/
 
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
@@ -631,6 +634,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   
   {methods/nowait.i}
+  
+  RUN sys/inc/CustListForm.p ( "IL1",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
