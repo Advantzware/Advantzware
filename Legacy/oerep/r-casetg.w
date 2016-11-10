@@ -728,7 +728,8 @@ DO:
                     FIND FIRST sys-ctrl-shipto NO-LOCK 
                         WHERE sys-ctrl-shipto.company      EQ cocode 
                           AND sys-ctrl-shipto.NAME         EQ "CASLABEL" 
-                          AND sys-ctrl-shipto.cust-vend    EQ YES NO-ERROR.
+                          AND sys-ctrl-shipto.cust-vend    EQ YES
+                          AND sys-ctrl-shipto.cust-vend-no EQ v-cust-no NO-ERROR.
                     IF AVAIL sys-ctrl-shipto AND 
                         TRIM(sys-ctrl-shipto.char-fld) NE "" 
                       THEN 
