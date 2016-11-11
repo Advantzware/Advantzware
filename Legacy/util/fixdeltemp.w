@@ -80,7 +80,7 @@ DEFINE VARIABLE del_date AS DATE FORMAT "99/99/9999":U
      VIEW-AS FILL-IN 
      SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE file_format AS CHARACTER FORMAT "X(100)":U INITIAL "ped,DB,lbi,srt,rcd" 
+DEFINE VARIABLE file_format AS CHARACTER FORMAT "X(100)":U INITIAL "ped,DB,lbi,srt,rcd,tmp" 
      LABEL "Files Format" 
      VIEW-AS FILL-IN 
      SIZE 41.4 BY 1 NO-UNDO.
@@ -205,7 +205,10 @@ END.
 ON CHOOSE OF btnOk IN FRAME DEFAULT-FRAME /* OK */
 DO:
 DEFINE VARIABLE cDir  AS CHARACTER NO-UNDO INITIAL 'C:/temp/'.
- 
+DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+DEFINE VARIABLE lCheck AS LOGICAL NO-UNDO.
+
+
 FIND FIRST users WHERE
      users.user_id EQ USERID("NOSWEAT")
      NO-LOCK NO-ERROR.
@@ -235,13 +238,24 @@ FIND FIRST users WHERE
       END.
      
       FOR EACH tt-file NO-LOCK
-          WHERE tt-file.createDate LE (del_date - 1) AND
-               LOOKUP(tt-file.extfile,file_format) NE 0 
+          WHERE tt-file.createDate LE (del_date - 1) 
                BY tt-file.createDate BY tt-file.createtime:
+         
+            {custom/statusMsg.i " 'Processing Files#  '  + tt-file.tfile "}
+            lCheck = NO .
+           
+            DO iCount = 1 TO NUM-ENTRIES(file_format):
+                
+                IF tt-file.tfile MATCHES ("*" + ENTRY(iCount,file_format) + "*") THEN DO:
+                 lCheck = YES .
+                END.
+            END.     
+
+            IF lCheck EQ NO THEN
+                IF LOOKUP(tt-file.extfile,file_format) EQ 0  THEN NEXT .
           
             IF tt-file.tfile EQ "." THEN NEXT .
-            /* ELSE IF  tt-file.tfile EQ ".." THEN NEXT .*/ /* delete folder */
-             ELSE DO:
+            ELSE DO:
                  OS-DELETE VALUE(cDir + tt-file.tfile) .
              END.
              DELETE tt-file .
