@@ -35,8 +35,9 @@ DEFINE VARIABLE cResult AS CHARACTER   NO-UNDO.
 
 DEF VAR lLabelMatrixLock AS LOG NO-UNDO.
 DEF STREAM sLock.
+
 RUN sys/ref/nk1look.p (INPUT cocode,
-                       INPUT "LabelMatrix",
+                       INPUT "lmLock",
                        INPUT "L",
                        INPUT NO,
                        INPUT NO,
@@ -71,7 +72,7 @@ IF lFound THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD win_normalizePath Procedure 
 FUNCTION win_normalizePath RETURNS CHARACTER
-  (  pcPath as char )  FORWARD.
+  (  pcPath AS CHAR )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -114,13 +115,13 @@ DEF VAR iResult AS INT NO-UNDO.
 DEF VAR cFileName AS CHAR NO-UNDO.
 DEF VAR cPath AS CHARACTER NO-UNDO.
 
-def var cProtocol        as char no-undo.
-def var cComputerName    as char no-undo.
-def var cSharedFolder    as char no-undo.
-def var cDrive           as char no-undo.
-def var cDir             as char no-undo.
-def var cFile            as char no-undo.
-def var cExt             as char no-undo.
+DEF VAR cProtocol        AS CHAR NO-UNDO.
+DEF VAR cComputerName    AS CHAR NO-UNDO.
+DEF VAR cSharedFolder    AS CHAR NO-UNDO.
+DEF VAR cDrive           AS CHAR NO-UNDO.
+DEF VAR cDir             AS CHAR NO-UNDO.
+DEF VAR cFile            AS CHAR NO-UNDO.
+DEF VAR cExt             AS CHAR NO-UNDO.
 
 
 
@@ -228,18 +229,18 @@ PROCEDURE win_breakPath :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-    define input    param pcPath            as char no-undo.
-    define output   param pcProtocol        as char no-undo.
-    define output   param pcComputerName    as char no-undo.
-    define output   param pcSharedFolder    as char no-undo.
-    define output   param pcDrive           as char no-undo.
-    define output   param pcDir             as char no-undo.
-    define output   param pcFile            as char no-undo.
-    define output   param pcExt             as char no-undo.
+    DEFINE INPUT    PARAM pcPath            AS CHAR NO-UNDO.
+    DEFINE OUTPUT   PARAM pcProtocol        AS CHAR NO-UNDO.
+    DEFINE OUTPUT   PARAM pcComputerName    AS CHAR NO-UNDO.
+    DEFINE OUTPUT   PARAM pcSharedFolder    AS CHAR NO-UNDO.
+    DEFINE OUTPUT   PARAM pcDrive           AS CHAR NO-UNDO.
+    DEFINE OUTPUT   PARAM pcDir             AS CHAR NO-UNDO.
+    DEFINE OUTPUT   PARAM pcFile            AS CHAR NO-UNDO.
+    DEFINE OUTPUT   PARAM pcExt             AS CHAR NO-UNDO.
 
-    define var i as int no-undo.
+    DEFINE VAR i AS INT NO-UNDO.
 
-    assign
+    ASSIGN
         pcProtocol      = ""
         pcComputerName  = ""
         pcSharedFolder  = ""
@@ -250,58 +251,58 @@ PROCEDURE win_breakPath :
 
     /* assumes that if the call is from another procedure or function with in this library then the path has already been normalized. */
 
-    if pcPath = ? then
-        return.
+    IF pcPath = ? THEN
+        RETURN.
 
-    if source-procedure <> this-procedure then
+    IF SOURCE-PROCEDURE <> THIS-PROCEDURE THEN
        pcPath = win_normalizePath( pcPath ).
 
-    if pcPath begins "~\~\" then do:
+    IF pcPath BEGINS "~\~\" THEN DO:
 
-        assign
+        ASSIGN
             pcProtocol = substr( pcPath, 1, 2 )
             substr( pcPath, 1, 2 ) = "".
 
-        i = index( pcPath, "~\", 3 ).
-        if i = 0 then i = length( pcPath ) + 1.
+        i = INDEX( pcPath, "~\", 3 ).
+        IF i = 0 THEN i = LENGTH( pcPath ) + 1.
 
-        assign
+        ASSIGN
             pcComputerName = substr( pcPath, 1, i - 1 )
             substr( pcPath, 1, i - 1 ) = "".
 
-        i = index( pcPath, "~\", 2 ).
-        if i = 0 then i = length( pcPath ) + 1.
+        i = INDEX( pcPath, "~\", 2 ).
+        IF i = 0 THEN i = LENGTH( pcPath ) + 1.
 
-        assign
+        ASSIGN
             pcSharedFolder = substr( pcPath, 1, i - 1 )
             substr( pcPath, 1, i - 1 ) = "".
 
-    end. /* pcPath begins "\\" */
+    END. /* pcPath begins "\\" */
 
-    else
-    if  substr( pcPath, 1, 1 ) >= "a"
-    and substr( pcPath, 1, 1 ) <= "z"
-    and substr( pcPath, 2, 1 )  = ":" then do:
+    ELSE
+    IF  substr( pcPath, 1, 1 ) >= "a"
+    AND substr( pcPath, 1, 1 ) <= "z"
+    AND substr( pcPath, 2, 1 )  = ":" THEN DO:
 
-        assign
+        ASSIGN
             pcDrive = substr( pcPath, 1, 2 )
             substr( pcPath, 1, 2 ) = "".
 
-    end. /* else */
+    END. /* else */
 
-    i = r-index( pcPath, "~\" ). 
-    if i > 0 then
+    i = R-INDEX( pcPath, "~\" ). 
+    IF i > 0 THEN
 
-    assign
+    ASSIGN
         pcDir = substr( pcPath, 1, i )
         substr( pcPath, 1, i ) = "".
 
-    i = r-index( pcPath, "." ).
-    if i > 0 then
+    i = R-INDEX( pcPath, "." ).
+    IF i > 0 THEN
 
-    assign
+    ASSIGN
         pcExt = substr( pcPath, i )
-        substr( pcPath, i, length( pcExt ) ) = "".
+        substr( pcPath, i, LENGTH( pcExt ) ) = "".
 
     pcFile = pcPath.
 
@@ -318,136 +319,136 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION win_normalizePath Procedure 
 FUNCTION win_normalizePath RETURNS CHARACTER
-  (  pcPath as char ) :
+  (  pcPath AS CHAR ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
 
 
-    define var cPath    as char no-undo.
-    define var cRoot    as char no-undo.
-    define var cDir     as char no-undo.
-    define var iDir     as int no-undo.
+    DEFINE VAR cPath    AS CHAR NO-UNDO.
+    DEFINE VAR cRoot    AS CHAR NO-UNDO.
+    DEFINE VAR cDir     AS CHAR NO-UNDO.
+    DEFINE VAR iDir     AS INT NO-UNDO.
 
-    define var str      as char no-undo.
-    define var i        as int no-undo.
+    DEFINE VAR str      AS CHAR NO-UNDO.
+    DEFINE VAR i        AS INT NO-UNDO.
 
-    pcPath = trim( pcPath ).
+    pcPath = TRIM( pcPath ).
 
-    if pcPath = ""
-    or pcPath = ? then
-        return pcPath.
+    IF pcPath = ""
+    OR pcPath = ? THEN
+        RETURN pcPath.
 
-    pcPath = replace( pcPath, "/", "~\" ).
+    pcPath = REPLACE( pcPath, "/", "~\" ).
 
-    do while index( pcPath, "~\~\", 2 ) <> 0:
-        substr( pcPath, 2, length( pcPath ) - 1 ) = replace( substr( pcPath, 2, length( pcPath ) - 1 ), "~\~\", "~\" ).
-    end.
+    DO WHILE INDEX( pcPath, "~\~\", 2 ) <> 0:
+        substr( pcPath, 2, LENGTH( pcPath ) - 1 ) = REPLACE( substr( pcPath, 2, LENGTH( pcPath ) - 1 ), "~\~\", "~\" ).
+    END.
 
-    do while index( pcPath, "::" ) <> 0:
-        pcPath = replace( pcPath, "::", ":" ).
-    end.
+    DO WHILE INDEX( pcPath, "::" ) <> 0:
+        pcPath = REPLACE( pcPath, "::", ":" ).
+    END.
 
-    if lookup( ".", pcPath, "~\" ) > 0 or lookup( "..", pcPath, "~\" ) > 0 then do:
+    IF LOOKUP( ".", pcPath, "~\" ) > 0 OR lookup( "..", pcPath, "~\" ) > 0 THEN DO:
 
-        assign
+        ASSIGN
             cRoot = ""
             cPath = "".
 
-        if pcPath begins "~\~\" then do:
+        IF pcPath BEGINS "~\~\" THEN DO:
 
-            i = index( pcPath, "~\", 3 ).
-            if i = 0 then i = length( pcPath ).
+            i = INDEX( pcPath, "~\", 3 ).
+            IF i = 0 THEN i = LENGTH( pcPath ).
 
-            assign
+            ASSIGN
                 cRoot = substr( pcPath, 1, i )
                 substr( pcPath, 1, i ) = "".
 
-            i = index( pcPath, "~\" ). 
-            if i > 0 then
+            i = INDEX( pcPath, "~\" ). 
+            IF i > 0 THEN
 
-            assign
+            ASSIGN
                 cRoot = cRoot + substr( pcPath, 1, i )
                 substr( pcPath, 1, i ) = "".
 
-        end. /* pcPath begins "\\" */
+        END. /* pcPath begins "\\" */
 
-        else
-        if  substr( pcPath, 1, 1 ) >= "a"
-        and substr( pcPath, 1, 1 ) <= "z"
-        and substr( pcPath, 2, 1 )  = ":" then do:
+        ELSE
+        IF  substr( pcPath, 1, 1 ) >= "a"
+        AND substr( pcPath, 1, 1 ) <= "z"
+        AND substr( pcPath, 2, 1 )  = ":" THEN DO:
 
-            assign
+            ASSIGN
                cRoot = substr( pcPath, 1, 2 )
                substr( pcPath, 1, 2 ) = "".
 
-            if substr( pcPath, 1, 1 ) = "~\" then
-            assign
+            IF substr( pcPath, 1, 1 ) = "~\" THEN
+            ASSIGN
                cRoot = cRoot + substr( pcPath, 1, 1 )
                substr( pcPath, 1, 1 ) = "".
 
-        end. /* substr = ":" */
+        END. /* substr = ":" */
 
 
 
-        do iDir = 1 to num-entries( pcPath, "~\" ):
+        DO iDir = 1 TO NUM-ENTRIES( pcPath, "~\" ):
 
-            cDir = entry( iDir, pcPath, "~\" ).
+            cDir = ENTRY( iDir, pcPath, "~\" ).
 
-            if cDir = "." then do:
+            IF cDir = "." THEN DO:
 
-                if cPath <> "" or cRoot <> "" then
-                    next.
+                IF cPath <> "" OR cRoot <> "" THEN
+                    NEXT.
 
-                else
+                ELSE
                 cPath = cPath
-                      + ( if cPath <> "" then "~\" else "" )
+                      + ( IF cPath <> "" THEN "~\" ELSE "" )
                       + cDir.
 
-            end. /* cDir = "." */
+            END. /* cDir = "." */
 
-            else
-            if cDir = ".." then do:
+            ELSE
+            IF cDir = ".." THEN DO:
 
-                if cPath <> "" and entry( num-entries( cPath, "~\" ), cPath, "~\" ) <> ".." then do:
+                IF cPath <> "" AND entry( NUM-ENTRIES( cPath, "~\" ), cPath, "~\" ) <> ".." THEN DO:
 
                     str = "".
 
-                    do i = 1 to num-entries( cPath, "~\" ) - 1:
+                    DO i = 1 TO NUM-ENTRIES( cPath, "~\" ) - 1:
 
                         str = str
-                            + ( if str <> "" then "~\" else "" )
+                            + ( IF str <> "" THEN "~\" ELSE "" )
                             + entry( i, cPath, "~\" ).
 
-                    end. /* 1 to num-entries */
+                    END. /* 1 to num-entries */
 
                     cPath = str.
 
-                end. /* else */
+                END. /* else */
 
-                else
+                ELSE
                 cPath = cPath
-                      + ( if cPath <> "" then "~\" else "" )
+                      + ( IF cPath <> "" THEN "~\" ELSE "" )
                       + cDir.
 
-            end. /* cDir = ".." */
+            END. /* cDir = ".." */
 
-            else
+            ELSE
             cPath = cPath
-                  + ( if cPath <> "" then "~\" else "" )
+                  + ( IF cPath <> "" THEN "~\" ELSE "" )
                   + cDir.
 
-        end. /* 1 to num-entries */
+        END. /* 1 to num-entries */
 
         pcPath = cPath.
 
-        if cRoot <> "" then
+        IF cRoot <> "" THEN
             pcPath = cRoot + pcPath.
 
-    end. /* lookup( ".." ) > 0 */
+    END. /* lookup( ".." ) > 0 */
 
-    return pcPath.
+    RETURN pcPath.
 
 
 END FUNCTION.
