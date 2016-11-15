@@ -88,7 +88,7 @@ tb_max-yld Btn_OK
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_OK AUTO-GO 
+DEFINE BUTTON Btn_OK /*AUTO-GO */
      LABEL "OK" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
@@ -246,6 +246,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
+   DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
   DO WITH FRAME {&FRAME-NAME}:
     RUN valid-m-code NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -258,15 +259,31 @@ DO:
     IF lShtcalcWarm-log AND lDisplayMsg THEN DO:
         FIND FIRST bf-item NO-LOCK
             WHERE bf-item.company EQ xef.company
-            AND bf-item.i-no    EQ fi_code:SCREEN-VALUE /*xef.board*/
+            AND( (bf-item.i-no    BEGINS fi_code:SCREEN-VALUE AND rd-CodeName:SCREEN-VALUE EQ "C")
+               OR ( bf-item.i-name  BEGINS fi_code:SCREEN-VALUE AND rd-CodeName:SCREEN-VALUE EQ "N") )
             /*AND bf-item.mat-type EQ "B" */
             NO-ERROR.
 
         IF AVAIL xef AND AVAIL xeb THEN do:
             IF AVAIL bf-item AND (bf-item.cal NE xef.cal OR bf-item.procat NE xeb.procat) THEN
                 MESSAGE "Selected Board differs from Board in Estimate Standard." 
-                VIEW-AS ALERT-BOX INFO BUTTONS OK .
+                             VIEW-AS ALERT-BOX QUESTION 
+                             BUTTONS OK-CANCEL UPDATE lcheckflg .
+             ELSE IF NOT AVAIL bf-item THEN
+                MESSAGE  "Item not found Starting with - "  + fi_code:SCREEN-VALUE   
+                             VIEW-AS ALERT-BOX INFO BUTTONS OK . 
+             ELSE 
+                 lcheckflg = TRUE .
+
+
             lDisplayMsg = FALSE .
+
+            IF NOT lcheckflg THEN do:
+                ASSIGN lDisplayMsg = TRUE .
+                APPLY "entry" TO fi_code.
+                RETURN .
+            END.
+
         END.
     END.
      
@@ -278,6 +295,8 @@ DO:
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
   END.
+
+  APPLY "END-ERROR":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -288,22 +307,36 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_code Dialog-Frame
 ON LEAVE OF fi_code IN FRAME Dialog-Frame /* Select RM Item Name starting with */
 DO:
+    DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
   IF LASTKEY NE -1 THEN DO:
     RUN valid-code NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
      IF lShtcalcWarm-log AND lDisplayMsg THEN DO:
-        
+         
              FIND FIRST bf-item NO-LOCK
              WHERE bf-item.company EQ xef.company
-             AND bf-item.i-no    BEGINS fi_code:SCREEN-VALUE /*xef.board*/
+             AND( (bf-item.i-no    BEGINS fi_code:SCREEN-VALUE AND rd-CodeName:SCREEN-VALUE EQ "C")
+               OR ( bf-item.i-name  BEGINS fi_code:SCREEN-VALUE AND rd-CodeName:SCREEN-VALUE EQ "N") ) /*xef.board*/
              /*AND bf-item.mat-type EQ "B" */
              NO-ERROR.
           IF AVAIL xef AND AVAIL xeb THEN do:
          IF AVAIL bf-item AND (bf-item.cal NE xef.cal OR bf-item.procat NE xeb.procat) THEN
              MESSAGE "Selected Board differs from Board in Estimate Standard." 
-                               VIEW-AS ALERT-BOX INFO BUTTONS OK .
+                             VIEW-AS ALERT-BOX QUESTION 
+                             BUTTONS OK-CANCEL UPDATE lcheckflg .
+         ELSE IF NOT AVAIL bf-item THEN
+             MESSAGE  "Item not found Starting with - "  + fi_code:SCREEN-VALUE   
+                    VIEW-AS ALERT-BOX INFO BUTTONS OK .
+         ELSE lcheckflg = TRUE .
+
          lDisplayMsg = FALSE .
+         
+            IF NOT lcheckflg THEN do:
+                ASSIGN lDisplayMsg = TRUE .
+                APPLY "entry" TO fi_code.
+              RETURN .
+            END.
           END.
      END.
 
@@ -317,6 +350,20 @@ END.
 &Scoped-define SELF-NAME fi_code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_code Dialog-Frame
 ON VALUE-CHANGED OF fi_code IN FRAME Dialog-Frame /* Select RM Item Name starting with */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      
+     ASSIGN lDisplayMsg = TRUE .
+
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rd-CodeName
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-CodeName Dialog-Frame
+ON VALUE-CHANGED OF rd-CodeName IN FRAME Dialog-Frame /* Select RM Item Name starting with */
 DO:
   IF LASTKEY NE -1 THEN DO:
       
