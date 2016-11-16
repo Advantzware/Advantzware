@@ -72,43 +72,43 @@
     IF lAllItemNo THEN
     ASSIGN
         cStartItemNo = CHR(32)
-        cEndItemNo   = CHR(255)
+        cEndItemNo   = CHR(254)
         .
 
     IF lAllItemName THEN
     ASSIGN
         cStartItemName = CHR(32)
-        cEndItemName   = CHR(255)
+        cEndItemName   = CHR(254)
         .
 
     IF lAllCustPart THEN
     ASSIGN
         cStartCustPart = CHR(32)
-        cEndCustPart   = CHR(255)
+        cEndCustPart   = CHR(254)
         .
 
     IF lAllCustNo THEN
     ASSIGN
         cStartCustNo = CHR(32)
-        cEndCustNo   = CHR(255)
+        cEndCustNo   = CHR(254)
         .
 
     IF lAllEstimate THEN
     ASSIGN
         cStartEstimate = CHR(32)
-        cEndEstimate   = CHR(255)
+        cEndEstimate   = CHR(254)
         .
 
     IF lAllStyle THEN
     ASSIGN
         cStartStyle = CHR(32)
-        cEndStyle   = CHR(255)
+        cEndStyle   = CHR(254)
         .
 
     IF lAllProdCategory THEN
     ASSIGN
         cStartProdCategory = CHR(32)
-        cEndProdCategory   = CHR(255)
+        cEndProdCategory   = CHR(254)
         .
 
     IF lCustList THEN

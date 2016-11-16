@@ -67,7 +67,7 @@
     IF lAllCustNo THEN
     ASSIGN
         cStartCustNo = CHR(32)
-        cEndCustNo   = CHR(255)
+        cEndCustNo   = CHR(254)
         .
 
     IF lAllBOL THEN
@@ -79,13 +79,13 @@
     IF lAllLoc THEN
     ASSIGN
         cStartLoc = CHR(32)
-        cEndLoc   = CHR(255)
+        cEndLoc   = CHR(254)
         .
 
     IF lAllLocBin THEN
     ASSIGN
         cStartLocBin = CHR(32)
-        cEndLocBin   = CHR(255)
+        cEndLocBin   = CHR(254)
         .
 
     IF lCustList THEN

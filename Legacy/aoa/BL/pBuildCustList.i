@@ -12,7 +12,7 @@ PROCEDURE pBuildCustList:
     EMPTY TEMP-TABLE ttCustList.
     ASSIGN
         opcStartCust = CHR(32)
-        opcEndCust   = CHR(255)
+        opcEndCust   = CHR(254)
         .
     RUN sys/ref/CustList.p (ipcCompany, ipcID, YES, OUTPUT lActive).
     IF lActive THEN DO:

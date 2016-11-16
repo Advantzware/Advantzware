@@ -46,6 +46,6 @@
     IF lAllSalesRep THEN
     ASSIGN
         cStartSalesRep = CHR(32)
-        cEndSalesRep   = CHR(255)
+        cEndSalesRep   = CHR(254)
         .
 

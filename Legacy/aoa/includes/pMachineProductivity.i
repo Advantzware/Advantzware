@@ -58,7 +58,7 @@
     IF lAllMachine THEN
     ASSIGN
         cStartMachine = CHR(32)
-        cEndMachine   = CHR(255)
+        cEndMachine   = CHR(254)
         .
 
     IF lAllShift THEN
@@ -70,7 +70,7 @@
     IF lAllCustNo THEN
     ASSIGN
         cStartCustNo = CHR(32)
-        cEndCustNo   = CHR(255)
+        cEndCustNo   = CHR(254)
         .
 
     IF lCustList THEN

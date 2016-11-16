@@ -22,7 +22,7 @@ DEFINE VARIABLE cSort      AS CHARACTER NO-UNDO.
 
 ASSIGN
     cStartDept = CHR(32)
-    cEndDept   = CHR(255)
+    cEndDept   = CHR(254)
     cSort      = "Alphabetically"
     .
 
