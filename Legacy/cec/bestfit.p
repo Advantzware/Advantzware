@@ -38,8 +38,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF INPUT  PARAM ip-est-type LIKE est.est-type NO-UNDO.
-DEF INPUT  PARAM ip-show-all LIKE sys-ctrl.char-fld NO-UNDO.
+DEFINE INPUT PARAM ip-recef AS RECID NO-UNDO .
+DEFINE INPUT PARAM ip-receb AS RECID NO-UNDO .
+DEFINE INPUT PARAM ip-est-type LIKE est.est-type NO-UNDO.
+DEFINE INPUT PARAM ip-show-all LIKE sys-ctrl.char-fld NO-UNDO.
 
 def var ls-item-dscr as cha no-undo.
 
@@ -49,6 +51,13 @@ def var k_frac as dec init 6.25 no-undo.
 DEF VAR lv-sort-by AS CHAR INIT "key-01" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Wst MSF" NO-UNDO.
 DEF VAR ll-sort-asc AS LOG INIT NO NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lShtcalcWarm-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lDisplayMsg AS LOGICAL INIT TRUE .
+DEFINE BUFFER bf-item FOR ITEM .
+DEFINE BUFFER xef FOR ef .
+DEFINE BUFFER xeb FOR eb .
 
 {custom/globdefs.i}
 
@@ -56,6 +65,12 @@ DEF VAR ll-sort-asc AS LOG INIT NO NO-UNDO.
 
 ASSIGN cocode = g_company
        locode = g_loc.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "SHTCALCWarn", "L" /* Logical */, NO /* check by cust */, 
+                           INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                           OUTPUT cRtnChar, OUTPUT lRecFound).
+  IF lRecFound THEN
+      lShtcalcWarm-log = LOGICAL(cRtnChar) NO-ERROR.
 
 {sys/inc/f16to32.i}
 
@@ -172,7 +187,7 @@ DEFINE BUTTON Btn_Cancel AUTO-END-KEY
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE BUTTON Btn_OK AUTO-GO 
+DEFINE BUTTON Btn_OK /*AUTO-GO */
      LABEL "OK" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
@@ -390,14 +405,36 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
   DEF VAR li AS INT NO-UNDO.
-
+  DEF VAR lcheckflg AS LOGICAL NO-UNDO .
 
   IF {&browse-name}:NUM-SELECTED-ROWS GT 0 THEN
   DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
     {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.
 
+     IF lShtcalcWarm-log THEN DO:
+        IF AVAIL tt-report THEN
+        FIND FIRST bf-item NO-LOCK
+            WHERE bf-item.company EQ cocode AND 
+            RECID(bf-item) EQ tt-report.rec-id
+            NO-ERROR.
+
+        IF AVAIL xef AND AVAIL xeb THEN do:
+            IF AVAIL bf-item AND (bf-item.cal NE xef.cal OR bf-item.procat NE xeb.procat) THEN
+                MESSAGE "Selected Board differs from Board in Estimate Standard." 
+                             VIEW-AS ALERT-BOX QUESTION 
+                             BUTTONS OK-CANCEL UPDATE lcheckflg .
+             ELSE 
+                 lcheckflg = TRUE .
+            IF NOT lcheckflg THEN do:
+               RETURN .
+            END.
+        END.
+     END.
+    
+
     IF AVAIL tt-report THEN tt-sel = YES.
   END.
+  APPLY "END-ERROR":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -424,6 +461,8 @@ END.
 /* ***************************  Main Block  *************************** */
 
 rd_show = LOOKUP(ip-show-all,"AllItems,QOH>QEst,QAvail>0").
+FIND FIRST xef NO-LOCK WHERE RECID(xef) = ip-recef NO-ERROR.
+FIND FIRST xeb NO-LOCK WHERE RECID(xeb) = ip-receb  NO-ERROR.
 
 FOR EACH tt-report:
   ASSIGN
