@@ -264,12 +264,13 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                    ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].
        /* gdm - 11170804 deducted 2 char from format, used to be 30 */
        IF v-board NE "" THEN PUT SPACE(28) v-board FORM "x(28)".
-       ELSE numfit = 5.
+       ELSE numfit = 10.
     END.
-    
+
     IF i GT numfit THEN PUT SPACE(58) .
 
-    IF AVAIL xqqty THEN DO:
+    
+   IF AVAIL xqqty THEN DO:
        xxx    = IF xqqty.uom EQ "L" THEN xqqty.price    ELSE
                 IF xqqty.uom EQ "C" THEN
                   ((xqqty.qty / 100) * xqqty.price)     ELSE
