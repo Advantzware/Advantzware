@@ -234,7 +234,17 @@ FUNCTION fDebugMsg RETURNS CHARACTER
 	(INPUT ipcMessage AS CHARACTER   ) FORWARD.
 
 /* Main Block */
-
+FIND FIRST period                   
+      WHERE period.company EQ cocode
+        AND period.pst     LE dtPostDate
+        AND period.pend    GE dtPostDate
+      NO-LOCK NO-ERROR.
+      
+   IF AVAILABLE period THEN
+      tran-period = period.pnum.
+   ELSE 
+      .
+      
 IF SEARCH("logs/r-invepb.txt") NE ? THEN 
   lUseLogs = TRUE.
 cDebugLog = "logs/" + "r-invepb" + string(today, "99999999") + STRING(time) + STRING(RANDOM(1,10)) + ".txt".
@@ -962,7 +972,7 @@ PROCEDURE list-post-inv :
 
         /* {oe/r-inve&pb.i} */
         
-
+        fDebugMsg("list-post-inv invoice # " + string(inv-head.inv-no)).
         IF v-post THEN 
         DO:
             v-xno = 1.
@@ -1938,7 +1948,7 @@ PROCEDURE post-gl :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lcAccountDscr LIKE gltrans.tr-dscr NO-UNDO. 
    
-
+    fDebugMsg("Starting post-gl").
     /** POST TO GENERAL LEDGER ACCOUNTS TRANSACTION FILE **/
     DO TRANSACTION:
         FOR EACH tt-gl,
@@ -1960,7 +1970,7 @@ PROCEDURE post-gl :
             IF LAST-OF(tt-report.key-03) THEN 
             DO:
                 RUN get-tr-dscr (INT(tt-report.key-03), OUTPUT lcAccountDscr).
-
+                fDebugMsg("Starting gl work-line entry " + lcAccountDscr).
                 CREATE tt-gl.
                 CREATE gltrans.
                 ASSIGN
