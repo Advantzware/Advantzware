@@ -419,12 +419,28 @@ DO:
             NO-ERROR.
 
         IF AVAIL xef AND AVAIL xeb THEN do:
-            IF AVAIL bf-item AND (bf-item.cal NE xef.cal OR bf-item.procat NE xeb.procat) THEN
-                MESSAGE "Selected Board differs from Board in Estimate Standard." 
+            IF AVAIL bf-item AND (bf-item.cal NE xef.cal AND bf-item.procat NE xeb.procat) THEN do:
+                MESSAGE "Selected Board differs from Board in Job Standard. "  SKIP 
+                    " New Caliper: " STRING(bf-item.cal)   " differs from standard: "   STRING(xef.cal)  SKIP
+                    " New Category: "  STRING(bf-item.procat)  " differs from standard: "  STRING(xeb.procat) 
                              VIEW-AS ALERT-BOX QUESTION 
                              BUTTONS OK-CANCEL UPDATE lcheckflg .
-             ELSE 
+            END. 
+            ELSE IF  AVAIL bf-item AND (bf-item.cal NE xef.cal) THEN do:
+                MESSAGE "Selected Board differs from Board in Job Standard. " SKIP
+                    " New Caliper: "  STRING(bf-item.cal)   " differs from standard: "  STRING(xef.cal) 
+                             VIEW-AS ALERT-BOX QUESTION 
+                             BUTTONS OK-CANCEL UPDATE lcheckflg .
+            END.
+             ELSE IF AVAIL bf-item AND (bf-item.procat NE xeb.procat) THEN do:
+                MESSAGE "Selected Board differs from Board in Job Standard. "  SKIP
+                    " New Category: "  STRING(bf-item.procat)  " differs from standard: "  STRING(xeb.procat) 
+                             VIEW-AS ALERT-BOX QUESTION 
+                             BUTTONS OK-CANCEL UPDATE lcheckflg .
+             END.
+             ELSE
                  lcheckflg = TRUE .
+
             IF NOT lcheckflg THEN do:
                RETURN .
             END.
