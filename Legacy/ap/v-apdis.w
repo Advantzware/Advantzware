@@ -294,6 +294,15 @@ DO:
     IF LASTKEY = -1 THEN RETURN.
 
     {VALIDATE/bank.i ap-dis.bank-code bank_name}
+
+   IF SELF:modified AND SELF:screen-value <> "" THEN DO:
+     FIND FIRST bank NO-LOCK 
+           WHERE bank.company = g_company 
+           AND bank.bank-code = ap-dis.bank-code:SCREEN-VALUE no-error.
+       ASSIGN
+           lv-check-no:SCREEN-VALUE  = STRING( IF AVAIL bank THEN bank.last-chk + 1 ELSE 0) .
+   END.
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -443,13 +452,24 @@ PROCEDURE local-assign-statement :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ DEFINE VARIABLE cBankCode AS CHARACTER NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN ap-dis.check-no = INT(lv-check-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} ).
+  ASSIGN cBankCode = ap-dis.bank-code .
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  IF adm-new-record OR (cBankCode NE ap-dis.bank-code:SCREEN-VALUE) THEN do:
+      FIND FIRST bank where bank.company = g_company and
+                        bank.bank-code = ap-dis.bank-code:SCREEN-VALUE EXCLUSIVE-LOCK .
+
+      IF AVAIL bank THEN bank.last-chk = INTEGER(lv-check-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})  .
+      RELEASE bank .
+  END.
+ 
+ 
 
 
 END PROCEDURE.
@@ -478,6 +498,7 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   
  find first ap-ctrl where ap-ctrl.company = g_company no-lock no-error.
+
  find first bank where bank.company = g_company and
                       bank.actnum  = ap-ctrl.cash-act no-error.
  FIND FIRST company WHERE company.company = g_company NO-LOCK NO-ERROR.
@@ -493,7 +514,7 @@ PROCEDURE local-create-record :
         ap-dis.ex-rate = IF AVAIL currency THEN currency.ex-rate ELSE 0
         ap-dis.check-date = TODAY.
 
- IF AVAIL bank THEN bank.last-chk = ap-dis.check-no.
+ /*IF AVAIL bank THEN bank.last-chk = ap-dis.check-no.*/
  
 RUN dispatch ('row-changed').
 IF adm-adding-record THEN ENABLE lv-check-no WITH FRAME {&FRAME-NAME}.
