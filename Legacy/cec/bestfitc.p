@@ -6,6 +6,8 @@ DEF INPUT PARAM ip-m-code AS CHAR NO-UNDO.
 DEF INPUT PARAM ip-qty AS DEC NO-UNDO.
 DEF INPUT PARAM ip-uom AS CHAR NO-UNDO.
 DEF INPUT PARAM ipxINo LIKE job-mat.rm-i-no NO-UNDO.
+DEF INPUT PARAM ipxINo2 LIKE job-mat.rm-i-no NO-UNDO.
+
 
 {sys/inc/var.i shared}
 
@@ -366,7 +368,7 @@ for each mach
   IF AVAIL tt-report THEN DO:
     save_id = fil_id.
     IF ipxINo EQ "" THEN
-        RUN cec/bestfit.p (RECID(xef),RECID(xeb),
+        RUN cec/bestfit.p (ipxINo2,
                            xest.est-type, v-show-all).
     ELSE DO:
         FIND FIRST tt-report

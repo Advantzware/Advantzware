@@ -38,8 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE INPUT PARAM ip-recef AS RECID NO-UNDO .
-DEFINE INPUT PARAM ip-receb AS RECID NO-UNDO .
+DEFINE INPUT PARAM ip-rmino AS CHARACTER NO-UNDO .
 DEFINE INPUT PARAM ip-est-type LIKE est.est-type NO-UNDO.
 DEFINE INPUT PARAM ip-show-all LIKE sys-ctrl.char-fld NO-UNDO.
 
@@ -56,8 +55,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lShtcalcWarm-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lDisplayMsg AS LOGICAL INIT TRUE .
 DEFINE BUFFER bf-item FOR ITEM .
-DEFINE BUFFER xef FOR ef .
-DEFINE BUFFER xeb FOR eb .
+DEFINE BUFFER bff-item FOR ITEM .
 
 {custom/globdefs.i}
 
@@ -418,23 +416,23 @@ DO:
             RECID(bf-item) EQ tt-report.rec-id
             NO-ERROR.
 
-        IF AVAIL xef AND AVAIL xeb THEN do:
-            IF AVAIL bf-item AND (bf-item.cal NE xef.cal AND bf-item.procat NE xeb.procat) THEN do:
+        IF AVAIL bff-item THEN do:
+            IF AVAIL bff-item AND (bf-item.cal NE bff-item.cal AND bf-item.procat NE bff-item.procat) THEN do:
                 MESSAGE "Selected Board differs from Board in Job Standard. "  SKIP 
-                    " New Caliper: " STRING(bf-item.cal)   " differs from standard: "   STRING(xef.cal)  SKIP
-                    " New Category: "  STRING(bf-item.procat)  " differs from standard: "  STRING(xeb.procat) 
+                    " New Caliper: " STRING(bf-item.cal)   " differs from standard: "   STRING(bff-item.cal)  SKIP
+                    " New Category: "  STRING(bf-item.procat)  " differs from standard: "  STRING(bff-item.procat) 
                              VIEW-AS ALERT-BOX QUESTION 
                              BUTTONS OK-CANCEL UPDATE lcheckflg .
             END. 
-            ELSE IF  AVAIL bf-item AND (bf-item.cal NE xef.cal) THEN do:
+            ELSE IF  AVAIL bff-item AND (bf-item.cal NE bff-item.cal) THEN do:
                 MESSAGE "Selected Board differs from Board in Job Standard. " SKIP
-                    " New Caliper: "  STRING(bf-item.cal)   " differs from standard: "  STRING(xef.cal) 
+                    " New Caliper: "  STRING(bf-item.cal)   " differs from standard: "  STRING(bff-item.cal) 
                              VIEW-AS ALERT-BOX QUESTION 
                              BUTTONS OK-CANCEL UPDATE lcheckflg .
             END.
-             ELSE IF AVAIL bf-item AND (bf-item.procat NE xeb.procat) THEN do:
+             ELSE IF AVAIL bff-item AND (bf-item.procat NE bff-item.procat) THEN do:
                 MESSAGE "Selected Board differs from Board in Job Standard. "  SKIP
-                    " New Category: "  STRING(bf-item.procat)  " differs from standard: "  STRING(xeb.procat) 
+                    " New Category: "  STRING(bf-item.procat)  " differs from standard: "  STRING(bff-item.procat) 
                              VIEW-AS ALERT-BOX QUESTION 
                              BUTTONS OK-CANCEL UPDATE lcheckflg .
              END.
@@ -477,8 +475,9 @@ END.
 /* ***************************  Main Block  *************************** */
 
 rd_show = LOOKUP(ip-show-all,"AllItems,QOH>QEst,QAvail>0").
-FIND FIRST xef NO-LOCK WHERE RECID(xef) = ip-recef NO-ERROR.
-FIND FIRST xeb NO-LOCK WHERE RECID(xeb) = ip-receb  NO-ERROR.
+FIND FIRST bff-item NO-LOCK
+    WHERE bff-item.company EQ cocode 
+      AND bff-item.i-no EQ ip-rmino NO-ERROR.
 
 FOR EACH tt-report:
   ASSIGN

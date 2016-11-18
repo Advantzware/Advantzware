@@ -4583,7 +4583,7 @@ PROCEDURE sheet-calc2 :
      find xef where recid(xef) = recid(ef) NO-LOCK NO-ERROR.
      find xeb where recid(xeb) = recid(eb) NO-LOCK NO-ERROR.
      
-     run cec/bestfitc.p (ef.m-code:SCREEN-VALUE IN FRAME {&FRAME-NAME}, 0, "","").
+     run cec/bestfitc.p (ef.m-code:SCREEN-VALUE IN FRAME {&FRAME-NAME}, 0, "","",ef.board).
 
      FIND FIRST tt-ef NO-ERROR.
      FIND FIRST tt-eb NO-ERROR.

@@ -29,6 +29,7 @@ DEF VAR dNewSheetTotQty AS DECIMAL NO-UNDO.
 DEF VAR cRtnChar AS CHARACTER NO-UNDO.
 DEF VAR lRecFound AS LOGICAL NO-UNDO .
 DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRMino AS CHARACTER NO-UNDO .
 
 
 {cec/bestfitc.i SHARED}
@@ -37,6 +38,7 @@ DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 FIND job-mat WHERE ROWID(job-mat) EQ io-rowid NO-LOCK NO-ERROR.
 
 io-rowid = ?.
+cRMino = IF AVAIL job-mat THEN job-mat.rm-i-no ELSE "" .
 
 IF AVAIL job-mat THEN
 FIND FIRST job NO-LOCK
@@ -68,7 +70,7 @@ IF AVAIL job THEN DO:
         AND xeb.est-no  EQ xef.est-no
         AND xeb.form-no EQ xef.form-no:
    
-    RUN cec/bestfitc.p ("", job-mat.qty * job-mat.n-up, job-mat.qty-uom, ipxRMINo).
+    RUN cec/bestfitc.p ("", job-mat.qty * job-mat.n-up, job-mat.qty-uom, ipxRMINo, cRMino).
 
     FIND FIRST tt-ef NO-ERROR.
     FIND FIRST tt-eb NO-ERROR.
