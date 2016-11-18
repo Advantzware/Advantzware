@@ -35,10 +35,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
-{sys/inc/VAR.i NEW SHARED}
-ASSIGN cocode = g_company
-       locode = g_loc.
 
 &SCOPED-DEFINE proc-enable proc-enable
 &SCOPED-DEFINE users-rowavail proc-rowavail
@@ -600,15 +596,9 @@ PROCEDURE local-assign-record :
   DEF VAR ll-dummy AS LOG NO-UNDO.
   DEF VAR v-old-pass AS cha FORM "x(30)" NO-UNDO.
   DEF VAR v-new-pass AS cha FORM "x(30)" NO-UNDO.
-  DEF VAR cOldUserID AS CHARACTER FORM "x(30)" NO-UNDO.
-  DEFINE BUFFER bf-usercust FOR usercust .
-  DEFINE  BUFFER bf-uservend FOR uservend .
-  DEFINE BUFFER bf-usersman FOR usersman .
-  DEFINE BUFFER bf-usrx FOR usrx .
   /* Code placed here will execute PRIOR to standard behavior. */
 
   ASSIGN FRAME {&frame-name} v-sec-from v-sec-to.
-  ASSIGN cOldUserID = users.user_id .
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -651,54 +641,6 @@ PROCEDURE local-assign-record :
             usercomp.loc = IF AVAIL bf-usercomp THEN bf-usercomp.loc ELSE "MAIN"
             usercomp.loc_DEFAULT = YES.
      END.
-  END.
-
-  if adm-new-record and not adm-adding-record then do:  /* copy */
-   FOR EACH usercust NO-LOCK
-           WHERE usercust.user_id EQ cOldUserID 
-             AND usercust.company EQ cocode  , 
-           FIRST cust WHERE 
-              cust.company EQ usercust.company AND 
-              cust.cust-no EQ usercust.cust-no NO-LOCK  :
-
-          CREATE bf-usercust .
-          BUFFER-COPY usercust EXCEPT rec_key user_id TO bf-usercust.
-          ASSIGN
-              bf-usercust.user_id = users.USER_id .
-
-      END.
-      FOR EACH uservend WHERE      uservend.user_id EQ cOldUserID AND
-                uservend.company EQ cocode NO-LOCK, 
-          FIRST vend WHERE             vend.company EQ uservend.company AND
-             vend.vend-no EQ uservend.vend-no  NO-LOCK    :
-
-          CREATE bf-uservend .
-          BUFFER-COPY uservend EXCEPT rec_key user_id TO bf-uservend.
-          ASSIGN
-              bf-uservend.user_id = users.USER_id .
-
-      END.
-      FOR EACH usersman WHERE      usersman.user_id EQ cOldUserID AND
-                usersman.company EQ cocode NO-LOCK, 
-          FIRST sman WHERE             sman.company EQ usersman.company AND  
-              sman.sman EQ usersman.sman NO-LOCK :
-
-          CREATE bf-usersman .
-          BUFFER-COPY usersman EXCEPT rec_key user_id TO bf-usersman.
-          ASSIGN
-              bf-usersman.user_id = users.USER_id .
-      END.
-
-      FOR EACH usrx 
-          WHERE usrx.uid = cOldUserID AND usrx.company = cocode AND 
-          usrx.loc NE "" NO-LOCK, 
-          EACH loc OF usrx  NO-LOCK :
-
-          CREATE bf-usrx .
-          BUFFER-COPY usrx EXCEPT rec_key uid TO bf-usrx.
-          ASSIGN
-              bf-usrx.uid = users.USER_id .
-      END.
   END.
 
   SESSION:SET-WAIT-STATE("general").
