@@ -366,8 +366,7 @@ for each mach
   IF AVAIL tt-report THEN DO:
     save_id = fil_id.
     IF ipxINo EQ "" THEN
-        RUN cec/bestfit.p (RECID(xef),RECID(xeb),
-                           xest.est-type, v-show-all).
+        RUN cec/bestfit.p (xest.est-type, v-show-all).
     ELSE DO:
         FIND FIRST tt-report
           WHERE tt-report.key-02 EQ ipxINo NO-ERROR.
