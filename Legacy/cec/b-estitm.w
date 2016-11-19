@@ -919,7 +919,7 @@ END.
 ON ROW-DISPLAY OF br-estitm IN FRAME Corr
 DO:
     DEF VAR lActive AS LOG NO-UNDO.
-   IF v-cefgitem-log THEN
+   IF v-cefgitem-log AND AVAIL eb THEN
    DO:
 /*                                                        */
 /*       FIND FIRST reftable WHERE                        */
@@ -941,7 +941,7 @@ DO:
       RELEASE reftable.
    END.
 
-  IF v-cecscrn-dec THEN
+  IF v-cecscrn-dec AND AVAIL eb THEN
      ASSIGN
         eb.wid:FORMAT IN BROWSE {&browse-name} = ">>9.999999"
         eb.len:FORMAT IN BROWSE {&browse-name} = ">>9.999999"
@@ -1011,7 +1011,7 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
      
-  if not adm-new-record /*and not adm-adding-record */ then   
+  if not adm-new-record AND AVAIL eb /*and not adm-adding-record */ then   
      assign lv-eb-recid = recid(eb)
             lv-ef-recid = recid(ef). 
 
@@ -4595,6 +4595,14 @@ PROCEDURE custom-row-changed :
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
     END.
   END.
+  ELSE IF AVAIL eb AND eb.est-type = 6 THEN DO:
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"form-blank-target",OUTPUT char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) AND AVAIL eb THEN DO:
+          RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("OFF").
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+      RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
+     END.                                               
+  END.
 
 END PROCEDURE.
 
@@ -6050,9 +6058,11 @@ PROCEDURE local-initialize :
   end.
   
   ASSIGN
-   ll-warn = sys-ctrl.log-fld
-   lv-eb-recid = RECID(eb)
-   lv-ef-recid = RECID(ef).  
+   ll-warn = sys-ctrl.log-fld .
+  IF AVAIL eb THEN
+      ASSIGN
+      lv-eb-recid = RECID(eb)
+      lv-ef-recid = RECID(ef).  
 
   IF AVAIL eb AND ecbrowse-chr = "Partitions" THEN
   DO:
@@ -6063,15 +6073,15 @@ PROCEDURE local-initialize :
      BROWSE {&BROWSE-NAME}:MOVE-COLUMN(24,19).
   END.
 
-  IF v-cecscrn-dec THEN
+  IF v-cecscrn-dec AND AVAIL eb THEN
      ASSIGN
         eb.wid:WIDTH IN BROWSE {&browse-name} = 15
         eb.len:WIDTH IN BROWSE {&browse-name} = 15
         eb.dep:WIDTH IN BROWSE {&browse-name} = 15.
 
   RUN get-last-est-cat.
-   
-  v-rowid-eb  = ROWID(eb) .
+  IF AVAIL eb THEN
+      v-rowid-eb  = ROWID(eb) .
 
 END PROCEDURE.
 
@@ -6109,7 +6119,7 @@ PROCEDURE local-open-query :
 
   lv-repo = "ON".
   
-  IF v-cecscrn-dec THEN
+  IF v-cecscrn-dec AND AVAIL eb THEN
      ASSIGN
         eb.wid:WIDTH IN BROWSE {&browse-name} = 15
         eb.len:WIDTH IN BROWSE {&browse-name} = 15
@@ -6396,6 +6406,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN setFarmTab.
+  IF AVAIL eb THEN
   v-rowid-eb  = ROWID(eb) .
   
 END PROCEDURE.
@@ -8242,7 +8253,7 @@ FUNCTION display-set RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
 
   
-  RETURN IF eb.spare-char-2 EQ "Y" THEN "Y" ELSE "N". /* Function return value. */ 
+  RETURN IF eb.spare-char-2 EQ "Y" AND AVAIL eb THEN "Y" ELSE "N". /* Function return value. */ 
 
 END FUNCTION.
 
@@ -8257,7 +8268,7 @@ FUNCTION display-tab RETURNS LOGICAL
     Notes:  
 ------------------------------------------------------------------------------*/
 
-  RETURN IF eb.tab-in EQ ? THEN NO ELSE eb.tab-in. /* Function return value. */
+  RETURN IF eb.tab-in EQ ? AND AVAIL eb THEN NO ELSE eb.tab-in. /* Function return value. */
 
 END FUNCTION.
 

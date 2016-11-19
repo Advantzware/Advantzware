@@ -32,7 +32,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE aoaMultiplier 150
+&SCOPED-DEFINE aoaMultiplier 140
 
 /* Parameters Definitions ---                                           */
 
@@ -60,7 +60,7 @@ DEFINE TEMP-TABLE ttPageHeader NO-UNDO
     FIELD phOrder        AS INTEGER   LABEL "Order"         FORMAT ">>>9"
     FIELD phName         AS CHARACTER LABEL "Name"          FORMAT "x(30)"
     FIELD phCaption      AS CHARACTER LABEL "Caption"       FORMAT "x(20)"
-    FIELD phLeft         AS INTEGER   LABEL "Position"      FORMAT ">>>>9"
+    FIELD phLeft         AS INTEGER   LABEL "Position"      FORMAT ">>>>>9"
     FIELD phWidth        AS INTEGER   LABEL "Width"         FORMAT ">>>9"
     FIELD phAlignment    AS INTEGER   LABEL "Alignment"     FORMAT "9"
     FIELD phSectionItem  AS INTEGER   LABEL "SectionItem"   FORMAT ">>9"
@@ -87,7 +87,7 @@ DEFINE TEMP-TABLE ttSection NO-UNDO
     FIELD secSection      AS CHARACTER LABEL "Section"      FORMAT "x(30)"
     FIELD secName         AS CHARACTER LABEL "Name"         FORMAT "x(40)"
     FIELD secDataField    AS CHARACTER LABEL "DataField"    FORMAT "x(20)"
-    FIELD secLeft         AS INTEGER   LABEL "Position"     FORMAT ">>>>9"
+    FIELD secLeft         AS INTEGER   LABEL "Position"     FORMAT ">>>>>9"
     FIELD secWidth        AS INTEGER   LABEL "Width"        FORMAT ">>>9"
     FIELD secAlignment    AS INTEGER   LABEL "Alignment"    FORMAT "9"
     FIELD secOutputFormat AS CHARACTER LABEL "OutputFormat" FORMAT "x(30)"
@@ -204,11 +204,11 @@ ttSection ttSubject
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnOpenRPA btnSetName btnSave btnPublish ~
-ttProgID ttPageHeader ttDetail ttParameter btnOnReportStart ~
-btnGroupHeaderOnFormat btnGroupFooterOnFormat btnDetailOnFormat ~
-btnOnReportEnd btnUpdate ttSubject ttSection 
+ttProgID ttPageHeader ttDetail autoSetParameters ttParameter ~
+btnOnReportStart btnGroupHeaderOnFormat btnGroupFooterOnFormat ~
+btnDetailOnFormat btnOnReportEnd btnUpdate ttSubject ttSection 
 &Scoped-Define DISPLAYED-OBJECTS aoaProgramID aoaReportWidth aoaRptFile ~
-aoaReportTitle 
+aoaReportTitle autoSetParameters 
 
 /* Custom List Definitions                                              */
 /* aoaReportValue,List-2,List-3,List-4,List-5,List-6                    */
@@ -294,7 +294,7 @@ DEFINE VARIABLE aoaReportTitle AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE aoaReportWidth AS INTEGER FORMAT ">>>,>>9":U INITIAL 0 
      LABEL "Report Width" 
      VIEW-AS FILL-IN 
-     SIZE 10 BY 1
+     SIZE 11 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE aoaRptFile AS CHARACTER FORMAT "X(256)":U 
@@ -302,6 +302,11 @@ DEFINE VARIABLE aoaRptFile AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 90 BY 1
      BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE autoSetParameters AS LOGICAL INITIAL yes 
+     LABEL "Auto Set Parameters" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23.4 BY .81 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -418,6 +423,8 @@ DEFINE FRAME DEFAULT-FRAME
      ttProgID AT ROW 2.43 COL 1 WIDGET-ID 700
      ttPageHeader AT ROW 2.43 COL 30 WIDGET-ID 300
      ttDetail AT ROW 2.43 COL 107 WIDGET-ID 400
+     autoSetParameters AT ROW 2.43 COL 218 HELP
+          "Auto Set Parameters" WIDGET-ID 32
      ttParameter AT ROW 2.43 COL 242 WIDGET-ID 600
      btnOnReportStart AT ROW 3.38 COL 217 WIDGET-ID 14
      btnGroupHeaderOnFormat AT ROW 4.81 COL 217 WIDGET-ID 22
@@ -481,7 +488,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* BROWSE-TAB ttProgID aoaReportTitle DEFAULT-FRAME */
 /* BROWSE-TAB ttPageHeader ttProgID DEFAULT-FRAME */
 /* BROWSE-TAB ttDetail ttPageHeader DEFAULT-FRAME */
-/* BROWSE-TAB ttParameter ttDetail DEFAULT-FRAME */
+/* BROWSE-TAB ttParameter autoSetParameters DEFAULT-FRAME */
 /* BROWSE-TAB ttSubject btnUpdate DEFAULT-FRAME */
 /* BROWSE-TAB ttSection ttSubject DEFAULT-FRAME */
 /* SETTINGS FOR FILL-IN aoaProgramID IN FRAME DEFAULT-FRAME
@@ -593,11 +600,22 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME autoSetParameters
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL autoSetParameters C-Win
+ON VALUE-CHANGED OF autoSetParameters IN FRAME DEFAULT-FRAME /* Auto Set Parameters */
+DO:
+  ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnDetailOnFormat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDetailOnFormat C-Win
 ON CHOOSE OF btnDetailOnFormat IN FRAME DEFAULT-FRAME /* Detail OnFormat */
 DO:
-  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.Detail.OnFormat.dat.
+  OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.Detail.OnFormat.dat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -608,7 +626,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupFooterOnFormat C-Win
 ON CHOOSE OF btnGroupFooterOnFormat IN FRAME DEFAULT-FRAME /* Group Footer OnFormat */
 DO:
-  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.GroupFooter.OnFormat.dat.
+  OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupFooter.OnFormat.dat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -619,7 +637,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupHeaderOnFormat C-Win
 ON CHOOSE OF btnGroupHeaderOnFormat IN FRAME DEFAULT-FRAME /* Group Header OnFormat */
 DO:
-  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.GroupHeader.OnFormat.dat.
+  OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupHeader.OnFormat.dat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -630,7 +648,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnReportEnd C-Win
 ON CHOOSE OF btnOnReportEnd IN FRAME DEFAULT-FRAME /* OnReportEnd */
 DO:
-  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.OnReportEnd.dat.
+  OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportEnd.dat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -641,7 +659,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnReportStart C-Win
 ON CHOOSE OF btnOnReportStart IN FRAME DEFAULT-FRAME /* OnReportStart */
 DO:
-  OS-COMMAND NO-WAIT notepad.exe aoaReports\Rpt.OnReportStart.dat.
+  OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportStart.dat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -744,10 +762,10 @@ END.
 ON DEFAULT-ACTION OF ttProgID IN FRAME DEFAULT-FRAME /* Prog ID */
 DO:
     ASSIGN
-        cID = "aoa" + ttAOA.module + "/" + ttAOA.progID + "p"
+        cID = "aoa/" + ttAOA.progID + "p"
         cID = SEARCH(cID)
         .
-    RUN pOpenAOAProgram (cID).
+    RUN pOpenAOAProgram (ttAOA.module, cID).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -824,11 +842,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY aoaProgramID aoaReportWidth aoaRptFile aoaReportTitle 
+          autoSetParameters 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE btnOpenRPA btnSetName btnSave btnPublish ttProgID ttPageHeader 
-         ttDetail ttParameter btnOnReportStart btnGroupHeaderOnFormat 
-         btnGroupFooterOnFormat btnDetailOnFormat btnOnReportEnd btnUpdate 
-         ttSubject ttSection 
+         ttDetail autoSetParameters ttParameter btnOnReportStart 
+         btnGroupHeaderOnFormat btnGroupFooterOnFormat btnDetailOnFormat 
+         btnOnReportEnd btnUpdate ttSubject ttSection 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -883,8 +902,8 @@ PROCEDURE pGetAOAFiles :
     DEFINE VARIABLE cProgID   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMenuID   AS CHARACTER NO-UNDO.
 
-    FILE-INFO:FILE-NAME = "aoaDAT/Report.dat".
-    INPUT FROM VALUE(SEARCH(FILE-INFO:FULL-PATHNAME)) NO-ECHO.
+    FILE-INFO:FILE-NAME = "aoa/datFiles/Report.dat".
+    INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     REPEAT:
         IMPORT cModule cAOAFile cProgID cMenuID.
         CREATE ttAOA.
@@ -934,6 +953,7 @@ PROCEDURE pGetReportFields :
     EMPTY TEMP-TABLE ttParameter.
 
     aoaReportWidth = hReport:PrintWidth.
+    DISPLAY aoaReportWidth WITH FRAME {&FRAME-NAME}.
     DO ix = 0 TO hReport:Sections:Count - 1:
         cName = hReport:Sections:Item(ix):Name.
         DO iy = 0 TO hReport:Sections:Item(ix):Controls:Count - 1:
@@ -1077,16 +1097,17 @@ PROCEDURE pOpenAOAProgram :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcModule AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcID     AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cTxt     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cScopDef AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAppSrv  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hAppSrv  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hTable   AS HANDLE    NO-UNDO.
 
-    INPUT FROM VALUE(ipID) NO-ECHO.
+    FILE-INFO:FILE-NAME = ipcID.
+    INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     REPEAT:
         cTxt = "".
         IMPORT UNFORMATTED cTxt.
@@ -1106,13 +1127,8 @@ PROCEDURE pOpenAOAProgram :
                 ENTRY(1,cTxt," ") = ""
                 ENTRY(2,cTxt," ") = ""
                 aoaReportTitle = TRIM(cTxt)
-                idx = R-INDEX(ipID,"\")
-                aoaRptFile = SEARCH("aoaReports\"
-                           + SUBSTR(ipID,idx - 2,2) + "\"
-                           + aoaReportTitle + ".rpa")
-                cAppSrv = "aoaAppSrv\"
-                        + ENTRY(NUM-ENTRIES(ipID,"\") - 1,ipID,"\")
-                        + ".p"
+                aoaRptFile = SEARCH("aoa\reports\" + aoaReportTitle + ".rpa")
+                cAppSrv = "aoa\appServer\aoa" + ipcModule + ".p"
                 .
         END CASE.
     END. /* repeat */
@@ -1152,12 +1168,13 @@ PROCEDURE pPublish :
     DEFINE VARIABLE txtLine    AS CHARACTER NO-UNDO.
 
     ASSIGN
-        publishBat = SEARCH("aoaReports\PublishReport.bat")
-        publishExe = SEARCH("aoaReports\PublishReport.exe")
+        publishBat = SEARCH("aoa\publish\PublishReport.bat")
+        publishExe = SEARCH("aoa\publish\PublishReport.exe")
         publishLog = REPLACE(publishBat,".bat",".log")
         .
 
-    OUTPUT TO VALUE(publishBat).
+    FILE-INFO:FILE-NAME = publishBat.
+    OUTPUT TO VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     PUT UNFORMATTED
         publishExe " ~"" aoaRptFile "~" guest password > "
         REPLACE(publishBat,".bat",".log") SKIP.
@@ -1167,7 +1184,8 @@ PROCEDURE pPublish :
     OS-COMMAND SILENT VALUE(publishBat).
     SESSION:SET-WAIT-STATE("").
 
-    INPUT FROM VALUE(publishLog) NO-ECHO.
+    FILE-INFO:FILE-NAME = publishLog.
+    INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     DO WHILE TRUE ON ENDKEY UNDO, LEAVE:
        IMPORT UNFORMATTED txtLine.
        IF logText NE "" THEN logText = logText + CHR(10).
@@ -1290,47 +1308,49 @@ PROCEDURE pSetNames :
         iLeft = iLeft + ttSubject.ttSize + 50.
     END. /* each subject */
     
-    FIND FIRST ttParameter WHERE ttParameter.pOrder EQ 0 NO-ERROR.
-    IF AVAILABLE ttParameter THEN
-    ASSIGN
-        ttParameter.pCaption = aoaReportTitle
-        ttParameter.pWidth   = LENGTH(aoaReportTitle) * 180.
-    
-    FIND FIRST user-print NO-LOCK
-         WHERE user-print.company    EQ "001"
-           AND user-print.program-id EQ aoaProgramID
-           AND user-print.user-id    EQ "NoSweat"
-           AND user-print.batch      EQ ""
-         NO-ERROR.
-    IF NOT AVAILABLE user-print THEN
-    FIND FIRST user-print NO-LOCK
-         WHERE user-print.company    EQ "001"
-           AND user-print.program-id EQ aoaProgramID
-           AND user-print.user-id    EQ "ASI"
-           AND user-print.batch      EQ ""
-         NO-ERROR.
-    IF AVAILABLE user-print THEN DO:
-        DO idx = 1 TO EXTENT(user-print.field-name):
-            IF user-print.field-name[idx] EQ "" THEN LEAVE.
-            IF CAN-DO("svTitle,svAvailableColumns,svSelectedColumns,svShowParameters",user-print.field-name[idx]) THEN NEXT.
-            GET NEXT ttParameter.
-            IF NOT AVAILABLE ttParameter THEN LEAVE.
-            ASSIGN
-                ttParameter.pName = user-print.field-name[idx] + "Label"
-                ttParameter.pCaption = IF user-print.field-label[idx] EQ ? THEN ttParameter.pCaption
-                                       ELSE user-print.field-label[idx] + ":"
-                .
-            GET NEXT ttParameter.
-            IF NOT AVAILABLE ttParameter THEN LEAVE.
-            ASSIGN
-                ttParameter.pName    = user-print.field-name[idx]
-                ttParameter.pCaption = user-print.field-name[idx]
-                .
-        END. /* do idx */
-    END. /* avail user-print */
-    ELSE
-        MESSAGE "No User-Print Record Exists to Set Parameters"
-            VIEW-AS ALERT-BOX ERROR.
+    IF autoSetParameters THEN DO:
+        FIND FIRST ttParameter WHERE ttParameter.pOrder EQ 0 NO-ERROR.
+        IF AVAILABLE ttParameter THEN
+        ASSIGN
+            ttParameter.pCaption = aoaReportTitle
+            ttParameter.pWidth   = LENGTH(aoaReportTitle) * 180.
+        
+        FIND FIRST user-print NO-LOCK
+             WHERE user-print.company    EQ "001"
+               AND user-print.program-id EQ aoaProgramID
+               AND user-print.user-id    EQ "NoSweat"
+               AND user-print.batch      EQ ""
+             NO-ERROR.
+        IF NOT AVAILABLE user-print THEN
+        FIND FIRST user-print NO-LOCK
+             WHERE user-print.company    EQ "001"
+               AND user-print.program-id EQ aoaProgramID
+               AND user-print.user-id    EQ "ASI"
+               AND user-print.batch      EQ ""
+             NO-ERROR.
+        IF AVAILABLE user-print THEN DO:
+            DO idx = 1 TO EXTENT(user-print.field-name):
+                IF user-print.field-name[idx] EQ "" THEN LEAVE.
+                IF CAN-DO("svTitle,svAvailableColumns,svSelectedColumns,svShowParameters",user-print.field-name[idx]) THEN NEXT.
+                GET NEXT ttParameter.
+                IF NOT AVAILABLE ttParameter THEN LEAVE.
+                ASSIGN
+                    ttParameter.pName = user-print.field-name[idx] + "Label"
+                    ttParameter.pCaption = IF user-print.field-label[idx] EQ ? THEN ttParameter.pCaption
+                                           ELSE user-print.field-label[idx] + ":"
+                    .
+                GET NEXT ttParameter.
+                IF NOT AVAILABLE ttParameter THEN LEAVE.
+                ASSIGN
+                    ttParameter.pName    = user-print.field-name[idx]
+                    ttParameter.pCaption = user-print.field-name[idx]
+                    .
+            END. /* do idx */
+        END. /* avail user-print */
+        ELSE
+            MESSAGE "No User-Print Record Exists to Set Parameters"
+                VIEW-AS ALERT-BOX ERROR.
+    END. /* if setparameternames */
     
     aoaReportWidth:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(iLeft).
 
@@ -1469,7 +1489,7 @@ PROCEDURE pUpdate :
 ------------------------------------------------------------------------------*/
     FOR EACH ttAOA:
         ASSIGN
-            cID = "aoa" + ttAOA.module + "/" + ttAOA.progID + "p"
+            cID = "aoa/" + ttAOA.progID + "p"
             cID = SEARCH(cID)
             .
         RUN pOpenAOAProgram (cID).
@@ -1494,7 +1514,8 @@ FUNCTION fGetScript RETURNS CHARACTER
     DEFINE VARIABLE cScript AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDatTxt AS CHARACTER NO-UNDO.
 
-    INPUT FROM VALUE("aoaReports\Rpt." + ipScriptDatFile + ".dat") NO-ECHO.
+    FILE-INFO:FILE-NAME = "aoa\vbScript\Rpt." + ipScriptDatFile + ".dat".
+    INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
     REPEAT:
         IMPORT UNFORMATTED cDatTxt.
         cScript = cScript + cDatTxt + CHR(10).

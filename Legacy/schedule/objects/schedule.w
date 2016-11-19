@@ -696,9 +696,7 @@ DO:
       QUESTION BUTTONS YES-NO UPDATE saveBoard AS LOGICAL.
     IF saveBoard THEN
     RUN saveBoard IN h_board.
-    RUN getLoginID IN h_board (OUTPUT lvLoginID).
-    OS-DELETE VALUE(SEARCH('{&data}/' + ID + '/inUse.' + lvLoginID + '.dat')).
-    RUN loadBoard IN h_board (YES).
+    RUN pReload.
     MESSAGE 'Reload Complete!' VIEW-AS ALERT-BOX.
   END. /* if reloadboard */
 END.
@@ -1717,6 +1715,36 @@ PROCEDURE objectName :
   Notes:       
 ------------------------------------------------------------------------------*/
   {{&includes}/{&Board}/objectName.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFromPending W-Win 
+PROCEDURE pFromPending :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN pFromPending IN h_board.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReload W-Win 
+PROCEDURE pReload :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN getLoginID IN h_board (OUTPUT lvLoginID).
+    OS-DELETE VALUE(SEARCH('{&data}/' + ID + '/inUse.' + lvLoginID + '.dat')).
+    RUN loadBoard IN h_board (YES).
 
 END PROCEDURE.
 

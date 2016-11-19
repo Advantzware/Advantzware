@@ -45,6 +45,16 @@ INDEX w-loc w-loc w-bin
 INDEX w-par w-par w-date-time
 INDEX w-date-time w-date-time.
 
+DEFINE TEMP-TABLE tt-bin-file NO-UNDO 
+    FIELD ord-no       AS INTEGER
+    FIELD w-i-no       AS CHARACTER
+    FIELD w-loc        AS CHARACTER
+    FIELD w-bin        AS CHARACTER .
+
+DEFINE TEMP-TABLE tt-item NO-UNDO
+    FIELD w-i-no       AS CHARACTER
+    FIELD w-ord-no     AS INTEGER .
+
 DEF TEMP-TABLE w-bin-cons NO-UNDO
 FIELD w-i-no       AS CHARACTER
 FIELD w-loc        AS CHARACTER
@@ -105,20 +115,20 @@ DEFINE VARIABLE lv-other-color     AS cha              INIT "BLACK" NO-UNDO.
 DEFINE VARIABLE v-partial-qty      AS INT              NO-UNDO.
 DEFINE VARIABLE lv-part-qty-printed AS LOG             NO-UNDO.
 
-DEFINE SHARED VARIABLE s-print-what-item  AS cha              NO-UNDO.
-DEFINE SHARED VARIABLE s-print-loc-from   AS cha              NO-UNDO.
-DEFINE SHARED VARIABLE s-print-loc-to     AS cha              NO-UNDO.
-DEFINE SHARED VARIABLE s-print-bin-from   AS cha              NO-UNDO.
-DEFINE SHARED VARIABLE s-print-bin-to     AS cha              NO-UNDO.
+DEFINE SHARED VARIABLE s-print-what-item  AS CHARACTER        NO-UNDO.
+DEFINE SHARED VARIABLE s-print-loc-from   AS CHARACTER        NO-UNDO.
+DEFINE SHARED VARIABLE s-print-loc-to     AS CHARACTER        NO-UNDO.
+DEFINE SHARED VARIABLE s-print-bin-from   AS CHARACTER        NO-UNDO.
+DEFINE SHARED VARIABLE s-print-bin-to     AS CHARACTER        NO-UNDO.
 DEFINE SHARED VARIABLE v-print-components AS LOGICAL          NO-UNDO.
 DEFINE SHARED VARIABLE s-print-part-no    AS LOGICAL          NO-UNDO.
 
 
-FORMAT w-oe-rell.ord-no                 TO 6
+FORMAT w-oe-rell.ord-no          TO 6
 v-bin                            AT 8    FORMAT "x(35)"
 w-bin.w-par                      AT 44   FORMAT "x(25)"
 w-bin.w-unit-count               TO 76   FORMAT "->>>>>"
-w-bin.w-units                     TO 83   FORMAT "->>>>>"
+w-bin.w-units                    TO 83   FORMAT "->>>>>"
 v-tot-rqty                       TO 93   FORMAT "->>>>>>>>"
 v-rs                             AT 97   FORM "x(2)"
 WITH DOWN FRAME rel-mid NO-BOX no-label STREAM-IO WIDTH 98.
@@ -252,9 +262,132 @@ FOR EACH oe-rell
 END.
 
 {oe/rep/relnstok2.i}
+    EMPTY TEMP-TABLE tt-bin-file.
+    EMPTY TEMP-TABLE tt-item.
+
+ /* for sorting logic  */
+    
+ FOR EACH w-oe-rell USE-INDEX idx,
+  FIRST oe-ordl
+  WHERE oe-ordl.company EQ cocode
+  AND oe-ordl.ord-no  EQ w-oe-rell.ord-no
+  AND oe-ordl.i-no    EQ w-oe-rell.set-no
+  AND oe-ordl.LINE    EQ w-oe-rell.LINE
+  NO-LOCK,
+  
+  FIRST itemfg WHERE
+  itemfg.company EQ cocode AND
+  itemfg.i-no EQ w-oe-rell.i-no
+  NO-LOCK
+  BREAK BY w-oe-rell.ord-no DESC
+    BY w-oe-rell.loc 
+    BY w-oe-rell.loc-bin 
+    BY w-oe-rell.set-no
+    BY w-oe-rell.seq
+    BY w-oe-rell.po-no
+    BY w-oe-rell.i-no  :
+  
+
+  
+  IF LAST-OF(w-oe-rell.i-no) THEN DO:
+     i = 0.
+    for each fg-bin
+               where fg-bin.company  eq cocode
+                 and fg-bin.i-no     eq w-oe-rell.i-no
+                 and fg-bin.qty      gt 0
+               no-lock:
+          
+               IF NOT(
+                  ((s-print-what-item = "R") OR
+                   (LOOKUP(s-print-what-item,"I,S") > 0 AND
+                    fg-bin.loc >= s-print-loc-from AND
+                    fg-bin.loc <= s-print-loc-to AND
+                    fg-bin.loc-bin >= s-print-bin-from AND
+                    fg-bin.loc-bin <= s-print-bin-to))) THEN
+                  NEXT.
+              
+               IF s-print-what-item = "R" AND
+                  NOT CAN-FIND(FIRST oe-rell
+                                    WHERE oe-rell.company  EQ w-oe-rell.company
+                                      AND oe-rell.r-no     EQ w-oe-rell.r-no
+                                      AND oe-rell.ord-no   EQ w-oe-rell.ord-no
+                                      AND oe-rell.i-no     EQ w-oe-rell.i-no
+                                      AND oe-rell.line     EQ w-oe-rell.line
+                                      AND oe-rell.rel-no   EQ w-oe-rell.rel-no
+                                      AND oe-rell.b-ord-no EQ w-oe-rell.b-ord-no
+                                      AND oe-rell.po-no    EQ w-oe-rell.po-no
+                                      AND oe-rell.loc      EQ fg-bin.loc
+                                      AND oe-rell.loc-bin  EQ fg-bin.loc-bin
+                                      AND oe-rell.tag      EQ fg-bin.tag) THEN
+                  NEXT.
+              
+               create tt-bin-file.
+               assign
+                tt-bin-file.w-loc    = fg-bin.loc
+                tt-bin-file.w-bin    = fg-bin.loc-bin
+                tt-bin-file.w-i-no   = fg-bin.i-no
+                tt-bin-file.ord-no   = w-oe-rell.ord-no .
+               i        = i + 1.
+              
+              
+           end. /*each fg-bin*/
+
+         
+    IF i EQ 0 THEN DO:
+      FIND FIRST b-cust
+      WHERE b-cust.company EQ cocode
+      AND b-cust.active  EQ "X"
+      NO-LOCK NO-ERROR.
+      IF avail b-cust THEN DO:
+        FIND FIRST b-ship
+        WHERE b-ship.company EQ cocode
+        AND b-ship.cust-no EQ b-cust.cust-no
+        NO-LOCK NO-ERROR.
+        IF avail b-ship THEN DO:
+          CREATE tt-bin-file.
+          ASSIGN
+          tt-bin-file.w-loc = b-ship.loc
+          tt-bin-file.w-bin = b-ship.loc-bin
+          tt-bin-file.w-i-no = w-oe-rell.i-no
+          tt-bin-file.ord-no = w-oe-rell.ord-no
+          i     = i + 1 .
+         
+        END.
+      END.
+    END.
+
+    IF i = 0 THEN do:
+          create tt-bin-file.
+               assign
+                tt-bin-file.w-loc    = ""
+                tt-bin-file.w-bin    = ""
+                tt-bin-file.w-i-no   = w-oe-rell.i-no
+                tt-bin-file.ord-no   = w-oe-rell.ord-no .
+    END.
+  END. /* last-of i-no */
+END. /* for each w-oe-rell */
+
+
+FOR EACH tt-bin-file NO-LOCK 
+    BREAK BY tt-bin-file.ord-no 
+          
+       BY tt-bin-file.w-loc
+       BY tt-bin-file.w-bin  .
+    
+    FIND FIRST tt-item NO-LOCK
+         WHERE tt-item.w-i-no = tt-bin-file.w-i-no AND 
+              tt-item.w-ord-no = tt-bin-file.ord-no NO-ERROR.
+         IF NOT AVAIL tt-item THEN do:
+        CREATE tt-item.
+        ASSIGN
+            tt-item.w-i-no = tt-bin-file.w-i-no
+            tt-item.w-ord-no = tt-bin-file.ord-no .
+    END.
+END. /* foR EACH tt-bin-file */
 
 EMPTY TEMP-TABLE w-bin.
-FOR EACH w-oe-rell USE-INDEX idx,
+FOR EACH tt-item NO-LOCK:
+ FOR EACH w-oe-rell WHERE w-oe-rell.set-no EQ tt-item.w-i-no USE-INDEX idx,
   FIRST oe-ordl
   WHERE oe-ordl.company EQ cocode
   AND oe-ordl.ord-no  EQ w-oe-rell.ord-no
@@ -301,7 +434,7 @@ FOR EACH w-oe-rell USE-INDEX idx,
     EMPTY TEMP-TABLE w-bin.
     
     i = 0.
-    FOR EACH bf-w-oe-rell WHERE bf-w-oe-rell.po-no = w-oe-rell.po-no
+   /* FOR EACH bf-w-oe-rell WHERE bf-w-oe-rell.po-no = w-oe-rell.po-no
         AND bf-w-oe-rell.i-no = w-oe-rell.i-no AND bf-w-oe-rell.ord-no = w-oe-rell.ord-no .
       CREATE w-bin.
       ASSIGN
@@ -316,7 +449,7 @@ FOR EACH w-oe-rell USE-INDEX idx,
       w-bin.w-set-no = bf-w-oe-rell.set-no
       i        = i + 1.
       
-    END.
+    END.*/
 
     /*IF s-print-what-item EQ "S" THEN
       RUN consolidate-bins.*/
@@ -488,9 +621,8 @@ FOR EACH w-oe-rell USE-INDEX idx,
             BY w-bin.w-qty[1] desc:
 
       ASSIGN
-      v-bin = w-bin.w-tag + "/" +
-      TRIM(w-bin.w-loc) + "/" +
-      TRIM(w-bin.w-bin).
+      v-bin = TRIM(w-bin.w-loc) + "/" +
+      TRIM(w-bin.w-bin) + "/" + w-bin.w-tag  .
       
       IF TRIM(v-bin) EQ "//" THEN v-bin = "".
       
@@ -598,6 +730,7 @@ FOR EACH w-oe-rell USE-INDEX idx,
     v-rel-qty = 0.
   END.  /* last-of(w-oe-rell.po-no) */
 END. /* for each w-oe-rell */
+END.
 
 
 IF v-printline > 44 THEN DO:

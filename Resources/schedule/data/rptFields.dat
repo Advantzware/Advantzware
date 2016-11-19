@@ -40,6 +40,7 @@
 "" "Resource" "resource" "XXXXXXXX" no ""
 "" "Resource Description" "resourceDescription" "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" no ""
 "" "ResSeq" "resourceSequence" "zz9" no ""
+"" "Routing" "routing" "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" no ""
 "" "Skip Line" "skipLine" "<------->" no ""
 "" "Start Date" "startDate" "99.99.9999" no ""
 "" "Status" "status" "XXXXXXXXXXXXXXXXXXXX" no ""

@@ -1124,6 +1124,10 @@ IF rd-dest:SCREEN-VALUE = '1' then do:
 
   IF v-ftp-done THEN MESSAGE "File Export/FTP is completed." VIEW-AS ALERT-BOX INFORMATION.
   OS-DELETE VALUE(init-dir + "\Invoice.pdf").
+  RELEASE inv-head .
+  RELEASE inv-line .
+  RELEASE inv-misc .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

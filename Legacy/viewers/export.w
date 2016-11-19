@@ -64,7 +64,7 @@ DEFINE BUTTON btnExcel
      IMAGE-UP FILE "Graphics/32x32/file_excel.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Excel" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Phone Info.".
+     SIZE 7.8 BY 1.81 TOOLTIP "Excel Export".
 
 
 /* ************************  Frame Definitions  *********************** */

@@ -57,6 +57,9 @@ DEF VAR bol-no AS INT NO-UNDO.
 DEF VAR bol-ship AS CHAR NO-UNDO.
 DEF VAR vend-name AS CHAR NO-UNDO.
 DEF VAR vend-no AS CHAR NO-UNDO.
+DEFINE VARIABLE iBinQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE iBinQtyBef AS INTEGER NO-UNDO.
+DEFINE VARIABLE iBinQtyAft AS INTEGER NO-UNDO.
 
 RUN methods/prgsecur.p
     (INPUT "FGHstUpd",
@@ -168,7 +171,8 @@ fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case ~
 get-pallet-info (output li-qty-pal) @ li-pallets fg-rdtlh.stacks-unit ~
 fg-rdtlh.partial li-qty-pal @ li-qty-pal fg-rdtlh.stack-code ~
 fg-rdtlh.tot-wt reftable.code fg-rdtlh.user-id fg-rcpth.b-no ~
-fg-rcpth.pur-uom display-ship() @ bol-ship fg-rcpth.post-date get-vend-no() @ vend-no get-vend-info() @ vend-name
+fg-rcpth.pur-uom display-ship() @ bol-ship fg-rcpth.post-date get-vend-no() @ vend-no get-vend-info() @ vend-name ~
+get-fg-qty(1) @ iBinQtyBef  get-fg-qty(2) @ iBinQty 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table fg-rcpth.i-no ~
 fg-rcpth.po-no fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.trans-date ~
 fg-rcpth.rita-code fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin ~
@@ -253,6 +257,14 @@ FUNCTION get-vend-info RETURNS CHAR
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-vend-no B-table-Win 
 FUNCTION get-vend-no RETURNS CHAR
   ( /* parameter-definitions */ ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-fg-qty B-table-Win 
+FUNCTION get-fg-qty RETURNS INT
+  ( /* parameter-definitions */ INPUT ip-int AS INT  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -437,7 +449,9 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       get-vend-no() @ vend-no COLUMN-LABEL "Vendor" FORMAT "x(8)":U
       get-vend-info() @ vend-name COLUMN-LABEL "Name" FORMAT "x(25)":U
-     
+      get-fg-qty(1) @ iBinQtyBef  COLUMN-LABEL "Before Qty" FORMAT "->>>>>>9":U
+      get-fg-qty(2) @ iBinQty  COLUMN-LABEL "Bin Change" FORMAT "->>>>>>9":U
+      
   ENABLE
       fg-rcpth.i-no
       fg-rcpth.po-no
@@ -656,10 +670,14 @@ reftable.loc      EQ STRING(fg-rcpth.r-no,""9999999999"")"
 "display-ship() @ bol-ship" "BOL Cust" "character" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   > ASI.fg-rcpth.post-date
 "fg-rcpth.post-date" "Posted" ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-   _FldNameList[30]   > "_<CALC>"
+   _FldNameList[29]   > "_<CALC>"
 "get-vend-no () @ vend-no" "Vendor" "Character" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
     _FldNameList[30]   > "_<CALC>"
 "get-vend-info () @ vend-name" "Name" "Character" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[31]   > "_<CALC>"
+"get-fg-qty (1) @ iBinQtyBef" "Before Qty" "->>>>>>9" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[32]   > "_<CALC>"
+"get-fg-qty (2) @ iBinQty" "Bin Change" "->>>>>>9" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -2375,6 +2393,67 @@ IF AVAIL po-ord THEN
     RETURN STRING(po-ord.vend-no) .
 ELSE
     RETURN "" .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-fg-qty B-table-Win 
+FUNCTION get-fg-qty RETURNS INT
+  ( /* parameter-definitions */ INPUT ip-int AS INT ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE iReturnVal AS INTEGER NO-UNDO.
+DEFINE VARIABLE iBinQtyb AS INTEGER NO-UNDO.
+DEFINE VARIABLE iBinQtya AS INTEGER NO-UNDO.
+DEFINE VARIABLE iBinQtydeff AS INTEGER NO-UNDO.
+DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth .
+DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh .
+
+  iBinQtyb = 0 .  
+
+ IF fg-rcpth.rita-code = "C" THEN DO:
+  FOR EACH bf-fg-rcpth NO-LOCK
+      WHERE bf-fg-rcpth.company EQ cocode 
+        AND bf-fg-rcpth.i-no EQ fg-rcpth.i-no
+        AND bf-fg-rcpth.job-no EQ fg-rcpth.job-no
+        AND bf-fg-rcpth.job-no2 EQ fg-rcpth.job-no2
+        AND bf-fg-rcpth.po-no EQ fg-rcpth.po-no
+        AND bf-fg-rcpth.rita-code NE "C" ,
+       EACH bf-fg-rdtlh NO-LOCK WHERE
+            bf-fg-rdtlh.r-no EQ bf-fg-rcpth.r-no
+        AND bf-fg-rdtlh.loc EQ fg-rdtlh.loc
+        AND bf-fg-rdtlh.loc-bin EQ fg-rdtlh.loc-bin
+        AND bf-fg-rdtlh.tag EQ fg-rdtlh.tag
+        AND bf-fg-rdtlh.cust-no EQ fg-rdtlh.cust-no 
+        AND bf-fg-rdtlh.bol-no EQ fg-rdtlh.bol-no
+        AND bf-fg-rdtlh.inv-no EQ fg-rdtlh.inv-no BY fg-rcpth.trans-date DESC :
+      iBinQtyb = iBinQtyb +  bf-fg-rdtlh.qty  .
+      LEAVE .
+  END.
+     
+  ASSIGN iBinQtya = fg-rdtlh.qty  
+      iBinQtydeff = iBinQtya - iBinQtyb .
+
+  IF ip-int = 1 THEN
+       iReturnVal = iBinQtyb .
+  ELSE 
+       iReturnVal = iBinQtydeff.
+
+ END. /* fg-rcpth.rita-code = "C" */
+ ELSE DO:
+     IF ip-int = 1 THEN
+       iReturnVal = 0 .
+   ELSE 
+       iReturnVal = fg-rdtlh.qty .
+
+ END.
+
+ RETURN iReturnVal .
 
 END FUNCTION.
 

@@ -38,7 +38,7 @@ DEFINE INPUT PARAMETER ipcParamStr AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
-{aoa/aoaParamDefs.i}
+{aoa/includes/aoaParamDefs.i}
 
 DEFINE VARIABLE hParamFrame      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hAppSrv          AS HANDLE    NO-UNDO.
@@ -52,6 +52,7 @@ DEFINE VARIABLE cPrtPort         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRowType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE idx              AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lShowBatchObjs   AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE lSecure          AS LOGICAL   NO-UNDO.
 
 DEFINE TEMP-TABLE ttUserPrint NO-UNDO LIKE user-print
     FIELD UserPrintRowID AS ROWID.
@@ -64,9 +65,8 @@ DEFINE TEMP-TABLE ttParamValue NO-UNDO
         INDEX paramOrder IS PRIMARY paramOrder
     .
 
-RUN aoaAppSrv\aoaBin.p PERSISTENT SET hAppSrv.
+RUN aoa\appServer\aoaBin.p PERSISTENT SET hAppSrv.
 SESSION:ADD-SUPER-PROCEDURE (hAppSrv).
-RUN VALUE("aoaAppSrv/" + ENTRY(1,aoaParam,"/") + ".p") PERSISTENT SET hAppSrv.
 
 DEFINE BUFFER bUserPrint FOR user-print.
 
@@ -157,6 +157,13 @@ FUNCTION fGetCompany RETURNS CHARACTER FORWARD.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetLocation W-Win 
 FUNCTION fGetLocation RETURNS CHARACTER FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetModule W-Win 
+FUNCTION fGetModule RETURNS CHARACTER
+  ( ipProgramID AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -853,7 +860,7 @@ END.
 ON CHOOSE OF btnView IN FRAME paramFrame /* View */
 DO:
     RUN pSaveParamValues (NO, BUFFER user-print).
-    {aoa/aoaURL.i}
+    {aoa/includes/aoaURL.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1013,6 +1020,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " " + aoaType + " - " + aoaTitle.
+RUN VALUE("aoa/appServer/aoa" + fGetModule(aoaProgramID) + ".p") PERSISTENT SET hAppSrv.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -1171,6 +1179,13 @@ PROCEDURE local-enable :
       HIDE {&columnObjects}.
   END.
 
+  IF aoaExcelOnly THEN
+  ASSIGN
+      btnScheduler:HIDDEN = YES
+      btnShowBatch:HIDDEN = YES
+      btnView:HIDDEN      = YES
+      .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1239,7 +1254,7 @@ PROCEDURE pExcel :
         IF NOT VALID-HANDLE(hTable) THEN RETURN.
         
         ASSIGN
-            cExcelFile = "aoaExcel\.keep"
+            cExcelFile = "aoa\excel\.keep"
             FILE-INFO:FILE-NAME = cExcelFile
             cExcelFile = FILE-INFO:FULL-PATHNAME
             cExcelFile = REPLACE(cExcelFile,".keep",aoaTitle + " (")
@@ -1520,19 +1535,20 @@ PROCEDURE pGenerateInclude :
 
     IF NOT CAN-DO("ASI,NoSweat",USERID("NoSweat")) THEN RETURN.
 
-    OUTPUT TO VALUE("aoaAppSrv/includes/p" + REPLACE(aoaTitle," ","") + ".i").
+    OUTPUT TO VALUE("aoa/includes/p" + REPLACE(aoaTitle," ","") + ".i") NO-ECHO.
     PUT UNFORMATTED
         "/* p" REPLACE(aoaTitle," ","") ".i - auto generated "
         STRING(TODAY,"99.99.9999") " @ " STRING(TIME,"hh:mm:ss am")
         " from aoa/aoaParam.w */"
         SKIP(1)
-        "    ~{aoaAppSrv/aoaInputDefParams.i}" SKIP(1)
+        "    ~{aoa/includes/aoaInputDefParams.i}" SKIP(1)
         "    /* parameter values loaded into these variables */" SKIP
         .
     
     fGenerateInclude(hFrame,"DefVar").
     
     PUT UNFORMATTED
+        "    DEFINE VARIABLE lSecure AS LOGICAL NO-UNDO." SKIP
         "    DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO." SKIP
         "    DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO." SKIP(1)
         "    /* locate parameter values record */" SKIP
@@ -1544,26 +1560,27 @@ PROCEDURE pGenerateInclude :
     fGenerateInclude(hFrame,"DynFunc").
 
     PUT UNFORMATTED
+        "        lSecure = DYNAMIC-FUNCTION(~"fGetParamValue~",~"svSecure~") EQ ~"yes~"" SKIP
         "        cAvailableColumns = DYNAMIC-FUNCTION(~"fGetParamValue~",~"svAvailableColumns~")" SKIP
         "        cSelectedColumns = DYNAMIC-FUNCTION(~"fGetParamValue~",~"svSelectedColumns~")" SKIP
         "        ." SKIP(1)
-        "    RUN pGetColumns (TEMP-TABLE tt" REPLACE(aoaTitle," ","") ":HANDLE," SKIP
-        "                     cAvailableColumns," SKIP
-        "                     cSelectedColumns" SKIP
-        "                     )." SKIP(1)
+        "    RUN pGetColumns (TEMP-TABLE tt" REPLACE(aoaTitle," ","") ":HANDLE, "
+        "cAvailableColumns, "
+        "cSelectedColumns"
+        ")." SKIP(1)
         .
 
     fGenerateInclude(hFrame,"svAllGen").
 
     OUTPUT CLOSE.
-    MESSAGE "aoaAppSrv/includes/p" + REPLACE(aoaTitle," ","") + ".i" SKIP(1)
+    MESSAGE "aoa/includes/p" + REPLACE(aoaTitle," ","") + ".i" SKIP(1)
         "View Generated Code?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
         TITLE "Auto Generated"
         UPDATE viewCode AS LOGICAL
         .
     IF viewCode THEN
-    OS-COMMAND NO-WAIT notepad.exe VALUE("aoaAppSrv/includes/p" + REPLACE(aoaTitle," ","") + ".i").
+    OS-COMMAND NO-WAIT notepad.exe VALUE("aoa/includes/p" + REPLACE(aoaTitle," ","") + ".i").
 
 END PROCEDURE.
 
@@ -1780,6 +1797,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPassword W-Win 
+PROCEDURE pPassword :
+/*------------------------------------------------------------------------------
+  Purpose:     prompt password for secured columns
+  Parameters:  <none>
+  Notes:       add additional secure programs/columns to pPassword.p
+------------------------------------------------------------------------------*/
+    RUN aoa/param/pPassword.p (
+        aoaProgramID,
+        svSelectedColumns:LIST-ITEM-PAIRS IN FRAME frameColumns,
+        OUTPUT lSecure
+        ).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRemoveColumn W-Win 
 PROCEDURE pRemoveColumn :
 /*------------------------------------------------------------------------------
@@ -1815,7 +1850,7 @@ PROCEDURE pSaveParamValues :
   Notes:       
 ------------------------------------------------------------------------------*/
     /* number of reserved parameter fields needed */
-    &SCOPED-DEFINE reserved 12
+    &SCOPED-DEFINE reserved 13
     
     DEFINE INPUT  PARAMETER iplBatch   AS LOGICAL NO-UNDO.
     DEFINE PARAMETER BUFFER user-print FOR user-print.
@@ -1830,6 +1865,8 @@ PROCEDURE pSaveParamValues :
     hFrame = WIDGET-HANDLE(RETURN-VALUE).
 
     IF NOT VALID-HANDLE(hFrame) THEN RETURN.
+
+    RUN pPassword.
 
     DO TRANSACTION:
         IF iplBatch THEN DO:
@@ -1881,6 +1918,10 @@ PROCEDURE pSaveParamValues :
     
         IF idx LE EXTENT(user-print.field-name) - {&reserved} THEN
         ASSIGN
+            idx = idx + 1
+            user-print.field-name[idx]  = "svSecure"
+            user-print.field-label[idx] = "Secure"
+            user-print.field-value[idx] = STRING(lSecure)
             idx = idx + 1
             user-print.field-name[idx]  = "svTitle"
             user-print.field-label[idx] = "Title"
@@ -1963,8 +2004,6 @@ PROCEDURE pSchedule :
             user-print.last-date    = TODAY
             user-print.last-time    = TIME
             .
-        FIND CURRENT user-print NO-LOCK.
-
         FIND FIRST reftable EXCLUSIVE-LOCK
              WHERE reftable.reftable EQ "aoaReport"
                AND reftable.code     EQ cProgramID
@@ -1980,6 +2019,9 @@ PROCEDURE pSchedule :
         ASSIGN reftable.dscr = aoaID.
     END. /* do transaction */
     RELEASE reftable.
+
+    IF AVAILABLE user-print THEN
+    FIND CURRENT user-print NO-LOCK.
 
     MESSAGE
         "Parameters created for ..." SKIP(1)
@@ -2255,7 +2297,7 @@ FUNCTION fGenerateInclude RETURNS LOGICAL
     DEFINE VARIABLE cPreFix     AS CHARACTER NO-UNDO INITIAL "c,d,dt,i,l".
     DEFINE VARIABLE cTypes      AS CHARACTER NO-UNDO INITIAL "CHARACTER,DECIMAL,DATE,INTEGER,LOGICAL".
     DEFINE VARIABLE cStartList  AS CHARACTER NO-UNDO INITIAL "CHR(32),0,1/1/1950,0".
-    DEFINE VARIABLE cEndList    AS CHARACTER NO-UNDO INITIAL "CHR(255),99999999.99,12/31/2049,99999999".
+    DEFINE VARIABLE cEndList    AS CHARACTER NO-UNDO INITIAL "CHR(254),99999999.99,12/31/2049,99999999".
     DEFINE VARIABLE cStartValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCustList   AS LOGICAL   NO-UNDO.
@@ -2344,7 +2386,13 @@ FUNCTION fGenerateInclude RETURNS LOGICAL
     END. /* do while */
     IF lCustList THEN
     PUT UNFORMATTED
-        "    RUN pBuildCustList (ipcCompany, lCustList, cStartCustNo, cEndCustNo, ~"" aoaCustListForm "~")." SKIP
+        "    IF lCustList THEN" SKIP
+        "    RUN pBuildCustList (ipcCompany, "
+        "~"" aoaCustListForm "~", "
+        "OUTPUT cStartCustNo, "
+        "OUTPUT cEndCustNo, "
+        "OUTPUT lCustList"
+        ")." SKIP
         .
     RETURN TRUE.
 
@@ -2379,117 +2427,42 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetDescription W-Win 
-FUNCTION fSetDescription RETURNS CHARACTER
-  ( ipObject AS HANDLE ) :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetModule W-Win 
+FUNCTION fGetModule RETURNS CHARACTER
+  ( ipProgramID AS CHARACTER ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cRange       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cModule    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cProgramID AS CHARACTER NO-UNDO.
 
-    cRange = REPLACE(ipObject:NAME,"sv","").
+    FILE-INFO:FILE-NAME = "aoa/datFiles/Report.dat".
+    INPUT FROM VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
+    REPEAT:
+        IMPORT cModule ^ cProgramID.
+        IF cProgramID EQ ipProgramID THEN LEAVE.
+        cModule = "XX".
+    END. /* repeat */
+    INPUT CLOSE.
     
-    CASE ipObject:NAME:
-        WHEN "svStartCompany" OR WHEN "svEndCompany" THEN DO:
-            cRange = REPLACE(cRange,"Company","").
-            FIND FIRST company NO-LOCK
-                 WHERE company.company EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE company THEN cDescription = company.name.
-        END.
-        WHEN "svStartCustNo" OR WHEN "svEndCustNo" THEN DO:
-            cRange = REPLACE(cRange,"CustNo","").
-            FIND FIRST cust NO-LOCK
-                 WHERE cust.company EQ aoaCompany
-                   AND cust.cust-no EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE cust THEN cDescription = cust.name.
-        END.
-        WHEN "svStartCurrency" OR WHEN "svEndCurrency" THEN DO:
-            cRange = REPLACE(cRange,"Currency","").
-            FIND FIRST currency NO-LOCK
-                 WHERE currency.company EQ aoaCompany
-                   AND currency.c-code EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE currency THEN cDescription = currency.c-desc.
-        END.
-        WHEN "svStartDept" OR WHEN "svEndDept" THEN DO:
-            cRange = REPLACE(cRange,"Dept","").
-            FIND FIRST dept NO-LOCK
-                 WHERE dept.code EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE dept THEN cDescription = dept.dscr.
-        END.
-        WHEN "svStartItemNo" OR WHEN "svEndItemNo" THEN DO:
-            cRange = REPLACE(cRange,"ItemNo","").
-            FIND FIRST itemfg NO-LOCK
-                 WHERE itemfg.company EQ aoaCompany
-                   AND itemfg.i-no    EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE itemfg THEN cDescription = itemfg.i-dscr.
-        END.
-        WHEN "svStartLoc" OR WHEN "svEndLoc" THEN DO:
-            cRange = REPLACE(cRange,"Loc","").
-            FIND FIRST loc NO-LOCK
-                 WHERE loc.company EQ aoaCompany
-                   AND loc.loc     EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE loc THEN cDescription = loc.dscr.
-        END.
-        WHEN "svStartMachine" OR WHEN "svEndMachine" THEN DO:
-            cRange = REPLACE(cRange,"Machine","").
-            FIND FIRST mach NO-LOCK
-                 WHERE mach.company EQ aoaCompany
-                   AND mach.m-code  EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE mach THEN cDescription = mach.m-dscr.
-        END.
-        WHEN "svStartProdCategory" OR WHEN "svEndProdCategory" THEN DO:
-            cRange = REPLACE(cRange,"ProdCategory","").
-            FIND FIRST procat NO-LOCK
-                 WHERE procat.company EQ aoaCompany
-                   AND procat.procat  EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE procat THEN cDescription = procat.dscr.
-        END.
-        WHEN "svStartSalesRep" OR WHEN "svEndSalesRep" THEN DO:
-            cRange = REPLACE(cRange,"SalesRep","").
-            FIND FIRST sman NO-LOCK
-                 WHERE sman.company EQ aoaCompany
-                   AND sman.sman EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE sman THEN cDescription = sman.sname.
-        END.
-        WHEN "svStartShift" OR WHEN "svEndShift" THEN DO:
-            cRange = REPLACE(cRange,"Shift","").
-            FIND FIRST shift NO-LOCK
-                 WHERE shift.company EQ aoaCompany
-                   AND shift.shift   EQ INTEGER(ipObject:SCREEN-VALUE)
-                 NO-ERROR.
-            IF AVAILABLE shift THEN cDescription = shift.descr.
-        END.
-        WHEN "svStartTerms" OR WHEN "svEndTerms" THEN DO:
-            cRange = REPLACE(cRange,"Terms","").
-            FIND FIRST terms NO-LOCK
-                 WHERE terms.company EQ aoaCompany
-                   AND terms.t-code EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE terms THEN cDescription = terms.dscr.
-        END.
-        WHEN "svStartUserID" OR WHEN "svEndUserID" THEN DO:
-            cRange = REPLACE(cRange,"UserID","").
-            FIND FIRST users NO-LOCK
-                 WHERE cust.company EQ aoaCompany
-                   AND users.user_id EQ ipObject:SCREEN-VALUE
-                 NO-ERROR.
-            IF AVAILABLE users THEN cDescription = users.user_name.
-        END.
-    END CASE.
+    RETURN cModule.
 
-    IF cDescription EQ "" THEN
-    cDescription = "<" + cRange + " Range Value>".
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetDescription W-Win 
+FUNCTION fSetDescription RETURNS CHARACTER
+  ( ipObject AS HANDLE ) :
+/*------------------------------------------------------------------------------
+  Purpose:  return descriptions for entered parameter values
+    Notes:  add additional parameter fields to fSetDescription.p
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    
+    RUN aoa/param/fSetDescription.p (ipObject:HANDLE, aoaCompany, OUTPUT cDescription).
 
     RETURN cDescription.
 

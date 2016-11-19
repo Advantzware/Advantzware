@@ -1,4 +1,4 @@
-/*------------------------------------------------------------------------
+ /*------------------------------------------------------------------------
 
   File: fg\fgpstallBatch.w
   
@@ -10,6 +10,7 @@
 
 /* ***************************  Definitions  ************************** */
 /* WFK note;  Must determine if v-corr is used anywhere !!!!!!!!!!!!!! */
+/* Skipping d-jclose.w !!! */
 
 /* Batch Input Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
@@ -43,7 +44,11 @@ DEFINE VARIABLE v-postlst     AS cha       NO-UNDO.
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i new shared}
+def  stream sDebug.  
+output stream sDebug to c:\temp\debug.txt.  
 
+if g_loc = "" then   
+g_loc = "main".
 g_sysdate   = TODAY.
 RUN pDefaultAsiValues.
 ASSIGN
@@ -313,7 +318,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         {sys/inc/fgemails.i}
         {sys/inc/postdate.i}
     END.
-    {sys/inc/adjustgl.i}
+    {sys/inc/adjustgl.i}  
+	put stream sdebug "Main" cocode begin_userid end_userid  ip-run-what skip.
     ASSIGN
         v-fgpostgl = fgpostgl
         tb_glnum   = v-fgpostgl NE "None" OR v-adjustgl
@@ -385,7 +391,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 
     END.
-
+    output stream sdebug close.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -791,7 +797,7 @@ PROCEDURE build-tables :
     IF AVAILABLE itemfg /*AND AVAIL loc*/ THEN 
     DO TRANSACTION:
         li-max-qty = fg-rctd.t-qty.
-
+        put stream sdebug "i-no" fg-rctd.i-no "tag" fg-rctd.tag "t-qty " fg-rctd.t-qty  " li-max-qty " li-max-qty skip.
         IF li-max-qty GE fg-rctd.t-qty THEN 
         DO:
             CREATE w-fg-rctd.
@@ -2617,8 +2623,8 @@ PROCEDURE fg-post :
     FIND FIRST w-job NO-ERROR.
     IF AVAILABLE w-job THEN 
     DO:
-        IF fgPostLog THEN RUN fgPostLog ('Start jc/d-jclose.p').
-        RUN jc/d-jclose.w.
+        IF fgPostLog THEN RUN fgPostLog ('Start  jc/d-jclose.p').
+        /* RUN jc/d-jclose.w. */
         IF fgPostLog THEN RUN fgPostLog ('End jc/d-jclose.p').
     END.
 
@@ -3621,14 +3627,14 @@ PROCEDURE print-and-post :
     FOR EACH work-job:
         DELETE work-job.
     END.
-    
+    put stream sdebug "running run-report from print and post" skip. 
     /* Populate Temp-table records */
     RUN run-report.
-
+   
     /*    IF fgpost-cha EQ "Before" OR fgpost-cha EQ "Both" THEN RUN show-report (1).*/
 
     choice = CAN-FIND(FIRST w-fg-rctd WHERE w-fg-rctd.has-rec).
-
+ put stream sdebug "after run-report choice" choice skip. 
     IF choice THEN
         FOR EACH w-fg-rctd
             WHERE w-fg-rctd.has-rec
@@ -3636,7 +3642,7 @@ PROCEDURE print-and-post :
             choice = NO.
             LEAVE.
         END.
-
+ put stream sdebug "after run-report" skip. 
     /* TBD Notify user if not choice at this point? */   
     IF choice THEN 
     DO:
@@ -3675,14 +3681,14 @@ PROCEDURE print-and-post :
             END. /* do trans */
             w-fg-rctd.r-no = fg-rctd.r-no.
         END. /* each w-fg-rctd */
-
+ put stream sdebug "after  choice check1 " choice skip. 
         FOR EACH w-fg-rctd WHERE w-fg-rctd.has-rec,
             FIRST fg-rctd NO-LOCK WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id,
             FIRST fg-rcpth NO-LOCK WHERE fg-rcpth.r-no EQ fg-rctd.r-no:
             choice = NO.
             LEAVE.
         END.
-
+put stream sdebug "after  choice check2 " choice skip. 
         FOR EACH w-fg-rctd WHERE w-fg-rctd.has-rec,
             FIRST fg-rctd NO-LOCK WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id:
 
@@ -3700,7 +3706,7 @@ PROCEDURE print-and-post :
         END. /* Each w-fg-rctd */
 
     END. /* If choice */
-
+put stream sdebug "after  choice check3 " choice skip. 
     IF choice THEN 
     DO: 
     
@@ -4189,7 +4195,10 @@ PROCEDURE run-report PRIVATE :
     /* be included                                                              */
     IF NOT (begin_i-no EQ "" AND end_i-no BEGINS "zzzzzzzzzzz")
         THEN RUN createComponentList.
-
+put stream sdebug unformatted "in run report gcom " gcompany  " vportlist " v-postlst 
+  " begin_r "  begin_fg-r-no " end-r " end_fg-r-no " endino " end_i-no " ldt-to " ldt-to " end job " end_job-no
+  " end whse " end_whs " end user "end_userid
+skip.  
     DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         FOR EACH fg-rctd
             WHERE fg-rctd.company   EQ gcompany
@@ -4208,10 +4217,10 @@ PROCEDURE run-report PRIVATE :
             AND fg-rctd.loc       LE end_whs
             AND ((begin_userid    LE "" AND
             end_userid      GE "") OR
-            (fg-rctd.updated-by GE begin_userid 
-            AND fg-rctd.updated-by LE end_userid))
+            (fg-rctd.created-by GE begin_userid 
+            AND fg-rctd.created-by LE end_userid))
             USE-INDEX rita-code:
-
+put stream sdebug "run buildtab "  skip.
             RUN build-tables.
         END.
     END.

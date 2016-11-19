@@ -1336,21 +1336,31 @@ DO:
 
     EMPTY TEMP-TABLE tt-job-mat.
 
-    FOR EACH op
-        WHERE op.m-code NE ""
-          AND NOT CAN-FIND(FIRST job-mch
-                           WHERE job-mch.company   EQ job.company
-                             AND job-mch.m-code    EQ op.m-code
-                             AND job-mch.job       EQ job.job
-                             AND job-mch.job-no    EQ job.job-no
-                             AND job-mch.job-no2   EQ job.job-no2
-                             AND job-mch.frm       EQ op.form-no
-                             AND (job-mch.blank-no EQ op.blank-no OR
-                                  job-mch.blank-no EQ 0)
-                             AND job-mch.pass      EQ op.pass
-                             AND job-mch.dept      EQ op.dept)
-        :
-      RUN sys/inc/numup.p (job.company, job.est-no, op.form-no, OUTPUT v-up).
+    FOR EACH op WHERE op.m-code NE "":
+        IF CAN-FIND(FIRST job-mch
+                    WHERE job-mch.company   EQ job.company
+                      AND job-mch.m-code    EQ op.m-code
+                      AND job-mch.job       EQ job.job
+                      AND job-mch.job-no    EQ job.job-no
+                      AND job-mch.job-no2   EQ job.job-no2
+                      AND job-mch.frm       EQ op.form-no
+                      AND (job-mch.blank-no EQ op.blank-no OR
+                           job-mch.blank-no EQ 0)
+                      AND job-mch.pass      EQ op.pass
+                      AND job-mch.dept      EQ op.dept)
+        OR CAN-FIND(FIRST job-mch
+                    WHERE job-mch.company   EQ job.company
+                      AND job-mch.job       EQ job.job
+                      AND job-mch.job-no    EQ job.job-no
+                      AND job-mch.job-no2   EQ job.job-no2
+                      AND job-mch.frm       EQ op.form-no
+                      AND (job-mch.blank-no EQ op.blank-no OR
+                           job-mch.blank-no EQ 0)
+                      AND job-mch.pass      EQ op.pass
+                      AND job-mch.dept      EQ op.dept
+                      AND job-mch.spare-char-1 EQ op.m-code) THEN
+        NEXT.
+      RUN  sys/inc/numup.p (job.company, job.est-no, op.form-no, OUTPUT v-up).
       v-out = 1.
       FIND FIRST ef WHERE ef.company EQ job.company
                       AND ef.est-no  EQ job.est-no
@@ -1432,7 +1442,7 @@ DO:
        job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
                             (v-up * v-out / v-on-f).
       
-       FIND FIRST tt-job-mch
+      FIND FIRST tt-job-mch
           WHERE tt-job-mch.company  EQ job-mch.company
             AND tt-job-mch.m-code   EQ job-mch.m-code
             AND tt-job-mch.job      EQ job-mch.job
