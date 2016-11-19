@@ -32,7 +32,6 @@ DEF INPUT-OUTPUT PARAM io-m-code LIKE mach.m-code NO-UNDO.
 DEF OUTPUT PARAM op-CodeOrName AS cha NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-
 /*{custom/globdefs.i} */
 {methods/prgsecur.i}
 {sys/inc/var.i NEW SHARED}
@@ -231,7 +230,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
-   DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
   DO WITH FRAME {&FRAME-NAME}:
     RUN valid-m-code NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -240,7 +238,7 @@ DO:
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     ASSIGN {&displayed-objects}.
-    
+     
     ASSIGN
      op-code    = fi_code
      op-max-yld = tb_max-yld
@@ -249,7 +247,6 @@ DO:
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
   END.
- 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -260,11 +257,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_code Dialog-Frame
 ON LEAVE OF fi_code IN FRAME Dialog-Frame /* Select RM Item Name starting with */
 DO:
-    DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
   IF LASTKEY NE -1 THEN DO:
     RUN valid-code NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
   END.
 END.
 
@@ -290,7 +285,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   begin_mach = io-m-code.
-  
+
   RUN enable_UI.
 
   DO WITH FRAME {&FRAME-NAME}:
