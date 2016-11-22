@@ -1045,7 +1045,7 @@ format
 /*        item.loc         column-label "WHSE"  */
 /*                         format "X(5)"        */
        item.i-no        column-label "ITEM"
-       item.i-name      column-label "DESCRIPTION"
+       item.i-dscr      column-label "DESCRIPTION"
                         format "x(20)"
        item.procat      column-label "PROD!CAT"
        item.cons-uom    column-label "UOM"
@@ -1063,9 +1063,11 @@ format
                         format "->>>>>>9.999"
        v-value          column-label "VALUE"
                         format "->>>>>>9.99"
+      item.i-name      column-label "Item Name"
+                        format "x(20)"
        skip
        
-    with frame itemx no-box down stream-io width 132.
+    with frame itemx no-box down stream-io width 164.
 
 
 /* find first rm-ctrl no-lock no-error.  */
@@ -1097,7 +1099,7 @@ IF tb_excel THEN DO:
           OUTPUT STREAM excel TO VALUE(fi_file).
           excelheader = "Item,Description,Prod Category,UOM,Cost," +
                         "On Hand,On Order,Quantity Allocated,Reorder Level," +
-                        "Quantity Available, Value".
+                        "Quantity Available, Value,Item Name".
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
 END. 
 
@@ -1154,7 +1156,7 @@ FOR EACH ITEM NO-LOCK
         
           display /* item.loc        when (item.loc ne v-fst-loc)*/
                 item.i-no
-                item.i-name
+                item.i-dscr
                 item.procat
                 item.cons-uom
 /*                 item.avg-cost   when v-avgcost                               */
@@ -1170,6 +1172,7 @@ FOR EACH ITEM NO-LOCK
 /*                (lv-q-onh - item.q-comm)  WHEN inc = NO AND item.i-code ne "E" @ ITEM.q-avail  */
                 v-qty-avail     /*WHEN item.i-code ne "E"*/ @ ITEM.q-avail
                 v-value         /*when item.i-code ne "E"*/
+                item.i-name
                 
             with frame itemx.
         down with frame itemx.
@@ -1181,7 +1184,7 @@ FOR EACH ITEM NO-LOCK
           PUT STREAM excel UNFORMATTED
 /*               '"' item.loc '",' */
               '"' REPLACE(item.i-no,'"'," ") '",'
-              '"' REPLACE(item.i-name,'"'," ") '",'
+              '"' REPLACE(item.i-dscr,'"'," ") '",'
               '"' item.procat '",'
               '"' item.cons-uom '",' 
 /*               '"' (IF v-avgcost    THEN   item.avg-cost ELSE item.last-cost) '",' */
@@ -1194,7 +1197,8 @@ FOR EACH ITEM NO-LOCK
 /*               '"' (IF item.i-code ne "E" THEN v-value ELSE 0) '",' SKIP.  */
             '"' ( /*IF item.i-code ne "E" THEN*/ v-qty-avail ) '",'
 /*             '"' (IF item.i-code ne "E" THEN (lv-q-onh * lv-cost) ELSE 0) '",' SKIP. */
-             '"' ( /*IF item.i-code ne "E" THEN*/ v-value ) '",' SKIP. 
+             '"' ( /*IF item.i-code ne "E" THEN*/ v-value ) '",'
+             '"' REPLACE(item.i-name,'"'," ") '",' SKIP.
 
 
     /*  END.  if (v-zbal or v-qty ne 0) */
