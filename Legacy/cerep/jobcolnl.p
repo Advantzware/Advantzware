@@ -899,7 +899,9 @@ FOR EACH job-hdr NO-LOCK
                     SKIP
                 WITH STREAM-IO WIDTH 175 NO-LABELS NO-BOX FRAME line-det1.
 
-            v-itm-printed = v-itm-printed + 1.    
+            v-itm-printed = v-itm-printed + 1.   
+            v-spc-no = IF AVAILABLE eb THEN eb.spc-no ELSE "".
+            v-upc-no = IF AVAILABLE eb THEN eb.upc-no ELSE "".
 
               PUT
                  "<P9><B>            Quantity        QC/SPC #        Pharma Code      Style          Carton Size" "</B>" SKIP.  /* Style  Carton Size*/
