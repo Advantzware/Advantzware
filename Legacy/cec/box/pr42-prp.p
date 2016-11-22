@@ -54,8 +54,8 @@ v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty.
 display "TOTAL  DIRECT  MATERIALS "
         dm-tot[5] /
          (tt-blk * (if xest.form-qty eq 1 or vmclean2 then v-yld else 1) / 1000)
-                  format ">>,>>9.99"   to 69
-        dm-tot[5] format ">>>>,>>9.99" to 80
+                  format ">>>,>>9.99"   to 70
+        dm-tot[5] format ">>>,>>9.99" to 80
         skip(1)
         with frame ac5 no-labels no-box stream-io.
 
@@ -185,8 +185,8 @@ for each est-prep where est-prep.company = xest.company
               est-prep.mkup format ">>9" to 44 space(0) "%"
               est-prep.amtz to 50 format ">>9" space(0) "%"
               est-prep.simon format "X" to 58
-              prep-tot / (qty / 1000) to 69
-              prep-tot to 80 format ">>>,>>9.99" skip with stream-io.
+              prep-tot / (qty / 1000) to 71
+              prep-tot to 80 format ">>>>>9.99" skip with stream-io.
    end.
 end.
 
