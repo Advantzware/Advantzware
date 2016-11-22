@@ -231,7 +231,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        lv-fg# = IF AVAILABLE(est) AND est.est-type EQ 6 
                                   AND AVAIL bf-eb THEN bf-eb.stock-no
                 ELSE IF AVAIL eb THEN eb.stock-no
-                ELSE xqitm.part-no.
+                ELSE xqitm.i-no.
 
       /* rdb 01/31/07 12060608
        PUT "FG#: " + lv-fg# AT 8 FORM "x(21)"
