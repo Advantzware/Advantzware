@@ -97,7 +97,7 @@ DEFINE FRAME DEFAULT-FRAME
      file_format AT ROW 4.24 COL 16.6 COLON-ALIGNED WIDGET-ID 2
      btnOk AT ROW 6.33 COL 17
      BtnCancel AT ROW 6.33 COL 32
-     scr-text AT ROW 1.62 COL 3.2 COLON-ALIGNED NO-LABEL
+     scr-text AT ROW 8.0 COL 3.2 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -204,7 +204,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOk C-Win
 ON CHOOSE OF btnOk IN FRAME DEFAULT-FRAME /* OK */
 DO:
-DEFINE VARIABLE cDir  AS CHARACTER NO-UNDO INITIAL 'C:/temp/'.
+DEFINE VARIABLE cDir  AS CHARACTER NO-UNDO INITIAL 'c:\tmp\'.
 DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE lCheck AS LOGICAL NO-UNDO.
 
@@ -213,11 +213,9 @@ FIND FIRST users WHERE
      users.user_id EQ USERID("NOSWEAT")
      NO-LOCK NO-ERROR.
 
-  IF AVAIL users AND users.user_program[2] NE "" THEN
-      cDir = users.user_program[2] + "\".
-  ELSE
-      cDir = "c:\tmp\".
+   cDir =  SESSION:TEMP-DIRECTORY .
 
+  
    DO WITH FRAME {&FRAME-NAME}:
 
       ASSIGN del_date file_format .
@@ -300,6 +298,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         
        del_date:SCREEN-VALUE = STRING(TODAY). 
        del_date = TODAY .
+       
+      scr-text:SCREEN-VALUE = "Temp Directory - " + SESSION:TEMP-DIRECTORY .
+      ASSIGN scr-text .
+        
     END.
     RUN enable_UI.
 
