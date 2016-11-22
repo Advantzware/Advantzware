@@ -77,17 +77,17 @@ DEFINE VARIABLE lv-fistdt AS   CHARACTER   NO-UNDO.
 
 ASSIGN cTextListToSelect = "Whse,Item,Description,Bin,Tag,Rolls," +
                            "Rct Date,Quantity,Unit Cost,Cost Value,MSF,Tons,Cost/MSF,Vendor Tag,Vendor Po#,Cert/Lot/Mill#,Vendor,Last Recd,Caliper," +
-                           "Wt/Msf,PO GL Account"
+                           "Wt/Msf,PO GL Account,Item Name"
        cFieldListToSelect = "tt-rm-bin.loc,tt-rm-bin.i-no,v-itemname,loc-bin,tag,rolls," +
                             "trans-date,qty,v-cost,v-total,v-msf,v-tons,v-costMSF,cVendTag,cVendPo,crtlot,cVendCode,cLstRcd,cali," +
-                            "wt-msf,po-gl-act"
-       cFieldLength = "5,10,30,8,22,5," + "8,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25"
-       cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c"
+                            "wt-msf,po-gl-act,cItemName"
+       cFieldLength = "5,10,30,8,22,5," + "8,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30"
+       cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c"
        .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Whse,Item,Description,Bin,Tag," +
-                           "Rct Date,Quantity,Unit Cost,Cost Value" .
+                           "Rct Date,Quantity,Unit Cost,Cost Value,Item Name" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2007,7 +2007,7 @@ SESSION:SET-WAIT-STATE ("general").
        ELSE DO:            
           CASE cTmpField: 
                 WHEN "rolls" THEN cVarValue = "" .
-                WHEN "v-itemname" THEN cVarValue = item.i-name.
+                WHEN "v-itemname" THEN cVarValue = item.i-dscr.
                 WHEN "v-cost" THEN cvarValue = STRING(v-cost,">>>,>>9.99<<<<").
                 WHEN "v-total" THEN cVarValue = STRING(tt-rm-bin.qty * v-cost,"->,>>>,>>9.99").
                 WHEN "v-MSF" THEN cVarValue = STRING(v-MSF,"->>>,>>9.99").
@@ -2025,6 +2025,7 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "cali" THEN cVarValue = STRING(ITEM.cal,"9.99999"). 
                 WHEN "wt-msf" THEN cVarValue = STRING(item.basis-w,">>9.99").
                 WHEN "po-gl-act" THEN cVarValue = STRING(vpo-gl-act) .
+                WHEN "cItemName" THEN cVarValue = ITEM.i-name .
           END CASE.
           cExcelVarValue = cVarValue.  
           cDisplay = cDisplay + cVarValue +
@@ -2057,7 +2058,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "tt-rm-bin.loc" THEN cVarValue =  "" . 
                  WHEN "tt-rm-bin.i-no" THEN cVarValue =  "" .
                  WHEN "tt-rm-bin.tag" THEN cVarValue =  "" .
-                 WHEN "v-itemname" THEN cVarValue =  ITEM.i-name .
+                 WHEN "v-itemname" THEN cVarValue =  ITEM.i-dscr .
                  WHEN "v-cost" THEN cvarValue = "".
                  WHEN "v-total" THEN cVarValue = STRING(v-cum-price,"->,>>>,>>9.99").
                  WHEN "v-MSF" THEN cVarValue = STRING(v-cum-MSF,"->>>,>>9.99").
@@ -2075,6 +2076,8 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "cali" THEN cVarValue = "".
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
+                 WHEN "cItemName" THEN cVarValue = ITEM.i-name .
+                     
            END CASE.
 
            cExcelVarValue = cVarValue.  
@@ -2126,6 +2129,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "cali" THEN cVarValue = "".
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
+                 WHEN "cItemName" THEN cVarValue = "" .
            END CASE.
            cExcelVarValue = cVarValue.  
            cDisplay = cDisplay + cVarValue +
@@ -2196,6 +2200,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "cali" THEN cVarValue = "".
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
+                 WHEN "cItemName" THEN cVarValue = "" .
            END CASE.
            cExcelVarValue = cVarValue.  
            cDisplay = cDisplay + cVarValue +
@@ -2247,6 +2252,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "cali" THEN cVarValue = "".
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
+                 WHEN "cItemName" THEN cVarValue = "" .
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2317,6 +2323,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "cali" THEN cVarValue = "".    
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
+                 WHEN "cItemName" THEN cVarValue = "" .
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2370,6 +2377,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "cali" THEN cVarValue = "".
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
+                 WHEN "cItemName" THEN cVarValue = "" .
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2730,7 +2738,7 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
        ELSE DO:            
           CASE cTmpField:  
               WHEN "rolls" THEN cVarValue =  "" .
-                WHEN "v-itemname" THEN cVarValue = ITEM.i-name.
+                WHEN "v-itemname" THEN cVarValue = ITEM.i-dscr.
                 WHEN "v-cost" THEN cvarValue = "".
                 WHEN "v-total" THEN cVarValue = STRING(v-cum-price2,"->,>>>,>>9.99").
                 WHEN "v-MSF" THEN cVarValue = STRING(v-cum-MSF,"->>>,>>9.99").   
@@ -2748,6 +2756,7 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
                 WHEN "cali" THEN cVarValue = "".
                 WHEN "wt-msf" THEN cVarValue = "".
                 WHEN "po-gl-act" THEN cVarValue = STRING(vpo-gl-act) .
+                WHEN "cItemName" THEN cVarValue = ITEM.i-name .
           END CASE.
           cExcelVarValue = cVarValue.  
           cDisplay = cDisplay + cVarValue +
@@ -2860,6 +2869,7 @@ END.
                  WHEN "cali" THEN cVarValue = "".
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
+                 WHEN "cItemName" THEN cVarValue = "" .
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2952,6 +2962,7 @@ END.
                  WHEN "cali" THEN cVarValue = "".
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
+                 WHEN "cItemName" THEN cVarValue = "" .
            END CASE.
         
            cExcelVarValue = cVarValue.  

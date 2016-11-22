@@ -1203,7 +1203,7 @@ ASSIGN
 IF tb_excel THEN DO:
 
     excelheader = "Whse,Item,Description,Bin,Tag,Rct Date," +
-                  "Quantity,Unit Cost,Total Cost Value".
+                  "Quantity,Unit Cost,Total Cost Value,Item Name".
 
     OUTPUT STREAM excel TO VALUE(fi_file).
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1320,7 +1320,7 @@ SESSION:SET-WAIT-STATE ("general").
             tt-rm-bin.i-no         WHEN FIRST-OF(tt-rm-bin.i-no)
                                      OR v-prnt-line EQ 0
                                    LABEL "Item"
-            ITEM.i-name            WHEN FIRST-OF(tt-rm-bin.i-no)
+            ITEM.i-dscr            WHEN FIRST-OF(tt-rm-bin.i-no)
                                      OR v-prnt-line EQ 0
                                    FORMAT "x(30)"
                                    LABEL "Description"
@@ -1333,9 +1333,13 @@ SESSION:SET-WAIT-STATE ("general").
             v-cost                 FORMAT ">,>>>,>>9.99<<<<"
                                    LABEL "Unit Cost"
             tt-rm-bin.qty * v-cost FORMAT  "->,>>>,>>9.99"
-                                   COLUMN-LABEL "Total!Cost Value"     SKIP 
+                                   COLUMN-LABEL "Total!Cost Value"
+            ITEM.i-name            WHEN FIRST-OF(tt-rm-bin.i-no)
+                                     OR v-prnt-line EQ 0
+                                   FORMAT "x(30)"
+                                   LABEL "Item Name"  SKIP 
 
-         WITH FRAME itemx NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 132.
+         WITH FRAME itemx NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 164.
 
     IF tb_excel THEN DO:
      
@@ -1345,9 +1349,9 @@ SESSION:SET-WAIT-STATE ("general").
           chrTotCostVal = STRING(tt-rm-bin.qty * v-cost, "->>>>>9.99").
         
         EXPORT STREAM excel DELIMITER ","
-          tt-rm-bin.loc tt-rm-bin.i-no ITEM.i-name tt-rm-bin.loc-bin
+          tt-rm-bin.loc tt-rm-bin.i-no ITEM.i-dscr tt-rm-bin.loc-bin
           chrRmBinTag tt-rm-bin.trans-date tt-rm-bin.qty v-cost 
-          chrTotCostVal.
+          chrTotCostVal ITEM.i-name.
     
     END.
 
