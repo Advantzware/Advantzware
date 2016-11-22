@@ -1002,6 +1002,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                tb_score-types.
     END.
 
+    IF v-print-fmt EQ "CSC" THEN
+       ASSIGN
+          tb_score-types:SCREEN-VALUE = STRING(tb_score-types)
+          tb_score-types:SENSITIVE = YES.
+
+
     IF v-print-fmt EQ "CentBox" THEN
        ASSIGN
           tb_itemDescription:LABEL = "Print P.O. Description Lines"
