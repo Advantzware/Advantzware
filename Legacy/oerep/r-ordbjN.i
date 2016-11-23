@@ -257,12 +257,13 @@
       END. /* each job */
 
       shipped-qty = order-qty - wip-qty.
-      on-hand-qty = produced-qty - shipped-qty.
-      tt-report.qty-to-prod = order-qty
+      on-hand-qty = get-bal(li-qoh)  /*produced-qty - shipped-qty*/ .
+
+      tt-report.qty-to-prod = get-wip() /*order-qty
          - on-hand-qty
          - open-job-qty
-         - shipped-qty.
-
+         - shipped-qty */ .
+     
      /* display /*tt-report.key-04 WHEN NOT first-of(tt-report.row-id) @ v-ord-no*/
               v-field1   
               v-dat                 when v-dat ne ?
