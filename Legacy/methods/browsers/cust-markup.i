@@ -1,9 +1,8 @@
 /* cust-markup.i
-"ASI" "cust-markup"
+"asi" "cust-markup"
 "cust-no" "Customer" ""
-"custype" "Type" ""
-"i-no" "Item No" ""
 "procat" "Category" ""
+"style" "Style Code" ""
 "" "" ""
 "" "" ""
 "" "" ""
@@ -13,28 +12,28 @@
 "" "" ""
 "" "" ""
 "" "" ""
-"yes" "yes" "no"
-"yes"
+"" "" ""
+"yes" "no" "no"
+"no"
 */
 
-&Global-define FLDNAME1 cust-markup.style
-&Global-define FORMAT-1 X(6)
-&Global-define SORTBY-1 BY {&FLDNAME1}
+&Global-define FLDNAME1 cust-markup.cust-no
+&Global-define FORMAT-1 X(8)
+&Global-define SORTBY-1 
 &Global-define IDXNAME1 
-&Global-define DESCRIP1 Style
+&Global-define DESCRIP1 Customer
 &Global-define FLDNAME2 cust-markup.procat
 &Global-define FORMAT-2 X(5)
-&Global-define SORTBY-2 BY {&FLDNAME2} {&SORTBY-1}
+&Global-define SORTBY-2 
 &Global-define IDXNAME2 
 &Global-define DESCRIP2 Category
-&Global-define FLDNAME3
-&Global-define FORMAT-3
-&Global-define SORTBY-3
-&Global-define IDXNAME3
-&Global-define DESCRIP3
-&Global-define FLDNAME4
-&Global-define FORMAT-4
-&Global-define SORTBY-4
+&Global-define FLDNAME3 cust-markup.style
+&Global-define FORMAT-3 X(6)
+&Global-define SORTBY-3 
+&Global-define IDXNAME3 
+&Global-define DESCRIP3 Style Code
+&Global-define FLDNAME4 
+&Global-define SORTBY-4 
 &Global-define IDXNAME4 
 &Global-define DESCRIP4 
 &Global-define FLDNAME5 
