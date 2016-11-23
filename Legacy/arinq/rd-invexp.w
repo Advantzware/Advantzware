@@ -119,11 +119,12 @@ ASSIGN cTextListToSelect  = "Invoice#,Bol#,Customer,Cust Name,Inv Date,GL Accoun
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 RECT-9 begin_inv-no end_inv-no ~
 begin_cust-no end_cust-no begin_i-no end_i-no begin_bol-no end_bol-no ~
-begin_po-no end_po-no sl_avail sl_selected Btn_Add Btn_Remove btn_Up ~
-btn_down tb_runExcel fi_file btn-ok btn-cancel 
+begin_po-no end_po-no begin_date end_date sl_avail sl_selected Btn_Add ~
+Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_inv-no end_inv-no begin_cust-no ~
 end_cust-no begin_i-no end_i-no begin_bol-no end_bol-no begin_po-no ~
-end_po-no sl_avail sl_selected tb_excel tb_runExcel fi_file 
+end_po-no begin_date end_date sl_avail sl_selected tb_excel tb_runExcel ~
+fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -195,8 +196,13 @@ DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999" 
+     LABEL "From Invoice Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)" 
-     LABEL "From Fgitem" 
+     LABEL "From FG Item #" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -220,8 +226,13 @@ DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999" 
+     LABEL "To Invoice Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
-     LABEL "To Customer Type" 
+     LABEL "To FG Item#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -243,15 +254,15 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-invcom.c
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 7.14.
+     SIZE 101 BY 7.81.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 3.67.
+     SIZE 101 BY 3.19.
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 7.62.
+     SIZE 101 BY 7.48.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -277,49 +288,53 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     begin_inv-no AT ROW 2.43 COL 27.8 COLON-ALIGNED HELP
+     begin_inv-no AT ROW 2.19 COL 27.8 COLON-ALIGNED HELP
           "Enter Beginning Date" WIDGET-ID 108
-     end_inv-no AT ROW 2.43 COL 70.8 COLON-ALIGNED HELP
+     end_inv-no AT ROW 2.19 COL 70.8 COLON-ALIGNED HELP
           "Enter Ending Date" WIDGET-ID 110
-     begin_cust-no AT ROW 3.52 COL 27.8 COLON-ALIGNED HELP
+     begin_cust-no AT ROW 3.29 COL 27.8 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 6
-     end_cust-no AT ROW 3.52 COL 70.8 COLON-ALIGNED HELP
+     end_cust-no AT ROW 3.29 COL 70.8 COLON-ALIGNED HELP
           "Enter Ending Customer Number" WIDGET-ID 16
-     begin_i-no AT ROW 4.57 COL 27.8 COLON-ALIGNED HELP
+     begin_i-no AT ROW 4.33 COL 27.8 COLON-ALIGNED HELP
           "Enter Beginning Type" WIDGET-ID 104
-     end_i-no AT ROW 4.57 COL 70.8 COLON-ALIGNED HELP
+     end_i-no AT ROW 4.33 COL 70.8 COLON-ALIGNED HELP
           "Enter Ending Type" WIDGET-ID 106
-     begin_bol-no AT ROW 5.67 COL 27.8 COLON-ALIGNED HELP
+     begin_bol-no AT ROW 5.43 COL 27.8 COLON-ALIGNED HELP
           "Enter Beginning Type" WIDGET-ID 112
-     end_bol-no AT ROW 5.67 COL 70.8 COLON-ALIGNED HELP
+     end_bol-no AT ROW 5.43 COL 70.8 COLON-ALIGNED HELP
           "Enter Ending Type" WIDGET-ID 114
-     begin_po-no AT ROW 6.76 COL 27.8 COLON-ALIGNED HELP
+     begin_po-no AT ROW 6.52 COL 27.8 COLON-ALIGNED HELP
           "Enter Beginning FG Item Number" WIDGET-ID 100
-     end_po-no AT ROW 6.76 COL 70.8 COLON-ALIGNED HELP
+     end_po-no AT ROW 6.52 COL 70.8 COLON-ALIGNED HELP
           "Enter Ending FG Item Number" WIDGET-ID 102
-     sl_avail AT ROW 9.57 COL 6.6 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 9.57 COL 62.6 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 10.05 COL 43.6 HELP
+     begin_date AT ROW 7.57 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Invoice Date" WIDGET-ID 100
+     end_date AT ROW 7.57 COL 71 COLON-ALIGNED HELP
+          "Enter Ending Invoice Date" WIDGET-ID 120
+     sl_avail AT ROW 10.1 COL 6.6 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 10.1 COL 62.6 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 10.57 COL 43.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 11.24 COL 43.6 HELP
+     Btn_Remove AT ROW 11.76 COL 43.6 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 12.43 COL 43.6 WIDGET-ID 40
-     btn_down AT ROW 13.62 COL 43.6 WIDGET-ID 42
-     tb_excel AT ROW 16.33 COL 36 WIDGET-ID 32
-     tb_runExcel AT ROW 16.33 COL 78 RIGHT-ALIGNED WIDGET-ID 34
-     fi_file AT ROW 17.29 COL 34 COLON-ALIGNED HELP
+     btn_Up AT ROW 12.95 COL 43.6 WIDGET-ID 40
+     btn_down AT ROW 14.14 COL 43.6 WIDGET-ID 42
+     tb_excel AT ROW 16.86 COL 36 WIDGET-ID 32
+     tb_runExcel AT ROW 16.86 COL 78 RIGHT-ALIGNED WIDGET-ID 34
+     fi_file AT ROW 17.86 COL 34 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 22
-     btn-ok AT ROW 19.57 COL 30 WIDGET-ID 14
-     btn-cancel AT ROW 19.57 COL 60.2 WIDGET-ID 12
+     btn-ok AT ROW 19.71 COL 30 WIDGET-ID 14
+     btn-cancel AT ROW 19.71 COL 60.2 WIDGET-ID 12
      "Export Selection" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 8.71 COL 3 WIDGET-ID 86
+          SIZE 17 BY .62 AT ROW 9.24 COL 3 WIDGET-ID 86
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
-     RECT-7 AT ROW 1 COL 2 WIDGET-ID 38
-     RECT-8 AT ROW 15.76 COL 2 WIDGET-ID 84
-     RECT-9 AT ROW 8.14 COL 2 WIDGET-ID 116
-     SPACE(0.79) SKIP(5.37)
+     RECT-7 AT ROW 1.05 COL 2 WIDGET-ID 38
+     RECT-8 AT ROW 16.38 COL 2 WIDGET-ID 84
+     RECT-9 AT ROW 8.86 COL 2 WIDGET-ID 116
+     SPACE(0.79) SKIP(4.79)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Customer Invoice Excel Export" WIDGET-ID 100.
@@ -355,6 +370,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_date:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
+
+ASSIGN 
        begin_i-no:PRIVATE-DATA IN FRAME Dialog-Frame     = 
                 "parm".
 
@@ -372,6 +391,10 @@ ASSIGN
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
+
+ASSIGN 
+       end_date:PRIVATE-DATA IN FRAME Dialog-Frame     = 
                 "parm".
 
 ASSIGN 
@@ -510,9 +533,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date Dialog-Frame
+ON LEAVE OF begin_date IN FRAME Dialog-Frame /* From Invoice Date */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no Dialog-Frame
-ON LEAVE OF begin_i-no IN FRAME Dialog-Frame /* From Fgitem */
+ON LEAVE OF begin_i-no IN FRAME Dialog-Frame /* From FG Item # */
 DO:
    assign {&self-name}.
 END.
@@ -656,9 +690,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date Dialog-Frame
+ON LEAVE OF end_date IN FRAME Dialog-Frame /* To Invoice Date */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no Dialog-Frame
-ON LEAVE OF end_i-no IN FRAME Dialog-Frame /* To Customer Type */
+ON LEAVE OF end_i-no IN FRAME Dialog-Frame /* To FG Item# */
 DO:
    assign {&self-name}.
 END.
@@ -932,13 +977,13 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_inv-no end_inv-no begin_cust-no end_cust-no begin_i-no end_i-no 
-          begin_bol-no end_bol-no begin_po-no end_po-no sl_avail sl_selected 
-          tb_excel tb_runExcel fi_file 
+          begin_bol-no end_bol-no begin_po-no end_po-no begin_date end_date 
+          sl_avail sl_selected tb_excel tb_runExcel fi_file 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-7 RECT-8 RECT-9 begin_inv-no end_inv-no begin_cust-no end_cust-no 
          begin_i-no end_i-no begin_bol-no end_bol-no begin_po-no end_po-no 
-         sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down tb_runExcel 
-         fi_file btn-ok btn-cancel 
+         begin_date end_date sl_avail sl_selected Btn_Add Btn_Remove btn_Up 
+         btn_down tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1082,7 +1127,7 @@ IF tb_excel THEN
   IF tb_excel THEN 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 
-
+    
    FOR EACH ar-invl WHERE ar-invl.company EQ cocode AND ar-invl.posted EQ YES
        AND ar-invl.cust-no GE begin_cust-no
        AND ar-invl.cust-no LE end_cust-no 
@@ -1093,9 +1138,15 @@ IF tb_excel THEN
        AND ar-invl.bol-no GE begin_bol-no
        AND ar-invl.bol-no LE end_bol-no
        AND ar-invl.po-no GE begin_po-no
-       AND ar-invl.po-no LE end_po-no AND ar-invl.inv-no NE 0 AND ar-invl.inv-no <> ? NO-LOCK, 
-      FIRST ar-inv WHERE ar-inv.x-no = ar-invl.x-no NO-LOCK, 
+       AND ar-invl.po-no LE end_po-no
+       AND ar-invl.inv-no NE 0 AND ar-invl.inv-no <> ? NO-LOCK, 
+      FIRST ar-inv WHERE ar-inv.x-no = ar-invl.x-no 
+       AND ar-inv.inv-date GE begin_date
+       AND ar-inv.inv-date LE end_date NO-LOCK, 
       FIRST cust OF ar-inv NO-LOCK BREAK BY ar-invl.inv-no DESC :
+
+       MESSAGE "hello12    " + STRING(ar-inv.inv-date) + "    " + STRING(ar-inv.inv-date) VIEW-AS ALERT-BOX ERROR.
+
          ASSIGN
              amount = 0
              amount = IF NOT ar-invl.billable AND ar-invl.misc THEN 0 ELSE ar-invl.amt.
