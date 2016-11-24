@@ -448,7 +448,7 @@ DO:
 
     IF AVAIL tt-report THEN tt-sel = YES.
   END.
-  APPLY "END-ERROR":U TO SELF.
+  APPLY "go" TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
