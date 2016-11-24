@@ -414,6 +414,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                       and fg-bin.i-no     eq tt-rell.i-no
                       and fg-bin.qty      gt 0
                       NO-LOCK BREAK BY fg-bin.job-no
+                              BY fg-bin.job-no2
                               BY fg-bin.loc
                               BY fg-bin.loc-bin :
 
@@ -437,20 +438,21 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                        v-printline = 0.
                        {oe/rep/relindc2.i}.
                    END.
-                  
-                   iv-comp-unit = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) .
-                  
-                   v-job-no = fg-bin.job-no + "-" + STRING(INTEGER(fg-bin.job-no2), "99" )  .
-                   IF (v-job-no EQ "-" OR v-job-no EQ "-00" ) THEN v-job-no = "".
-                   PUT SPACE(1)
-                    v-job-no FORMAT "X(11)" AT 2
-                    fg-bin.loc FORMAT "x(6)" AT 44 SPACE(1)
-                    fg-bin.loc-bin FORMAT "x(8)" space(1)
-                    iv-comp-unit FORMAT "->>>>" .
-
-                    i        = i + 1.
-                     v-printline = v-printline + 1.
-                      ASSIGN iCountLine = iCountLine + 1 .
+                     IF FIRST-OF(fg-bin.loc-bin) THEN
+                         ASSIGN iv-comp-unit = 0 .
+                   iv-comp-unit = iv-comp-unit + TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) .
+                   IF LAST-OF(fg-bin.loc-bin) THEN do:
+                       v-job-no = fg-bin.job-no + "-" + STRING(INTEGER(fg-bin.job-no2), "99" )  .
+                       IF (v-job-no EQ "-" OR v-job-no EQ "-00" ) THEN v-job-no = "".
+                       PUT SPACE(1)
+                           v-job-no FORMAT "X(11)" AT 2
+                           fg-bin.loc FORMAT "x(6)" AT 44 SPACE(1)
+                           fg-bin.loc-bin FORMAT "x(8)" space(1)
+                           iv-comp-unit FORMAT "->>>>" .
+                       i        = i + 1.
+                       v-printline = v-printline + 1.
+                       ASSIGN iCountLine = iCountLine + 1 .
+                   END.
                     
                 end. /*each fg-bin*/
 
@@ -604,8 +606,11 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                                           AND oe-rell.loc-bin  EQ fg-bin.loc-bin
                                           AND oe-rell.tag      EQ fg-bin.tag) THEN
                       NEXT.
+
+                   IF FIRST-OF(fg-bin.loc-bin) THEN
+                         ASSIGN iv-comp-unit = 0 . 
                   
-                   iv-comp-unit = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) .
+                   iv-comp-unit = iv-comp-unit + TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) .
 
                    IF LINE-COUNTER GT 55 THEN DO:
                        PAGE .
@@ -613,19 +618,19 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                        {oe/rep/relindc2.i}.
                    END.
 
-                  
-                   v-job-no = fg-bin.job-no + "-" + STRING(INTEGER(fg-bin.job-no2), "99" )  .
-                   IF (v-job-no EQ "-" OR v-job-no EQ "-00" ) THEN v-job-no = "".
+                  IF LAST-OF(fg-bin.loc-bin) THEN do: 
+                      v-job-no = fg-bin.job-no + "-" + STRING(INTEGER(fg-bin.job-no2), "99" )  .
+                      IF (v-job-no EQ "-" OR v-job-no EQ "-00" ) THEN v-job-no = "".
 
-                   PUT
-                    v-job-no FORMAT "X(11)" AT 2
-                    fg-bin.loc FORMAT "x(6)" AT 44 SPACE(1)
-                    fg-bin.loc-bin FORMAT "x(8)" space(1)
-                    iv-comp-unit FORMAT "->>>>" .
-
-                    i        = i + 1.
-                     v-printline = v-printline + 1.
+                      PUT
+                          v-job-no FORMAT "X(11)" AT 2
+                          fg-bin.loc FORMAT "x(6)" AT 44 SPACE(1)
+                          fg-bin.loc-bin FORMAT "x(8)" space(1)
+                          iv-comp-unit FORMAT "->>>>" .
+                      i        = i + 1.
+                      v-printline = v-printline + 1.
                       ASSIGN iCountLine = iCountLine + 1 .
+                  END.
                     
                 end. /*each fg-bin*/
 
