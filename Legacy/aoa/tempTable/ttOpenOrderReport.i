@@ -23,6 +23,6 @@ DEFINE TEMP-TABLE ttOpenOrderReport NO-UNDO
     FIELD pallet      AS INTEGER   LABEL "Pallet"           FORMAT ">>9"
     FIELD xxSort1     AS CHARACTER LABEL "Sort 1"           FORMAT "x(100)"
     FIELD xxSort2     AS CHARACTER LABEL "Sort 2"           FORMAT "x(100)"
-    FIELD xxCompany   AS CHARACTER LABEL "Company"          FORMAT "x(8)"
+    FIELD xxIndex     AS INTEGER   LABEL "Index"            FORMAT ">>>>>>9"
         INDEX ttOpenOrderReport IS PRIMARY rowType xxSort1 xxSort2
         .
