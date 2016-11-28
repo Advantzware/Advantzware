@@ -899,7 +899,9 @@ FOR EACH job-hdr NO-LOCK
                     SKIP
                 WITH STREAM-IO WIDTH 175 NO-LABELS NO-BOX FRAME line-det1.
 
-            v-itm-printed = v-itm-printed + 1.    
+            v-itm-printed = v-itm-printed + 1.   
+            v-spc-no = IF AVAILABLE eb THEN eb.spc-no ELSE "".
+            v-upc-no = IF AVAILABLE eb THEN eb.upc-no ELSE "".
 
               PUT
                  "<P9><B>            Quantity        QC/SPC #        Pharma Code      Style          Carton Size" "</B>" SKIP.  /* Style  Carton Size*/
@@ -1301,7 +1303,7 @@ FOR EACH job-hdr NO-LOCK
                     trim(STRING(bff-eb.blank-no,">>9")) FORM "x(11)"
 
               bff-eb.layer-pad  AT 18 /* tray */
-              v-job-qty-unit-per-int  AT 40
+              ( IF v-lp-qty GT 0 THEN eb.cas-cnt / v-lp-qty ELSE 0) FORMAT "->>>>>9.99"  AT 36
               bff-eb.cas-no FORMAT "X(15)" AT 54 /* cases# */
               (IF AVAILABLE bf-job-mat THEN STRING(bf-job-mat.qty,"->>>>>>9.9<") ELSE "") FORMAT "x(11)"
               bff-eb.cas-cnt FORMAT "->>>>>9" AT 87  /* qty per case */

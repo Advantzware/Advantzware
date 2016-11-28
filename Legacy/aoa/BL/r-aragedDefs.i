@@ -5,6 +5,8 @@
 /* Aged Receivables Totals.rpa */
 {aoa/tempTable/ttAgedReceivablesTotals.i}
 
+{sys/ref/CustList.i NEW}
+
 DEFINE TEMP-TABLE tt-cust NO-UNDO
     FIELD curr-code LIKE cust.curr-code
     FIELD sorter    LIKE cust.cust-no
@@ -26,5 +28,3 @@ DEFINE TEMP-TABLE tt-inv NO-UNDO
     FIELD row-id AS   ROWID
         INDEX tt-inv sorter inv-no
         .
-
-{sys/ref/CustList.i}

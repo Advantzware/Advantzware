@@ -93,31 +93,31 @@
     IF lAllCompany THEN
     ASSIGN
         cStartCompany = CHR(32)
-        cEndCompany   = CHR(255)
+        cEndCompany   = CHR(254)
         .
 
     IF lAllCustNo THEN
     ASSIGN
         cStartCustNo = CHR(32)
-        cEndCustNo   = CHR(255)
+        cEndCustNo   = CHR(254)
         .
 
     IF lAllSalesRep THEN
     ASSIGN
         cStartSalesRep = CHR(32)
-        cEndSalesRep   = CHR(255)
+        cEndSalesRep   = CHR(254)
         .
 
     IF lAllCurrency THEN
     ASSIGN
         cStartCurrency = CHR(32)
-        cEndCurrency   = CHR(255)
+        cEndCurrency   = CHR(254)
         .
 
     IF lAllTerms THEN
     ASSIGN
         cStartTerms = CHR(32)
-        cEndTerms   = CHR(255)
+        cEndTerms   = CHR(254)
         .
 
     IF lCustList THEN

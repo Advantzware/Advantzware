@@ -767,7 +767,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_po-no B-table-Win
 ON VALUE-CHANGED OF fi_po-no IN FRAME F-Main
 DO:
-  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  /*{&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).*/
+    IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */

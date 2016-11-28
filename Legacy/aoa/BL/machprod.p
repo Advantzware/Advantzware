@@ -9,7 +9,7 @@
 {aoa/tempTable/ttProductionAnalysis.i}
 /* Machine Productivity.rpa */
 {aoa/tempTable/ttMachineProductivity.i}
-{sys/ref/CustList.i}
+{sys/ref/CustList.i NEW}
 
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttMachineProductivity.
@@ -22,7 +22,7 @@ DEFINE VARIABLE cSort      AS CHARACTER NO-UNDO.
 
 ASSIGN
     cStartDept = CHR(32)
-    cEndDept   = CHR(255)
+    cEndDept   = CHR(254)
     cSort      = "Alphabetically"
     .
 

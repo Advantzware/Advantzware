@@ -525,7 +525,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                       no-lock no-error.
   if avail period then tran-period = (period.pnum).
 
-  find first company where company.company eq cocode.
+  find first company NO-LOCK where company.company eq cocode NO-ERROR.
   if not company.yend-per then do:
      MESSAGE "PRIOR YEAR NOT CLOSED.  MUST CLOSE PRIOR YEAR!!!" VIEW-AS ALERT-BOX ERROR.
      return.

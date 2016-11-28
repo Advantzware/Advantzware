@@ -1015,6 +1015,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN DisplaySelectionList.
   RUN enable_UI.
+
+  RUN sys/inc/CustListForm.p ( "HR9",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
     
   RUN sys/inc/CustListForm.p ( "HR9",cocode, 
                                OUTPUT ou-log,

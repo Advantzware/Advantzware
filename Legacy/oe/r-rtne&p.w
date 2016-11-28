@@ -859,6 +859,7 @@ FOR EACH oe-reth
         NO-LOCK NO-ERROR.
 
     v-disc = 0.
+    ldAmt-Disc = 0 .
     IF AVAILABLE ar-inv THEN
     DO:
       FIND FIRST ar-invl WHERE ar-invl.x-no = ar-inv.x-no

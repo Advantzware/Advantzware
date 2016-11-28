@@ -271,19 +271,19 @@ for each xef where xef.company = xest.company
       item.i-name format "x(20)" item.basis-w item.cal format ">9.999<"
       v-vend-no
       "$" + string(b-msh,">>>>9.99") format "x(9)" to 50 b-uom space(0)
-      v-setup when v-setup ne 0 format ">>>9.99" to 61
+      v-setup when v-setup ne 0 format ">>>9.99" to 63
       /*b-cost*/ v-board-total / ((t-blkqty[xef.form-no] / 1000)) +
                 (v-setup / (t-blkqty[xef.form-no] / 1000)) 
-                                format ">>>>9.99" to 69
-      /*b-tot*/ v-board-total + v-setup format ">>>,>>9.99" to 80 skip
+                                format ">>>>9.99" to 71
+      /*b-tot*/ v-board-total + v-setup format ">>>>>9.99" to 80 skip
       space(5)
       "Board MR  Waste"
       b-waste format ">>>>>9" to 50 space(0) " Sht" space(0)
-      (/*b-tot*/ v-board-total / t-shtfrm[xef.form-no]) * b-waste format ">>>9.99" to 61
+      (/*b-tot*/ v-board-total / t-shtfrm[xef.form-no]) * b-waste format ">>>9.99" to 63
       /* cost of waste amortized per 1000 of all blanks on this form */
       (b-waste * (/*b-tot*/ v-board-total / t-shtfrm[xef.form-no])) /
-      (t-blkqty[xef.form-no] / 1000) format ">>>>9.99" to 69
-      b-totw to 80 format ">>>,>>9.99" skip
+      (t-blkqty[xef.form-no] / 1000) format ">>>>9.99" to 71
+      b-totw to 80 format ">>>>>9.99" skip
       space(5)
       "Board Run Waste"
       r-spo[xef.form-no] format ">>>>>9" to 50 space(0) " Sht" space(0)
@@ -291,10 +291,10 @@ for each xef where xef.company = xest.company
       /*(b-cost * (r-spo[xef.form-no] * v-num-up * v-out / 1000)) /
           (t-blkqty[xef.form-no] / 1000)*/
           v-run-total / (t-blkqty[xef.form-no] / 1000)
-        format ">>>>9.99" to 69
+        format ">>>>9.99" to 71
       /*(b-cost * (r-spo[xef.form-no] * v-num-up * v-out / 1000)) */
          v-run-total 
-      format ">>>,>>9.99" to 80 skip with stream-io .
+      format ">>>>>9.99" to 80 skip with stream-io .
 
     lin-count = lin-count + 1.
 

@@ -1179,6 +1179,13 @@ PROCEDURE local-enable :
       HIDE {&columnObjects}.
   END.
 
+  IF aoaExcelOnly THEN
+  ASSIGN
+      btnScheduler:HIDDEN = YES
+      btnShowBatch:HIDDEN = YES
+      btnView:HIDDEN      = YES
+      .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1528,8 +1535,7 @@ PROCEDURE pGenerateInclude :
 
     IF NOT CAN-DO("ASI,NoSweat",USERID("NoSweat")) THEN RETURN.
 
-    FILE-INFO:FILE-NAME = "aoa/includes/p" + REPLACE(aoaTitle," ","") + ".i".
-    OUTPUT TO VALUE(FILE-INFO:FULL-PATHNAME) NO-ECHO.
+    OUTPUT TO VALUE("aoa/includes/p" + REPLACE(aoaTitle," ","") + ".i") NO-ECHO.
     PUT UNFORMATTED
         "/* p" REPLACE(aoaTitle," ","") ".i - auto generated "
         STRING(TODAY,"99.99.9999") " @ " STRING(TIME,"hh:mm:ss am")
@@ -2291,7 +2297,7 @@ FUNCTION fGenerateInclude RETURNS LOGICAL
     DEFINE VARIABLE cPreFix     AS CHARACTER NO-UNDO INITIAL "c,d,dt,i,l".
     DEFINE VARIABLE cTypes      AS CHARACTER NO-UNDO INITIAL "CHARACTER,DECIMAL,DATE,INTEGER,LOGICAL".
     DEFINE VARIABLE cStartList  AS CHARACTER NO-UNDO INITIAL "CHR(32),0,1/1/1950,0".
-    DEFINE VARIABLE cEndList    AS CHARACTER NO-UNDO INITIAL "CHR(255),99999999.99,12/31/2049,99999999".
+    DEFINE VARIABLE cEndList    AS CHARACTER NO-UNDO INITIAL "CHR(254),99999999.99,12/31/2049,99999999".
     DEFINE VARIABLE cStartValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCustList   AS LOGICAL   NO-UNDO.

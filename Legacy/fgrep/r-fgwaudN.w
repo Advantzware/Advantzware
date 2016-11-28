@@ -1527,6 +1527,10 @@ RUN DisplaySelectionList.
   RUN enable_UI.
   
   {methods/nowait.i}
+  
+  RUN sys/inc/CustListForm.p ( "IL14",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
 
   RUN sys/inc/CustListForm.p ( "IL14",cocode, 
                                OUTPUT ou-log,

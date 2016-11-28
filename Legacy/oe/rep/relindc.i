@@ -644,7 +644,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                        PAGE .
                        v-printline = 0.
                        {oe/rep/relindc2.i}.
-          END.
+                   END.
 
                    IF FIRST(fg-bin.loc) THEN
                        PUT SKIP SPACE(1) v-job-no FORMAT "X(11)" .

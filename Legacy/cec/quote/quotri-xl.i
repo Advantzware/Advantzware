@@ -209,20 +209,33 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     IF i EQ 5 THEN DO:
        v-board = "".
        
-       IF s-print-2nd-dscr THEN
+       IF s-print-2nd-dscr THEN do:
          IF v-boardDescription EQ 'Est' THEN
            v-board = IF AVAIL ef THEN ef.brd-dscr ELSE "".
          ELSE
            v-board = xqitm.i-dscr.
-       ELSE
+       /*ELSE
        IF AVAIL ef THEN
          v-board = ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
-                   ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].
+                   ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].*/
           
        ASSIGN LvLineCnt = LvLineCnt + 1 
            v-cell = "R" + string(LvLineCnt) + "C2".
        chExcelApplication:Goto(v-cell) NO-ERROR.
        chExcelApplication:ActiveCell:Value = v-board.
+       END.
+       v-board = "". 
+       IF AVAIL ef THEN
+           v-board = ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
+                   ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].
+       IF v-board <> "" THEN DO:
+            ASSIGN LvLineCnt = LvLineCnt + 1 
+           v-cell = "R" + string(LvLineCnt) + "C2".
+       chExcelApplication:Goto(v-cell) NO-ERROR.
+       chExcelApplication:ActiveCell:Value = v-board.
+
+       END.
+
          
     END.
 

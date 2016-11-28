@@ -53,7 +53,7 @@ DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 assign
  cocode = gcompany
  locode = gloc.
-  
+
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
@@ -1041,6 +1041,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
    
   {methods/nowait.i}
+
+  RUN sys/inc/CustListForm.p ( "HV",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
 
   RUN sys/inc/CustListForm.p ( "HV",cocode, 
                                OUTPUT ou-log,

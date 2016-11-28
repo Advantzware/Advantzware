@@ -14,6 +14,19 @@
 
 /* Post BOL Create Invoice.rpa */
 {aoa/tempTable/ttPostBolCreateInvoice.i}
+DEFINE NEW SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_track_usage AS LOGICAL NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_header_line AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_groups AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE init_menu AS LOGICAL NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_developer AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_version AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_rec_key AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_pageno AS INTEGER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_mainmenu AS WIDGET-HANDLE NO-UNDO.
+
+g_lookup-var = "".
+{sys/ref/CustList.i NEW}
 
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttPostBOLCreateInvoice.
@@ -22,15 +35,18 @@ DEFINE OUTPUT PARAMETER TABLE FOR ttPostBOLCreateInvoice.
 DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)":U.
 
 /* Local Variable Definitions ---                                       */
-{sys/ref/CustList.i}
 {methods/defines/hndldefs.i &new=NEW}
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}
-    
+{custom/globdefs.i &NEW=NEW}
+
+/* subject business logic */
 ASSIGN
     cocode = ipcCompany
     locode = cLocation
+    g_company = ipcCompany
+    g_loc     = cLocation
     .
 {oe/oe-bolp1.i NEW}
 {oe/d-selbin.i NEW} /* w-bin definition */
@@ -65,6 +81,8 @@ DEFINE BUFFER xoe-boll FOR oe-boll.
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE STREAM sDebug.
 lUseLogs = NO. /* Use debug logging */
+if search("logs/" + "r-bolpst" + ".txt") ne ? then 
+  lUseLogs = true.
 cDebugLog = "logs/" + "r-bolpst" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,10)) + ".txt".
 IF lUseLogs THEN 
   OUTPUT STREAM sDebug TO VALUE(cDebugLog).
@@ -273,20 +291,27 @@ PROCEDURE pAutoSelectTags:
     IF NOT AVAILABLE oe-ordl THEN 
         RETURN.
   
+    FIND FIRST oe-rell NO-LOCK 
+       WHERE oe-rell.r-no EQ xoe-boll.r-no
+       NO-ERROR.
+       
+    IF AVAILABLE oe-rell THEN 
+    FIND FIRST oe-rel WHERE oe-rel.r-no EQ oe-rell.link-no
+        NO-ERROR. 
+        
+    IF NOT AVAILABLE oe-rel THEN   
     FIND FIRST oe-rel NO-LOCK
         WHERE oe-rel.company EQ oe-ordl.company
         AND oe-rel.ord-no  EQ oe-ordl.ord-no
             AND oe-rel.i-no    EQ oe-ordl.i-no
             AND oe-rel.line    EQ oe-ordl.line
             AND oe-rel.stat    EQ "P"
-            AND oe-rel.link-no GT 0 
-            AND oe-rel.rel-no  GT 0
             NO-ERROR.
     fDebugMsg("avail oerel " + STRING(AVAILABLE(oe-rel))).
     IF NOT AVAILABLE oe-rel THEN 
         RETURN.
     FIND FIRST oe-relh NO-LOCK
-        WHERE oe-relh.r-no eq oe-boll.r-no 
+        WHERE oe-relh.r-no eq xoe-boll.r-no 
         NO-ERROR.
 
     fDebugMsg("avail oe-relh" + STRING(AVAILABLE(oe-relh))).        

@@ -20,6 +20,7 @@ FOR EACH pendingJob NO-LOCK WHERE {{&print}/includes/filterWhere.i}
     BREAK BY pendingJob.sortBy BY pendingJob.jobSort BY pendingJob.resourceSequence
     {{&print}/includes/framePhrase.i} DOWN:
   RUN buildLines (FIRST(pendingJob.jobSort)).
+  IF ipExcel THEN PUT UNFORMATTED SKIP.
   IF LAST-OF(pendingJob.sortBy) AND NOT ipExcel THEN
   DOWN 1.
 END. /* each pendingJob */

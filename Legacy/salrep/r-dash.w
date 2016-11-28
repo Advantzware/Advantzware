@@ -125,6 +125,7 @@ assign
 
 /* gdm - 03090905 */
 DEF VAR v-runflg AS LOG INIT NO NO-UNDO.
+                    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -821,8 +822,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      fi_as-of-date:SCREEN-VALUE = STRING(TODAY).
      APPLY "entry" TO fi_as-of-date.
   END.
-
-  /* gdm - 03090905 */
+ 
+ /* gdm - 03090905 */
   {salrep/SlsMgmt.i}
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN

@@ -26,22 +26,12 @@
 
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAM ip-use-code AS LOG NO-UNDO.
-DEFINE INPUT PARAM ip-recef AS RECID NO-UNDO .
-DEFINE INPUT PARAM ip-receb AS RECID NO-UNDO .
 DEF OUTPUT PARAM op-code AS CHAR NO-UNDO.
 DEF OUTPUT PARAM op-max-yld AS LOG NO-UNDO.
 DEF INPUT-OUTPUT PARAM io-m-code LIKE mach.m-code NO-UNDO.
 DEF OUTPUT PARAM op-CodeOrName AS cha NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-DEFINE BUFFER xef FOR ef .
-DEFINE BUFFER xeb FOR eb .
-DEFINE BUFFER bf-item FOR ITEM .
-DEF VAR cRtnChar AS CHARACTER NO-UNDO.
-DEF VAR lRecFound AS LOGICAL NO-UNDO .
-DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
-DEF VARIABLE lDisplayMsg AS LOGICAL INIT TRUE .
-
 /*{custom/globdefs.i} */
 {methods/prgsecur.i}
 {sys/inc/var.i NEW SHARED}
@@ -49,12 +39,6 @@ DEF VARIABLE lDisplayMsg AS LOGICAL INIT TRUE .
 ASSIGN
  cocode = g_company
  locode = g_loc.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "SHTCALCWarn", "L" /* Logical */, NO /* check by cust */, 
-                           INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-                           OUTPUT cRtnChar, OUTPUT lRecFound).
-  IF lRecFound THEN
-      lShtcalcWarm-log = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -254,21 +238,6 @@ DO:
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     ASSIGN {&displayed-objects}.
-
-    IF lShtcalcWarm-log AND lDisplayMsg THEN DO:
-        FIND FIRST bf-item NO-LOCK
-            WHERE bf-item.company EQ xef.company
-            AND bf-item.i-no    EQ fi_code:SCREEN-VALUE /*xef.board*/
-            /*AND bf-item.mat-type EQ "B" */
-            NO-ERROR.
-
-        IF AVAIL xef AND AVAIL xeb THEN do:
-            IF AVAIL bf-item AND (bf-item.cal NE xef.cal OR bf-item.procat NE xeb.procat) THEN
-                MESSAGE "Selected Board differs from Board in Estimate Standard." 
-                VIEW-AS ALERT-BOX INFO BUTTONS OK .
-            lDisplayMsg = FALSE .
-        END.
-    END.
      
     ASSIGN
      op-code    = fi_code
@@ -291,37 +260,6 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-code NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-     IF lShtcalcWarm-log AND lDisplayMsg THEN DO:
-        
-             FIND FIRST bf-item NO-LOCK
-             WHERE bf-item.company EQ xef.company
-             AND bf-item.i-no    BEGINS fi_code:SCREEN-VALUE /*xef.board*/
-             /*AND bf-item.mat-type EQ "B" */
-             NO-ERROR.
-          IF AVAIL xef AND AVAIL xeb THEN do:
-         IF AVAIL bf-item AND (bf-item.cal NE xef.cal OR bf-item.procat NE xeb.procat) THEN
-             MESSAGE "Selected Board differs from Board in Estimate Standard." 
-                               VIEW-AS ALERT-BOX INFO BUTTONS OK .
-         lDisplayMsg = FALSE .
-          END.
-     END.
-
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_code Dialog-Frame
-ON VALUE-CHANGED OF fi_code IN FRAME Dialog-Frame /* Select RM Item Name starting with */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-      
-     ASSIGN lDisplayMsg = TRUE .
-
   END.
 END.
 
@@ -347,8 +285,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   begin_mach = io-m-code.
-  find xef where recid(xef) = ip-recef NO-LOCK NO-ERROR.
-  find xeb where recid(xeb) = ip-receb NO-LOCK NO-ERROR.
 
   RUN enable_UI.
 

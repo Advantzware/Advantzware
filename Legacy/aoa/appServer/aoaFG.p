@@ -21,10 +21,11 @@
 /* Customer Inventory.rpa */
 {aoa/tempTable/ttCustomerInventory.i}
 
+/* Finished Goods Export.rpa */
+{aoa/tempTable/ttFinishedGoodsExport.i}
+
 /* Inventory Value.rpa */
 {aoa/tempTable/ttInventoryValue.i}
-
-{sys/ref/CustList.i NEW}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -49,6 +50,16 @@
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCustomerInventory Procedure 
 FUNCTION fCustomerInventory RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fFinishedGoodsExport) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFinishedGoodsExport Procedure 
+FUNCTION fFinishedGoodsExport RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -112,50 +123,6 @@ FUNCTION fInventoryValue RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD
 &ANALYZE-RESUME
 
 
-/* **********************  Internal Procedures  *********************** */
-
-&IF DEFINED(EXCLUDE-pCustomerInventory) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCustomerInventory Procedure 
-PROCEDURE pCustomerInventory :
-/*------------------------------------------------------------------------------
-  Purpose:     Customer Inventory.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-
-    /* subject business logic */
-    RUN aoa/BL/r-cusinv.p (OUTPUT TABLE ttCustomerInventory, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pInventoryValue) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInventoryValue Procedure 
-PROCEDURE pInventoryValue :
-/*------------------------------------------------------------------------------
-  Purpose:     Inventory Value.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/r-fgobb.p (OUTPUT TABLE ttInventoryValue, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fCustomerInventory) = 0 &THEN
@@ -168,9 +135,32 @@ FUNCTION fCustomerInventory RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttCustomerInventory.
 
-    RUN pCustomerInventory (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/r-cusinv.p (OUTPUT TABLE ttCustomerInventory, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttCustomerInventory:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fFinishedGoodsExport) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFinishedGoodsExport Procedure 
+FUNCTION fFinishedGoodsExport RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Finished Goods Export.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttFinishedGoodsExport.
+
+    /* subject business logic */
+    RUN aoa/BL/rd-fgexp.p (OUTPUT TABLE ttFinishedGoodsExport, ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttFinishedGoodsExport:HANDLE .
 
 END FUNCTION.
 
@@ -195,6 +185,9 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Customer Inventory.rpa */
         WHEN "r-fgohbb." THEN
         RETURN TEMP-TABLE ttInventoryValue:HANDLE.
+        /* Finished Goods Export.rpa */
+        WHEN "rd-fgexp." THEN
+        RETURN TEMP-TABLE ttFinishedGoodsExport:HANDLE.
     END CASE.
 
 END FUNCTION.
@@ -214,7 +207,8 @@ FUNCTION fInventoryValue RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttInventoryValue.
 
-    RUN pInventoryValue (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/r-fgobb.p (OUTPUT TABLE ttInventoryValue, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttInventoryValue:HANDLE .
 

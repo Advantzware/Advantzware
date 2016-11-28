@@ -66,19 +66,19 @@
     IF lAllCustNo THEN
     ASSIGN
         cStartCustNo = CHR(32)
-        cEndCustNo   = CHR(255)
+        cEndCustNo   = CHR(254)
         .
 
     IF lAllSalesRep THEN
     ASSIGN
         cStartSalesRep = CHR(32)
-        cEndSalesRep   = CHR(255)
+        cEndSalesRep   = CHR(254)
         .
 
     IF lAllProdCategory THEN
     ASSIGN
         cStartProdCategory = CHR(32)
-        cEndProdCategory   = CHR(255)
+        cEndProdCategory   = CHR(254)
         .
 
     IF lCustList THEN

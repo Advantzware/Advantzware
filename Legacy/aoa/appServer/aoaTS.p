@@ -122,52 +122,6 @@ FUNCTION fMachineTransactionSummary RETURNS HANDLE ( {aoa/includes/fInputVars.i}
 &ANALYZE-RESUME
 
 
-/* **********************  Internal Procedures  *********************** */
-
-&IF DEFINED(EXCLUDE-pMachineTransactions) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMachineTransactions Procedure 
-PROCEDURE pMachineTransactions :
-/*------------------------------------------------------------------------------
-  Purpose:     Machine Transactions.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/r-mchtrn.p (OUTPUT TABLE ttMachineTransactions,
-                           OUTPUT TABLE ttMachineEmployeeTransactions,
-                           ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pMachineTransactionSummary) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMachineTransactionSummary Procedure 
-PROCEDURE pMachineTransactionSummary :
-/*------------------------------------------------------------------------------
-  Purpose:     Machine Transaction Summary.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/mtransum.p (OUTPUT TABLE ttMachineTransactions, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fGetSubTableHandle) = 0 &THEN
@@ -228,7 +182,10 @@ FUNCTION fMachineTransactions RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttMachineTransactions.
     EMPTY TEMP-TABLE ttMachineEmployeeTransactions.
 
-    RUN pMachineTransactions (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/r-mchtrn.p (OUTPUT TABLE ttMachineTransactions,
+                           OUTPUT TABLE ttMachineEmployeeTransactions,
+                           ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttMachineTransactions:HANDLE .
 
@@ -249,7 +206,8 @@ FUNCTION fMachineTransactionSummary RETURNS HANDLE ( {aoa/includes/fInputVars.i}
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttMachineTransactionSummary.
 
-    RUN pMachineTransactionSummary (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/mtransum.p (OUTPUT TABLE ttMachineTransactions, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttMachineTransactionSummary:HANDLE .
 

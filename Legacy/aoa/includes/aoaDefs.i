@@ -26,8 +26,14 @@ DEFINE VARIABLE g_loc     AS CHARACTER NO-UNDO INITIAL "MAIN".
 &ENDIF
 
 DEFINE VARIABLE paramStr AS CHARACTER NO-UNDO
-    INITIAL "{&aoaID},{&aoaProgramID},{&aoaTitle},{&aoaType},{&aoaColumns},{&aoaCustListForm}".
+    INITIAL "{&aoaID},{&aoaProgramID},{&aoaTitle},{&aoaType},{&aoaColumns},{&aoaCustListForm},".
                                                  
+&IF DEFINED(excelOnly) NE 0 &THEN
+paramStr = paramStr + "aoaExcelOnly".
+&ELSE
+paramStr = paramStr + "".
+&ENDIF
+
 /* used if testing in AppBuilder */.
 &IF "{&test}" EQ "YES" &THEN
 paramStr = paramStr + ",aoa/param/{&aoaProgramID}w".

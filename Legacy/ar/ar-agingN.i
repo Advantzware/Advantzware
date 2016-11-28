@@ -709,8 +709,8 @@ END.
            /*IF v-type = "PY" AND v-cr-db-amt GT 0 THEN
               v-cr-db-amt = v-cr-db-amt * -1.
            ELSE*/
-            IF v-type EQ "VD" AND v-cr-db-amt LT 0 THEN
-              v-cr-db-amt = v-cr-db-amt * -1.
+            /*IF v-type EQ "VD" AND v-cr-db-amt LT 0 THEN
+              v-cr-db-amt = v-cr-db-amt * -1.*/
         END.
 
         if v-disc-amt ne 0 then do:

@@ -26,7 +26,8 @@ CREATE WIDGET-POOL.
 DEF VAR list-name as cha no-undo.
 DEF VAR init-dir AS CHA NO-UNDO.
 DEF VAR lv-comp-curr AS cha NO-UNDO.
-
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -41,8 +42,6 @@ DEF VAR lv-comp-curr AS cha NO-UNDO.
 assign
  cocode = gcompany
  locode = gloc.
-
-{sys/inc/custlistform.i ""AL1"" }
 
 {sys/ref/CustList.i NEW}
     
@@ -64,6 +63,10 @@ DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF VAR ld-curr AS DEC NO-UNDO.
 DEF VAR lv-audit-dir AS CHAR NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE postdate-log like sys-ctrl.log-fld no-undo.
+DEFINE VARIABLE postdate-dat like sys-ctrl.date-fld no-undo.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 
 DEF STREAM excel.
 
@@ -71,7 +74,20 @@ DEF TEMP-TABLE tt-post NO-UNDO FIELD row-id AS ROWID
                                FIELD ex-rate LIKE currency.ex-rate INIT 1
                                FIELD curr-amt LIKE ar-cash.check-amt
                                FIELD actnum LIKE account.actnum.
-{sys/inc/postdate.i}
+/*{sys/inc/postdate.i}*/
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    postdate-log = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "DT" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    postdate-dat = DATE(cRtnChar) NO-ERROR. 
+
 /*
 DO TRANSACTION:
   {sys/inc/postdate.i}
@@ -710,6 +726,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF ERROR-STATUS:ERROR THEN RETURN.
 
   RUN enable_UI.
+
+  RUN sys/inc/CustListForm.p ( "AL1",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
 
   DO WITH FRAME {&frame-name}:
     {custom/usrprint.i}

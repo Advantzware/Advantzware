@@ -7,7 +7,8 @@
 
 /* Commision Cash Receipt.rpa */
 {aoa/tempTable/ttCommissionCashReceipt.i}
-{sys/ref/CustList.i}
+
+{sys/ref/CustList.i NEW}
 
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttCommissionCashReceipt.

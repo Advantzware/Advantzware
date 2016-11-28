@@ -86,29 +86,6 @@ FUNCTION fInvoiceHighlights RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORW
 &ANALYZE-RESUME
 
 
-/* **********************  Internal Procedures  *********************** */
-
-&IF DEFINED(EXCLUDE-pInvoiceHighlights) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInvoiceHighlights Procedure 
-PROCEDURE pInvoiceHighlights :
-/*------------------------------------------------------------------------------
-  Purpose:     Invoice Highlights.edp
-  Parameters:  base current year
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/dbinvmh.p (OUTPUT TABLE ttInvoiceHighlights, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fInvoiceHighlights) = 0 &THEN
@@ -121,7 +98,8 @@ FUNCTION fInvoiceHighlights RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttInvoiceHighlights.
 
-    RUN pInvoiceHighlights (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/dbinvmh.p (OUTPUT TABLE ttInvoiceHighlights, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttInvoiceHighlights:HANDLE .
 

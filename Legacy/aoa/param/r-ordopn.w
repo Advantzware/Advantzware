@@ -4,7 +4,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
 /*------------------------------------------------------------------------
 
-  File: r-commcr.w
+  File: r-ordopn.w
 
   Description: from SMART.W - Template for basic ADM2 SmartObject
 
@@ -57,7 +57,7 @@ svStartDueDateOption svEndDueDate btnCalendar-4 svEndDueDateOption ~
 svAllUserID svStartUserID svEndUserID svAllSalesRep svStartSalesRep ~
 svEndSalesRep svPrimarySort svSecondarySort svJobStatus svOrderStatus ~
 svWIPQty svSubRpt_PrintJobQtyDetails svDropOrderUnderrun ~
-svIncludeZeroOrderBalanceItems svIncludeZeroQtyActReleaseQty ~
+svIncludeZeroQtyActReleaseQty svIncludeZeroOrderBalanceItems ~
 svIncludeJobsQOH svIncludeZeroQtyWIPItems svIncludeInactiveItems 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svAllCustNo svCustList ~
 svStartCustNo startCustName svEndCustNo endCustName svStartOrderDate ~
@@ -70,7 +70,7 @@ svStartUserID startUserIDName svEndUserID endUserIDName svAllSalesRep ~
 svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
 svPrimarySort svSecondarySort svJobStatus svOrderStatus svWIPQty ~
 svSubRpt_PrintJobQtyDetails svDropOrderUnderrun ~
-svIncludeZeroOrderBalanceItems svIncludeZeroQtyActReleaseQty ~
+svIncludeZeroQtyActReleaseQty svIncludeZeroOrderBalanceItems ~
 svIncludeJobsQOH svIncludeZeroQtyWIPItems svIncludeInactiveItems 
 
 /* Custom List Definitions                                              */
@@ -295,14 +295,14 @@ DEFINE VARIABLE svPrimarySort AS CHARACTER INITIAL "Customer"
 "Line Due Date", "Line Due Date",
 "Release Due Date", "Release Due Date",
 "Sales Rep", "Sales Rep"
-     SIZE 68 BY 1 NO-UNDO.
+     SIZE 77 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svSecondarySort AS CHARACTER INITIAL "PO" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "PO", "PO",
 "Item", "Item",
-"Cust. Part", "Cust. Part",
+"Cust Part", "Cust Part",
 "FG Item Name", "FG Item Name",
 "Order", "Order",
 "Due Date", "Due Date",
@@ -493,18 +493,16 @@ DEFINE FRAME F-Main
           "Select to Print Job Qty Details" WIDGET-ID 88
      svDropOrderUnderrun AT ROW 33.14 COL 22 HELP
           "Select to Drop Order Underrun%" WIDGET-ID 234
+     svIncludeZeroQtyActReleaseQty AT ROW 33.14 COL 56 HELP
+          "Select to Include 0 Qty / Act. Release Qty = 0" WIDGET-ID 222
      svIncludeZeroOrderBalanceItems AT ROW 34.33 COL 22 HELP
           "Select to Include 0 Order Balance Items" WIDGET-ID 224
-     svIncludeZeroQtyActReleaseQty AT ROW 34.33 COL 56 HELP
-          "Select to Include 0 Qty / Act. Release Qty = 0" WIDGET-ID 222
      svIncludeJobsQOH AT ROW 34.33 COL 56 HELP
           "Select to Include Jobs with QOH" WIDGET-ID 230
      svIncludeZeroQtyWIPItems AT ROW 35.52 COL 22 HELP
           "Select to Include 0 Qty WIP Items" WIDGET-ID 226
      svIncludeInactiveItems AT ROW 35.52 COL 56 HELP
           "Select to Include Inactive Items" WIDGET-ID 228
-     "Primary Sort By:" VIEW-AS TEXT
-          SIZE 15 BY 1 AT ROW 26 COL 6 WIDGET-ID 90
      "Order Status:" VIEW-AS TEXT
           SIZE 13 BY 1 AT ROW 29.57 COL 8 WIDGET-ID 244
      "Job Status:" VIEW-AS TEXT
@@ -513,6 +511,8 @@ DEFINE FRAME F-Main
           SIZE 18 BY 1 AT ROW 27.19 COL 3 WIDGET-ID 208
      "WIP Qty:" VIEW-AS TEXT
           SIZE 9 BY 1 AT ROW 30.76 COL 12 WIDGET-ID 246
+     "Primary Sort By:" VIEW-AS TEXT
+          SIZE 15 BY 1 AT ROW 26 COL 6 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1

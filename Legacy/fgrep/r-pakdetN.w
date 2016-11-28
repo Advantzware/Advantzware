@@ -1035,6 +1035,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   
   {methods/nowait.i}
+  
+  RUN sys/inc/CustListForm.p ( "IL11",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
 
   RUN sys/inc/CustListForm.p ( "IL11",cocode, 
                                OUTPUT ou-log,

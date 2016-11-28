@@ -91,8 +91,6 @@ IF ip-m-code EQ "" THEN ip-m-code = xef.m-code.
 
 IF ipxINo EQ "" THEN 
     RUN cec/d-bestft.w (v-use-code,
-                        RECID(xef),
-                        RECID(xeb),
                     OUTPUT v-code,
                     OUTPUT v-max-yld,
                     INPUT-OUTPUT ip-m-code,

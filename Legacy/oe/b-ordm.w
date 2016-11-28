@@ -1527,6 +1527,8 @@ PROCEDURE local-update-record :
       
   IF v-oecomm-cha NE "Manual" THEN RUN show-comm (NO).
 
+  RUN reopen-query(ROWID(oe-ordm)).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

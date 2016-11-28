@@ -279,7 +279,6 @@ PROCEDURE buildLines:
       excelCnt = excelCnt + 1.
       DELETE wrkExcel.
     END. /* each wrkexcel */
-    PUT UNFORMATTED SKIP.
   END. /* if ipexcel */
   ELSE DO:
     IF ipHeaderLines THEN DO:

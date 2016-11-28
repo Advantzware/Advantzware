@@ -25,6 +25,14 @@ CASE iphObject:NAME:
              NO-ERROR.
         IF AVAILABLE cust THEN opcDescription = cust.name.
     END.
+    WHEN "svStartCustPart" OR WHEN "svEndCustPart" THEN DO:
+        cRange = REPLACE(cRange,"CustPart","").
+        FIND FIRST cust-part NO-LOCK
+             WHERE cust-part.company EQ ipcCompany
+               AND cust-part.part-no EQ iphObject:SCREEN-VALUE
+             NO-ERROR.
+        IF AVAILABLE cust THEN opcDescription = cust-part.i-name.
+    END.
     WHEN "svStartCurrency" OR WHEN "svEndCurrency" THEN DO:
         cRange = REPLACE(cRange,"Currency","").
         FIND FIRST currency NO-LOCK
@@ -46,7 +54,7 @@ CASE iphObject:NAME:
              WHERE itemfg.company EQ ipcCompany
                AND itemfg.i-no    EQ iphObject:SCREEN-VALUE
              NO-ERROR.
-        IF AVAILABLE itemfg THEN opcDescription = itemfg.i-dscr.
+        IF AVAILABLE itemfg THEN opcDescription = itemfg.i-name.
     END.
     WHEN "svStartLoc" OR WHEN "svEndLoc" THEN DO:
         cRange = REPLACE(cRange,"Loc","").
@@ -88,6 +96,14 @@ CASE iphObject:NAME:
              NO-ERROR.
         IF AVAILABLE shift THEN opcDescription = shift.descr.
     END.
+    WHEN "svStartStyle" OR WHEN "svEndStyle" THEN DO:
+        cRange = REPLACE(cRange,"Style","").
+        FIND FIRST style NO-LOCK
+             WHERE style.company EQ ipcCompany
+               AND style.style   EQ iphObject:SCREEN-VALUE
+             NO-ERROR.
+        IF AVAILABLE style THEN opcDescription = style.dscr.
+    END.
     WHEN "svStartTerms" OR WHEN "svEndTerms" THEN DO:
         cRange = REPLACE(cRange,"Terms","").
         FIND FIRST terms NO-LOCK
@@ -99,8 +115,7 @@ CASE iphObject:NAME:
     WHEN "svStartUserID" OR WHEN "svEndUserID" THEN DO:
         cRange = REPLACE(cRange,"UserID","").
         FIND FIRST users NO-LOCK
-             WHERE cust.company  EQ ipcCompany
-               AND users.user_id EQ iphObject:SCREEN-VALUE
+             WHERE users.user_id EQ iphObject:SCREEN-VALUE
              NO-ERROR.
         IF AVAILABLE users THEN opcDescription = users.user_name.
     END.

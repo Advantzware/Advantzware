@@ -71,16 +71,16 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "ITEM,DESCRIPTION,CAT,UOM,COST,ON HAND,ON ORDER,QTY ALLOCATED," +
-                           "REORDER LEVEL,QTY AVAILABLE,VALUE,TON" 
+                           "REORDER LEVEL,QTY AVAILABLE,VALUE,TON,Item Name" 
        cFieldListToSelect = "item,desc,cat,uom,cost,on-hand,on-order,qty-all," +
-                            "reord-l,qty-avail,value,ton"
-       cFieldLength = "10,20,5,3,9,14,14,14," + "13,14,11,11"
-       cFieldType = "c,c,c,c,i,i,i,i," + "i,i,i,i" 
+                            "reord-l,qty-avail,value,ton,itemName"
+       cFieldLength = "10,20,5,3,9,14,14,14," + "13,14,11,11,30"
+       cFieldType = "c,c,c,c,i,i,i,i," + "i,i,i,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "ITEM,DESCRIPTION,CAT,UOM,COST,ON HAND,ON ORDER,QTY ALLOCATED," +
-                           "REORDER LEVEL,QTY AVAILABLE,VALUE"  .
+                           "REORDER LEVEL,QTY AVAILABLE,VALUE,Item Name"  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1473,7 +1473,7 @@ format
 /*        item.loc         column-label "WHSE"  */
 /*                         format "X(5)"        */
        item.i-no        column-label "ITEM"
-       item.i-name      column-label "DESCRIPTION"
+       item.i-dscr      column-label "DESCRIPTION"
                         format "x(20)"
        item.procat      column-label "PROD!CAT"
        item.cons-uom    column-label "UOM"
@@ -1491,9 +1491,11 @@ format
                         format "->>>>>>9.999"
        v-value          column-label "VALUE"
                         format "->>>>>>9.99"
+       item.i-name      column-label "Item Name"
+                        format "x(30)"
        skip
        
-    with frame itemx no-box down stream-io width 132.
+    with frame itemx no-box down stream-io width 164.
 
 
 /* find first rm-ctrl no-lock no-error.  */
@@ -1624,7 +1626,7 @@ FOR EACH ITEM NO-LOCK
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "item"    THEN cVarValue = string(item.i-no,"x(10)") .
-                         WHEN "desc"   THEN cVarValue = string(item.i-name,"x(20)").
+                         WHEN "desc"   THEN cVarValue = string(item.i-dscr,"x(20)").
                          WHEN "cat"   THEN cVarValue = STRING(item.procat,"x(5)").
                          WHEN "uom"  THEN cVarValue = STRING(item.cons-uom,"x(3)") .
                          WHEN "cost"   THEN cVarValue = STRING(item.avg-cost,"->>>>9.99") .
@@ -1636,6 +1638,7 @@ FOR EACH ITEM NO-LOCK
                          WHEN "qty-avail"   THEN cVarValue = /*IF item.i-code ne "E" THEN*/ STRING(v-qty-avail,"->,>>>,>>9.999") /*ELSE ""*/ .
                          WHEN "value"  THEN cVarValue = /*IF item.i-code ne "E" THEN*/ STRING(v-value,"->>>>>>9.99") /*ELSE ""*/ .
                          WHEN "ton"  THEN cVarValue = /*IF item.i-code ne "E" THEN*/ STRING(v-tons,"->>>>>>9.99") /*ELSE ""*/ .
+                         WHEN "itemName"   THEN cVarValue = string(item.i-name,"x(30)").
                          
                     END CASE.
                       

@@ -7,7 +7,8 @@
 
 /* Customer Inventory.rpa */
 {aoa/tempTable/ttProductionAnalysis.i}
-{sys/ref/CustList.i}
+
+{sys/ref/CustList.i NEW}
 
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttProductionAnalysis.

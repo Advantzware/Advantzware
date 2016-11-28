@@ -1,4 +1,4 @@
-/* pMachineTransactions.i - auto generated 11.03.2016 @ 12:47:42 am from aoa/aoaParam.w */
+/* pMachineTransactions.i - auto generated 11.09.2016 @  8:49:00 pm from aoa/aoaParam.w */
 
     {aoa/includes/aoaInputDefParams.i}
 
@@ -48,7 +48,7 @@
     IF lAllMachine THEN
     ASSIGN
         cStartMachine = CHR(32)
-        cEndMachine   = CHR(255)
+        cEndMachine   = CHR(254)
         .
 
     IF lAllShift THEN

@@ -1,4 +1,4 @@
-/* pOpenOrderReport.i - auto generated 11.03.2016 @ 12:47:47 am from aoa/aoaParam.w */
+/* pOpenOrderReport.i - auto generated 11.03.2016 @  9:56:03 pm from aoa/aoaParam.w */
 
     {aoa/includes/aoaInputDefParams.i}
 
@@ -114,43 +114,43 @@
     IF lAllCustNo THEN
     ASSIGN
         cStartCustNo = CHR(32)
-        cEndCustNo   = CHR(255)
+        cEndCustNo   = CHR(254)
         .
 
     IF lAllPONumber THEN
     ASSIGN
         cStartPONumber = CHR(32)
-        cEndPONumber   = CHR(255)
+        cEndPONumber   = CHR(254)
         .
 
     IF lAllJobNo THEN
     ASSIGN
         cStartJobNo = CHR(32)
-        cEndJobNo   = CHR(255)
+        cEndJobNo   = CHR(254)
         .
 
     IF lAllItemNo THEN
     ASSIGN
         cStartItemNo = CHR(32)
-        cEndItemNo   = CHR(255)
+        cEndItemNo   = CHR(254)
         .
 
     IF lAllCAD THEN
     ASSIGN
         cStartCAD = CHR(32)
-        cEndCAD   = CHR(255)
+        cEndCAD   = CHR(254)
         .
 
     IF lAllUserID THEN
     ASSIGN
         cStartUserID = CHR(32)
-        cEndUserID   = CHR(255)
+        cEndUserID   = CHR(254)
         .
 
     IF lAllSalesRep THEN
     ASSIGN
         cStartSalesRep = CHR(32)
-        cEndSalesRep   = CHR(255)
+        cEndSalesRep   = CHR(254)
         .
 
     IF lCustList THEN

@@ -1,4 +1,4 @@
-/* pCommissionCashReceipt.i - auto generated 11.03.2016 @ 12:46:49 am from aoa/aoaParam.w */
+/* pCommissionCashReceipt.i - auto generated 11.12.2016 @ 12:26:46 am from aoa/aoaParam.w */
 
     {aoa/includes/aoaInputDefParams.i}
 
@@ -64,13 +64,13 @@
     IF lAllSalesRep THEN
     ASSIGN
         cStartSalesRep = CHR(32)
-        cEndSalesRep   = CHR(255)
+        cEndSalesRep   = CHR(254)
         .
 
     IF lAllCustNo THEN
     ASSIGN
         cStartCustNo = CHR(32)
-        cEndCustNo   = CHR(255)
+        cEndCustNo   = CHR(254)
         .
 
     IF lCustList THEN

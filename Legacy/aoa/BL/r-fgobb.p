@@ -8,6 +8,8 @@
 /* Customer Inventory.rpa */
 {aoa/tempTable/ttInventoryValue.i}
 
+{sys/ref/CustList.i NEW}
+
 &SCOPED-DEFINE itemfg-index i-no job-no job-no2 loc loc-bin tag bin-cust-no
 DEFINE NEW SHARED TEMP-TABLE tt-itemfg NO-UNDO
     FIELD row-id      AS ROWID
@@ -31,8 +33,6 @@ DEFINE NEW SHARED TEMP-TABLE tt-itemfg NO-UNDO
         INDEX loc-bin-tag loc-bin-tag {&itemfg-index}
         .
 {fg/rep/tt-fgbin.i NEW SHARED}
-
-{sys/ref/CustList.i}
 
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttInventoryValue.

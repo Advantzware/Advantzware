@@ -1257,7 +1257,17 @@ CASE icFormName:
      ASSIGN
         v-program = "ar/rep/prpkgmem.p"
         lines-per-page = 66
-        is-xprint-form = YES.  
+        is-xprint-form = YES. 
+    WHEN "SouleMed" THEN
+     ASSIGN
+        v-program = "ar/rep/soulmemo.p"
+        lines-per-page = 66
+        is-xprint-form = YES.
+    WHEN "Soule" THEN
+     ASSIGN
+        v-program = "ar/rep/soulpkmem.p"
+        lines-per-page = 66
+        is-xprint-form = YES.
     OTHERWISE
      ASSIGN
         v-program      = "ar/rep/crdbmemo.p"

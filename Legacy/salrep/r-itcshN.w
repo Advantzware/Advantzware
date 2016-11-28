@@ -1165,6 +1165,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 
   {methods/nowait.i}
+
+  RUN sys/inc/CustListForm.p ( "HR5",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
   
   RUN sys/inc/CustListForm.p ( "HR5",cocode, 
                                OUTPUT ou-log,

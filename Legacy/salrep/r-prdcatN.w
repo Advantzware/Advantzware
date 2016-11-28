@@ -25,6 +25,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -40,6 +42,7 @@ assign
  cocode = gcompany
  locode = gloc.
 
+/*{sys/inc/custlistform.i ""HR4"" }*/
 def TEMP-TABLE w-data no-undo
   field w-sqft      LIKE itemfg.t-sqft format "->>>9.999"    extent 3    column-label "Sq Ft/M"
   field w-amt       like ar-inv.gross  format "->>>,>>9.99"  extent 3
@@ -983,6 +986,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   
   {methods/nowait.i}
+
+  RUN sys/inc/CustListForm.p ( "HR4",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}

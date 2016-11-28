@@ -13,6 +13,7 @@ DEFINE VARIABLE aoaURL          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaCompany      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaLocation     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaUserID       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE aoaExcelOnly    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cProgramID      AS CHARACTER NO-UNDO.
 
 FIND FIRST sys-ctrl NO-LOCK
@@ -38,6 +39,7 @@ ASSIGN
     aoaType         = ENTRY(4,ipcParamStr)
     aoaColumns      = ENTRY(5,ipcParamStr) EQ "YES"
     aoaCustListForm = ENTRY(6,ipcParamStr)
+    aoaExcelOnly    = ENTRY(7,ipcParamStr) EQ "aoaExcelOnly"
     aoaHost         = IF OS-GETENV("COMPUTERNAME") NE sys-ctrl.char-fld THEN sys-ctrl.char-fld
                       ELSE "localhost"
     aoaPort         = sys-ctrl.int-fld
@@ -49,8 +51,8 @@ ASSIGN
     .
 
 /* used for testing in AppBuilder */
-IF NUM-ENTRIES(ipcParamStr) EQ 7 THEN
-aoaParam = ENTRY(7,ipcParamStr).
+IF NUM-ENTRIES(ipcParamStr) EQ 8  THEN
+aoaParam = ENTRY(8,ipcParamStr).
 
 cProgramID = aoaTitle + ".rpa".
 

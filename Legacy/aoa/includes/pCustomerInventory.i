@@ -38,7 +38,7 @@
     IF lAllCustNo THEN
     ASSIGN
         cStartCustNo = CHR(32)
-        cEndCustNo   = CHR(255)
+        cEndCustNo   = CHR(254)
         .
 
     IF lCustList THEN

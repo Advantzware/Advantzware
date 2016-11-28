@@ -280,15 +280,15 @@ tb_reprint-tag v-ord-list v-job-list begin_ord-no end_ord-no begin_job ~
 begin_job2 end_job end_job2 begin_i-no end_i-no rd_order-sts rd_print ~
 begin_date end_date rd_comps tb_dept-note tb_rel tb_over tb_16ths ~
 tb_ship-id scr-auto-print scr-freeze-label scr-label-file begin_labels ~
-begin_form btn-ok btn-cancel tb_xfer-lot tb_override-mult RECT-7 RECT-8 ~
-RECT-11 RECT-12 
+begin_form btn-ok btn-cancel tb_xfer-lot tb_override-mult begin_ship-to ~
+end_ship-to RECT-7 RECT-8 RECT-11 RECT-12 
 &Scoped-Define DISPLAYED-OBJECTS tbPartSelect loadtagFunction tb_ret ~
 tb_reprint-tag v-ord-list v-job-list begin_ord-no end_ord-no begin_job ~
 begin_job2 end_job end_job2 begin_i-no end_i-no rd_order-sts rd_print ~
 begin_date end_date rd_comps v-dept-list tb_dept-note tb_rel tb_over ~
 tb_16ths tb_ship-id v-ship-id scr-auto-print scr-freeze-label ~
 scr-label-file begin_labels begin_form begin_filename typeLabel statusLabel ~
-lbl_po-no tb_xfer-lot tb_override-mult 
+lbl_po-no tb_xfer-lot tb_override-mult begin_ship-to end_ship-to 
 
 /* Custom List Definitions                                              */
 /* jobFields,NonReprint,List-3,List-4,List-5,F1                         */
@@ -297,7 +297,8 @@ end_job2 tb_rel tb_over
 &Scoped-define NonReprint loadtagFunction tb_ret v-ord-list v-job-list ~
 begin_ord-no end_ord-no begin_job begin_job2 end_job end_job2 begin_i-no ~
 end_i-no rd_order-sts rd_print begin_date end_date rd_comps tb_rel tb_over ~
-tb_16ths tb_ship-id v-ship-id begin_filename tb_xfer-lot tb_override-mult 
+tb_16ths tb_ship-id v-ship-id begin_filename tb_xfer-lot tb_override-mult ~
+begin_ship-to end_ship-to 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -350,7 +351,7 @@ DEFINE VARIABLE v-ord-list AS CHARACTER
      SIZE 42 BY 3.1 NO-UNDO.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "From:" 
+     LABEL "From" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
@@ -389,8 +390,13 @@ DEFINE VARIABLE begin_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_ship-to AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Ship To From" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
-     LABEL "To:" 
+     LABEL "To" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
@@ -413,6 +419,11 @@ DEFINE VARIABLE end_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      LABEL "To Order#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_ship-to AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
+     LABEL "To" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_cas-lab AS CHARACTER FORMAT "X(30)":U 
      LABEL "Scan Case Label" 
@@ -472,13 +483,13 @@ DEFINE VARIABLE rd_print AS CHARACTER INITIAL "H"
      RADIO-BUTTONS 
           "Header", "H",
 "Line", "L",
-"Release", "R",
-"Job#", "J"
-     SIZE 37 BY 1 NO-UNDO.
+"Job#", "J",
+"Release", "R"
+     SIZE 38 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-11
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 5.52.
+     SIZE 101 BY 6.43.
 
 DEFINE RECTANGLE RECT-12
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -557,7 +568,7 @@ DEFINE VARIABLE tb_xfer-lot AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     tbPartSelect AT ROW 15.14 COL 73.4 WIDGET-ID 32
+     tbPartSelect AT ROW 15.86 COL 73.4 WIDGET-ID 32
      loadtagFunction AT ROW 2.19 COL 36 RIGHT-ALIGNED NO-LABEL
      tb_ret AT ROW 2.19 COL 41
      tb_reprint-tag AT ROW 2.19 COL 59
@@ -586,33 +597,37 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Release Date"
      end_date AT ROW 13.81 COL 82.6 COLON-ALIGNED HELP
           "Enter Ending Release Date"
-     rd_comps AT ROW 15.05 COL 31 NO-LABEL
-     v-dept-list AT ROW 16.71 COL 30.6 COLON-ALIGNED NO-LABEL
-     tb_dept-note AT ROW 16.81 COL 4
-     tb_rel AT ROW 17.76 COL 4
-     tb_over AT ROW 17.76 COL 45
-     tb_16ths AT ROW 17.76 COL 73
-     tb_ship-id AT ROW 16.67 COL 59.4 WIDGET-ID 24
-     v-ship-id AT ROW 16.67 COL 75.8 COLON-ALIGNED NO-LABEL WIDGET-ID 26
-     scr-auto-print AT ROW 19.57 COL 26.4 WIDGET-ID 2
-     scr-freeze-label AT ROW 19.57 COL 49.6 WIDGET-ID 4
-     scr-label-file AT ROW 20.52 COL 24 COLON-ALIGNED WIDGET-ID 6
-     begin_labels AT ROW 21.57 COL 24 COLON-ALIGNED
-     begin_form AT ROW 21.48 COL 84 COLON-ALIGNED
-     begin_filename AT ROW 22.57 COL 24 COLON-ALIGNED
-     btn-ok AT ROW 23.95 COL 25
-     btn-cancel AT ROW 23.95 COL 66
+     rd_comps AT ROW 15.76 COL 31 NO-LABEL
+     v-dept-list AT ROW 17.43 COL 30.6 COLON-ALIGNED NO-LABEL
+     tb_dept-note AT ROW 17.52 COL 4
+     tb_rel AT ROW 18.48 COL 4
+     tb_over AT ROW 18.48 COL 45
+     tb_16ths AT ROW 18.48 COL 73
+     tb_ship-id AT ROW 17.38 COL 59.4 WIDGET-ID 24
+     v-ship-id AT ROW 17.38 COL 75.8 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+     scr-auto-print AT ROW 20.38 COL 26.4 WIDGET-ID 2
+     scr-freeze-label AT ROW 20.38 COL 49.6 WIDGET-ID 4
+     scr-label-file AT ROW 21.33 COL 24 COLON-ALIGNED WIDGET-ID 6
+     begin_labels AT ROW 22.33 COL 24 COLON-ALIGNED
+     begin_form AT ROW 22.29 COL 84 COLON-ALIGNED
+     begin_filename AT ROW 23.38 COL 24 COLON-ALIGNED
+     btn-ok AT ROW 24.76 COL 25
+     btn-cancel AT ROW 24.76 COL 66
      typeLabel AT ROW 5.29 COL 6 COLON-ALIGNED NO-LABEL
      statusLabel AT ROW 12.14 COL 4.4 NO-LABEL
      lbl_po-no AT ROW 13.86 COL 4 HELP
           "Print Customer's PO Number from Header, Line item or Release" NO-LABEL
-     tb_xfer-lot AT ROW 15.86 COL 4 WIDGET-ID 28
-     tb_override-mult AT ROW 21.52 COL 35 WIDGET-ID 34
+     tb_xfer-lot AT ROW 16.57 COL 4 WIDGET-ID 28
+     tb_override-mult AT ROW 22.33 COL 35 WIDGET-ID 34
+     begin_ship-to AT ROW 14.71 COL 61.2 COLON-ALIGNED HELP
+          "Enter Beginning Release Shipto" WIDGET-ID 36
+     end_ship-to AT ROW 14.71 COL 82.6 COLON-ALIGNED HELP
+          "Enter Ending Release shipto" WIDGET-ID 38
      "Output Options:" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18.95 COL 4 WIDGET-ID 22
+          SIZE 18 BY .62 AT ROW 19.76 COL 4 WIDGET-ID 22
           FONT 6
      "Print Set Components for:" VIEW-AS TEXT
-          SIZE 26 BY 1 AT ROW 15 COL 4
+          SIZE 26 BY 1 AT ROW 15.71 COL 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 3
           BGCOLOR 2 
@@ -624,10 +639,17 @@ DEFINE FRAME FRAME-A
      "Print Options:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 13.14 COL 4 WIDGET-ID 14
           FONT 6
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 106.2 BY 30.33.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME FRAME-A
      RECT-7 AT ROW 1.24 COL 2
      RECT-8 AT ROW 4.81 COL 2 WIDGET-ID 8
      RECT-11 AT ROW 13.38 COL 2 WIDGET-ID 18
-     RECT-12 AT ROW 19.33 COL 2 WIDGET-ID 20
+     RECT-12 AT ROW 20.14 COL 2 WIDGET-ID 20
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -651,7 +673,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Loadtag Creation"
-         HEIGHT             = 24.19
+         HEIGHT             = 25.1
          WIDTH              = 103
          MAX-HEIGHT         = 53.71
          MAX-WIDTH          = 384
@@ -710,6 +732,12 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN begin_ord-no IN FRAME FRAME-A
    2                                                                    */
+/* SETTINGS FOR FILL-IN begin_ship-to IN FRAME FRAME-A
+   2                                                                    */
+ASSIGN 
+       begin_ship-to:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR FILL-IN end_date IN FRAME FRAME-A
    2                                                                    */
 ASSIGN 
@@ -724,6 +752,12 @@ ASSIGN
    1 2                                                                  */
 /* SETTINGS FOR FILL-IN end_ord-no IN FRAME FRAME-A
    2                                                                    */
+/* SETTINGS FOR FILL-IN end_ship-to IN FRAME FRAME-A
+   2                                                                    */
+ASSIGN 
+       end_ship-to:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR FILL-IN fi_cas-lab IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -1727,6 +1761,8 @@ DO:
     ASSIGN
      begin_date:SENSITIVE = YES
      end_date:SENSITIVE   = YES
+     begin_ship-to:SENSITIVE = YES
+     end_ship-to:SENSITIVE   = YES
      tb_xfer-lot:SENSITIVE = YES.
      
     APPLY "entry" TO begin_date.
@@ -1735,6 +1771,8 @@ DO:
     ASSIGN
      begin_date:SENSITIVE = NO
      end_date:SENSITIVE   = NO
+     begin_ship-to:SENSITIVE = NO
+     end_ship-to:SENSITIVE   = NO
      tb_xfer-lot:SENSITIVE = NO
      tb_xfer-lot:CHECKED = NO
      tb_xfer-lot = NO.  
@@ -2220,6 +2258,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      end_job2:SCREEN-VALUE     = ""
      begin_i-no:SCREEN-VALUE   = ""
      end_i-no:SCREEN-VALUE     = ""
+     begin_ship-to:SCREEN-VALUE   = ""
+     end_ship-to:SCREEN-VALUE     = "zzzzzzzz"
      lv-rd_print               = rd_print:SCREEN-VALUE
      tb_ret:SCREEN-VALUE       = "NO"
      tb_reprint-tag:SCREEN-VALUE = "NO" 
@@ -2255,6 +2295,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tbPartSelect:SCREEN-VALUE = "NO"
         begin_labels:SCREEN-VALUE = STRING(v-mult)
         begin_labels = v-mult
+        begin_ship-to:SCREEN-VALUE   = ""
+        end_ship-to:SCREEN-VALUE     = "zzzzzzzz"
         .
 
     DISABLE v-ship-id.
@@ -2387,7 +2429,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY 'VALUE-CHANGED':U TO loadtagFunction.
     APPLY 'VALUE-CHANGED':U TO tb_dept-note.
 
-    IF rd_print:SCREEN-VALUE NE "R" THEN DISABLE begin_date end_date.
+    IF rd_print:SCREEN-VALUE NE "R" THEN DISABLE begin_date end_date begin_ship-to end_ship-to .
 
     {methods/nowait.i}    
 
@@ -4270,15 +4312,15 @@ PROCEDURE enable_UI :
           rd_comps v-dept-list tb_dept-note tb_rel tb_over tb_16ths tb_ship-id 
           v-ship-id scr-auto-print scr-freeze-label scr-label-file begin_labels 
           begin_form begin_filename typeLabel statusLabel lbl_po-no tb_xfer-lot 
-          tb_override-mult 
+          tb_override-mult begin_ship-to end_ship-to 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE tbPartSelect loadtagFunction tb_ret tb_reprint-tag v-ord-list 
          v-job-list begin_ord-no end_ord-no begin_job begin_job2 end_job 
          end_job2 begin_i-no end_i-no rd_order-sts rd_print begin_date end_date 
          rd_comps tb_dept-note tb_rel tb_over tb_16ths tb_ship-id 
          scr-auto-print scr-freeze-label scr-label-file begin_labels begin_form 
-         btn-ok btn-cancel tb_xfer-lot tb_override-mult RECT-7 RECT-8 RECT-11 
-         RECT-12 
+         btn-ok btn-cancel tb_xfer-lot tb_override-mult begin_ship-to 
+         end_ship-to RECT-7 RECT-8 RECT-11 RECT-12 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -5863,6 +5905,8 @@ PROCEDURE get-rel-info :
           AND oe-relh.posted   EQ NO
           AND oe-relh.rel-date GE begin_date
           AND oe-relh.rel-date LE end_date
+          AND oe-relh.ship-id GE begin_ship-to
+          AND oe-relh.ship-id LE end_ship-to
         BY oe-relh.rel-date
         BY oe-relh.r-no:
 
@@ -5889,6 +5933,8 @@ PROCEDURE get-rel-info :
           AND oe-rel.rel-no   EQ 0
           AND oe-rel.rel-date GE begin_date
           AND oe-rel.rel-date LE end_date
+          AND oe-rel.ship-id GE begin_ship-to
+          AND oe-rel.ship-id LE end_ship-to
         BY oe-rel.rel-date
         BY oe-rel.r-no:
 
@@ -6367,24 +6413,48 @@ PROCEDURE new-cas-lab :
           NO-LOCK NO-ERROR.
       IF AVAIL loadtag THEN DO:
 
-        ASSIGN
-         fi_cas-lab:SCREEN-VALUE   = loadtag.tag-no
-         begin_ord-no:SCREEN-VALUE = STRING(loadtag.ord-no)
-         end_ord-no:SCREEN-VALUE   = STRING(loadtag.ord-no)
-         begin_job:SCREEN-VALUE    = loadtag.job-no
-         end_job:SCREEN-VALUE      = loadtag.job-no
-         begin_job2:SCREEN-VALUE   = STRING(loadtag.job-no2)
-         end_job2:SCREEN-VALUE     = STRING(loadtag.job-no2)
-         begin_i-no:SCREEN-VALUE   = loadtag.i-no
-         end_i-no:SCREEN-VALUE     = loadtag.i-no.
+          FIND FIRST oe-ord NO-LOCK
+          WHERE oe-ord.company EQ loadtag.company
+            AND oe-ord.ord-no  EQ loadtag.ord-no
+            AND oe-ord.job-no EQ loadtag.job-no
+            AND oe-ord.job-no2 EQ loadtag.job-no2
+            AND oe-ord.ord-no GE 0
+            NO-ERROR.
+        
+         IF AVAIL oe-ord THEN do:
 
+            ASSIGN
+             fi_cas-lab:SCREEN-VALUE   = loadtag.tag-no
+             begin_ord-no:SCREEN-VALUE = STRING(loadtag.ord-no)
+             end_ord-no:SCREEN-VALUE   = STRING(loadtag.ord-no)
+             begin_job:SCREEN-VALUE    = loadtag.job-no
+             end_job:SCREEN-VALUE      = loadtag.job-no
+             begin_job2:SCREEN-VALUE   = STRING(loadtag.job-no2)
+             end_job2:SCREEN-VALUE     = STRING(loadtag.job-no2)
+             begin_i-no:SCREEN-VALUE   = loadtag.i-no
+             end_i-no:SCREEN-VALUE     = loadtag.i-no.
+          END.
+          ELSE
+            ASSIGN
+             fi_cas-lab:SCREEN-VALUE   = ""
+             begin_ord-no:SCREEN-VALUE = ""
+             end_ord-no:SCREEN-VALUE   = ""
+             begin_job:SCREEN-VALUE    = ""
+             end_job:SCREEN-VALUE      = ""
+             begin_job2:SCREEN-VALUE   = ""
+             end_job2:SCREEN-VALUE     = ""
+             begin_i-no:SCREEN-VALUE   = ""
+             end_i-no:SCREEN-VALUE     = "" .
 
-        RUN cas-lab-label-mat-file.
-
-        RUN checkReturns.
-        IF RETURN-VALUE EQ 'ERROR' THEN RETURN 'ERROR'.
-        IF tb_ret:SCREEN-VALUE EQ "NO" THEN
-        RUN ok-button.
+        
+        
+            RUN cas-lab-label-mat-file.
+        
+            RUN checkReturns.
+            IF RETURN-VALUE EQ 'ERROR' THEN RETURN 'ERROR'.
+            IF tb_ret:SCREEN-VALUE EQ "NO" THEN
+            RUN ok-button.
+         
       END.
       ELSE IF tb_reprint-tag THEN DO: /* task# 09200517*/
            FIND FIRST loadtag WHERE loadtag.company     EQ cocode

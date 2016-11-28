@@ -88,13 +88,13 @@
     IF lAllCustNo THEN
     ASSIGN
         cStartCustNo = CHR(32)
-        cEndCustNo   = CHR(255)
+        cEndCustNo   = CHR(254)
         .
 
     IF lAllItemNo THEN
     ASSIGN
         cStartItemNo = CHR(32)
-        cEndItemNo   = CHR(255)
+        cEndItemNo   = CHR(254)
         .
 
     IF lCustList THEN

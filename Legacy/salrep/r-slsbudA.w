@@ -27,6 +27,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -54,6 +56,8 @@ DEF VAR edate AS DATE EXTENT 2 NO-UNDO.
 DEF VAR v-runflg AS LOG INIT NO NO-UNDO.
 DEF VAR v-enable-fg AS LOG NO-UNDO.
 DEF VAR v-prod-line-mode AS LOG NO-UNDO.
+DEF VAR cRtnChar AS CHAR NO-UNDO .
+DEF VAR lRecFound AS CHAR NO-UNDO .
 
 DEF STREAM excel.
 
@@ -970,6 +974,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   {methods/nowait.i}
 
+  RUN sys/inc/CustListForm.p ( "HS",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
   DO WITH FRAME {&FRAME-NAME}:
      {custom/usrprint.i}
 
@@ -984,7 +992,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   APPLY "entry" TO rs_detail IN FRAME {&FRAME-NAME}.
 
   /* gdm - 03090904 */
-    FIND FIRST sys-ctrl NO-LOCK
+    /*FIND FIRST sys-ctrl NO-LOCK
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name EQ "SalesBudget" NO-ERROR.
     IF NOT AVAIL sys-ctrl THEN DO:
@@ -996,7 +1004,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             sys-ctrl.descrip = "Budget Report".
     END.
     ASSIGN v-runflg = sys-ctrl.log-fld.
-    RELEASE sys-ctrl.
+    RELEASE sys-ctrl.*/
+   RUN sys/ref/nk1look.p (INPUT cocode, "SalesBudget", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
 /* gdm - 0309094 end */
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
