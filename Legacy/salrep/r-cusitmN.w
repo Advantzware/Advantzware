@@ -23,8 +23,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -40,81 +42,79 @@ assign
  cocode = gcompany
  locode = gloc.
 
-{sys/inc/custlistform.i ""HZ"" }
-
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
-def var fcust as ch init "" NO-UNDO.
-def var tcust like fcust init "zzzzzzzz" NO-UNDO.
-def var fship as ch init "" NO-UNDO.
-def var tship like fcust init "zzzzzzzz" NO-UNDO.
-def var fshpz as ch format "x(10)" init "" NO-UNDO.
-def var tshpz like fcust init "zzzzzzzzzz" NO-UNDO.
-def var fitem like itemfg.i-no init " " NO-UNDO.
-def var titem like fitem init "zzzzzzzzzzzzzzzzzzz" NO-UNDO.
-def var fsman as char format "x(3)" init "" NO-UNDO.
-def var tsman like fsman init "zzz" NO-UNDO.
-def var fdate as date format "99/99/9999" NO-UNDO.
-def var tdate like fdate NO-UNDO.
-def var fpo as char format "x(15)" init " " NO-UNDO.
-def var tpo like fpo init "zzzzzzzzzzzzzzz" NO-UNDO.
-def var v-det as log format "Detail/Summary" init YES NO-UNDO.
-def var v-sort1 as char format "!" init "I" NO-UNDO.
-def var v-print1 as log format "Cust/Item" init YES NO-UNDO.
-def var v-disc-p as log init NO NO-UNDO.
-def var v-freight as log init NO NO-UNDO.
-def var v-inc-fc as log init NO NO-UNDO.
+DEFINE VARIABLE fcust AS ch INIT "" NO-UNDO.
+DEFINE VARIABLE tcust LIKE fcust INIT "zzzzzzzz" NO-UNDO.
+DEFINE VARIABLE fship AS ch INIT "" NO-UNDO.
+DEFINE VARIABLE tship LIKE fcust INIT "zzzzzzzz" NO-UNDO.
+DEFINE VARIABLE fshpz AS ch FORMAT "x(10)" INIT "" NO-UNDO.
+DEFINE VARIABLE tshpz LIKE fcust INIT "zzzzzzzzzz" NO-UNDO.
+DEFINE VARIABLE fitem LIKE itemfg.i-no INIT " " NO-UNDO.
+DEFINE VARIABLE titem LIKE fitem INIT "zzzzzzzzzzzzzzzzzzz" NO-UNDO.
+DEFINE VARIABLE fsman AS CHARACTER FORMAT "x(3)" INIT "" NO-UNDO.
+DEFINE VARIABLE tsman LIKE fsman INIT "zzz" NO-UNDO.
+DEFINE VARIABLE fdate AS DATE FORMAT "99/99/9999" NO-UNDO.
+DEFINE VARIABLE tdate LIKE fdate NO-UNDO.
+DEFINE VARIABLE fpo AS CHARACTER FORMAT "x(15)" INIT " " NO-UNDO.
+DEFINE VARIABLE tpo LIKE fpo INIT "zzzzzzzzzzzzzzz" NO-UNDO.
+DEFINE VARIABLE v-det AS LOG FORMAT "Detail/Summary" INIT YES NO-UNDO.
+DEFINE VARIABLE v-sort1 AS CHARACTER FORMAT "!" INIT "I" NO-UNDO.
+DEFINE VARIABLE v-print1 AS LOG FORMAT "Cust/Item" INIT YES NO-UNDO.
+DEFINE VARIABLE v-disc-p AS LOG INIT NO NO-UNDO.
+DEFINE VARIABLE v-freight AS LOG INIT NO NO-UNDO.
+DEFINE VARIABLE v-inc-fc AS LOG INIT NO NO-UNDO.
 
-def var v-date like ar-inv.inv-date column-label "Invoice!Date" NO-UNDO.
-def var v-ord  like ar-invl.ord-no column-label "Order!Number" NO-UNDO.
-def var v-pric like ar-invl.unit-pr column-label "Unit Price" NO-UNDO.
-def var v-uom  like ar-invl.pr-uom column-label "UOM" NO-UNDO.
-DEF VAR v-head-f AS CHAR NO-UNDO.
-def var v-sman-no as   char format "x(3)" no-undo.
+DEFINE VARIABLE v-date LIKE ar-inv.inv-date COLUMN-LABEL "Invoice!Date" NO-UNDO.
+DEFINE VARIABLE v-ord  LIKE ar-invl.ord-no COLUMN-LABEL "Order!Number" NO-UNDO.
+DEFINE VARIABLE v-pric LIKE ar-invl.unit-pr COLUMN-LABEL "Unit Price" NO-UNDO.
+DEFINE VARIABLE v-uom  LIKE ar-invl.pr-uom COLUMN-LABEL "UOM" NO-UNDO.
+DEFINE VARIABLE v-head-f AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-sman-no AS   CHARACTER FORMAT "x(3)" NO-UNDO.
 
-def var v-exc     as   LOG NO-UNDO.
-def var v-name    like cust.name format "x(21)" NO-UNDO.
+DEFINE VARIABLE v-exc     AS   LOG NO-UNDO.
+DEFINE VARIABLE v-name    LIKE cust.name FORMAT "x(21)" NO-UNDO.
 
-def var v-pct as dec format "99.99" no-undo.
-def var v-fac as int no-undo.
-def var v-ship like ar-inv.ship-id no-undo.
-def var v-shpz like ar-inv.sold-zip no-undo.
-def var v-disc like ar-invl.disc no-undo.
+DEFINE VARIABLE v-pct AS DECIMAL FORMAT "99.99" NO-UNDO.
+DEFINE VARIABLE v-fac AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-ship LIKE ar-inv.ship-id NO-UNDO.
+DEFINE VARIABLE v-shpz LIKE ar-inv.sold-zip NO-UNDO.
+DEFINE VARIABLE v-disc LIKE ar-invl.disc NO-UNDO.
 
-DEF TEMP-TABLE tt-report NO-UNDO LIKE report
-    FIELD v-po AS CHAR .
+DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
+    FIELD v-po AS CHARACTER .
 
-DEF BUFFER xreport FOR tt-report.
+DEFINE BUFFER xreport FOR tt-report.
 
-def TEMP-TABLE w-data NO-UNDO
+DEFINE TEMP-TABLE w-data NO-UNDO
   field i-no      like ar-invl.i-no column-label "FG Item"
   field inv-no    like ar-invl.inv-no column-label "Invoice!Number"
   field rec-id    as recid.
  
-DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
-DEF VAR is-xprint-form AS LOGICAL NO-UNDO.
-DEF VAR ls-fax-file AS CHAR NO-UNDO.
+DEFINE VARIABLE v-print-fmt AS CHARACTER NO-UNDO.
+DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
 
-DEF STREAM excel.
+DEFINE STREAM excel.
 
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR cFieldType AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF BUFFER b-itemfg FOR itemfg .
-DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE ldummy AS LOG NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
+DEFINE VARIABLE cFieldType AS cha NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEFINE BUFFER b-itemfg FOR itemfg .
+DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Customer,Customer Name,Ship-To,Inv#,Inv Date,FG Item,Item Name,"
-                          + "Order#,Qty Shipped,Unit Price,UOM,Invoice Amt"
+                          + "Order#,Qty Shipped,Unit Price,UOM,Invoice Amt,Customer Group"
        cFieldListToSelect = "cust,cust-name,shipto,inv,inv-date,fgitem,item-name," +
-                            "ord,qty-ship,unit-pr,uom,inv-amt"
-       cFieldLength = "8,30,8,6,8,15,30," + "8,12,15,4,17"
-       cFieldType = "c,c,c,i,c,c,c," + "i,i,i,c,i" 
+                            "ord,qty-ship,unit-pr,uom,inv-amt,cust-g"
+       cFieldLength = "8,30,8,6,8,15,30," + "8,12,15,4,17,14"
+       cFieldType = "c,c,c,i,c,c,c," + "i,i,i,c,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -170,10 +170,10 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -412,26 +412,26 @@ DEFINE FRAME FRAME-A
           "Enter Beginning PO#"
      end_po AT ROW 8.19 COL 70 COLON-ALIGNED HELP
           "Enter Ending PO#"
-     lbl_sort AT ROW 9.62 COL 32 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 9.62 COL 41 NO-LABEL
+     lbl_sort AT ROW 9.62 COL 32 COLON-ALIGNED NO-LABELS
+     rd_sort AT ROW 9.62 COL 41 NO-LABELS
      tb_disprice AT ROW 10.57 COL 41
      tb_sub-tot AT ROW 10.57 COL 72 WIDGET-ID 58
      tb_fin-chg AT ROW 11.52 COL 41
-     sl_avail AT ROW 13.33 COL 5.4 NO-LABEL WIDGET-ID 26
+     sl_avail AT ROW 13.33 COL 5.4 NO-LABELS WIDGET-ID 26
      Btn_Def AT ROW 13.33 COL 41.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 13.33 COL 60.8 NO-LABEL WIDGET-ID 28
+     sl_selected AT ROW 13.33 COL 60.8 NO-LABELS WIDGET-ID 28
      Btn_Add AT ROW 14.33 COL 41.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
      Btn_Remove AT ROW 15.33 COL 41.4 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
      btn_Up AT ROW 16.38 COL 41.4 WIDGET-ID 40
      btn_down AT ROW 17.38 COL 41.4 WIDGET-ID 42
-     rd-dest AT ROW 19.48 COL 5 NO-LABEL
-     lv-ornt AT ROW 19.95 COL 31 NO-LABEL
+     rd-dest AT ROW 19.48 COL 5 NO-LABELS
+     lv-ornt AT ROW 19.95 COL 31 NO-LABELS
      lines-per-page AT ROW 19.95 COL 84 COLON-ALIGNED
      lv-font-no AT ROW 21.81 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 22.81 COL 28 COLON-ALIGNED NO-LABEL
+     lv-font-name AT ROW 22.81 COL 28 COLON-ALIGNED NO-LABELS
      td-show-parm AT ROW 23.86 COL 30
      tb_excel AT ROW 25.1 COL 50 RIGHT-ALIGNED
      tb_runExcel AT ROW 25.1 COL 71 RIGHT-ALIGNED
@@ -727,7 +727,7 @@ DO:
   END.
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAILABLE ttCustList AND tb_cust-list THEN DO:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -793,7 +793,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -819,7 +819,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
@@ -960,7 +960,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
@@ -1206,6 +1206,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   {methods/nowait.i}
 
+  RUN sys/inc/CustListForm.p ( "HZ",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
@@ -1216,7 +1221,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HZ',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""HZ""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1302,10 +1307,10 @@ PROCEDURE create-report :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-def input parameter ip-recid  as   recid            no-undo.
-def input parameter ip-key-03 like tt-report.key-03 no-undo.
-def input parameter ip-key-04 like tt-report.key-04 no-undo.
-def input parameter ip-key-10 like tt-report.key-10 no-undo.
+DEFINE INPUT PARAMETER ip-recid  AS   RECID            NO-UNDO.
+DEFINE INPUT PARAMETER ip-key-03 LIKE tt-report.key-03 NO-UNDO.
+DEFINE INPUT PARAMETER ip-key-04 LIKE tt-report.key-04 NO-UNDO.
+DEFINE INPUT PARAMETER ip-key-10 LIKE tt-report.key-10 NO-UNDO.
 
 
 create xreport.
@@ -1349,10 +1354,10 @@ PROCEDURE create-report1 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-def input parameter ip-recid  as   recid         no-undo.
-def input parameter ip-key-03 like report.key-03 no-undo.
-def input parameter ip-key-04 like report.key-04 no-undo.
-def input parameter ip-key-10 like report.key-10 no-undo.
+DEFINE INPUT PARAMETER ip-recid  AS   RECID         NO-UNDO.
+DEFINE INPUT PARAMETER ip-key-03 LIKE report.key-03 NO-UNDO.
+DEFINE INPUT PARAMETER ip-key-04 LIKE report.key-04 NO-UNDO.
+DEFINE INPUT PARAMETER ip-key-10 LIKE report.key-10 NO-UNDO.
 
 do i = 1 to 3:
   v-sman-no = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
@@ -1414,8 +1419,8 @@ PROCEDURE DisplaySelectionDefault :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
@@ -1438,8 +1443,8 @@ PROCEDURE DisplaySelectionList :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
      
@@ -1479,9 +1484,9 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
@@ -1565,7 +1570,7 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1718,8 +1723,8 @@ PROCEDURE print-excel-1 :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
-  DEFINE INPUT PARAMETER ip-qty AS DEC NO-UNDO.
-  DEFINE INPUT PARAMETER ip-amt AS DEC NO-UNDO.
+  DEFINE INPUT PARAMETER ip-qty AS DECIMAL NO-UNDO.
+  DEFINE INPUT PARAMETER ip-amt AS DECIMAL NO-UNDO.
   
   PUT STREAM excel UNFORMATTED
       SKIP
@@ -1761,28 +1766,29 @@ PROCEDURE run-report :
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
-def var v-qty     as   int extent 5 column-label "Qty Shipped" NO-UNDO.
-def var v-amt     as   dec extent 5 column-label "Invoice Amt" NO-UNDO.
-DEF VAR lv-r-no   LIKE oe-retl.r-no NO-UNDO.
-DEF VAR lv-type   AS   CHAR NO-UNDO.
+DEFINE VARIABLE v-qty     AS   INTEGER EXTENT 5 COLUMN-LABEL "Qty Shipped" NO-UNDO.
+DEFINE VARIABLE v-amt     AS   DECIMAL EXTENT 5 COLUMN-LABEL "Invoice Amt" NO-UNDO.
+DEFINE VARIABLE lv-r-no   LIKE oe-retl.r-no NO-UNDO.
+DEFINE VARIABLE lv-type   AS   CHARACTER NO-UNDO.
 
-DEF VAR li-seq AS INT NO-UNDO.
+DEFINE VARIABLE li-seq AS INTEGER NO-UNDO.
 
-DEF VAR lv-quotes AS CHAR NO-UNDO.
+DEFINE VARIABLE lv-quotes AS CHARACTER NO-UNDO.
 
 /*{sys/form/r-topw.f}*/
 
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cDisplay AS cha NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
+DEFINE VARIABLE cVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE cFieldName AS cha NO-UNDO.
+DEFINE VARIABLE str-tit4 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE str-tit5 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1825,9 +1831,10 @@ assign
  v-disc-p   = tb_disprice              
  v-freight  = NO
  v-inc-fc   = tb_fin-chg
+ lSelected  = tb_cust-list
  lv-quotes  = CHR(34).
 
-DEF VAR cslist AS cha NO-UNDO.
+DEFINE VARIABLE cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
@@ -1851,18 +1858,20 @@ DEF VAR cslist AS cha NO-UNDO.
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
  
+
+IF lselected THEN DO:
+      FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+      IF AVAILABLE ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+      FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+      IF AVAILABLE ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
+ 
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(fi_file).
-   /*excelheader = "Customer,Customer/Item Name,Ship-To,Invoice Number,Invoice Date,"
-               + "FG Item,Order Number,Qty Shipped,Unit Price,UOM,Invoice Amt,"
-               + (IF v-sort1 EQ "O" THEN "ORDER QTY. TOTALS,ORDER AMT. TOTALS,"
-                  ELSE IF v-sort1 EQ "I" THEN "ITEM QTY. TOTALS,ITEM AMT. TOTALS,"
-                  ELSE "SHIP-TO QTY. TOTALS,SHIP-TO AMT. TOTALS,")
-               + "CUSTOMER QTY. TOTALS,CUSTOMER AMT. TOTALS".*/
    
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1873,13 +1882,12 @@ display "" with frame r-top.
 
 EMPTY TEMP-TABLE tt-report.
 
-FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-    each cust
+  FOR EACH cust
       where cust.company eq cocode
-        and cust.cust-no EQ ttCustList.cust-no /*fcust*/
-     /*   and cust.cust-no le tcust*/
+        AND cust.cust-no GE fcust
+        AND cust.cust-no LE tcust
+        AND (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ cust.cust-no
+        AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
         and cust.type    ge begin_cust-type
         and cust.type    le end_cust-type
       use-index cust no-lock:
@@ -1937,7 +1945,7 @@ FOR EACH ttCustList
             find first ar-invl where ar-invl.x-no eq ar-inv.x-no
                 use-index x-no no-lock no-error.
                 
-            if avail ar-invl then do:
+            IF AVAILABLE ar-invl THEN DO:
                v-sman-no = "".
                          
                do i = 1 to 3:
@@ -1991,7 +1999,7 @@ FOR EACH ttCustList
         lv-r-no = 0
         lv-type = "".
            
-       IF AVAIL reftable THEN
+       IF AVAILABLE reftable THEN
           ASSIGN
              lv-r-no = reftable.val[1]
              lv-type = reftable.dscr.
@@ -2006,7 +2014,7 @@ FOR EACH ttCustList
              where oe-reth.company eq cocode
                and oe-reth.r-no    eq lv-r-no
              no-lock no-error.
-         if avail oe-reth then
+         IF AVAILABLE oe-reth THEN
          find first ar-inv
               where ar-inv.company eq cocode
                 and ar-inv.cust-no eq oe-reth.cust-no
@@ -2014,7 +2022,7 @@ FOR EACH ttCustList
               no-lock no-error.
        end.       
       
-       if avail ar-inv then do:
+       IF AVAILABLE ar-inv THEN DO:
           run ship-data.
          
           if v-ship ge fship and
@@ -2030,7 +2038,7 @@ FOR EACH ttCustList
                   and oe-retl.i-no    ge fitem
                   and oe-retl.i-no    le titem
                 no-lock no-error.
-            if avail oe-retl then
+            IF AVAILABLE oe-retl THEN
             find first ar-invl
                 where ar-invl.company eq cocode
                   and ar-invl.cust-no eq ar-cash.cust-no
@@ -2040,7 +2048,7 @@ FOR EACH ttCustList
                   and ar-invl.po-no   le tpo
                   and (ar-invl.billable or not ar-invl.misc)
                 no-lock no-error.
-            if avail ar-invl then do:
+            IF AVAILABLE ar-invl THEN DO:
                run create-report1 (recid(ar-cashl), oe-retl.i-no,
                                    tt-report.key-04, "").
                delete tt-report.
@@ -2089,7 +2097,7 @@ FOR EACH ttCustList
           cust.zip         ge fshpz and
           cust.zip         le tshpz then v-exc = no.
       
-       if avail tt-report then do:
+       IF AVAILABLE tt-report THEN DO:
           tt-report.key-07 = tt-report.key-03.
           
           if v-exc then delete tt-report.
@@ -2105,6 +2113,8 @@ FOR EACH ttCustList
        end.     
     end.
   end.
+  FOR EACH xreport NO-LOCK:
+  END.
 
   for each tt-report where tt-report.term-id eq "",
       first cust
@@ -2132,7 +2142,7 @@ FOR EACH ttCustList
         where recid(ar-invl) eq w-data.rec-id
         no-lock no-error.
 
-    if avail ar-invl then do:
+    IF AVAILABLE ar-invl THEN DO:
       find ar-inv where ar-inv.x-no eq ar-invl.x-no no-lock.
       assign
        v-date   = ar-inv.inv-date
@@ -2178,7 +2188,7 @@ FOR EACH ttCustList
           where recid(ar-cashl) eq w-data.rec-id
           no-lock no-error.
 
-      if avail ar-cashl then do:
+      IF AVAILABLE ar-cashl THEN DO:
         find first ar-cash where ar-cash.c-no eq ar-cashl.c-no no-lock.
 
         assign
@@ -2194,7 +2204,7 @@ FOR EACH ttCustList
 
         RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
 
-        if avail oe-retl then do:
+        IF AVAILABLE oe-retl THEN DO:
           assign
            v-ord    = oe-retl.ord-no
            v-pric   = oe-retl.unit-pr
@@ -2208,7 +2218,7 @@ FOR EACH ttCustList
                 and ar-invl.i-no    eq oe-retl.i-no
               no-lock no-error.
 
-          if avail ar-invl then do:
+          IF AVAILABLE ar-invl THEN DO:
             /* Added for decimal problem */
             assign v-pric   = ar-invl.unit-pr.
 
@@ -2242,7 +2252,7 @@ FOR EACH ttCustList
           where itemfg.company eq cocode
             and itemfg.i-no    eq w-data.i-no
           no-lock no-error.
-      v-name = if avail itemfg then itemfg.i-name else "".
+      v-name = IF AVAILABLE itemfg THEN itemfg.i-name ELSE "".
     
 
    /* if v-det then do:*/
@@ -2270,6 +2280,7 @@ FOR EACH ttCustList
                         WHEN "unit-pr"  THEN cVarValue = STRING(v-pric,"->>>,>>>,>>9.99") .
                         WHEN "uom"   THEN cVarValue = STRING(v-uom,"x(4)") .
                         WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[1],"->,>>>,>>>,>>9.99") .
+                        WHEN "cust-g"  THEN cVarValue = STRING(cust.spare-char-2) .
                          
                     END CASE.
                       
@@ -2327,6 +2338,7 @@ FOR EACH ttCustList
                         WHEN "unit-pr"  THEN cVarValue = "" .
                         WHEN "uom"   THEN cVarValue = "" .
                         WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[2],"->,>>>,>>>,>>9.99") .
+                        WHEN "cust-g"  THEN cVarValue = "" .
                          
                     END CASE.
                       
@@ -2399,6 +2411,7 @@ FOR EACH ttCustList
                         WHEN "unit-pr"  THEN cVarValue = "" .
                         WHEN "uom"   THEN cVarValue = "" .
                         WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[3],"->,>>>,>>>,>>9.99") .
+                        WHEN "cust-g"  THEN cVarValue = "" .
                          
                     END CASE.
                       
@@ -2459,6 +2472,7 @@ FOR EACH ttCustList
                         WHEN "unit-pr"  THEN cVarValue = "" .
                         WHEN "uom"   THEN cVarValue = "" .
                         WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[4],"->,>>>,>>>,>>9.99") .
+                        WHEN "cust-g"  THEN cVarValue = "" .
                          
                     END CASE.
                       
@@ -2523,6 +2537,7 @@ FOR EACH ttCustList
                         WHEN "unit-pr"  THEN cVarValue = "" .
                         WHEN "uom"   THEN cVarValue = "" .
                         WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[5],"->,>>>,>>>,>>9.99") .
+                        WHEN "cust-g"  THEN cVarValue = "" .
                          
                     END CASE.
                       
@@ -2597,7 +2612,7 @@ find first shipto
       and shipto.ship-id eq ar-inv.ship-id
     no-lock no-error.
           
-if avail shipto then
+IF AVAILABLE shipto THEN
   assign
    v-ship = ar-inv.ship-id
    v-shpz = shipto.ship-zip.
@@ -2625,14 +2640,14 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS cha NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label AS cha.
   
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.

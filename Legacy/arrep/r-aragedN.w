@@ -957,8 +957,8 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-fonts.w ({&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
@@ -974,9 +974,9 @@ DO:
     DEF VAR char-val AS cha NO-UNDO.
 
     run windows/l-terms.w 
-               (gcompany,focus:screen-value in frame {&frame-name}, output char-val).
+               (gcompany,{&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT char-val).
            if char-val <> "" then 
-              assign focus:screen-value in frame {&frame-name} = entry(1,char-val) .
+              ASSIGN {&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val) .
            
 END.
 
@@ -991,9 +991,9 @@ DO:
     DEF VAR char-val AS cha NO-UNDO.
 
     run windows/l-terms.w 
-               (gcompany,focus:screen-value in frame {&frame-name}, output char-val).
+               (gcompany,{&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT char-val).
            if char-val <> "" then 
-              assign focus:screen-value in frame {&frame-name} = entry(1,char-val) .
+              ASSIGN {&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val) .
            
 END.
 

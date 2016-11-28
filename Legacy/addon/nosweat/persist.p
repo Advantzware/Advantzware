@@ -341,6 +341,8 @@ PROCEDURE Tool_Tips :
   
   IF TRUE THEN RETURN.
 
+  IF TRUE THEN RETURN.
+  
   ASSIGN
     current-widget = current-frame
     current-widget = current-widget:FIRST-CHILD

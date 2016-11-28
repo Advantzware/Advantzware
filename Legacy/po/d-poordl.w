@@ -1630,8 +1630,8 @@ ON VALUE-CHANGED OF po-ordl.job-no2 IN FRAME Dialog-Frame /* Run # */
         ASSIGN
             ll-poord-warned = NO
             ll-pojob-warned = NO.
-        ASSIGN 
-            po-ordl.b-num:SCREEN-VALUE = ? .
+      /*  ASSIGN 
+            po-ordl.b-num:SCREEN-VALUE = ? . */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2783,7 +2783,7 @@ PROCEDURE create-multi-line :
 
                 RUN po/po-ordls.p (RECID(job-mat)).
 
-                {po/poordls1.w}
+                {po/poordls1W.i}
 
                 FOR EACH b-job-mat
                     WHERE b-job-mat.company EQ job-mat.company
@@ -2797,7 +2797,7 @@ PROCEDURE create-multi-line :
 
                     RUN po/po-ordls.p (RECID(b-job-mat)).
 
-                    {po/poordls1.w b-}
+                    {po/poordls1W.i b-}
 
                     IF b-job-mat.wid EQ job-mat.wid AND
                         b-job-mat.len EQ job-mat.len THEN 

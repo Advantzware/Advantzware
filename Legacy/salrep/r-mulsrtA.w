@@ -25,6 +25,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -39,8 +41,6 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 assign
  cocode = gcompany
  locode = gloc.
-
-{sys/inc/custlistform.i ""HR10"" }
 
 {sys/ref/CustList.i NEW}
 
@@ -145,7 +145,7 @@ FUNCTION getInvSman RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -552,8 +552,8 @@ ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -639,7 +639,7 @@ DO:
        THEN is-xprint-form = YES.     
   ELSE is-xprint-form = NO.
    FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -710,8 +710,8 @@ ON HELP OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -976,6 +976,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   {methods/nowait.i}
 
+  RUN sys/inc/CustListForm.p ( "HR10",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
   {custom/usrprint.i}
 
   ASSIGN
@@ -986,7 +990,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HR10',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""HR10""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1293,7 +1297,7 @@ DEF VAR lv-r-no LIKE oe-retl.r-no NO-UNDO.
 DEF VAR lv-type AS CHAR NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR cSman LIKE ar-invl.sman[1] NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 form space(8)
      w-data.i-no
      itemfg.i-name        format "x(20)"
@@ -1369,7 +1373,8 @@ form cust.cust-no
    tdate       = END_inv-date
    v-det       = tb_detailed
    v-inc-fc    = tb_fin-chg
-   v-sort      = fi_SORT.
+   v-sort      = fi_SORT
+   lSelected   = tb_cust-list.
 
   {sys/inc/print1.i}
 
@@ -1387,6 +1392,12 @@ form cust.cust-no
       
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
   END.
+  IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+  END.
 
   if td-show-parm then run show-param.
    
@@ -1400,15 +1411,13 @@ form cust.cust-no
     DELETE tt-report.
   END.
 
-FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-   each ar-inv
+FOR each ar-inv
       where ar-inv.company  eq cocode
         and ar-inv.posted   eq yes
-        /*and ar-inv.cust-no  ge fcust
-        and ar-inv.cust-no  le tcust */
-        and ar-inv.cust-no  EQ ttCustList.cust-no
+        AND ar-inv.cust-no  GE fcust
+        AND ar-inv.cust-no  LE tcust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         and ar-inv.inv-date ge fdate
         and ar-inv.inv-date le tdate
         and (ar-inv.type    ne "FC" or v-inc-fc)
@@ -1424,14 +1433,12 @@ FOR EACH ttCustList
      
   end.
 
-  FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-     each cust
+  FOR each cust
       where cust.company eq cocode
-        /*and cust.cust-no ge fcust
-        and cust.cust-no le tcust*/
-        and cust.cust-no EQ ttCustList.cust-no
+        AND cust.cust-no GE fcust
+        AND cust.cust-no LE tcust
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+        AND ttCustList.log-fld no-lock) else true)
       no-lock,
 
       each ar-cash
@@ -1624,6 +1631,10 @@ FOR EACH ttCustList
       end.
     end.
   end.
+
+  FOR EACH xtt-report:
+      
+  END.
 
   for each tt-report,
 

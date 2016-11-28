@@ -113,20 +113,30 @@ jcrep\qbprpt.i
                .
 
         IF FIRST-OF(job-mat.blank-no) THEN DO:
-         /* display                                                            
-             v-job
-             job-mat.frm     
-             job-mat.blank-no
-             job-hdr.due-date FORM "99/99/99"
-             job-hdr.cust-no FORM "x(11)"
-             job-mat.rm-i-no  FORM "x(18)" SPACE(1)
-             v-width  SPACE(8)
-             v-length
-             v-qty        FORM "->>,>>>,>>9"
-             v-lbs        FORM "->>,>>>,>>9"
-             v-lf         FORM "->>,>>>,>>9"
-             with frame det STREAM-IO width 200 no-labels no-box down.
-          DOWN WITH FRAME det.*/
+            ASSIGN 
+                cstat = "" .
+            FIND FIRST oe-ord NO-LOCK WHERE oe-ord.company EQ cocode 
+                                AND oe-ord.ord-no EQ job-hdr.ord-no NO-ERROR .  
+            IF AVAIL oe-ord THEN ASSIGN cstat = oe-ord.stat .
+            IF cstat NE "" THEN DO:
+                DO i = 1 TO NUM-ENTRIES(vstatus,","):
+                    IF cstat = TRIM(ENTRY(i,vstatus)) THEN DO:
+                        ASSIGN cstat = TRIM(ENTRY(i,vstatus-desc)) .
+                        LEAVE.
+                    END.
+                END.
+            END.
+
+            IF job.stat = "H" THEN DO: 
+                FIND FIRST rejct-cd NO-LOCK WHERE rejct-cd.type = "JH" 
+                    AND rejct-cd.code = job.reason  NO-ERROR.
+                IF AVAIL rejct-cd THEN
+                    ASSIGN
+                    vHoldReason  =  rejct-cd.dscr.      
+            END.
+            ELSE 
+                vHoldReason  = "".
+         
           ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -147,6 +157,8 @@ jcrep\qbprpt.i
                          WHEN "sheet"  THEN cVarValue = IF v-qty NE ? THEN STRING(v-qty,"->>,>>>,>>9") ELSE "".
                          WHEN "lbs"   THEN cVarValue = IF v-lbs NE ? THEN STRING(v-lbs,"->>,>>>,>>9") ELSE "".
                          WHEN "lf"  THEN cVarValue = IF v-lf NE ? THEN STRING(v-lf,"->>,>>>,>>9") ELSE "".
+                         WHEN "job-rson"  THEN cVarValue = STRING(vHoldReason) .
+                         WHEN "ord-sts"  THEN cVarValue =  STRING(cstat) .
                          
                     END CASE.
                       

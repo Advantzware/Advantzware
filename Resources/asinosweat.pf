@@ -2,7 +2,7 @@
 -N 	TCP
 -S 	3802
 -db 	nosweat
--ld 	asiNOSWEAT
+-ld 	asinos
 -mmax 	10000
 -T 	c:\tmp
 -F

@@ -23,7 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -40,10 +40,10 @@ assign
  cocode = gcompany
  locode = gloc.
 
-def TEMP-TABLE w-data no-undo
+DEFINE TEMP-TABLE w-data NO-UNDO 
   field ord-no like oe-ord.ord-no
   field line   like oe-ordl.line
-  field sman   as char format "x(3)"
+  FIELD sman AS CHARACTER FORMAT "x(3)"
   field item-n like itemfg.i-name column-label "Item Description"
         format "x(27)"
   field procat like itemfg.procat column-label "Prod!Code"
@@ -51,40 +51,40 @@ def TEMP-TABLE w-data no-undo
         format ">,>>>,>>>"
   field sqft like itemfg.t-sqft column-label "Sq Ft" format ">>,>>>.999"
   field t-sqft like itemfg.t-sqft column-label "Total!Sq Ft/M" format "->,>>>.999"
-  field t-tons as dec column-label "Total!  Tons" format "->,>>>.9"
+  FIELD t-tons AS DECIMAL COLUMN-LABEL "Total!  Tons" FORMAT "->,>>>.9"
   field price like oe-ordl.price format ">>>,>>9.99<<<<"
   field revenue like oe-ordl.t-price column-label "Order!Amount"
-  field misc as log
-  field cost as dec
-  field comm as dec label "Comm %"
-  FIELD margin AS DEC.
+  FIELD misc AS LOGICAL
+  FIELD cost AS DECIMAL
+  FIELD comm AS DECIMAL LABEL "Comm %"
+  FIELD margin AS DECIMAL.
 
-def TEMP-TABLE wkrecap no-undo    /* recap by product category */
+DEFINE TEMP-TABLE wkrecap NO-UNDO     /* recap by product category */
   field procat like itemfg.procat column-label "Cat"
   field t-sqft like itemfg.t-sqft  extent 2 column-label "Sq Ft" format ">>,>>>.999"
-  field t-tons as dec column-label "Tons" extent 2 format "->,>>>.9"
+  FIELD t-tons AS DECIMAL COLUMN-LABEL "Tons" EXTENT 2 FORMAT "->,>>>.9"
   field revenue like oe-ordl.t-price   extent 2 column-label "Amount"
-  field price-per-m  as dec column-label "$/MSF" extent 2
-  field price-per-t  as dec column-label "$/TON" extent 2
-  field num-of-ord as int column-label "#Orders".
+  FIELD price-per-m  AS DECIMAL COLUMN-LABEL "$/MSF" EXTENT 2
+  FIELD price-per-t  AS DECIMAL COLUMN-LABEL "$/TON" EXTENT 2
+  FIELD num-of-ord AS INTEGER COLUMN-LABEL "#Orders".
 
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report.
 
-DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
-DEF VAR is-xprint-form AS LOGICAL.
-DEF VAR ls-fax-file AS CHAR NO-UNDO.
-def var security-flag as log no-undo.
-DEF VAR v-code AS CHAR NO-UNDO.
+DEFINE VARIABLE v-print-fmt AS CHARACTER NO-UNDO.
+DEFINE VARIABLE is-xprint-form AS LOGICAL.
+DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
+DEFINE VARIABLE security-flag AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-code AS CHARACTER NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg.
 
 DEF STREAM excel.
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO. 
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldLength AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
 /*
 (IF {sys/inc/rptDisp.i "oe-ord.due-date"} THEN "DUE DATE " ELSE "" ) +   8
@@ -111,13 +111,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER NAME,COMM %,PROD CODE," +
                             "FG ITEM NAME,QTY ORDERED/EA,SQ FT,TOTAL Sq Ft/M," +
                             "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON," +
-                            "FG ITEM#,ID,CUSTOMER PART#"  
+                            "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE"  
        cFieldListToSelect = "oe-ord.due-date,w-data.ord-no,cust.name,w-data.comm,w-data.procat," +
                             "w-data.item-n,w-data.qty,w-data.sqft,t-sqft," +
                             "v-price-per-m,w-data.price,v-revenue,v-profit,t-tons,v-price-per-t," +
-                            "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no" 
+                            "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no,oe-ord.ord-date" 
                             
-       cFieldLength = "8,14,13,6,9," + "16,14,10,13," + "10,10,13,9,10,10," + "15,8,15"
+       cFieldLength = "8,14,13,6,9," + "16,14,10,13," + "10,10,13,9,10,10," + "15,8,15,15,15,10"
        .
 
 {sys/inc/ttRptSel.i}
@@ -177,7 +177,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -405,87 +405,87 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_cust-no AT ROW 2.43 COL 30 COLON-ALIGNED HELP
+     begin_cust-no AT ROW 2.43 COLUMN 30 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust-no AT ROW 2.43 COL 73 COLON-ALIGNED HELP
+     end_cust-no AT ROW 2.43 COLUMN 73 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_ord-date AT ROW 3.38 COL 30 COLON-ALIGNED HELP
+     begin_ord-date AT ROW 3.38 COLUMN 30 COLON-ALIGNED HELP
           "Enter Beginning Order Date"
-     end_ord-date AT ROW 3.38 COL 73 COLON-ALIGNED HELP
+     end_ord-date AT ROW 3.38 COLUMN 73 COLON-ALIGNED HELP
           "Enter Ending Order Date"
-     lbl_sqft AT ROW 3.86 COL 103 COLON-ALIGNED NO-LABEL
-     begin_slsmn AT ROW 4.33 COL 30 COLON-ALIGNED HELP
+     lbl_sqft AT ROW 3.86 COLUMN 103 COLON-ALIGNED NO-LABEL
+     begin_slsmn AT ROW 4.33 COLUMN 30 COLON-ALIGNED HELP
           "Enter Beginning SalesRep Number"
-     end_slsmn AT ROW 4.33 COL 73 COLON-ALIGNED HELP
+     end_slsmn AT ROW 4.33 COLUMN 73 COLON-ALIGNED HELP
           "Enter Ending SalesRep Number"
-     rd_sqft AT ROW 4.57 COL 122 NO-LABEL
-     begin_fg-cat AT ROW 5.29 COL 30 COLON-ALIGNED HELP
+     rd_sqft AT ROW 4.57 COLUMN 122 NO-LABEL
+     begin_fg-cat AT ROW 5.29 COLUMN 30 COLON-ALIGNED HELP
           "Enter Beginning Product Category"
-     end_fg-cat AT ROW 5.29 COL 73 COLON-ALIGNED HELP
+     end_fg-cat AT ROW 5.29 COLUMN 73 COLON-ALIGNED HELP
           "Enter Ending Product Category"
-     tb_prft AT ROW 5.76 COL 116
-     tb_prepmisc AT ROW 6.62 COL 15
-     tb_smn-no AT ROW 6.62 COL 58
-     tb_ton AT ROW 6.95 COL 114
-     tb_exclude-set-comps AT ROW 7.57 COL 15 WIDGET-ID 4
-     tb_rep-tot AT ROW 7.71 COL 58 WIDGET-ID 54
-     tb_sortby AT ROW 8.38 COL 122
-     tb_exclude-transfer AT ROW 8.52 COL 15 WIDGET-ID 6
-     tb_Under% AT ROW 9.57 COL 15 WIDGET-ID 46
-     fUnder% AT ROW 9.57 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 48
-     fOver% AT ROW 9.57 COL 73.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     tb_Over% AT ROW 9.62 COL 52 WIDGET-ID 52
-     tb_comm AT ROW 11.24 COL 118
-     Btn_Def AT ROW 13.1 COL 40 HELP
+     tb_prft AT ROW 5.76 COLUMN 116
+     tb_prepmisc AT ROW 6.62 COLUMN 15
+     tb_smn-no AT ROW 6.62 COLUMN 58
+     tb_ton AT ROW 6.95 COLUMN 114
+     tb_exclude-set-comps AT ROW 7.57 COLUMN 15 WIDGET-ID 4
+     tb_rep-tot AT ROW 7.71 COLUMN 58 WIDGET-ID 54
+     tb_sortby AT ROW 8.38 COLUMN 122
+     tb_exclude-transfer AT ROW 8.52 COLUMN 15 WIDGET-ID 6
+     tb_Under% AT ROW 9.57 COLUMN 15 WIDGET-ID 46
+     fUnder% AT ROW 9.57 COLUMN 38 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     fOver% AT ROW 9.57 COLUMN 73.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     tb_Over% AT ROW 9.62 COLUMN 52 WIDGET-ID 52
+     tb_comm AT ROW 11.24 COLUMN 118
+     Btn_Def AT ROW 13.1 COLUMN 40 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_avail AT ROW 13.43 COL 4 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 13.43 COL 60 NO-LABEL WIDGET-ID 28
-     tb_margin AT ROW 13.86 COL 119 WIDGET-ID 2
-     Btn_Add AT ROW 14.29 COL 40 HELP
+     sl_avail AT ROW 13.43 COLUMN 4 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 13.43 COLUMN 60 NO-LABEL WIDGET-ID 28
+     tb_margin AT ROW 13.86 COLUMN 119 WIDGET-ID 2
+     Btn_Add AT ROW 14.29 COLUMN 40 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 15.48 COL 40 HELP
+     Btn_Remove AT ROW 15.48 COLUMN 40 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 16.67 COL 40 WIDGET-ID 40
-     btn_down AT ROW 17.86 COL 40 WIDGET-ID 42
-     rd-dest AT ROW 19.91 COL 5 NO-LABEL
-     lv-ornt AT ROW 20.62 COL 31 NO-LABEL
-     lines-per-page AT ROW 20.62 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 22.52 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 23.48 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 24.67 COL 30
-     tb_excel AT ROW 25.86 COL 72 RIGHT-ALIGNED
-     tb_runExcel AT ROW 25.86 COL 93 RIGHT-ALIGNED
-     fi_file AT ROW 26.67 COL 49 COLON-ALIGNED HELP
+     btn_Up AT ROW 16.67 COLUMN 40 WIDGET-ID 40
+     btn_down AT ROW 17.86 COLUMN 40 WIDGET-ID 42
+     rd-dest AT ROW 19.91 COLUMN 5 NO-LABEL
+     lv-ornt AT ROW 20.62 COLUMN 31 NO-LABEL
+     lines-per-page AT ROW 20.62 COLUMN 84 COLON-ALIGNED
+     lv-font-no AT ROW 22.52 COLUMN 34 COLON-ALIGNED
+     lv-font-name AT ROW 23.48 COLUMN 28 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 24.67 COLUMN 30
+     tb_excel AT ROW 25.86 COLUMN 72 RIGHT-ALIGNED
+     tb_runExcel AT ROW 25.86 COLUMN 93 RIGHT-ALIGNED
+     fi_file AT ROW 26.67 COLUMN 49 COLON-ALIGNED HELP
           "Enter File Name"
-     tb_batch AT ROW 26.81 COL 6
-     btn-ok AT ROW 28.14 COL 26
-     btn-cancel AT ROW 28.14 COL 56
+     tb_batch AT ROW 26.81 COLUMN 6
+     btn-ok AT ROW 28.14 COLUMN 26
+     btn-cancel AT ROW 28.14 COLUMN 56
      "Note: Profit Includes Estimate Markups and Commissions." VIEW-AS TEXT
-          SIZE 55 BY .95 AT ROW 11.57 COL 17
+          SIZE 55 BY .95 AT ROW 11.57 COLUMN 17
           FGCOLOR 1 
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.71 COL 60.2 WIDGET-ID 44
+          SIZE 34 BY .62 AT ROW 12.71 COLUMN 60.2 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
+          SIZE 21 BY .71 AT ROW 1.24 COLUMN 5
           BGCOLOR 2 
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 12.71 COL 4.4 WIDGET-ID 38
+          SIZE 29 BY .62 AT ROW 12.71 COLUMN 4.4 WIDGET-ID 38
      "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
-          SIZE 57 BY .95 AT ROW 10.67 COL 15
+          SIZE 57 BY .95 AT ROW 10.67 COLUMN 15
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 19.19 COL 2
+          SIZE 18 BY .62 AT ROW 19.19 COLUMN 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
+         AT COLUMN 1 ROW 1
          SIZE 151.4 BY 28.62.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
-     RECT-7 AT ROW 1 COL 1
-     RECT-8 AT ROW 18.95 COL 1
+     RECT-7 AT ROW 1 COLUMN 1
+     RECT-8 AT ROW 18.95 COLUMN 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
+         AT COLUMN 1 ROW 1
          SIZE 151.4 BY 28.62.
 
 
@@ -812,7 +812,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -838,7 +838,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
@@ -957,10 +957,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    IF char-val NE "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
@@ -1036,7 +1036,7 @@ DO:
 
   
 /* for pairs
-    DEF VAR cSelectedList AS cha NO-UNDO.
+    DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
     DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
     IF sl_avail:IS-SELECTED(i) AND
@@ -1350,8 +1350,8 @@ PROCEDURE DisplaySelectionDefault :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
@@ -1374,10 +1374,10 @@ PROCEDURE DisplaySelectionList :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
-  IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:   
+  IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:   
      RETURN.
   END.
 
@@ -1409,9 +1409,9 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
+  DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
@@ -1446,7 +1446,7 @@ PROCEDURE DisplaySelectionList2 :
   cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
    DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
+       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) EQ 0 THEN
         ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
   END.
 
@@ -1494,7 +1494,7 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1502,14 +1502,14 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-    IF NOT AVAIL ttRptList THEN
+    IF NOT AVAILABLE ttRptList THEN
         MESSAGE "no " i ENTRY(i,ctmplist) SKIP
         ctmplist
             VIEW-AS ALERT-BOX INFO BUTTONS OK.
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
            ttRptSelected.DisplayOrder = i
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
@@ -1602,7 +1602,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
+  RUN scr-rpt.w (list-name,c-win:TITLE,INTEGER(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1615,7 +1615,7 @@ PROCEDURE run-batch :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- /* DEF VAR printok AS LOG.
+ /* DEFINE VARIABLE printok AS LOG.
   
   SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
    
@@ -1640,64 +1640,64 @@ PROCEDURE run-report :
 **
 *****************************************************************************
 \***************************************************************************/
-DEF VAR str-tit4 AS cha NO-UNDO.
-DEF VAR str-tit5 AS cha NO-UNDO.
-DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE str-tit5 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE str-line AS CHARACTER FORM "x(300)" NO-UNDO.
 
 {sys/form/r-top5DL.f}
 
-def var fdate as date format "99/99/9999" init 01/01/0001 no-undo.
-def var tdate like fdate init 12/31/9999 no-undo.
-def var v-break as log init no no-undo.
-def var prt-sqft as log init yes format "SqFt/PartNo" no-undo.
-def var p-m-chg as log init no no-undo.
-def var prt-profit as log init yes no-undo.
-def var item-dscr as log init no no-undo.
-def var mdate as date no-undo.
-def var lo_trandate like fdate no-undo.
-def var v-per-days as int extent 2 no-undo init 0.
-def var v-n-lines  as int no-undo.
-def var fsman as char format "x(3)" no-undo.
-def var tsman as char format "x(3)" init "zzz" no-undo.
-def var v-sman like w-data.sman no-undo.
-def var v-exclude as log no-undo.
-def var v-misc as LOG NO-UNDO.
-def var v-amt  like oe-ord.t-revenue NO-UNDO.
-def var v-pct as dec format "99.99" NO-UNDO.
-def var v-sqft like itemfg.t-sqft  format ">,>>9.999" NO-UNDO.
-def var v-tons as DEC NO-UNDO.
-def var v-qty like oe-ordl.qty format "->>>,>>9.99" NO-UNDO.
-def var v-price-per-m as dec column-label "$/MSF" no-undo.
-def var v-price-per-t as dec column-label "$/TON" no-undo.
-def var v-msf like v-price-per-m extent 2 no-undo.
-def var v-ton like v-price-per-t extent 2 no-undo.
-DEF VAR tot-sqft AS DEC NO-UNDO.
-DEF VAR tot-renv AS DEC NO-UNDO.
-DEF VAR tot-ton AS DEC NO-UNDO.
+DEFINE VARIABLE fdate as DATE FORMAT "99/99/9999" INITIAL 01/01/0001 NO-UNDO.
+DEFINE VARIABLE tdate LIKE fdate INITIAL 12/31/9999 NO-UNDO.
+DEFINE VARIABLE v-break AS LOGICAL INITIAL NO NO-UNDO.
+DEFINE VARIABLE prt-sqft AS LOGICAL INITIAL YES FORMAT "SqFt/PartNo" NO-UNDO.
+DEFINE VARIABLE p-m-chg AS LOGICAL INITIAL NO NO-UNDO.
+DEFINE VARIABLE prt-profit AS LOGICAL INITIAL YES NO-UNDO.
+DEFINE VARIABLE item-dscr AS LOGICAL INITIAL no NO-UNDO.
+DEFINE VARIABLE mdate AS DATE NO-UNDO.
+DEFINE VARIABLE lo_trandate LIKE fdate NO-UNDO.
+DEFINE VARIABLE v-per-days AS INTEGER EXTENT 2 NO-UNDO INITIAL 0.
+DEFINE VARIABLE v-n-lines  AS INTEGER NO-UNDO.
+DEFINE VARIABLE fsman AS CHARACTER FORMAT "x(3)" NO-UNDO.
+DEFINE VARIABLE tsman AS CHARACTER FORMAT "x(3)" INITIAL "zzz" NO-UNDO.
+DEFINE VARIABLE v-sman LIKE w-data.sman NO-UNDO.
+DEFINE VARIABLE v-exclude AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-misc AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-amt  LIKE oe-ord.t-revenue NO-UNDO.
+DEFINE VARIABLE v-pct AS DECIMAL FORMAT "99.99" NO-UNDO.
+DEFINE VARIABLE v-sqft LIKE itemfg.t-sqft  FORMAT ">,>>9.999" NO-UNDO.
+DEFINE VARIABLE v-tons AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-qty LIKE oe-ordl.qty FORMAT "->>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-price-per-m AS DECIMAL COLUMN-LABEL "$/MSF" NO-UNDO.
+DEFINE VARIABLE v-price-per-t AS DECIMAL COLUMN-LABEL "$/TON" NO-UNDO.
+DEFINE VARIABLE v-msf LIKE v-price-per-m EXTENT 2 NO-UNDO.
+DEFINE VARIABLE v-ton LIKE v-price-per-t EXTENT 2 NO-UNDO.
+DEFINE VARIABLE tot-sqft AS DECIMAL NO-UNDO.
+DEFINE VARIABLE tot-renv AS DECIMAL NO-UNDO.
+DEFINE VARIABLE tot-ton AS DECIMAL NO-UNDO.
 
-def var v-revenue like oe-ordl.t-price format "->,>>>,>>9.99" no-undo
+DEFINE VARIABLE v-revenue LIKE oe-ordl.t-price FORMAT "->,>>>,>>9.99" NO-UNDO
   column-label "Order!Amount".
-def var v-profit as dec format "->>,>>9.9" no-undo
+DEFINE VARIABLE v-profit AS DECIMAL FORMAT "->>,>>9.9" NO-UNDO
   column-label "% Profit".
-DEF VAR v-margin AS DEC FORMAT "->>,>>9.9" NO-UNDO COLUMN-LABEL "% Margin".
-def var v-sname like sman.sname.
+DEFINE VARIABLE v-margin AS DECIMAL FORMAT "->>,>>9.9" NO-UNDO COLUMN-LABEL "% Margin".
+DEFINE VARIABLE v-sname LIKE sman.sname.
 
-def var v as INT NO-UNDO.
-def var qm as DEC NO-UNDO.
-def var mat as DEC NO-UNDO.
-def var lab as DEC NO-UNDO.
+DEFINE VARIABLE v AS INTEGER NO-UNDO.
+DEFINE VARIABLE qm AS DECIMAL NO-UNDO.
+DEFINE VARIABLE mat AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lab AS DECIMAL NO-UNDO.
 
-def var ii like i no-undo.
-DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE ii LIKE i NO-UNDO.
+DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE cDisplay AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVarValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF BUFFER boe-ord FOR oe-ord.
 DEF BUFFER boe-ordl FOR oe-ordl.
@@ -1745,7 +1745,7 @@ FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
             str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
             excelheader = excelHeader + ttRptSelected.TextList + ",".        
     
-    IF LOOKUP(ttRptSelected.TextList, "TOTAL Sq Ft/M,$/MSF,ORDER AMOUNT,TOTAL TONS,$/TON,% PROFIT") <> 0    THEN
+    IF LOOKUP(ttRptSelected.TextList, "TOTAL Sq Ft/M,$/MSF,ORDER AMOUNT,TOTAL TONS,$/TON,% PROFIT") NE 0    THEN
         ASSIGN
         str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
     ELSE
@@ -1785,51 +1785,7 @@ ASSIGN str-tit4 =
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
-/* ===
-  excelheader = "Sales Rep,Sales Name,".
-      
- /* if item-dscr then do:
-    excelheader = excelheader + "Due Date,Order#,Customer Name,Comm %,"
-                + "Item Description,Quantity Ordered/EA,"
-                + "Total Sq Ft/M,$/MSF,Order Amount,".
 
-    IF tb_margin THEN
-       excelheader = excelheader +  "Avail Margin,".
-    ELSE
-       excelheader = excelheader + "% Profit,".
-
-    if tb_ton THEN
-      excelheader = excelheader + "Total Tons,$/TON".
-  END.
-  ELSE */
-  IF prt-sqft THEN DO:
-
-    excelheader = excelheader + "Due Date,Order#,Customer Name,Comm %,"
-                + "Prod Code,Item Description,Quantity Ordered/EA,Sq Ft,"
-                + "Total Sq Ft/M,$/MSF,Price,Order Amount,".
-
-    IF tb_margin THEN
-       excelheader = excelheader +  "Avail Margin,".
-    ELSE
-       excelheader = excelheader + "% Profit,".
-
-    if tb_ton THEN
-      excelheader = excelheader + "Total Tons,$/TON".
-  END.
-  ELSE DO:
-    excelheader = excelheader + "Due Date,Order#,Customer Name,Comm %,"
-                + "Prod Code,Item Description,Quantity Ordered/EA,Customer Part Number,"
-                + "$/MSF,Price,Order Amount,".
-
-    IF tb_margin THEN
-       excelheader = excelheader +  "Avail Margin,".
-    ELSE
-       excelheader = excelheader + "% Profit,".
-
-    if tb_ton THEN
-      excelheader = excelheader + "Total Tons,$/TON".
-  END.
-====*/  
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1869,14 +1825,14 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label as CHARACTER.
   
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
@@ -1885,9 +1841,9 @@ PROCEDURE show-param :
   
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") GT 0
         then do:
-           if lv-field-hdl:label <> ? then 
+           IF lv-field-hdl:label NE ? THEN 
               assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
                      parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
                      .

@@ -52,7 +52,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -88,6 +88,8 @@ DEFINE VARIABLE h_employee-5 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_empmach AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_empmach-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_notetext AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
@@ -100,7 +102,6 @@ DEFINE VARIABLE h_phone AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_rate AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_rate-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -111,18 +112,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 88 ROW 2.91
          SIZE 63 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -186,7 +187,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
        FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
 
 /* SETTINGS FOR FRAME F-Main
-                                                                        */
+   FRAME-NAME                                                           */
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
@@ -340,17 +341,17 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_phone ,
+             h_options , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             FRAME message-frame:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_address ,
+             h_phone , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_address , 'AFTER':U ).
     END. /* Page 0 */
-
     WHEN 1 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/employee.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_employee ).
-       RUN set-position IN h_employee ( 4.81 , 7.00 ) NO-ERROR.
-       RUN set-size IN h_employee ( 19.52 , 138.00 ) NO-ERROR.
-
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
@@ -359,18 +360,27 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_export ( 1.05 , 61.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/employee.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_employee ).
+       RUN set-position IN h_employee ( 4.81 , 7.00 ) NO-ERROR.
+       RUN set-size IN h_employee ( 19.52 , 138.00 ) NO-ERROR.
+
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2') NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        /* Links to SmartNavBrowser h_employee. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_employee ).
        RUN add-link IN adm-broker-hdl ( h_employee , 'Record':U , THIS-PROCEDURE ).
 
-       /* Links to SmartViewer h_export. */
-       RUN add-link IN adm-broker-hdl ( h_employee , 'export-xl':U , h_export ).
-
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_export ,
+             h_exit , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_employee ,
+             h_folder , 'AFTER':U ).
     END. /* Page 1 */
-
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/employee.w':U ,
@@ -401,14 +411,20 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1') NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartViewer h_employee-2. */
        RUN add-link IN adm-broker-hdl ( h_employee , 'Record':U , h_employee-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_employee-2 ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_employee-2 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+             h_employee-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
+             h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
-
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/employee.w':U ,
@@ -445,7 +461,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-updsav-2 ( 2.14 , 56.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1') NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartViewer h_employee-3. */
        RUN add-link IN adm-broker-hdl ( h_employee , 'Record':U , h_employee-3 ).
@@ -457,8 +473,16 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_rate-2 ).
        RUN add-link IN adm-broker-hdl ( h_rate , 'Record':U , h_rate-2 ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_employee-3 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rate ,
+             h_employee-3 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_rate-2 ,
+             h_rate , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-2 ,
+             h_rate-2 , 'AFTER':U ).
     END. /* Page 3 */
-
     WHEN 4 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/employee.w':U ,
@@ -472,8 +496,8 @@ PROCEDURE adm-create-objects :
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.05 , 61.00 ) NO-ERROR.
+             OUTPUT h_export-2 ).
+       RUN set-position IN h_export-2 ( 1.05 , 61.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -503,7 +527,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-updsav-3 ( 3.33 , 46.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1') NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartViewer h_employee-4. */
        RUN add-link IN adm-broker-hdl ( h_employee , 'Record':U , h_employee-4 ).
@@ -515,11 +539,18 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_emplogin , 'Record':U , h_emplogin-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav-3 , 'TableIO':U , h_emplogin-2 ).
 
-       /* Links to SmartViewer h_export. */
-       RUN add-link IN adm-broker-hdl ( h_emplogin , 'export-xl':U , h_export ).
-
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_employee-4 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_export-2 ,
+             h_exit , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_emplogin ,
+             h_employee-4 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_emplogin-2 ,
+             h_emplogin , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-3 ,
+             h_emplogin-2 , 'AFTER':U ).
     END. /* Page 4 */
-
     WHEN 5 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/employee.w':U ,
@@ -535,7 +566,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_empmach ).
        RUN set-position IN h_empmach ( 6.71 , 28.00 ) NO-ERROR.
-       RUN set-size IN h_empmach ( 14.76 , 94.00 ) NO-ERROR.
+       RUN set-size IN h_empmach ( 14.76 , 98.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/empmach.w':U ,
@@ -556,7 +587,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-updsav-4 ( 2.14 , 56.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1') NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartViewer h_employee-5. */
        RUN add-link IN adm-broker-hdl ( h_employee , 'Record':U , h_employee-5 ).
@@ -568,8 +599,16 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_empmach , 'Record':U , h_empmach-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav-4 , 'TableIO':U , h_empmach-2 ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_employee-5 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_empmach ,
+             h_employee-5 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_empmach-2 ,
+             h_empmach , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-4 ,
+             h_empmach-2 , 'AFTER':U ).
     END. /* Page 5 */
-
     WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/allnote2.w':U ,
@@ -577,7 +616,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_allnote2 ).
        RUN set-position IN h_allnote2 ( 5.29 , 5.00 ) NO-ERROR.
-       RUN set-size IN h_allnote2 ( 7.86 , 136.00 ) NO-ERROR.
+       RUN set-size IN h_allnote2 ( 9.00 , 136.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/notetext.w':U ,
@@ -588,7 +627,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 7.38 , 129.00 ) */
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1') NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartBrowser h_allnote2. */
        RUN add-link IN adm-broker-hdl ( h_employee , 'Record':U , h_allnote2 ).
@@ -597,6 +636,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_allnote2 , 'note-text':U , h_notetext ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_allnote2 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_notetext ,
+             h_allnote2 , 'AFTER':U ).
     END. /* Page 6 */
 
   END CASE.

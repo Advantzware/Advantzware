@@ -101,6 +101,11 @@ DEFINE VARIABLE colNumber AS INTEGER       NO-UNDO.
 DEFINE VARIABLE dtPrevDueDate AS DATE NO-UNDO.
 DEFINE VARIABLE cDueDateChgReason AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lJustDeletedLine AS LOGICAL NO-UNDO.
+DEFINE VARIABLE oeBolPrompt-char AS CHARACTER NO-UNDO .
+DEFINE VARIABLE oeBolPrompt-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE clvtext AS CHARACTER NO-UNDO .
 
 
 RUN sys/ref/s-codes.p (OUTPUT lv-s-codes, OUTPUT lv-s-dscrs).
@@ -168,6 +173,18 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* chec
                        OUTPUT v-rtn-char, OUTPUT v-rec-found).
 IF v-rec-found THEN
 oeDateAuto-char = v-rtn-char NO-ERROR.    
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLPrompt", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+     oeBolPrompt-log = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLPrompt", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    oeBolPrompt-char = cRtnChar NO-ERROR. 
 
 /* Could be implemented later */
 /* DEF VAR bt_addnote AS HANDLE.                                                       */
@@ -2072,6 +2089,7 @@ DEF VAR v-all-items AS LOG NO-UNDO.
 DEF VAR v-first AS LOG NO-UNDO.
 DEF VAR lv-save-recid AS RECID NO-UNDO.
 DEF VAR v-invoice AS LOG NO-UNDO.
+DEFINE BUFFER bf-notes FOR notes .
 
 FIND xoe-ord WHERE xoe-ord.company = g_company AND
                    xoe-ord.ord-no = oe-rel.ord-no NO-LOCK.
@@ -2081,6 +2099,23 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company = xoe-ord.company NO-LOCK .
 {sys/inc/oereordr.i}
 
 v-scr-s-code = tt-report.s-basis[1]:SCREEN-VALUE IN BROWSE {&browse-name}.
+
+FIND FIRST cust NO-LOCK 
+        WHERE cust.company EQ xoe-ord.company
+          AND cust.cust-no EQ xoe-ord.cust-no NO-ERROR.
+
+ASSIGN clvtext = "Notes: " .
+IF oeBolPrompt-log AND AVAILABLE cust THEN DO:
+    
+        FOR EACH notes NO-LOCK WHERE notes.rec_key = cust.rec_key AND
+                              LOOKUP(notes.note_code,oeBolPrompt-char) <> 0 :
+            clvtext = clvtext + notes.note_text + "  " + CHR(13) .
+        END.
+    
+    IF clvtext NE "Notes: " THEN
+    MESSAGE clvtext VIEW-AS ALERT-BOX INFORMATION BUTTONS OK  .
+END.
+
 IF v-scr-s-code NE "I" THEN DO:
 
   RUN check-release NO-ERROR.
@@ -2090,6 +2125,8 @@ IF v-scr-s-code NE "I" THEN DO:
   RUN credit-check NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN.
 END.
+
+
 
 ASSIGN
 lv-save-recid = RECID(oe-rel)
@@ -2192,6 +2229,30 @@ SESSION:SET-WAIT-STATE("general").
         IF AVAIL oe-rell AND oe-rell.link-no NE 0 THEN
         FIND oe-rel WHERE oe-rel.r-no EQ oe-rell.link-no NO-LOCK NO-ERROR.                    
     END.
+
+    IF oeBolPrompt-log AND AVAILABLE xoe-ordl THEN DO:
+      IF NOT AVAIL cust THEN
+          FIND FIRST cust NO-LOCK 
+          WHERE cust.company EQ xoe-ordl.company
+          AND cust.cust-no EQ xoe-ordl.cust-no NO-ERROR.
+      IF AVAIL cust THEN
+          FOR EACH notes NO-LOCK WHERE notes.rec_key = cust.rec_key AND
+                                LOOKUP(notes.note_code,oeBolPrompt-char) <> 0 :
+             FIND FIRST oe-boll NO-LOCK
+                 WHERE oe-boll.company  EQ xoe-ordl.company
+                 AND oe-boll.ord-no   EQ xoe-ordl.ord-no
+                 AND oe-boll.i-no     EQ xoe-ordl.i-no 
+                 NO-ERROR.
+             IF AVAILABLE oe-boll THEN 
+                 FIND FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ oe-boll.b-no NO-ERROR.
+             IF AVAILABLE oe-bolh THEN DO:
+                 CREATE bf-notes .
+                 BUFFER-COPY notes EXCEPT rec_key TO bf-notes .
+                 ASSIGN bf-notes.rec_key = oe-bolh.rec_key .
+             END.
+          END.
+    END. /*oeBolPrompt-log  */
+
 
 RUN release-shared-buffers.
 
@@ -2379,7 +2440,7 @@ END.
 
 /* neet to complete  =======
 if oereordr-log then do:  
-   find first itemfg {sys/look/itemfgrl.w}
+   find first itemfg {sys/look/itemfgrlW.i}
                  and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
    if avail itemfg then run oe/d-fgqty.w  /*oe/fg-qtys.p*/  (recid(itemfg)).
 end.  

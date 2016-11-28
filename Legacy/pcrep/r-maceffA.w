@@ -1063,7 +1063,7 @@ DO WITH FRAME {&FRAME-NAME}:
       IF select-shift:IS-SELECTED(i) THEN
         lv-shifts = lv-shifts + TRIM(SUBSTR(select-shift:ENTRY(i),1,5)) + ",".
     END.
-  
+    IF lv-shifts NE "" THEN
     IF SUBSTR(lv-shifts,LENGTH(TRIM(lv-shifts)),1) EQ "," THEN
       SUBSTR(lv-shifts,LENGTH(TRIM(lv-shifts)),1) = "".
     

@@ -20,9 +20,7 @@ do transaction:
      sys-ctrl.log-fld  = no
      sys-ctrl.descrip  = "Check Panel sizes against minimums on Machine File".
    
-    MESSAGE sys-ctrl.descrip
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE sys-ctrl.log-fld.
+    
   end.
 
   if lookup(sys-ctrl.char-fld,"WminLmin,PminPmax") eq 0 then

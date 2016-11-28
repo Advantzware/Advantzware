@@ -28,14 +28,14 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-def input parameter ip-company like itemfg.company no-undo.
-def input parameter ip-cur-val as cha no-undo.
-def input parameter ip-cur-val2 as cha no-undo.
-def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+DEFINE INPUT PARAMETER ip-company LIKE itemfg.company NO-UNDO.
+DEFINE INPUT PARAMETER ip-cur-val AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ip-cur-val2 AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER op-char-val AS CHARACTER NO-UNDO. /* string i-code + i-name */
 
 /* Local Variable Definitions ---                                       */
-def var lv-type-dscr as cha no-undo.
-def var lv-first-time as log init yes no-undo.
+def var lv-type-dscr AS CHARACTER NO-UNDO.
+def var lv-first-time AS LOGICAL INITIAL YES NO-UNDO.
 &scoped-define SORTBY-1 BY cust.cust-no
 &scoped-define SORTBY-2 BY cust.name {&sortby-1}
 &scoped-define fld-name-1 cust.cust-no
@@ -49,10 +49,11 @@ def var lv-first-time as log init yes no-undo.
 
 DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
 DEF VAR period_pos AS INTEGER NO-UNDO.
-DEF VAR lActive AS LOG NO-UNDO.
-DEF VAR v-check-page AS LOG INIT NO NO-UNDO .
-/*def var ou-log like sys-ctrl.log-fld INIT NO no-undo.*/
-DEF VAR v-file-name AS CHAR NO-UNDO .
+DEF VAR lActive AS LOGICAL NO-UNDO.
+DEF VAR v-check-page AS LOGICAL INITIAL NO NO-UNDO .
+DEFINE VARIABLE ou-log like sys-ctrl.log-fld INIT NO NO-UNDO.
+DEFINE VARIABLE ou-cust-int AS INTEGER NO-UNDO .
+DEF VAR v-file-name AS CHARACTER NO-UNDO .
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -104,8 +105,8 @@ END.
 cust.state cust.zip cust.type cust.sman sman.territory 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
-      AND cust.company = ip-company ~
-      AND ((v-check-page AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "")) OR NOT v-check-page) NO-LOCK, ~
+      AND cust.company EQ ip-company ~
+      AND ((v-check-page AND ( LOOKUP(cust.cust-no,custcount) NE 0 OR custcount = "")) OR NOT v-check-page) NO-LOCK, ~
       FIRST sman OF cust OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
@@ -196,14 +197,14 @@ DEFINE BROWSE BROWSE-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     BROWSE-1 AT ROW 1 COL 1
-     rd-sort AT ROW 12.67 COL 14 NO-LABEL
-     bt-clear AT ROW 14.1 COL 2
-     lv-search AT ROW 14.1 COL 21 COLON-ALIGNED
-     bt-ok AT ROW 14.1 COL 119
-     bt-cancel AT ROW 14.1 COL 130
+     BROWSE-1 AT ROW 1 COLUMN 1
+     rd-sort AT ROW 12.67 COLUMN 14 NO-LABEL
+     bt-clear AT ROW 14.1 COLUMN 2
+     lv-search AT ROW 14.1 COLUMN 21 COLON-ALIGNED
+     bt-ok AT ROW 14.1 COLUMN 119
+     bt-cancel AT ROW 14.1 COLUMN 130
      "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 12.91 COL 4
+          SIZE 8 BY .62 AT ROW 12.91 COLUMN 4
      RECT-1 AT ROW 12.43 COL 1
      SPACE(1.39) SKIP(1.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -476,8 +477,9 @@ END.
                             OUTPUT lActive).
      END.
  END.
-{sys/inc/custlistform.i "v-file-name" }
-{sys/inc/chblankcust.i}
+/*{sys/inc/custlistform.i "v-file-name" }*/
+  RUN sys/inc/custlistform.p (INPUT v-file-name , INPUT cocode , OUTPUT ou-log , OUTPUT ou-cust-int) .
+{sys/inc/chblankcust.i "v-file-name"}
     IF ou-cust-int = 0 THEN
         custcount = "".
 
@@ -489,7 +491,7 @@ END.
     RUN enable_UI.
 
     RUN new-rd-sort.
-    &scoped-define key-phrase ((v-check-page AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "")) OR NOT v-check-page)
+    &SCOPED-DEFINE key-phrase ((v-check-page AND ( LOOKUP(cust.cust-no,custcount) NE 0 OR custcount = "")) OR NOT v-check-page)
     {custom/lookpos3.i &lookup-file = "cust" &lookup-field = "cust-no"}
   END.
   

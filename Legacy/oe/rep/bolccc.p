@@ -65,14 +65,14 @@ DEF VAR ln-cnt AS INT NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
 ASSIGN ls-image1 = "images\cccw.jpg".
 
 FILE-INFO:FILE-NAME = ls-image1. 
 ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(80)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(180)" NO-UNDO.
 ASSIGN ls-image2 = "images\worldpaclogo9.jpg".
 
 FILE-INFO:FILE-NAME = ls-image2. 
@@ -115,13 +115,14 @@ find first carrier no-lock no-error.
 find first cust no-lock no-error.
 {sa/sa-sls01.i}
 
-FIND FIRST sys-ctrl where sys-ctrl.company = cocode
-                      and sys-ctrl.NAME = "BOLFMT" NO-LOCK NO-ERROR.
+FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company = cocode
+    AND sys-ctrl.NAME = "BOLFMT" NO-ERROR.
+
 IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "CCCWPP" THEN lv-print-img = YES.
     ELSE lv-print-img = NO.
 
-find first company where company.company eq cocode no-lock.
-find first oe-ctrl where oe-ctrl.company eq cocode no-lock.
+FIND FIRST company NO-LOCK WHERE company.company EQ cocode .
+FIND FIRST oe-ctrl NO-LOCK WHERE oe-ctrl.company EQ cocode .
 ASSIGN v-comp-add1 = company.addr[1]
        v-comp-add2 = company.city + ", " + company.st + "  " + company.zip
        v-comp-add3 = "Phone: 604.533.2545" 
@@ -208,8 +209,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
 	    NO-LOCK:
 
       if not available carrier then
-      find first carrier where carrier.company = oe-ord.company
-        and carrier.carrier = oe-ord.carrier no-lock no-error.
+      FIND FIRST carrier NO-LOCK WHERE carrier.company = oe-ord.company
+        AND carrier.carrier = oe-ord.carrier NO-ERROR.
 
       do i = 1 to 3:
         if oe-ord.sman[i] ne "" then
@@ -232,7 +233,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
              
       if v-terms eq "" then
       do:
-        find first terms where terms.t-code eq oe-ord.terms no-lock no-error.
+        FIND FIRST terms NO-LOCK WHERE terms.t-code EQ oe-ord.terms  NO-ERROR.
         if avail terms then
           assign v-terms = terms.dscr.
       end.
@@ -316,22 +317,22 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
           /*========*/
           ln-cnt = ln-cnt + 2.
-          find first oe-ordl where oe-ordl.company eq cocode
+          FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ cocode
                           and oe-ordl.ord-no  eq oe-boll.ord-no
-                          and oe-ordl.i-no    eq oe-boll.i-no no-lock no-error.
+                          AND oe-ordl.i-no    EQ oe-boll.i-no NO-ERROR.
 
           IF oe-ordl.part-dscr1 <> "" OR oe-boll.partial > 0 THEN ln-cnt = ln-cnt + 1.
           if itemfg.isaset then
           for each fg-set where fg-set.company eq cocode
 	                       and fg-set.set-no  eq itemfg.i-no   no-lock:
 
-             find first xitemfg where xitemfg.company eq cocode
-	                           and xitemfg.i-no    eq fg-set.part-no no-lock no-error.
+             FIND FIRST xitemfg NO-LOCK WHERE xitemfg.company EQ cocode
+	                           AND xitemfg.i-no    EQ fg-set.part-no NO-ERROR.
 
-             FIND FIRST fg-bin where fg-bin.company eq cocode
+             FIND FIRST fg-bin NO-LOCK WHERE fg-bin.company EQ cocode
                             and fg-bin.i-no    eq xitemfg.i-no
                             and fg-bin.job-no = oe-boll.job-no
-                            AND fg-bin.job-no2 = oe-boll.job-no2 NO-LOCK NO-ERROR.
+                            AND fg-bin.job-no2 = oe-boll.job-no2  NO-ERROR.
              ln-cnt = ln-cnt + 1.
              IF AVAIL fg-bin AND fg-bin.partial-count <> 0 THEN ln-cnt = ln-cnt + 1.
           END.
@@ -383,8 +384,30 @@ PUT
     "<R52.8><C1>in all or any of said property, that every service be performed hereunder shall be subject to all the terms and conditions of the Uniform Domestic Straight Bill of Lading set forth (1) in Uniform Freight Classification" SKIP
     "<R53.4><C1>in effect of the date hereof, if this is rail or water shipment or (2) in the applicable motor carrier classification or tariff if this is a motor shipment. Shipper/Receiver hereby certifies the he/she is familiar" SKIP
     "<R54.0><C1>with all the terms and conditions of the said bill of lading, set forth in the classification or tariff which governs the transportation of this shipment, and the said terms and conditions are herby agreed to" SKIP
-    "<R54.6><C1>by the shipper/receiver and accepted for himself/herself and his assigns." 
+    "<R54.6><C1>by the shipper/receiver and accepted for himself/herself and his assigns."  .
+
+PUT "</B><P10><R56><C48><#9><FROM><R65><C80><RECT><||3>" SKIP.
+PUT "<R57><C48><FROM><R57><C80><LINE><||3>" SKIP
+    "<R58><C48><FROM><R58><C80><LINE><||3>" SKIP
+    "<R57><C65><FROM><R58><C65><LINE><||3>" SKIP
+
+    "<R63><C48><FROM><R63><C80><LINE><||3>" SKIP.
+    
+  PUT  "<R56><C58><P9><b> Shipment Inspection  </b>"     SKIP
+    "<R57><C49>               Truck                                   <C70> Shipment  "    SKIP
+    "<R58><C49> No Odors Present <C59.5> _______    All Qtys Match <C74> _______   "    SKIP
+    "<R59><C49> No Debris Present <C59.5> _______  All Items Match <C74> _______   "    SKIP
+    "<R60><C49> No Visible Leaks <C59.5> _______         No Damage <C74> _______   "    SKIP
+    "<R61><C49> No Infestation <C59.5> _______       Cases Sealed <C74> _______   "    SKIP
+                                            
+    "<R63.5><C49>Sign: _______________             Date: _______________   "    SKIP
     .
+
+    PUT "<FGCOLOR=RED><BGCOLOR=RED><LINECOLOR=RED>"
+      /*"<=9><C+10><FROM><R+4><C+20><RECT> " */
+      "<R57><C5><#15><FROM><R+4><C+25><RECT>" 
+      "<=15><R+1>       DO NOT DOUBLE STACK      " SKIP 
+      "<=15><R+2>       DO NOT BREAK DOWN        "  SKIP.
 
   v-printline = v-printline + 14.
   IF last-of(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUM .
@@ -412,7 +435,7 @@ PROCEDURE get-pallets-num:
      RETURN.
   END.
 
-  FIND FIRST fg-bin
+  FIND FIRST fg-bin NO-LOCK
       WHERE fg-bin.company EQ cocode
         AND fg-bin.i-no    EQ oe-boll.i-no
         AND fg-bin.job-no  EQ oe-boll.job-no
@@ -420,7 +443,7 @@ PROCEDURE get-pallets-num:
         AND fg-bin.loc     EQ oe-boll.loc
         AND fg-bin.loc-bin EQ oe-boll.loc-bin
         AND fg-bin.tag     EQ oe-boll.tag
-      NO-LOCK NO-ERROR.  
+      NO-ERROR.  
   v-qty-pal = 1.
   IF AVAIL fg-bin THEN
      v-qty-pal = v-qty-pal *

@@ -123,7 +123,7 @@ vend.remit vend.r-add1 vend.r-add2 vend.r-city vend.r-state vend.r-zip ~
 vend.r-country vend.r-postal vend.check-memo vend.type vend.contact ~
 vend.buyer vend.area-code vend.phone vend.fax-area vend.fax vend.fax-prefix ~
 vend.fax-country vend.over-pct vend.under-pct vend.actnum vend.curr-code ~
-vend.tax-gr vend.code-1099 vend.an-edi-vend vend.terms vend.disc-% ~
+vend.tax-gr vend.code-1099 vend.an-edi-vend cb_paytype vend.terms vend.disc-% ~
 vend.rebate-% vend.frt-pay vend.disc-days vend.carrier vend.fob-code ~
 vend.loc 
 &Scoped-define ENABLED-TABLES vend
@@ -135,13 +135,13 @@ vend.tax-id vend.remit vend.r-add1 vend.r-add2 vend.r-city vend.r-state ~
 vend.r-zip vend.r-country vend.r-postal vend.check-memo vend.type ~
 vend.contact vend.buyer vend.area-code vend.phone vend.fax-area vend.fax ~
 vend.fax-prefix vend.fax-country vend.over-pct vend.under-pct vend.actnum ~
-vend.actdscr vend.curr-code vend.tax-gr vend.code-1099 vend.an-edi-vend ~
+vend.actdscr vend.curr-code vend.tax-gr vend.code-1099 vend.an-edi-vend cb_paytype ~
 vend.terms vend.disc-% vend.po-export vend.rebate-% vend.frt-pay ~
 vend.disc-days vend.carrier vend.fob-code vend.loc 
 &Scoped-define DISPLAYED-TABLES vend
 &Scoped-define FIRST-DISPLAYED-TABLE vend
-&Scoped-Define DISPLAYED-OBJECTS tb_cc ventype_Dscr buyer_buyer-n ~
-terms_dscr carrier_dscr curr_dscr tb_billpay 
+&Scoped-Define DISPLAYED-OBJECTS ventype_Dscr buyer_buyer-n ~
+terms_dscr carrier_dscr curr_dscr 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -180,6 +180,13 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE cb_paytype AS CHARACTER FORMAT "X(256)":U INITIAL "All Payment Types"
+     LABEL "Pay Type" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "All Payment Types","All Electronic","All Non-Electronic" 
+     DROP-DOWN-LIST
+     SIZE 20 BY 1 NO-UNDO.
+
 DEFINE VARIABLE buyer_buyer-n AS CHARACTER FORMAT "x(20)" 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1
@@ -215,27 +222,17 @@ DEFINE RECTANGLE RECT-29
 
 DEFINE RECTANGLE RECT-30
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 77 BY 3.81.
+     SIZE 81 BY 3.81.
 
 DEFINE RECTANGLE RECT-31
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 77 BY 4.76.
-
-DEFINE VARIABLE tb_billpay AS LOGICAL INITIAL no 
-     LABEL "Bill Pay" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 23 BY 1.05 NO-UNDO.
-
-DEFINE VARIABLE tb_cc AS LOGICAL INITIAL no 
-     LABEL "Credit Card/ACH" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 23 BY 1.05 NO-UNDO.
+     SIZE 81 BY 4.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     tb_cc AT ROW 10.05 COL 122.4 WIDGET-ID 6
+     cb_paytype AT ROW 10.05 COL 124.6 COLON-ALIGNED WIDGET-ID 12
      vend.vend-no AT ROW 1.24 COL 10 COLON-ALIGNED
           LABEL "Vendor"
           VIEW-AS FILL-IN 
@@ -385,29 +382,29 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 41 BY 1
           BGCOLOR 7 FGCOLOR 0 
-     vend.curr-code AT ROW 9.1 COL 86 COLON-ALIGNED
+     vend.curr-code AT ROW 9.1 COL 84.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 
-     vend.tax-gr AT ROW 10.05 COL 73.6 COLON-ALIGNED
+     vend.tax-gr AT ROW 10.05 COL 72.2 COLON-ALIGNED
           LABEL "Tax" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 
-     vend.code-1099 AT ROW 10.05 COL 99.6 COLON-ALIGNED FORMAT "X"
+     vend.code-1099 AT ROW 10.05 COL 97.4 COLON-ALIGNED FORMAT "X"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
           BGCOLOR 15 FONT 4
-     vend.an-edi-vend AT ROW 10.05 COL 109.6
+     vend.an-edi-vend AT ROW 10.05 COL 104.8
           LABEL "EDI"
           VIEW-AS TOGGLE-BOX
-          SIZE 11 BY 1.05
-     vend.terms AT ROW 11.24 COL 76 COLON-ALIGNED
+          SIZE 8.2 BY 1.05
+     vend.terms AT ROW 11.24 COL 74.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
      terms_dscr AT ROW 11.24 COL 87 COLON-ALIGNED NO-LABEL
-     vend.disc-% AT ROW 12.29 COL 81.2 COLON-ALIGNED
+     vend.disc-% AT ROW 12.29 COL 80 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
@@ -453,7 +450,6 @@ DEFINE FRAME F-Main
           LABEL "Whs"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     tb_billpay AT ROW 11.19 COL 122.4 WIDGET-ID 8
      "Status:" VIEW-AS TEXT
           SIZE 9 BY .76 AT ROW 1.24 COL 34
      "Default G/L#:" VIEW-AS TEXT
@@ -469,8 +465,8 @@ DEFINE FRAME F-Main
           SIZE 7 BY .76 AT ROW 13.86 COL 134
      RECT-1 AT ROW 1 COL 1
      RECT-29 AT ROW 8.86 COL 2
-     RECT-30 AT ROW 13.62 COL 69
-     RECT-31 AT ROW 8.86 COL 69
+     RECT-30 AT ROW 13.62 COL 67
+     RECT-31 AT ROW 8.86 COL 67
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE NO-VALIDATE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -587,10 +583,6 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN vend.tax-id IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR TOGGLE-BOX tb_billpay IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tb_cc IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN vend.terms IN FRAME F-Main
    4                                                                    */
 /* SETTINGS FOR FILL-IN terms_dscr IN FRAME F-Main
@@ -923,32 +915,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_billpay
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_billpay V-table-Win
-ON VALUE-CHANGED OF tb_billpay IN FRAME F-Main /* Bill Pay */
-DO:
-    IF tb_billpay:SCREEN-VALUE = "YES" THEN
-        tb_cc:SCREEN-VALUE = "NO".
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_cc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cc V-table-Win
-ON VALUE-CHANGED OF tb_cc IN FRAME F-Main /* Credit Card/ACH */
-DO:
-    IF tb_cc:SCREEN-VALUE = "YES" THEN
-        tb_billpay:SCREEN-VALUE = "NO".
-    
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME vend.terms
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vend.terms V-table-Win
 ON LEAVE OF vend.terms IN FRAME F-Main /* Terms */
@@ -1117,15 +1083,36 @@ PROCEDURE assignCC :
   Notes:       
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
-    IF tb_cc:SCREEN-VALUE EQ "YES" THEN
-        vend.spare-int-1 = 1.
-    ELSE
-        vend.spare-int-1 = 0.
-    IF tb_billpay:SCREEN-VALUE EQ "YES" THEN
-        vend.spare-int-2 = 1.
-    ELSE
-        vend.spare-int-2 = 0.
+/*    IF tb_cc:SCREEN-VALUE EQ "YES" THEN     */
+/*        vend.spare-int-1 = 1.               */
+/*    ELSE                                    */
+/*        vend.spare-int-1 = 0.               */
+/*    IF tb_billpay:SCREEN-VALUE EQ "YES" THEN*/
+/*        vend.spare-int-2 = 1.               */
+/*    ELSE                                    */
+/*        vend.spare-int-2 = 0.               */
+   vend.payment-type = cb_paytype:SCREEN-VALUE IN FRAME {&frame-name}.
 END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-payment-type-list V-table-Win 
+PROCEDURE build-payment-type-list :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE ilogic AS LOG NO-UNDO.
+   cb_paytype:LIST-ITEMS IN FRAME {&frame-name} = "All Payment Types,All Electronic,All Non-Electronic".
+      
+   FOR EACH payment-type NO-LOCK WHERE payment-type.company = cocode.
+       ilogic = cb_paytype:ADD-LAST (payment-type.type) IN FRAME {&frame-name}.
+   END.
+
+   cb_payType:SCREEN-VALUE = cb_payType:ENTRY (1).
 
 END PROCEDURE.
 
@@ -1142,7 +1129,7 @@ PROCEDURE disable-vend-fields :
 
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE vend.po-export.
-    DISABLE tb_cc tb_billpay.
+/*    DISABLE tb_cc tb_billpay.*/
   END.
 
 END PROCEDURE.
@@ -1197,14 +1184,16 @@ PROCEDURE displayCC :
   Notes:       
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
-    IF AVAIL(vend) AND vend.spare-int-1 EQ 1 THEN
-        tb_cc:SCREEN-VALUE = "YES".
-    ELSE
-        tb_cc:SCREEN-VALUE = "NO".
-    IF AVAIL(vend) AND vend.spare-int-2 EQ 1 THEN
-        tb_billpay:SCREEN-VALUE = "YES".
-    ELSE
-        tb_billpay:SCREEN-VALUE = "NO".
+/*    IF AVAIL(vend) AND vend.spare-int-1 EQ 1 THEN*/
+/*        tb_cc:SCREEN-VALUE = "YES".              */
+/*    ELSE                                         */
+/*        tb_cc:SCREEN-VALUE = "NO".               */
+/*    IF AVAIL(vend) AND vend.spare-int-2 EQ 1 THEN*/
+/*        tb_billpay:SCREEN-VALUE = "YES".         */
+/*    ELSE                                         */
+/*        tb_billpay:SCREEN-VALUE = "NO".          */
+  IF AVAILABLE vend THEN cb_paytype:SCREEN-VALUE IN FRAME {&frame-name} = vend.payment-type. 
+ 
 END.
 
 END PROCEDURE.
@@ -1222,7 +1211,7 @@ PROCEDURE enable-vend-fields :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF poexport-log AND poexport-cha EQ "Vendor" THEN ENABLE vend.po-export.
-    ENABLE tb_cc tb_billpay.
+/*    ENABLE tb_cc tb_billpay.*/
   END.
 
 END PROCEDURE.
@@ -1384,12 +1373,14 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  IF AVAILABLE vend THEN RUN build-payment-type-list.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
+  
   /* Code placed here will execute AFTER standard behavior.    */
   
+   
   RUN displayCC.
   
 END PROCEDURE.

@@ -1489,6 +1489,7 @@ FOR EACH b-itemfg WHERE b-itemfg.company = cocode
         v-excel-detail-lines = v-excel-detail-lines + 
             appendXLLine(getValue-itemfg(BUFFER b-itemfg,ttRptSelected.FieldList)).
         
+        
         ELSE do:
           CASE ttRptSelected.FieldList:                                                              
             WHEN "col1" THEN                                                                
@@ -1701,6 +1702,15 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
         END.
         WHEN "dfuncTotMSFPTD"  THEN DO:
             IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).
+        END.
+
+        WHEN "ship-meth"  THEN DO:
+            CASE ipb-itemfg.ship-meth :
+                WHEN YES THEN
+                    lc-return = "Case".
+                WHEN NO THEN
+                    lc-return = "Pallet".
+            END CASE.
         END.
         OTHERWISE DO:
             IF INDEX(ipc-field,"[") > 0 THEN DO:

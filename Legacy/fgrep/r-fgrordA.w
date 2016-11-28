@@ -40,7 +40,9 @@ assign
  cocode = gcompany
  locode = gloc.
    
+DO TRANSACTION:
 {sys/inc/custlistform.i ""IR1"" }
+END.
 
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
@@ -101,7 +103,7 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file tb_reord-by-whse
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY*/
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -708,8 +710,8 @@ ON HELP OF begin_cust IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -724,8 +726,8 @@ ON HELP OF end_cust IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -835,7 +837,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN DO:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1365,7 +1367,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'IR1',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""IR1""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1607,7 +1609,7 @@ DEF VAR ld-fr AS DATE NO-UNDO.
 DEF VAR ld-to AS DATE NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR li1 AS INT NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 
 FORMAT HEADER "               "
@@ -1705,7 +1707,8 @@ assign
  v-lot-reo   = SUBSTR(rd_lot-reo,1,1)
  v-prt-cpn   = tb_part
  v-prt-qty   = rd_qav-ven BEGINS "Qty"
- v-prt-prc   = SUBSTR(rd_pri-ven-max,1,1).
+ v-prt-prc   = SUBSTR(rd_pri-ven-max,1,1)
+ lSelected      = tb_cust-list .
 
 {sys/inc/print1.i}
 
@@ -1767,6 +1770,13 @@ excelheader = "ITEM #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,QTY ALLOC," +
  END.
  excelheader = excelheader + ", CUSTOMER #, SALES REP, COST, UOM". /*Premier Mod*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+END.
+
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
 END.
 
 display with frame r-top.
@@ -1829,7 +1839,7 @@ DEF VAR ld-fr AS DATE NO-UNDO.
 DEF VAR ld-to AS DATE NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR li1 AS INT NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 
 FORMAT HEADER "               "
@@ -1927,7 +1937,8 @@ assign
  v-lot-reo   = SUBSTR(rd_lot-reo,1,1)
  v-prt-cpn   = tb_part
  v-prt-qty   = rd_qav-ven BEGINS "Qty"
- v-prt-prc   = SUBSTR(rd_pri-ven-max,1,1).
+ v-prt-prc   = SUBSTR(rd_pri-ven-max,1,1)
+ lSelected      = tb_cust-list.
 
 {sys/inc/print1.i}
 
@@ -1989,6 +2000,12 @@ excelheader = "ITEM #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,QTY ALLOC," +
  END.
  excelheader = excelheader + ", CUSTOMER #, SALES REP, COST, UOM". /*Premier Mod*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+END.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
 END.
 
 display with frame r-top.

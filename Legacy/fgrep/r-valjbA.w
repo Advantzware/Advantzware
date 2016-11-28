@@ -26,6 +26,9 @@ CREATE WIDGET-POOL.
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
+
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
@@ -40,7 +43,7 @@ assign
  cocode = gcompany
  locode = gloc.
 
-{sys/inc/custlistform.i ""IR13"" }
+/*{sys/inc/custlistform.i ""IR13"" }*/
 
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
@@ -88,7 +91,7 @@ tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -439,7 +442,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -573,8 +576,8 @@ ON HELP OF begin_cust IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -589,8 +592,8 @@ ON HELP OF end_cust IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -753,6 +756,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   {methods/nowait.i}
 
+  RUN sys/inc/CustListForm.p ( "IR13",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY "entry" TO begin_cust IN FRAME {&FRAME-NAME}.
@@ -761,7 +769,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                           INPUT 'IR13',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""IR13""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1031,7 +1039,7 @@ def var v-prt-all as log format "Y/N" init no.
 DEF VAR li-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
 DEF VAR li-ship-qty LIKE oe-ordl.ship-qty NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 form
     itemfg.cust-no to 8 label "CUSTOMER"
     oe-ordl.i-no to 24 label "ITEM #"
@@ -1064,7 +1072,8 @@ assign
  tpo        = end_cust-po 
  type       = substr(rd_itm-code,1,1) 
  zbal       = tb_inc-zer
- v-prt-all  = tb_con-job.
+ v-prt-all  = tb_con-job
+ lSelected      = tb_cust-list .
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1072,14 +1081,19 @@ assign
 if td-show-parm then run show-param.
 
 display "" with frame r-top.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  tcust = ttCustList.cust-no .
+ END.
 
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-        each itemfg
+    FOR each itemfg
         where itemfg.company eq cocode
-            and itemfg.cust-no EQ ttCustList.cust-no /*fcust
-            and itemfg.cust-no le tcust*/
+            and itemfg.cust-no GE fcust
+            and itemfg.cust-no le tcust
+            AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+            AND ttCustList.log-fld no-lock) else true)
             and (type eq "A" or itemfg.i-code eq type)
             use-index customer no-lock
 

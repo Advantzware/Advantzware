@@ -152,13 +152,15 @@ ASSIGN cTextListToDefault  = "Vendor,G/L Account,PO#,Date Rec,Item Number,Descri
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_date end_date ~
 begin_po-no end_po-no begin_po-i-no end_po-i-no begin_rdate end_rdate ~
-begin_vend end_vend scr-neg-rec rd_sort sl_avail Btn_Def sl_selected ~
-Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page ~
-lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+begin_vend end_vend scr-neg-rec tb_in-po rd_sort sl_avail Btn_Def ~
+sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
+lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_po-no end_po-no ~
 begin_po-i-no end_po-i-no begin_rdate end_rdate begin_vend end_vend ~
-scr-neg-rec rd_sort sl_avail sl_selected rd-dest lv-ornt lines-per-page ~
-lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+scr-neg-rec tb_in-po rd_sort sl_avail sl_selected rd-dest lv-ornt ~
+lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
+fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -312,7 +314,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 8.81.
+     SIZE 94 BY 9.29.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -332,6 +334,11 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
+
+DEFINE VARIABLE tb_in-po AS LOGICAL INITIAL no 
+     LABEL "Include Closed POs?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
@@ -365,46 +372,47 @@ DEFINE FRAME FRAME-A
      end_vend AT ROW 6.05 COL 68 COLON-ALIGNED HELP
           "Enter Ending Vendor Number"
      scr-neg-rec AT ROW 7.33 COL 29 WIDGET-ID 2
-     rd_sort AT ROW 8.38 COL 29 NO-LABEL
-     sl_avail AT ROW 10.71 COL 4.2 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 10.71 COL 40.2 HELP
+     tb_in-po AT ROW 8.19 COL 29 WIDGET-ID 58
+     rd_sort AT ROW 9.14 COL 29 NO-LABEL
+     sl_avail AT ROW 11.05 COL 4.2 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 11.05 COL 40.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 10.71 COL 59.6 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 11.71 COL 40.2 HELP
+     sl_selected AT ROW 11.05 COL 59.6 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 12.05 COL 40.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 12.71 COL 40.2 HELP
+     Btn_Remove AT ROW 13.05 COL 40.2 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 13.76 COL 40.2 WIDGET-ID 40
-     btn_down AT ROW 14.76 COL 40.2 WIDGET-ID 42
-     rd-dest AT ROW 17.05 COL 6 NO-LABEL
-     lv-ornt AT ROW 17.29 COL 31 NO-LABEL
-     lines-per-page AT ROW 17.29 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 19.43 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 20.38 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 21.57 COL 31
-     tb_excel AT ROW 22.71 COL 51 RIGHT-ALIGNED
-     tb_runExcel AT ROW 22.71 COL 72 RIGHT-ALIGNED
-     fi_file AT ROW 23.52 COL 29 COLON-ALIGNED HELP
+     btn_Up AT ROW 14.1 COL 40.2 WIDGET-ID 40
+     btn_down AT ROW 15.1 COL 40.2 WIDGET-ID 42
+     rd-dest AT ROW 17.38 COL 6 NO-LABEL
+     lv-ornt AT ROW 17.62 COL 31 NO-LABEL
+     lines-per-page AT ROW 17.62 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 19.76 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 20.71 COL 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 21.91 COL 31
+     tb_excel AT ROW 23.05 COL 51 RIGHT-ALIGNED
+     tb_runExcel AT ROW 23.05 COL 72 RIGHT-ALIGNED
+     fi_file AT ROW 23.86 COL 29 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 25.14 COL 19
-     btn-cancel AT ROW 25.14 COL 57
+     btn-ok AT ROW 25.48 COL 19
+     btn-cancel AT ROW 25.48 COL 57
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 10 COL 5 WIDGET-ID 38
-     "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 8.38 COL 21
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 16.1 COL 3
+          SIZE 29 BY .62 AT ROW 10.33 COL 5 WIDGET-ID 38
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 10.33 COL 59.6 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 10 COL 59.6 WIDGET-ID 44
-     RECT-6 AT ROW 16.48 COL 2
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 16.43 COL 3
+     "Sort By:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 9.1 COL 21
+     RECT-6 AT ROW 16.81 COL 2
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 25.86.
+         SIZE 95.2 BY 26.29.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -424,7 +432,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "PO Receipts Not Vouchered"
-         HEIGHT             = 26.1
+         HEIGHT             = 26.52
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -1286,14 +1294,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_date end_date begin_po-no end_po-no begin_po-i-no end_po-i-no 
-          begin_rdate end_rdate begin_vend end_vend scr-neg-rec rd_sort sl_avail 
-          sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          begin_rdate end_rdate begin_vend end_vend scr-neg-rec tb_in-po rd_sort 
+          sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no 
+          lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_date end_date begin_po-no end_po-no begin_po-i-no 
          end_po-i-no begin_rdate end_rdate begin_vend end_vend scr-neg-rec 
-         rd_sort sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up 
-         btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
+         tb_in-po rd_sort sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
+         btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
          tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
@@ -1516,7 +1524,7 @@ display "" with frame r-top.
 
   for each po-ordl
       where po-ordl.company   eq cocode
-        AND po-ordl.opened    EQ YES
+        AND (po-ordl.opened    EQ YES OR ( tb_in-po AND NOT po-ordl.opened) )
         and po-ordl.i-no      ge fitm
         and po-ordl.i-no      le titm
         and po-ordl.po-no     ge fpo
@@ -1800,7 +1808,7 @@ display "" with frame r-top.
 
   for each po-ordl
       where po-ordl.company   eq cocode
-        AND po-ordl.opened    EQ YES
+        AND (po-ordl.opened    EQ YES OR ( tb_in-po AND NOT po-ordl.opened) )
         and po-ordl.i-no      ge fitm
         and po-ordl.i-no      le titm
         and po-ordl.po-no     ge fpo

@@ -52,7 +52,7 @@
          "<R24><C65><FROM><R26><C65><LINE>" SKIP   
          "<R24><C70><FROM><R26><C70><LINE>" SKIP
          "<FArial><=5><C65.8>Unit" SKIP
-         "<=5><R+1> Order# <C8>TAG/Whs/Bin<C37>Item / Desc / Lot # <C54>                   Units<C65.8>Count<C74>Rel. Qty" SKIP
+         "<=5><R+1> Order# <C8>Whse/Bin/TAG<C37>Item / Desc / Lot # <C54>                   Units<C65.8>Count<C74>Rel. Qty" SKIP
          "<FCourier New>".
       v-printline = v-printline + 16.
 

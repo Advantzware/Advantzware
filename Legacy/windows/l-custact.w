@@ -17,14 +17,14 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-def input parameter ip-company like itemfg.company no-undo.
-def input parameter ip-cur-val as cha no-undo.
-def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
-def output param op-recid as recid no-undo.   /* output recid */
+DEFINE INPUT PARAMETER ip-company LIKE itemfg.company NO-UNDO.
+DEFINE INPUT PARAMETER ip-cur-val AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER op-char-val AS CHARACTER NO-UNDO. /* string i-code + i-name */
+DEFINE OUTPUT PARAMETER op-recid AS RECID NO-UNDO.   /* output recid */
 
 /* Local Variable Definitions ---                                       */
-def var lv-type-dscr as cha no-undo.
-def var lv-first-time as log init yes no-undo.
+DEFINE VARIABLE lv-type-dscr AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-first-time AS LOGICAL INITIAL YES NO-UNDO.
 
 &scoped-define SORTBY-1 BY cust.cust-no
 &scoped-define SORTBY-2 BY cust.name {&sortby-1}
@@ -41,8 +41,13 @@ def var lv-first-time as log init yes no-undo.
 {sys/inc/VAR.i NEW SHARED}
 {sys/inc/varasgn.i}
 
-DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
-DEF VAR period_pos AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO.
+DEFINE VARIABLE period_pos AS INTEGER NO-UNDO.
+DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-check-page AS LOGICAL INITIAL NO NO-UNDO .
+DEFINE VARIABLE v-file-name AS CHARACTER NO-UNDO .
+DEFINE VARIABLE ou-log like sys-ctrl.log-fld INITIAL NO NO-UNDO.
+DEFINE VARIABLE ou-cust-int AS INTEGER NO-UNDO .
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -51,8 +56,19 @@ v-prgmname = USERID("NOSWEAT") + "..".
 ELSE
 ASSIGN
   period_pos = INDEX(PROGRAM-NAME(1),".")
-  v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 9) + 1)
-  v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
+  v-prgmname = SUBSTRING(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 9) + 1)
+  v-prgmname = SUBSTRING(v-prgmname,1,INDEX(v-prgmname,".")).
+
+ASSIGN cocode = ip-company .
+
+IF  PROGRAM-NAME(2) MATCHES "*/v-ord.w*" THEN
+    v-check-page = YES .
+
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+    /*{sys/inc/custlistform.i ""IF1"" }*/
+END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -80,12 +96,14 @@ ASSIGN
 cust.addr[2] cust.city cust.state cust.zip cust.sman sman.sname 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
-      AND cust.company = ip-company and ~
+      AND cust.company EQ ip-company AND ~
+    ((v-check-page AND ( LOOKUP(cust.cust-no,custcount) NE 0 OR custcount = "")) OR NOT v-check-page) AND ~
 CAN-DO("A,X,S,E",cust.active) NO-LOCK, ~
       EACH sman OF cust OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
       AND cust.company = ip-company and ~
+     ((v-check-page AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "")) OR NOT v-check-page) AND ~
 CAN-DO("A,X,S,E",cust.active) NO-LOCK, ~
       EACH sman OF cust OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}.
@@ -175,14 +193,14 @@ DEFINE BROWSE BROWSE-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     BROWSE-1 AT ROW 1 COL 1
-     rd-sort AT ROW 12.67 COL 14 NO-LABEL
-     bt-clear AT ROW 14.1 COL 2
-     lv-search AT ROW 14.1 COL 21 COLON-ALIGNED
-     bt-ok AT ROW 14.1 COL 119
-     bt-cancel AT ROW 14.1 COL 130
+     BROWSE-1 AT ROW 1 COLUMN 1
+     rd-sort AT ROW 12.67 COLUMN 14 NO-LABEL
+     bt-clear AT ROW 14.1 COLUMN 2
+     lv-search AT ROW 14.1 COLUMN 21 COLON-ALIGNED
+     bt-ok AT ROW 14.1 COLUMN 119
+     bt-cancel AT ROW 14.1 COLUMN 130
      "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 12.91 COL 4
+          SIZE 8 BY .62 AT ROW 12.91 COLUMN 4
      RECT-1 AT ROW 12.43 COL 1
      SPACE(1.39) SKIP(1.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -391,7 +409,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-DEF VAR lv-rowid AS ROWID NO-UNDO.
+DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
@@ -404,6 +422,19 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
+    IF  PROGRAM-NAME(2) MATCHES "*/v-ord.w*" THEN DO:
+    v-file-name  = "OU1" .
+    RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'OU1',
+                            INPUT YES,
+                            OUTPUT lActive).
+   END.
+ 
+RUN sys/inc/custlistform.p (INPUT v-file-name , INPUT cocode , OUTPUT ou-log , OUTPUT ou-cust-int) .
+{sys/inc/chblankcust.i "v-file-name"}
+    IF ou-cust-int = 0 THEN
+        custcount = "".
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     lv-search:SCREEN-VALUE = "".
@@ -413,7 +444,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN new-rd-sort.
 
-    &SCOPED-DEFINE key-phrase INDEX("AXSE",cust.active) GT 0
+    &SCOPED-DEFINE key-phrase INDEX("AXSE",cust.active) GT 0 AND ((v-check-page AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "")) OR NOT v-check-page)
 
     {custom/lookpos3.i &lookup-file="cust" &lookup-field="cust-no"}
   END.

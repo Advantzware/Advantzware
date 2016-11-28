@@ -1240,7 +1240,7 @@ DEF VAR cslist AS cha NO-UNDO.
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
         
-        IF LOOKUP(ttRptSelected.TextList, "Line Amount,Amount") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "Line Amount") <> 0    THEN
             ASSIGN
             str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
@@ -1254,10 +1254,7 @@ DEF VAR cslist AS cha NO-UNDO.
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
-/*  IF tb_detail THEN
-    excelheader = "Inv#,Account,Vendor,Description,Date,Amount".
-  ELSE
-    excelheader = "Vendor,Name,Inv#,Date,Amount". */
+
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1303,95 +1300,6 @@ FOR EACH ap-inv
   
 END.
 
-/*IF NOT tb_detail THEN DO:
-    FOR EACH tt-ap-inv NO-LOCK
-        BREAK BY tt-ap-inv.vend-no
-              BY tt-ap-inv.inv-date
-              BY tt-ap-inv.inv-no      
-      WITH FRAME detail NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 132:
-      DISPLAY tt-ap-inv.vend-no        COLUMN-LABEL "Vendor"
-                                       WHEN FIRST-OF(tt-ap-inv.vend-no)
-              tt-ap-inv.name           COLUMN-LABEL "Name"
-                                       WHEN FIRST-OF(tt-ap-inv.vend-no) /*AND AVAIL vend*/
-              tt-ap-inv.inv-no         COLUMN-LABEL "Inv#"
-              tt-ap-inv.inv-date       COLUMN-LABEL "Date"
-              tt-ap-inv.net            COLUMN-LABEL "Amount"
-                                       FORMAT "->>>,>>>,>>>,>>9.99".
-      
-      IF tb_excel THEN
-         PUT STREAM excel UNFORMATTED
-           '"' (IF FIRST-OF(tt-ap-inv.vend-no) THEN tt-ap-inv.vend-no
-                ELSE "")                                         '",'
-           '"' (IF FIRST-OF(tt-ap-inv.vend-no) THEN tt-ap-inv.NAME
-                ELSE "")                                         '",'
-           '"' tt-ap-inv.inv-no                                     '",'
-           '"' (IF tt-ap-inv.inv-date NE ? THEN STRING(tt-ap-inv.inv-date,'99/99/9999')
-                ELSE "")                                         '",'
-           '"' STRING(tt-ap-inv.net,'->>>,>>>,>>>,>>9.99')          '",'
-           SKIP(1).
-    
-      lv-total[1] = lv-total[1] + tt-ap-inv.net.
-    
-      IF NOT FIRST-OF(tt-ap-inv.vend-no) THEN ll-total[1] = YES.
-    
-      IF LAST-OF(tt-ap-inv.vend-no) THEN DO:
-        IF ll-total[1] THEN DO:
-          UNDERLINE tt-ap-inv.net.
-          DISPLAY /*ap-inv.vend-no  
-                  vend.name       WHEN AVAIL vend*/
-                  "Vendor Total"  @ tt-ap-inv.inv-no
-                  lv-total[1]     @ tt-ap-inv.net.
-          DOWN.
-    
-          IF tb_excel THEN
-            PUT STREAM excel UNFORMATTED
-               '"' ""                                        '",'
-               '"' ""                                        '",'
-               '"' ""                                        '",'
-               '"' ""                                        '",'
-               '"' "--------------------"                    '",'
-               SKIP
-               '"' ""                                        '",'
-               '"' ""                                        '",'
-               '"' "Vendor Total"                            '",'
-               '"' ""                                        '",'
-               '"' STRING(lv-total[1],'->>>,>>>,>>>,>>9.99') '",'
-               SKIP(1).
-          
-        END.
-        PUT SKIP(2).
-        ASSIGN
-         lv-total[2] = lv-total[2] + lv-total[1]
-         lv-total[1] = 0
-         ll-total[1] = NO.
-        IF NOT LAST(tt-ap-inv.vend-no) THEN ll-total[2] = YES.
-      END.
-    
-      IF LAST(tt-ap-inv.vend-no) AND ll-total[2] THEN DO:
-        UNDERLINE tt-ap-inv.net.
-        UNDERLINE tt-ap-inv.net.
-        DISPLAY "Grand Total"   @ tt-ap-inv.inv-no
-                lv-total[2]     @ tt-ap-inv.net.
-        DOWN.
-    
-        IF tb_excel THEN
-           PUT STREAM excel UNFORMATTED
-              '"' ""                                        '",'
-              '"' ""                                        '",'
-              '"' ""                                        '",'
-              '"' ""                                        '",'
-              '"' "--------------------"                    '",'
-              SKIP
-              '"' ""                                        '",'
-              '"' ""                                        '",'
-              '"' "Grand Total"                             '",'
-              '"' ""                                        '",'
-              '"' STRING(lv-total[2],'->>>,>>>,>>>,>>9.99') '",'
-              SKIP(1).
-      END.
-    END.
-END. /*not detail*/ 
-ELSE DO: /*detail*/ */
     FOR EACH tt-ap-inv NO-LOCK,
         EACH ap-invl WHERE ap-invl.company = tt-ap-inv.company
             AND ap-invl.i-no EQ tt-ap-inv.i-no 
@@ -1404,25 +1312,6 @@ ELSE DO: /*detail*/ */
             WITH FRAME detail2 NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 132:
 
         {custom/statusMsg.i " 'Processing Vendor#  '  + tt-ap-inv.vend-no "}
-
-   /*     
-            DISPLAY tt-ap-inv.inv-no         COLUMN-LABEL "Inv#"
-                    ap-invl.actnum           COLUMN-LABEL "Account"
-                    tt-ap-inv.vend-no        COLUMN-LABEL "Vendor"
-                    ap-invl.dscr             COLUMN-LABEL "Description"
-                    tt-ap-inv.inv-date       COLUMN-LABEL "Date"
-                    ap-invl.amt              COLUMN-LABEL "Line Amount"
-                                             FORMAT "->>>,>>>,>>>,>>9.99". */
-    /*      IF tb_excel THEN
-             PUT STREAM excel UNFORMATTED
-               '"' tt-ap-inv.inv-no  '",'
-               '"' ap-invl.actnum    '",'
-               '"' tt-ap-inv.vend-no '",'
-               '"' ap-invl.dscr      '",'
-               '"' (IF tt-ap-inv.inv-date NE ? THEN STRING(tt-ap-inv.inv-date,'99/99/9999')
-                    ELSE "")         '",'
-               '"' STRING(ap-invl.amt,'->>>,>>>,>>>,>>9.99') '",'
-               SKIP. */
 
   ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1464,30 +1353,7 @@ ELSE DO: /*detail*/ */
         
           IF LAST-OF(tt-ap-inv.vend-no) THEN DO:
             IF ll-total[1] THEN DO:
-              /*UNDERLINE ap-invl.amt.
-              DISPLAY /*ap-inv.vend-no  
-                      vend.name       WHEN AVAIL vend*/
-                      "Line Amount Vendor Total"  @ ap-invl.dscr
-                      lv-total[1]     @ ap-invl.amt.
-              DOWN.
-        
-              IF tb_excel THEN
-                PUT STREAM excel UNFORMATTED
-                   '"' ""                                        '",'
-                   '"' ""                                        '",'
-                   '"' ""                                        '",'
-                   '"' ""                                        '",'
-                   '"' ""                                        '",'
-                   '"' "--------------------"                    '",'
-                   SKIP
-                   '"' ""                                        '",'
-                   '"' ""                                        '",'
-                   '"' ""                                        '",'
-                   '"' "Line Amount Vendor Total"                            '",'
-                   '"' ""                                        '",'
-                   '"' STRING(lv-total[1],'->>>,>>>,>>>,>>9.99') '",'
-                   SKIP(1). */
-
+             
                 PUT SKIP str-line SKIP .
                 ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1504,7 +1370,7 @@ ELSE DO: /*detail*/ */
                         WHEN "ven-nam"   THEN  cVarValue = "" .
                          WHEN "dscr"            THEN cVarValue = "".
                          WHEN "date"                   THEN cVarValue = "".
-                         WHEN "amt"              THEN cVarValue = STRING(lv-gtotal[1],"->>>,>>>,>>>,>>9.99").
+                         WHEN "amt"              THEN cVarValue = "" /*STRING(lv-gtotal[1],"->>>,>>>,>>>,>>9.99")*/ .
                          WHEN "line-amt"           THEN cVarValue = STRING(lv-total[1],"->>>,>>>,>>>,>>9.99") .
                      
                     END CASE.
@@ -1533,28 +1399,7 @@ ELSE DO: /*detail*/ */
           END.
         
           IF LAST(tt-ap-inv.vend-no) /*AND ll-total[2]*/ THEN DO:
-            /*UNDERLINE ap-invl.amt.
-            UNDERLINE ap-invl.amt.
-            DISPLAY "Line Amount Grand Total"   @ ap-invl.dscr
-                    lv-total[2]     @ ap-invl.amt.
-            DOWN.
-        
-            IF tb_excel THEN
-               PUT STREAM excel UNFORMATTED
-                  '"' ""                                        '",'
-                  '"' ""                                        '",'
-                  '"' ""                                        '",'
-                  '"' ""                                        '",'
-                  '"' ""                                        '",'
-                  '"' "--------------------"                    '",'
-                  SKIP
-                  '"' ""                                        '",'
-                  '"' ""                                        '",'
-                  '"' ""                                        '",'
-                  '"' "Line Amount Grand Total"                             '",'
-                  '"' ""                                        '",'
-                  '"' STRING(lv-total[2],'->>>,>>>,>>>,>>9.99') '",'
-                  SKIP(1).*/
+           
               PUT SKIP str-line SKIP .
                 ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1571,7 +1416,7 @@ ELSE DO: /*detail*/ */
                         WHEN "ven-nam"   THEN  cVarValue = "" .
                          WHEN "dscr"            THEN cVarValue = "".
                          WHEN "date"                   THEN cVarValue = "".
-                         WHEN "amt"              THEN cVarValue = STRING(lv-gtotal[2],"->>>,>>>,>>>,>>9.99").
+                         WHEN "amt"              THEN cVarValue = ""  /*STRING(lv-gtotal[2],"->>>,>>>,>>>,>>9.99")*/ .
                          WHEN "line-amt"           THEN cVarValue = STRING(lv-total[2],"->>>,>>>,>>>,>>9.99") .
                      
                     END CASE.

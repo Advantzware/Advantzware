@@ -27,29 +27,29 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
-def var li-cnt as int no-undo.
-def var li-line-no as int extent 99 no-undo.
+DEFINE            VARIABLE li-cnt     AS INTEGER NO-UNDO.
+DEFINE            VARIABLE li-line-no AS INTEGER EXTENT 99 NO-UNDO.
 
-def new shared var cocode as cha no-undo.
-def new shared buffer xest for est.
-def new shared buffer xef  for ef.
-def new shared buffer xeb  for eb.
+DEFINE NEW SHARED VARIABLE cocode     AS cha     NO-UNDO.
+DEFINE NEW SHARED BUFFER xest FOR est.
+DEFINE NEW SHARED BUFFER xef  FOR ef.
+DEFINE NEW SHARED BUFFER xeb  FOR eb.
 {cec/descalc.i new}
-def TEMP-TABLE w-box-h NO-UNDO like box-design-hdr.
-def TEMP-TABLE w-box-l NO-UNDO like box-design-line.
-def var lv-wscore like box-design-hdr.wscore no-undo.
-def var lv-wcum-score like box-design-hdr.wcum-score no-undo.
-DEF VAR ll-is-3d-displayed AS LOG NO-UNDO.
-DEF VAR v-score-more AS LOG NO-UNDO.
-DEF VAR v-cur-position AS INT NO-UNDO.
-DEF VAR li-lscore-len AS INT INIT 80 NO-UNDO.
+DEFINE TEMP-TABLE w-box-h NO-UNDO LIKE box-design-hdr.
+DEFINE TEMP-TABLE w-box-l NO-UNDO LIKE box-design-line.
+DEFINE VARIABLE lv-wscore          LIKE box-design-hdr.wscore NO-UNDO.
+DEFINE VARIABLE lv-wcum-score      LIKE box-design-hdr.wcum-score NO-UNDO.
+DEFINE VARIABLE ll-is-3d-displayed AS LOG     NO-UNDO.
+DEFINE VARIABLE v-score-more       AS LOG     NO-UNDO.
+DEFINE VARIABLE v-cur-position     AS INTEGER NO-UNDO.
+DEFINE VARIABLE li-lscore-len      AS INTEGER INIT 80 NO-UNDO.
 
 PROCEDURE ShellExecuteA EXTERNAL "shell32":u :
       define input parameter hwnd as long.
-      define input parameter lpOperation as char.
-      define input parameter lpFile as char.
-      define input parameter lpParameters as char.
-      define input parameter lpDirectory as char.
+    DEFINE INPUT PARAMETER lpOperation AS CHARACTER.
+    DEFINE INPUT PARAMETER lpFile AS CHARACTER.
+    DEFINE INPUT PARAMETER lpParameters AS CHARACTER.
+    DEFINE INPUT PARAMETER lpDirectory AS CHARACTER.
       define input parameter nShowCmd as long.
       define return parameter hInstance as long.
 END PROCEDURE.
@@ -161,7 +161,7 @@ DEFINE FRAME F-Main
      box-design-hdr.design-no AT ROW 1.24 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 6.2 BY 1.1
-     box-design-hdr.description AT ROW 1.24 COL 22 COLON-ALIGNED NO-LABEL
+    box-design-hdr.description AT ROW 1.24 COL 22 COLON-ALIGNED NO-LABELS
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
      box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED
@@ -171,23 +171,23 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 62 BY 1
           BGCOLOR 14 
-     box-design-hdr.lscore AT ROW 2.43 COL 2 NO-LABEL FORMAT "x(210)"
+    box-design-hdr.lscore AT ROW 2.43 COL 2 NO-LABELS FORMAT "x(210)"
           VIEW-AS FILL-IN 
           SIZE 116 BY 1
           FONT 0
      btn_right AT ROW 2.43 COL 118
-     box-design-hdr.lcum-score AT ROW 3.38 COL 2 NO-LABEL FORMAT "x(210)"
+    box-design-hdr.lcum-score AT ROW 3.38 COL 2 NO-LABELS FORMAT "x(210)"
           VIEW-AS FILL-IN 
           SIZE 116 BY 1
           FONT 0
      btn_left AT ROW 3.38 COL 118
-     box-design-hdr.box-text AT ROW 4.57 COL 2 NO-LABEL
+    box-design-hdr.box-text AT ROW 4.57 COL 2 NO-LABELS
           VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
           SIZE 116 BY 12.62
           FONT 0
      editor_wcum-score AT ROW 4.81 COL 119 HELP
-          "Enter the cumulative width score." NO-LABEL
-     editor_wscore AT ROW 4.81 COL 133 NO-LABEL
+    "Enter the cumulative width score." NO-LABELS
+    editor_wscore AT ROW 4.81 COL 133 NO-LABELS
      "Score:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 2.43 COL 122
      "W Totals   W Score" VIEW-AS TEXT
@@ -216,7 +216,8 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
+IF NOT THIS-PROCEDURE:PERSISTENT THEN 
+DO:
   MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
@@ -317,8 +318,18 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.box-3d-image V-table-Win
 ON HELP OF box-design-hdr.box-3d-image IN FRAME F-Main /* 3D Image File */
 DO:
-   def var ls-filename as cha no-undo.
-   def var ll-ok as log no-undo.
+   DEFINE VARIABLE ls-filename AS cha       NO-UNDO.
+   DEFINE VARIABLE ll-ok       AS LOG       NO-UNDO.
+   DEFINE VARIABLE cInitDir    AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE llInitDir   AS CHARACTER NO-UNDO.
+
+   RUN sys/ref/nk1look.p (g_company, "DefaultDir", "C", NO, NO, "", "", 
+                          OUTPUT cInitDir, OUTPUT llInitDir).
+   IF cInitDir NE "" THEN
+       ASSIGN
+       FILE-INFO:FILE-NAME = cInitDir
+      cInitDir            = FILE-INFO:FULL-PATHNAME .
+   IF cInitDir = ? THEN cInitDir = "" .
    
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
@@ -327,7 +338,7 @@ DO:
                          "JPEG Files   (*.jpeg)" "*.jpeg",
                          "TIF Files    (*.tif)" "*.tif",
                          "All Files    (*.*) " "*.*"
-                 initial-dir "boximage\"
+                 INITIAL-DIR cInitDir
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
@@ -343,8 +354,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.box-image V-table-Win
 ON HELP OF box-design-hdr.box-image IN FRAME F-Main /* Image File */
 DO:
-   def var ls-filename as cha no-undo.
-   def var ll-ok as log no-undo.
+   DEFINE VARIABLE ls-filename AS cha       NO-UNDO.
+   DEFINE VARIABLE ll-ok       AS LOG       NO-UNDO.
+   DEFINE VARIABLE cInitDir    AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE llInitDir   AS CHARACTER NO-UNDO.
+
+   RUN sys/ref/nk1look.p (g_company, "DefaultDir", "C", NO, NO, "", "", 
+                          OUTPUT cInitDir, OUTPUT llInitDir).
+   IF cInitDir NE "" THEN
+       ASSIGN
+       FILE-INFO:FILE-NAME = cInitDir
+      cInitDir            = FILE-INFO:FULL-PATHNAME .
+   IF cInitDir = ? THEN cInitDir = "" .
    
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
@@ -353,7 +374,7 @@ DO:
                          "JPEG Files   (*.jpeg)" "*.jpeg",
                          "TIF Files    (*.tif)" "*.tif",
                          "All Files    (*.*) " "*.*"
-                 initial-dir "boximage\"
+                 INITIAL-DIR cInitDir
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
@@ -526,8 +547,8 @@ ON LEAVE OF box-design-hdr.lscore IN FRAME F-Main /* Length!Score */
 DO:
     if lastkey = -1 then return.
     
-    def var i as int no-undo.
-    def var ls-string as cha init "0,1,2,3,4,5,6,7,8,9" no-undo.
+    DEFINE VARIABLE i         AS INTEGER NO-UNDO.
+    DEFINE VARIABLE ls-string AS cha     INIT "0,1,2,3,4,5,6,7,8,9" NO-UNDO.
     do i = 1 to length(self:screen-value) :
       if lookup(substring(self:screen-value,i,1),ls-string) < 0 then do:
          message "Invalid Entry. Use Numeric Value Only. " view-as alert-box error.
@@ -553,7 +574,7 @@ END.
    PROCEDURE WinExec EXTERNAL "KERNEL32.DLL":
        DEFINE INPUT PARAMETER programname AS cha.
        DEFINE INPUT PARAMETER visualstyle AS long.
-       DEFINE RETURN PARAM statuscode AS LONG.
+       DEFINE RETURN PARAMETER statuscode AS LONG.
    END.
      
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -608,10 +629,10 @@ PROCEDURE build-box :
 ------------------------------------------------------------------------------*/
 session:set-wait-state("general").
   /* copied from cec/est-6-re.p */
-def input parameter v-rebuild as char.
+DEFINE INPUT PARAMETER v-rebuild AS CHARACTER.
 
-def buffer xbox-design-hdr  for box-design-hdr.
-def buffer xbox-design-line for box-design-line.
+DEFINE BUFFER xbox-design-hdr  FOR box-design-hdr.
+DEFINE BUFFER xbox-design-line FOR box-design-line.
 
 
 {est/checkuse.i}
@@ -639,22 +660,22 @@ end.
 
 {cec/est-6del.i}
 
-find first xest where xest.company = xeb.company and
+FIND FIRST xest NO-LOCK WHERE xest.company = xeb.company AND
                       xest.est-no = xeb.est-no
-                      no-lock.
-find first xef where xef.company = xeb.company 
+                      .
+FIND FIRST xef NO-LOCK WHERE xef.company = xeb.company 
                  and xef.est-no   eq xeb.est-no
-                 and xef.form-no eq xeb.form-no  no-lock.
+                 AND xef.form-no EQ xeb.form-no  .
 
-find first style where style.company eq xeb.company
+FIND FIRST style NO-LOCK WHERE style.company EQ xeb.company
                    and style.style   eq xeb.style
-                 no-lock no-error.
-if avail style then
-  find first xbox-design-hdr where xbox-design-hdr.design-no eq style.design-no
+                 NO-ERROR.
+IF AVAILABLE style THEN
+  FIND FIRST xbox-design-hdr NO-LOCK WHERE xbox-design-hdr.design-no EQ style.design-no
                                and xbox-design-hdr.est-no    eq ""
-             no-lock no-error.
+             NO-ERROR.
 
-if avail xbox-design-hdr then do:
+IF AVAILABLE xbox-design-hdr THEN DO:
    run cec/descalc.p (recid(xest), recid(xeb)).
    create box-design-hdr.
    assign  box-design-hdr.design-no   = 0
@@ -662,7 +683,7 @@ if avail xbox-design-hdr then do:
            box-design-hdr.est-no      = xeb.est-no
            box-design-hdr.form-no     = xeb.form-no
            box-design-hdr.blank-no    = xeb.blank-no
-           box-design-hdr.description = if avail xbox-design-hdr then
+           box-design-hdr.description = IF AVAILABLE xbox-design-hdr THEN
                                           xbox-design-hdr.description else ""
            box-design-hdr.lscore      = v-lscore-c
            box-design-hdr.lcum-score  = v-lcum-score-c
@@ -684,7 +705,7 @@ if avail xbox-design-hdr then do:
 
       find first w-box-design-line
            where w-box-design-line.line-no eq box-design-line.line-no   no-error.
-      if avail w-box-design-line then
+      IF AVAILABLE w-box-design-line THEN
          assign  box-design-line.wscore     = w-box-design-line.wscore-c
                  box-design-line.wcum-score = w-box-design-line.wcum-score-c.
    end.
@@ -706,7 +727,7 @@ if avail xbox-design-hdr then do:
           else do:
              find first w-box-design-line
                   where w-box-design-line.line-no eq w-box-l.line-no   no-error.
-             if avail w-box-design-line then
+             IF AVAILABLE w-box-design-line THEN
                 assign box-design-line.wscore     = w-box-l.wscore
                        box-design-line.wcum-score = w-box-l.wcum-score.
           end.     
@@ -721,7 +742,8 @@ run dispatch in widget-handle(char-hdl) ('open-query').
 run build-screen.
 
 RUN release-shared-buffers.
-
+FIND CURRENT box-design-line NO-LOCK NO-ERROR.
+FIND CURRENT box-design-hdr NO-LOCK NO-ERROR. 
 session:set-wait-state("").
 
 END PROCEDURE.
@@ -818,16 +840,16 @@ PROCEDURE die-image :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-eb-rowid AS ROWID NO-UNDO.
-  DEF VAR lv-die-image AS cha NO-UNDO.
-  DEF VAR char-hdl AS cha NO-UNDO.
-  DEF VAR ll-dummy AS LOG NO-UNDO.
-  DEF VAR lv-cmd AS cha NO-UNDO.
-  DEF VAR tInt AS INT NO-UNDO.
-  DEF VAR v-graphic-types AS CHAR NO-UNDO.
-  DEF VAR v-index AS INT NO-UNDO.
-  DEF VAR lv-found AS LOG NO-UNDO.
-  DEF VAR lv-return AS INT NO-UNDO.
+  DEFINE VARIABLE lv-eb-rowid     AS ROWID     NO-UNDO.
+  DEFINE VARIABLE lv-die-image    AS cha       NO-UNDO.
+  DEFINE VARIABLE char-hdl        AS cha       NO-UNDO.
+  DEFINE VARIABLE ll-dummy        AS LOG       NO-UNDO.
+  DEFINE VARIABLE lv-cmd          AS cha       NO-UNDO.
+  DEFINE VARIABLE tInt            AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE v-graphic-types AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE v-index         AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE lv-found        AS LOG       NO-UNDO.
+  DEFINE VARIABLE lv-return       AS INTEGER   NO-UNDO.
 
   lv-cmd = "custom\mspaint.exe".
   IF SEARCH("c:\winnt\system32\mspaint.exe") <> ? THEN lv-cmd = "c:\winnt\system32\mspaint.exe".
@@ -837,14 +859,14 @@ PROCEDURE die-image :
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN get-eb-rowid IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-eb-rowid).
   IF lv-eb-rowid <> ? THEN
-     FIND FIRST eb WHERE ROWID(eb) = lv-eb-rowid NO-LOCK NO-ERROR.
-  IF AVAIL eb THEN DO:
+     FIND FIRST eb NO-LOCK WHERE ROWID(eb) = lv-eb-rowid NO-ERROR.
+  IF AVAILABLE eb THEN DO:
      FIND FIRST sys-ctrl WHERE
           sys-ctrl.company = g_company AND
           sys-ctrl.NAME = "DIEFILE"
           NO-LOCK NO-ERROR.
 
-     IF AVAIL sys-ctrl THEN
+     IF AVAILABLE sys-ctrl THEN
         tInt = sys-ctrl.int-fld.
 
      IF tInt EQ 0 THEN
@@ -860,10 +882,10 @@ PROCEDURE die-image :
           ef.form-no = eb.form-no
           NO-ERROR.
 
-     IF AVAIL ef AND ef.cad-image <> "" THEN
-        lv-die-image = (IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "") + ef.cad-image + ".".
+     IF AVAILABLE ef AND ef.cad-image <> "" THEN
+        lv-die-image = (IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld ELSE "") + ef.cad-image + ".".
      ELSE
-        lv-die-image = (IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "") + eb.die-no + ".".
+        lv-die-image = (IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld ELSE "") + eb.die-no + ".".
   END.
   
   DO v-index = 1 TO 5:
@@ -924,27 +946,27 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var i as int no-undo.
-  def var ls-ws-value as cha no-undo.
-  def var li-pos as int no-undo.
-  def var li-pos-nxt as int no-undo.
-  def var li-ln as int no-undo.
-  def var ls-wscore as cha no-undo.
-  def var ls-wcum as cha no-undo.
-  def var ls-key as cha no-undo.
+  DEFINE VARIABLE i              AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE ls-ws-value    AS cha       NO-UNDO.
+  DEFINE VARIABLE li-pos         AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE li-pos-nxt     AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE li-ln          AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE ls-wscore      AS cha       NO-UNDO.
+  DEFINE VARIABLE ls-wcum        AS cha       NO-UNDO.
+  DEFINE VARIABLE ls-key         AS cha       NO-UNDO.
   
-  def var ls-prev-wscore as cha no-undo.
-  def var ls-prev-wcum as cha no-undo.
-  DEF VAR v-sc-fmt AS CHAR NO-UNDO.
+  DEFINE VARIABLE ls-prev-wscore AS cha       NO-UNDO.
+  DEFINE VARIABLE ls-prev-wcum   AS cha       NO-UNDO.
+  DEFINE VARIABLE v-sc-fmt       AS CHARACTER NO-UNDO.
 
-  FIND FIRST est WHERE est.company = cocode AND est.est-no = box-design-hdr.est-no NO-LOCK NO-ERROR.                          
-  find first sys-ctrl where sys-ctrl.company eq cocode
-                        and sys-ctrl.name    eq "BOXDESUM" no-lock no-error.
+  FIND FIRST est NO-LOCK WHERE est.company = cocode AND est.est-no = box-design-hdr.est-no NO-ERROR.                          
+  FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
+                        AND sys-ctrl.name    EQ "BOXDESUM" NO-ERROR.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  assign v-sc-fmt  = if AVAIL sys-ctrl AND (
+  ASSIGN v-sc-fmt       = IF AVAILABLE sys-ctrl AND (
                         sys-ctrl.char-fld eq "MM" or
-                        (sys-ctrl.char-fld eq "Both" and AVAIL est AND est.metric)) then "->>>>9" else "->9.99"
+                        (sys-ctrl.char-fld EQ "Both" AND AVAILABLE est AND est.metric)) THEN "->>>>9" ELSE "->9.99"
          ls-prev-wscore = editor_wscore:screen-value in frame {&frame-name}
          ls-prev-wcum = editor_wcum-score:screen-value. 
 
@@ -984,9 +1006,9 @@ PROCEDURE local-assign-record :
         assign ls-wscore = ls-wscore + ls-key.
   end.
   /* == Width total assignment ========*/
-  def var ld-wcum as dec no-undo.
-  def var ls-new-wcum as cha no-undo.
-  def var ld-wcum-prev as dec no-undo.
+  DEFINE VARIABLE ld-wcum      AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE ls-new-wcum  AS cha     NO-UNDO.
+  DEFINE VARIABLE ld-wcum-prev AS DECIMAL NO-UNDO.
   assign li-ln = 1
          ls-wscore = ""
          ld-wcum = 0
@@ -1016,10 +1038,10 @@ PROCEDURE local-assign-record :
   end.
   box-design-hdr.wcum-score = ls-new-wcum.
   /*==== lscore assignment */
-  def var ls-lscore as cha no-undo.
-  def var ld-ls-val as dec no-undo.
-  def var li-start as int no-undo.
-  def var ls-char as cha no-undo.
+  DEFINE VARIABLE ls-lscore AS cha     NO-UNDO.
+  DEFINE VARIABLE ld-ls-val AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE li-start  AS INTEGER NO-UNDO.
+  DEFINE VARIABLE ls-char   AS cha     NO-UNDO.
   
   assign ls-lscore = ""
          ld-ls-val = 0
@@ -1083,7 +1105,7 @@ PROCEDURE local-assign-record :
      assign ls-lscore = ""
             li-start = 0.    
   end.
-
+  FIND CURRENT box-design-line NO-LOCK NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1105,7 +1127,7 @@ PROCEDURE local-assign-statement :
   IF ll-is-3d-displayed THEN
      ASSIGN box-design-hdr.box-3d-image = box-design-hdr.box-3d-image:SCREEN-VALUE
         IN FRAME {&FRAME-NAME}.
-
+  FIND CURRENT box-design-hdr.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1139,7 +1161,7 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def buffer xbox-design-hdr for box-design-hdr.
+  DEFINE BUFFER xbox-design-hdr FOR box-design-hdr.
   
   /* Code placed here will execute PRIOR to standard behavior. */
   {custom/checkuse.i}
@@ -1149,9 +1171,9 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  find last xbox-design-hdr  where xbox-design-hdr.design-no gt 0
-                 use-index design no-lock no-error.
-  box-design-hdr.design-no = (if avail xbox-design-hdr
+  FIND LAST xbox-design-hdr NO-LOCK  WHERE xbox-design-hdr.design-no GT 0
+                 USE-INDEX design NO-ERROR.
+  box-design-hdr.design-no = (IF AVAILABLE xbox-design-hdr
                               then xbox-design-hdr.design-no + 1  else 1).
   display box-design-hdr.design-no with frame {&frame-name}.                          
 
@@ -1196,17 +1218,17 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR char-hdl AS CHAR NO-UNDO.
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR li1 AS INT NO-UNDO.
-  DEF VAR ll AS LOG NO-UNDO.
-  DEF VAR li-font AS INT NO-UNDO.
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE li       AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE li1      AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE ll       AS LOG       NO-UNDO.
+  DEFINE VARIABLE li-font  AS INTEGER   NO-UNDO.
 
-  DEF BUFFER bf-eb FOR eb.
+  DEFINE BUFFER bf-eb FOR eb.
 
   
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF AVAIL box-design-hdr THEN DO:
+  IF AVAILABLE box-design-hdr THEN DO:
     DO li1 = 1 TO LENGTH(box-design-hdr.lscore):
       IF SUBSTR(box-design-hdr.lscore,li1,1) NE " " THEN ll = YES.
       ELSE
@@ -1259,8 +1281,8 @@ PROCEDURE local-display-fields :
 
    run build-screen.
 
-   DEF VAR ll-dummy AS LOG NO-UNDO.
-   IF AVAIL box-design-hdr THEN DO WITH FRAME {&FRAME-NAME}:
+   DEFINE VARIABLE ll-dummy AS LOG NO-UNDO.
+   IF AVAILABLE box-design-hdr THEN DO WITH FRAME {&FRAME-NAME}:
   
     /*  ll-dummy = box-image-2:load-image("") in frame {&frame-name} no-error.*/
   
@@ -1297,17 +1319,17 @@ PROCEDURE local-display-fields :
               AND bf-eb.FORM-no  EQ box-design-hdr.form-no
               AND bf-eb.blank-no EQ box-design-hdr.blank-no
             NO-ERROR.
-        IF NOT AVAIL bf-eb THEN
+        IF NOT AVAILABLE bf-eb THEN
         FIND FIRST bf-eb NO-LOCK
             WHERE bf-eb.company EQ box-design-hdr.company
               AND bf-eb.est-no  EQ box-design-hdr.est-no
             NO-ERROR.
-        IF AVAIL bf-eb THEN
+        IF AVAILABLE bf-eb THEN
         FIND FIRST style NO-LOCK
             WHERE style.company EQ bf-eb.company
               AND style.style   EQ bf-eb.style
             NO-ERROR.
-        IF AVAIL style THEN box-design-hdr.design-no:SCREEN-VALUE = STRING(style.design-no).         
+        IF AVAILABLE style THEN box-design-hdr.design-no:SCREEN-VALUE = STRING(style.design-no).         
       END.
    END.
 
@@ -1356,7 +1378,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var li-row-num as rowid no-undo.
+  DEFINE VARIABLE li-row-num AS ROWID NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -1383,13 +1405,13 @@ PROCEDURE rebuild-box :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var v-rebuild as cha no-undo.
+  DEFINE VARIABLE v-rebuild AS cha NO-UNDO.
 
     
-    FIND FIRST est
+    FIND FIRST est NO-LOCK 
         WHERE est.company EQ box-design-hdr.company
           AND est.est-no  EQ box-design-hdr.est-no
-        NO-LOCK NO-ERROR.  
+       NO-ERROR.  
     {est/checkuse.i}
   
     v-rebuild = "B".  
@@ -1410,7 +1432,7 @@ PROCEDURE rebuild-box :
                " are you sure?"
             update choice as log.
        if choice then do:
-          def var char-hdl as cha no-undo.
+          DEFINE VARIABLE char-hdl AS cha NO-UNDO.
           run get-link-handle in adm-broker-hdl (this-procedure,"record-source", output char-hdl).
           run build-box in widget-handle(char-hdl) (v-rebuild).
        end.
@@ -1448,7 +1470,7 @@ PROCEDURE refresh-boximg :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR ll-dummy AS LOG NO-UNDO.
+   DEFINE VARIABLE ll-dummy AS LOG NO-UNDO.
    FIND CURRENT box-design-hdr NO-LOCK NO-ERROR.
    ll-dummy = box-image-2:load-image("") in frame {&frame-name} no-error.
   
@@ -1542,11 +1564,11 @@ PROCEDURE swap-image :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAM ip-2d-or-3d AS cha NO-UNDO.  /*2d or 3d*/
+DEFINE INPUT PARAMETER ip-2d-or-3d AS cha NO-UNDO.  /*2d or 3d*/
 
 
 DO WITH FRAME {&FRAME-NAME}:
-  DEF VAR ll-dummy AS LOG NO-UNDO.
+  DEFINE VARIABLE ll-dummy AS LOG NO-UNDO.
   IF ip-2d-or-3d = "3d" THEN DO:
     IF NOT ll-is-3d-displayed THEN DO:
        ASSIGN box-design-hdr.box-image:HIDDEN = TRUE
@@ -1591,12 +1613,12 @@ PROCEDURE update-fgitem-img :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR lv-fgitem AS cha NO-UNDO.
-   DEF VAR lv-fgimg AS cha NO-UNDO.
-   DEF VAR char-hdl AS CHAR NO-UNDO.
-   DEF VAR lv-cmd AS cha NO-UNDO.
-   DEF VAR lv-return AS INT NO-UNDO.
-   DEF VAR tInt As Int No-undo.
+   DEFINE VARIABLE lv-fgitem AS cha       NO-UNDO.
+   DEFINE VARIABLE lv-fgimg  AS cha       NO-UNDO.
+   DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lv-cmd    AS cha       NO-UNDO.
+   DEFINE VARIABLE lv-return AS INTEGER   NO-UNDO.
+   DEFINE VARIABLE tInt      AS INTEGER   NO-UNDO.
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -1605,7 +1627,7 @@ PROCEDURE update-fgitem-img :
    IF lv-fgitem <> "" THEN DO:
       FIND FIRST itemfg WHERE itemfg.company = g_company
                           AND itemfg.i-no = lv-fgitem NO-LOCK NO-ERROR.
-      lv-fgimg = IF AVAIL itemfg then itemfg.box-IMAGE ELSE "".
+      lv-fgimg = IF AVAILABLE itemfg THEN itemfg.box-IMAGE ELSE "".
       IF lv-fgimg <> "" THEN
       DO:
           RUN ShellExecuteA(0, "open", lv-fgimg, "", "", 0, OUTPUT tInt).
@@ -1629,7 +1651,7 @@ PROCEDURE update-fgitem-img :
            END.
       END.
                   
-       ELSE IF AVAIL itemfg THEN DO:
+       ELSE IF AVAILABLE itemfg THEN DO:
            MESSAGE "No Graphic Image entered. Would you like to enter it?" VIEW-AS ALERT-BOX QUESTION
                BUTTON YES-NO UPDATE ll-ans AS LOG.
            IF ll-ans THEN RUN fg/d-fgimg.w (RECID(itemfg)).
@@ -1676,15 +1698,15 @@ PROCEDURE update-image :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR lv-cmd AS cha NO-UNDO.
-   DEF VAR lv-cmd2 AS cha NO-UNDO.
-   DEF VAR lv-return AS INT NO-UNDO.
-   DEF VAR lv-upd-what AS cha NO-UNDO.
-   DEF VAR lv-image-file AS cha NO-UNDO.
-   DEF VAR tInt As Int No-undo.
+   DEFINE VARIABLE lv-cmd        AS cha     NO-UNDO.
+   DEFINE VARIABLE lv-cmd2       AS cha     NO-UNDO.
+   DEFINE VARIABLE lv-return     AS INTEGER NO-UNDO.
+   DEFINE VARIABLE lv-upd-what   AS cha     NO-UNDO.
+   DEFINE VARIABLE lv-image-file AS cha     NO-UNDO.
+   DEFINE VARIABLE tInt          AS INTEGER NO-UNDO.
 
    
-     IF AVAIL box-design-hdr AND NOT ll-is-3d-displayed AND box-design-hdr.box-image <> ""
+     IF AVAILABLE box-design-hdr AND NOT ll-is-3d-displayed AND box-design-hdr.box-image <> ""
      THEN DO:
          RUN ShellExecuteA(0, "open", box-design-hdr.box-image, "", "", 0, OUTPUT tInt).
          IF tInt LE 32 THEN
@@ -1698,7 +1720,7 @@ PROCEDURE update-image :
              ELSE DO:
                  /*OS-COMMAND SILENT VALUE("custom\mspaint.exe " + box-design-hdr.box-image:SCREEN-VALUE IN FRAME {&FRAME-NAME} )*/
                  FIND FIRST users WHERE users.USER_id = USERID('nosweat') NO-LOCK NO-ERROR.
-                 IF AVAIL users AND users.USER_program[1] <> "" /*AND SEARCH(users.USER_program[1]) <> ?*/
+                 IF AVAILABLE users AND users.USER_program[1] <> "" /*AND SEARCH(users.USER_program[1]) <> ?*/
                      THEN ASSIGN lv-cmd = users.USER_program[1]
                      lv-cmd2 = chr(34) + users.USER_program[1] + CHR(34) .
                  ELSE DO: 
@@ -1716,7 +1738,7 @@ PROCEDURE update-image :
              END.
          END. /* t-int */
      END.
-     ELSE IF AVAIL box-design-hdr AND ll-is-3d-displayed AND box-design-hdr.box-3d-image <> ""
+     ELSE IF AVAILABLE box-design-hdr AND ll-is-3d-displayed AND box-design-hdr.box-3d-image <> ""
      THEN DO:
          RUN ShellExecuteA(0, "open", box-design-hdr.box-3d-image, "", "", 0, OUTPUT tInt).
          IF tInt LE 32 THEN
@@ -1730,7 +1752,7 @@ PROCEDURE update-image :
 
              ELSE do:
                  FIND FIRST users WHERE users.USER_id = USERID('nosweat') NO-LOCK NO-ERROR.
-                 IF AVAIL users AND users.USER_program[1] <> "" /*AND SEARCH(users.USER_program[1]) <> ?*/
+                 IF AVAILABLE users AND users.USER_program[1] <> "" /*AND SEARCH(users.USER_program[1]) <> ?*/
                      THEN ASSIGN lv-cmd = users.USER_program[1]
                      lv-cmd2 = chr(34) + users.USER_program[1] + CHR(34) .
                  ELSE DO: 

@@ -23,7 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS cha NO-UNDO.
 
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
@@ -47,28 +47,28 @@ END.
 
 {jc/rep/job-sum.i new}
 
-DEF VAR ll-secure AS LOG NO-UNDO.
+DEFINE VARIABLE ll-secure AS LOG NO-UNDO.
 
-DEF STREAM excel.
-DEF STREAM excel2 .
-DEF VAR fi_file AS CHAR NO-UNDO.
+DEFINE STREAM excel.
+DEFINE STREAM excel2 .
+DEFINE VARIABLE fi_file AS CHARACTER NO-UNDO.
 
 ASSIGN
     fi_file = "c:\tmp\r-jobsumN2.csv".
 
 
-DEF VAR v-header-1 AS CHAR INIT "FG ITEM,FG ITEM DESCRIPTION,SELLING PRICE/M,ORDERED,POSTED,FINISHED,ALLOWED,ACTUAL SPOILAGE,ACT SPL%,ESTIMATE SPOILAGE,EST SPL%,OVER-RUN %" NO-UNDO .
-DEF VAR v-header-2 AS CHAR INIT "MACH CODE,MACH DESCRIPTION,M R,QUANTITY PRODUCED,EST HOURS,EST SPEED,MACH EST COST,ACT HOURS,ACT SPEED,MACH ACT COST,MACH COST VARIANCE,MACH COST VAR%,MACH EST QTY,MACH ACTUAL,MACH VAR %" NO-UNDO .
-DEF VAR v-header-3 AS CHAR INIT "ITEM CODE,ITEM DESCRIPTION,ITEM EST QUANTITY,ITEM EST UM,ITEM EST COST,ITEM ACT QUANTITY,ITEM ACT UM,ITEM ACT COST,ITEM COST VARI,ITEM COST VAR%" NO-UNDO .
-DEF VAR v-header-4 AS CHAR INIT "MISC CODE,MISC DESCRIPTION,MISC EST COST,MISC ACT COST,MISC VARI,MISC VAR%" NO-UNDO .
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR cFieldType AS cha NO-UNDO.
-DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE v-header-1 AS CHARACTER INIT "FG ITEM,FG ITEM DESCRIPTION,SELLING PRICE/M,ORDERED,POSTED,FINISHED,ALLOWED,ACTUAL SPOILAGE,ACT SPL%,ESTIMATE SPOILAGE,EST SPL%,OVER-RUN %" NO-UNDO .
+DEFINE VARIABLE v-header-2 AS CHARACTER INIT "MACH CODE,MACH DESCRIPTION,M R,QUANTITY PRODUCED,EST HOURS,EST SPEED,MACH EST COST,ACT HOURS,ACT SPEED,MACH ACT COST,MACH COST VARIANCE,MACH COST VAR%,MACH EST QTY,MACH ACTUAL,MACH VAR %" NO-UNDO .
+DEFINE VARIABLE v-header-3 AS CHARACTER INIT "ITEM CODE,ITEM DESCRIPTION,ITEM EST QUANTITY,ITEM EST UM,ITEM EST COST,ITEM ACT QUANTITY,ITEM ACT UM,ITEM ACT COST,ITEM COST VARI,ITEM COST VAR%" NO-UNDO .
+DEFINE VARIABLE v-header-4 AS CHARACTER INIT "MISC CODE,MISC DESCRIPTION,MISC EST COST,MISC ACT COST,MISC VARI,MISC VAR%" NO-UNDO .
+DEFINE VARIABLE ldummy AS LOG NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldLength AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cColumnInit AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
 ASSIGN cTextListToSelect = "FG ITEM,FG ITEM DESCRIPTION,SELLING PRICE/M,ORDERED,POSTED,FINISHED,ALLOWED,ACTUAL SPOILAGE,ACT SPL%,ESTIMATE SPOILAGE,EST SPL%,OVER-RUN %," + 
                            "---MACHINE HEADER------,MACH CODE,MACH DESCRIPTION,M R,QUANTITY PRODUCED,EST HOURS,EST SPEED,MACH EST COST,ACT HOURS,ACT SPEED,MACH ACT COST,MACH COST VARIANCE,MACH COST VAR%,MACH EST QTY,MACH ACTUAL,MACH VAR %," +
@@ -144,7 +144,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getInvoiceTotal C-Win 
 FUNCTION getInvoiceTotal RETURNS DECIMAL
-  ( ipiOrder AS INT, ipcJob AS CHAR, ipcJobNo2 AS INT, ipcPriceOrQty AS CHAR )  FORWARD.
+  ( ipiOrder AS INTEGER, ipcJob AS CHARACTER, ipcJobNo2 AS INTEGER, ipcPriceOrQty AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -153,7 +153,7 @@ FUNCTION getInvoiceTotal RETURNS DECIMAL
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -390,10 +390,10 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 
 DEFINE FRAME FRAME-A
      btn_SelectColumns AT ROW 20.00 COL 60 WIDGET-ID 10
-     lbl_jstat AT ROW 2.05 COL 27.2 COLON-ALIGNED NO-LABEL
-     rd_jstat AT ROW 2.05 COL 42.2 NO-LABEL
+     lbl_jstat AT ROW 2.05 COL 27.2 COLON-ALIGNED NO-LABELS
+     rd_jstat AT ROW 2.05 COL 42.2 NO-LABELS
      tb_fold AT ROW 3.48 COL 47.2
-     lbl_industry AT ROW 3.71 COL 34.2 COLON-ALIGNED NO-LABEL
+     lbl_industry AT ROW 3.71 COL 34.2 COLON-ALIGNED NO-LABELS
      tb_corr AT ROW 4.19 COL 47.2
      begin_job-no AT ROW 5.29 COL 29.2 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
@@ -417,7 +417,7 @@ DEFINE FRAME FRAME-A
      tb_show-vo AT ROW 12.38 COL 23
      tb_prep AT ROW 13.33 COL 23 WIDGET-ID 4
      tb_excel AT ROW 14.24 COL 23
-     rs_sort-material AT ROW 14.57 COL 67 NO-LABEL WIDGET-ID 6
+     rs_sort-material AT ROW 14.57 COL 67 NO-LABELS WIDGET-ID 6
      tb_exclude_prep AT ROW 15.19 COL 23 WIDGET-ID 12
      tb_exclude_run_if_no_prod AT ROW 16.14 COL 23 WIDGET-ID 14
      tb_waste-from-issued AT ROW 17.05 COL 23 WIDGET-ID 16
@@ -425,18 +425,18 @@ DEFINE FRAME FRAME-A
      tb_sum_mat AT ROW 18.95 COL 23 WIDGET-ID 24
      tb_sum-mischg AT ROW 19.91 COL 23 WIDGET-ID 26
      tb_JobsSheets AT ROW 20.86 COL 23 WIDGET-ID 28
-     rd-dest AT ROW 23.19 COL 5 NO-LABEL
-     lv-ornt AT ROW 23.24 COL 30 NO-LABEL
+     rd-dest AT ROW 23.19 COL 5 NO-LABELS
+     lv-ornt AT ROW 23.24 COL 30 NO-LABELS
      lines-per-page AT ROW 23.43 COL 83 COLON-ALIGNED
      lv-font-no AT ROW 24.52 COL 33 COLON-ALIGNED
-     lv-font-name AT ROW 25.52 COL 27 COLON-ALIGNED NO-LABEL
+     lv-font-name AT ROW 25.52 COL 27 COLON-ALIGNED NO-LABELS
      td-show-parm AT ROW 27.81 COL 5
      tb_excel2 AT ROW 26.91 COL 66.80 RIGHT-ALIGNED
      tb_runExcel AT ROW 26.91 COL 88.6 RIGHT-ALIGNED
      btn-ok AT ROW 29.33 COL 24
      btn-cancel AT ROW 29.33 COL 56
-     sl_avail AT ROW 18.43 COL 10 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 18.43 COL 50 NO-LABEL WIDGET-ID 28
+     sl_avail AT ROW 18.43 COL 10 NO-LABELS WIDGET-ID 26
+     sl_selected AT ROW 18.43 COL 50 NO-LABELS WIDGET-ID 28
      fi_file2 AT ROW 27.76 COL 44.6 COLON-ALIGNED HELP
           "Enter File Name"
      "Output Destination" VIEW-AS TEXT
@@ -740,7 +740,7 @@ DO:
        when 3 then run output-to-file.
        WHEN 5 THEN
        DO:
-          DEF VAR lv-tmp AS CHAR INIT "-0" NO-UNDO.
+          DEFINE VARIABLE lv-tmp AS CHARACTER INIT "-0" NO-UNDO.
           
           {custom/asimailr.i &TYPE="Customer"
                              &begin_cust=lv-tmp
@@ -760,8 +760,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_SelectColumns C-Win
 ON CHOOSE OF btn_SelectColumns IN FRAME FRAME-A /* Select Columns */
 DO:
-    DEF VAR cTextSelected AS cha NO-UNDO.
-    DEF VAR cTextListed AS cha NO-UNDO.
+    DEFINE VARIABLE cTextSelected AS cha NO-UNDO.
+    DEFINE VARIABLE cTextListed AS cha NO-UNDO.
 
     RUN displaySelectionList2.
 
@@ -848,7 +848,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
@@ -1188,7 +1188,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       where sys-ctrl.company eq cocode
          and sys-ctrl.name   eq "CEMENU"
        no-lock no-error.
-  IF AVAIL sys-ctrl THEN
+  IF AVAILABLE sys-ctrl THEN
     ASSIGN
      tb_fold = INDEX(" FB",SUBSTR(sys-ctrl.char-fld,1,1)) GT 0
      tb_corr = INDEX(" CB",SUBSTR(sys-ctrl.char-fld,1,1)) GT 0.
@@ -1244,9 +1244,9 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
@@ -1332,7 +1332,7 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1419,38 +1419,38 @@ PROCEDURE run-report :
 
 {sys/form/r-top3w.f}
 
-DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR excelheader1 AS CHAR NO-UNDO.
-DEF VAR excelheader2 AS CHAR NO-UNDO.
-DEF VAR excelheader3 AS CHAR NO-UNDO.
-DEF VAR excelheader4 AS CHAR NO-UNDO.
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR fg-str-tit AS cha FORM "x(200)" NO-UNDO.
-DEF VAR fg-str-tit2 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR fg-str-tit3 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR fg-str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
+DEFINE VARIABLE excelheader1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE excelheader2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE excelheader3 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE excelheader4 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDisplay AS cha NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
+DEFINE VARIABLE cVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE cFieldName AS cha NO-UNDO.
+DEFINE VARIABLE fg-str-tit AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE fg-str-tit2 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE fg-str-tit3 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE fg-str-line AS cha FORM "x(300)" NO-UNDO.
 
-DEF VAR mach-str-tit AS cha FORM "x(200)" NO-UNDO.
-DEF VAR mach-str-tit2 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR mach-str-tit3 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR mach-str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE mach-str-tit AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE mach-str-tit2 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE mach-str-tit3 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE mach-str-line AS cha FORM "x(300)" NO-UNDO.
 
-DEF VAR item-str-tit AS cha FORM "x(200)" NO-UNDO.
-DEF VAR item-str-tit2 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR item-str-tit3 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR item-str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE item-str-tit AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE item-str-tit2 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE item-str-tit3 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE item-str-line AS cha FORM "x(300)" NO-UNDO.
 
-DEF VAR misc-str-tit AS cha FORM "x(200)" NO-UNDO.
-DEF VAR misc-str-tit2 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR misc-str-tit3 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR misc-str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE misc-str-tit AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE misc-str-tit2 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE misc-str-tit3 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE misc-str-line AS cha FORM "x(300)" NO-UNDO.
 
 /*{sys/form/r-top5DL3.f} */
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1489,7 +1489,7 @@ IF v-tot THEN DO:
   v-tot = ll-secure. 
 END.
 
-DEF VAR cslist AS cha NO-UNDO.
+DEFINE VARIABLE cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
      IF LOOKUP(ttRptSelected.TextList, v-header-1) <> 0    THEN DO:
@@ -1734,25 +1734,6 @@ DEF VAR cslist AS cha NO-UNDO.
               misc-str-line = misc-str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
      END.
 
-   /*IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-   THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
-               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
-               excelheader = excelHeader + ttRptSelected.TextList + "," .        
-   ELSE 
-   ASSIGN str-tit4 = str-tit4 + 
-            (IF ttRptSelected.HeadingFromLeft THEN
-                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
-            ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
-          str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
-          excelheader = excelHeader + ttRptSelected.TextList + ","
-          .        
-          cSlist = cSlist + ttRptSelected.FieldList + ",".
-
-        IF LOOKUP(ttRptSelected.TextList, "Daily Sq Ft/M,Amount1,PTD Sq Ft/M,Amount2,YTD Sq Ft/M,Amount3") <> 0    THEN
-         ASSIGN
-         str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
-        ELSE
-         str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . */
  END.
 
 IF tb_excel2 THEN DO:
@@ -1782,13 +1763,13 @@ display "" with frame r-top.
 
 IF tb_excel2 THEN DO:
   OUTPUT STREAM excel2 CLOSE.
-  /*IF tb_excel THEN*/
+  IF tb_runExcel THEN
   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file2)).
 END.
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
-  /*IF tb_excel THEN*/
+  /*IF tb_runExcel THEN*/
   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
 END.
 
@@ -1810,14 +1791,14 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS cha NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label AS cha.
   
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
@@ -1880,22 +1861,22 @@ PROCEDURE mach-data :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER v-header AS CHAR NO-UNDO.
-DEF INPUT PARAMETER v-qty1 AS DECIMAL NO-UNDO.
-DEF INPUT PARAMETER v-qty2 AS DECIMAL NO-UNDO.
-DEF INPUT PARAMETER v-qty3 AS DECIMAL NO-UNDO.
-DEF INPUT PARAMETER v-qty4 AS DECIMAL NO-UNDO.
-DEF INPUT PARAMETER v-qty5 AS DECIMAL NO-UNDO.
-DEF INPUT PARAMETER v-qty6 AS DECIMAL NO-UNDO.
+DEFINE INPUT PARAMETER v-header AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER v-qty1 AS DECIMAL NO-UNDO.
+DEFINE INPUT PARAMETER v-qty2 AS DECIMAL NO-UNDO.
+DEFINE INPUT PARAMETER v-qty3 AS DECIMAL NO-UNDO.
+DEFINE INPUT PARAMETER v-qty4 AS DECIMAL NO-UNDO.
+DEFINE INPUT PARAMETER v-qty5 AS DECIMAL NO-UNDO.
+DEFINE INPUT PARAMETER v-qty6 AS DECIMAL NO-UNDO.
     
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
+DEFINE VARIABLE cDisplay AS cha NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
+DEFINE VARIABLE cVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE cFieldName AS cha NO-UNDO.
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
@@ -1950,20 +1931,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getInvoiceTotal C-Win 
 FUNCTION getInvoiceTotal RETURNS DECIMAL
-  ( ipiOrder AS INT, ipcJob AS CHAR, ipcJobNo2 AS INT, ipcPriceOrQty AS CHAR ) :
+  ( ipiOrder AS INTEGER, ipcJob AS CHARACTER, ipcJobNo2 AS INTEGER, ipcPriceOrQty AS CHARACTER ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-DEF VAR dInvTot AS DEC NO-UNDO.
-DEF VAR v-subtot-lines AS DEC NO-UNDO.
-DEF VAR v-subtot-qty AS DEC NO-UNDO.
-DEF VAR v-inv-freight AS DEC NO-UNDO.
-DEF VAR v-inv-total AS DEC NO-UNDO.
-DEF VAR v-total-qty AS DEC NO-UNDO.
-DEF VAR v-total-prep AS DEC NO-UNDO.
-DEF VAR v-subtot-prep AS DEC NO-UNDO.
-DEF VAR v-save-x AS INT NO-UNDO.
+DEFINE VARIABLE dInvTot AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-subtot-lines AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-subtot-qty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-inv-freight AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-inv-total AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-total-qty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-total-prep AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-subtot-prep AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-save-x AS INTEGER NO-UNDO.
 v-subtot-lines = 0.
 FOR EACH oe-ord WHERE oe-ord.company EQ cocode
     AND oe-ord.ord-no = ipiOrder NO-LOCK,

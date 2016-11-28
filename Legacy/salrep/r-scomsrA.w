@@ -27,6 +27,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}          
@@ -41,8 +43,6 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 assign
  cocode = gcompany 
  locode = gloc  .
-
-{sys/inc/custlistform.i ""HR16"" }
 
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
@@ -154,7 +154,7 @@ begin_date3 end_date3 begin_date4 end_date4
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -577,8 +577,8 @@ ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -674,7 +674,7 @@ DO:
   
   SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -745,8 +745,8 @@ ON HELP OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -858,8 +858,8 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-fonts.w ({&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
@@ -1049,6 +1049,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   {methods/nowait.i}
 
+  RUN sys/inc/CustListForm.p ( "HR16",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
   IF begin_date1:SCREEN-VALUE = "" THEN 
@@ -1086,7 +1090,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HR16',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""HR16""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1538,6 +1542,7 @@ PROCEDURE run-report :
 /* -------------------------------------------------------------------------- */
 DEF VAR v-tot AS DEC FORMAT ">>>,>>>,>>9.99".
 DEF VAR v-per-tot AS DEC  NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 {sys/form/r-topw.f}
 
     {custom/statusMsg.i "'Processing...'"} 
@@ -1584,8 +1589,14 @@ assign
  
  v-custs    = 0
  v-sort     = rd_print EQ "Customer"
- v-inc      = tb_zer-col. 
-
+ v-inc      = tb_zer-col
+ lSelected  = tb_cust-list. 
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
  
 
 DO WITH FRAME {&frame-name}:
@@ -1703,12 +1714,12 @@ ASSIGN
 
 SESSION:SET-WAIT-STATE ("general").
         
-        FOR EACH ttCustList 
-          WHERE ttCustList.log-fld
-          NO-LOCK,
-          EACH ar-inv
+        FOR EACH ar-inv
           WHERE ar-inv.company  EQ cocode
-            AND ar-inv.cust-no EQ ttCustList.cust-no
+            AND ar-inv.cust-no  GE fcust
+            AND ar-inv.cust-no  LE tcust
+            AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
+            AND ttCustList.log-fld no-lock) else true)
             AND ar-inv.inv-date GE lo-date
             AND ar-inv.inv-date LE hi-date
             AND ar-inv.posted   EQ YES
@@ -1764,11 +1775,11 @@ SESSION:SET-WAIT-STATE ("general").
  
 
 
-      FOR EACH ttCustList 
-          WHERE ttCustList.log-fld
-          NO-LOCK,
-          each cust where cust.company eq cocode
-          AND cust.cust-no EQ ttCustList.cust-no no-lock,
+      FOR each cust where cust.company eq cocode
+          AND cust.cust-no GE fcust
+          AND cust.cust-no LE tcust
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+          AND ttCustList.log-fld no-lock) else true) no-lock,
        
           each ar-cash
           where ar-cash.company    eq cocode

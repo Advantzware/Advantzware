@@ -25,6 +25,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
@@ -39,8 +41,6 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 assign
  cocode = gcompany
  locode = gloc.
-
-{sys/inc/custlistform.i ""HL"" }
 
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
@@ -567,7 +567,7 @@ DO:
   END.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -912,6 +912,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   {methods/nowait.i}
 
+  RUN sys/inc/CustListForm.p ( "HL",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
   END.
@@ -921,7 +925,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HL',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""HL""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1200,6 +1204,7 @@ DEF VAR ll-first  AS   LOG NO-UNDO.
 DEF VAR lv-r-no   LIKE oe-retl.r-no NO-UNDO.
 DEF VAR lv-type   AS   CHAR NO-UNDO.
 DEF VARIABLE excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
 
 ASSIGN
  str-tit2 = c-win:title
@@ -1213,7 +1218,8 @@ ASSIGN
  v-ytd      = rd_print BEGINS "Y"
  v-sort     = if rd_sort begins "C" then "C" else
               if rd_sort eq "High Sales" then "S" else "M"
- v-inc-fc   = tb_fin-chg.
+ v-inc-fc   = tb_fin-chg
+ lSelected  = tb_cust-list .
 
 IF tb_round THEN DO:
   IF tb_msf THEN DO:
@@ -1282,6 +1288,13 @@ fdate[1] = period.pst.
 {sys/inc/lastyear.i fdate[1] fdate[2]}
 {sys/inc/lastyear.i tdate[1] tdate[2]}
      
+IF lselected THEN DO:
+      FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+      IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+      FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+      IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
+
 if not v-ytd then tdate[1] = v-date.
      
 {sys/inc/print1.i}

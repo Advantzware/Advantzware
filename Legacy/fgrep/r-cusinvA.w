@@ -360,8 +360,8 @@ ON HELP OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -426,7 +426,7 @@ DO:
            IF is-xprint-form THEN DO:
               RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
               {custom/asimail2.i &TYPE="CUSTOMER"
-                             &group-title=v-prgmname
+                             &group-title= 'r-cusinv.'
                              &begin_cust=begin_cust
                              &END_cust=end_cust
                              &mail-subject="Customer Inventory Report"
@@ -435,7 +435,7 @@ DO:
            END.
            ELSE DO:
                {custom/asimailr2.i &TYPE = "CUSTOMER"
-                                  &group-title=v-prgmname
+                                  &group-title= 'r-cusinv.'
                                   &begin_cust= begin_cust
                                   &END_cust=end_cust
                                   &mail-subject= "Customer Inventory Report" 
@@ -458,8 +458,8 @@ ON HELP OF end_cust IN FRAME FRAME-A /* Ending Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -680,6 +680,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT NO,
                           OUTPUT glCustListActive).
   {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""IL12""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -890,6 +891,8 @@ def var li              as   int.
 DEF VAR lv-rowid        AS   ROWID NO-UNDO.
 DEF VAR excelheader     AS   CHAR NO-UNDO.
 
+DEF VAR v-cust AS CHAR EXTENT 2 NO-UNDO .
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 form header skip(1)
             v-page-brk
             skip(1)
@@ -916,6 +919,17 @@ DO WITH FRAME {&FRAME-NAME}:
   DISPLAY list_class.
   ASSIGN list_class.
 END.
+ASSIGN
+    v-cust[1] = begin_cust
+    v-cust[2] = end_cust 
+    lSelected    = tb_cust-list .
+
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN  v-cust[2] = ttCustList.cust-no .
+ END.
 
 {sys/inc/print1.i}
 
@@ -944,9 +958,14 @@ FOR EACH ttCustList
     WHERE ttCustList.log-fld
     NO-LOCK,
     each itemfg
+FOR each itemfg
     where itemfg.company eq cocode
       /*and itemfg.cust-no ge begin_cust*/
       and itemfg.cust-no EQ ttCustList.cust-no
+      and itemfg.cust-no ge v-cust[1]
+      and itemfg.cust-no LE v-cust[2]
+      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+      AND ttCustList.log-fld no-lock) else true)  
       AND itemfg.cust-no NE ""
       AND LOOKUP(itemfg.class,v-class) GT 0
     NO-LOCK

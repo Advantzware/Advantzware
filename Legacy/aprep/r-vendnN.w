@@ -55,10 +55,10 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
     
 
-ASSIGN cTextListToSelect = "Vend.#,Name,Due,MTD,YTD,Last Year,Variance"
-       cFieldListToSelect = "vend,name,due,mat,ytd,lst-yr,varinc"
-       cFieldLength = "8,30,14,14,14,14,14"
-       cFieldType = "c,c,i,i,i,i,i" 
+ASSIGN cTextListToSelect = "Vend.#,Name,Due,MTD,YTD,Last Year,Variance,LY YTD"
+       cFieldListToSelect = "vend,name,due,mat,ytd,lst-yr,varinc,LY-YTD"
+       cFieldLength = "8,30,14,14,14,14,14,14"
+       cFieldType = "c,c,i,i,i,i,i,i" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1082,6 +1082,7 @@ DEF VAR v-period LIKE period.pnum NO-UNDO.
 DEF VAR v-tot-ptd AS DEC NO-UNDO.
 DEF VAR v-tot-ytd AS DEC NO-UNDO.
 DEF VAR v-tot-lyd AS DEC NO-UNDO.
+DEFINE VARIABLE dtotyear AS DECIMAL NO-UNDO.
 DEF VAR v-year AS INT NO-UNDO.
 DEF VAR v-amt LIKE ap-ledger.amt NO-UNDO.
 DEF VAR v-vari AS DEC NO-UNDO.
@@ -1143,7 +1144,7 @@ DEF VAR cslist AS cha NO-UNDO.
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
         
-            IF LOOKUP(ttRptSelected.TextList, "Due,MTD,YTD,Last Year,Variance") <> 0    THEN
+            IF LOOKUP(ttRptSelected.TextList, "Due,MTD,YTD,Last Year,Variance,LY YTD") <> 0    THEN
                 ASSIGN
                 str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
             ELSE
@@ -1226,8 +1227,9 @@ FOR EACH company WHERE
       baldue    = 0 
       v-tot-ptd = 0
       v-tot-ytd = 0
-      v-tot-lyd = 0.
-
+      v-tot-lyd = 0 
+      dtotyear  = 0 .
+ 
      FOR EACH ap-ledger
          WHERE ap-ledger.company EQ vend.company
            AND ap-ledger.tr-date GE v-date[3]
@@ -1248,6 +1250,8 @@ FOR EACH company WHERE
 
        IF ap-ledger.tr-date LT v-date[2] THEN
          v-tot-lyd = v-tot-lyd + v-amt.
+        
+       dtotyear = dtotyear + v-amt .
      END.
 
      FOR EACH ap-inv FIELDS(due)
@@ -1303,6 +1307,7 @@ FOR EACH company WHERE
                   WHEN "ytd"    THEN cVarValue = STRING(v-tot-ytd,"->>,>>>,>>9.99") .           
                   WHEN "lst-yr" THEN cVarValue = STRING(v-tot-lyd,"->>,>>>,>>9.99").            
                   WHEN "varinc" THEN cVarValue = STRING(v-vari,"->>,>>>,>>9.99").
+                  WHEN "LY-YTD" THEN cVarValue = STRING(dtotyear,"->>,>>>,>>9.99").
                  
              END CASE.
              
@@ -1322,6 +1327,7 @@ FOR EACH company WHERE
      ACCUMULATE v-tot-ptd (TOTAL).
      ACCUMULATE v-tot-ytd (TOTAL).
      ACCUMULATE v-tot-lyd (TOTAL).
+     ACCUMULATE dtotyear  (TOTAL).
    END.
    END.
    
@@ -1366,6 +1372,7 @@ FOR EACH company WHERE
                   WHEN "ytd"    THEN cVarValue = STRING((ACCUM TOTAL v-tot-ytd),"->>,>>>,>>9.99") .           
                   WHEN "lst-yr" THEN cVarValue = STRING((ACCUM TOTAL v-tot-lyd),"->>,>>>,>>9.99") .            
                   WHEN "varinc" THEN cVarValue = STRING(v-tot-vari,"->>,>>>,>>9.99").
+                  WHEN "LY-YTD" THEN cVarValue = STRING((ACCUM TOTAL dtotyear),"->>,>>>,>>9.99") .
                  
              END CASE.
              

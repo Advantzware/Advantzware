@@ -510,10 +510,11 @@ PROCEDURE setLinesPerPage :
   DEFINE VARIABLE orientFont AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lines AS INTEGER NO-UNDO.
   DEFINE VARIABLE linesPerPage AS INTEGER NO-UNDO.
-
+  DEFINE VARIABLE cLPPFile AS CHARACTER NO-UNDO.
   linesPerPage = IF ipOrientation EQ 'P' THEN 66 ELSE 45.
   IF SEARCH('linesPerPage.txt') NE ? THEN DO:
-    INPUT FROM 'linesPerPage.txt' NO-ECHO.
+    cLPPFile = SEARCH('linesPerPage.txt').
+    INPUT FROM VALUE(cLPPFile) NO-ECHO.
     REPEAT:
       IMPORT orientFont lines.
       IF orientFont EQ ipOrientation + ipFont THEN DO:

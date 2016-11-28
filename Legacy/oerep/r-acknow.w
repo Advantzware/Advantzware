@@ -83,6 +83,8 @@ DEF NEW SHARED VAR v-print-due AS LOG NO-UNDO.
 DEF NEW SHARED VAR v-print-tot AS LOG NO-UNDO.
 
 DEF BUFFER b-oe-ord FOR oe-ord.
+DEF BUFFER b1-oe-ord FOR oe-ord.
+DEF BUFFER b2-oe-ord FOR oe-ord.
 
 {jcrep/r-ticket.i "new shared"}
 
@@ -98,6 +100,19 @@ ELSE
 DO TRANSACTION:
   {sys/inc/ackmst.i}
 END.
+
+DEFINE VARIABLE retcode             AS INTEGER   NO-UNDO.
+
+PROCEDURE mail EXTERNAL 'xpMail.dll' :
+
+  DEFINE INPUT  PARAMETER mailTo      AS CHAR.
+  DEFINE INPUT  PARAMETER mailsubject AS CHAR.
+  DEFINE INPUT  PARAMETER mailText    AS CHAR.
+  DEFINE INPUT  PARAMETER mailFiles   AS CHAR.
+  DEFINE INPUT  PARAMETER mailDialog  AS LONG.
+  DEFINE OUTPUT PARAMETER retCode     AS LONG.
+END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -721,6 +736,10 @@ DO:
       ELSE
        v-ack-master = NO .
 
+  IF LvOutputSelection = "Email"THEN DO:
+     RUN BatchMail. 
+  END. 
+  ELSE DO:  /* not email */
   IF v-ack-master = YES THEN DO:
 
       IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
@@ -849,8 +868,7 @@ DO:
            MESSAGE "No Order Acknowledgements Were Printed."
                VIEW-AS ALERT-BOX INFO BUTTONS OK.
      END. /*if can-find sys-ctrl-shipto*/
-  ELSE
-     DO:
+     ELSE DO:
         v-print-fmt = vcDefaultForm.
         RUN SetOEAckForm (v-print-fmt).
 
@@ -860,6 +878,7 @@ DO:
      END.
 
   END. /* else of v-ack-master  */
+  END.  /* NOT output to email */
   
 END.  /* end of btn-ok */
 
@@ -1928,6 +1947,227 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BatchMail C-Win
+PROCEDURE BatchMail:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  IF v-ack-master = YES THEN DO:
+
+      IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
+     sys-ctrl-shipto.company = cocode AND
+     sys-ctrl-shipto.NAME = "ACKMASTER") THEN
+     DO:
+        IF CAN-FIND(FIRST b-oe-ord
+           WHERE b-oe-ord.company  EQ cocode
+             AND b-oe-ord.ord-no   GE ford-no
+             AND b-oe-ord.ord-no   LE tord-no
+             AND b-oe-ord.cust-no  GE begin_cust-no
+             AND b-oe-ord.cust-no  LE end_cust-no
+             AND b-oe-ord.ord-date GE fdate
+             AND b-oe-ord.ord-date LE tdate
+             AND b-oe-ord.ack-prnt EQ v-reprint) THEN
+           FOR EACH b1-oe-ord FIELDS(company cust-no ord-no) WHERE
+               b1-oe-ord.company  EQ cocode AND
+               b1-oe-ord.ord-no   GE ford-no AND
+               b1-oe-ord.ord-no   LE tord-no AND
+               b1-oe-ord.cust-no  GE begin_cust-no AND
+               b1-oe-ord.cust-no  LE end_cust-no AND
+               b1-oe-ord.ord-date GE fdate AND
+               b1-oe-ord.ord-date LE tdate AND
+               b1-oe-ord.ack-prnt EQ v-reprint
+               NO-LOCK
+               BREAK BY b1-oe-ord.company
+                     BY b1-oe-ord.cust-no:
+             
+               IF FIRST-OF(b1-oe-ord.cust-no) THEN DO:
+       
+                  FIND FIRST sys-ctrl-shipto WHERE
+                       sys-ctrl-shipto.company = cocode AND
+                       sys-ctrl-shipto.NAME = "ACKMASTER" AND
+                       sys-ctrl-shipto.cust-vend = YES AND
+                       sys-ctrl-shipto.cust-vend-no = b1-oe-ord.cust-no AND
+                       sys-ctrl-shipto.char-fld > ''
+                       NO-LOCK NO-ERROR.
+       
+                  IF AVAIL sys-ctrl-shipto THEN
+                  DO:
+                     RUN SetAckMstForm (sys-ctrl-shipto.char-fld).
+                     v-print-fmt = sys-ctrl-shipto.char-fld.
+                  END.
+                  ELSE
+                  DO:
+                     RUN SetAckMstForm (vmDefaultForm).
+                     v-print-fmt = vmDefaultForm.
+                  END.
+                  RUN output-to-mail (b1-oe-ord.cust-no, b1-oe-ord.ord-no).        
+                  
+               END.
+           END. /* FOR EACH*/
+        ELSE
+           MESSAGE "No Order Acknowledgements Were Printed."
+               VIEW-AS ALERT-BOX INFO BUTTONS OK.
+     END. /*if can-find sys-ctrl-shipto*/
+  ELSE
+     DO:
+      
+        v-print-fmt = vmDefaultForm.
+        RUN SetAckMstForm (v-print-fmt).
+        RUN output-to-mail (begin_cust-no,begin_ord-no).
+/*        RUN SetGlobalVariables(INPUT begin_ord-no).   */
+/*        RUN run-report("", FALSE).                    */
+/*        RUN GenerateEmail(begin_cust-no, end_cust-no).*/
+     END.
+
+    END.  /* end of v-ack-master log = yes */
+
+  
+    ELSE DO:
+      IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
+     sys-ctrl-shipto.company = cocode AND
+     sys-ctrl-shipto.NAME = "ACKHEAD") THEN
+     DO:
+        IF CAN-FIND(FIRST b-oe-ord
+           WHERE b-oe-ord.company  EQ cocode
+             AND b-oe-ord.ord-no   GE ford-no
+             AND b-oe-ord.ord-no   LE tord-no
+             AND b-oe-ord.cust-no  GE begin_cust-no
+             AND b-oe-ord.cust-no  LE end_cust-no
+             AND b-oe-ord.ord-date GE fdate
+             AND b-oe-ord.ord-date LE tdate
+             AND b-oe-ord.ack-prnt EQ v-reprint) THEN
+           FOR EACH b-oe-ord FIELDS(company cust-no ord-no) WHERE
+               b-oe-ord.company  EQ cocode AND
+               b-oe-ord.ord-no   GE ford-no AND
+               b-oe-ord.ord-no   LE tord-no AND
+               b-oe-ord.cust-no  GE begin_cust-no AND
+               b-oe-ord.cust-no  LE end_cust-no AND
+               b-oe-ord.ord-date GE fdate AND
+               b-oe-ord.ord-date LE tdate AND
+               b-oe-ord.ack-prnt EQ v-reprint
+               NO-LOCK
+               BREAK BY b-oe-ord.company
+                     BY b-oe-ord.cust-no:
+             
+               IF FIRST-OF(b-oe-ord.cust-no) THEN DO:
+       
+                  FIND FIRST sys-ctrl-shipto WHERE
+                       sys-ctrl-shipto.company = cocode AND
+                       sys-ctrl-shipto.NAME = "ACKHEAD" AND
+                       sys-ctrl-shipto.cust-vend = YES AND
+                       sys-ctrl-shipto.cust-vend-no = b-oe-ord.cust-no AND
+                       sys-ctrl-shipto.char-fld > ''
+                       NO-LOCK NO-ERROR.
+       
+                  IF AVAIL sys-ctrl-shipto THEN
+                  DO:
+                     RUN SetOEAckForm (sys-ctrl-shipto.char-fld).
+                     v-print-fmt = sys-ctrl-shipto.char-fld.
+                  END.
+                  ELSE
+                  DO:
+                     RUN SetOEAckForm (vcDefaultForm).
+                     v-print-fmt = vcDefaultForm.
+                  END.
+                  RUN output-to-mail (b-oe-ord.cust-no, b-oe-ord.ord-no).       
+/*                  RUN SetGlobalVariables(b-oe-ord.ord-no).            */
+/*                  RUN run-report(b-oe-ord.cust-no, TRUE).             */
+/*                  RUN GenerateEmail(b-oe-ord.cust-no,b-oe-ord.ord-no).*/
+               END.
+           END. /* FOR EACH*/
+        ELSE
+           MESSAGE "No Order Acknowledgements Were Printed."
+               VIEW-AS ALERT-BOX INFO BUTTONS OK.
+     END. /*if can-find sys-ctrl-shipto*/
+     ELSE DO:
+        v-print-fmt = vcDefaultForm.
+        RUN SetOEAckForm (v-print-fmt).
+        RUN output-to-mail (begin_cust-no,begin_ord-no). 
+/*        RUN SetGlobalVariables(INPUT begin_ord-no).    */
+/*        RUN run-report("", FALSE).                     */
+/*        RUN GenerateEmail(begin_cust-no, begin_ord-no).*/
+     END.
+
+    END. /* else of v-ack-master  */
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE buildToList C-Win
+PROCEDURE buildToList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE INPUT  PARAMETER ipRecKey    AS CHARACTER NO-UNDO.
+  DEFINE INPUT  PARAMETER ipEMail     AS CHARACTER NO-UNDO.
+  DEFINE INPUT  PARAMETER ipCode      AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opToList    AS CHARACTER NO-UNDO.
+
+  DEF BUFFER b2-cust FOR cust.
+  
+  FOR EACH phone NO-LOCK 
+     WHERE phone.table_rec_key EQ ipRecKey
+        OR ipRecKey EQ 'ALL':
+    
+    IF CAN-FIND(FIRST emaildtl
+                WHERE emaildtl.emailcod       EQ ipCode
+                  AND emaildtl.table_rec_key  EQ phone.rec_key) 
+       OR
+       phone.titlcode EQ ipCode THEN
+    DO:
+    
+      IF phone.e_mail NE '' AND NOT CAN-DO(opToList,phone.e_mail) THEN 
+      DO:        
+        opToList = opToList + (IF opToList NE '' THEN ',' 
+                                                  ELSE '') 
+                            + phone.e_mail.
+      END.
+    END.
+        
+  END. /* each phone */
+
+  IF opToList EQ '' OR opToList = ? THEN DO: 
+
+     FIND FIRST b2-cust 
+           WHERE b2-cust.rec_key = ipRecKey
+             AND b2-cust.active  = 'X' 
+           NO-LOCK NO-ERROR.
+     IF AVAIL b2-cust THEN DO: 
+
+        FOR EACH phone NO-LOCK
+           WHERE phone.table_rec_key = b2-cust.rec_key,
+            EACH reftable NO-LOCK
+           WHERE reftable.rec_key = phone.rec_key
+             AND reftable.CODE    = ipCode:
+            
+          opToList = opToList + (IF opToList NE '' THEN ',' 
+                                                   ELSE '') 
+                              + phone.e_mail.
+        END.
+
+        IF opToList EQ '' OR opToList EQ ? THEN 
+          opToList = b2-cust.email.
+     END.
+     ELSE opToList = ipEMail.
+   
+  END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -2004,6 +2244,96 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateEmail C-Win
+PROCEDURE GenerateEmail:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER icCustNo AS CHAR NO-UNDO.
+  DEF INPUT PARAM icOrdNo AS INT NO-UNDO.
+  
+  
+  DEFINE VARIABLE vcSubject   AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
+  
+  DEF BUFFER b1-cust FOR cust.
+  
+  DEFINE VARIABLE ls-to-list          AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lv-mailto           AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lv-mailsubject      AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lv-mailbody         AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lv-mailattach       AS CHARACTER NO-UNDO.
+  DEF VAR ls-to-list2 AS cha NO-UNDO.
+  
+  IF is-xprint-form THEN RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+                
+  ASSIGN  vcSubject   = "ACKNOWLEDGEMENT:" + string(icOrdNo) + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
+          vcMailBody  = "Please review attached Order Acknowledgement #: " + string(icOrdNo).       
+  
+  FIND b1-cust WHERE b1-cust.company = cocode AND b1-cust.cust-no = icCustNo NO-LOCK NO-ERROR.
+  RUN buildToList (INPUT  b1-cust.rec_key,   /* Rec_Key        */
+                    INPUT  b1-cust.email,     /* Email Address  */
+                    INPUT  "r-acknow.",  /* Title          */
+                    OUTPUT ls-to-list).    /* Recepients     */
+                              
+   /* build list for shipto */
+  ls-to-list2 = "".
+  FOR EACH b2-oe-ord WHERE b2-oe-ord.company = cocode AND b2-oe-ord.ord-no = icOrdno NO-LOCK,
+       EACH oe-rel WHERE oe-rel.company = cocode
+                     AND oe-rel.ord-no = oe-ord.ord-no NO-LOCK  :
+          FIND FIRST shipto WHERE shipto.company = cocode
+                              AND shipto.cust-no = b2-oe-ord.cust-no
+                              AND shipto.ship-no = oe-rel.ship-no NO-LOCK NO-ERROR.
+          IF AVAIL shipto THEN DO:              
+             RUN buildToList (INPUT  shipto.rec_key,   /* Rec_Key        */
+                    INPUT  "",     /* Email Address  */
+                    INPUT  'r-acknow.',      /* Title          */
+                    OUTPUT ls-to-list2).    /* Recepients     */
+                    
+          END.
+
+  END.
+
+  IF NOT is-xprint-form THEN
+    OS-COPY VALUE(list-name) VALUE(lv-pdf-file + ".txt").
+  IF ls-to-list2 <> "" THEN ls-to-list = ls-to-list + "," + ls-to-list2.       
+  ASSIGN lv-mailto       = 'To:' + ls-to-list
+         lv-mailsubject  = vcSubject
+         lv-mailbody     = vcMailBody
+         lv-mailattach   =  IF is-xprint-form THEN lv-pdf-file + ".pdf" ELSE lv-pdf-file + ".txt" /*list-name*/.
+
+  IF lv-mailattach MATCHES('*xpr*') AND SEARCH('viewer.exe') NE ? THEN
+      ASSIGN  FILE-INFO:FILE-NAME = 'viewer.exe'
+              lv-mailattach       = FILE-INFO:FULL-PATHNAME + ',' + lv-mailattach.
+
+   IF lv-attach-push NE "" AND TG_eml-push-att:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Yes" THEN
+            lv-mailattach = lv-mailattach + "," + lv-attach-push .
+                         
+  RUN mail (lv-mailto,        /* Mail Recepients  */
+            lv-mailsubject,   /* Subject          */
+            lv-mailbody,      /* Body             */
+            lv-mailattach,    /* Attachment       */
+            1,                /* Mail Dialog Type */
+            OUTPUT retcode).  /* Return Code      */
+                       
+/*  RUN custom/xpmail2.p   (input   icRecType,  */
+/*                          input   'R-ACKNOW.',*/
+/*                          input   list-name,  */
+/*                          input   icIdxKey,   */
+/*                          input   vcSubject,  */
+/*                          input   vcMailBody, */
+/*                          OUTPUT  vcErrorMsg).*/
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateReport C-Win 
 PROCEDURE GenerateReport :
@@ -2205,6 +2535,148 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-mail C-Win
+PROCEDURE output-to-mail:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAM icCustNo AS CHAR NO-UNDO.
+DEFINE INPUT PARAM icOrdNo AS INT NO-UNDO.
+
+IF v-ack-master = YES THEN DO:
+
+      IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
+     sys-ctrl-shipto.company = cocode AND
+     sys-ctrl-shipto.NAME = "ACKMASTER") THEN
+     DO:
+        IF CAN-FIND(FIRST b-oe-ord
+           WHERE b-oe-ord.company  EQ cocode
+             AND b-oe-ord.cust-no  EQ icCustNo
+             AND b-oe-ord.ord-no   GE icOrdNo
+             AND b-oe-ord.ack-prnt EQ v-reprint) THEN
+           FOR EACH b-oe-ord FIELDS(company cust-no ord-no) WHERE
+               b-oe-ord.company  EQ cocode AND
+               b-oe-ord.cust-no  GE icCustNo AND
+               b-oe-ord.ord-no   EQ icOrdNo AND
+                b-oe-ord.ack-prnt EQ v-reprint
+               NO-LOCK
+               BREAK BY b-oe-ord.company
+                     BY b-oe-ord.cust-no:
+             
+               IF FIRST-OF(b-oe-ord.cust-no) THEN DO:
+       
+                  FIND FIRST sys-ctrl-shipto WHERE
+                       sys-ctrl-shipto.company = cocode AND
+                       sys-ctrl-shipto.NAME = "ACKMASTER" AND
+                       sys-ctrl-shipto.cust-vend = YES AND
+                       sys-ctrl-shipto.cust-vend-no = b-oe-ord.cust-no AND
+                       sys-ctrl-shipto.char-fld > ''
+                       NO-LOCK NO-ERROR.
+       
+                  IF AVAIL sys-ctrl-shipto THEN
+                  DO:
+                     RUN SetAckMstForm (sys-ctrl-shipto.char-fld).
+                     v-print-fmt = sys-ctrl-shipto.char-fld.
+                  END.
+                  ELSE
+                  DO:
+                     RUN SetAckMstForm (vmDefaultForm).
+                     v-print-fmt = vmDefaultForm.
+                  END.
+       
+                  RUN SetGlobalVariables(b-oe-ord.ord-no).
+                  RUN run-report(b-oe-ord.cust-no, TRUE).
+                  RUN GenerateEmail(b-oe-ord.cust-no,b-oe-ord.ord-no).
+               END.
+           END. /* FOR EACH*/
+        ELSE
+           MESSAGE "No Order Acknowledgements Were Printed."
+               VIEW-AS ALERT-BOX INFO BUTTONS OK.
+     END. /*if can-find sys-ctrl-shipto*/
+  ELSE
+     DO:
+      
+        v-print-fmt = vmDefaultForm.
+        RUN SetAckMstForm (v-print-fmt).
+        RUN SetGlobalVariables(INPUT begin_ord-no).
+        RUN run-report("", FALSE).
+        RUN GenerateEmail(icCustNo,begin_ord-no).
+     END.
+
+    END.  /* end of v-ack-master log = yes */
+
+  
+    ELSE DO:
+      IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
+     sys-ctrl-shipto.company = cocode AND
+     sys-ctrl-shipto.NAME = "ACKHEAD") THEN
+     DO:
+        IF CAN-FIND(FIRST b-oe-ord
+           WHERE b-oe-ord.company  EQ cocode
+             AND b-oe-ord.cust-no  EQ icCustNo
+             AND b-oe-ord.ord-no   GE icOrdNo
+             AND b-oe-ord.ack-prnt EQ v-reprint) THEN
+           FOR EACH b-oe-ord FIELDS(company cust-no ord-no) WHERE
+               b-oe-ord.company  EQ cocode AND
+               b-oe-ord.cust-no  EQ icCustNo AND
+               b-oe-ord.ord-no   GE icOrdNo AND
+               b-oe-ord.ack-prnt EQ v-reprint
+               NO-LOCK
+               BREAK BY b-oe-ord.company
+                     BY b-oe-ord.cust-no:
+             
+               IF FIRST-OF(b-oe-ord.cust-no) THEN DO:
+       
+                  FIND FIRST sys-ctrl-shipto WHERE
+                       sys-ctrl-shipto.company = cocode AND
+                       sys-ctrl-shipto.NAME = "ACKHEAD" AND
+                       sys-ctrl-shipto.cust-vend = YES AND
+                       sys-ctrl-shipto.cust-vend-no = b-oe-ord.cust-no AND
+                       sys-ctrl-shipto.char-fld > ''
+                       NO-LOCK NO-ERROR.
+       
+                  IF AVAIL sys-ctrl-shipto THEN
+                  DO:
+                     RUN SetOEAckForm (sys-ctrl-shipto.char-fld).
+                     v-print-fmt = sys-ctrl-shipto.char-fld.
+                  END.
+                  ELSE
+                  DO:
+                     RUN SetOEAckForm (vcDefaultForm).
+                     v-print-fmt = vcDefaultForm.
+                  END.
+       
+                  RUN SetGlobalVariables(b-oe-ord.ord-no).
+                  RUN run-report(b-oe-ord.cust-no, TRUE).
+                  RUN GenerateEmail(b-oe-ord.cust-no,b-oe-ord.ord-no).
+               END.
+           END. /* FOR EACH*/
+        ELSE
+           MESSAGE "No Order Acknowledgements Were Printed."
+               VIEW-AS ALERT-BOX INFO BUTTONS OK.
+     END. /*if can-find sys-ctrl-shipto*/
+     ELSE DO:
+        v-print-fmt = vcDefaultForm.
+        RUN SetOEAckForm (v-print-fmt).
+
+        RUN SetGlobalVariables(INPUT begin_ord-no).
+        RUN run-report("", FALSE).
+        RUN GenerateEmail(icCustNo,begin_ord-no).
+     END.
+
+    END. /* else of v-ack-master  */
+
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-port C-Win 
 PROCEDURE output-to-port :
 /*------------------------------------------------------------------------------
@@ -2327,7 +2799,8 @@ FOR EACH oe-ord
   CREATE report.
   ASSIGN
    report.term-id = v-term
-   report.rec-id  = RECID(oe-ord).
+   report.rec-id  = RECID(oe-ord)
+   report.key-01 = STRING(oe-ord.ack-prnt).
  
 END.
 
@@ -2372,6 +2845,9 @@ END.
 OUTPUT CLOSE.
 
 FOR EACH report WHERE report.term-id EQ v-term-id: 
+   FIND oe-ord WHERE RECID(oe-ord) EQ report.rec-id.
+   IF STRING(oe-ord.ack-prnt) <> report.key-01 AND oe-ord.ack-prnt THEN oe-ord.ack-prnt-date = TODAY.
+     
   DELETE report.
 END.
 
@@ -2481,7 +2957,7 @@ PROCEDURE SetOEAckForm :
        WHEN "Pacific" THEN ASSIGN v-program = "oe/rep/ackpacif.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Hopx" THEN ASSIGN v-program = "oe/rep/ackhopx.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Carded" THEN ASSIGN v-program = "oe/rep/ackcared.p" is-xprint-form = YES lines-per-page = 68.  /* Task 09181303  */
-       WHEN "XPrint" THEN ASSIGN v-program = "oe/rep/ackxprnt.p" is-xprint-form = YES lines-per-page = 65.
+       WHEN "XPrint" OR WHEN "ackhead 1" OR WHEN "ackhead 2" THEN ASSIGN v-program = "oe/rep/ackxprnt.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Badger" THEN ASSIGN v-program = "oe/rep/ackbager.p" is-xprint-form = YES lines-per-page = 67. /* task 04021401 */
        WHEN "Hughes" THEN ASSIGN v-program = "oe/rep/ackhughes.p" is-xprint-form = YES lines-per-page = 65. 
        WHEN "Accord" THEN ASSIGN v-program = "oe/rep/ackacord.p" is-xprint-form = YES lines-per-page = 72.

@@ -115,7 +115,7 @@ end_cust-no tb_sched TB_round tb_tot-job rd_alptime
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -423,8 +423,8 @@ ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -439,8 +439,8 @@ ON HELP OF end_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -469,7 +469,7 @@ DO:
   END.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -635,9 +635,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN sys/ref/CustList.p (INPUT cocode,
                           INPUT 'DE2',
-                          INPUT YES,
+                          INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""DE2""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -999,9 +999,10 @@ DEF VAR v-runcomp AS CHAR NO-UNDO .
 DEF VAR v-mrwaste AS DEC NO-UNDO .
 DEF VAR v-runwaste AS DEC NO-UNDO .
 DEF VAR v-crew-size AS DEC NO-UNDO.
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEF BUFFER bf-mch-act FOR mch-act .
-
+DEF VAR fcust AS CHAR NO-UNDO.
+DEF VAR tcust AS CHAR NO-UNDO.
 SESSION:SET-WAIT-STATE ("general").
 
 assign
@@ -1016,13 +1017,21 @@ assign
  v-shift[2]  = end_shift
  v-date[1]   = begin_date
  v-date[2]   = end_date
+ fcust       = begin_cust-no
+ tcust       = end_cust-no
  /*v-show      = tb_show*/
  /*v-show1     = tb_show1*/
  v-tot-uni-jobs = tb_tot-job
- 
+ lSelected   = tb_cust-list
  hdr-tit3 = fill("-", 132).
 
   inrowcount = 2 .
+  IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+  END.
 
 run InitializeExcel.
 

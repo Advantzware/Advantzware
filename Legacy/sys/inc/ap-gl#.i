@@ -1,26 +1,26 @@
 
-def var ap-gl#-log like sys-ctrl.log-fld  no-undo.
-def var ap-gl#-cha like sys-ctrl.char-fld no-undo.
+DEFINE VARIABLE ap-gl#-log LIKE sys-ctrl.log-fld NO-UNDO.
+DEFINE VARIABLE ap-gl#-cha LIKE sys-ctrl.char-fld NO-UNDO.
 
 
-find first sys-ctrl
+FIND FIRST sys-ctrl NO-LOCK
     where sys-ctrl.company eq cocode
       and sys-ctrl.name    eq "AP GL#"
     no-error.
 do transaction:
-  if not avail sys-ctrl then do:
+    IF NOT AVAILABLE sys-ctrl THEN 
+    DO:
     create sys-ctrl.
     assign
      sys-ctrl.company  = cocode
      sys-ctrl.name     = "AP GL#"
      sys-ctrl.descrip  = "Default GL# from Purchasing?"
      sys-ctrl.log-fld  = no.
-    MESSAGE sys-ctrl.descrip
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE sys-ctrl.log-fld.
+       
   end.
   
   if sys-ctrl.char-fld eq "" then sys-ctrl.char-fld = "Asset".
+    FIND CURRENT sys-ctrl NO-LOCK.
 end.
 
 assign

@@ -112,14 +112,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &ANALYZE-RESUME
@@ -153,7 +153,7 @@ ASSIGN
        FRAME FRAME-A:SENSITIVE        = FALSE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -186,6 +186,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
      application would exit. */
+    
   IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
 END.
 
@@ -198,12 +199,13 @@ ON WINDOW-CLOSE OF W-Win /* WAREHOUSE TRANSACTION RECEIPTS(FINISHED GOODS) */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  DEF VAR lv-can-exit AS LOG NO-UNDO.
+  /*DEF VAR lv-can-exit AS LOG NO-UNDO.
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
   RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
-  IF NOT lv-can-exit THEN RETURN NO-apply.
+  IF NOT lv-can-exit THEN RETURN NO-apply.*/
 
+  RUN do-cancel IN h_p-updba2.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -220,9 +222,9 @@ END.
 /* ***************************  Main Block  *************************** */
 
 {custom/getcmpny.i}
-RUN sys/ref/nk1look.p (gcompany, "SSFGSCAN", "I", no, no, "", "", 
-                       Output lvcReturnChar, OUTPUT lvlRecFound).
-If lvlRecFound then
+RUN sys/ref/nk1look.p (gcompany, "SSFGSCAN", "I", NO, NO, "", "", 
+                       OUTPUT lvcReturnChar, OUTPUT lvlRecFound).
+IF lvlRecFound THEN
 	lvlAutoAdd = IF INT(lvcReturnChar) = 0 THEN YES ELSE NO.
 
 /* Include custom  Main Block code for SmartWindows. */
@@ -357,7 +359,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page eq 0 
+  IF adm-current-page EQ 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -394,13 +396,12 @@ PROCEDURE asi-exit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR lv-can-exit AS LOG NO-UNDO.
-
+   /*DEF VAR lv-can-exit AS LOG NO-UNDO.
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
-   RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
-
-   IF NOT lv-can-exit THEN RETURN ERROR.
+   RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).*/
    
+   /*IF NOT lv-can-exit THEN RETURN ERROR.*/
+   RUN do-cancel IN h_p-updba2.
 
 END PROCEDURE.
 
@@ -473,8 +474,9 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
-   APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+ 
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+  
    RETURN.
        
 END PROCEDURE.
@@ -528,10 +530,10 @@ PROCEDURE setUserExit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   def var char-hdl as cha no-undo.
+   DEF VAR char-hdl AS cha NO-UNDO.
   
-   run get-link-handle in adm-broker-hdl(this-procedure,"cancel-item-target", output char-hdl).
-   run cancel-item in widget-handle(char-hdl).
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"cancel-item-target", OUTPUT char-hdl).
+   RUN cancel-item IN WIDGET-HANDLE(char-hdl).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -23,7 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -40,32 +40,32 @@ assign
  cocode = gcompany
  locode = gloc.
 
-DEF VAR v-program AS CHAR NO-UNDO.
-DEF VAR is-xprint-form AS LOG NO-UNDO.
-DEF VAR ls-fax-file AS CHAR NO-UNDO.
+DEFINE VARIABLE v-program AS CHARACTER NO-UNDO.
+DEFINE VARIABLE is-xprint-form AS LOG NO-UNDO.
+DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
 
-DEF TEMP-TABLE tt-date-reasons
-    FIELD reason-code AS CHAR
-    FIELD occurrences AS INT.
+DEFINE TEMP-TABLE tt-date-reasons
+    FIELD reason-code AS CHARACTER
+    FIELD occurrences AS INTEGER.
 
-DEF STREAM excel.
+DEFINE STREAM excel.
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR cFieldType AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF BUFFER b-itemfg FOR itemfg .
-DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE ldummy AS LOG NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
+DEFINE VARIABLE cFieldType AS cha NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEFINE BUFFER b-itemfg FOR itemfg .
+DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Customer Part#,FG Item#,Order#,Ord Date,Due Date,BOL Date,On-Time," +
-                           "Prom Dt,Reason,MSF,WT,Trailer#"
+                           "Prom Dt,Reason,MSF,WT,Trailer#,Customer Group"
        cFieldListToSelect = "cust-part,fgitem,order,ord-date,due-date,bol-date,ontime," +
-                            "prom-dt,reason,msf,wt,trail"
-       cFieldLength = "15,15,8,8,8,8,7," + "10,8,15,6,20"
-       cFieldType = "c,c,i,c,c,c,c," + "c,c,i,i,c" 
+                            "prom-dt,reason,msf,wt,trail,cust-g"
+       cFieldLength = "15,15,8,8,8,8,7," + "10,8,15,6,20,14"
+       cFieldType = "c,c,i,c,c,c,c," + "c,c,i,i,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -108,7 +108,7 @@ td-show-parm tb_excel tb_runExcel fi_file
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD appendXLLine C-Win 
 FUNCTION appendXLLine RETURNS CHARACTER
- ( ipc-append AS CHAR )  FORWARD.
+ ( ipc-append AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -124,7 +124,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -277,7 +277,7 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     rsCompareDate AT ROW 7.81 COL 24 NO-LABEL WIDGET-ID 2
+     rsCompareDate AT ROW 7.81 COL 24 NO-LABELS WIDGET-ID 2
      begin_cust AT ROW 2.81 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
      end_cust AT ROW 2.81 COL 67 COLON-ALIGNED HELP
@@ -294,21 +294,21 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Order Date"
      end_bol-date AT ROW 6.38 COL 67 COLON-ALIGNED HELP
           "Enter Ending Order Date"
-     sl_avail AT ROW 10.38 COL 4.6 NO-LABEL WIDGET-ID 26
+     sl_avail AT ROW 10.38 COL 4.6 NO-LABELS WIDGET-ID 26
      Btn_Def AT ROW 10.38 COL 40.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 10.38 COL 60 NO-LABEL WIDGET-ID 28
+     sl_selected AT ROW 10.38 COL 60 NO-LABELS WIDGET-ID 28
      Btn_Add AT ROW 11.38 COL 40.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
      Btn_Remove AT ROW 12.38 COL 40.6 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
      btn_Up AT ROW 13.43 COL 40.6 WIDGET-ID 40
      btn_down AT ROW 14.43 COL 40.6 WIDGET-ID 42
-     rd-dest AT ROW 17.19 COL 6 NO-LABEL
-     lv-ornt AT ROW 17.43 COL 30 NO-LABEL
+     rd-dest AT ROW 17.19 COL 6 NO-LABELS
+     lv-ornt AT ROW 17.43 COL 30 NO-LABELS
      lines-per-page AT ROW 17.33 COL 83 COLON-ALIGNED
      lv-font-no AT ROW 19.38 COL 33 COLON-ALIGNED
-     lv-font-name AT ROW 20.33 COL 27 COLON-ALIGNED NO-LABEL
+     lv-font-name AT ROW 20.33 COL 27 COLON-ALIGNED NO-LABELS
      td-show-parm AT ROW 21.52 COL 29
      tb_excel AT ROW 21.71 COL 71 RIGHT-ALIGNED
      tb_runExcel AT ROW 21.71 COL 93 RIGHT-ALIGNED
@@ -584,7 +584,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -610,7 +610,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
@@ -729,7 +729,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
@@ -956,8 +956,8 @@ PROCEDURE DisplaySelectionDefault :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
@@ -980,8 +980,8 @@ PROCEDURE DisplaySelectionList :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
      
@@ -1021,9 +1021,9 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
@@ -1103,7 +1103,7 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1255,30 +1255,30 @@ PROCEDURE run-report :
 
 /*{sys/form/r-top3.f}*/
 
-def var v-cust  like oe-ord.cust-no  extent 2 init ["","zzzzzzzz"] NO-UNDO.
-def var v-date  like oe-ord.ord-date format "99/99/9999"
+DEFINE VARIABLE v-cust  LIKE oe-ord.cust-no  EXTENT 2 INIT ["","zzzzzzzz"] NO-UNDO.
+DEFINE VARIABLE v-date  LIKE oe-ord.ord-date FORMAT "99/99/9999"
                                      extent 2 init [today, 12/31/9999] NO-UNDO.
 
-def var v-cust-no like cust.cust-no NO-UNDO.
-def var v-name    like cust.NAME NO-UNDO.
-def var v-del     as   int extent 2 NO-UNDO.
-def var v-ont     like v-del NO-UNDO.
-def var v-msf as dec format  "->,>>>,>>9.9999" NO-UNDO.
-DEF VAR v-sqft LIKE itemfg.t-sqft NO-UNDO.
-DEF VAR v-compare-dt AS DATE NO-UNDO.
-DEF VAR lcXLLine AS CHAR NO-UNDO.
+DEFINE VARIABLE v-cust-no LIKE cust.cust-no NO-UNDO.
+DEFINE VARIABLE v-name    LIKE cust.NAME NO-UNDO.
+DEFINE VARIABLE v-del     AS   INTEGER EXTENT 2 NO-UNDO.
+DEFINE VARIABLE v-ont     LIKE v-del NO-UNDO.
+DEFINE VARIABLE v-msf AS DECIMAL FORMAT  "->,>>>,>>9.9999" NO-UNDO.
+DEFINE VARIABLE v-sqft LIKE itemfg.t-sqft NO-UNDO.
+DEFINE VARIABLE v-compare-dt AS DATE NO-UNDO.
+DEFINE VARIABLE lcXLLine AS CHARACTER NO-UNDO.
 
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cDisplay AS cha NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
+DEFINE VARIABLE cVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE cFieldName AS cha NO-UNDO.
+DEFINE VARIABLE str-tit4 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE str-tit5 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.
 
 {sys/form/r-top5DL.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1314,7 +1314,7 @@ if td-show-parm then run show-param.
    excelheader = "Cust#,Customer Name,Customer Part#,FG Item#,Order#,Order Date,Due Date,BOL Date,On-Time,Prom Date,Date Change Reason,MSF,Weight,Trailer#".
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.*/
-DEF VAR cslist AS cha NO-UNDO.
+DEFINE VARIABLE cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
@@ -1401,7 +1401,7 @@ SESSION:SET-WAIT-STATE ("general").
       FIND FIRST itemfg WHERE itemfg.company = oe-boll.company AND 
                               itemfg.i-no    = oe-boll.i-no NO-LOCK NO-ERROR.
       ASSIGN
-         v-sqft = IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0.
+         v-sqft = IF AVAILABLE itemfg THEN itemfg.t-sqft ELSE 0.
          v-msf = (oe-boll.qty * v-sqft )/ 1000. 
 
       if first-of(oe-ord.cust-no) then do:
@@ -1411,7 +1411,7 @@ SESSION:SET-WAIT-STATE ("general").
             no-lock no-error.
         assign
          v-cust-no = oe-ord.cust-no
-         v-name    = if avail cust then cust.name else "Not on File".
+         v-name    = IF AVAILABLE cust THEN cust.name ELSE "Not on File".
 
         if first(oe-ord.cust-no) THEN display "" with frame r-top.
         ELSE page.
@@ -1428,7 +1428,7 @@ SESSION:SET-WAIT-STATE ("general").
           FIND FIRST tt-date-reasons 
               WHERE tt-date-reasons.reason-code = oe-rel.spare-char-2
               NO-LOCK NO-ERROR.
-          IF NOT AVAIL tt-date-reasons THEN DO:
+          IF NOT AVAILABLE tt-date-reasons THEN DO:
               
               CREATE tt-date-reasons.
               tt-date-reasons.reason-code = oe-rel.spare-char-2.
@@ -1457,6 +1457,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "msf"  THEN cVarValue = STRING(v-msf,"->>>,>>>,>>9.99") .
                          WHEN "wt"  THEN cVarValue = STRING(oe-boll.weight,"->>>>>") .
                          WHEN "trail"  THEN cVarValue = STRING(oe-bolh.trailer,"x(20)") .
+                         WHEN "cust-g"  THEN cVarValue = IF AVAILABLE cust THEN  STRING(cust.spare-char-2) ELSE "" .
                          
                     END CASE.
                       
@@ -1594,8 +1595,8 @@ SESSION:SET-WAIT-STATE ("general").
                     NO-LOCK NO-ERROR.
                      
                 IF v-del[2] - v-ont[2] GT 0 THEN
-                DISP tt-date-reasons.reason-code FORMAT "x(30)" COLUMN-LABEL "Reason"
-                     rejct-cd.dscr WHEN AVAIL rejct-cd
+                DISPLAY tt-date-reasons.reason-code FORMAT "x(30)" COLUMN-LABEL "Reason"
+                     rejct-cd.dscr WHEN AVAILABLE rejct-cd
                      tt-date-reasons.occurrences / (v-del[2] - v-ont[2]) * 100 WHEN v-del[2] - v-ont[2] GT 0
                         FORMAT ">>9.99%" COLUMN-LABEL "%"
                     WITH FRAME f-occurrences WIDTH 132 STREAM-IO.
@@ -1628,14 +1629,14 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS cha NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label AS cha.
   
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
@@ -1694,12 +1695,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION appendXLLine C-Win 
 FUNCTION appendXLLine RETURNS CHARACTER
- ( ipc-append AS CHAR ) :
+ ( ipc-append AS CHARACTER ) :
 /*------------------------------------------------------------------------------
   Purpose:  Adds a value to a csv line
     Notes:  Protects agains commans and quotes.
 ------------------------------------------------------------------------------*/
-    DEF VAR lc-line AS CHAR NO-UNDO.
+    DEFINE VARIABLE lc-line AS CHARACTER NO-UNDO.
 
     ipc-append = REPLACE(ipc-append, '"', '').
     ipc-append = REPLACE(ipc-append, ',', ' ').

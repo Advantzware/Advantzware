@@ -607,6 +607,7 @@ ASSIGN
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Estimate Analysis */
 DO:  
   /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
+  op-error = yes.
   APPLY "END-ERROR":U TO SELF.
 END.
 
@@ -694,57 +695,63 @@ DO:
   DEF VAR char-val2 AS CHAR NO-UNDO.        
   DEF VAR date-val AS CHAR NO-UNDO.
   DEF VAR date-val2 AS CHAR NO-UNDO.
+  DEFINE BUFFER bff-eb FOR eb .
+  DEFINE BUFFER bff-ef FOR ef .
+  DEFINE BUFFER bf-est FOR est  .
 
+  FIND FIRST bf-est NO-LOCK
+     WHERE RECID(bf-est) EQ recid(xest) NO-ERROR.
+ 
   lv-estqty-recid = IF AVAIL est-qty THEN RECID(est-qty) ELSE ?.
-  RUN est/estqtyd.w (lv-estqty-recid, RECID(eb), STRING(IF xest.est-type LE 4 THEN eb.bl-qty ELSE est-qty.eqty), OUTPUT char-val, OUTPUT char-val2, OUTPUT date-val, OUTPUT date-val2).
+  RUN est/estqtyd.w (lv-estqty-recid, RECID(eb), STRING(IF bf-est.est-type LE 4 THEN eb.bl-qty ELSE est-qty.eqty), OUTPUT char-val, OUTPUT char-val2, OUTPUT date-val, OUTPUT date-val2).
 
   IF char-val NE "?" OR char-val2 NE "?" THEN DO:
-     FIND CURRENT xest NO-ERROR.
+     FIND CURRENT bf-est NO-ERROR.
      ASSIGN
-      xest.est-qty[1] = INT(ENTRY(1,char-val))
-      xest.est-qty[2] = INT(ENTRY(2,char-val))
-      xest.est-qty[3] = INT(ENTRY(3,char-val))
-      xest.est-qty[4] = INT(ENTRY(4,char-val)).
-     FIND CURRENT xest NO-LOCK NO-ERROR.
+      bf-est.est-qty[1] = INT(ENTRY(1,char-val))
+      bf-est.est-qty[2] = INT(ENTRY(2,char-val))
+      bf-est.est-qty[3] = INT(ENTRY(3,char-val))
+      bf-est.est-qty[4] = INT(ENTRY(4,char-val)).
+     FIND CURRENT bf-est NO-LOCK NO-ERROR.
     
      lv-hld-eqty = est-qty.eqty.
      FIND CURRENT est-qty NO-ERROR.
      est-qty.eqty = INT(ENTRY(1,char-val)).
      FIND CURRENT est-qty NO-LOCK NO-ERROR.
     
-     RELEASE eb.
-     FOR EACH eb
-         WHERE eb.company EQ xest.company
-           AND eb.est-no  EQ xest.est-no
-           AND eb.eqty    EQ lv-hld-eqty
-           AND eb.form-no NE 0:
-       IF xest.est-type LE 4 THEN eb.bl-qty = INT(ENTRY(1,char-val)).
-       eb.eqty = INT(ENTRY(1,char-val)).
+     /*RELEASE eb.*/
+     FOR EACH bff-eb
+         WHERE bff-eb.company EQ bf-est.company
+           AND bff-eb.est-no  EQ bf-est.est-no
+           AND bff-eb.eqty    EQ lv-hld-eqty
+           AND bff-eb.form-no NE 0:
+       IF bf-est.est-type LE 4 THEN bff-eb.bl-qty = INT(ENTRY(1,char-val)).
+       bff-eb.eqty = INT(ENTRY(1,char-val)).
      END.
-     FOR EACH ef
-         WHERE ef.company EQ xest.company
-           AND ef.est-no  EQ xest.est-no
-           AND ef.eqty    EQ lv-hld-eqty:
-       ef.eqty = INT(ENTRY(1,char-val)).
+     FOR EACH bff-ef
+         WHERE bff-ef.company EQ bf-est.company
+           AND bff-ef.est-no  EQ bf-est.est-no
+           AND bff-ef.eqty    EQ lv-hld-eqty:
+       bff-ef.eqty = INT(ENTRY(1,char-val)).
      END.
     
      FOR EACH est-op
-         WHERE est-op.company EQ xest.company
-           AND est-op.est-no  EQ xest.est-no
+         WHERE est-op.company EQ bf-est.company
+           AND est-op.est-no  EQ bf-est.est-no
            AND est-op.qty     EQ lv-hld-eqty:
        est-op.qty = est-qty.eqty.
      END.
     
      FOR EACH est-op
-         WHERE est-op.company EQ xest.company
-           AND est-op.est-no  EQ xest.est-no
+         WHERE est-op.company EQ bf-est.company
+           AND est-op.est-no  EQ bf-est.est-no
            AND est-op.qty     EQ est-qty.eqty
            AND est-op.line    GE 500:
        DELETE est-op.
      END.
     
      APPLY "choose" TO btn-clear.
-  END.
+  END. 
 
   IF char-val NE "?" THEN DO:
      IF INT(ENTRY(1,char-val)) NE 0 THEN DO:

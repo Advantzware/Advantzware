@@ -116,13 +116,13 @@ DEFINE BUTTON Btn_Clear_Find
 
 DEFINE BUTTON Btn_Run 
      IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Run Program".
 
 DEFINE BUTTON Btn_Search 
      IMAGE-UP FILE "Graphics/32x32/document_view.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Search" 
      SIZE 7.8 BY 1.81 TOOLTIP "Search".
 

@@ -518,6 +518,7 @@ DO:
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -691,8 +692,8 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-fonts.w ({&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
@@ -707,8 +708,8 @@ ON HELP OF begin_cust IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -723,8 +724,8 @@ ON HELP OF end_cust IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -930,6 +931,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT NO,
                           OUTPUT glCustListActive).
   {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""AL3""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1352,11 +1354,18 @@ DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEF VAR fcust AS CHAR NO-UNDO .
+DEF VAR tcust AS CHAR NO-UNDO .
 {custom/statusMsg.i " 'Processing...  '"}
 
 {sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
+ASSIGN
+    lSelected  = tb_cust-list
+    fcust      = begin_cust
+    tcust      = END_cust  .
 
 FORM tt-report.actnum      COLUMN-LABEL "GL Acct#"
      SPACE(5)
@@ -1421,6 +1430,13 @@ IF tb_excel THEN DO:
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
   END. /* if tb_excel */
 
+  IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+  END.
+
 IF td-show-parm THEN RUN show-param.
 
 FOR EACH tt-report:
@@ -1432,10 +1448,15 @@ FOR EACH ttCustList
     WHERE ttCustList.log-fld
     NO-LOCK,
    EACH ar-ledger
+FOR EACH ar-ledger
     WHERE ar-ledger.company EQ cocode
       /*AND ar-ledger.cust-no GE begin_cust
       AND ar-ledger.cust-no LE end_cust*/
       AND ar-ledger.cust-no EQ ttCustList.cust-no
+      AND ar-ledger.cust-no  GE fcust
+      AND ar-ledger.cust-no  LE tcust
+      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-ledger.cust-no
+      AND ttCustList.log-fld no-lock) else true)
       AND ar-ledger.cust-no NE ""
       AND ar-ledger.tr-date GE begin_date
       AND ar-ledger.tr-date LE end_date

@@ -83,7 +83,7 @@ IF trim(v-job-no) = "-00" THEN v-job-no = "".
                      then "C" else "P"*/
 
 lv-cases = lv-cases-tot.
-lv-class = IF itemfg.frt-class = "" THEN "55" ELSE itemfg.frt-class.
+lv-class = IF itemfg.frt-class = "" THEN "70" ELSE itemfg.frt-class.
 DISPLAY  {1}
       oe-ordl.i-no WHEN AVAIL oe-ordl
       /*oe-boll.i-no */ tt-boll.po-no FORM "x(15)"
@@ -93,7 +93,7 @@ DISPLAY  {1}
       /*oe-boll.qty-case*/ lv-qcase-tot FORM ">>>>>Z"           
     SPACE(1)
      lv-qty-tot FORM "->>>>>z"  WHEN lv-partial-tot = 0 SPACE(3)
-     lv-class FORM "x(2)" SPACE(5)
+     lv-class FORM "x(3)" SPACE(5)
      /*tt-boll.p-c /*v-part-comp WHEN lv-partial-tot = 0*/*/
      tt-boll.weight
      with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.

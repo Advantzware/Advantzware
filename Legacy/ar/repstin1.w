@@ -54,6 +54,7 @@ DEF VAR fg-uom-list AS cha NO-UNDO.
 RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
 
 DEF VAR op-enable-price AS LOG NO-UNDO.
+DEFINE VARIABLE l-enable-price AS LOG NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -213,6 +214,7 @@ DEFINE QUERY br_table FOR
       ar-inv, 
       ar-invl SCROLLING.
 &ANALYZE-RESUME
+    
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
@@ -502,9 +504,24 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.unit-pr br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF ar-invl.unit-pr IN BROWSE br_table /* Unit Price */
 DO:
-   IF op-enable-price = NO THEN
+   IF /*op-enable-price*/ l-enable-price = NO THEN
    DO:
       APPLY "TAB" TO ar-invl.unit-pr IN BROWSE {&browse-name}.
+      return no-apply.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME ar-invl.po-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.po-no br_table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF ar-invl.po-no IN BROWSE br_table /* Unit Price */
+DO:
+   IF l-enable-price = NO THEN
+   DO:
+      APPLY "TAB" TO ar-invl.po-no IN BROWSE {&browse-name}.
       return no-apply.
    END.
 END.
@@ -1527,6 +1544,7 @@ PROCEDURE valid-inv-no :
    DEF VAR lv-msg AS cha NO-UNDO.
 
    op-enable-price = YES.
+   l-enable-price  = YES .
 
    FIND FIRST b-ar-inv
         WHERE b-ar-inv.company EQ cocode
@@ -1558,7 +1576,8 @@ PROCEDURE valid-inv-no :
             AND period.pend    GE ar-ledger.tr-date
           NO-LOCK NO-ERROR.
       IF NOT AVAIL period THEN
-        lv-msg = "No period exists for " + STRING(ar-ledger.tr-date).
+       /* lv-msg = "No period exists for " + STRING(ar-ledger.tr-date).*/
+          l-enable-price = NO .
     END.
 
     IF lv-msg EQ "" AND op-enable-price EQ YES THEN
@@ -1566,9 +1585,10 @@ PROCEDURE valid-inv-no :
          NOT CAN-FIND(FIRST gltrans
                       WHERE gltrans.company EQ ar-ledger.company
                         AND gltrans.trnum   EQ ar-ledger.tr-num) THEN
-       lv-msg = "Sorry, you must reopen year/period "                     +
+                    l-enable-price = NO . 
+       /*lv-msg = "Sorry, you must reopen year/period "                     +
                 STRING(period.yr,"9999") + "/" + STRING(period.pnum,"99") +
-                " to change invoice".
+                " to change invoice".*/
 
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.

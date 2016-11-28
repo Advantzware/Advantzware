@@ -19,8 +19,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -36,36 +38,36 @@ assign
  cocode = gcompany
  locode = gloc.
 
-{sys/inc/custlistform.i ""HR3"" }
+/*{sys/inc/custlistform.i ""HR3"" }*/
 
 {sys/ref/CustList.i NEW}
 
-def TEMP-TABLE w-data NO-UNDO
-  field sorter    as   char
+DEFINE TEMP-TABLE w-data NO-UNDO
+  FIELD sorter    AS   CHARACTER
   field i-no      like ar-invl.i-no column-label "FG Item"
   field inv-no    like ar-invl.inv-no column-label "Invoice!Number"
   field rec-id    as   recid.
 
 {salrep/ttreport.i NEW}
 
-DEF VAR is-xprint-form AS LOG NO-UNDO.
-DEF VAR ls-fax-file AS CHAR NO-UNDO.
-DEF VAR ll-secure AS LOG NO-UNDO.
+DEFINE VARIABLE is-xprint-form AS LOG NO-UNDO.
+DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ll-secure AS LOG NO-UNDO.
 
-DEF STREAM excel.
-DEF BUFFER b-itemfg FOR itemfg.
+DEFINE STREAM excel.
+DEFINE BUFFER b-itemfg FOR itemfg.
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF VAR cFieldType AS cha NO-UNDO.
-DEF VAR v-costM AS DEC FORMAT ">>>,>>9.99<<" NO-UNDO.
-DEF VAR v-sellValue LIKE itemfg.sell-price NO-UNDO.
-DEF VAR v-counted-date AS DATE NO-UNDO.
-DEF VAR v-cust-no LIKE itemfg.cust-no NO-UNDO.
-DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE ldummy AS LOG NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEFINE VARIABLE cFieldType AS cha NO-UNDO.
+DEFINE VARIABLE v-costM AS DECIMAL FORMAT ">>>,>>9.99<<" NO-UNDO.
+DEFINE VARIABLE v-sellValue LIKE itemfg.sell-price NO-UNDO.
+DEFINE VARIABLE v-counted-date AS DATE NO-UNDO.
+DEFINE VARIABLE v-cust-no LIKE itemfg.cust-no NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 
@@ -99,15 +101,17 @@ ASSIGN cTextListToDefault  = "Rep,Customer,Customer Name,Invoice#,FG Item,Name,C
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_cust-list btnCustList ~
 begin_cust-no end_cust-no begin_fg-cat end_fg-cat begin_i-no end_i-no ~
-begin_slsmn end_slsmn begin_inv-date end_inv-date rd_cost rs_sort tb_prep ~
-tb_freight tb_fin-chg tb_sum Btn_Def sl_avail sl_selected Btn_Add ~
-Btn_Remove btn_Up btn_down lv-ornt lines-per-page rd-dest lv-font-no ~
-td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+begin_slsmn end_slsmn begin_inv-date end_inv-date begin_sstate end_sstate ~
+rd_cost rs_sort tb_prep tb_freight tb_fin-chg tb_sum Btn_Def sl_avail ~
+sl_selected Btn_Add Btn_Remove btn_Up btn_down lv-ornt lines-per-page ~
+rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
 begin_fg-cat end_fg-cat begin_i-no end_i-no begin_slsmn end_slsmn ~
-begin_inv-date end_inv-date lbl_cost rd_cost rs_sort tb_prep tb_freight ~
-tb_fin-chg tb_sum sl_avail sl_selected lv-ornt lines-per-page rd-dest ~
-lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+begin_inv-date end_inv-date begin_sstate end_sstate lbl_cost rd_cost ~
+rs_sort tb_prep tb_freight tb_fin-chg tb_sum sl_avail sl_selected lv-ornt ~
+lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -129,10 +133,10 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -189,6 +193,11 @@ DEFINE VARIABLE begin_slsmn AS CHARACTER FORMAT "XXX"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE begin_sstate AS CHARACTER FORMAT "XX" 
+     LABEL "Beginning Shipto State" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
      VIEW-AS FILL-IN 
@@ -211,6 +220,11 @@ DEFINE VARIABLE end_inv-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
 
 DEFINE VARIABLE end_slsmn AS CHARACTER FORMAT "XXX" INITIAL "zzz" 
      LABEL "Ending Salesrep#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
+DEFINE VARIABLE end_sstate AS CHARACTER FORMAT "XX" INITIAL "zz" 
+     LABEL "Ending Shipto State" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -274,11 +288,11 @@ DEFINE VARIABLE rs_sort AS CHARACTER INITIAL "Date"
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 95 BY 8.76.
+     SIZE 95 BY 8.52.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 95 BY 12.62.
+     SIZE 95 BY 13.57.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -355,52 +369,56 @@ DEFINE FRAME FRAME-A
      begin_inv-date AT ROW 6.1 COL 29 COLON-ALIGNED
      end_inv-date AT ROW 6.1 COL 72 COLON-ALIGNED HELP
           "Enter Ending Due Date"
-     lbl_cost AT ROW 7.43 COL 21 COLON-ALIGNED NO-LABEL
-     rd_cost AT ROW 7.43 COL 38 NO-LABEL
-     rs_sort AT ROW 8.38 COL 38 NO-LABEL WIDGET-ID 2
-     tb_prep AT ROW 9.57 COL 38
-     tb_freight AT ROW 10.52 COL 38
-     tb_fin-chg AT ROW 11.48 COL 38
-     tb_sum AT ROW 12.38 COL 38 WIDGET-ID 58
-     Btn_Def AT ROW 14.24 COL 41.6 HELP
+     begin_sstate AT ROW 7.05 COL 29 COLON-ALIGNED HELP
+          "Enter Beginning Shipto State" WIDGET-ID 60
+     end_sstate AT ROW 7.05 COL 72 COLON-ALIGNED HELP
+          "Enter Ending Shipto State" WIDGET-ID 62
+     lbl_cost AT ROW 8.29 COL 21 COLON-ALIGNED NO-LABELS
+     rd_cost AT ROW 8.29 COL 38 NO-LABELS
+     rs_sort AT ROW 9.24 COL 38 NO-LABELS WIDGET-ID 2
+     tb_prep AT ROW 10.43 COL 38
+     tb_freight AT ROW 11.38 COL 38
+     tb_fin-chg AT ROW 12.33 COL 38
+     tb_sum AT ROW 13.24 COL 38 WIDGET-ID 58
+     Btn_Def AT ROW 15.14 COL 41.6 HELP
           "Default Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_avail AT ROW 14.38 COL 3.2 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 14.38 COL 61.4 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 15.19 COL 41.6 HELP
+     sl_avail AT ROW 15.29 COL 3.2 NO-LABELS WIDGET-ID 26
+     sl_selected AT ROW 15.29 COL 61.4 NO-LABELS WIDGET-ID 28
+     Btn_Add AT ROW 16.1 COL 41.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 16.14 COL 41.6 HELP
+     Btn_Remove AT ROW 17.05 COL 41.6 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 17.1 COL 41.6 WIDGET-ID 40
-     btn_down AT ROW 18.05 COL 41.6 WIDGET-ID 42
-     lv-ornt AT ROW 19.57 COL 31 NO-LABEL
-     lines-per-page AT ROW 19.57 COL 84 COLON-ALIGNED
-     rd-dest AT ROW 20.14 COL 5.6 NO-LABEL
-     lv-font-no AT ROW 21.48 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 22.67 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 24.33 COL 30
-     tb_excel AT ROW 25.52 COL 63 RIGHT-ALIGNED
-     tb_runExcel AT ROW 25.52 COL 87 RIGHT-ALIGNED
-     fi_file AT ROW 26.48 COL 41 COLON-ALIGNED HELP
+     btn_Up AT ROW 18 COL 41.6 WIDGET-ID 40
+     btn_down AT ROW 18.95 COL 41.6 WIDGET-ID 42
+     lv-ornt AT ROW 20.48 COL 31 NO-LABELS
+     lines-per-page AT ROW 20.48 COL 84 COLON-ALIGNED
+     rd-dest AT ROW 21.05 COL 5.6 NO-LABELS
+     lv-font-no AT ROW 22.38 COL 34 COLON-ALIGNED
+     lv-font-name AT ROW 23.57 COL 29 COLON-ALIGNED NO-LABELS
+     td-show-parm AT ROW 25.24 COL 30
+     tb_excel AT ROW 26.43 COL 63 RIGHT-ALIGNED
+     tb_runExcel AT ROW 26.43 COL 87 RIGHT-ALIGNED
+     fi_file AT ROW 27.38 COL 41 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 28.38 COL 23
-     btn-cancel AT ROW 28.38 COL 56
+     btn-ok AT ROW 28.81 COL 23
+     btn-cancel AT ROW 28.81 COL 56
      "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 8.48 COL 28.2 WIDGET-ID 6
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 19.29 COL 3.4
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 13.71 COL 61.4 WIDGET-ID 44
-     "Available Columns" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 13.71 COL 3.8 WIDGET-ID 38
+          SIZE 8 BY .62 AT ROW 9.33 COL 28.2 WIDGET-ID 6
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     RECT-6 AT ROW 19.14 COL 1
+     "Available Columns" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 14.62 COL 3.8 WIDGET-ID 38
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 14.62 COL 61.4 WIDGET-ID 44
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 20.19 COL 3.4
+     RECT-6 AT ROW 20.05 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 96.2 BY 29.1.
+         SIZE 96.2 BY 29.52.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -420,11 +438,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Sales Analysis - Profit By Invoice"
-         HEIGHT             = 29.1
+         HEIGHT             = 29.52
          WIDTH              = 96.2
-         MAX-HEIGHT         = 29.1
+         MAX-HEIGHT         = 29.52
          MAX-WIDTH          = 96.2
-         VIRTUAL-HEIGHT     = 29.1
+         VIRTUAL-HEIGHT     = 29.52
          VIRTUAL-WIDTH      = 96.2
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -471,6 +489,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_sstate:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -488,6 +510,10 @@ ASSIGN
 
 ASSIGN 
        end_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_sstate:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -582,6 +608,21 @@ END.
 
 &Scoped-define SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
+ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
+DO:
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
    assign {&self-name}.
@@ -635,6 +676,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_sstate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_sstate C-Win
+ON LEAVE OF begin_sstate IN FRAME FRAME-A /* Beginning Shipto State */
+DO:
+     ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
@@ -656,7 +708,7 @@ DO:
   RUN GetSelectionList.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAILABLE ttCustList AND tb_cust-list THEN DO:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -723,7 +775,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -749,7 +801,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   RUN DisplaySelectionDefault.  /* task 04141407 */ 
   RUN DisplaySelectionList2 .
@@ -799,6 +851,20 @@ END.
 
 
 &Scoped-define SELF-NAME end_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
+ON HELP OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
+DO:
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
@@ -853,6 +919,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_sstate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_sstate C-Win
+ON LEAVE OF end_sstate IN FRAME FRAME-A /* Ending Shipto State */
+DO:
+     ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
@@ -879,10 +956,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-fonts.w ({&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
@@ -890,35 +967,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME begin_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
-ON HELP OF begin_cust-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
-ON HELP OF end_cust-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
@@ -1146,6 +1194,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   {methods/nowait.i}
 
+  RUN sys/inc/CustListForm.p ( "HR3",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
@@ -1156,7 +1208,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HR3',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""HR3""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1278,8 +1330,8 @@ PROCEDURE DisplaySelectionDefault :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
@@ -1301,8 +1353,8 @@ PROCEDURE DisplaySelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+ DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:   
      RETURN.
@@ -1334,9 +1386,9 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
@@ -1384,16 +1436,16 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust-no end_cust-no begin_fg-cat end_fg-cat 
           begin_i-no end_i-no begin_slsmn end_slsmn begin_inv-date end_inv-date 
-          lbl_cost rd_cost rs_sort tb_prep tb_freight tb_fin-chg tb_sum sl_avail 
-          sl_selected lv-ornt lines-per-page rd-dest lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          begin_sstate end_sstate lbl_cost rd_cost rs_sort tb_prep tb_freight 
+          tb_fin-chg tb_sum sl_avail sl_selected lv-ornt lines-per-page rd-dest 
+          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tb_cust-list btnCustList begin_cust-no end_cust-no 
          begin_fg-cat end_fg-cat begin_i-no end_i-no begin_slsmn end_slsmn 
-         begin_inv-date end_inv-date rd_cost rs_sort tb_prep tb_freight 
-         tb_fin-chg tb_sum Btn_Def sl_avail sl_selected Btn_Add Btn_Remove 
-         btn_Up btn_down lv-ornt lines-per-page rd-dest lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         begin_inv-date end_inv-date begin_sstate end_sstate rd_cost rs_sort 
+         tb_prep tb_freight tb_fin-chg tb_sum Btn_Def sl_avail sl_selected 
+         Btn_Add Btn_Remove btn_Up btn_down lv-ornt lines-per-page rd-dest 
+         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1409,7 +1461,7 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1530,69 +1582,72 @@ PROCEDURE run-report :
 
 /*{sys/form/r-topw.f}*/
 
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
-DEF BUFFER bitemfg FOR itemfg.
-DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cDisplay AS cha NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
+DEFINE VARIABLE cVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE cFieldName AS cha NO-UNDO.
+DEFINE BUFFER bitemfg FOR itemfg.
+DEFINE VARIABLE str-tit4 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE str-tit5 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.
 
 {sys/form/r-top5DL.f} 
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
- DEF VAR v-ord-no AS INT NO-UNDO.
-def var fcust as   ch init " " NO-UNDO.
-def var tcust like fcust init "zzzzzzzz" NO-UNDO.
-def var fitem like itemfg.i-no init " " NO-UNDO.
-def var titem like fitem init "zzzzzzzzzzzzzzzzzzz" NO-UNDO.
-def var fsman as char format "x(3)" init "" NO-UNDO.
-def var tsman like fsman init "zzz" NO-UNDO.
-def var fpcat like itemfg.procat init " " NO-UNDO.
-def var tpcat like fpcat init "zzzzzzzzzzzzzzzzzzz" NO-UNDO.
-def var fdate as   date format "99/99/9999" NO-UNDO.
-def var tdate like fdate NO-UNDO.
-def var v-sort   as CHAR NO-UNDO.
-def var v-inc-fc as log init NO NO-UNDO.
+ DEFINE VARIABLE v-ord-no AS INTEGER NO-UNDO.
+DEFINE VARIABLE fcust AS   ch INIT " " NO-UNDO.
+DEFINE VARIABLE tcust LIKE fcust INIT "zzzzzzzz" NO-UNDO.
+DEFINE VARIABLE fitem LIKE itemfg.i-no INIT " " NO-UNDO.
+DEFINE VARIABLE titem LIKE fitem INIT "zzzzzzzzzzzzzzzzzzz" NO-UNDO.
+DEFINE VARIABLE fsman AS CHARACTER FORMAT "x(3)" INIT "" NO-UNDO.
+DEFINE VARIABLE tsman LIKE fsman INIT "zzz" NO-UNDO.
+DEFINE VARIABLE fpcat LIKE itemfg.procat INIT " " NO-UNDO.
+DEFINE VARIABLE tpcat LIKE fpcat INIT "zzzzzzzzzzzzzzzzzzz" NO-UNDO.
+DEFINE VARIABLE fdate AS   DATE FORMAT "99/99/9999" NO-UNDO.
+DEFINE VARIABLE tdate LIKE fdate NO-UNDO.
+DEFINE VARIABLE v-sort   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-inc-fc AS LOG INIT NO NO-UNDO.
 
-def var v-date      like ar-inv.inv-date NO-UNDO.
-def var v-custpo      like ar-invl.po-no NO-UNDO.
-def var v-uom       like ar-invl.pr-uom NO-UNDO.
-def var v-brdc      as   DEC NO-UNDO.
-def var v-marg      as   DEC NO-UNDO.
-def var v-$msf      as   DEC NO-UNDO.
+DEFINE VARIABLE v-date      LIKE ar-inv.inv-date NO-UNDO.
+DEFINE VARIABLE v-custpo      LIKE ar-invl.po-no NO-UNDO.
+DEFINE VARIABLE v-uom       LIKE ar-invl.pr-uom NO-UNDO.
+DEFINE VARIABLE v-brdc      AS   DECIMAL NO-UNDO.
+DEFINE VARIABLE v-marg      AS   DECIMAL NO-UNDO.
+DEFINE VARIABLE v-$msf      AS   DECIMAL NO-UNDO.
 
-def var v-qty   as   int extent 5 NO-UNDO.
-def var v-msf   as   dec extent 5 NO-UNDO.
-def var v-cst   as   dec extent 5 NO-UNDO.
-def var v-amt   as   dec extent 5 NO-UNDO.
-def var v-pct   as   DEC NO-UNDO.
+DEFINE VARIABLE v-qty   AS   INTEGER EXTENT 5 NO-UNDO.
+DEFINE VARIABLE v-msf   AS   DECIMAL EXTENT 5 NO-UNDO.
+DEFINE VARIABLE v-cst   AS   DECIMAL EXTENT 5 NO-UNDO.
+DEFINE VARIABLE v-amt   AS   DECIMAL EXTENT 5 NO-UNDO.
+DEFINE VARIABLE v-pct   AS   DECIMAL NO-UNDO.
 
-def var v-sman-no   as   char format "x(3)" no-undo.
-def var v-slsmn-hdr as   CHAR NO-UNDO.
-def var v-slsmn-hdr2 as   CHAR NO-UNDO.
-def var v-cust-no   like cust.cust-no NO-UNDO.
-def var v-job-no    like job.job-no NO-UNDO.
-def var v-job-no2   like job.job-no2 NO-UNDO.
-def var v-po-no-po  like ar-invl.po-no-po NO-UNDO.
-def var v-fac       as   INT NO-UNDO.
-def var v-cost      as   DEC NO-UNDO.
-def var v-job-qty   as   INT NO-UNDO.
-def var v-exc       as   LOG NO-UNDO.
-def var v-cuom      like po-ordl.cons-uom NO-UNDO.
-def var v-cost1     as   char format "!" init "O" NO-UNDO.
-def var v-cost2     as   log  init YES NO-UNDO.
-DEF VAR lv-r-no     LIKE oe-retl.r-no NO-UNDO.
-DEF VAR lv-type     AS   CHAR NO-UNDO.
+DEFINE VARIABLE v-sman-no   AS   CHARACTER FORMAT "x(3)" NO-UNDO.
+DEFINE VARIABLE v-slsmn-hdr AS   CHARACTER NO-UNDO.
+DEFINE VARIABLE v-slsmn-hdr2 AS   CHARACTER NO-UNDO.
+DEFINE VARIABLE v-cust-no   LIKE cust.cust-no NO-UNDO.
+DEFINE VARIABLE v-job-no    LIKE job.job-no NO-UNDO.
+DEFINE VARIABLE v-job-no2   LIKE job.job-no2 NO-UNDO.
+DEFINE VARIABLE v-po-no-po  LIKE ar-invl.po-no-po NO-UNDO.
+DEFINE VARIABLE v-fac       AS   INTEGER NO-UNDO.
+DEFINE VARIABLE v-cost      AS   DECIMAL NO-UNDO.
+DEFINE VARIABLE v-job-qty   AS   INTEGER NO-UNDO.
+DEFINE VARIABLE v-exc       AS   LOG NO-UNDO.
+DEFINE VARIABLE v-cuom      LIKE po-ordl.cons-uom NO-UNDO.
+DEFINE VARIABLE v-cost1     AS   CHARACTER FORMAT "!" INIT "O" NO-UNDO.
+DEFINE VARIABLE v-cost2     AS   LOG  INIT YES NO-UNDO.
+DEFINE VARIABLE lv-r-no     LIKE oe-retl.r-no NO-UNDO.
+DEFINE VARIABLE lv-type     AS   CHARACTER NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-DEF VAR v-total-label AS CHAR NO-UNDO.
-DEF VAR item-name AS CHAR NO-UNDO .
-DEF VAR v-smr AS LOG INIT NO NO-UNDO.
+DEFINE VARIABLE v-total-label AS CHARACTER NO-UNDO.
+DEFINE VARIABLE item-name AS CHARACTER NO-UNDO .
+DEFINE VARIABLE v-smr AS LOG INIT NO NO-UNDO.
+DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE fsstate AS CHARACTER INIT "".
+DEFINE VARIABLE tsstate LIKE fsstate INIT "zz".
 
 form cust.name            column-label "Customer"
      w-data.inv-no
@@ -1638,6 +1693,9 @@ assign
  v-cost1        = SUBSTR(rd_cost,1,1)
  v-inc-fc       = tb_fin-chg
  v-smr          = tb_sum 
+ lSelected      = tb_cust-list
+ fsstate        = begin_sstate 
+ tsstate        = end_sstate
 /* security check for cost and margin */ 
  v-cost2 = index("BOI",v-cost1) gt 0.
 /* {sys/inc/password.i "v-cost2" "Print Cost & Profit"}*/
@@ -1697,6 +1755,12 @@ EMPTY TEMP-TABLE tt-report.
 if td-show-parm then run show-param.
 
 VIEW FRAME r-top.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAILABLE ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAILABLE ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
 
 {salrep/r-prfinN.i}
 
@@ -1749,14 +1813,14 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha NO-UNDO.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS cha NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label AS cha NO-UNDO.
   
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE

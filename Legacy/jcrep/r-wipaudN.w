@@ -24,7 +24,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -41,7 +41,7 @@ assign
  cocode = gcompany
  locode = gloc.
 
- def TEMP-TABLE work-aud NO-UNDO
+ DEFINE TEMP-TABLE work-aud NO-UNDO
    field tran-date as date
    field procat like item.procat
    field job-no like job-mat.job-no
@@ -51,32 +51,33 @@ assign
    field i-no like mat-act.i-no
    field m-code like mach.m-code
    field dscr like item.i-dscr
-   field qty as dec format ">>>>>>9.99-"
+   FIELD qty AS DECIMAL FORMAT ">>>>>>9.99-"
    field waste like mch-act.waste
    field code like mch-act.code
    field hours like mch-act.hours
-   field complete like mch-act.complete.
+   FIELD complete LIKE mch-act.complete
+   FIELD tran-time LIKE mch-act.op-time.
 
-DEF STREAM excel.
+DEFINE STREAM excel.
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR cFieldType AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF BUFFER b-itemfg FOR itemfg .
-DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE ldummy AS LOG NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
+DEFINE VARIABLE cFieldType AS cha NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEFINE BUFFER b-itemfg FOR itemfg .
+DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
   
 
 ASSIGN cTextListToSelect = "Trans Type,Trans Date,Job No.,S,B,Item Number,"
                                             + "Description,Qty Posted,Wst Qty,Mch Hrs,"
-                                            + "Mach Code,Job Code,C"
+                                            + "Mach Code,Job Code,C,Trans Time"
        cFieldListToSelect = "trns-typ,trns-dt,job-no,frm,blnk,i-no," +
                                         "dscr,qty-pstd,wst-qty,mch-hrs," +
-                                        "mch-cd,job-cd,vc"
-       cFieldLength = "10,10,10,1,1,15," + "30,11,7,7," + "11,11,1" 
-       cFieldType = "c,c,c,c,c,c," + "c,i,i,i," + "c,c,c"
+                                        "mch-cd,job-cd,vc,trns-tym"
+       cFieldLength = "10,10,10,1,1,15," + "30,11,7,7," + "11,11,3,10" 
+       cFieldType = "c,c,c,c,c,c," + "c,i,i,i," + "c,c,c,c"
     .
 
 {sys/inc/ttRptSel.i}
@@ -125,7 +126,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -266,8 +267,8 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     lbl_jstat AT ROW 2.43 COL 28 COLON-ALIGNED NO-LABEL
-     rd_jstat AT ROW 2.43 COL 43 NO-LABEL
+     lbl_jstat AT ROW 2.43 COL 28 COLON-ALIGNED NO-LABELS
+     rd_jstat AT ROW 2.43 COL 43 NO-LABELS
      begin_job-no AT ROW 3.81 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      begin_job-no2 AT ROW 3.81 COL 37 COLON-ALIGNED HELP
@@ -277,21 +278,21 @@ DEFINE FRAME FRAME-A
      end_job-no2 AT ROW 3.81 COL 79 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      tb_wip AT ROW 5.48 COL 62 RIGHT-ALIGNED
-     sl_avail AT ROW 7.67 COL 3.6 NO-LABEL WIDGET-ID 26
+     sl_avail AT ROW 7.67 COL 3.6 NO-LABELS WIDGET-ID 26
      Btn_Def AT ROW 7.67 COL 39.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 7.67 COL 59 NO-LABEL WIDGET-ID 28
+     sl_selected AT ROW 7.67 COL 59 NO-LABELS WIDGET-ID 28
      Btn_Add AT ROW 8.67 COL 39.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
      Btn_Remove AT ROW 9.67 COL 39.6 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
      btn_Up AT ROW 10.71 COL 39.6 WIDGET-ID 40
      btn_down AT ROW 11.71 COL 39.6 WIDGET-ID 42
-     rd-dest AT ROW 14.52 COL 5 NO-LABEL
-     lv-ornt AT ROW 14.76 COL 32 NO-LABEL
+     rd-dest AT ROW 14.52 COL 5 NO-LABELS
+     lv-ornt AT ROW 14.76 COL 32 NO-LABELS
      lines-per-page AT ROW 14.76 COL 85 COLON-ALIGNED
      lv-font-no AT ROW 16.19 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 17.14 COL 29 COLON-ALIGNED NO-LABEL
+     lv-font-name AT ROW 17.14 COL 29 COLON-ALIGNED NO-LABELS
      td-show-parm AT ROW 18.33 COL 31
      tb_excel AT ROW 19.29 COL 51 RIGHT-ALIGNED
      tb_runExcel AT ROW 19.29 COL 72 RIGHT-ALIGNED
@@ -501,7 +502,7 @@ DO:
        when 3 then run output-to-file.
        WHEN 5 THEN
        DO:
-          DEF VAR lv-tmp AS CHAR INIT "-0" NO-UNDO.
+          DEFINE VARIABLE lv-tmp AS CHARACTER INIT "-0" NO-UNDO.
           
           {custom/asimailr.i &TYPE="Customer"
                              &begin_cust=lv-tmp
@@ -522,7 +523,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -548,7 +549,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
@@ -644,7 +645,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
@@ -892,8 +893,8 @@ PROCEDURE DisplaySelectionDefault :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
@@ -916,8 +917,8 @@ PROCEDURE DisplaySelectionList :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
      
@@ -957,9 +958,9 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
@@ -1037,13 +1038,13 @@ PROCEDURE excel-job-totals-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ip-text      AS CHAR NO-UNDO.
-   DEFINE INPUT PARAMETER ip-v-brd-job AS DEC NO-UNDO.
-   DEFINE INPUT PARAMETER ip-v-mch-job AS DEC NO-UNDO.
-   DEFINE INPUT PARAMETER ip-v-wst-job AS DEC NO-UNDO.
-   DEFINE INPUT PARAMETER ip-v-hrs-job AS DEC NO-UNDO.
-   DEFINE INPUT PARAMETER ip-v-fg-job  AS DEC NO-UNDO.
-   DEFINE INPUT PARAMETER ip-v-oth-job AS DEC NO-UNDO.
+   DEFINE INPUT PARAMETER ip-text      AS CHARACTER NO-UNDO.
+   DEFINE INPUT PARAMETER ip-v-brd-job AS DECIMAL NO-UNDO.
+   DEFINE INPUT PARAMETER ip-v-mch-job AS DECIMAL NO-UNDO.
+   DEFINE INPUT PARAMETER ip-v-wst-job AS DECIMAL NO-UNDO.
+   DEFINE INPUT PARAMETER ip-v-hrs-job AS DECIMAL NO-UNDO.
+   DEFINE INPUT PARAMETER ip-v-fg-job  AS DECIMAL NO-UNDO.
+   DEFINE INPUT PARAMETER ip-v-oth-job AS DECIMAL NO-UNDO.
    
    PUT STREAM excel UNFORMATTED
        SKIP(1).
@@ -1092,9 +1093,9 @@ PROCEDURE excel-spaces-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ip-spaces AS INT NO-UNDO.
+   DEFINE INPUT PARAMETER ip-spaces AS INTEGER NO-UNDO.
   
-   DEF VAR viLoop AS INT NO-UNDO.
+   DEFINE VARIABLE viLoop AS INTEGER NO-UNDO.
 
    DO viLoop = 1 TO ip-spaces:
       PUT STREAM excel UNFORMATTED
@@ -1112,7 +1113,7 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1234,90 +1235,46 @@ PROCEDURE run-report :
 
 /*{sys/form/r-topw.f}*/
 
-def var v-job-no like job.job-no extent 2 init ["","zzzzzz"] no-undo.
-def var v-job-no2 like job.job-no2 extent 2 init [00,99] no-undo.
-def var v-stat as char no-undo.
-def var v-only-opn as logical format "Y/N" no-undo.
-def var v-brd-job as int format ">>>>>>>>9-" no-undo.
-def var v-brd-tot as int format ">>>>>>>>9-" no-undo.
-def var v-oth-job as int format ">>>>>>>>9-" no-undo.
-def var v-oth-tot as int format ">>>>>>>>9-" no-undo.
-def var v-mch-job as int format ">>>>>>>>9-" no-undo.
-def var v-mch-tot as int format ">>>>>>>>9-" no-undo.
-def var v-fg-job as int format ">>>>>>>>9-" no-undo.
-def var v-fg-tot as int format ">>>>>>>>9-" no-undo.
-def var v-hrs-job as dec format ">>>>9.99-" no-undo.
-def var v-hrs-tot as dec format ">>>>9.99-" no-undo.
-def var v-wst-job as int format ">>>>>>9-" no-undo.
-def var v-wst-tot as int format ">>>>>>9-" no-undo.
+DEFINE VARIABLE v-job-no LIKE job.job-no EXTENT 2 INIT ["","zzzzzz"] NO-UNDO.
+DEFINE VARIABLE v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [00,99] NO-UNDO.
+DEFINE VARIABLE v-stat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-only-opn AS LOGICAL FORMAT "Y/N" NO-UNDO.
+DEFINE VARIABLE v-brd-job AS INTEGER FORMAT ">>>>>>>>9-" NO-UNDO.
+DEFINE VARIABLE v-brd-tot AS INTEGER FORMAT ">>>>>>>>9-" NO-UNDO.
+DEFINE VARIABLE v-oth-job AS INTEGER FORMAT ">>>>>>>>9-" NO-UNDO.
+DEFINE VARIABLE v-oth-tot AS INTEGER FORMAT ">>>>>>>>9-" NO-UNDO.
+DEFINE VARIABLE v-mch-job AS INTEGER FORMAT ">>>>>>>>9-" NO-UNDO.
+DEFINE VARIABLE v-mch-tot AS INTEGER FORMAT ">>>>>>>>9-" NO-UNDO.
+DEFINE VARIABLE v-fg-job AS INTEGER FORMAT ">>>>>>>>9-" NO-UNDO.
+DEFINE VARIABLE v-fg-tot AS INTEGER FORMAT ">>>>>>>>9-" NO-UNDO.
+DEFINE VARIABLE v-hrs-job AS DECIMAL FORMAT ">>>>9.99-" NO-UNDO.
+DEFINE VARIABLE v-hrs-tot AS DECIMAL FORMAT ">>>>9.99-" NO-UNDO.
+DEFINE VARIABLE v-wst-job AS INTEGER FORMAT ">>>>>>9-" NO-UNDO.
+DEFINE VARIABLE v-wst-tot AS INTEGER FORMAT ">>>>>>9-" NO-UNDO.
 
 
-def var hdr-tit as char no-undo.
-def var hdr-tit2 as char no-undo.
-def var hdr-tit3 as char no-undo.
-DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE hdr-tit AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdr-tit2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdr-tit3 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cDisplay AS cha NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
+DEFINE VARIABLE cVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE cFieldName AS cha NO-UNDO.
+DEFINE VARIABLE str-tit4 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE str-tit5 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.
 
-DEF VAR cCustomerName AS cha FORM "x(25)" NO-UNDO.
-DEF VAR cPrepDscr AS cha FORM "x(25)" NO-UNDO.
+DEFINE VARIABLE cCustomerName AS cha FORM "x(25)" NO-UNDO.
+DEFINE VARIABLE cPrepDscr AS cha FORM "x(25)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
-/*FORM HEADER
-     hdr-tit format "x(132)" skip
-     hdr-tit2 format "x(132)" skip
-     hdr-tit3 format "x(132)"
-
-    WITH FRAME r-top.
-
-form work-aud.procat
-     work-aud.tran-date
-     work-aud.job-no space(0) "-" space(0)
-     work-aud.job-no2 format "99"
-     work-aud.frm space(0) "/" space(0)
-     work-aud.blank-no
-     work-aud.i-no
-     work-aud.dscr
-     work-aud.qty
-     with frame fr-mat down no-attr-space no-box no-labels STREAM-IO width 132.
-
-form work-aud.procat
-     work-aud.tran-date
-     work-aud.job-no space(0) "-" space(0)
-     work-aud.job-no2 format "99"
-     work-aud.frm format ">9" space(0) "/" space(0)
-     work-aud.blank-no
-     "               "
-     work-aud.dscr
-     work-aud.qty
-     work-aud.waste format ">>>>>>9-"
-     work-aud.hours format ">>>>9.99-"
-     work-aud.m-code
-     work-aud.code
-     work-aud.complete
-     with frame fr-mch down no-attr-space no-box no-labels STREAM-IO width 132.
-
-form work-aud.procat
-     work-aud.tran-date
-     work-aud.job-no space(0) "-" space(0)
-     work-aud.job-no2 format "99"
-     work-aud.frm space(0) "/" space(0)
-     work-aud.blank-no
-     work-aud.i-no
-     work-aud.dscr
-     work-aud.qty
-     with frame fr-fg down no-attr-space no-box no-labels STREAM-IO width 132. */
 
 assign
  str-tit2 = c-win:title
@@ -1330,21 +1287,10 @@ assign
                   trim(end_job-no)   + string(int(end_job-no2),"99") 
   v-only-opn    = tb_wip
      
-    /*
- v-job-no[1]    = begin_job-no
- v-job-no[2]    = end_job-no
- v-job-no2[1]   = begin_rel
- v-job-no2[2]   = end_rel
-  */
-
-   /*    hdr-tit = "TRANS  TRANS      JOB                                      " +
-             "                     QUANTITY     WASTE      MACH MACH   JOB     "
-      hdr-tit2 = "TYPE    DATE      NUMBER  S/ B ITEM NUMBER     DESCRIPTION " +
-             "                       POSTED       QTY     HOURS CODE   CODE  C ".
-      hdr-tit3 = fill("-", 131) */ .
+   .
 
 
-DEF VAR cslist AS cha NO-UNDO.
+DEFINE VARIABLE cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
@@ -1431,7 +1377,10 @@ display "" with frame r-top.
                    work-aud.m-code = mch-act.m-code
                    work-aud.dscr = mach.m-dscr
                    work-aud.code = mch-act.code
-                   work-aud.complete = mch-act.complete.
+                   work-aud.complete = mch-act.complete
+                   work-aud.tran-time = mch-act.op-time.
+            
+
          end.
 
          for each mat-act
@@ -1455,7 +1404,8 @@ display "" with frame r-top.
                    work-aud.blank-no = mat-act.b-num
                    work-aud.i-no = mat-act.i-no
                    work-aud.dscr = item.i-dscr
-                   work-aud.qty = mat-act.qty.
+                   work-aud.qty = mat-act.qty
+                   work-aud.tran-time = mat-act.mat-time.
          end.
 
          for each fg-act
@@ -1479,7 +1429,8 @@ display "" with frame r-top.
                    work-aud.blank-no = fg-act.b-num
                    work-aud.i-no = fg-act.i-no
                    work-aud.dscr = itemfg.i-name
-                   work-aud.qty = fg-act.qty.
+                   work-aud.qty = fg-act.qty
+                   work-aud.tran-time = fg-act.fg-time.
          end.
 
          for each misc-act
@@ -1494,7 +1445,8 @@ display "" with frame r-top.
                    work-aud.frm = misc-act.frm
                    work-aud.blank-no = misc-act.blank-no
                    work-aud.tran-date = misc-act.misc-date
-                   work-aud.dscr = misc-act.dscr.
+                   work-aud.dscr = misc-act.dscr
+                   work-aud.tran-time = misc-act.misc-time.
             if misc-act.ml then
                assign work-aud.qty = misc-act.cost
                       work-aud.procat = "MSC-M".
@@ -1514,39 +1466,6 @@ display "" with frame r-top.
          for each work-aud break by tran-date:
 
             if work-aud.procat = "HRS" or work-aud.procat = "MSC-H" then do:
-               /*display work-aud.procat
-                       work-aud.tran-date
-                       work-aud.job-no
-                       work-aud.job-no2
-                       work-aud.frm
-                       work-aud.blank-no
-                       work-aud.dscr
-                       work-aud.qty
-                       work-aud.waste
-                       work-aud.hours
-                       work-aud.m-code
-                       work-aud.code
-                       work-aud.complete
-                    with frame fr-mch.
-               down with frame fr-mch.
-
-               IF tb_excel THEN
-                  PUT STREAM excel UNFORMATTED
-                      '"' work-aud.procat                    '",'
-                      '"' work-aud.tran-date                 '",'
-                      '"' work-aud.job-no + "-" +
-                          STRING(work-aud.job-no2,"99")      '",'
-                      '"' work-aud.frm                       '",'
-                      '"' work-aud.blank-no                  '",'
-                      '"' ""                                 '",'
-                      '"' work-aud.dscr                      '",'
-                      '"' STRING(work-aud.qty,">>>>>>9.99-") '",'
-                      '"' STRING(work-aud.waste,">>>>9-")    '",'
-                      '"' STRING(work-aud.hours,">>9.99-")   '",'
-                      '"' work-aud.m-code                    '",'
-                      '"' work-aud.code                      '",'
-                      '"' work-aud.complete                  '",'
-                      SKIP. */
 
                 ASSIGN cDisplay = ""
                               cTmpField = ""
@@ -1570,6 +1489,7 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  work-aud.m-code   .
                                     WHEN "job-cd"           THEN cVarValue =  work-aud.code        .
                                     WHEN "vc"               THEN cVarValue =  string(work-aud.complete)    .
+                                    WHEN "trns-tym"         THEN cVarValue =  STRING(work-aud.tran-time,"hh:mmam")    .
                     
                                END CASE.  
                                  
@@ -1595,30 +1515,7 @@ display "" with frame r-top.
             end.
             else
             if work-aud.procat = "F.G." then do:
-               /*display work-aud.procat
-                       work-aud.tran-date
-                       work-aud.job-no
-                       work-aud.job-no2
-                       work-aud.frm
-                       work-aud.blank-no
-                       work-aud.i-no
-                       work-aud.dscr
-                       work-aud.qty
-                    with frame fr-fg.
-               down with frame fr-fg.
 
-               IF tb_excel THEN
-                  PUT STREAM excel UNFORMATTED
-                      '"' work-aud.procat                   '",'
-                      '"' work-aud.tran-date                '",'
-                      '"' work-aud.job-no + "-" +
-                          STRING(work-aud.job-no2,"99")     '",'
-                      '"' work-aud.frm                      '",'
-                      '"' work-aud.blank-no                 '",'
-                      '"' work-aud.i-no                     '",'
-                      '"' work-aud.dscr                     '",'
-                      '"' STRING(work-aud.qty,">>>>>>9.99-") '",'
-                      SKIP.*/
 
                 ASSIGN cDisplay = ""
                               cTmpField = ""
@@ -1642,6 +1539,7 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  ""  .
                                     WHEN "job-cd"           THEN cVarValue =  ""       .
                                     WHEN "vc"               THEN cVarValue =  ""    .
+                                    WHEN "trns-tym"         THEN cVarValue =  STRING(work-aud.tran-time,"hh:mmam")    .
                     
                                END CASE.  
                                  
@@ -1661,30 +1559,7 @@ display "" with frame r-top.
                       v-fg-tot = v-fg-tot + work-aud.qty.
             end.
             else do:
-               /*display work-aud.procat
-                       work-aud.tran-date
-                       work-aud.job-no
-                       work-aud.job-no2
-                       work-aud.frm
-                       work-aud.blank-no
-                       work-aud.i-no
-                       work-aud.dscr
-                       work-aud.qty
-                       with frame fr-mat.
-               down with frame fr-mat.
 
-               IF tb_excel THEN
-                  PUT STREAM excel UNFORMATTED
-                      '"' work-aud.procat                   '",'
-                      '"' work-aud.tran-date                '",'
-                      '"' work-aud.job-no + "-" +
-                          STRING(work-aud.job-no2,"99")     '",'
-                      '"' work-aud.frm                      '",'
-                      '"' work-aud.blank-no                 '",'
-                      '"' work-aud.i-no                     '",'
-                      '"' work-aud.dscr                     '",'
-                      '"' STRING(work-aud.qty,">>>>>>9.99-") '",'
-                      SKIP. */
 
                 ASSIGN cDisplay = ""
                               cTmpField = ""
@@ -1708,6 +1583,7 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  ""  .
                                     WHEN "job-cd"           THEN cVarValue =  ""       .
                                     WHEN "vc"               THEN cVarValue =  ""    .
+                                    WHEN "trns-tym"         THEN cVarValue =  STRING(work-aud.tran-time,"hh:mmam")    .
                     
                                END CASE.  
                                  
@@ -1777,6 +1653,7 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
+                                    WHEN "trns-tym"         THEN cVarValue =  "" .
                     
                                END CASE.  
                                  
@@ -1816,6 +1693,7 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
+                                    WHEN "trns-tym"         THEN cVarValue =  "" .
                     
                                END CASE.  
                                  
@@ -1854,6 +1732,7 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
+                                    WHEN "trns-tym"         THEN cVarValue =  "" .
                     
                                END CASE.  
                                  
@@ -1892,6 +1771,7 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
+                                    WHEN "trns-tym"         THEN cVarValue =  "" .
                     
                                END CASE.  
                                  
@@ -1909,18 +1789,7 @@ display "" with frame r-top.
             END.
          end.
       end.
-     /* put skip(1) "REPORT TOTALS" at 20
-             "         BOARD TOTALS: " at 56 v-brd-tot skip
-             "       MACHINE TOTALS: " at 56 v-mch-tot " " v-wst-tot " "
-                                             v-hrs-tot skip
-             "FINISHED GOODS TOTALS: " at 56 v-fg-tot skip
-             "OTHER MATERIAL TOTALS: " at 56 v-oth-tot skip.
 
-      IF tb_excel THEN
-         RUN excel-job-totals-proc(INPUT "REPORT TOTALS",
-                                   INPUT v-brd-tot, INPUT v-mch-tot,
-                                   INPUT v-wst-tot, INPUT v-hrs-tot,
-                                   INPUT v-fg-tot, INPUT v-oth-tot). */
       PUT SKIP str-line SKIP .
                ASSIGN cDisplay = ""
                               cTmpField = ""
@@ -1944,6 +1813,7 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
+                                    WHEN "trns-tym"         THEN cVarValue =  "" .
                     
                                END CASE.  
                                  
@@ -1983,6 +1853,7 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
+                                    WHEN "trns-tym"         THEN cVarValue =  "" .
                     
                                END CASE.  
                                  
@@ -2021,6 +1892,7 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
+                                    WHEN "trns-tym"         THEN cVarValue =  "" .
                     
                                END CASE.  
                                  
@@ -2059,6 +1931,7 @@ display "" with frame r-top.
                                     WHEN "mch-cd"           THEN cVarValue =  "" .
                                     WHEN "job-cd"           THEN cVarValue =  "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
+                                    WHEN "trns-tym"         THEN cVarValue =  "" .
                     
                                END CASE.  
                                  
@@ -2099,14 +1972,14 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS cha NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label AS cha.
   
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.

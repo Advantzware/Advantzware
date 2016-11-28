@@ -72,6 +72,9 @@ DEF TEMP-TABLE w-eb NO-UNDO LIKE eb.
 DEF TEMP-TABLE w-ef NO-UNDO LIKE ef.
 
 DEF TEMP-TABLE old-ef NO-UNDO LIKE ef.
+DEF VAR cRtnChar AS CHARACTER NO-UNDO.
+DEF VAR lRecFound AS LOGICAL NO-UNDO .
+DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 
 {cec/bestfitc.i NEW SHARED}
 
@@ -1567,6 +1570,7 @@ END.
 {custom/getloc.i}
 assign cocode = gcompany
        locode = gloc.
+
 session:data-entry-return = yes.
       
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -3463,12 +3467,14 @@ PROCEDURE sheet-calc2 :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* from ce/bestfitc.p */
+    DEFINE BUFFER bf-item FOR ITEM .
+
      find xest where xest.company = ef.company and
                      xest.est-no = ef.est-no
                      no-lock no-error.
      find xef where recid(xef) = recid(ef) NO-LOCK NO-ERROR.
      find xeb where recid(xeb) = recid(eb) NO-LOCK NO-ERROR.
-       
+     
      run cec/bestfitc.p (ef.m-code:SCREEN-VALUE IN FRAME {&FRAME-NAME}, 0, "","").
 
      FIND FIRST tt-ef NO-ERROR.

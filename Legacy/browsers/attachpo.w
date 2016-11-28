@@ -123,7 +123,7 @@ DEFINE BUTTON btCopyFromItem
 
 DEFINE BUTTON btnRun 
      IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.38 TOOLTIP "Run Program".
 

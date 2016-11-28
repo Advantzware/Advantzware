@@ -14,9 +14,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.descrip = "Delete Combo/Tandem blank record when deleting " +
                       "order line".
    
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+  
 end.
 
 oedelete = sys-ctrl.log-fld.

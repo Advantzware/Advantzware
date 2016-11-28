@@ -1659,9 +1659,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                  OR lv-format-f = "CentBox"   OR lv-format-f = "Keystone" OR lv-format-f = "Frankstn" 
                  OR lv-format-f = "Colonial"  OR lv-format-f = "Unipak"   OR lv-format-f = "Ottpkg"
                  OR lv-format-f = "MWFIbre"   OR lv-format-f = "Shelby"   OR lv-format-f = "CCC"
-                 OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight"  OR lv-format-f = "PackRite" 
-                 OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" )) OR
-        (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Trilakes2")) THEN
+                 OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight"  
+                 OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***"
+                 OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "Carded2" )) OR
+        (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes")) THEN
       assign 
         tb_prt-mch:SENSITIVE      = YES
         tb_prt-shipto:SENSITIVE   = YES

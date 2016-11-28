@@ -1414,6 +1414,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          ASSIGN  rd-print-what:SCREEN-VALUE = "R"
             rd-print-what = "R".
 
+     IF v-relprint EQ "NStock" THEN
+         ASSIGN  rd-print-what:SCREEN-VALUE = "I"
+            rd-print-what = "I".
+    
 
     IF tgMultipleReleases:SCREEN-VALUE NE "YES" THEN DO:
         ASSIGN END_relnum:VISIBLE = FALSE begin_relnum:LABEL = "Release#".
@@ -1438,7 +1442,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*    IF LOOKUP(v-relprint,"Carded,PremierX,Frank,NStock,CSC-GA,Protagon,Soule,Prystup,StClair") EQ 0 THEN
        rd-print-what:SCREEN-VALUE  = rd-print-what.   */    /* Task# 03041404 */
 
-    IF v-relprint EQ "Xprint" THEN
+    IF v-relprint EQ "Xprint" OR v-relprint EQ "relprint 1" THEN
        tb_prt-part-no:SENSITIVE = YES.
 
     lines-per-page:SENSITIVE = NO.
@@ -1488,7 +1492,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
               begin_loc-bin:SENSITIVE = begin_loc:SENSITIVE
               END_loc-bin:SENSITIVE = begin_loc:SENSITIVE.
     ELSE
-    IF LOOKUP(v-relprint,"HOPX,ACPI,Fibrex,Accord,Loylang,PremierX,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair") > 0 THEN
+    IF LOOKUP(v-relprint,"HOPX,ACPI,Fibrex,Accord,Loylang,PremierX,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair") > 0 THEN   /* NSTOCK,*/
        ASSIGN rd-print-what:sensitive = YES
               begin_loc:SENSITIVE = IF LOOKUP(rd-print-what:SCREEN-VALUE,"I,S") > 0 THEN YES ELSE NO
               END_loc:SENSITIVE = begin_loc:SENSITIVE
@@ -2166,7 +2170,7 @@ PROCEDURE set-report :
      is-xprint-form = YES.
 
   ELSE
-  IF v-relprint EQ "Xprint" THEN
+  IF v-relprint EQ "Xprint" OR v-relprint EQ "relprint 1" THEN
    ASSIGN
     lv-program     = "oe/rep/relxprnt.p"
     lines-per-page = 75
@@ -2193,7 +2197,7 @@ PROCEDURE set-report :
     lines-per-page = 75
     is-xprint-form = YES  .
 
-  ELSE IF v-relprint EQ "Xprint2" THEN
+  ELSE IF v-relprint EQ "Xprint2" OR  v-relprint EQ "relprint 2" THEN
     ASSIGN lv-program     = "oe/rep/relxprn2.p"
            lines-per-page = 75
            is-xprint-form = YES  . 

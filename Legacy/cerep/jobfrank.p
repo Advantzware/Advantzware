@@ -1288,11 +1288,11 @@ view frame head.
                "<U>LABEL ITEM" + trim(string(j - 1)) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 55
                "<U>LABEL ITEM" + TRIM(STRING(j)) + "</U></B>" FORM "x(23)" WHEN v-fgitm[3] <> "" AT 107
                SKIP
-               "Job#:" v-job-no + "-" + string(v-job-no2)
+               "Job#:" v-job-no + "-" + string(v-job-no2,"99") FORMAT "x(10)"
                "Job#:" WHEN v-fgitm[2] <> ""  AT 45
-                v-job-no + "-" + string(v-job-no2)   WHEN v-fgitm[2] <> "" 
+                v-job-no + "-" + string(v-job-no2,"99") FORMAT "x(10)"  WHEN v-fgitm[2] <> "" 
                "Job#:" WHEN v-fgitm[3] <> "" AT 90  
-               v-job-no + "-" + string(v-job-no2) WHEN v-fgitm[3] <> "" 
+               v-job-no + "-" + string(v-job-no2,"99") FORMAT "x(10)" WHEN v-fgitm[3] <> "" 
                SKIP
                "Customer:" v-cust-name 
                "Customer:"  WHEN v-fgitm[2] <> ""  AT 45 v-cust-name2  WHEN v-fgitm[2] <> "" 
@@ -1379,11 +1379,11 @@ view frame head.
                "<U>LABEL ITEM" + trim(string(v-last-j + 2)) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 55
                "<U>LABEL ITEM" + TRIM(STRING(v-last-j + 3)) + "</U></B>" FORM "x(23)" WHEN v-fgitm[3] <> "" AT 107
                SKIP
-               "Job#:" v-job-no + "-" + string(v-job-no2)
+               "Job#:" v-job-no + "-" + string(v-job-no2,"99") FORMAT "x(10)"
                "Job#:" WHEN v-fgitm[2] <> ""  AT 45
-                v-job-no + "-" + string(v-job-no2) WHEN v-fgitm[2] <> "" 
+                v-job-no + "-" + string(v-job-no2,"99") FORMAT "x(10)" WHEN v-fgitm[2] <> "" 
                "Job#:" WHEN v-fgitm[3] <> "" AT 90  
-               v-job-no + "-" + string(v-job-no2) WHEN v-fgitm[3] <> "" 
+               v-job-no + "-" + string(v-job-no2,"99") FORMAT "x(10)" WHEN v-fgitm[3] <> "" 
                SKIP
                "Customer:" v-cust-name 
                "Customer:"  WHEN v-fgitm[2] <> ""  AT 45 v-cust-name2  WHEN v-fgitm[2] <> "" 

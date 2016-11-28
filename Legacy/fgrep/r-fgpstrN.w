@@ -23,8 +23,11 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}    
 {methods/prgsecdt.i}
@@ -40,46 +43,48 @@ assign
  cocode = gcompany
  locode = gloc.
 
-{sys/inc/custlistform.i ""IL6"" }
+/*{sys/inc/custlistform.i ""IL6"" }*/
 
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
-def new shared var v-types as char format "x(10)".
+DEFINE NEW SHARED VARIABLE v-types AS CHARACTER FORMAT "x(10)".
 
-def new shared var b-post-date as date init today no-undo.
-def new shared var e-post-date as date init today no-undo.
-def new shared var v-pr-tots      as log   format "Y/N"  init false no-undo.
-def var v-post-date as date no-undo init today.
-def shared var file_stamp as ch format "x(12)".    
-DEF VAR is-xprint-form AS LOG NO-UNDO.
-DEF VAR ls-fax-file AS cha NO-UNDO.
+DEFINE NEW SHARED VARIABLE b-post-date AS DATE INIT TODAY NO-UNDO.
+DEFINE NEW SHARED VARIABLE e-post-date AS DATE INIT TODAY NO-UNDO.
+DEFINE NEW SHARED VARIABLE v-pr-tots      AS LOG   FORMAT "Y/N"  INIT FALSE NO-UNDO.
+DEFINE VARIABLE v-post-date AS DATE NO-UNDO INIT TODAY.
+DEFINE SHARED VARIABLE file_stamp AS ch FORMAT "x(12)".    
+DEFINE VARIABLE is-xprint-form AS LOG NO-UNDO.
+DEFINE VARIABLE ls-fax-file AS cha NO-UNDO.
 
-DEF TEMP-TABLE tt-report NO-UNDO LIKE report
+DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD rec-id2 AS RECID
     FIELD DATE AS DATE
     INDEX rec-id2 rec-id2.
 
-DEF STREAM excel.
+DEFINE STREAM excel.
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE ldummy AS LOG NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
                                 /* 10 + 6 + 8 = 24 columns */
 ASSIGN cTextListToSelect = "DATE,ITEM,DESCRIPTN,PO#,JOB#,VENDOR#,TRANSACTION TYPE,TAG#,RFID#,UNITS," +
                            "COUNT,BIN,CUOM,TOTAL QTY,TOTAL COST,TOT SELL VAL," +
                            "CUSTOMER PART#,DIE#,# UP,CAD#,PLATE#,NUM OF COLORS,SHEET SIZE,CALIPER,USER-ID,WHSE,WT/100,REC TIME,POSTED," +
-                           "CATGY,UNIT COST,UNIT SELL,SUOM,PROMISE DATE,ORD DUE DATE,START DATE,SHIPTO,SHIPTO NAME"
+                           "CATGY,UNIT COST,UNIT SELL,SUOM,PROMISE DATE,ORD DUE DATE,START DATE,SHIPTO,SHIPTO NAME,ORDER#," +
+                           "BEFORE QTY,BIN CHANGE"
        cFieldListToSelect = "fg-rcpth.trans-date,fg-rcpth.i-no,fg-rcpth.i-name,fg-rcpth.po-no,fg-rcpth.job-no," +
                             "po-ord.vend-no,v-tran-type,v-tag,v-rfid#,v-cases,v-qty-case,fg-rdtlh.loc-bin,lv-cost-uom,v-fg-qty,v-fg-cost,v-fg-value," +
                             "itemfg.part-no,itemfg.die-no,v-numUp,itemfg.cad-no,itemfg.plate-no,v-numColors,v-SheetSize,v-Caliper,fg-rcpth.user-id,fg-rdtld.loc,wt-h,rec-time,fg-rcpth.post-date," +
-                            "itemfg.procat,unt-cst,unt-sel,suom,prom-date,due-date,job-start,shipto,shipname"
+                            "itemfg.procat,unt-cst,unt-sel,suom,prom-date,due-date,job-start,shipto,shipname,order-no," +
+                            "bef-qty,bin-qty"
        cFieldLength = "9,16,11,9,13,11,1,20,24,8," + "8,9,9,10,10,13," + "15,15,4,15,15,13,15,7,10,10,9,8,8," +
-                      "5,11,14,4,12,12,10,8,30"
+                      "5,11,14,4,12,12,10,8,30,7," + "10,10"
        .
 
 {sys/inc/ttRptSel.i}
@@ -132,7 +137,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
@@ -360,28 +365,28 @@ DEFINE FRAME FRAME-A
           "Enter Ending User ID" WIDGET-ID 48
      tb_rec AT ROW 7.48 COL 38
      tb_ship AT ROW 8.19 COL 38
-     rsShowVendor AT ROW 8.81 COL 64 NO-LABEL WIDGET-ID 14
+     rsShowVendor AT ROW 8.81 COL 64 NO-LABELS WIDGET-ID 14
      tb_tran AT ROW 8.91 COL 38
      tb_adj AT ROW 9.62 COL 38
-     rsShowTag AT ROW 10 COL 64 NO-LABEL WIDGET-ID 18
+     rsShowTag AT ROW 10 COL 64 NO-LABELS WIDGET-ID 18
      tb_ret AT ROW 10.33 COL 38
      tb_count AT ROW 11.05 COL 38
      tb_total AT ROW 11.76 COL 38
      Btn_Def AT ROW 13.76 COL 40 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_avail AT ROW 13.81 COL 6 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 13.81 COL 60 NO-LABEL WIDGET-ID 28
+     sl_avail AT ROW 13.81 COL 6 NO-LABELS WIDGET-ID 26
+     sl_selected AT ROW 13.81 COL 60 NO-LABELS WIDGET-ID 28
      Btn_Add AT ROW 14.76 COL 40 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
      Btn_Remove AT ROW 15.76 COL 40 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
      btn_Up AT ROW 16.81 COL 40 WIDGET-ID 40
      btn_down AT ROW 17.86 COL 40 WIDGET-ID 42
-     rd-dest AT ROW 19.81 COL 5 NO-LABEL
+     rd-dest AT ROW 19.81 COL 5 NO-LABELS
      lines-per-page AT ROW 19.91 COL 84 COLON-ALIGNED
-     lv-ornt AT ROW 19.95 COL 31 NO-LABEL
+     lv-ornt AT ROW 19.95 COL 31 NO-LABELS
      lv-font-no AT ROW 21.24 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 22.19 COL 28 COLON-ALIGNED NO-LABEL
+     lv-font-name AT ROW 22.19 COL 28 COLON-ALIGNED NO-LABELS
      td-show-parm AT ROW 23.38 COL 31
      tb_runExcel AT ROW 24 COL 93 RIGHT-ALIGNED
      tb_excel AT ROW 24.05 COL 71 RIGHT-ALIGNED
@@ -594,10 +599,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
 ON HELP OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -660,7 +665,7 @@ DO:
   RUN GetSelectionList.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAILABLE ttCustList AND tb_cust-list THEN DO:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -729,7 +734,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -755,7 +760,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
@@ -808,10 +813,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
 ON HELP OF end_cust IN FRAME FRAME-A /* Ending Customer# */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -888,7 +893,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
@@ -934,7 +939,7 @@ DO:
            lines-per-page = 99
            lv-font-name = "Courier NEW SIZE=6 (20 CPI)".
  
- DISPL lv-font-no lines-per-page lv-font-name WITH FRAME {&FRAME-NAME}.
+ DISPLAY lv-font-no lines-per-page lv-font-name WITH FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1167,6 +1172,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   {methods/nowait.i}
 
+  RUN sys/inc/CustListForm.p ( "IL6",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
   DO WITH FRAME {&FRAME-NAME}:      
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
@@ -1177,7 +1186,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'IL6',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""IL6""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1263,22 +1272,22 @@ PROCEDURE calc-case-and-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER ipr-fg-rcpth AS ROWID NO-UNDO.
-DEF INPUT PARAMETER ipr-fg-rdtlh AS ROWID NO-UNDO.
-DEF INPUT PARAMETER v-fg-qty     AS INT  NO-UNDO.
+DEFINE INPUT PARAMETER ipr-fg-rcpth AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipr-fg-rdtlh AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER v-fg-qty     AS INTEGER  NO-UNDO.
 
-DEF OUTPUT PARAMETER opv-cases AS INTEGER NO-UNDO.
-DEF OUTPUT PARAMETER opv-qty-case LIKE fg-bin.case-count NO-UNDO.
-DEF OUTPUT PARAMETER opv-tag      LIKE fg-rdtlh.tag NO-UNDO.
+DEFINE OUTPUT PARAMETER opv-cases AS INTEGER NO-UNDO.
+DEFINE OUTPUT PARAMETER opv-qty-case LIKE fg-bin.case-count NO-UNDO.
+DEFINE OUTPUT PARAMETER opv-tag      LIKE fg-rdtlh.tag NO-UNDO.
 
-DEF BUFFER bf-fg-rcpth FOR fg-rcpth.
-DEF BUFFER bf-fg-rdtlh FOR fg-rdtlh.
+DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
+DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
 
 FIND bf-fg-rcpth WHERE ROWID(bf-fg-rcpth) = ipr-fg-rcpth NO-LOCK NO-ERROR.
 FIND bf-fg-rdtlh WHERE ROWID(bf-fg-rdtlh) = ipr-fg-rdtlh NO-LOCK NO-ERROR.
-IF NOT AVAIL bf-fg-rcpth THEN
+IF NOT AVAILABLE bf-fg-rcpth THEN
     RETURN.
-IF NOT AVAIL bf-fg-rdtlh THEN
+IF NOT AVAILABLE bf-fg-rdtlh THEN
     RETURN.
 
     if bf-fg-rdtlh.qty-case eq 0 then do:
@@ -1292,7 +1301,7 @@ IF NOT AVAIL bf-fg-rdtlh THEN
             and fg-bin.tag     eq bf-fg-rdtlh.tag
           use-index job no-lock no-error.   
 
-      if avail fg-bin then
+      IF AVAILABLE fg-bin THEN
         assign
          opv-cases    = trunc((v-fg-qty / fg-bin.case-count),0)
          opv-qty-case = fg-bin.case-count.
@@ -1302,7 +1311,7 @@ IF NOT AVAIL bf-fg-rdtlh THEN
             where itemfg.company eq cocode
               and itemfg.i-no    eq bf-fg-rcpth.i-no
             no-lock no-error.
-        if avail itemfg then
+        IF AVAILABLE itemfg THEN
           assign
            opv-cases    = trunc((v-fg-qty / itemfg.case-count),0)
            opv-qty-case = itemfg.case-count.
@@ -1330,15 +1339,15 @@ PROCEDURE calc-fg-value :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipv-sell-price AS DEC NO-UNDO.
-    DEF INPUT PARAMETER ipv-sell-uom AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipr-fg-rdtlh AS ROWID NO-UNDO.
-    DEF OUTPUT PARAMETER opv-fg-value AS DEC NO-UNDO.
+    DEFINE INPUT PARAMETER ipv-sell-price AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipv-sell-uom AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipr-fg-rdtlh AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER opv-fg-value AS DECIMAL NO-UNDO.
 
-    DEF BUFFER bf-fg-rdtlh FOR fg-rdtlh.
+    DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
 
     FIND FIRST bf-fg-rdtlh WHERE ROWID(bf-fg-rdtlh) = ipr-fg-rdtlh NO-LOCK NO-ERROR.
-    IF NOT AVAIL bf-fg-rdtlh THEN
+    IF NOT AVAILABLE bf-fg-rdtlh THEN
         RETURN.
 
     IF ipv-sell-uom = "L" THEN
@@ -1353,7 +1362,7 @@ PROCEDURE calc-fg-value :
         FIND first uom
             WHERE uom.uom  EQ ipv-sell-uom
             AND uom.mult NE 0 NO-LOCK NO-ERROR.
-        IF AVAIL uom THEN
+        IF AVAILABLE uom THEN
             ASSIGN opv-fg-value = ipv-sell-price * (bf-fg-rdtlh.qty / uom.mult).
     
     END.
@@ -1370,24 +1379,24 @@ PROCEDURE calc-msf-for-r :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER ipr-fg-rcpth AS ROWID NO-UNDO.
-DEF INPUT PARAMETER ipr-fg-rdtlh AS ROWID NO-UNDO.
-DEF INPUT PARAMETER ipr-lastof-key-02 AS LOG NO-UNDO.
-DEF INPUT PARAMETER ipv-corr     AS LOG NO-UNDO.
+DEFINE INPUT PARAMETER ipr-fg-rcpth AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipr-fg-rdtlh AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipr-lastof-key-02 AS LOG NO-UNDO.
+DEFINE INPUT PARAMETER ipv-corr     AS LOG NO-UNDO.
 
-DEF OUTPUT PARAMETER opv-on         AS DEC NO-UNDO.
-DEF OUTPUT PARAMETER opv-qty-pallet AS INT NO-UNDO.
-DEF OUTPUT PARAMETER opv-msf-1      AS DEC NO-UNDO.
-DEF OUTPUT PARAMETER opv-msf-2      AS DEC NO-UNDO.
+DEFINE OUTPUT PARAMETER opv-on         AS DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER opv-qty-pallet AS INTEGER NO-UNDO.
+DEFINE OUTPUT PARAMETER opv-msf-1      AS DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER opv-msf-2      AS DECIMAL NO-UNDO.
 
-DEF BUFFER bf-fg-rcpth FOR fg-rcpth.
-DEF BUFFER bf-fg-rdtlh FOR fg-rdtlh.
+DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
+DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
 
 FIND bf-fg-rcpth WHERE ROWID(bf-fg-rcpth) = ipr-fg-rcpth NO-LOCK NO-ERROR.
-IF NOT AVAIL bf-fg-rcpth THEN
+IF NOT AVAILABLE bf-fg-rcpth THEN
     RETURN.
 FIND bf-fg-rdtlh WHERE ROWID(bf-fg-rdtlh) = ipr-fg-rdtlh NO-LOCK NO-ERROR.
-IF NOT AVAIL bf-fg-rdtlh THEN
+IF NOT AVAILABLE bf-fg-rdtlh THEN
     RETURN.
 
       opv-on = 1.
@@ -1408,11 +1417,11 @@ IF NOT AVAIL bf-fg-rdtlh THEN
               and fg-bin.loc-bin eq bf-fg-rdtlh.loc-bin
               and fg-bin.tag     eq bf-fg-rdtlh.tag
             no-lock no-error.
-        ASSIGN opv-qty-pallet = bf-fg-rdtlh.cases * if avail fg-bin then
+        ASSIGN opv-qty-pallet = bf-fg-rdtlh.cases * IF AVAILABLE fg-bin THEN
                                           fg-bin.cases-unit else 1.
       end.
       
-      if avail job-hdr and job-hdr.est-no = "" THEN DO:
+      IF AVAILABLE job-hdr AND job-hdr.est-no = "" THEN DO:
         release ef.
 
         run sys/inc/numup.p (job-hdr.company, job-hdr.est-no, job-hdr.frm, output opv-on).
@@ -1423,7 +1432,7 @@ IF NOT AVAIL bf-fg-rdtlh THEN
               and ef.form-no   EQ job-hdr.frm
             no-lock no-error.
 
-        IF AVAIL ef THEN RUN est/ef-#out.p (ROWID(ef), OUTPUT opv-on).
+        IF AVAILABLE ef THEN RUN est/ef-#out.p (ROWID(ef), OUTPUT opv-on).
 
         if ipr-lastof-key-02 then           
             for each mch-act FIELDS(waste)
@@ -1451,7 +1460,7 @@ IF NOT AVAIL bf-fg-rdtlh THEN
           leave.
         end.
 
-        if avail job-mat then do:
+        IF AVAILABLE job-mat THEN DO:
           assign
            opv-msf-1 = bf-fg-rdtlh.qty / opv-on * (job-mat.len * job-mat.wid)
            opv-msf-2 = opv-msf-2      / opv-on * (job-mat.len * job-mat.wid).
@@ -1479,15 +1488,15 @@ PROCEDURE calc-sell-price :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER ipr-fg-rcpth AS ROWID NO-UNDO.
-DEF OUTPUT PARAMETER opv-sell-price LIKE oe-ordl.price NO-UNDO.
-DEF OUTPUT PARAMETER opv-sell-uom LIKE oe-ordl.pr-uom NO-UNDO.
+DEFINE INPUT PARAMETER ipr-fg-rcpth AS ROWID NO-UNDO.
+DEFINE OUTPUT PARAMETER opv-sell-price LIKE oe-ordl.price NO-UNDO.
+DEFINE OUTPUT PARAMETER opv-sell-uom LIKE oe-ordl.pr-uom NO-UNDO.
 
-DEF BUFFER bf-fg-rcpth FOR fg-rcpth.
-DEF BUFFER bf-itemfg FOR itemfg.
+DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
+DEFINE BUFFER bf-itemfg FOR itemfg.
 
 FIND bf-fg-rcpth WHERE ROWID(bf-fg-rcpth) = ipr-fg-rcpth NO-LOCK NO-ERROR.
-IF NOT AVAIL bf-fg-rcpth THEN
+IF NOT AVAILABLE bf-fg-rcpth THEN
     RETURN.
 
     /* If there is a job number for receipt... */
@@ -1507,7 +1516,7 @@ IF NOT AVAIL bf-fg-rcpth THEN
           AND oe-ordl.job-no2 EQ job-hdr.job-no2
           AND (oe-ordl.pr-uom NE "CS" OR oe-ordl.cas-cnt NE 0)
         USE-INDEX item-ord NO-LOCK
-        BY job-hdr.ord-no DESC:
+        BY job-hdr.ord-no DESCENDING:
       ASSIGN
        opv-sell-price = oe-ordl.price
        opv-sell-uom   = oe-ordl.pr-uom.
@@ -1529,7 +1538,7 @@ IF NOT AVAIL bf-fg-rcpth THEN
           AND oe-ordl.i-no    EQ po-ordl.i-no
           AND (oe-ordl.pr-uom NE "CS" OR oe-ordl.cas-cnt NE 0)
         USE-INDEX item-ord NO-LOCK
-        BY po-ordl.ord-no DESC:
+        BY po-ordl.ord-no DESCENDING:
       ASSIGN
        opv-sell-price = oe-ordl.price
        opv-sell-uom   = oe-ordl.pr-uom.
@@ -1539,7 +1548,7 @@ IF NOT AVAIL bf-fg-rcpth THEN
         FIND bf-itemfg WHERE bf-itemfg.company = bf-fg-rcpth.company
                          AND bf-itemfg.i-no    = bf-fg-rcpth.i-no
                        NO-LOCK NO-ERROR.
-        IF AVAIL bf-itemfg THEN
+        IF AVAILABLE bf-itemfg THEN
             ASSIGN opv-sell-price = bf-itemfg.sell-price
                    opv-sell-uom   = bf-itemfg.sell-uom.
     END.
@@ -1555,43 +1564,53 @@ PROCEDURE create-tt-report :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-def var type as ch format "X" initial "R" NO-UNDO.
-def var type-prt as ch format "X(11)" initial "           " NO-UNDO.
-def var v-fg-qty as int format "->>>,>>>,>>9" NO-UNDO.
-def var v-fg-cost as dec format "->>>,>>9.99<<" NO-UNDO.
-def var v-tot-qty like v-fg-qty NO-UNDO.
-def var v-tot-cost like v-fg-cost NO-UNDO.
-def var v-fg-value as dec format "->>,>>>,>>9.99" NO-UNDO.
-def var v-msf as dec format ">,>>9.999" extent 6 NO-UNDO.
-def var v-grd-tot-cost as dec format "->>,>>>,>>9.99<<" NO-UNDO.                     
-def var v-tot-value as dec format "->>,>>>,>>9.99" NO-UNDO.                  
-def var v-grd-tot-value as dec format "->>,>>>,>>9.99" NO-UNDO.
-def var v-cum-tot as de NO-UNDO.                                   
-def var v-tran-type as char format "x(1)" NO-UNDO.      
-def var v-entrytype as char initial "REC  ,TRAN ,ADJ  ,SHIP ,RET  ,COUNT" NO-UNDO.
-def var v-on like eb.num-up NO-UNDO.
-def var v-qty-pallet as decimal format "->>,>>>,>>9" no-undo.
-def var v-whse like fg-rdtlh.loc NO-UNDO.   
-def var v-cases like fg-rdtlh.cases no-undo.
-def var v-qty-case like fg-rdtlh.qty-case no-undo.
-def var v-i-no like fg-rcpth.i-no no-undo.
-DEF VAR v-tag AS cha NO-UNDO.
-DEF VAR lv-sell-price LIKE itemfg.sell-price NO-UNDO.
-DEF VAR lv-sell-uom LIKE itemfg.sell-uom NO-UNDO.
-DEF VAR lv-cost-uom LIKE fg-rcpth.pur-uom NO-UNDO.
-DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR v-type AS CHAR NO-UNDO.
-DEF VAR v-date AS DATE NO-UNDO.
+DEFINE VARIABLE type AS ch FORMAT "X" INITIAL "R" NO-UNDO.
+DEFINE VARIABLE type-prt AS ch FORMAT "X(11)" INITIAL "           " NO-UNDO.
+DEFINE VARIABLE v-fg-qty AS INTEGER FORMAT "->>>,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE v-fg-cost AS DECIMAL FORMAT "->>>,>>9.99<<" NO-UNDO.
+DEFINE VARIABLE v-tot-qty LIKE v-fg-qty NO-UNDO.
+DEFINE VARIABLE v-tot-cost LIKE v-fg-cost NO-UNDO.
+DEFINE VARIABLE v-fg-value AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-msf AS DECIMAL FORMAT ">,>>9.999" EXTENT 6 NO-UNDO.
+DEFINE VARIABLE v-grd-tot-cost AS DECIMAL FORMAT "->>,>>>,>>9.99<<" NO-UNDO.                     
+DEFINE VARIABLE v-tot-value AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.                  
+DEFINE VARIABLE v-grd-tot-value AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-cum-tot AS de NO-UNDO.                                   
+DEFINE VARIABLE v-tran-type AS CHARACTER FORMAT "x(1)" NO-UNDO.      
+DEFINE VARIABLE v-entrytype AS CHARACTER INITIAL "REC  ,TRAN ,ADJ  ,SHIP ,RET  ,COUNT" NO-UNDO.
+DEFINE VARIABLE v-on LIKE eb.num-up NO-UNDO.
+DEFINE VARIABLE v-qty-pallet AS DECIMAL FORMAT "->>,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE v-whse LIKE fg-rdtlh.loc NO-UNDO.   
+DEFINE VARIABLE v-cases LIKE fg-rdtlh.cases NO-UNDO.
+DEFINE VARIABLE v-qty-case LIKE fg-rdtlh.qty-case NO-UNDO.
+DEFINE VARIABLE v-i-no LIKE fg-rcpth.i-no NO-UNDO.
+DEFINE VARIABLE v-tag AS cha NO-UNDO.
+DEFINE VARIABLE lv-sell-price LIKE itemfg.sell-price NO-UNDO.
+DEFINE VARIABLE lv-sell-uom LIKE itemfg.sell-uom NO-UNDO.
+DEFINE VARIABLE lv-cost-uom LIKE fg-rcpth.pur-uom NO-UNDO.
+DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-type AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-date AS DATE NO-UNDO.
 EMPTY TEMP-TABLE tt-report.
+DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE v-cust AS CHARACTER EXTENT 2 NO-UNDO.
+ASSIGN
+    lSelected    = tb_cust-list
+    v-cust[1]    = begin_cust
+    v-cust[2]    = END_cust .
+
+IF lselected THEN DO:
+  FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+  IF AVAILABLE ttCustList THEN ASSIGN v-cust[1] = ttCustList.cust-no .
+  FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+  IF AVAILABLE ttCustList THEN ASSIGN v-cust[2] = ttCustList.cust-no .
+END.
 
 
 IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
   DO:
 
-    FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-       EACH fg-rcpth
+    FOR EACH fg-rcpth
         where fg-rcpth.company eq cocode
           AND fg-rcpth.i-no    GE begin_i-no
           AND fg-rcpth.i-no    LE end_i-no
@@ -1599,13 +1618,15 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
         FIRST itemfg WHERE
               itemfg.company EQ cocode AND
               itemfg.i-no    EQ fg-rcpth.i-no AND
-              itemfg.cust-no EQ ttCustList.cust-no /*begin_cust AND
-              itemfg.cust-no LE END_cust*/
+              itemfg.cust-no GE v-cust[1] AND
+              itemfg.cust-no LE v-cust[2] AND 
+              (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
+              AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
               NO-LOCK:
         LEAVE.
     END.
     
-    do while avail fg-rcpth:
+    DO WHILE AVAILABLE fg-rcpth:
         {custom/statusMsg.i " 'Processing FG Item#  '  + fg-rcpth.i-no "}
       v-i-no = fg-rcpth.i-no.
    
@@ -1646,10 +1667,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
         END.
       end.
       
-      FOR EACH ttCustList 
-       WHERE ttCustList.log-fld
-       NO-LOCK,
-         EACH fg-rcpth WHERE
+      FOR EACH fg-rcpth WHERE
           fg-rcpth.company eq cocode AND
           fg-rcpth.i-no    GT v-i-no AND
           fg-rcpth.i-no    GE begin_i-no AND
@@ -1658,8 +1676,10 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
           FIRST itemfg WHERE
                 itemfg.company EQ cocode AND
                 itemfg.i-no    EQ fg-rcpth.i-no AND
-                itemfg.cust-no EQ ttCustList.cust-no /*begin_cust AND
-                itemfg.cust-no LE END_cust*/
+                itemfg.cust-no GE v-cust[1] AND
+                itemfg.cust-no LE v-cust[2] AND 
+                (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
+                AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
                 NO-LOCK:
           LEAVE.
        END.
@@ -1674,18 +1694,17 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
           
            IF NOT(begin_cust EQ "" AND END_cust EQ "zzzzzzzz") THEN
            DO v-date = b-post-date TO e-post-date:
-              FOR EACH ttCustList 
-                   WHERE ttCustList.log-fld
-                   NO-LOCK,
-                  each fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
+              FOR EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
                   where fg-rcpth.company                eq cocode
                     and fg-rcpth.rita-code              eq v-type
                     and fg-rcpth.post-date              EQ v-date
                     AND CAN-FIND(FIRST itemfg WHERE
                         itemfg.company EQ cocode AND
                         itemfg.i-no    EQ fg-rcpth.i-no AND
-                         itemfg.cust-no EQ ttCustList.cust-no /*begin_cust AND
-                        itemfg.cust-no LE END_cust*/ ) 
+                        itemfg.cust-no GE v-cust[1] AND
+                        itemfg.cust-no LE v-cust[2] AND 
+                        (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
+                        AND ttCustList.log-fld NO-LOCK) ELSE TRUE) ) 
                   AND fg-rcpth.USER-ID GE begin_user
                  AND fg-rcpth.USER-ID LE END_user
                   USE-INDEX post-date
@@ -1709,10 +1728,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                   RELEASE tt-report.
               end.
              
-              FOR EACH ttCustList 
-                  WHERE ttCustList.log-fld
-                  NO-LOCK,
-                  each fg-rcpth FIELDS(r-no rita-code i-no trans-date)
+              FOR EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date)
                   where fg-rcpth.company                eq cocode AND
                         fg-rcpth.rita-code              eq v-type AND
                         fg-rcpth.post-date              eq ? AND
@@ -1722,8 +1738,10 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                         AND CAN-FIND(FIRST itemfg WHERE
                         itemfg.company EQ cocode AND
                         itemfg.i-no    EQ fg-rcpth.i-no AND
-                        itemfg.cust-no EQ ttCustList.cust-no /*begin_cust AND
-                        itemfg.cust-no LE END_cust*/)             
+                        itemfg.cust-no GE v-cust[1] AND
+                        itemfg.cust-no LE v-cust[2] AND 
+                        (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
+                        AND ttCustList.log-fld NO-LOCK) ELSE TRUE))             
                   AND fg-rcpth.USER-ID GE begin_user
                  AND fg-rcpth.USER-ID LE END_user
                         USE-INDEX post-date
@@ -1854,8 +1872,8 @@ PROCEDURE DisplaySelectionDefault :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
@@ -1877,8 +1895,8 @@ PROCEDURE DisplaySelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
 /*   MESSAGE "List to select: " NUM-ENTRIES(cTextListToSelect) ":" NUM-ENTRIES(cFieldListToSelect) */
 /*           VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                    */
@@ -1922,9 +1940,9 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
@@ -1995,7 +2013,7 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -2144,75 +2162,80 @@ PROCEDURE run-report :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR str-tit4 AS cha NO-UNDO.
-DEF VAR str-tit5 AS cha NO-UNDO.
+DEFINE VARIABLE str-tit4 AS cha NO-UNDO.
+DEFINE VARIABLE str-tit5 AS cha NO-UNDO.
 /*DEF VAR iStrTitLength AS INT NO-UNDO.
 iStrTitLength = iColumnLength - 10.
 {sys/form/r-top5DL.f &Width=icolumnLength &TitleLength=iStrTitLength }
 */
 {sys/form/r-top5DL.f}
-DEF BUFFER b-fg-bin FOR fg-bin.
+DEFINE BUFFER b-fg-bin FOR fg-bin.
 
-def var type as ch format "X" initial "R" NO-UNDO.
-def var type-prt as ch format "X(11)" initial "           " NO-UNDO.
-def var v-fg-qty as int format "->>>,>>>,>>9" NO-UNDO.
-def var v-fg-cost as dec format "->>>,>>9.99<<" NO-UNDO.
-def var v-tot-qty like v-fg-qty NO-UNDO.
-def var v-tot-cost like v-fg-cost NO-UNDO.
-def var v-fg-value as dec format "->>,>>>,>>9.99" NO-UNDO.
-def var v-msf as dec format ">,>>9.999" extent 6 NO-UNDO.
-def var v-grd-tot-cost as dec format "->>,>>>,>>9.99<<" NO-UNDO.                     
-def var v-tot-value as dec format "->>,>>>,>>9.99" NO-UNDO.                  
-def var v-grd-tot-value as dec format "->>,>>>,>>9.99" NO-UNDO.
-def var v-cum-tot as de NO-UNDO.                                   
-def var v-tran-type as char format "x(1)" NO-UNDO.      
-def var v-entrytype as char initial "REC  ,TRAN ,ADJ  ,SHIP ,ERET ,COUNT" NO-UNDO.
-def var v-on like eb.num-up NO-UNDO.
-def var v-qty-pallet as decimal format "->>,>>>,>>9" no-undo.
-def var v-whse like fg-rdtlh.loc NO-UNDO.   
-def var v-cases like fg-rdtlh.cases no-undo.
-def var v-qty-case like fg-rdtlh.qty-case no-undo.
-def var v-i-no like fg-rcpth.i-no no-undo.
-DEF VAR v-tag AS cha NO-UNDO.
-DEF VAR lv-sell-price LIKE itemfg.sell-price NO-UNDO.
-DEF VAR lv-sell-uom LIKE itemfg.sell-uom NO-UNDO.
-DEF VAR lv-cost-uom LIKE fg-rcpth.pur-uom NO-UNDO.
-DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR v-type AS CHAR NO-UNDO.
-DEF VAR v-date AS DATE NO-UNDO.
-DEF VAR v-current-job LIKE fg-rcpth.job-no NO-UNDO INIT "".
-DEF VAR v-current-job2 LIKE fg-rcpth.job-no2 NO-UNDO INIT "".
-DEF VAR v-new-job AS LOGICAL NO-UNDO INIT NO.
-DEF VAR v-tot-pos1 AS INT NO-UNDO.
-DEF VAR v-tot-pos2 AS INT NO-UNDO.
-DEF VAR v-tot-pos3 AS INT NO-UNDO.
-def buffer b-fgrdtlh for fg-rdtlh.
-DEF VAR cSpace AS cha INIT " " NO-UNDO.
-DEF VAR prom-date AS DATE NO-UNDO.
-DEF VAR due-date AS DATE NO-UNDO.
-DEF VAR job-start AS DATE NO-UNDO.
-DEF VAR v-stnd-cost AS DECIMAL INIT 0 NO-UNDO.
+DEFINE VARIABLE type AS ch FORMAT "X" INITIAL "R" NO-UNDO.
+DEFINE VARIABLE type-prt AS ch FORMAT "X(11)" INITIAL "           " NO-UNDO.
+DEFINE VARIABLE v-fg-qty AS INTEGER FORMAT "->>>,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE v-fg-cost AS DECIMAL FORMAT "->>>,>>9.99<<" NO-UNDO.
+DEFINE VARIABLE v-tot-qty LIKE v-fg-qty NO-UNDO.
+DEFINE VARIABLE v-tot-cost LIKE v-fg-cost NO-UNDO.
+DEFINE VARIABLE v-fg-value AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-msf AS DECIMAL FORMAT ">,>>9.999" EXTENT 6 NO-UNDO.
+DEFINE VARIABLE v-grd-tot-cost AS DECIMAL FORMAT "->>,>>>,>>9.99<<" NO-UNDO.                     
+DEFINE VARIABLE v-tot-value AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.                  
+DEFINE VARIABLE v-grd-tot-value AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-cum-tot AS de NO-UNDO.                                   
+DEFINE VARIABLE v-tran-type AS CHARACTER FORMAT "x(1)" NO-UNDO.      
+DEFINE VARIABLE v-entrytype AS CHARACTER INITIAL "REC  ,TRAN ,ADJ  ,SHIP ,ERET ,COUNT" NO-UNDO.
+DEFINE VARIABLE v-on LIKE eb.num-up NO-UNDO.
+DEFINE VARIABLE v-qty-pallet AS DECIMAL FORMAT "->>,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE v-whse LIKE fg-rdtlh.loc NO-UNDO.   
+DEFINE VARIABLE v-cases LIKE fg-rdtlh.cases NO-UNDO.
+DEFINE VARIABLE v-qty-case LIKE fg-rdtlh.qty-case NO-UNDO.
+DEFINE VARIABLE v-i-no LIKE fg-rcpth.i-no NO-UNDO.
+DEFINE VARIABLE v-tag AS cha NO-UNDO.
+DEFINE VARIABLE lv-sell-price LIKE itemfg.sell-price NO-UNDO.
+DEFINE VARIABLE lv-sell-uom LIKE itemfg.sell-uom NO-UNDO.
+DEFINE VARIABLE lv-cost-uom LIKE fg-rcpth.pur-uom NO-UNDO.
+DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-type AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-date AS DATE NO-UNDO.
+DEFINE VARIABLE v-current-job LIKE fg-rcpth.job-no NO-UNDO INIT "".
+DEFINE VARIABLE v-current-job2 LIKE fg-rcpth.job-no2 NO-UNDO INIT "".
+DEFINE VARIABLE v-new-job AS LOGICAL NO-UNDO INIT NO.
+DEFINE VARIABLE v-tot-pos1 AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-tot-pos2 AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-tot-pos3 AS INTEGER NO-UNDO.
+DEFINE BUFFER b-fgrdtlh FOR fg-rdtlh.
+DEFINE VARIABLE cSpace AS cha INIT " " NO-UNDO.
+DEFINE VARIABLE prom-date AS DATE NO-UNDO.
+DEFINE VARIABLE due-date AS DATE NO-UNDO.
+DEFINE VARIABLE job-start AS DATE NO-UNDO.
+DEFINE VARIABLE v-stnd-cost AS DECIMAL INIT 0 NO-UNDO.
+DEFINE VARIABLE order-no AS INTEGER NO-UNDO .
 
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE cDisplay AS cha NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
+DEFINE VARIABLE cVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
-DEF VAR v-shipto AS CHAR NO-UNDO .
-DEF VAR v-shipto-name AS CHAR NO-UNDO .
+DEFINE VARIABLE v-shipto AS CHARACTER NO-UNDO .
+DEFINE VARIABLE v-shipto-name AS CHARACTER NO-UNDO .
 
-DEF BUFFER bfg-rcpth FOR fg-rcpth.
-DEF BUFFER bpo-ord FOR po-ord.
-DEF BUFFER bitemfg FOR itemfg.
-DEF VAR v-numUp AS INT NO-UNDO.
-DEF VAR v-numColors AS INT NO-UNDO.
-DEF VAR v-SheetSize AS cha NO-UNDO.
-DEF VAR v-Caliper AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
+DEFINE BUFFER bfg-rcpth FOR fg-rcpth.
+DEFINE BUFFER bpo-ord FOR po-ord.
+DEFINE BUFFER bitemfg FOR itemfg.
+DEFINE VARIABLE v-numUp AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-numColors AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-SheetSize AS cha NO-UNDO.
+DEFINE VARIABLE v-Caliper AS cha NO-UNDO.
+DEFINE VARIABLE cFieldName AS cha NO-UNDO.
+DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE iBinQtyb AS INTEGER NO-UNDO .
+DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth .
+DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh .
 {ce/msfcalc.i}
 
 form fg-rcpth.trans-date            label "DATE"   format "99/99/99"
@@ -2269,74 +2292,6 @@ FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
             str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
             excelheader = excelHeader + ttRptSelected.TextList + ",".
 END.
-/*
-ASSIGN str-tit4 = 
-      (IF {sys/inc/rptDisp.i "fg-rcpth.trans-date"} THEN 
-        "DATE     " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "fg-rcpth.i-no"} THEN 
-        "ITEM            " ELSE "" ) +   /*16*/
-    (IF {sys/inc/rptDisp.i "fg-rcpth.i-name"} THEN 
-        "DESCRIPTION " ELSE "" ) +  /*11*/
-    (IF {sys/inc/rptDisp.i "fg-rcpth.po-no"} THEN 
-        "P.O. #    " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "po-ord.vend-no"} THEN 
-        "VENDOR #   " ELSE "")  +  /*10*/
-    (IF {sys/inc/rptDisp.i "fg-rcpth.job-no"} THEN
-       "JOB         " ELSE "" ) +   /*11*/
-    (IF {sys/inc/rptDisp.i "v-tran-type"} THEN 
-        "T " ELSE "" ) +    /*1*/
-    (IF {sys/inc/rptDisp.i "rfidtag.rfidtag"} THEN
-       "RFID TAG #    " ELSE "" ) +  /*13*/
-    (IF {sys/inc/rptDisp.i "v-tag"} THEN
-       "TAG #         " ELSE "" ) +  /*13*/
-    (IF {sys/inc/rptDisp.i "v-cases"}  THEN
-       "UNITS    " ELSE "" ) +  /*8*/
-    (IF {sys/inc/rptDisp.i "v-qty-case"}  THEN
-       "COUNT    " ELSE "" ) +  /*8*/
-    (IF {sys/inc/rptDisp.i "fg-rdtlh.loc-bin"}  THEN
-       "BIN       " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "lv-cost-uom"}       THEN
-       "UOM       " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "v-fg-qty"}  THEN
-       "TOT QTY    " ELSE "" ) +  /*10*/
-    (IF {sys/inc/rptDisp.i "v-fg-cost"}   THEN
-       "TOT COST  " ELSE "" ) +  /*9*/
-    (IF {sys/inc/rptDisp.i "v-fg-value"}  THEN
-       "TOT SELL VALUE" ELSE ""  )  /*14*/
- str-tit5 = 
-      (IF {sys/inc/rptDisp.i "fg-rcpth.trans-date"} THEN 
-        "-------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "fg-rcpth.i-no"} THEN 
-        "--------------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "fg-rcpth.i-name"} THEN 
-        "----------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "fg-rcpth.po-no"} THEN 
-        "--------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "po-ord.vend-no"} THEN 
-        "---------- " ELSE "")  +
-    (IF {sys/inc/rptDisp.i "fg-rcpth.job-no"} THEN
-       "----------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-tran-type"} THEN 
-        "_ " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "rfidtag.rfidtag"} THEN
-       "------------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-tag"} THEN
-       "------------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-cases"}  THEN
-       "-------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-qty-case"}  THEN
-       "-------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "fg-rdtlh.loc-bin"}  THEN
-       "--------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "lv-cost-uom"}       THEN
-       "--------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-fg-qty"}  THEN
-       "---------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-fg-cost"}   THEN
-       "--------- " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-fg-value"}  THEN
-       "------------- " ELSE "" 
-    .*/
 
 {sys/inc/print1.i}
 {sys/inc/outprint.i value(lines-per-page)}
@@ -2385,42 +2340,42 @@ PROCEDURE run-report_Save :
 
 {sys/form/r-top3w.f}
 
-DEF BUFFER b-fg-bin FOR fg-bin.
+DEFINE BUFFER b-fg-bin FOR fg-bin.
 
-def var type as ch format "X" initial "R" NO-UNDO.
-def var type-prt as ch format "X(11)" initial "           " NO-UNDO.
-def var v-fg-qty as int format "->>>,>>>,>>9" NO-UNDO.
-def var v-fg-cost as dec format "->>>,>>9.99<<" NO-UNDO.
-def var v-tot-qty like v-fg-qty NO-UNDO.
-def var v-tot-cost like v-fg-cost NO-UNDO.
-def var v-fg-value as dec format "->>,>>>,>>9.99" NO-UNDO.
-def var v-msf as dec format ">,>>9.999" extent 6 NO-UNDO.
-def var v-grd-tot-cost as dec format "->>,>>>,>>9.99<<" NO-UNDO.                     
-def var v-tot-value as dec format "->>,>>>,>>9.99" NO-UNDO.                  
-def var v-grd-tot-value as dec format "->>,>>>,>>9.99" NO-UNDO.
-def var v-cum-tot as de NO-UNDO.                                   
-def var v-tran-type as char format "x(1)" NO-UNDO.      
-def var v-entrytype as char initial "REC  ,TRAN ,ADJ  ,SHIP ,ERET ,COUNT" NO-UNDO.
-def var v-on like eb.num-up NO-UNDO.
-def var v-qty-pallet as decimal format "->>,>>>,>>9" no-undo.
-def var v-whse like fg-rdtlh.loc NO-UNDO.   
-def var v-cases like fg-rdtlh.cases no-undo.
-def var v-qty-case like fg-rdtlh.qty-case no-undo.
-def var v-i-no like fg-rcpth.i-no no-undo.
-DEF VAR v-tag AS cha NO-UNDO.
-DEF VAR lv-sell-price LIKE itemfg.sell-price NO-UNDO.
-DEF VAR lv-sell-uom LIKE itemfg.sell-uom NO-UNDO.
-DEF VAR lv-cost-uom LIKE fg-rcpth.pur-uom NO-UNDO.
-DEF VAR excelheader AS CHAR NO-UNDO.
-DEF VAR v-type AS CHAR NO-UNDO.
-DEF VAR v-date AS DATE NO-UNDO.
-DEF VAR v-current-job LIKE fg-rcpth.job-no NO-UNDO INIT "".
-DEF VAR v-current-job2 LIKE fg-rcpth.job-no2 NO-UNDO INIT "".
-DEF VAR v-new-job AS LOGICAL NO-UNDO INIT NO.
-DEF VAR v-tot-pos1 AS INT NO-UNDO.
-DEF VAR v-tot-pos2 AS INT NO-UNDO.
-DEF VAR v-tot-pos3 AS INT NO-UNDO.
-def buffer b-fgrdtlh for fg-rdtlh.
+DEFINE VARIABLE type AS ch FORMAT "X" INITIAL "R" NO-UNDO.
+DEFINE VARIABLE type-prt AS ch FORMAT "X(11)" INITIAL "           " NO-UNDO.
+DEFINE VARIABLE v-fg-qty AS INTEGER FORMAT "->>>,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE v-fg-cost AS DECIMAL FORMAT "->>>,>>9.99<<" NO-UNDO.
+DEFINE VARIABLE v-tot-qty LIKE v-fg-qty NO-UNDO.
+DEFINE VARIABLE v-tot-cost LIKE v-fg-cost NO-UNDO.
+DEFINE VARIABLE v-fg-value AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-msf AS DECIMAL FORMAT ">,>>9.999" EXTENT 6 NO-UNDO.
+DEFINE VARIABLE v-grd-tot-cost AS DECIMAL FORMAT "->>,>>>,>>9.99<<" NO-UNDO.                     
+DEFINE VARIABLE v-tot-value AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.                  
+DEFINE VARIABLE v-grd-tot-value AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-cum-tot AS de NO-UNDO.                                   
+DEFINE VARIABLE v-tran-type AS CHARACTER FORMAT "x(1)" NO-UNDO.      
+DEFINE VARIABLE v-entrytype AS CHARACTER INITIAL "REC  ,TRAN ,ADJ  ,SHIP ,ERET ,COUNT" NO-UNDO.
+DEFINE VARIABLE v-on LIKE eb.num-up NO-UNDO.
+DEFINE VARIABLE v-qty-pallet AS DECIMAL FORMAT "->>,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE v-whse LIKE fg-rdtlh.loc NO-UNDO.   
+DEFINE VARIABLE v-cases LIKE fg-rdtlh.cases NO-UNDO.
+DEFINE VARIABLE v-qty-case LIKE fg-rdtlh.qty-case NO-UNDO.
+DEFINE VARIABLE v-i-no LIKE fg-rcpth.i-no NO-UNDO.
+DEFINE VARIABLE v-tag AS cha NO-UNDO.
+DEFINE VARIABLE lv-sell-price LIKE itemfg.sell-price NO-UNDO.
+DEFINE VARIABLE lv-sell-uom LIKE itemfg.sell-uom NO-UNDO.
+DEFINE VARIABLE lv-cost-uom LIKE fg-rcpth.pur-uom NO-UNDO.
+DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-type AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-date AS DATE NO-UNDO.
+DEFINE VARIABLE v-current-job LIKE fg-rcpth.job-no NO-UNDO INIT "".
+DEFINE VARIABLE v-current-job2 LIKE fg-rcpth.job-no2 NO-UNDO INIT "".
+DEFINE VARIABLE v-new-job AS LOGICAL NO-UNDO INIT NO.
+DEFINE VARIABLE v-tot-pos1 AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-tot-pos2 AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-tot-pos3 AS INTEGER NO-UNDO.
+DEFINE BUFFER b-fgrdtlh FOR fg-rdtlh.
 
 {ce/msfcalc.i}
 
@@ -2564,7 +2519,7 @@ RUN create-tt-report.
             and fg-bin.loc-bin eq fg-rdtlh.loc-bin
             and fg-bin.tag     eq fg-rdtlh.tag
           use-index job no-lock no-error.
-      ASSIGN lv-cost-uom = if avail fg-bin then fg-bin.pur-uom else "M".
+      ASSIGN lv-cost-uom = IF AVAILABLE fg-bin THEN fg-bin.pur-uom ELSE "M".
     end.
     ELSE 
         ASSIGN lv-cost-uom = fg-rcpth.pur-uom.
@@ -2578,7 +2533,7 @@ RUN create-tt-report.
         where itemfg.company eq cocode
           and itemfg.i-no    eq fg-rcpth.i-no
         use-index i-no no-lock no-error.
-    if avail itemfg then do:
+    IF AVAILABLE itemfg THEN DO:
       ASSIGN
        lv-sell-price = itemfg.sell-price
        lv-sell-uom   = itemfg.sell-uom    
@@ -2647,7 +2602,7 @@ RUN create-tt-report.
                          and loadtag.i-no    eq fg-rcpth.i-no
                          AND loadtag.tag-no  EQ fg-rdtlh.tag
                        NO-LOCK NO-ERROR.
-    IF AVAIL loadtag THEN
+    IF AVAILABLE loadtag THEN
       FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.
 
     IF rsShowVendor = "Vendor" AND rsShowTag = "Tag#" THEN DO:
@@ -2656,7 +2611,7 @@ RUN create-tt-report.
                 fg-rcpth.i-no           /*  when first-of(tt-report.key-02) */
                 fg-rcpth.i-name
                 fg-rcpth.po-no
-                po-ord.vend-no            when avail po-ord AND fg-rcpth.po-no <> ""                
+                po-ord.vend-no            WHEN AVAILABLE po-ord AND fg-rcpth.po-no <> ""                
                 v-tran-type
                 v-tag @ fg-rdtlh.tag
                 v-cases
@@ -2699,7 +2654,7 @@ RUN create-tt-report.
                     fg-rcpth.i-no           /*  when first-of(tt-report.key-02) */
                     fg-rcpth.i-name
                     fg-rcpth.po-no
-                    po-ord.vend-no            when avail po-ord AND fg-rcpth.po-no <> ""                     
+                    po-ord.vend-no            WHEN AVAILABLE po-ord AND fg-rcpth.po-no <> ""                     
                     v-tran-type
                     substring(rfidtag.rfidtag, 13)  WHEN AVAIL(rfidtag) @ rfidtag.rfidtag
                     v-cases
@@ -2742,7 +2697,7 @@ RUN create-tt-report.
           '"' STRING(fg-rcpth.i-no)                                    '",'
           '"' fg-rcpth.i-name                                          '",'
           '"' fg-rcpth.po-no                                           '",'
-          '"' (IF avail po-ord AND fg-rcpth.po-no <> "" THEN po-ord.vend-no
+          '"' (IF AVAILABLE po-ord AND fg-rcpth.po-no <> "" THEN po-ord.vend-no
                ELSE "")                                                '",'
           '"' STRING(v-tran-type,"X(1)")                               '",'
           '"' v-tag                                                    '",'
@@ -2885,14 +2840,14 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS cha NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label AS cha.
   
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.

@@ -397,7 +397,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1378,7 +1382,7 @@ DEF VAR lv-uom  AS   CHAR   NO-UNDO.
 /*     FIND item WHERE ROWID(item) EQ ip-rowid NO-LOCK NO-ERROR. */
     
     IF AVAIL item THEN DO:
-      {rm/rmmkbin1.i as-of-date tt-}
+      {rm/rmmkbin2.i as-of-date tt-}
     END.
 
     FOR EACH tt-rm-bin:
@@ -1386,19 +1390,19 @@ DEF VAR lv-uom  AS   CHAR   NO-UNDO.
              op-cost  = (op-cost + tt-rm-bin.cost)
              op-value = (op-value + (tt-rm-bin.qty * tt-rm-bin.cost)).
     
-/*       /* Stacey */                                                                    */
-/*       IF item.i-no BEGINS "10x10x10" THEN                                             */
-/*           MESSAGE "** mkbin **" SKIP                                                  */
-/*               "tt-rm-bin.loc: " tt-rm-bin.loc SKIP                                    */
-/*               "tt-rm-bin.i-no: " tt-rm-bin.i-no SKIP                                  */
-/*               "tt-rm-bin.loc-bin: " tt-rm-bin.loc-bin SKIP                            */
-/*               "tt-rm-bin.qty: " tt-rm-bin.qty SKIP                                    */
-/*               "tt-rm-bin.cost: " tt-rm-bin.cost SKIP                                  */
-/*               "tt-rm-bin.qty * tt-rm-bin.cost: " tt-rm-bin.qty * tt-rm-bin.cost SKIP  */
-/*               "Total Qty: " op-qty SKIP                                               */
-/*               "Total Cost: " op-cost SKIP                                             */
-/*               "Total Value: " (op-qty * op-cost)                                      */
-/*               VIEW-AS ALERT-BOX INFO BUTTONS OK.                                      */
+/*       /* Stacey */                                                                     */
+/*       IF item.i-no BEGINS "10x10x10" THEN                                              */
+/*          MESSAGE "** mkbin **" SKIP                                                    */
+/*              "tt-rm-bin.loc: " tt-rm-bin.loc SKIP                                      */
+/*              "tt-rm-bin.i-no: " tt-rm-bin.i-no SKIP                                    */
+/*              "tt-rm-bin.loc-bin: " tt-rm-bin.loc-bin SKIP                              */
+/*              "tt-rm-bin.qty: " tt-rm-bin.qty SKIP                                      */
+/*              "tt-rm-bin.cost: " tt-rm-bin.cost SKIP                                    */
+/*              "tt-rm-bin.qty * tt-rm-bin.cost: " tt-rm-bin.qty * tt-rm-bin.cost SKIP    */
+/*              "Total Qty: " op-qty SKIP                                                 */
+/*              "Total Cost: " op-cost SKIP                                               */
+/*              "Total Value: " (op-qty * op-cost)                                        */
+/*             VIEW-AS ALERT-BOX INFO BUTTONS OK.                                         */
 
     END. /* FOR EACH tt-rm-bin */
 
@@ -1609,29 +1613,6 @@ FOR EACH ITEM NO-LOCK
            run sys/ref/convquom.p (ITEM.cons-uom, "TON",
                                    item.basis-w, v-len, v-wid, item.s-dep,
                                    lv-q-onh, output v-tons).
-
-         /* display /* item.loc        when (item.loc ne v-fst-loc)*/
-                item.i-no
-                item.i-name
-                item.procat
-                item.cons-uom
-/*                 item.avg-cost   when v-avgcost                               */
-/*                 item.last-cost  when not v-avgcost          @ item.avg-cost  */
-                item.avg-cost
-                lv-q-onh        when item.i-code ne "E"
-                item.q-ono      when item.i-code ne "E"
-                item.q-comm     when item.i-code ne "E"
-                item.ord-level  when item.i-code ne "E"
-/*                 v-qty           when item.i-code ne "E"     @ item.q-avail  */
-/*                 lv-q-onh              when item.i-code ne "E"     @ item.q-avail  */
-/*                 item.q-avail             WHEN inc = YES AND item.i-code ne "E"  */
-/*                (lv-q-onh - item.q-comm)  WHEN inc = NO AND item.i-code ne "E" @ ITEM.q-avail  */
-                v-qty-avail     WHEN item.i-code ne "E" @ ITEM.q-avail
-                v-value         when item.i-code ne "E"
-                
-            with frame itemx.
-        down with frame itemx.
-/*         v-fst-loc = item.loc. */  */
 
          ASSIGN cDisplay = ""
                    cTmpField = ""

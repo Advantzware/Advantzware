@@ -15,9 +15,7 @@ if not avail sys-ctrl then do:
    sys-ctrl.descrip = "Prompt Login ID/Password for Touch-Screen"
    sys-ctrl.log-fld = no  .
 
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 end.
 ASSIGN tslogin-log = sys-ctrl.log-fld
        .

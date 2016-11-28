@@ -25,6 +25,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -40,7 +42,6 @@ assign
  cocode = gcompany
  locode = gloc.
 
-{sys/inc/custlistform.i ""HR5"" }
 {sys/ref/CustList.i NEW}
 def TEMP-TABLE w-data NO-UNDO
   field i-no      like ar-invl.i-no
@@ -98,7 +99,7 @@ lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -525,8 +526,8 @@ ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -624,7 +625,7 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -692,8 +693,8 @@ ON HELP OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -797,8 +798,8 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-fonts.w ({&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
@@ -878,6 +879,16 @@ END.
 ON VALUE-CHANGED OF tb_detailed IN FRAME FRAME-A /* Detailed? */
 DO:
   assign {&self-name}.
+  
+  IF {&self-name} = NO THEN do:
+      ASSIGN rd_sort:SCREEN-VALUE = "Finished Goods"
+             rd_show:SCREEN-VALUE = "Item" 
+             rd_show:SENSITIVE = NO .
+  END.
+  ELSE DO:
+      rd_show:SENSITIVE = YES .
+  END.
+     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -985,6 +996,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   {methods/nowait.i}
   
+ RUN sys/inc/CustListForm.p ( "HR5",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
+  
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     ASSIGN begin_slmn:SENSITIVE   = YES 
@@ -997,7 +1013,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HR5',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""HR5""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1024,6 +1040,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         .
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
+
+   IF tb_detailed:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" THEN do:
+       ASSIGN 
+           rd_show:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Item" 
+           rd_show:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
+  END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1246,6 +1268,7 @@ DEF VAR lv-type AS CHAR NO-UNDO.
 DEF VAR v-est LIKE est.est-no NO-UNDO.
 DEF VAR v-bol LIKE oe-bolh.bol-no NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form header
      "               "
@@ -1322,7 +1345,8 @@ ASSIGN
  v-det      = tb_detailed                  
  v-print1   = rd_show EQ "Customer Name" 
  v-sort1    = rd_sort EQ "Finished Goods"              
- v-inc-fc   = tb_fin-chg. 
+ v-inc-fc   = tb_fin-chg
+ lSelected  = tb_cust-list. 
 
 ASSIGN
  v-hdr[1] = if v-sort1  then "FG Item#" else "Customer Part#"
@@ -1343,6 +1367,12 @@ IF tb_excel THEN DO:
               + (IF rd_show2 EQ "BOL#" THEN "BOL Number," ELSE "Estimate Number,")
               + "Qty Shipped,Unit Price,UOM,Invoice Amt".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+END.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
 END.
 
 if td-show-parm then run show-param.

@@ -352,7 +352,7 @@ IF NOT v-smr THEN
              item-name = itemfg.i-name .
 
         IF v-cost1 NE "N" THEN
-          RUN salrep/salecost.p (LOOKUP(v-cost1,"B,O,I"),
+          RUN salrep/salecost.p ( IF v-cost1 EQ "B" THEN 4 ELSE LOOKUP(v-cost1,"B,O,I"),
                                  ROWID(ar-invl),
                                  v-job-no,
                                  v-job-no2,
@@ -479,7 +479,7 @@ IF NOT v-smr THEN
             end.
 
             IF v-cost1 NE "N" THEN
-              RUN salrep/salecost.p (LOOKUP(v-cost1,"B,O,I"),
+              RUN salrep/salecost.p ( IF v-cost1 EQ "B" THEN 4 ELSE LOOKUP(v-cost1,"B,O,I"),
                                      ROWID(ar-invl),
                                      v-job-no,
                                      v-job-no2,
@@ -527,32 +527,7 @@ IF NOT v-smr THEN
       FIND FIRST shipto where shipto.company eq cocode
           and shipto.cust-no eq cust.cust-no NO-LOCK NO-ERROR  .
 
-    /*  display cust.name         when avail cust
-              w-data.inv-no
-              w-data.i-no
-              itemfg.procat     when avail itemfg
-              v-qty[2]
-              v-msf[2]
-              v-$msf
-              v-amt[2]
-              v-brdc            when v-cost2
-              v-marg            when v-cost2.
-      down.
-
-      IF tb_excel THEN DO:  
-          PUT STREAM excel UNFORMATTED
-              '"' (IF AVAIL cust THEN cust.name ELSE "") '",'
-              '"' w-data.inv-no '",' 
-              '"' w-data.i-no '",'
-              '"' (IF AVAIL itemfg THEN itemfg.procat ELSE "") '",'
-              '"' v-qty[2] '",'
-              '"' v-msf[2] '",'
-              '"' v-$msf '",'
-              '"' v-amt[2] '",'
-              '"' (IF v-cost2 THEN v-brdc ELSE 0) '",'
-              '"' (IF v-cost2 THEN v-marg ELSE 0) '",'
-              SKIP.
-      END. */
+    
 
        ASSIGN cDisplay = ""
           cTmpField = ""
@@ -624,20 +599,7 @@ IF NOT v-smr THEN
         if v-marg eq ? then v-marg = 0.
         if v-$msf eq ? then v-$msf = 0.
 
-      /*  display "    DATE TOTALS FOR " + substr(tt-report2.key-02,5,2) + "/" +
-                                         substr(tt-report2.key-02,7,2) + "/" +
-                                         substr(tt-report2.key-02,1,4)
-                                                  @ cust.name
-                v-qty[3]                          @ v-qty[2]
-                v-msf[3]                          @ v-msf[2]
-                v-$msf
-                v-amt[3]                          @ v-amt[2]
-                v-brdc                            when v-cost2
-                v-marg                            when v-cost2
-
-            with frame itemx.
-
-        down with frame itemx. */
+     
 
         PUT    SKIP  str-line SKIP .
         ASSIGN cDisplay = ""
@@ -712,17 +674,7 @@ IF NOT v-smr THEN
           if v-marg eq ? then v-marg = 0.
           if v-$msf eq ? then v-$msf = 0.
 
-       /*   display v-total-label                   @ cust.name
-                  v-qty[4]                        @ v-qty[2]
-                  v-msf[4]                        @ v-msf[2]
-                  v-$msf
-                  v-amt[4]                        @ v-amt[2]
-                  v-brdc                          when v-cost2
-                  v-marg                          when v-cost2
-      
-              with frame itemx.
-
-          down with frame itemx. */
+       
 
           PUT    SKIP  str-line SKIP .
         ASSIGN cDisplay = ""
@@ -801,15 +753,7 @@ IF NOT v-smr THEN
       if v-marg eq ? then v-marg = 0.
       if v-$msf eq ? then v-$msf = 0.
 
-    /*  display "                  GRAND TOTALS"  @ cust.name
-              v-qty[5]                          @ v-qty[2]
-              v-msf[5]                          @ v-msf[2]
-              v-$msf
-              v-amt[5]                          @ v-amt[2]
-              v-brdc                            when v-cost2
-              v-marg                            when v-cost2
-
-          with frame itemx. */
+    
 
        PUT    SKIP  str-line SKIP .
         ASSIGN cDisplay = ""
@@ -880,13 +824,6 @@ IF NOT v-smr THEN
          v-slsmn-hdr = trim(tt-report2.key-05) .
          v-slsmn-hdr2 = (if avail sman then sman.sname else "Not on file").
         
-       /*  if first(tt-report2.key-01) then do:
-          /*  hide frame r-top2 no-pause.
-            view frame r-top2. */
-         end.
-         
-         page.
-      end.*/
      
 
       create w-data.
@@ -931,7 +868,7 @@ IF NOT v-smr THEN
              item-name = itemfg.i-name .
 
         IF v-cost1 NE "N" THEN
-          RUN salrep/salecost.p (LOOKUP(v-cost1,"B,O,I"),
+          RUN salrep/salecost.p ( IF v-cost1 EQ "B" THEN 4 ELSE LOOKUP(v-cost1,"B,O,I"),
                                  ROWID(ar-invl),
                                  v-job-no,
                                  v-job-no2,
@@ -1058,7 +995,7 @@ IF NOT v-smr THEN
             end.
 
             IF v-cost1 NE "N" THEN
-              RUN salrep/salecost.p (LOOKUP(v-cost1,"B,O,I"),
+              RUN salrep/salecost.p ( IF v-cost1 EQ "B" THEN 4 ELSE LOOKUP(v-cost1,"B,O,I"),
                                      ROWID(ar-invl),
                                      v-job-no,
                                      v-job-no2,

@@ -23,7 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -40,29 +40,29 @@ assign
  cocode = gcompany
  locode = gloc.
 
-DEF TEMP-TABLE tt-srt NO-UNDO LIKE mch-srt
+DEFINE TEMP-TABLE tt-srt NO-UNDO LIKE mch-srt
                               FIELD act-m-code LIKE mach.m-code
-                              FIELD tot-run-hours AS DEC
-                              FIELD tot-mr-hours AS DEC
-                              FIELD qty-Ton AS dec format ">>,>>9.99"
-                              FIELD qty-msf AS DEC FORM ">>,>>9.99"
-                              FIELD start-time AS INT 
+                              FIELD tot-run-hours AS DECIMAL
+                              FIELD tot-mr-hours AS DECIMAL
+                              FIELD qty-Ton AS DECIMAL FORMAT ">>,>>9.99"
+                              FIELD qty-msf AS DECIMAL FORM ">>,>>9.99"
+                              FIELD start-time AS INTEGER 
                               FIELD start-date AS DATE 
 
     INDEX dept-idx dept m-code job-no job-no2 frm blank-no
     INDEX job-idx job-no job-no2.
 
-DEF VAR ls-fax-file AS CHAR NO-UNDO.
-DEF STREAM excel.
+DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
+DEFINE STREAM excel.
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR cFieldType AS cha NO-UNDO.
-DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE ldummy AS LOG NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
+DEFINE VARIABLE cFieldType AS cha NO-UNDO.
+DEFINE VARIABLE cColumnInit AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
 
 
@@ -129,7 +129,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -315,22 +315,22 @@ DEFINE FRAME FRAME-A
      tb_sched AT ROW 7.1 COL 30
      TB_round AT ROW 7.91 COL 30 WIDGET-ID 2
      tb_TonMsf AT ROW 8.71 COL 30 WIDGET-ID 12
-     rd_alptime AT ROW 9.81 COL 30 NO-LABEL WIDGET-ID 14
-     sl_avail AT ROW 12.43 COL 3.8 NO-LABEL WIDGET-ID 26
+     rd_alptime AT ROW 9.81 COL 30 NO-LABELS WIDGET-ID 14
+     sl_avail AT ROW 12.43 COL 3.8 NO-LABELS WIDGET-ID 26
      Btn_Def AT ROW 12.43 COL 39.8 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 12.43 COL 59.2 NO-LABEL WIDGET-ID 28
+     sl_selected AT ROW 12.43 COL 59.2 NO-LABELS WIDGET-ID 28
      Btn_Add AT ROW 13.43 COL 39.8 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
      Btn_Remove AT ROW 14.43 COL 39.8 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
      btn_Up AT ROW 15.48 COL 39.8 WIDGET-ID 40
      btn_down AT ROW 16.48 COL 39.8 WIDGET-ID 42
-     lv-ornt AT ROW 18.76 COL 30 NO-LABEL
+     lv-ornt AT ROW 18.76 COL 30 NO-LABELS
      lines-per-page AT ROW 18.76 COL 83 COLON-ALIGNED
-     rd-dest AT ROW 18.81 COL 5 NO-LABEL
+     rd-dest AT ROW 18.81 COL 5 NO-LABELS
      lv-font-no AT ROW 20.19 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 21.14 COL 28 COLON-ALIGNED NO-LABEL
+     lv-font-name AT ROW 21.14 COL 28 COLON-ALIGNED NO-LABELS
      td-show-parm AT ROW 22.91 COL 30
      tb_excel AT ROW 24.57 COL 66.2 RIGHT-ALIGNED
      tb_runExcel AT ROW 24.57 COL 90.2 RIGHT-ALIGNED
@@ -596,7 +596,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -622,7 +622,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
@@ -741,7 +741,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
@@ -1007,8 +1007,8 @@ PROCEDURE DisplaySelectionDefault :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
@@ -1031,8 +1031,8 @@ PROCEDURE DisplaySelectionList :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
      
@@ -1072,9 +1072,9 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
@@ -1154,7 +1154,7 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1275,8 +1275,8 @@ PROCEDURE pro-rate-mr :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER b-mch-act FOR mch-act.
-  DEF BUFFER b-job-cod FOR job-code.
+  DEFINE BUFFER b-mch-act FOR mch-act.
+  DEFINE BUFFER b-job-cod FOR job-code.
 
 
   FOR EACH b-mch-act NO-LOCK
@@ -1311,74 +1311,75 @@ PROCEDURE run-report :
 /* -------------------------------------------------------------------------- */
 /*{sys/form/r-topw.f}*/
 
-DEF BUFFER b-mch-act FOR mch-act.
+DEFINE BUFFER b-mch-act FOR mch-act.
 
-def var v-date as date extent 2 format "99/99/9999" no-undo.
-def var v-dept as ch format "x(4)" extent 2 initial ["","zzzz"].
-def var v-mach as ch format "x(6)" extent 2 initial ["","zzzzzz"].
-def var v-shift like mch-act.shift format ">>" extent 2 initial ["1", "99"].
-def var v-show as logical format "Y/N" init yes no-undo.
-def var v-show1 as logical format "Y/N" init yes no-undo.
-def var mch-mr-std as dec format ">>>>9.9" no-undo.
-def var mch-run-std as dec format ">>>>9.9" no-undo.
-def var mch-mr-act as dec format ">>>>9.9" no-undo.
-def var mch-run-act as dec format ">>>>9.9" no-undo.
-def var mch-dt-act as dec format ">>>>9.9" no-undo.
-def var mch-qty-prod as dec format ">,>>>,>>9" no-undo.
-def var mch-qty-expect as dec format ">,>>>,>>9" no-undo.
-def var dpt-mr-std as dec format ">>>>9.9" no-undo.
-def var dpt-run-std as dec format ">>>>9.9" no-undo.
-def var dpt-mr-act as dec format ">>>>9.9" no-undo.
-def var dpt-run-act as dec format ">>>>9.9" no-undo.
-def var dpt-dt-act as dec format ">>>>9.9" no-undo.
-def var dpt-qty-prod as dec format ">,>>>,>>9" no-undo.
-def var dpt-qty-expect as dec format ">,>>>,>>9" no-undo.
-def var shf-mr-std as dec format ">>>>9.9" no-undo.
-def var shf-run-std as dec format ">>>>9.9" no-undo.
-def var shf-mr-act as dec format ">>>>9.9" no-undo.
-def var shf-run-act as dec format ">>>>9.9" no-undo.
-def var shf-dt-act as dec format ">>>>9.9" no-undo.
-def var shf-qty-prod as dec format ">,>>>,>>9" no-undo.
-def var shf-qty-expect as dec format ">,>>>,>>9" no-undo.
-def var shf-jobs as int format ">,>>>,>>9" no-undo.
-DEF VAR tot-jobs AS INT format ">,>>>,>>9" no-undo.
-def var mr-eff as dec format ">>>9.9-" no-undo.
-def var run-eff as dec format ">>>9.9-" no-undo.
-def var tot-eff as dec format ">>>9.9-" no-undo.
-def var dt-eff as dec format ">>>9.9-" no-undo.
-def var tot-std-hrs as dec format ">>>>9.9" no-undo.
-def var tot-act-hrs as dec format ">>>>9.9" no-undo.
-def var a as char no-undo.
-DEF VAR v-tot-uni-jobs AS LOG NO-UNDO.
-def var hdr-tit as char no-undo.
-def var hdr-tit2 as char no-undo.
-def var hdr-tit3 as char no-undo.
+DEFINE VARIABLE v-date AS DATE EXTENT 2 FORMAT "99/99/9999" NO-UNDO.
+DEFINE VARIABLE v-dept AS ch FORMAT "x(4)" EXTENT 2 INITIAL ["","zzzz"].
+DEFINE VARIABLE v-mach AS ch FORMAT "x(6)" EXTENT 2 INITIAL ["","zzzzzz"].
+DEFINE VARIABLE v-shift LIKE mch-act.shift FORMAT ">>" EXTENT 2 INITIAL ["1", "99"].
+DEFINE VARIABLE v-show AS LOGICAL FORMAT "Y/N" INIT YES NO-UNDO.
+DEFINE VARIABLE v-show1 AS LOGICAL FORMAT "Y/N" INIT YES NO-UNDO.
+DEFINE VARIABLE mch-mr-std AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE mch-run-std AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE mch-mr-act AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE mch-run-act AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE mch-dt-act AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE mch-qty-prod AS DECIMAL FORMAT ">,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE mch-qty-expect AS DECIMAL FORMAT ">,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE dpt-mr-std AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE dpt-run-std AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE dpt-mr-act AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE dpt-run-act AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE dpt-dt-act AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE dpt-qty-prod AS DECIMAL FORMAT ">,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE dpt-qty-expect AS DECIMAL FORMAT ">,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE shf-mr-std AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE shf-run-std AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE shf-mr-act AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE shf-run-act AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE shf-dt-act AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE shf-qty-prod AS DECIMAL FORMAT ">,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE shf-qty-expect AS DECIMAL FORMAT ">,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE shf-jobs AS INTEGER FORMAT ">,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE tot-jobs AS INTEGER FORMAT ">,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE mr-eff AS DECIMAL FORMAT ">>>9.9-" NO-UNDO.
+DEFINE VARIABLE run-eff AS DECIMAL FORMAT ">>>9.9-" NO-UNDO.
+DEFINE VARIABLE tot-eff AS DECIMAL FORMAT ">>>9.9-" NO-UNDO.
+DEFINE VARIABLE dt-eff AS DECIMAL FORMAT ">>>9.9-" NO-UNDO.
+DEFINE VARIABLE tot-std-hrs AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE tot-act-hrs AS DECIMAL FORMAT ">>>>9.9" NO-UNDO.
+DEFINE VARIABLE a AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-tot-uni-jobs AS LOG NO-UNDO.
+DEFINE VARIABLE hdr-tit AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdr-tit2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdr-tit3 AS CHARACTER NO-UNDO.
 
 
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR str-tit4 AS cha FORM "x(300)" NO-UNDO.
-DEF VAR str-tit5 AS cha FORM "x(300)" NO-UNDO.
-DEF VAR str-tit6 AS cha FORM "x(300)" NO-UNDO.
-DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cDisplay AS cha NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
+DEFINE VARIABLE cVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE cFieldName AS cha NO-UNDO.
+DEFINE VARIABLE str-tit4 AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE str-tit5 AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE str-tit6 AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.
 
-DEF VAR cCustomerName AS cha FORM "x(25)" NO-UNDO.
-DEF VAR cPrepDscr AS cha FORM "x(25)" NO-UNDO.
+
+DEFINE VARIABLE cCustomerName AS cha FORM "x(25)" NO-UNDO.
+DEFINE VARIABLE cPrepDscr AS cha FORM "x(25)" NO-UNDO.
 {sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-DEF VAR excelheader AS CHAR NO-UNDO.
-def var mch-qty-ton as dec format ">>,>>9.99" no-undo.
-def var shf-qty-ton as dec format ">>,>>9.99" no-undo.
-def var dpt-qty-ton as dec format ">>,>>9.99" no-undo.
-def var mch-qty-msf as dec format ">>,>>9.99" no-undo.
-def var shf-qty-msf as dec format ">>,>>9.99" no-undo.
-def var dpt-qty-msf as dec format ">>,>>9.99" no-undo.
+DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
+DEFINE VARIABLE mch-qty-ton AS DECIMAL FORMAT ">>,>>9.99" NO-UNDO.
+DEFINE VARIABLE shf-qty-ton AS DECIMAL FORMAT ">>,>>9.99" NO-UNDO.
+DEFINE VARIABLE dpt-qty-ton AS DECIMAL FORMAT ">>,>>9.99" NO-UNDO.
+DEFINE VARIABLE mch-qty-msf AS DECIMAL FORMAT ">>,>>9.99" NO-UNDO.
+DEFINE VARIABLE shf-qty-msf AS DECIMAL FORMAT ">>,>>9.99" NO-UNDO.
+DEFINE VARIABLE dpt-qty-msf AS DECIMAL FORMAT ">>,>>9.99" NO-UNDO.
 
 /*FORM HEADER
      hdr-tit format "x(145)" skip
@@ -1420,7 +1421,7 @@ assign
  hdr-tit3 = fill("-", 132)*/ .
 
 
-DEF VAR cslist AS cha NO-UNDO.
+DEFINE VARIABLE cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
@@ -1437,11 +1438,16 @@ DEF VAR cslist AS cha NO-UNDO.
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        IF LOOKUP(ttRptSelected.TextList, "Qty Posted,Wst Qty,Mch Hrs") <> 0    THEN
+          IF LOOKUP(ttRptSelected.TextList, "Job#,##,Shift,MR Std,MR Act,MR Eff%," + 
+                                           "Run Std,Run Act,Run Eff%," +
+                                           "MR+Run Std,MR+Run Act,MR+Run Eff%," +
+                                           "DT Act,DT Eff%,Act Qty,Act Tons,Act MSF,EXPECTED QTY") <> 0    THEN
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
+
+         
  END.
 
 IF tb_excel THEN DO:
@@ -1494,14 +1500,14 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha NO-UNDO.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS cha NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label AS cha NO-UNDO.
   
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE

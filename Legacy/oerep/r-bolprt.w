@@ -1105,7 +1105,7 @@ DO:
                       END.
                      
                       RUN SetVariables.
-                      RUN output-to-mail(INPUT b-oe-bolh.cust-no,YES).
+                      RUN output-to-mail(INPUT b-oe-bolh.cust-no,YES,b-oe-bolh.ship-id).
                    END.
                END. /*end for each*/
          END. /*sys-ctrl-shipto found*/
@@ -1123,7 +1123,7 @@ DO:
         
          RUN SetBOLForm(v-print-fmt).
          RUN SetVariables.
-         RUN output-to-mail(INPUT "",NO).
+         RUN output-to-mail(INPUT "",NO,"").
       END.
   
       if tb_MailBatchMode then
@@ -1599,9 +1599,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      sys-ctrl.name     = "BOLCERT"
      sys-ctrl.descrip  = "Print Certificate of Compliance forms?"
      sys-ctrl.log-fld  = no.
-    MESSAGE sys-ctrl.descrip
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE sys-ctrl.log-fld.
+   
   end.
   assign
    v-print-coc = sys-ctrl.log-fld
@@ -1671,6 +1669,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   vcDefaultBOLX = sys-ctrl.char-fld.
 
   IF v-print-fmt EQ "XPRINT"   OR
+     v-print-fmt EQ "bolfmt 1"   OR
      v-print-fmt EQ "Lakeside"   OR
      v-print-fmt EQ "ACCORDBC"   OR
      v-print-fmt EQ "Protagon" OR
@@ -1714,13 +1713,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_post-bol:SCREEN-VALUE = "no"
        tb_post-bol:HIDDEN       = YES.
 
-    IF LOOKUP(v-print-fmt,"SouthPak,Xprint,Lakeside,Soule,SouleMed,Accordbc,Protagon,Xprint2,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
+    IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,Lakeside,Soule,SouleMed,Accordbc,Protagon,Xprint2,bolfmt 2,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
       tb_print-component:SCREEN-VALUE = "no".
       DISABLE tb_print-component.
     END.
 
     
     IF v-print-fmt = "Xprint"    or
+       v-print-fmt = "bolfmt 1"    or
        v-print-fmt = "Lakeside"    or
        v-print-fmt = "Accordbc"    or
        v-print-fmt = "Protagon"  or
@@ -1758,7 +1758,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_print-spec:HIDDEN = YES
         fi_specs:HIDDEN = YES.
 
-   IF v-print-fmt = "XPrint2" THEN  /* task 01121601 */
+   IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" THEN  /* task 01121601 */
        ASSIGN
         lbl_bolsort:HIDDEN = NO
         rd_bol-sort:HIDDEN = NO .
@@ -2375,7 +2375,7 @@ PROCEDURE build-work :
       NEXT build-work.
     END.
   
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt = "PremierCX" OR 
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX" OR v-print-fmt = "PremierCX" OR 
        v-print-fmt = "PremierPX" OR v-print-fmt =  "PremierBroker"  THEN DO:
        IF AVAIL oe-bolh THEN do:
            IF oe-bolh.frt-pay EQ "B" AND oe-bolh.freight EQ 0 THEN
@@ -2939,10 +2939,10 @@ PROCEDURE GenerateMail :
     
     CASE icType:
 
-      WHEN 'Customer1':U  THEN RUN SendMail-1 (ic1stKey, 'Customer1').
-      WHEN 'Customer':U   THEN RUN SendMail-1 (ic1stKey, 'Customer').
-      WHEN 'ShipTo1':U    THEN RUN SendMail-1 (ic2ndKey, 'ShipTo1'). 
-      WHEN 'ShipTo':U     THEN RUN SendMail-1 (ic2ndKey, 'ShipTo'). 
+      WHEN 'Customer1':U  THEN RUN SendMail-1 (ic1stKey, 'Customer1',"").
+      WHEN 'Customer':U   THEN RUN SendMail-1 (ic1stKey, 'Customer',"").
+      WHEN 'ShipTo1':U    THEN RUN SendMail-1 (ic2ndKey, 'ShipTo1',""). 
+      WHEN 'ShipTo':U     THEN RUN SendMail-1 (ic2ndKey, 'ShipTo',""). 
 
     END CASE.
   END.
@@ -3189,6 +3189,7 @@ PROCEDURE output-to-mail :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
   DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
+  DEFINE INPUT PARAMETER ip-ship-id AS CHARACTER NO-UNDO.
 
   ASSIGN
     v-s-bol             = begin_bol#
@@ -3267,8 +3268,9 @@ PROCEDURE output-to-mail :
           ELSE RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  
       END.
      
-      if vcMailMode = 'Customer1' then RUN SendMail-1 (b1-cust.cust-no, 'Customer1'). /* Silent Mode */
-                                  else RUN SendMail-1 (b1-cust.cust-no, 'Customer').  /* Dialog Box */ 
+      if vcMailMode = 'Customer1' then RUN SendMail-1 (b1-cust.cust-no, 'Customer1', b1-oe-bolh.ship-id). /* Silent Mode */
+                                  else RUN SendMail-1 (b1-cust.cust-no, 'Customer', b1-oe-bolh.ship-id).  /* Dialog Box */
+
     END.
     
     /* Not XPrint */
@@ -3653,7 +3655,7 @@ PROCEDURE run-packing-list :
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                    PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
-              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(160)".
               ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(60)".
           END.
@@ -3784,7 +3786,7 @@ PROCEDURE run-report :
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                    PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
-              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(160)".
               ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(60)".
           END.
@@ -3977,7 +3979,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
         WHEN 5 THEN do:
             IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                  PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
-                 ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+                 ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(160)".
             ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(60)".
         END.
@@ -4107,7 +4109,7 @@ PROCEDURE run-report-mail :
     IF IS-xprint-form THEN DO:
       IF v-print-fmt = "Century"                     /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
         THEN PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(100)".
-        ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+        ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(160)".
         ELSE IF v-print-fmt EQ "Prystup-Excel" THEN PUT "<PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(60)".
         ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(60)".
@@ -4201,6 +4203,7 @@ PROCEDURE SendMail-1 :
   
   DEFINE INPUT PARAM icIdxKey   AS CHAR NO-UNDO.
   DEFINE INPUT PARAM icRecType  AS CHAR NO-UNDO.    
+  DEFINE INPUT PARAMETER icShipId AS CHARACTER NO-UNDO.  
 
   DEFINE VARIABLE vcSubject   AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
@@ -4210,6 +4213,8 @@ PROCEDURE SendMail-1 :
           vcSubject   = IF tb_reprint THEN '[REPRINT] ' + vcSubject ELSE vcSubject
           vcMailBody  = "Please review attached Bill of Lading(s) for BOL #: " + vcBOLNums.
        
+  IF icShipId <> "" THEN icRecType = icRecType + "|" + icShipId. /* cust# + shipto */     
+
   RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-BOLPRT.',
                           input   lv-pdf-file,
@@ -4288,7 +4293,7 @@ PROCEDURE SetBOLForm :
    ELSE
    DO:
       CASE icFormName:
-         WHEN "Xprint" THEN
+         WHEN "Xprint" OR WHEN "bolcert 1" OR WHEN "bolcert 2" THEN
             ASSIGN 
                is-xprint-form = YES
                v-program      = "oe/rep/cocxprnt.p".

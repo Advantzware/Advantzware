@@ -1414,7 +1414,7 @@ PROCEDURE run-process :
        kef.leaf-w    = 0
        kef.leaf-l    = 0.
 
-    for each reftable {ce/est-mrpl.w ef} no-lock:
+    for each reftable {ce/est-mrpl.i ef} no-lock:
       create kref.
       buffer-copy reftable except rec_key to kref
       assign

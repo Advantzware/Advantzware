@@ -540,6 +540,7 @@ DO:
   SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -681,8 +682,8 @@ ON HELP OF begin_cust-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -697,8 +698,8 @@ ON HELP OF end_cust-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -1180,6 +1181,7 @@ def var v-qty-onh     like itemfg.q-onh.
 DEF VAR v-status      AS CHAR NO-UNDO FORMAT "x(1)".
 
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form header skip(1)
             v-page-break format "x(132)"
@@ -1261,6 +1263,8 @@ ASSIGN
  v-custown    = tb_cust-whse
  v-sort-by    = tb_sort
  v-zero       = tb_zero.
+ v-zero       = tb_zero 
+ lSelected    = tb_cust-list.
 
 {sys/inc/print1.i}
 
@@ -1299,6 +1303,10 @@ END.
         and itemfg.i-no    le v-i-no[2]
         and itemfg.cust-no EQ ttCustList.cust-no /*v-cust[1]
         and itemfg.cust-no le v-cust[2]*/
+        and itemfg.cust-no GE v-cust[1]
+        and itemfg.cust-no le v-cust[2]
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         and itemfg.procat  ge v-procat[1]
         and itemfg.procat  le v-procat[2]
       no-lock

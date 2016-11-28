@@ -460,8 +460,8 @@ ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -603,6 +603,7 @@ DO:
   FOR EACH ttCustList NO-LOCK  :
    
            find first ar-inv where ar-inv.company eq cocode    and
+          /* find first ar-inv where ar-inv.company eq cocode    and
                             ar-inv.cust-no eq ttCustList.cust-no and
                             ar-inv.posted                and
                             ar-inv.due ne 0              and
@@ -610,6 +611,7 @@ DO:
                             ar-inv.due-date le stmt-date no-lock no-error.
            
            if not avail ar-inv THEN next.
+           if not avail ar-inv THEN next.*/
 
       
      IF v-stmt-char EQ "ASIExcel" THEN
@@ -732,8 +734,8 @@ ON HELP OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -796,8 +798,8 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-fonts.w ({&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
@@ -1053,6 +1055,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT NO,
                           OUTPUT glCustListActive).
 {sys/inc/chblankcust.i}
+{sys/inc/chblankcust.i ""AR4""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1605,6 +1608,7 @@ find first company where company.company eq cocode no-lock no-error.
 
 IF v-stmt-char = "Badger" THEN do:
     IF company.company EQ "003" THEN
+        ASSIGN ls-image1 =  "images\Badger_CA.jpg" 
         ASSIGN ls-image1 =  "Graphics\clientImages\Badger_CA.jpg" 
             FILE-INFO:FILE-NAME = ls-image1
             ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
@@ -3701,7 +3705,7 @@ PROCEDURE run-report :
 DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
 DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
-IF lookup(v-stmt-char,"ASIXprnt,RFC,Premier,ASIExcel,Loylang,Printers,Badger") > 0 THEN DO:
+IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,RFC,Premier,ASIExcel,Loylang,Printers,Badger") > 0 THEN DO:
    RUN run-asistmt(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
    RETURN.
 END.
@@ -4250,7 +4254,7 @@ PROCEDURE run-report-mail :
 /* -------------------------------------------------------------------------- */
 DEFINE INPUT PARAM icCustNo   AS CHARACTER NO-UNDO.
 
-IF lookup(v-stmt-char,"ASIXprnt,Loylang,RFC,Premier,Badger,Printers") > 0 THEN DO:
+IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,Loylang,RFC,Premier,Badger,Printers") > 0 THEN DO:
    RUN run-asistmt-mail (icCustNo).
    RETURN.
 END.

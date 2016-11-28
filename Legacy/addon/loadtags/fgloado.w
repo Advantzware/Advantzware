@@ -82,7 +82,7 @@ DEFINE VARIABLE h_loadordr AS HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Exit 
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "E&xit" 
      SIZE 8 BY 2.33.
 

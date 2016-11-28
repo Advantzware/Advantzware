@@ -53,7 +53,7 @@ def var is-password-changed as log no-undo.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -221,11 +221,11 @@ DEFINE FRAME F-Main
      F-2 AT ROW 6.95 COL 39 NO-LABEL
      "Rate Usage:" VIEW-AS TEXT
           SIZE 14.6 BY .81 AT ROW 4.1 COL 62
+     "Keyboard Type:" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 5.76 COL 62
      "(leave blank to auto assign employee id)" VIEW-AS TEXT
           SIZE 56 BY .62 AT ROW 1.48 COL 34
           FONT 2
-     "Keyboard Type:" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 5.76 COL 62
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -284,7 +284,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.

@@ -2593,11 +2593,13 @@ DO:
     END.
     ELSE IF SELF:screen-value EQ "0" THEN
         ASSIGN oe-ordl.vend-no:SCREEN-VALUE = "".          /*Task# 03201407*/
-
-    IF ll-new-record THEN DO:
-    APPLY "entry" TO oe-ordl.s-man[1].
-    RETURN NO-APPLY.
-    END.
+   
+     IF oescreen-log AND ll-new-record 
+         AND asi.oe-ordl.est-no:SCREEN-VALUE EQ ""
+         AND oescreen-cha EQ "item-qty" THEN DO:
+         APPLY "entry" TO oe-ordl.s-man[1] .
+         RETURN NO-APPLY.
+     END.   /* ticket 15474 */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3018,11 +3020,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.whsed d-oeitem
 ON LEAVE OF oe-ordl.whsed IN FRAME d-oeitem /* Run  Ship */
 DO:
-   
-    IF ll-new-record THEN DO:
-    APPLY "entry" TO oe-ordl.i-name.
-    RETURN NO-APPLY.
-    END.
+   IF oescreen-log AND ll-new-record 
+        AND asi.oe-ordl.est-no:SCREEN-VALUE EQ ""
+        AND oescreen-cha EQ "item-qty" THEN DO:
+      APPLY "entry" TO oe-ordl.i-name.
+      RETURN NO-APPLY.
+   END.
      
 END.
 
@@ -4575,7 +4578,9 @@ ASSIGN
          ll-one-part = FIRST(x-eb.form-no) AND LAST(x-eb.form-no).
          LEAVE.
        END.
-       IF ll-one-part THEN itemfg.alloc = YES.
+      /* Wade Kaldawi   3/9/16
+         Ticket 13466, ll-on-part should not change itemfg.alloc */       
+      /*  IF ll-one-part THEN itemfg.alloc = YES. */
     END.
  END.
  ELSE IF fgmaster-cha EQ "FGITEM" THEN DO:
@@ -4707,10 +4712,14 @@ PROCEDURE display-est-detail :
                 AND est.est-no = eb.est-no NO-LOCK NO-ERROR.
      IF AVAIL itemfg THEN DO:
        ASSIGN
-        oe-ordl.price:SCREEN-VALUE      = STRING(itemfg.sell-price)
-        oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
+        
         oe-ordl.part-dscr2:SCREEN-VALUE = itemfg.part-dscr2
         oe-ordl.part-dscr3:SCREEN-VALUE = itemfg.part-dscr3.
+        IF DECIMAL(oe-ordl.price:SCREEN-VALUE) = 0 THEN
+            ASSIGN
+            oe-ordl.price:SCREEN-VALUE      = STRING(itemfg.sell-price) 
+            oe-ordl.pr-uom:SCREEN-VALUE     = itemfg.sell-uom
+            .
 
           /*ysk*/
           FIND FIRST cust
@@ -4825,6 +4834,15 @@ PROCEDURE display-est-detail :
        IF v-est-fg1 EQ "Hughes" THEN RUN fg/hughesfg.p (ROWID(eb), OUTPUT lv-i-no).
        ELSE
        IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(eb), OUTPUT lv-i-no).
+       ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
+       ELSE do:              
+            RUN fg/autofg.p ( ROWID(eb),
+                                  v-est-fg1, 
+                                  eb.procat,
+                                  IF est.est-type LE 4 THEN "F" ELSE "C",
+                                  eb.cust-no,
+                                  OUTPUT lv-i-no).              
+      END.
 
        IF lv-i-no NE "" THEN oe-ordl.i-no:SCREEN-VALUE = lv-i-no.
      END. /* oe-ordl.i-no:SCREEN-VALUE EQ "" */
@@ -4855,7 +4873,7 @@ PROCEDURE display-est-detail :
           tt-item-qty-price.tt-selected = YES AND
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
            (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN
-     DO:
+     DO: 
         FIND FIRST tt-item-qty-price WHERE
              tt-item-qty-price.tt-selected = YES AND 
              (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR

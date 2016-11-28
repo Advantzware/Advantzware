@@ -26,6 +26,9 @@ CREATE WIDGET-POOL.
 DEF VAR list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
+
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
@@ -40,7 +43,7 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
      
-{sys/inc/custlistform.i ""IR5"" }
+/*{sys/inc/custlistform.i ""IR5"" }*/
 
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
@@ -122,7 +125,7 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY*/
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -547,7 +550,7 @@ DO:
   SESSION:SET-WAIT-STATE("general").
 RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -768,8 +771,8 @@ ON HELP OF begin_cust IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -784,8 +787,8 @@ ON HELP OF end_cust IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -1012,6 +1015,10 @@ RUN DisplaySelectionList.
   
   {methods/nowait.i}
 
+  RUN sys/inc/CustListForm.p ( "IR5",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
      RUN DisplaySelectionList2.
@@ -1022,7 +1029,7 @@ RUN DisplaySelectionList.
                           INPUT 'IR5',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""IR5""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1482,7 +1489,7 @@ DEF VAR v-custown AS LOG FORMAT "Y/N" INIT "N".
 DEF VAR v-cust-qty AS INT FORMAT "->>>,>>>,>>9".
 DEF VAR v-sales-rep AS CHAR NO-UNDO.
 DEF VAR sort-opt AS CHAR NO-UNDO INIT "C" FORMAT "!".
-
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 FORMAT
   itemfg.i-no LABEL "ITEM #"
   itemfg.i-name FORMAT "x(20)" LABEL "DESCRIPTION"
@@ -1540,7 +1547,8 @@ ASSIGN
  tsman        = end_slm
  zbal         = tb_inc-zer
  v-custown    = tb_inc-cust
- sort-opt     = SUBSTR(rd_sort,1,1).
+ sort-opt     = SUBSTR(rd_sort,1,1)
+ lSelected    = tb_cust-list.
 
 {sys/inc/print1.i}
 
@@ -1551,33 +1559,24 @@ IF td-show-parm THEN RUN show-param.
 DISPLAY "" WITH FRAME r-top.
      
 SESSION:SET-WAIT-STATE ("general").
-/*
-IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
-   EXPORT STREAM excel DELIMITER ","
-      "Item"
-      "Description"
-      "Cust #"
-      "Customer PO#"
-      "Customer Job#"
-      "Quantity Produced"
-      "Quantity Shipped"
-      "Quantity On Hand"
-      "Total Cost"
-      "Total Value"
-       SKIP.
-END.  */
+
+IF lselected THEN DO:
+      FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+      IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+      FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+      IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+  END.
+
 EMPTY TEMP-TABLE tt-itemfg.
 
-  FOR EACH ttCustList 
-    WHERE ttCustList.log-fld
-    NO-LOCK,
-      EACH itemfg
+  FOR EACH itemfg
         NO-LOCK
         USE-INDEX customer
         WHERE itemfg.company EQ cocode 
-      AND itemfg.cust-no EQ ttCustList.cust-no /*fcust 
-      AND itemfg.cust-no LE tcust */
+      AND itemfg.cust-no GE fcust 
+      AND itemfg.cust-no LE tcust 
+      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
+      AND ttCustList.log-fld no-lock) else true)
       AND itemfg.cust-po-no GE fcustpo 
       AND itemfg.cust-po-no LE tcustpo,
         FIRST cust

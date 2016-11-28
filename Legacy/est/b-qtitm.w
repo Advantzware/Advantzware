@@ -1096,6 +1096,9 @@ DEF BUFFER bf-itemfg FOR itemfg.
 DEF BUFFER bf-quotehd FOR quotehd.
 DEF VAR cNewRep AS CHAR NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lnewRecord AS LOGICAL NO-UNDO .
+
+    lnewRecord = adm-new-record.
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-uom NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1126,6 +1129,16 @@ DEFINE VARIABLE char-hdl AS CHARACTER   NO-UNDO.
       RUN dispNewRep IN WIDGET-HANDLE(char-hdl) (INPUT cNewRep).
   END.
 
+  ASSIGN adm-new-record = NO .
+
+  IF lnewRecord THEN DO:
+      run get-link-handle in adm-broker-hdl
+       (this-procedure,"itemqt-TARGET", output char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN resetQuery IN WIDGET-HANDLE(char-hdl) (INPUT quotehd.q-no).
+     
+       lnewRecord = NO.
+  END.
 
 
 END PROCEDURE.
@@ -1331,6 +1344,23 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE quoteitm-exists V-table-Win 
+PROCEDURE quoteitm-check-new :
+/*------------------------------------------------------------------------------
+   Purpose:     
+   Parameters:  <none>
+   Notes:       
+------------------------------------------------------------------------------*/
+DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
+ 
+ASSIGN oplExists = adm-new-record .
+ 
+END PROCEDURE.
+ 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+ 
 
 /* ************************  Function Implementations ***************** */
 

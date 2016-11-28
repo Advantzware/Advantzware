@@ -199,7 +199,7 @@ DEFINE RECTANGLE RECT-9
      SIZE 47 BY 3.81.
 
 DEFINE VARIABLE tb_ach AS LOGICAL INITIAL no 
-     LABEL "ACH/Bill Pay Check Run" 
+     LABEL "Electronic-only Check Run" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY .95 NO-UNDO.
 
@@ -233,11 +233,11 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 21 COL 57
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.43 COL 5
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 13.14 COL 4
      "REPRINT OPTIONS" VIEW-AS TEXT
           SIZE 24 BY .62 AT ROW 7.67 COL 35
           FGCOLOR 9 FONT 6
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.14 COL 4
      RECT-6 AT ROW 12.81 COL 2
      RECT-7 AT ROW 1.24 COL 2
      RECT-9 AT ROW 7.91 COL 23
@@ -468,7 +468,7 @@ DO:
         ASSIGN {&displayed-objects}.
     
         IF NOT tb_ach AND rd-dest EQ 5 THEN DO:
-            MESSAGE "Email output only available for ACH/Bill Pay Check Run"
+            MESSAGE "Email output only available for Electronic-only Check Run"
                 VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO check-date.
             RETURN NO-APPLY.
@@ -645,7 +645,7 @@ END.
 ON LEAVE OF start_check-no IN FRAME FRAME-A /* Starting Check# */
 DO:
     IF tb_ach AND INT(START_check-no:SCREEN-VALUE) LT 800000  THEN DO:
-        MESSAGE "ACH Check number must not be less than 800000"
+        MESSAGE "Electronic Check number must not be less than 800000"
             VIEW-AS ALERT-BOX INFO BUTTONS OK.
         RETURN NO-APPLY.
     END.
@@ -659,11 +659,11 @@ END.
 
 &Scoped-define SELF-NAME tb_ach
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_ach C-Win
-ON VALUE-CHANGED OF tb_ach IN FRAME FRAME-A /* ACH/Bill Pay Check Run */
+ON VALUE-CHANGED OF tb_ach IN FRAME FRAME-A /* Electronic-only Check Run */
 DO:
     ASSIGN {&SELF-NAME}.
     IF tb_ach AND NOT ACHRunOK() THEN DO:
-        MESSAGE "Check selection must include only ACH vendors or only Bill Pay vendors for ACH Check Run."
+        MESSAGE "Check selection must include only Vendors with Electronic Payment Type."
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
         tb_ach:SCREEN-VALUE = "NO".
         tb_ach = NO.
@@ -1723,9 +1723,12 @@ FOR EACH ap-chk
     NO-LOCK,
     FIRST vend WHERE vend.company eq cocode AND 
                    vend.vend-no eq ap-chk.vend-no
-    NO-LOCK:
+    NO-LOCK,
+    FIRST payment-type no-lock
+        WHERE payment-type.company EQ vend.company
+        AND payment-type.type EQ vend.payment-type:
     lCheckSelected = YES.
-    IF vend.spare-int-1 NE 1 AND vend.spare-int-2 NE 1 THEN DO: 
+    IF payment-type.paperCheck THEN DO: 
         lNonACHVendorFound = YES.
         LEAVE.
     END.

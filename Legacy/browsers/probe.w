@@ -1062,7 +1062,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 {methods/winReSize.i}
 
 DEF VAR lv-col-hand AS HANDLE.
-FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
+FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
 IF AVAIL ce-ctrl THEN
   v-ceSellPrice = ce-ctrl.sell-by.
 IF v-ceSellPrice NE "F" THEN DO lv-int = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME} 
@@ -1169,7 +1169,7 @@ PROCEDURE calc-fields :
       USE-INDEX est-qty NO-LOCK:
       v-freight = v-freight + est-summ.per-m.
   END.
-  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
 
   IF lv-changed NE "" THEN
   DO WITH FRAME {&FRAME-NAME}:
@@ -1877,7 +1877,7 @@ IF CAN-FIND(FIRST xprobe
         END.
 
         DO j = 1 TO 6:
-          IF bf-ef.mis-simon[j] EQ "S" and bf-ef.mis-cost[j] NE "" THEN DO:
+          IF bf-ef.mis-simon[j] EQ "S" AND bf-ef.mis-cost[j] NE "" THEN DO:
             CREATE quotechg.
 
             IF (bf-ef.mis-labf[j] NE 0 OR bf-ef.mis-labm[j] NE 0) AND
@@ -2323,7 +2323,7 @@ PROCEDURE local-assign-record :
   probe.sell-price-wo = probe.sell-price -
                         (probe.sell-price * probe.market-price / 100).
         
-  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
 
   FIND FIRST est NO-LOCK
       WHERE est.company EQ probe.company
@@ -2426,7 +2426,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
@@ -2860,7 +2860,7 @@ PROCEDURE print-box-est :
   OUTPUT TO VALUE(ls-outfile).
   IF ip-dest = 1 THEN PUT "<PRINTER?></PROGRESS>".  /*<REVIEW>*/
   ELSE IF ip-dest = 2 THEN PUT "<PREVIEW=ZoomToWidth></PROGRESS>".  /*<REVIEW>*/
-  ELSE IF ip-dest = 4 THEN do:
+  ELSE IF ip-dest EQ 4 THEN DO:
      ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
      PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
   END.        
@@ -2984,6 +2984,7 @@ PROCEDURE print-notes :
   IF lv-k GT EXTENT(v-dept-inst) THEN lv-k = EXTENT(v-dept-inst).
 
   DO i = 1 TO lv-k:
+      IF v-line-count GT 62 THEN DO:
      v-dept-inst[i] = v-inst2[i].
      PUT v-dept-inst[i] AT 2 SKIP.
   END.
@@ -3042,7 +3043,7 @@ PROCEDURE print4 :
   def var lv-error as log no-undo.
   def var v-vend-no   like e-item-vend.vend-no init "".
   DEF var v-vend-list AS CHAR NO-UNDO.
-  def var lv-ef-recid as recid no-undo.
+  DEFINE VARIABLE lv-ef-recid AS RECID NO-UNDO.
 
   ASSIGN
     lv-ef-recid = recid(ef)
@@ -3496,7 +3497,7 @@ PROCEDURE run-screen-calc :
 
   RUN release-shared-buffers.
 
-  session:set-wait-state("").
+  SESSION:SET-WAIT-STATE("").
 
   find eb where recid(eb) = lv-eb-recid no-lock.
   find ef where recid(ef) = lv-ef-recid no-lock.
@@ -3514,8 +3515,8 @@ PROCEDURE run-whatif :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-eb-recid as recid no-undo.
-  def var lv-ef-recid as recid no-undo.
+  DEFINE VARIABLE lv-eb-recid AS RECID NO-UNDO.
+  DEFINE VARIABLE lv-ef-recid AS RECID NO-UNDO.
   DEF VAR lv-probe-line LIKE probe.LINE NO-UNDO.
   DEF VAR tmp-outfile AS cha NO-UNDO.
   DEF VAR viewfile AS cha NO-UNDO.
@@ -3579,7 +3580,7 @@ PROCEDURE run-whatif :
 
     IF AVAIL probe THEN RUN est/d-probeu.w (OUTPUT lv-override).
 
-    IF v-cestcalc = "Prompt on Purge" AND lv-override THEN do:  /* Task 12101301 */
+    IF v-cestcalc EQ "Prompt on Purge" AND lv-override THEN DO:  /* Task 12101301 */
         MESSAGE "Warning, all existing calculated quantities will be deleted."
             VIEW-AS ALERT-BOX INFO BUTTONS YES-NO
             UPDATE ll-return.
@@ -3607,7 +3608,7 @@ PROCEDURE run-whatif :
 
   RUN release-shared-buffers.
 
-  session:set-wait-state("").
+  SESSION:SET-WAIT-STATE("").
 
   find eb where recid(eb) = lv-eb-recid no-lock.
   find ef where recid(ef) = lv-ef-recid no-lock.
@@ -4129,7 +4130,7 @@ FUNCTION display-gp RETURNS DECIMAL
   DEF VAR lv-gp AS DEC NO-UNDO.
 
 
-  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
+  FIND FIRST ce-ctrl {sys/look/ce-ctrlw.i} NO-LOCK.
 
   DO WITH FRAME {&FRAME-NAME}:
     lv-gp = IF ce-ctrl.sell-by EQ "S" THEN
@@ -4139,11 +4140,15 @@ FUNCTION display-gp RETURNS DECIMAL
                 (DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}) -
                  DEC(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name})) /
                 DEC(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name}) * 100
+                (DECIMAL(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}) -
+                 DECIMAL(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name})) /
+                DECIMAL(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name}) * 100
             ELSE
               IF ip-type EQ 1 THEN
                 probe.gross-profit
               ELSE
                 DEC(gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
+                DECIMAL(gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
   END.
 
   RETURN lv-gp.   /* Function return value. */
@@ -4161,9 +4166,12 @@ FUNCTION SatisfiedPDies RETURNS LOGICAL
     Notes:  
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-eb FOR eb.
+  DEFINE BUFFER bf-eb FOR eb.
   
   DEF VAR lSatisfied AS LOG NO-UNDO.
   DEF VAR cMachine AS cha NO-UNDO.
+  DEFINE VARIABLE lSatisfied AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO.
 
   lSatisfied = YES.
   cMachine = "".
@@ -4173,6 +4181,10 @@ FUNCTION SatisfiedPDies RETURNS LOGICAL
                    AND bf-eb.est-no = est.est-no
                    AND bf-eb.blank-no > 0
                    AND bf-eb.pur-man = NO :
+  FOR EACH bf-eb NO-LOCK WHERE bf-eb.company EQ est.company
+                   AND bf-eb.est-no EQ est.est-no
+                   AND bf-eb.blank-no GT 0
+                   AND bf-eb.pur-man EQ NO :
   
     FIND FIRST style WHERE style.company = bf-eb.company
                  AND style.style = bf-eb.style
@@ -4188,6 +4200,20 @@ FUNCTION SatisfiedPDies RETURNS LOGICAL
                  AND (style.TYPE = "p" OR style.TYPE = "R") 
         NO-LOCK NO-ERROR.
     IF NOT AVAIL style THEN next.
+    FIND FIRST style NO-LOCK WHERE style.company EQ bf-eb.company
+                 AND style.style EQ bf-eb.style
+                 AND style.flute EQ bf-eb.flute
+                 AND style.test EQ bf-eb.test 
+                 AND (style.TYPE EQ "p" OR style.TYPE EQ "R") 
+         NO-ERROR.
+    IF NOT AVAILABLE style THEN
+       FIND FIRST style NO-LOCK WHERE style.company EQ bf-eb.company
+                 AND style.style EQ bf-eb.style
+                 AND style.flute EQ ""
+                 AND style.test EQ ""
+                 AND (style.TYPE EQ "p" OR style.TYPE EQ "R") 
+         NO-ERROR.
+    IF NOT AVAILABLE style THEN NEXT.
 
 
     FOR EACH est-op NO-LOCK
@@ -4200,6 +4226,9 @@ FUNCTION SatisfiedPDies RETURNS LOGICAL
             est-op.att-type[1] = "" AND
             est-op.att-type[2] = "" AND
             est-op.att-type[3] = "" 
+            est-op.att-type[1] EQ "" AND
+            est-op.att-type[2] EQ "" AND
+            est-op.att-type[3] EQ "" 
             THEN DO:
             lSatisfied = NO.
             cMachine = est-op.m-code.
@@ -4224,21 +4253,26 @@ END FUNCTION.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION voverall B-table-Win 
 FUNCTION voverall RETURNS DECIMAL
   ( INPUT ip-type AS INT )  :
+  ( INPUT ip-type AS INTEGER )  :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
   DEF VAR lv-overall AS DEC NO-UNDO.
+  DEFINE VARIABLE lv-overall AS DECIMAL NO-UNDO.
 
 
   IF AVAIL probe THEN
+  IF AVAILABLE probe THEN
     lv-overall = ROUND((IF ip-type EQ 1 THEN probe.sell-price
                                         ELSE DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}))
+                                        ELSE DECIMAL(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}))
                  / probe.bsf,2).
 
   ELSE lv-overall = 0.
 
   IF lv-overall = ? then lv-overall = 0.
+  IF lv-overall EQ ? THEN lv-overall = 0.
    
   RETURN lv-overall.   /* Function return value. */
 
@@ -4255,10 +4289,13 @@ FUNCTION vtot-msf RETURNS DECIMAL
     Notes:  
 ------------------------------------------------------------------------------*/
   def var lv-tot-msf as dec no-undo.
+  DEFINE VARIABLE lv-tot-msf AS DECIMAL NO-UNDO.
 
   
   if avail probe then lv-tot-msf = probe.tot-lbs / 1000.
   else lv-tot-msf = 0.
+  IF AVAILABLE probe THEN lv-tot-msf = probe.tot-lbs / 1000.
+  ELSE lv-tot-msf = 0.
 
   RETURN lv-tot-msf.   /* Function return value. */
 

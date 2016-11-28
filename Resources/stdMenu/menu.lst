@@ -171,6 +171,7 @@ del0qtyb. d1
 fg-to-rm. d1
 fg-cons. d1
 fg-jobfm. d1
+r-pstran. d1
 d2 d
 r-cycnt. d2
 fg-phys. d2
@@ -328,6 +329,7 @@ jc-ctrl. hf est
 prod. hf est
 loc. hf est
 w-wipmt. hf est
+rejctcdj. hf est
 q file est
 w-jobsch. q
 sbView. q
@@ -474,6 +476,7 @@ stax. kf est
 ventype. kf est
 buyer. kf est
 ap-ctrl. kf est
+paytype. kf est
 l file est
 l1 l
 w-gljrn. l1
@@ -549,6 +552,8 @@ s8 s est
 sys-ctrl. s8 est
 w-head. s8 est
 utlookmn. s8 est
+wNewLic. s8 est
+wUserCtrl. s8 est
 custproc. s est
 u-fntclr. s est
 s11 s est

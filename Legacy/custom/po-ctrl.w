@@ -38,7 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
+DEFINE VARIABLE giCurrPo AS INTEGER NO-UNDO.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
@@ -56,21 +56,22 @@ CREATE WIDGET-POOL.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME po-ctrl
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-15 RECT-16 Btn_Update Btn_Close 
-&Scoped-Define DISPLAYED-FIELDS po-ctrl.next-po-no po-ctrl.rng-po-no[1] ~
-po-ctrl.rng-po-no[2] po-ctrl.prcom po-ctrl.pre-printed-forms 
+&Scoped-Define ENABLED-OBJECTS RECT-15 RECT-16 fiNextPo Btn_Update ~
+Btn_Close 
+&Scoped-Define DISPLAYED-FIELDS po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2] ~
+po-ctrl.prcom po-ctrl.pre-printed-forms 
 &Scoped-define DISPLAYED-TABLES po-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE po-ctrl
-
+&Scoped-Define DISPLAYED-OBJECTS fiNextPo 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
-&Scoped-define List-1 po-ctrl.next-po-no po-ctrl.rng-po-no[1] ~
-po-ctrl.rng-po-no[2] po-ctrl.prcom po-ctrl.pre-printed-forms 
+&Scoped-define List-1 po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2] ~
+po-ctrl.prcom po-ctrl.pre-printed-forms 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -91,22 +92,24 @@ DEFINE BUTTON Btn_Update
      LABEL "&Update" 
      SIZE 15 BY 1.14.
 
+DEFINE VARIABLE fiNextPo AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Next Purchase Order Number" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-15
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 33 BY 1.67.
 
 DEFINE RECTANGLE RECT-16
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 64 BY 4.52.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME po-ctrl
-     po-ctrl.next-po-no AT ROW 1.24 COL 29 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-          BGCOLOR 15 
+     fiNextPo AT ROW 1.33 COL 29 COLON-ALIGNED WIDGET-ID 2
      po-ctrl.rng-po-no[1] AT ROW 2.43 COL 29 COLON-ALIGNED
           LABEL "Range of PO Numers"
           VIEW-AS FILL-IN 
@@ -183,9 +186,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME po-ctrl
-                                                                        */
-/* SETTINGS FOR FILL-IN po-ctrl.next-po-no IN FRAME po-ctrl
-   NO-ENABLE 1                                                          */
+   FRAME-NAME                                                           */
 /* SETTINGS FOR TOGGLE-BOX po-ctrl.prcom IN FRAME po-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX po-ctrl.pre-printed-forms IN FRAME po-ctrl
@@ -240,11 +241,18 @@ DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
+      
     DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
     ASSIGN
       {&SELF-NAME}:LABEL = "&Close"
       Btn_Update:LABEL = "&Update".
     RUN enable_UI.
+    fiNextPo:SENSITIVE = NO.
+    RUN sys/ref/asicurseq.p (INPUT gcompany, INPUT "po_seq", OUTPUT giCurrPO) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+      MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
+              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+    fiNextPo:SCREEN-VALUE = STRING(giCurrPo  + 1, ">>>>>>").    
   END.
 END.
 
@@ -258,20 +266,42 @@ ON CHOOSE OF Btn_Update IN FRAME po-ctrl /* Update */
 DO:
   IF {&SELF-NAME}:LABEL = "&Update" THEN
   DO WITH FRAME {&FRAME-NAME}:
+     fiNextPo:SENSITIVE = YES.
     ENABLE {&LIST-1}.
+    RUN sys/ref/asicurseq.p (INPUT gcompany, INPUT "po_seq", OUTPUT giCurrPO) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+      MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
+              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+    FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
+    po-ctrl.next-po-no = giCurrPo + 1.
+   
+    fiNextPo:SCREEN-VALUE = STRING(giCurrPO  + 1, ">>>>>>").    
     ASSIGN
       {&SELF-NAME}:LABEL = "&Save"
       Btn_Close:LABEL = "&Cancel".
-    APPLY "ENTRY" TO po-ctrl.next-po-no.
+    FIND CURRENT po-ctrl no-lock.
+    APPLY "ENTRY" TO fiNextPo.
   END.
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
+    fiNextPo:SENSITIVE = NO.
     DISABLE {&LIST-1}.
     ASSIGN
       {&SELF-NAME}:LABEL = "&Update"
       Btn_Close:LABEL = "&Close".
     FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
     ASSIGN {&LIST-1}.
+    DEFINE VARIABLE liNextPo AS INTEGER NO-UNDO.
+    FIND company WHERE company.company EQ gcompany NO-LOCK NO-ERROR.
+    liNextPo = INTEGER(fiNextPo:SCREEN-VALUE).
+    /* Sequence holds the current value. They've entered the next value, so */
+    /* subtract 1 to make it the correct current value */
+     liNextPo = liNextPo - 1.
+     DYNAMIC-CURRENT-VALUE("po_seq" + company.spare-char-1, "ASI") = liNextpo.
+     fiNextPo:SCREEN-VALUE = STRING(DYNAMIC-CURRENT-VALUE("po_seq" + company.spare-char-1, "ASI") + 1, ">>>>>>").
+     FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
+     po-ctrl.next-po-no = INTEGER(fiNextPo:SCREEN-VALUE).    
+    
     FIND CURRENT po-ctrl NO-LOCK.
   END.
 END.
@@ -316,9 +346,21 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND FIRST po-ctrl WHERE po-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
 
   RUN enable_UI.
+  
+
   {methods/nowait.i}
 
   APPLY "ENTRY":U TO Btn_Update IN FRAME {&FRAME-NAME}.
+  
+  RUN sys/ref/asicurseq.p (INPUT gcompany, INPUT "po_seq", OUTPUT giCurrPo) NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN
+    MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
+
+  fiNextPo:SCREEN-VALUE = STRING(giCurrPo  + 1, ">>>>>>").
+  fiNextPo:SENSITIVE = NO. 
+  DISABLE fiNextPo. 
+  
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -359,11 +401,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  IF AVAILABLE po-ctrl THEN 
-    DISPLAY po-ctrl.next-po-no po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2] 
-          po-ctrl.prcom po-ctrl.pre-printed-forms 
+  DISPLAY fiNextPo 
       WITH FRAME po-ctrl IN WINDOW C-Win.
-  ENABLE RECT-15 RECT-16 Btn_Update Btn_Close 
+  IF AVAILABLE po-ctrl THEN 
+    DISPLAY po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2] po-ctrl.prcom 
+          po-ctrl.pre-printed-forms 
+      WITH FRAME po-ctrl IN WINDOW C-Win.
+  ENABLE RECT-15 RECT-16 fiNextPo Btn_Update Btn_Close 
       WITH FRAME po-ctrl IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-po-ctrl}
   VIEW C-Win.

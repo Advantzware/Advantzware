@@ -25,6 +25,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
@@ -39,8 +41,6 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 assign
  cocode = gcompany
  locode = gloc.
-
-{sys/inc/custlistform.i ""HL"" }
 
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
@@ -64,6 +64,7 @@ DEF VAR cFieldLength AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR dFilterStartDate AS DATE NO-UNDO.
+DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 /*Customer Name/City/St               Rep This Year Sales This Year MSF Last Year Sales Last Year MSF Sale Difference %-of LYR Sales
 -------- -------------------------- --- --------------- ------------- --------------- ------------- --------------- --------------
@@ -81,6 +82,8 @@ ASSIGN cTextListToSelect = "Customer,Name,Rep,This Year Sales,Last Year Sales,Sa
            .
 
 {sys/inc/ttRptSel.i}
+    ASSIGN cTextListToDefault  = "Customer,Name,Rep,This Year Sales,This Year MSF,Last Year Sales,Last Year MSF," +
+                                 "Sales Difference,%-of LYR Sales" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -101,8 +104,8 @@ ASSIGN cTextListToSelect = "Customer,Name,Rep,This Year Sales,Last Year Sales,Sa
 begin_cust-no end_cust-no begin_slsmn end_slsmn begin_i-no end_i-no ~
 rd_print rd_sort tb_round tb_exc-zero tb_fin-chg rd-dest lv-ornt ~
 lines-per-page lv-font-no td-show-parm btn-ok btn-cancel tb_batch tb_excel ~
-tb_runExcel fi_file sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down ~
-RECT-6 RECT-7 
+tb_runExcel fi_file sl_avail Btn_Def Btn_Add sl_selected Btn_Remove btn_Up ~
+btn_down RECT-6 RECT-7 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list as-of-date begin_cust-no ~
 end_cust-no begin_slsmn end_slsmn begin_i-no end_i-no print rd_print ~
 lbl_sort rd_sort tb_round tb_exc-zero tb_fin-chg rd-dest lv-ornt ~
@@ -146,6 +149,10 @@ DEFINE BUTTON btnCustList
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
+     SIZE 14 BY 1.
+
+DEFINE BUTTON Btn_Def 
+     LABEL "&Default" 
      SIZE 14 BY 1.
 
 DEFINE BUTTON btn_down 
@@ -355,13 +362,15 @@ DEFINE FRAME FRAME-A
      fi_file AT ROW 27.57 COL 46.4 COLON-ALIGNED HELP
           "Enter File Name"
      sl_avail AT ROW 14.33 COL 8 NO-LABEL WIDGET-ID 146
-     Btn_Add AT ROW 14.81 COL 42 HELP
+     Btn_Def AT ROW 14.14 COL 42 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 156
+     Btn_Add AT ROW 15.33 COL 42 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 138
      sl_selected AT ROW 14.33 COL 59 NO-LABEL WIDGET-ID 148
-     Btn_Remove AT ROW 16 COL 42 HELP
+     Btn_Remove AT ROW 16.52 COL 42 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 142
-     btn_Up AT ROW 17.19 COL 42 WIDGET-ID 144
-     btn_down AT ROW 18.38 COL 42 WIDGET-ID 140
+     btn_Up AT ROW 17.71 COL 42 WIDGET-ID 144
+     btn_down AT ROW 18.91 COL 42 WIDGET-ID 140
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 20.24 COL 6
      "Selection Parameters" VIEW-AS TEXT
@@ -559,6 +568,21 @@ END.
 
 &Scoped-define SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
+ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
    assign {&self-name}.
@@ -617,7 +641,7 @@ DO:
 
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -707,6 +731,21 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_Def
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
+ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
+DO:
+  DEF VAR cSelectedList AS cha NO-UNDO.
+
+  RUN DisplaySelectionDefault.  /* task 04041406 */ 
+  RUN DisplaySelectionList2 .
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down C-Win
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
@@ -746,6 +785,20 @@ END.
 
 
 &Scoped-define SELF-NAME end_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
+ON HELP OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
@@ -815,34 +868,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME begin_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
-ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME end_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
-ON HELP OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
@@ -1091,6 +1116,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   {methods/nowait.i}
 
+  RUN sys/inc/CustListForm.p ( "HL",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
@@ -1101,7 +1130,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HL',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""HL""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1216,6 +1245,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault C-Win 
+PROCEDURE DisplaySelectionDefault :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR cListContents AS cha NO-UNDO.
+  DEF VAR iCount AS INT NO-UNDO.
+  
+  DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
+
+     cListContents = cListContents +                   
+                    (IF cListContents = "" THEN ""  ELSE ",") +
+                     ENTRY(iCount,cTextListToDefault)   .
+  END.            
+  sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList C-Win 
 PROCEDURE DisplaySelectionList :
 /*------------------------------------------------------------------------------
@@ -1228,6 +1280,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:   
+     
      RETURN.
   END.
 
@@ -1236,6 +1289,11 @@ PROCEDURE DisplaySelectionList :
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
 
      cListContents = cListContents +                   
+                    /* (IF cListContents = "" THEN ""  ELSE ",") +
+                     ENTRY(iCount,cTextListToSelect) + "," +
+                     ENTRY(1,cFieldListToSelect)
+                     paris */
+                     
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1243,6 +1301,8 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .    
   END.
+  
+ /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
   
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
@@ -1259,6 +1319,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
+  DEF VAR cTmpList AS cha NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:     
      RETURN.
@@ -1269,6 +1330,11 @@ PROCEDURE DisplaySelectionList2 :
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
 
      cListContents = cListContents +                     
+                    /* (IF cListContents = "" THEN ""  ELSE ",") +
+                     ENTRY(iCount,cTextListToSelect) + "," +
+                     ENTRY(1,cFieldListToSelect)
+                     paris */
+                     
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1277,10 +1343,19 @@ PROCEDURE DisplaySelectionList2 :
            .    
   END.
   
+ /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
+  
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
+  END.
+
+  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
+
+   DO iCount = 1 TO sl_selected:NUM-ITEMS:
+       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
+        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
   END.
 
 END PROCEDURE.
@@ -1309,7 +1384,8 @@ PROCEDURE enable_UI :
          begin_slsmn end_slsmn begin_i-no end_i-no rd_print rd_sort tb_round 
          tb_exc-zero tb_fin-chg rd-dest lv-ornt lines-per-page lv-font-no 
          td-show-parm btn-ok btn-cancel tb_batch tb_excel tb_runExcel fi_file 
-         sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down RECT-6 RECT-7 
+         sl_avail Btn_Def Btn_Add sl_selected Btn_Remove btn_Up btn_down RECT-6 
+         RECT-7 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1554,6 +1630,7 @@ DEF VAR v-profitMtd AS DEC NO-UNDO.
 DEF VAR v-costTotal AS DEC  FORM "->,>>>,>>>,>>9.99" NO-UNDO.
 DEF VAR v-costTotalYtd AS DEC  FORM "->,>>>,>>>,>>9.99" NO-UNDO.
 DEF VAR v-costTotalMtd AS DEC  FORM "->,>>>,>>>,>>9.99" NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 ASSIGN
  str-tit2 = c-win:title
@@ -1567,7 +1644,8 @@ ASSIGN
  v-ytd      = rd_print BEGINS "Y"
  v-sort     = if rd_sort begins "C" then "C" else
               if rd_sort eq "High Sales" then "S" else "M"
- v-inc-fc   = tb_fin-chg.
+ v-inc-fc   = tb_fin-chg
+ lSelected  = tb_cust-list .
 
 IF tb_round THEN DO:
 /*   IF tb_msf THEN DO:                                                           */
@@ -1646,6 +1724,12 @@ fdate[1] = period.pst.
 {sys/inc/lastyear.i fdate[3] fdate[4]}
 {sys/inc/lastyear.i tdate[3] tdate[4]}
 
+IF lselected THEN DO:
+      FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+      IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+      FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+      IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
 
 if not v-ytd then tdate[1] = v-date.
 

@@ -901,9 +901,12 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'nav-itm':U , h_v-naveb-3 ).
 
        /* Links to SmartQuery h_q-boxdes. */
-       RUN add-link IN adm-broker-hdl ( h_b-estitm , 'boxdes':U , h_q-boxdes ).
+       RUN add-link IN adm-broker-hdl ( h_b-estitm , 'box-calc':U , h_q-boxdes ).
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_q-boxdes ).
-
+       RUN add-link IN adm-broker-hdl ( h_probe , 'box-calc':U , h_q-boxdes ).
+       RUN add-link IN adm-broker-hdl ( h_v-est , 'box-calc':U , h_q-boxdes ).
+       
+     
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-boxdee ,
              h_folder , 'AFTER':U ).

@@ -25,7 +25,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -38,45 +38,49 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {sys/inc/var.i new shared}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
 
-DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
-DEF VAR is-xprint-form AS LOGICAL.
-DEF VAR ls-fax-file AS CHAR NO-UNDO.
-def var security-flag as log no-undo.
+DEFINE VARIABLE v-print-fmt AS CHARACTER NO-UNDO.
+DEFINE VARIABLE is-xprint-form AS LOGICAL.
+DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
+DEFINE VARIABLE security-flag AS LOG NO-UNDO.
 
 
 /* gdm - 10130803 */
-DEF VAR v_exclhdr1 AS CHAR                NO-UNDO.
-DEF VAR v_exclhdr2 AS CHAR                NO-UNDO.
-DEF VAR v_custnum  AS CHAR FORMAT "x(35)" NO-UNDO.
-DEF VAR v_ML       AS CHAR INIT "M"       NO-UNDO.
-DEF VAR v_dfault   AS CHAR INIT "Y"       NO-UNDO.
+DEFINE VARIABLE v_exclhdr1 AS CHARACTER                NO-UNDO.
+DEFINE VARIABLE v_exclhdr2 AS CHARACTER                NO-UNDO.
+DEFINE VARIABLE v_custnum  AS CHARACTER FORMAT "x(35)" NO-UNDO.
+DEFINE VARIABLE v_ML       AS CHARACTER INIT "M"       NO-UNDO.
+DEFINE VARIABLE v_dfault   AS CHARACTER INIT "Y"       NO-UNDO.
 
 /* gdm - 10130803 */
-DEF STREAM excel.
+DEFINE STREAM excel.
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR cFieldType AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF BUFFER b-itemfg FOR itemfg .
-DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE ldummy AS LOG NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
+DEFINE VARIABLE cFieldType AS cha NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEFINE BUFFER b-itemfg FOR itemfg .
+DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Code,Desc.,Customer Name,Whse,Bin Loc,Dspsl Dt,Lst Usd Dt," +
                             "Markup,Cost,M/L,Amtz,M Type,Use w/Est,UOM,SIMON,C Type,Account No,Cad #,File #," +
-                            "Customer #,Last Estimate,Last Job,Has Note"
+                            "Customer #,Last Estimate,Last Job,Has Note,Box Style,Price," +
+                            "Length,Width,Depth,Number Up,Die Width,Die Length,# of Impressions,Date Received," +  /*8*/
+                            "FG Category,RM Category,RM Item #,Owner 1,Owner 1 %,Owner 2,Owner 2 %"  /*7*/
        cFieldListToSelect = "code,dscr,cust-name,ware,bin,dis-dt,lst-dt," +
-                                        "mrkup,cst,ml,amtz,m-typ,use-est,uom,simon,c-typ,act-no,cad-no,file-no," +
-                                        "cust,lst-est,lst-job,has-not"
-       cFieldLength = "15,30,30,5,8,10,10," + "6,10,3,6,6,9,3,5,6,30,15,15," + "10,13,10,8" 
-       cFieldType = "c,c,c,c,c,c,c," + "i,i,c,i,c,c,c,c,c,c,c,c," + "c,c,c,c"
+                             "mrkup,cst,ml,amtz,m-typ,use-est,uom,simon,c-typ,act-no,cad-no,file-no," +
+                             "cust,lst-est,lst-job,has-not,prep.box-style,prep.spare-dec-1," +
+                             "prep.carton-l,prep.carton-w,prep.carton-d,prep.number-up,prep.die-w,prep.die-l,prep.no-of-impressions,received-date," +
+                             "prep.fgcat,prep.procat,prep.i-no,owner1,owner%1,owner2,owner%2"
+       cFieldLength = "15,30,30,5,8,10,10," + "6,10,3,6,6,9,3,5,6,30,15,15," + "10,13,10,8,10,8," + "10,10,10,10,10,10,15,13," + "11,11,15,25,9,25,9"
+       cFieldType = "c,c,c,c,c,c,c," + "i,i,c,i,c,c,c,c,c,c,c,c," + "c,c,c,c,c,i," + "i,i,i,i,i,i,i,c," + "c,c,c,c,i,c,i"
     .
 
 {sys/inc/ttRptSel.i}
@@ -125,7 +129,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -219,25 +223,25 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
 
-DEFINE VARIABLE tb_batch AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_batch AS LOGICAL INITIAL NO 
      LABEL "Run In Batch Mode?" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY .81
      BGCOLOR 14  NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL NO 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3 FGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3 FGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -250,21 +254,21 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Prep Code"
      end_prep AT ROW 4.1 COL 27 COLON-ALIGNED HELP
           "Enter Ending Prep Code"
-     sl_avail AT ROW 6.86 COL 4.4 NO-LABEL WIDGET-ID 26
+     sl_avail AT ROW 6.86 COL 4.4 NO-LABELS WIDGET-ID 26
      Btn_Def AT ROW 6.86 COL 40.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 6.86 COL 59.8 NO-LABEL WIDGET-ID 28
+     sl_selected AT ROW 6.86 COL 59.8 NO-LABELS WIDGET-ID 28
      Btn_Add AT ROW 7.86 COL 40.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
      Btn_Remove AT ROW 8.86 COL 40.4 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
      btn_Up AT ROW 9.91 COL 40.4 WIDGET-ID 40
      btn_down AT ROW 10.91 COL 40.4 WIDGET-ID 42
-     rd-dest AT ROW 13.14 COL 5 NO-LABEL
-     lv-ornt AT ROW 13.86 COL 31 NO-LABEL
+     rd-dest AT ROW 13.14 COL 5 NO-LABELS
+     lv-ornt AT ROW 13.86 COL 31 NO-LABELS
      lines-per-page AT ROW 13.86 COL 84 COLON-ALIGNED
      lv-font-no AT ROW 15.76 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 16.71 COL 28 COLON-ALIGNED NO-LABEL
+     lv-font-name AT ROW 16.71 COL 28 COLON-ALIGNED NO-LABELS
      td-show-parm AT ROW 18.62 COL 30
      tb_excel AT ROW 19.71 COL 67.4 RIGHT-ALIGNED WIDGET-ID 4
      tb_runExcel AT ROW 19.71 COL 91.4 RIGHT-ALIGNED WIDGET-ID 6
@@ -313,15 +317,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
@@ -369,7 +373,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -410,7 +414,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_prep C-Win
 ON LEAVE OF begin_prep IN FRAME FRAME-A /* Beginning  Prep Code */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -421,7 +425,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -466,13 +470,13 @@ DO:
   ELSE RUN run-report-sum. */
 
   RUN GetSelectionList.
-  run run-report. 
+  RUN run-report. 
 
- case rd-dest:
-      when 1 then run output-to-printer.
-      when 2 then run output-to-screen.
-      when 3 then run output-to-file.
-      when 4 then do:
+ CASE rd-dest:
+      WHEN 1 THEN RUN output-to-printer.
+      WHEN 2 THEN RUN output-to-screen.
+      WHEN 3 THEN RUN output-to-file.
+      WHEN 4 THEN DO:
              /*run output-to-fax.*/
            {custom/asifax.i &type= " "
                             &begin_cust= "begin_prep"
@@ -481,7 +485,7 @@ DO:
                             &fax-body=c-win:title
                             &fax-file=list-name }
        END. 
-       when 5 then do:
+       WHEN 5 THEN DO:
            IF is-xprint-form THEN DO:
               {custom/asimail.i &TYPE = " "
                              &begin_cust= "begin_prep"
@@ -501,7 +505,7 @@ DO:
            END.
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
-  end case.
+  END CASE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -511,7 +515,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -537,7 +541,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
@@ -589,7 +593,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_prep C-Win
 ON LEAVE OF end_prep IN FRAME FRAME-A /* Ending Prep Code */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -600,7 +604,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -611,7 +615,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -622,7 +626,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
 
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
@@ -669,7 +673,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -741,7 +745,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -752,7 +756,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -763,7 +767,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    assign {&self-name}.
+    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -850,8 +854,8 @@ PROCEDURE DisplaySelectionDefault :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
@@ -874,8 +878,8 @@ PROCEDURE DisplaySelectionList :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
      
@@ -915,9 +919,9 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
@@ -993,7 +997,7 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1005,9 +1009,9 @@ PROCEDURE GetSelectionList :
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
            ttRptSelected.DisplayOrder = i
-           ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
+           ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
            
@@ -1101,7 +1105,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
+  RUN scr-rpt.w (list-name,c-win:TITLE,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1131,40 +1135,41 @@ PROCEDURE run-report :
 **
 *****************************************************************************
 \***************************************************************************/
-def var ii like i no-undo.
+DEFINE VARIABLE ii LIKE i NO-UNDO.
 
 /* gdm - 10130803 */
-DEF VAR v_exclhdr1 AS CHAR                NO-UNDO.
-DEF VAR v_exclhdr2 AS CHAR                NO-UNDO.
-DEF VAR v_custnum  AS CHAR FORMAT "x(35)" NO-UNDO.
+DEFINE VARIABLE v_exclhdr1 AS CHARACTER                NO-UNDO.
+DEFINE VARIABLE v_exclhdr2 AS CHARACTER                NO-UNDO.
+DEFINE VARIABLE v_custnum  AS CHARACTER FORMAT "x(35)" NO-UNDO.
 
 /*{sys/form/r-topl.f}*/
 
 
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
-DEF VAR v-lst-job    AS CHAR NO-UNDO.
+DEFINE VARIABLE cDisplay AS cha NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
+DEFINE VARIABLE cVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE cFieldName AS cha NO-UNDO.
+DEFINE VARIABLE str-tit4 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE str-tit5 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE v-lst-job    AS CHARACTER NO-UNDO.
 
-DEF BUFFER bf-reftable FOR reftable .
+DEFINE BUFFER bf-reftable FOR reftable .
+DEFINE BUFFER bfprep FOR prep .
 
-{sys/form/r-top5DL3.f} 
+{sys/form/r-topsw.f}
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
-ASSIGN str-tit2 = c-win:title
+ASSIGN str-tit2 = c-win:TITLE
          {sys/inc/ctrtext.i str-tit2 112}.
 
 
-DEF VAR cslist AS cha NO-UNDO.
+DEFINE VARIABLE cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
@@ -1192,12 +1197,16 @@ DEF VAR cslist AS cha NO-UNDO.
 
 {sys/inc/outprint.i value(lines-per-page)}
 
-if td-show-parm then run show-param.
+IF td-show-parm THEN RUN show-param.
 
-display "" with frame r-top.
+DISPLAY "" WITH FRAME r-top.
+PUT  str-tit4 FORMAT "x(600)"
+     SKIP
+     str-tit5 FORMAT "x(600)"
+     SKIP
+    .
 
-
-IF tb_excel THEN do:
+IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1225,7 +1234,7 @@ FOR EACH prep WHERE prep.company = g_company
 
     ASSIGN v_ML     = IF prep.ml = TRUE THEN "M" ELSE "L"
            v_dfault = IF prep.dfault = TRUE THEN "Y" ELSE "N" .
-        IF AVAIL bf-reftable THEN
+        IF AVAILABLE bf-reftable THEN
             v-lst-job = TRIM(STRING(bf-reftable.code2)  + "-" + string(bf-reftable.val[1],"99"))    .
         ELSE
             v-lst-job = "" .
@@ -1235,40 +1244,70 @@ FOR EACH prep WHERE prep.company = g_company
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-          
+
+            BUFFER bfprep:FIND-BY-ROWID(ROWID(prep), NO-LOCK) .
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+               cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+                   IF INDEX(cTmpField,".") > 0 THEN DO:
+                            cFieldName = cTmpField.
+                            cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
+                            hField = BUFFER bfprep:BUFFER-FIELD(cTmpField).
+                            IF hField <> ? THEN DO:                 
+                                cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
+                                cDisplay = cDisplay + 
+                                          IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldType) = "C" THEN
+                                            (cTmpField + FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)))
+                                          ELSE IF LENGTH(cTmpField) <  int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) THEN
+                                            (FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
+                                          ELSE cTmpField.
+                                cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".   
+
+                            END.
+                            ELSE DO:
+                               cTmpField = SUBSTRING(cFieldName,1,int( ENTRY( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
+                               cDisplay = cDisplay + FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
+                               cExcelDisplay = cExcelDisplay + quoter(" ") + ",".
+                            END.
+                  END.
+                  ELSE DO: 
+
                     CASE cTmpField:             
-                         WHEN "code"                THEN cVarValue =  string(prep.CODE,"x(15)") .
-                         WHEN "dscr"                  THEN cVarValue =  string(prep.dscr) .
-                         WHEN "cust-name"        THEN cVarValue =  string(prep.cust-name) .
-                         WHEN "ware"                 THEN cVarValue = string(prep.loc) .
-                         WHEN "bin"                    THEN cVarValue = string(prep.loc-bin) .
-                         WHEN "dis-dt"                 THEN cVarValue = IF prep.disposal-date NE ? THEN string(prep.disposal-date)  ELSE "" .
-                         WHEN "lst-dt"                  THEN cVarValue = IF prep.last-date NE ? THEN string(prep.last-date)  ELSE "".
-                         WHEN "mrkup"                THEN cVarValue = string(prep.mkup,">>9.99") .
-                         WHEN "cst"                     THEN cVarValue = string(prep.cost,"->>,>>9.99") .
-                         WHEN "ml"                      THEN cVarValue = string(v_ML) .
-                         WHEN "amtz"                  THEN cVarValue =  string(prep.amtz,">>9.99") .
-                         WHEN "m-typ"                 THEN cVarValue =  string(prep.mat-type) .
-                         WHEN "use-est"              THEN cVarValue =  string(v_dfault) .
-                         WHEN "uom"                   THEN cVarValue =  string(prep.uom) .
-                         WHEN "simon"                 THEN cVarValue =  string(prep.simon) .
-                         WHEN "c-typ"                  THEN cVarValue =  string(prep.cost-type) .
-                         WHEN "act-no"                THEN cVarValue = string(prep.actnum) .
-                         WHEN "cad-no"               THEN cVarValue =   IF AVAIL reftable THEN reftable.CODE ELSE ""    .
-                         WHEN "file-no"                 THEN cVarValue =   IF AVAIL reftable THEN reftable.code2 ELSE ""  .
-                         WHEN "cust"   THEN cVarValue = prep.cust-no   .
+                         WHEN "code"                THEN cVarValue =  STRING(prep.CODE,"x(15)") .
+                         WHEN "dscr"                  THEN cVarValue =  STRING(prep.dscr) .
+                         WHEN "cust-name"        THEN cVarValue =  STRING(prep.cust-name) .
+                         WHEN "ware"                 THEN cVarValue = STRING(prep.loc) .
+                         WHEN "bin"                    THEN cVarValue = STRING(prep.loc-bin) .
+                         WHEN "dis-dt"                 THEN cVarValue = IF prep.disposal-date NE ? THEN STRING(prep.disposal-date)  ELSE "" .
+                         WHEN "lst-dt"                  THEN cVarValue = IF prep.last-date NE ? THEN STRING(prep.last-date)  ELSE "".
+                         WHEN "mrkup"                THEN cVarValue = STRING(prep.mkup,">>9.99") .
+                         WHEN "cst"                     THEN cVarValue = STRING(prep.cost,"->>,>>9.99") .
+                         WHEN "ml"                      THEN cVarValue = STRING(v_ML) .
+                         WHEN "amtz"                  THEN cVarValue =  STRING(prep.amtz,">>9.99") .
+                         WHEN "m-typ"                 THEN cVarValue =  STRING(prep.mat-type) .
+                         WHEN "use-est"              THEN cVarValue =  STRING(v_dfault) .
+                         WHEN "uom"                   THEN cVarValue =  STRING(prep.uom) .
+                         WHEN "simon"                 THEN cVarValue =  STRING(prep.simon) .
+                         WHEN "c-typ"                  THEN cVarValue =  STRING(prep.cost-type) .
+                         WHEN "act-no"                THEN cVarValue = STRING(prep.actnum) .
+                         WHEN "cad-no"               THEN cVarValue =   IF AVAILABLE reftable THEN reftable.CODE ELSE ""    .
+                         WHEN "file-no"                 THEN cVarValue =   IF AVAILABLE reftable THEN reftable.code2 ELSE ""  .
+                         WHEN "cust"      THEN cVarValue = prep.cust-no   .
                          WHEN "lst-est"   THEN cVarValue = prep.last-est-no  .
                          WHEN "lst-job"   THEN cVarValue = IF v-lst-job NE "-00" AND v-lst-job NE "" THEN  v-lst-job ELSE "" .
-                         WHEN "has-not"   THEN cVarValue = IF AVAIL notes THEN "Yes" ELSE "No" .    
-
+                         WHEN "has-not"   THEN cVarValue = IF AVAILABLE notes THEN "Yes" ELSE "No" .    
+                         WHEN "owner1"                THEN cVarValue =  STRING(prep.owner[1]) .
+                         WHEN "owner%1"               THEN cVarValue =  STRING(prep.owner-%[1]) .
+                         WHEN "owner2"                THEN cVarValue =  STRING(prep.owner[2]) .
+                         WHEN "owner%2"               THEN cVarValue =  STRING(prep.owner-%[2]) .
+                         WHEN "received-date"               THEN cVarValue = IF prep.received-date <> ?THEN  STRING(prep.received-date) ELSE "" .
+                         
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".   
+                  END.
             END.
           
             PUT UNFORMATTED cDisplay SKIP.
@@ -1389,7 +1428,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
-end procedure.
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1401,20 +1440,20 @@ PROCEDURE run-report-sum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-def var ii like i no-undo.
+DEFINE VARIABLE ii LIKE i NO-UNDO.
 
 {sys/form/r-top.f}
 
-ASSIGN str-tit2 = c-win:title
+ASSIGN str-tit2 = c-win:TITLE
          {sys/inc/ctrtext.i str-tit2 56}.
 
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
 
-if td-show-parm then run show-param.
+IF td-show-parm THEN RUN show-param.
 
-display "" with frame r-top.
+DISPLAY "" WITH FRAME r-top.
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -1452,7 +1491,7 @@ FOR EACH prep WHERE prep.company = g_company
     END. /* IF tb_excel */
 
      DO WITH FRAME prep 3 COLUMNS STREAM-IO:
-          display skip(2).
+          DISPLAY SKIP(2).
           {ce/prep.v}.
           DOWN.
      END.
@@ -1482,61 +1521,61 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha NO-UNDO.
+  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
+  DEFINE VARIABLE parm-fld-list AS cha NO-UNDO.
+  DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-label AS cha NO-UNDO.
   
   ASSIGN
-  lv-frame-hdl = frame {&frame-name}:HANDLE
-  lv-group-hdl = lv-frame-hdl:first-child
-  lv-field-hdl = lv-group-hdl:first-child.
+  lv-frame-hdl = FRAME {&frame-name}:HANDLE
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD.
   
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + ",".
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+        THEN DO:
+           IF lv-field-hdl:LABEL <> ? THEN 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + ",".
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
 
-  put space(28)
+  PUT SPACE(28)
       "< Selection Parameters >"
-      skip(1).
+      SKIP(1).
   
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR
+       entry(i,parm-lbl-list) NE "" THEN DO:
        
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
+                 trim(ENTRY(i,parm-lbl-list)) + ":".
                  
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+      PUT lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
  
-  put fill("-",80) format "x(80)" skip.
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.
   
 END PROCEDURE.
 
@@ -1554,7 +1593,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN string(hipField:BUFFER-VALUE).
+  RETURN STRING(hipField:BUFFER-VALUE).
 
 END FUNCTION.
 

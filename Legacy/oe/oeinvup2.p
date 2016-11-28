@@ -235,6 +235,14 @@ PROCEDURE inv-surcharge:
         inv-misc.charge   = surcharge.charge
         inv-misc.dscr     = surcharge.dscr
         inv-misc.bill     = "Y".
+        
+        FIND FIRST prep NO-LOCK
+            WHERE prep.company EQ inv-head.company
+            AND prep.code    EQ surcharge.charge
+            NO-ERROR.
+        IF AVAIL prep THEN
+            ASSIGN
+            inv-misc.actnum = prep.actnum .
      END.
      
      inv-misc.amt = inv-misc.amt + ld-charge.

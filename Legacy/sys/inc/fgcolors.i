@@ -13,8 +13,6 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.name     = "FGColors"
    sys-ctrl.descrip  = "Use Color Folder in FG Maintenance to Update Estimate Inks?".
 
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
+ 
 END.
 fgcolors-log = sys-ctrl.log-fld.

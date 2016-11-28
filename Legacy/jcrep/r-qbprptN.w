@@ -58,14 +58,17 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE cstat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE vstatus AS CHAR INITIAL "A,N,H,C,D,Z,P,O,R,W,X" NO-UNDO .
+DEFINE VARIABLE vstatus-desc AS CHAR INITIAL "Approve,New,Hold,Close,Close,Close,Partial,Open,Re-Open,Web,Stock" NO-UNDO .
 
 
-ASSIGN cTextListToSelect = "JOB#,S,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF"
+ASSIGN cTextListToSelect = "JOB#,S,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF," +
+                           "JOB HOLD REASON,ORDER STATUS"
+       cFieldListToSelect = "job,sn,bn,date,cust,board,s-wid,s-len,sheet,lbs,lf,job-rson,ord-sts" 
                            
-       cFieldListToSelect = "job,sn,bn,date,cust,board,s-wid,s-len,sheet,lbs,lf" 
-                            
-       cFieldLength = "9,3,3,10,11,14,11,12,11,11,11" 
-       cFieldType = "c,i,i,c,c,c,i,i,i,i,i"  
+       cFieldLength = "9,3,3,10,11,14,11,12,11,11,11,15,12" 
+       cFieldType = "c,i,i,c,c,c,i,i,i,i,i,c,c"  
     .
 
 {sys/inc/ttRptSel.i}
@@ -1284,6 +1287,7 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE vHoldReason AS CHARACTER NO-UNDO.
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.

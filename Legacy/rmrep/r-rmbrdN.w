@@ -71,6 +71,11 @@ DEFINE TEMP-TABLE tt-job NO-UNDO
    INDEX i-no i-no print-date seq m-code
    INDEX m-code m-code.
 
+
+DEF VAR lv-type-dscrs AS CHAR NO-UNDO.
+DEF VAR lv-type-codes AS CHAR NO-UNDO.
+RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
+
 DEFINE TEMP-TABLE tt-mach NO-UNDO
     FIELD m-code AS CHAR
     INDEX m-code m-code.
@@ -89,17 +94,17 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 
 
-ASSIGN cTextListToSelect = "Whse,Item,Description,Product Category,UOM,Cost,On Hand,On Order," +
-                           "PO - Due Date,Quantity Available,Value" 
-       cFieldListToSelect = "whse,item,desc,cat,uom,cost,qty-hand,qty-ord," +
-                            "po-due-date,qty-abl,val"
-       cFieldLength = "5,10,28,16,3,11,15,15," + "100,17,14"
-       cFieldType = "c,c,c,c,c,i,i,i," + "c,i,i" 
+ASSIGN cTextListToSelect = "Whse,Item,Item Name,Description,Product Category,UOM,Cost,On Hand,On Order," +
+                           "PO - Due Date,Quantity Available,Value,Order type" 
+       cFieldListToSelect = "whse,item,item-name,desc,cat,uom,cost,qty-hand,qty-ord," +
+                            "po-due-date,qty-abl,val,ord-type"
+       cFieldLength = "5,10,28,30,16,3,11,15,15," + "100,17,14,10"
+       cFieldType = "c,c,c,c,c,c,i,i,i," + "c,i,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Whse,Item,Description,Product Category,UOM,Cost,On Hand,On Order," +
-                           "PO - Due Date,Quantity Available,Value"  .
+ASSIGN cTextListToDefault  = "Whse,Item,Item Name,Description,Product Category,UOM,Cost,On Hand,On Order," +
+                           "PO - Due Date,Quantity Available,Value,Order type"  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1436,6 +1441,7 @@ def var v-dep like po-ordl.s-len no-undo.
 def var v-bwt like po-ordl.s-len no-undo.
 DEF VAR v-mat-act-qty LIKE mat-act.qty NO-UNDO.
 DEF VAR noDate AS LOGICAL NO-UNDO. /* rstark 08111413 */
+DEF VAR v-ord-type AS CHARACTER.
 
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
@@ -1448,6 +1454,8 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+
+ DEF VAR li AS INT NO-UNDO.
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1756,6 +1764,7 @@ assign
             NO-LOCK:
 
             {custom/statusMsg.i "'Processing Item # ' + string(ITEM.i-no)"} 
+            
 
             FIND FIRST tt-po WHERE
                  tt-po.i-no EQ ITEM.i-no AND
@@ -1818,6 +1827,29 @@ assign
                 procat.company EQ cocode AND
                 procat.procat EQ ITEM.procat
                 NO-LOCK NO-ERROR.
+           IF AVAIL tt-job THEN
+           FIND FIRST oe-ordl NO-LOCK 
+                WHERE oe-ordl.company EQ cocode
+                  AND oe-ordl.i-no EQ po-ordl.i-no
+                  AND oe-ordl.job-no EQ tt-job.job-no
+                  AND oe-ordl.type-code NE "" NO-ERROR.   
+            IF NOT AVAIL oe-ordl AND AVAIL tt-job THEN
+            FIND FIRST oe-ordl NO-LOCK 
+                WHERE oe-ordl.company EQ cocode
+                  AND oe-ordl.job-no EQ tt-job.job-no
+                  AND oe-ordl.type-code NE "" NO-ERROR.
+            IF AVAIL(oe-ordl) THEN DO:
+
+                 li = LOOKUP(oe-ordl.type-code,lv-type-codes) NO-ERROR.
+                 IF ERROR-STATUS:ERROR THEN li = 0.
+                 IF li GT 0 AND li LE NUM-ENTRIES(lv-type-dscrs) THEN DO:
+                     v-ord-type = ENTRY(li,lv-type-dscrs).
+                 END.
+                 ELSE 
+                     ASSIGN v-ord-type = "".
+            END.
+            ELSE
+                ASSIGN v-ord-type = "".
           
           /* display
               item.loc
@@ -1844,7 +1876,8 @@ assign
                     CASE cTmpField:             
                          WHEN "whse"    THEN cVarValue = string(item.loc,"x(5)") .
                          WHEN "item"   THEN cVarValue = STRING(item.i-no,"x(10)").
-                         WHEN "desc"   THEN cVarValue = string(item.i-name,"x(28)").
+                         WHEN "item-name"   THEN cVarValue = STRING(item.i-name,"x(28)").
+                         WHEN "desc"   THEN cVarValue = string(item.i-dscr,"x(30)").
                          WHEN "cat"  THEN cVarValue = IF AVAIL procat THEN STRING(procat.dscr,"x(16)") ELSE "" .
                          WHEN "uom"   THEN cVarValue = IF item.i-code ne "E" THEN STRING(ITEM.cons-uom,"x(3)") ELSE "" .
                          WHEN "cost"  THEN cVarValue = IF item.i-code ne "E" THEN string(rm-cst-amt,">>,>>9.9999") ELSE "" .
@@ -1854,6 +1887,8 @@ assign
                          WHEN "po-due-date"  THEN cVarValue = IF AVAIL tt-po THEN STRING(tt-po.po-line,"x(100)") ELSE "" .
                          WHEN "qty-abl"   THEN cVarValue = IF item.i-code ne "E" THEN string(ITEM.q-avail,"->,>>>,>>>,>>9.99") ELSE "" .
                          WHEN "val"  THEN cVarValue = IF item.i-code ne "E" THEN string(v-value,"->>,>>>,>>9.99") ELSE "" .
+                         WHEN "ord-type"  THEN cVarValue = string(v-ord-type).
+                                                                                                                       
                          
                     END CASE.
                       
@@ -1886,6 +1921,7 @@ assign
                     CASE cTmpField:             
                          WHEN "whse"    THEN cVarValue = "" .
                          WHEN "item"   THEN cVarValue = "".
+                         WHEN "item-name"   THEN cVarValue = "" .
                          WHEN "desc"   THEN cVarValue = "".
                          WHEN "cat"  THEN cVarValue = "" .
                          WHEN "uom"   THEN cVarValue = "" .
@@ -1895,7 +1931,7 @@ assign
                          WHEN "po-due-date"  THEN cVarValue = STRING(tt-po.po-line,"x(100)") .
                          WHEN "qty-abl"   THEN cVarValue = "".
                          WHEN "val"  THEN cVarValue = "" .
-                         
+                         WHEN "ord-type"  THEN cVarValue = "".
                     END CASE.
                       
                     cExcelVarValue = cVarValue.

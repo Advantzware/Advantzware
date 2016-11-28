@@ -18,8 +18,7 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.log-fld  = NO
    sys-ctrl.char-fld = "PO UOM".
    
-  MESSAGE sys-ctrl.descrip
-      UPDATE sys-ctrl.char-fld.
+ 
 END.
 
 ASSIGN

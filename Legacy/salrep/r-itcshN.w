@@ -25,6 +25,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -40,7 +42,6 @@ assign
  cocode = gcompany
  locode = gloc.
 
-{sys/inc/custlistform.i ""HR5"" }
 {sys/ref/CustList.i NEW}
 
 def TEMP-TABLE w-data NO-UNDO
@@ -77,11 +78,11 @@ DEF VAR cSlsList AS CHAR NO-UNDO.
 /*DEF VAR cSelectedList AS cha NO-UNDO.*/
 
 ASSIGN cTextListToSelect = "Fg Item,Item Name,Customer#,Customer Name,Customer Part,Ship To,Inv Number,Inv Date,Order#,Est#," +  /*10*/
-                               "Bol #,Qty Shipped,Unit Price,Uom,Invoice Amt.,Rep,Rep Name" /*5*/
+                               "Bol #,Qty Shipped,Unit Price,Uom,Invoice Amt.,Rep,Rep Name,PO#" /*5*/
            cFieldListToSelect = "w-data.i-no,v-name,cust.cust-no,cust.name,v-part-no,tt-report.key-03,w-data.inv-no,v-date,v-ord,v-est," +
-                                "v-bol,v-qty[1],v-pric,v-uom,v-amt[1],rep,rep-name"
-           cFieldLength = "15,20,9,20,20,8,10,10,8,8," + "8,12,15,3,17,3,25"
-           cFieldType = "c,c,c,c,c,c,i,c,i,c," + "i,i,i,c,i,c,c"
+                                "v-bol,v-qty[1],v-pric,v-uom,v-amt[1],rep,rep-name,v-po"
+           cFieldLength = "15,20,9,20,20,8,10,10,8,8," + "8,12,15,3,17,3,25,15"
+           cFieldType = "c,c,c,c,c,c,i,c,i,c," + "i,i,i,c,i,c,c,c"
            .
         ASSIGN cTextListToDefault  = "Fg Item,Customer#,Item Name,Customer Part,Customer Name,Ship To,Inv Number,Inv Date,Order#,Bol #,Est#," +  /*10*/
                                      "Qty Shipped,Unit Price,Uom,Invoice Amt." .
@@ -130,7 +131,7 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel AUTO-END-KEY 
+DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -557,8 +558,8 @@ ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -657,7 +658,7 @@ DO:
   END.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -806,8 +807,8 @@ ON HELP OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -911,8 +912,8 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-fonts.w ({&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
@@ -1165,6 +1166,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   {methods/nowait.i}
   
+  RUN sys/inc/CustListForm.p ( "HR5",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
+  
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
 
@@ -1180,7 +1186,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'HR5',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  {sys/inc/chblankcust.i}
+  {sys/inc/chblankcust.i ""HR5""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1606,6 +1612,7 @@ DEF VAR cSelectedList AS cha NO-UNDO.
  DEFINE VAR countt AS INT NO-UNDO.
  DEFINE VAR amountcount AS INT NO-UNDO .
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form header
      "               "
@@ -1709,7 +1716,8 @@ ASSIGN
  v-det      = tb_detailed                  
 /* v-print1   = rd_show EQ "Customer Name" */
  v-sort1    = rd_sort EQ "Finished Goods"              
- v-inc-fc   = tb_fin-chg. 
+ v-inc-fc   = tb_fin-chg
+ lSelected  = tb_cust-list. 
 
 ASSIGN
  v-hdr[1] = if v-sort1  then "FG Item#" else "Customer Part#"
@@ -1738,7 +1746,12 @@ DEF VAR cslist AS cha NO-UNDO.
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
-
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
 
  countt = INDEX(str-tit4,"Qty Shipped").
  amountcount = INDEX(str-tit4," Invoice Amt.").

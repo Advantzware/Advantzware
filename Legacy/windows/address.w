@@ -110,7 +110,7 @@ DEFINE VARIABLE headervalue AS CHARACTER FORMAT "X(256)":U
 
 DEFINE BUTTON Btn_Address 
      IMAGE-UP FILE "Graphics/32x32/dictionary.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Address" 
      SIZE 7.8 BY 1.81 TOOLTIP "Addresses".
 
@@ -239,7 +239,6 @@ THEN W-Win:HIDDEN = yes.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 

@@ -218,15 +218,15 @@ format wkrecap.procat
 
   find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock.
 
-  find first period
+  FIND FIRST period NO-LOCK
       where period.company eq cocode
         and period.pst     le tdate
         and period.pend    ge tdate
-      no-lock no-error.
+         NO-ERROR.
 
-  lo_trandate = if avail period then minimum(fdate,period.pst) else fdate.
+  lo_trandate = IF AVAILABLE period THEN MINIMUM(fdate,period.pst) ELSE fdate.
 
-  for each oe-ord
+  FOR EACH oe-ord NO-LOCK
       where oe-ord.company  eq cocode
         AND oe-ord.cust-no  GE begin_cust-no
         AND oe-ord.cust-no  LE end_cust-no
@@ -234,7 +234,6 @@ format wkrecap.procat
         and oe-ord.ord-date le tdate
         and oe-ord.type     ne "T"
         AND oe-ord.stat     NE "D"
-      no-lock
       by oe-ord.company by oe-ord.ord-date by oe-ord.ord-no:
 
      IF tb_exclude-transfer THEN
@@ -245,15 +244,13 @@ format wkrecap.procat
        
        v-code = "".
         
-       FOR EACH oe-rel FIELDS(r-no) WHERE
+       FOR EACH oe-rel FIELDS(r-no) NO-LOCK WHERE
            oe-rel.company = oe-ord.company AND 
-           oe-rel.ord-no  = oe-ord.ord-no
-           NO-LOCK,
-           FIRST reftable WHERE
+           oe-rel.ord-no  = oe-ord.ord-no  ,
+           FIRST reftable NO-LOCK WHERE
                  reftable.reftable EQ "oe-rel.s-code" AND 
                  reftable.company  EQ STRING(oe-rel.r-no,"9999999999") AND
-                 reftable.CODE EQ "T"
-                 NO-LOCK:
+                 reftable.CODE EQ "T" :
       
                  v-code = "T".
                  LEAVE.
@@ -265,18 +262,16 @@ format wkrecap.procat
 
     {custom/statusMsg.i "'Processing Order # ' + string(oe-ord.ord-no)"} 
 
-    for each oe-ordl
+    FOR EACH oe-ordl NO-LOCK
         where oe-ordl.company eq cocode
           and oe-ordl.ord-no  eq oe-ord.ord-no
-          AND (oe-ordl.is-a-component EQ NO OR tb_exclude-set-comps = NO)
-        no-lock,
+          AND (oe-ordl.is-a-component EQ NO OR tb_exclude-set-comps = NO),
           
-        first itemfg
+        FIRST itemfg NO-LOCK
         where itemfg.company eq cocode
           and itemfg.i-no    eq oe-ordl.i-no
           and itemfg.procat  ge begin_fg-cat
           and itemfg.procat  le end_fg-cat
-        no-lock
 
         break by oe-ordl.line:
         
@@ -333,12 +328,12 @@ format wkrecap.procat
          v-amt  = oe-ordl.t-price * v-pct.
 
         find first wkrecap
-            where wkrecap.procat eq if avail itemfg then itemfg.procat else ?
+            WHERE wkrecap.procat EQ IF AVAILABLE itemfg THEN itemfg.procat ELSE ?
             no-error.
-        if not avail wkrecap then do:
+        IF NOT AVAILABLE wkrecap THEN DO:
           create wkrecap.
           assign
-           wkrecap.procat     = if avail itemfg then itemfg.procat else ?
+           wkrecap.procat     = IF AVAILABLE itemfg THEN itemfg.procat ELSE ?
            wkrecap.num-of-ord = wkrecap.num-of-ord + 1.
         end.
         
@@ -347,7 +342,7 @@ format wkrecap.procat
         j = if oe-ord.ord-date ge fdate and
                oe-ord.ord-date le tdate then 1 else 2.
 
-        k = if AVAIL period AND oe-ord.ord-date ge period.pst  and
+        k = IF AVAILABLE period AND oe-ord.ord-date GE period.pst  AND
                oe-ord.ord-date le period.pend then 2 else 1.
 
         if j le k then
@@ -366,17 +361,16 @@ format wkrecap.procat
            oe-ord.ord-date le tdate then
           v-per-days[1] = v-per-days[1] + 1.
           
-        if AVAIL period AND oe-ord.ord-date ge period.pst  and
+        IF AVAILABLE period AND oe-ord.ord-date GE period.pst  AND
            oe-ord.ord-date le period.pend then
           v-per-days[2] = v-per-days[2] + 1.
       end.
     end.
 
     if p-m-chg then 
-    for each oe-ordm
+    FOR EACH oe-ordm NO-LOCK
         where oe-ordm.company eq cocode
-          and oe-ordm.ord-no  eq oe-ord.ord-no
-        no-lock:
+          AND oe-ordm.ord-no  EQ oe-ord.ord-no :
 
       v-exclude = yes.
       do i = 1 to 3:
@@ -427,7 +421,7 @@ format wkrecap.procat
          v-amt = oe-ordm.amt * v-pct.
 
         find first wkrecap where wkrecap.procat eq "P/M" no-error.
-        if not avail wkrecap then do:
+        IF not AVAILABLE wkrecap THEN DO:
           create wkrecap.
           assign
            wkrecap.procat     = "P/M"
@@ -439,7 +433,7 @@ format wkrecap.procat
         j = if oe-ord.ord-date ge fdate and
                oe-ord.ord-date le tdate then 1 else 2.
 
-        k = if AVAIL period AND oe-ord.ord-date ge period.pst  and
+        k = IF AVAILABLE period AND oe-ord.ord-date GE period.pst  AND
                oe-ord.ord-date le period.pend then 2 else 1.
 
         /* We cannot disturb loop variable i from within loop,
@@ -455,13 +449,13 @@ format wkrecap.procat
    for each tt-report where tt-report.term-id eq ""
       break by tt-report.key-01 by tt-report.key-02:
 
-        find first oe-ordm
+        FIND FIRST oe-ordm NO-LOCK
           where recid(oe-ordm) eq tt-report.rec-id
-          no-lock no-error.
-      if avail oe-ordm then do:
+           NO-ERROR.
+      IF AVAILABLE oe-ordm THEN do:
         find first oe-ord of oe-ordm no-lock.
         assign
-         i     = int(tt-report.key-03)
+         i     = INTEGER(tt-report.key-03)
          v-pct = oe-ordm.s-pct[i] / 100
          v-amt = oe-ordm.amt * v-pct.
 
@@ -476,7 +470,7 @@ format wkrecap.procat
             where recid(oe-ordl) eq tt-report.rec-id
             no-lock no-error.
         assign
-           i      = int(tt-report.key-03)
+           i      = INTEGER(tt-report.key-03)
            v-pct  = oe-ordl.s-pct[i] / 100
            v-qty  = oe-ordl.qty * v-pct
            v-amt  = oe-ordl.t-price * v-pct .
@@ -494,19 +488,19 @@ format wkrecap.procat
    
        /*==== new with selectable columns ====*/
         IF tb_under% AND tb_over% THEN DO:
-            IF v-profit >= fUnder% AND v-profit <= fOver% THEN DELETE tt-report .
+            IF v-profit GE fUnder% AND v-profit LE fOver% THEN DELETE tt-report .
         END.
         ELSE IF tb_under% AND NOT tb_over% THEN DO:
-            IF v-profit >= fUnder% THEN DELETE tt-report.
+            IF v-profit GE fUnder% THEN DELETE tt-report.
         END.
         ELSE IF tb_over% AND NOT tb_under% THEN DO:
-            IF v-profit <= fOver% THEN DELETE tt-report.
+            IF v-profit GE fOver% THEN DELETE tt-report.
         END.
       END.  /* prt-sqft then do */
 
       ELSE  DO:
-          IF tb_under% AND v-profit > fUnder% THEN DELETE tt-report.
-          IF tb_over% AND v-profit < fOver% THEN DELETE tt-report.
+          IF tb_under% AND v-profit GT fUnder% THEN DELETE tt-report.
+          IF tb_over% AND v-profit LT fOver% THEN DELETE tt-report.
 
       END. /* end of else do prt-sqft */
 
@@ -518,21 +512,21 @@ format wkrecap.procat
       
     {oe/rep/oe-sman2.i}
     
-    find first oe-ordl where recid(oe-ordl) eq tt-report.rec-id no-lock no-error.
+    FIND FIRST oe-ordl NO-LOCK WHERE RECID(oe-ordl) EQ tt-report.rec-id NO-ERROR.
 
-    IF AVAIL oe-ordl THEN
+    IF AVAILABLE oe-ordl THEN
         {custom/statusMsg.i "'Processing Order # ' + string(oe-ordl.ord-no)"}
 
    IF FIRST (tt-report.key-01) then VIEW FRAME r-top. 
 
 
     IF FIRST-OF(tt-report.key-01) THEN DO:
-      FIND FIRST sman
+      FIND FIRST sman NO-LOCK
           WHERE sman.company eq cocode
             AND sman.sman    eq w-data.sman
-          NO-LOCK NO-ERROR.
+           NO-ERROR.
             
-      v-sname = IF AVAIL sman THEN sman.sname
+      v-sname = IF AVAILABLE sman THEN sman.sname
                 ELSE "* NOT IN SALES REP FILE *".
      
      /* ===      
@@ -555,10 +549,10 @@ format wkrecap.procat
     END.
     
 
-    find first oe-ord
+    FIND FIRST oe-ord NO-LOCK
         where oe-ord.company eq cocode
           and oe-ord.ord-no  eq w-data.ord-no
-        no-lock no-error.
+         NO-ERROR.
     find cust of oe-ord no-lock no-error.
 
     assign
@@ -579,25 +573,37 @@ format wkrecap.procat
      v-revenue     (total by tt-report.key-01)
      w-data.cost   (total by tt-report.key-01).
 
+    IF AVAILABLE oe-ordl THEN do:
+        FIND FIRST itemfg NO-LOCK
+            WHERE itemfg.company EQ cocode
+            AND itemfg.i-no    EQ oe-ordl.i-no NO-ERROR.
+
+        FIND FIRST eb NO-LOCK WHERE eb.company EQ cocode
+            AND eb.est-no  EQ oe-ordl.est-no
+            AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
+    END. /* avail oe-ordl  */
+    
+          
+
   
     if prt-sqft then do:       
        /*==== new with selectable columns ====*/
         IF tb_under% AND tb_over% THEN DO:
-            IF v-profit >= fUnder% AND v-profit <= fOver% THEN NEXT.
+            IF v-profit GE fUnder% AND v-profit LE fOver% THEN NEXT.
         END.
         ELSE IF tb_under% AND NOT tb_over% THEN DO:
-            IF v-profit >= fUnder% THEN NEXT.
+            IF v-profit GE fUnder% THEN NEXT.
         END.
         ELSE IF tb_over% AND NOT tb_under% THEN DO:
-            IF v-profit <= fOver% THEN NEXT.
+            IF v-profit LE fOver% THEN NEXT.
         END.
 /*        IF tb_under% AND v-profit > fUnder% THEN                           */
 /*            IF (tb_over% AND v-profit < fOver%) OR NOT tb_over% THEN NEXT. */
 /*        ELSE                                                               */
 /*            IF tb_over% AND v-profit < fOver% THEN NEXT.                   */
-       IF AVAIL oe-ord THEN
+       IF AVAILABLE oe-ord THEN
        BUFFER boe-ord:FIND-BY-ROWID(ROWID(oe-ord), NO-LOCK) .
-       IF AVAIL oe-ordl THEN
+       IF AVAILABLE oe-ordl THEN
        BUFFER boe-ordl:FIND-BY-ROWID(ROWID(oe-ordl), NO-LOCK) .
        BUFFER bcust:FIND-BY-ROWID(ROWID(cust), NO-LOCK) .
        BUFFER bw-data:FIND-BY-ROWID(ROWID(w-data), NO-LOCK) .
@@ -610,26 +616,26 @@ format wkrecap.procat
        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
          cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
          
-         IF INDEX(cTmpField,".") > 0 THEN DO:
+         IF INDEX(cTmpField,".") GT 0 THEN DO:
                  cFieldName = cTmpField.
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
-                 IF cFieldName BEGINS "oe-ordl" THEN hField = IF AVAIL boe-ordl THEN BUFFER boe-ordl:BUFFER-FIELD(cTmpField) ELSE ?.
+                 IF cFieldName BEGINS "oe-ordl" THEN hField = IF AVAILABLE boe-ordl THEN BUFFER boe-ordl:BUFFER-FIELD(cTmpField) ELSE ?.
                  ELSE IF cFieldName BEGINS "oe-ord" THEN hField = BUFFER boe-ord:BUFFER-FIELD(cTmpField).
                  ELSE IF cFieldName BEGINS "cust" THEN hField = BUFFER bcust:BUFFER-FIELD(cTmpField).
                  ELSE hField = BUFFER bw-data:BUFFER-FIELD(cTmpField).
                  IF hField <> ? THEN DO:                 
-                     cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
+                     cTmpField = SUBSTRING(GetFieldValue(hField),1,INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rcpth.job-no2,"99") ELSE "".                  
+                        cTmpField = cTmpField + IF cTmpField NE "" THEN "-" + STRING(fg-rcpth.job-no2,"99") ELSE "".                  
                      
                      cDisplay = cDisplay + cTmpField + 
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
+                               FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
                      cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".
                  END.
                  ELSE DO:
-                    cTmpField = substring(cFieldName,1,int( entry( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
-                    cDisplay = cDisplay + FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
+                    cTmpField = substring(cFieldName,1,INTEGER(ENTRY( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
+                    cDisplay = cDisplay + FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
                     cExcelDisplay = cExcelDisplay + quoter(" ")  /*GetFieldValue(hField))*/ + ",".
                  END.
          END.
@@ -642,11 +648,13 @@ format wkrecap.procat
                  WHEN "t-tons" THEN cVarValue = string(w-data.t-tons,"->,>>>.9").
                  WHEN "v-profit" THEN cVarValue = IF prt-profit THEN string(v-profit,"->>,>>9.9") ELSE "".
                  WHEN "v-price-per-t" THEN cVarValue = string(v-price-per-t,"->>,>>9.99").
+                 WHEN "cust-po" THEN cVarValue = IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN STRING(oe-ordl.po-no,"x(15)") ELSE STRING(oe-ord.po-no,"x(15)") . /* ticket 14966*/
+                 WHEN "die-no" THEN cVarValue = IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN STRING(itemfg.die-no,"x(15)") ELSE IF AVAILABLE eb THEN STRING(eb.die-no,"x(15)") ELSE "" . /* ticket 16188*/
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
             cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
-                       FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
          END.
       END.
@@ -704,6 +712,9 @@ format wkrecap.procat
                    WHEN "w-data.sqft" THEN cVarValue = "" .
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
+                   WHEN "oe-ordl.ord-date" THEN cVarValue = "" .
+                   WHEN "cust-po" THEN cVarValue = "" . /* ticket 14966*/
+                   WHEN "die-no" THEN cVarValue =  "" . /* ticket 16188*/
                    WHEN "t-sqft" THEN cVarValue = string(tot-sqft,"->,>>>.999").
                    WHEN "v-price-per-m" THEN cVarValue = string(v-price-per-m,"->>,>>9.99").
                    WHEN "v-revenue" THEN cVarValue = string(tot-renv,"->,>>>,>>9.99").
@@ -715,7 +726,7 @@ format wkrecap.procat
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
               cDisplay = cDisplay + cVarValue +
-                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                         FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
           
          END.
@@ -766,6 +777,9 @@ format wkrecap.procat
                    WHEN "w-data.sqft" THEN cVarValue = "" .
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
+                   WHEN "oe-ordl.ord-date" THEN cVarValue = "" .
+                   WHEN "cust-po" THEN cVarValue = "" . /* ticket 14966*/
+                   WHEN "die-no" THEN cVarValue =  "" . /* ticket 16188*/
                    WHEN "t-sqft" THEN cVarValue = string((accum total w-data.t-sqft),"->,>>>.999"). 
                    WHEN "v-price-per-m" THEN cVarValue = string(v-price-per-m,"->>,>>9.99"). 
                    WHEN "v-revenue" THEN cVarValue = string((accum total v-revenue),"->,>>>,>>9.99").
@@ -777,7 +791,7 @@ format wkrecap.procat
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
               cDisplay = cDisplay + cVarValue +
-                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                         FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
           
          END.
@@ -790,9 +804,9 @@ format wkrecap.procat
          /*==== new with selectable columns ====*/
        IF tb_under% AND v-profit > fUnder% THEN NEXT.
        IF tb_over% AND v-profit < fOver% THEN NEXT.
-       IF AVAIL oe-ord THEN
+       IF AVAILABLE oe-ord THEN
        BUFFER boe-ord:FIND-BY-ROWID(ROWID(oe-ord), NO-LOCK) .
-       IF AVAIL oe-ordl THEN
+       IF AVAILABLE oe-ordl THEN
        BUFFER boe-ordl:FIND-BY-ROWID(ROWID(oe-ordl), NO-LOCK) .
 
        BUFFER bcust:FIND-BY-ROWID(ROWID(cust), NO-LOCK) .
@@ -808,23 +822,23 @@ format wkrecap.procat
          IF INDEX(cTmpField,".") > 0 THEN DO:
                  cFieldName = cTmpField.
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
-                 IF cFieldName BEGINS "oe-ordl" THEN hField = IF AVAIL boe-ordl THEN BUFFER boe-ordl:BUFFER-FIELD(cTmpField) ELSE ?.
+                 IF cFieldName BEGINS "oe-ordl" THEN hField = IF AVAILABLE boe-ordl THEN BUFFER boe-ordl:BUFFER-FIELD(cTmpField) ELSE ?.
                  ELSE IF cFieldName BEGINS "oe-ord" THEN hField = BUFFER boe-ord:BUFFER-FIELD(cTmpField).
                  ELSE IF cFieldName BEGINS "cust" THEN hField = BUFFER bcust:BUFFER-FIELD(cTmpField).
                  ELSE hField = BUFFER bw-data:BUFFER-FIELD(cTmpField).
-                 IF hField <> ? THEN DO:                 
-                     cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
+                 IF hField NE ? THEN DO:                 
+                     cTmpField = SUBSTRING(GetFieldValue(hField),1,INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Job#" THEN
                         cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rcpth.job-no2,"99") ELSE "".                  
                      
                      cDisplay = cDisplay + cTmpField + 
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
+                               FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
                      cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".
                  END.
                  ELSE DO:
-                    cTmpField = substring(cFieldName,1,int( entry( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
-                    cDisplay = cDisplay + FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
+                    cTmpField = SUBSTRING(cFieldName,1,INTEGER(ENTRY( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
+                    cDisplay = cDisplay + FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
                     cExcelDisplay = cExcelDisplay + quoter(" ")  /*GetFieldValue(hField))*/ + ",".
                  END.
          END.
@@ -837,11 +851,13 @@ format wkrecap.procat
                 WHEN "t-tons" THEN cVarValue = string(w-data.t-tons,"->,>>>.9").
                 WHEN "v-profit" THEN cVarValue = IF prt-profit THEN string(v-profit,"->>,>>9.9") ELSE "".
                 WHEN "v-price-per-t" THEN cVarValue = string(v-price-per-t,"->>,>>9.99").
+                WHEN "cust-po" THEN cVarValue = IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN STRING(oe-ordl.po-no,"x(15)") ELSE STRING(oe-ord.po-no,"x(15)") . /* ticket 14966*/
+                WHEN "die-no" THEN cVarValue = IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN STRING(itemfg.die-no,"x(15)") ELSE IF AVAILABLE eb THEN STRING(eb.die-no,"x(15)") ELSE "" . /* ticket 16188*/
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.  
             cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
-                       FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                       FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
          END.
       END.
@@ -929,6 +945,8 @@ format wkrecap.procat
                    WHEN "w-data.sqft" THEN cVarValue = "" .
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
+                   WHEN "oe-ordl.ord-date" THEN cVarValue = "" .
+                   WHEN "cust-po" THEN cVarValue = "". /* ticket 14966*/
                    WHEN "t-sqft" THEN cVarValue = string(tot-sqft,"->,>>>.999").
                    WHEN "v-price-per-m" THEN cVarValue = string(v-price-per-m,"->>,>>9.99").
                    WHEN "v-revenue" THEN cVarValue = string(tot-renv,"->,>>>,>>9.99").
@@ -940,7 +958,7 @@ format wkrecap.procat
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
               cDisplay = cDisplay + cVarValue +
-                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                         FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
           
          END.
@@ -1024,6 +1042,8 @@ format wkrecap.procat
                    WHEN "w-data.sqft" THEN cVarValue = "" .
                    WHEN "w-data.price" THEN cVarValue = "" .
                    WHEN "oe-ordl.i-no" THEN cVarValue = "" .
+                   WHEN "oe-ordl.ord-date" THEN cVarValue = "" .
+                   WHEN "cust-po" THEN cVarValue = "". /* ticket 14966*/
                    WHEN "t-sqft" THEN cVarValue = string(tot-sqft,"->,>>>.999"). 
                    WHEN "v-price-per-m" THEN cVarValue = string(v-price-per-m,"->>,>>9.99"). 
                    WHEN "v-revenue" THEN cVarValue = string((accum total v-revenue),"->,>>>,>>9.99").
@@ -1035,7 +1055,7 @@ format wkrecap.procat
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
               cDisplay = cDisplay + cVarValue +
-                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                         FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
           
          END.
@@ -1063,14 +1083,14 @@ format wkrecap.procat
       if wkrecap.price-per-t[i] eq ? then wkrecap.price-per-t[i] = 0.
     end.
 
-    find first fgcat
+    FIND FIRST fgcat NO-LOCK
         where fgcat.company eq cocode
           and fgcat.procat  eq wkrecap.procat
-        no-lock no-error.
+         NO-ERROR.
           
     IF tb_ton THEN DO WITH FRAME f-recap-t:
       display wkrecap.procat
-              fgcat.dscr when avail fgcat
+              fgcat.dscr WHEN AVAILABLE fgcat
                 "Prep/Misc" when wkrecap.procat eq "P/M" @ procat.dscr
               wkrecap.num-of-ord
               wkrecap.revenue
@@ -1084,7 +1104,7 @@ format wkrecap.procat
     ELSE
     DO WITH FRAME f-recap:
       display wkrecap.procat
-              fgcat.dscr when avail fgcat
+              fgcat.dscr WHEN AVAILABLE fgcat
                 "Prep/Misc" when wkrecap.procat eq "P/M" @ procat.dscr
               wkrecap.num-of-ord
               wkrecap.revenue

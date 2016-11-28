@@ -466,6 +466,7 @@ DO:
   
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
       EMPTY TEMP-TABLE ttCustList.
         RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive,
@@ -589,8 +590,8 @@ ON HELP OF begin_cust-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -605,8 +606,8 @@ ON HELP OF end_cust-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -641,8 +642,8 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-fonts.w ({&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
@@ -817,6 +818,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT NO,
                           OUTPUT glCustListActive).
 {sys/inc/chblankcust.i}
+{sys/inc/chblankcust.i ""AR12""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1044,6 +1046,7 @@ def var fsman as ch init "".
 def var tsman like fsman init "zzzzzzzz".
 def var v-sort as log format "Yes/No" init no.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -1058,6 +1061,8 @@ assign
  fsman    = begin_slsmn
  tsman    = end_slsmn
  v-sort   = rd_sort EQ "N".
+ v-sort   = rd_sort EQ "N"
+ lSelected  = tb_cust-list.
 
 {sys/inc/print1.i}
 
@@ -1068,6 +1073,13 @@ IF tb_excel THEN DO:
   excelheader = "Cust. #,Customer Name,YTD Sales,LYR Sales,Hi Balance,Number of Invoices,Avg to Pay".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+END.
+
 
 IF tb_show-parm THEN RUN show-param.
 
@@ -1077,8 +1089,13 @@ FOR EACH ttCustList
        WHERE ttCustList.log-fld
        NO-LOCK,
    EACH cust
+FOR EACH cust
     WHERE cust.company     EQ cocode
       AND cust.cust-no     EQ ttCustList.cust-no /*fcust*/
+      AND cust.cust-no GE fcust
+      AND cust.cust-no LE tcust
+      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+      AND ttCustList.log-fld no-lock) else true)
     /*  AND cust.cust-no     LE tcust*/
       AND cust.type        GE ftype
       AND cust.type        LE ttype

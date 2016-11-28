@@ -131,6 +131,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
+         MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes

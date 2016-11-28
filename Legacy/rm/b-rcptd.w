@@ -40,66 +40,67 @@ ASSIGN
  cocode = g_company
  locode = g_loc.
 
-def var char-val as cha no-undo.
-def var ext-cost as decimal no-undo.
-DEF VAR lv-rowid AS ROWID NO-UNDO.
-def var ll-qty-valid as LOG no-undo.
-def var hd-post as widget-handle no-undo.
-def var hd-post-child as widget-handle no-undo.
-def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
+DEFINE VARIABLE char-val          AS cha           NO-UNDO.
+DEFINE VARIABLE ext-cost          AS DECIMAL       NO-UNDO.
+DEFINE VARIABLE lv-rowid          AS ROWID         NO-UNDO.
+DEFINE VARIABLE ll-qty-valid      AS LOG           NO-UNDO.
+DEFINE VARIABLE hd-post           AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE hd-post-child     AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE ll-help-run       AS LOG           NO-UNDO.  /* set on browse help, reset row-entry */
 
-DEF VAR lv-po-wid LIKE po-ordl.s-wid NO-UNDO.
-DEF VAR lv-po-len LIKE po-ordl.s-len FORM ">>,>>9.9999" NO-UNDO.
-DEF VAR v-avgcost AS LOG NO-UNDO.
-DEF VAR ll-tag-meth AS LOG NO-UNDO.
-DEF VAR ll-warned AS LOG NO-UNDO.
-DEF VAR li-pos AS INT NO-UNDO.
-DEF VAR lv-job-no AS CHAR NO-UNDO.
-DEF VAR lv-job-no2 AS CHAR NO-UNDO.
-DEF VAR lv-setup AS DEC NO-UNDO.
-DEF VAR lv-adder AS DEC DECIMALS 4 NO-UNDO.
-DEF VAR lv-msf AS DEC DECIMALS 3 NO-UNDO.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
-DEF VAR ll-add-setup AS LOG NO-UNDO.
-DEF VAR lv-save-fld AS CHAR EXTENT 2 NO-UNDO.
-DEF VAR v-bin AS CHAR NO-UNDO.
-DEF VAR v-copy-mode AS LOG NO-UNDO.
-DEF VAR v-copy-mode-dec-1 AS LOG NO-UNDO.
-DEF VAR v-new-mode AS LOG NO-UNDO.
-DEF VAR lv-entry-qty AS DEC NO-UNDO.
-DEF VAR lv-entry-qty-uom AS CHAR NO-UNDO.
-DEF VAR op-error AS LOG NO-UNDO.
+DEFINE VARIABLE lv-po-wid         LIKE po-ordl.s-wid NO-UNDO.
+DEFINE VARIABLE lv-po-len         LIKE po-ordl.s-len FORM ">>,>>9.9999" NO-UNDO.
+DEFINE VARIABLE v-avgcost         AS LOG           NO-UNDO.
+DEFINE VARIABLE ll-tag-meth       AS LOG           NO-UNDO.
+DEFINE VARIABLE ll-warned         AS LOG           NO-UNDO.
+DEFINE VARIABLE li-pos            AS INTEGER       NO-UNDO.
+DEFINE VARIABLE lv-job-no         AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE lv-job-no2        AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE lv-setup          AS DECIMAL       NO-UNDO.
+DEFINE VARIABLE lv-adder          AS DECIMAL       DECIMALS 4 NO-UNDO.
+DEFINE VARIABLE lv-msf            AS DECIMAL       DECIMALS 3 NO-UNDO.
+DEFINE VARIABLE fg-uom-list       AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE ll-add-setup      AS LOG           NO-UNDO.
+DEFINE VARIABLE lv-save-fld       AS CHARACTER     EXTENT 2 NO-UNDO.
+DEFINE VARIABLE v-bin             AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE v-copy-mode       AS LOG           NO-UNDO.
+DEFINE VARIABLE v-copy-mode-dec-1 AS LOG           NO-UNDO.
+DEFINE VARIABLE v-new-mode        AS LOG           NO-UNDO.
+DEFINE VARIABLE lv-entry-qty      AS DECIMAL       NO-UNDO.
+DEFINE VARIABLE lv-entry-qty-uom  AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE op-error          AS LOG           NO-UNDO.
 
-DEF BUFFER b-po-ord FOR po-ord.
-DEF BUFFER b-company FOR company.
-DEF BUFFER b-rm-rctd FOR rm-rctd.
+DEFINE BUFFER b-po-ord  FOR po-ord.
+DEFINE BUFFER b-company FOR company.
+DEFINE BUFFER b-rm-rctd FOR rm-rctd.
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-setup FOR reftable.
+DEFINE BUFFER b-cost    FOR reftable.
+DEFINE BUFFER b-qty     FOR reftable.
+DEFINE BUFFER b-setup   FOR reftable.
 
-DEF TEMP-TABLE tt-eiv NO-UNDO
-    FIELD run-qty AS DEC DECIMALS 3 EXTENT 20
-    FIELD run-cost AS DEC DECIMALS 4 EXTENT 20
-    FIELD setups AS DEC DECIMALS 2 EXTENT 20.
+DEFINE TEMP-TABLE tt-eiv NO-UNDO
+    FIELD run-qty  AS DECIMAL DECIMALS 3 EXTENT 20
+    FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20
+    FIELD setups   AS DECIMAL DECIMALS 2 EXTENT 20.
 
 {windows/l-poitmw.i NEW}
 
 {fg/d-selpos.i NEW}
 
-DEF TEMP-TABLE tt-rm-rctd NO-UNDO LIKE rm-rctd
+DEFINE TEMP-TABLE tt-rm-rctd NO-UNDO LIKE rm-rctd
     FIELD tt-rowid AS ROWID
     FIELD po-rowid AS ROWID.
 
 
-DEF NEW SHARED TEMP-TABLE tt-selected no-undo
+DEFINE NEW SHARED TEMP-TABLE tt-selected NO-UNDO
         FIELD tt-rowid AS ROWID 
         FIELD tt-import-zero AS LOG
-        FIELD tt-item AS CHAR .
+    FIELD tt-item        AS CHARACTER .
 
 DO TRANSACTION:
   {sys/inc/rmrecpt.i}
   {sys/inc/rmunderover.i}
+    {sys/inc/poholdreceipts.i}  /* ticket 17372 */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -191,14 +192,14 @@ FUNCTION display-adder-screen RETURNS DECIMAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD display-dimension B-table-Win 
 FUNCTION display-dimension RETURNS DECIMAL
-  ( INPUT ip-dim AS char )  FORWARD.
+    ( INPUT ip-dim AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD display-dimension-screen B-table-Win 
 FUNCTION display-dimension-screen RETURNS DECIMAL
-  ( INPUT ip-dim AS char )  FORWARD.
+    ( INPUT ip-dim AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -334,10 +335,10 @@ DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 2 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 16.71 COL 7 HELP
-          "Select Browser Sort Order" NO-LABEL
-     fi_sortby AT ROW 16.71 COL 80.6 COLON-ALIGNED NO-LABEL
+    "Select Browser Sort Order" NO-LABELS
+    fi_sortby AT ROW 16.71 COL 80.6 COLON-ALIGNED NO-LABELS
      auto_find AT ROW 16.71 COL 113.4 COLON-ALIGNED HELP
-          "Enter Auto Find Value" NO-LABEL
+    "Enter Auto Find Value" NO-LABELS
      Btn_Clear_Find AT ROW 16.71 COL 138 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
@@ -363,7 +364,8 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
+IF NOT THIS-PROCEDURE:PERSISTENT THEN 
+DO:
   MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
@@ -518,10 +520,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON HELP OF Browser-Table IN FRAME F-Main
 DO: 
- def var ll-tag# as log no-undo.
- DEF VAR help-recid AS RECID NO-UNDO.
- DEF VAR help-rowid AS ROWID NO-UNDO.
- DEF VAR lv-focus AS WIDGET-HANDLE NO-UNDO.
+        DEFINE VARIABLE ll-tag#    AS LOG           NO-UNDO.
+        DEFINE VARIABLE help-recid AS RECID         NO-UNDO.
+        DEFINE VARIABLE help-rowid AS ROWID         NO-UNDO.
+        DEFINE VARIABLE lv-focus   AS WIDGET-HANDLE NO-UNDO.
 
 
  ASSIGN
@@ -529,10 +531,13 @@ DO:
   lv-focus    = FOCUS.
 
  case lv-focus:name :
-      when "po-no" then do:
+            WHEN "po-no" THEN 
+                DO:
            run windows/l-poordl.w (rm-rctd.company,lv-focus:screen-value, output char-val).
-           if char-val <> "" then do:
-              assign rm-rctd.po-no:screen-value in browse {&browse-name} = entry(1,char-val)
+                    IF char-val <> "" THEN 
+                    DO:
+                        ASSIGN 
+                            rm-rctd.po-no:screen-value IN BROWSE {&browse-name}   = ENTRY(1,char-val)
                      rm-rctd.i-no:screen-value in browse {&browse-name} = entry(2,char-val)
                      rm-rctd.i-name:screen-value in browse {&browse-name} = entry(3,char-val)
                      rm-rctd.job-no:screen-value in browse {&browse-name} = entry(4,char-val)
@@ -542,26 +547,30 @@ DO:
                                 po-ordl.po-no = integer(entry(1,char-val)) and
                                 po-ordl.line = integer(entry(6,char-val))
                                 no-lock no-error.
-             if avail po-ordl then RUN update-from-po-line.
+                        IF AVAILABLE po-ordl THEN RUN update-from-po-line.
 
-             else do:
+                        ELSE 
+                        DO:
                 find first item where item.company = rm-rctd.company and
                                       item.i-no = entry(2,char-val)
                                       no-lock no-error.
-                assign rm-rctd.pur-uom:screen-value in browse {&browse-name} = item.cons-uom
+                            ASSIGN 
+                                rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name}  = item.cons-uom
                        rm-rctd.cost-uom:screen-value in browse {&browse-name} = item.cons-uom                       
 /*                       r
 m-rctd.s-num:screen-value in browse {&browse-name} = string(item.s-num)*/
                        .                      
              end.
-             if not avail item then find first item where item.company = rm-rctd.company and
+                        IF NOT AVAILABLE item THEN FIND FIRST item WHERE item.company = rm-rctd.company AND
                                                           item.i-no = entry(2,char-val)
                                       no-lock no-error.
              
-             assign rm-rctd.loc:screen-value in browse {&browse-name} =  item.loc
+                        ASSIGN 
+                            rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = item.loc
                     rm-rctd.loc-bin:screen-value in browse {&browse-name} =  item.loc-bin.
 
-             if rm-rctd.loc-bin:screen-value in browse {&browse-name} eq "" then do:
+                        IF rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} EQ "" THEN 
+                        DO:
                /*FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ gcompany
                                      AND sys-ctrl.name    EQ "RMWHSBIN" NO-LOCK NO-ERROR.
                IF NOT AVAIL sys-ctrl THEN DO:
@@ -572,29 +581,34 @@ m-rctd.s-num:screen-value in browse {&browse-name} = string(item.s-num)*/
                     sys-ctrl.descrip  = "Default Location for RM Warehouse / Bin?"
                     sys-ctrl.char-fld = "RMITEM".
                END.*/
-               assign rm-rctd.loc-bin:screen-value in browse {&browse-name} = SUBSTR(v-bin,6).
+                            ASSIGN 
+                                rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,6).
              end.
 
              run tag-method (output ll-tag#).
              if ll-tag# and rm-rctd.po-no:screen-value in browse {&browse-name} <> ""
-             then do:
+                            THEN 
+                        DO:
                  run tag-sequence.
              end.
              ext-cost = 0.
-             disp ext-cost with browse {&browse-name}.
+                        DISPLAY ext-cost WITH BROWSE {&browse-name}.
              IF v-bin NE "" AND v-bin NE 'RMITEM' THEN
                 ASSIGN
                    rm-rctd.loc:screen-value in browse {&browse-name} = SUBSTR(v-bin,1,5)
                    rm-rctd.loc-bin:screen-value in browse {&browse-name} = SUBSTR(v-bin,6).
            end.  /* char-val <> "" */  
      end.
-     when "i-no" then do:
-         IF DEC(rm-rctd.po-no:SCREEN-VALUE) NE 0 THEN DO:
+            WHEN "i-no" THEN 
+                DO:
+                    IF DEC(rm-rctd.po-no:SCREEN-VALUE) NE 0 THEN 
+                    DO:
            RUN windows/l-poitmw.w (YES, rm-rctd.company,rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name},
                                    YES, lv-focus:SCREEN-VALUE,
                                    ROWID(rm-rctd), OUTPUT help-rowid).
            FIND po-ordl WHERE ROWID(po-ordl) EQ help-rowid NO-LOCK NO-ERROR.
-           IF AVAIL po-ordl THEN DO:
+                        IF AVAILABLE po-ordl THEN 
+                        DO:
               ASSIGN 
                lv-focus:SCREEN-VALUE           = po-ordl.i-no
                rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.i-name
@@ -605,29 +619,37 @@ m-rctd.s-num:screen-value in browse {&browse-name} = string(item.s-num)*/
          END.
 
          ELSE
-         IF rm-rctd.job-no:SCREEN-VALUE NE "" THEN DO:
+                        IF rm-rctd.job-no:SCREEN-VALUE NE "" THEN 
+                        DO:
                 RUN windows/l-jobmat.w (rm-rctd.company,rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
                                         rm-rctd.job-no2:SCREEN-VALUE,rm-rctd.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT help-recid).
                 IF help-recid <> ? THEN RUN DISPLAY-jobmat (help-recid).
          END.
 
-         ELSE DO:
+                        ELSE 
+                        DO:
              /* company,industry,mat-type,i-code,i-no, output, output */
             run windows/l-itmRE.w (rm-rctd.company,"","","R",lv-focus:SCREEN-VALUE, output char-val,OUTPUT help-recid).
-            if char-val <> "" then do :
-               ASSIGN lv-focus:SCREEN-VALUE = ENTRY(1,char-val)
+                            IF char-val <> "" THEN 
+                            DO :
+                                ASSIGN 
+                                    lv-focus:SCREEN-VALUE       = ENTRY(1,char-val)
                       rm-rctd.i-name:SCREEN-VALUE = ENTRY(2,char-val).
                RUN display-item(help-recid).
             END.
          END.  
      end.
-     when "s-num" OR WHEN "b-num" then do:
-         IF rm-rctd.po-no:SCREEN-VALUE NE "" THEN DO:
+            WHEN "s-num" OR 
+            WHEN "b-num" THEN 
+                DO:
+                    IF rm-rctd.po-no:SCREEN-VALUE NE "" THEN 
+                    DO:
            RUN windows/l-poitmw.w (YES, rm-rctd.company,rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name},
                                    YES, rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
                                    ROWID(rm-rctd), OUTPUT help-rowid).
            FIND po-ordl WHERE ROWID(po-ordl) EQ help-rowid NO-LOCK NO-ERROR.
-           IF AVAIL po-ordl THEN DO:
+                        IF AVAILABLE po-ordl THEN 
+                        DO:
               ASSIGN 
                rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}    = po-ordl.i-no
                rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.i-name
@@ -637,8 +659,11 @@ m-rctd.s-num:screen-value in browse {&browse-name} = string(item.s-num)*/
            END.
          END.  
      end.
-     when "job-no" or when "job-no2" then do:
-         IF DEC(rm-rctd.po-no:SCREEN-VALUE) EQ 0 THEN DO:
+            WHEN "job-no" OR 
+            WHEN "job-no2" THEN 
+                DO:
+                    IF DEC(rm-rctd.po-no:SCREEN-VALUE) EQ 0 THEN 
+                    DO:
            run windows/l-jobno.w (rm-rctd.company,rm-rctd.job-no:screen-value, output char-val, OUTPUT help-recid).
            if char-val <> "" THEN
               assign /*lv-focus:screen-value in frame {&frame-name} = entry(1,char-val)
@@ -646,7 +671,8 @@ m-rctd.s-num:screen-value in browse {&browse-name} = string(item.s-num)*/
                      rm-rctd.job-no:screen-value = entry(1,char-val)
                      rm-rctd.job-no2:screen-value = entry(2,char-val).
          END.
-         ELSE DO:
+                    ELSE 
+                    DO:
            run windows/l-pojob.w (rm-rctd.company,rm-rctd.po-no:screen-value,rm-rctd.i-no:screen-value, output char-val).
            if char-val <> "" THEN
               assign /*lv-focus:screen-value in frame {&frame-name} = entry(1,char-val)
@@ -656,14 +682,16 @@ m-rctd.s-num:screen-value in browse {&browse-name} = string(item.s-num)*/
            
          END.   
      end.  
-     when "loc" then do:
+            WHEN "loc" THEN 
+                DO:
            run rm/l-loc.w (rm-rctd.company,lv-focus:screen-value, output char-val).
            if char-val <> "" THEN
               assign lv-focus:screen-value = entry(1,char-val)
                      /*rm-rctd.loc-bin:screen-value in browse {&browse-name} = entry(2,char-val) */.
            
      end.
-     when "loc-bin" then do:
+            WHEN "loc-bin" THEN 
+                DO:
            run rm/l-locbin.w (rm-rctd.company,rm-rctd.loc:screen-value, output char-val).
            if char-val <> "" THEN
               assign lv-focus:screen-value  = entry(1,char-val)
@@ -717,7 +745,8 @@ DO:
       keyfunction(lastkey) = "page-down" or
       keyfunction(lastkey) = "cursor-up" or
       keyfunction(lastkey) = "cursor-down" 
-   then do:  
+            THEN 
+        DO:  
       return no-apply.
    end.
 
@@ -749,7 +778,7 @@ DO:
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
 
-  IF AVAIL rm-rctd                                                          AND
+        IF AVAILABLE rm-rctd                                                          AND
      CAN-FIND(FIRST tt-rm-rctd WHERE tt-rm-rctd.tt-rowid EQ ROWID(rm-rctd)) THEN
     RUN update-tt.
 
@@ -777,7 +806,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.rct-date Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.rct-date IN BROWSE Browser-Table /* Receipt Date */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
     {custom/currentDatePrompt.i SELF:SCREEN-VALUE}
   END.
 END.
@@ -804,7 +834,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.po-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.po-no IN BROWSE Browser-Table /* PO# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
     IF rmrecpt-cha NE "POPUP"                                        AND
        INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 AND
        {&self-name}:MODIFIED                                         THEN DO:
@@ -814,14 +845,15 @@ DO:
 
       FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
 
-      IF NOT AVAIL po-ordl THEN
+            IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(SELF:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
 
-      IF AVAIL po-ordl THEN DO:
+            IF AVAILABLE po-ordl THEN 
+            DO:
         lv-rowid = ROWID(po-ordl).
         RUN display-po-info.
       END.
@@ -875,14 +907,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.job-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.job-no IN BROWSE Browser-Table /* Job # */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
    IF {&self-name}:MODIFIED IN BROWSE {&browse-name} THEN DO:
-    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
+            IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+            DO:
       RUN find-exact-po.
 
       FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
 
-      IF NOT AVAIL po-ordl THEN
+                IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -890,7 +924,8 @@ DO:
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
 
-      IF AVAIL po-ordl THEN DO:
+                IF AVAILABLE po-ordl THEN 
+                DO:
         lv-rowid = ROWID(po-ordl).
         RUN display-po-info.
       END.
@@ -941,14 +976,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.job-no2 Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.job-no2 IN BROWSE Browser-Table
 DO:
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
    IF {&self-name}:MODIFIED IN BROWSE {&browse-name} THEN DO:
-    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
+            IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+            DO:
       RUN find-exact-po.
 
       FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
 
-      IF NOT AVAIL po-ordl THEN
+                IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -957,7 +994,8 @@ DO:
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
 
-      IF AVAIL po-ordl THEN DO:
+                IF AVAILABLE po-ordl THEN 
+                DO:
         lv-rowid = ROWID(po-ordl).
         RUN display-po-info.
       END.
@@ -1008,14 +1046,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
    IF {&self-name}:MODIFIED IN BROWSE {&browse-name} THEN DO:
-    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
+            IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+            DO:
       RUN find-exact-po.
 
       FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
 
-      IF NOT AVAIL po-ordl THEN
+                IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -1025,7 +1065,8 @@ DO:
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
 
-      IF AVAIL po-ordl THEN DO:
+                IF AVAILABLE po-ordl THEN 
+                DO:
         lv-rowid = ROWID(po-ordl).
         RUN display-po-info.
       END.
@@ -1071,14 +1112,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.b-num Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.b-num IN BROWSE Browser-Table /* B */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
    IF {&self-name}:MODIFIED IN BROWSE {&browse-name} THEN DO:
-    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
+            IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+            DO:
       RUN find-exact-po.
 
       FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
 
-      IF NOT AVAIL po-ordl THEN
+                IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -1089,7 +1132,8 @@ DO:
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
 
-      IF AVAIL po-ordl THEN DO:
+                IF AVAILABLE po-ordl THEN 
+                DO:
         lv-rowid = ROWID(po-ordl).
         RUN display-po-info.
       END.
@@ -1135,14 +1179,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.i-no IN BROWSE Browser-Table /* Item */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
    IF {&self-name}:MODIFIED IN BROWSE {&browse-name} THEN DO:
-    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
+            IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+            DO:
       RUN find-exact-po.
 
       FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
 
-      IF NOT AVAIL po-ordl THEN
+                IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl NO-LOCK
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -1153,7 +1199,8 @@ DO:
             AND po-ordl.item-type EQ YES
           USE-INDEX item-ordno NO-ERROR.
 
-      IF AVAIL po-ordl THEN DO:
+                IF AVAILABLE po-ordl THEN 
+                DO:
         lv-rowid = ROWID(po-ordl).
         RUN display-po-info.
       END.
@@ -1188,10 +1235,12 @@ DO:
       WHERE item.company EQ rm-rctd.company
         AND item.i-no    BEGINS rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
       NO-ERROR.             
-  IF AVAIL item THEN DO:
+        IF AVAILABLE item THEN 
+        DO:
     rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = "0".
     RUN display-item (RECID(item)).
-    assign rm-rctd.pur-uom:screen-value in browse {&browse-name} = item.cons-uom.
+            ASSIGN 
+                rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name} = item.cons-uom.
   END.
 END.
 
@@ -1232,7 +1281,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
     RUN valid-loc (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -1260,7 +1310,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
     RUN valid-loc-bin (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -1285,7 +1336,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
     RUN valid-tag (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -1312,7 +1364,8 @@ DO:
   IF lv-entry-qty NE DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
      RUN po-cost.
 
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
      RUN valid-qty (FOCUS, OUTPUT op-error).
 
      IF op-error THEN
@@ -1348,13 +1401,15 @@ DO:
   IF lv-entry-qty-uom NE rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} THEN
      RUN po-cost.
 
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
      RUN valid-uom (FOCUS) NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
      RUN get-matrix (NO).
     
-     IF NOT ll-qty-valid THEN DO:
+            IF NOT ll-qty-valid THEN 
+            DO:
        {rm/chkporun.i}
        ll-qty-valid = YES.
      END.
@@ -1400,7 +1455,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.cost-uom Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.cost-uom IN BROWSE Browser-Table /* CUOM */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
     RUN valid-uom (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1437,7 +1493,7 @@ FIND FIRST sys-ctrl WHERE
      sys-ctrl.name    EQ "RMWHSBIN"
      NO-LOCK NO-ERROR.
 
-  IF NOT AVAIL sys-ctrl THEN
+IF NOT AVAILABLE sys-ctrl THEN
   DO TRANSACTION:
     CREATE sys-ctrl.
     ASSIGN
@@ -1525,7 +1581,7 @@ PROCEDURE cancel-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   IF AVAIL rm-rctd AND rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN
+    IF AVAILABLE rm-rctd AND rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN
       RUN dispatch IN THIS-PROCEDURE (INPUT 'cancel-record':U).
 END PROCEDURE.
 
@@ -1541,13 +1597,14 @@ PROCEDURE check-for-job-mat :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE "" THEN DO:
+        IF TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE "" THEN 
+        DO:
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
             AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           NO-LOCK NO-ERROR.
-      IF AVAIL job THEN
+            IF AVAILABLE job THEN
       FIND FIRST job-mat
           WHERE job-mat.company  EQ rm-rctd.company
             AND job-mat.job      EQ job.job
@@ -1557,7 +1614,7 @@ PROCEDURE check-for-job-mat :
             AND job-mat.blank-no EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND job-mat.i-no     EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
-      IF AVAIL job-mat THEN RUN display-jobmat (RECID(job-mat)).
+            IF AVAILABLE job-mat THEN RUN display-jobmat (RECID(job-mat)).
     END.
   END.
 
@@ -1573,21 +1630,21 @@ PROCEDURE convert-vend-comp-curr :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE INPUT-OUTPUT PARAMETER ip-cost AS DEC DECIMALS 4 NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ip-cost AS DECIMAL DECIMALS 4 NO-UNDO.
     
    FIND FIRST b-po-ord WHERE
         b-po-ord.company EQ po-ordl.company AND
         b-po-ord.po-no   EQ po-ordl.po-no
         NO-LOCK NO-ERROR.
 
-   IF AVAIL b-po-ord THEN
+    IF AVAILABLE b-po-ord THEN
    DO:
       FIND FIRST vend WHERE
            vend.company EQ po-ord.company AND
            vend.vend-no EQ po-ord.vend-no
            NO-LOCK NO-ERROR.
 
-      IF AVAIL vend THEN
+        IF AVAILABLE vend THEN
       DO:
          FIND FIRST b-company WHERE
               b-company.company EQ cocode
@@ -1600,7 +1657,7 @@ PROCEDURE convert-vend-comp-curr :
                  currency.c-code EQ vend.curr-code
                  NO-LOCK NO-ERROR.
 
-            IF AVAIL currency THEN
+                IF AVAILABLE currency THEN
             DO:
                ip-cost = ip-cost * currency.ex-rate.
 
@@ -1627,7 +1684,7 @@ PROCEDURE create-from-po :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEF VAR ld AS DEC NO-UNDO.
+    DEFINE VARIABLE ld AS DECIMAL NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1681,22 +1738,24 @@ PROCEDURE create-neg-rctd :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAM in-recid AS RECID.
-DEF VAR lv-rno AS INT NO-UNDO.
+    DEFINE INPUT PARAMETER in-recid AS RECID.
+    DEFINE VARIABLE lv-rno AS INTEGER NO-UNDO.
 
-DEF BUFFER bf-rm-rctd FOR rm-rctd.
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
 
 FIND rm-rctd WHERE RECID(rm-rctd) = in-recid NO-LOCK NO-ERROR.
-IF AVAIL rm-rctd THEN DO:
+    IF AVAILABLE rm-rctd THEN 
+    DO:
     RUN sys/ref/asiseq.p (INPUT g_company, INPUT "rm_rcpt_seq", OUTPUT lv-rno) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN
       MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
-      VIEW-AS ALERT-BOX INFO BUTTONS OK.
+                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
 
     CREATE bf-rm-rctd.
     BUFFER-COPY rm-rctd EXCEPT r-no rec_key
              TO bf-rm-rctd.
-    ASSIGN bf-rm-rctd.r-no = lv-rno
+        ASSIGN 
+            bf-rm-rctd.r-no = lv-rno
            bf-rm-rctd.qty = rm-rctd.qty * -1.
 END.
 RELEASE bf-rm-rctd.
@@ -1714,9 +1773,10 @@ PROCEDURE delete-tt :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  IF AVAIL rm-rctd THEN DO:
+    IF AVAILABLE rm-rctd THEN 
+    DO:
     FIND FIRST tt-rm-rctd WHERE tt-rm-rctd.tt-rowid EQ ROWID(rm-rctd) NO-ERROR.
-    IF AVAIL tt-rm-rctd THEN DELETE tt-rm-rctd.
+        IF AVAILABLE tt-rm-rctd THEN DELETE tt-rm-rctd.
   END.
 
 END PROCEDURE.
@@ -1750,13 +1810,14 @@ PROCEDURE display-item :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-DEF INPUT PARAMETER ip-recid AS RECID NO-UNDO.
+    DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
 
 
 FIND ITEM WHERE RECID(ITEM) EQ ip-recid NO-LOCK NO-ERROR.
 
 DO WITH FRAME {&FRAME-NAME}:
-  IF AVAIL item THEN DO:
+        IF AVAILABLE item THEN 
+        DO:
     ASSIGN
      rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = item.i-name
      rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = item.loc
@@ -1767,13 +1828,13 @@ DO WITH FRAME {&FRAME-NAME}:
       RUN update-from-po-line.
     ELSE
     IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" OR
-       item.i-code EQ "R"                                         THEN DO:
+                    item.i-code EQ "R"                                         THEN 
+                DO:
       {rm/avgcost.i}
 
       ASSIGN
        /*rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom */
-       rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}    =
-           IF DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
+                        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}     = IF DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
              IF v-avgcost THEN STRING(item.avg-cost)
              ELSE STRING(item.last-cost)
            ELSE rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1782,17 +1843,19 @@ DO WITH FRAME {&FRAME-NAME}:
   END.
 
   IF rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     EQ "" OR
-     rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
+            rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN 
+        DO:
     FIND FIRST cust
         WHERE cust.company EQ cocode
           AND cust.active  EQ "X" 
         NO-LOCK NO-ERROR.
-    IF AVAIL cust THEN DO:
+            IF AVAILABLE cust THEN 
+            DO:
       FIND FIRST shipto
           WHERE shipto.company EQ cocode
             AND shipto.cust-no EQ cust.cust-no
           NO-LOCK NO-ERROR.
-      IF AVAIL shipto THEN
+                IF AVAILABLE shipto THEN
         ASSIGN   
          rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = shipto.loc
          rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = shipto.loc-bin.
@@ -1817,12 +1880,13 @@ PROCEDURE display-jobmat :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-recid AS RECID NO-UNDO.
+    DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
     FIND job-mat WHERE RECID(job-mat) EQ ip-recid NO-LOCK NO-ERROR.
-    IF AVAIL job-mat THEN DO:
+        IF AVAILABLE job-mat THEN 
+        DO:
       FIND job-mat WHERE RECID(job-mat) EQ ip-recid NO-LOCK.
 
       ASSIGN
@@ -1839,7 +1903,7 @@ PROCEDURE display-jobmat :
             AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
 
-      IF AVAIL item THEN RUN display-item (RECID(item)).
+            IF AVAILABLE item THEN RUN display-item (RECID(item)).
     END.
   END.
 
@@ -1855,16 +1919,18 @@ PROCEDURE display-po-info :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER b-rm-rctd FOR rm-rctd.
+    DEFINE BUFFER b-rm-rctd FOR rm-rctd.
   
-  DEF VAR lv-i-no LIKE rm-rctd.i-no NO-UNDO.
-  DEF VAR lv-locode LIKE locode.
-  DEF VAR li-tag-seq AS INT.
+    DEFINE VARIABLE lv-i-no    LIKE rm-rctd.i-no NO-UNDO.
+    DEFINE VARIABLE lv-locode  LIKE locode.
+    DEFINE VARIABLE li-tag-seq AS INTEGER.
+    DEFINE VARIABLE cNewTag    AS CHARACTER NO-UNDO.
 
 
   FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
 
-  IF AVAIL po-ordl THEN DO WITH FRAME {&FRAME-NAME}:
+    IF AVAILABLE po-ordl THEN 
+    DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      lv-i-no   = rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
 
@@ -1887,58 +1953,65 @@ PROCEDURE display-po-info :
     
     DISPLAY lv-setup lv-adder WITH BROWSE {&browse-name}.
 
-    IF rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE lv-i-no THEN DO:
+        IF rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE lv-i-no THEN 
+        DO:
       FIND FIRST ITEM
           WHERE item.company EQ rm-rctd.company
             AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR. 
-      IF AVAIL ITEM THEN RUN display-item (RECID(ITEM)).
+            IF AVAILABLE ITEM THEN RUN display-item (RECID(ITEM)).
     END.
 
-    IF ll-tag-meth AND adm-new-record THEN DO:
-      ASSIGN
-       li-tag-seq = 0
-       lv-locode  = "".
-
-      DO WHILE TRUE:
-        FIND FIRST b-rm-rctd
-            WHERE b-rm-rctd.company eq cocode
-              AND b-rm-rctd.loc     gt lv-locode
-            NO-LOCK NO-ERROR.
-
-        IF AVAIL b-rm-rctd THEN DO:
-          lv-locode = b-rm-rctd.loc.
-
-          FOR EACH b-rm-rctd
-              WHERE b-rm-rctd.company EQ cocode
-                AND b-rm-rctd.loc     EQ lv-locode
-                AND b-rm-rctd.tag     BEGINS STRING(po-ordl.po-no,"999999")
-              USE-INDEX tag NO-LOCK
-              BY b-rm-rctd.tag DESC:
-
-            IF INT(SUBSTR(b-rm-rctd.tag,7,2)) GT li-tag-seq THEN
-              li-tag-seq = INT(SUBSTR(b-rm-rctd.tag,7,2)).
-            LEAVE.
-          END.
-        END.
-
-        ELSE LEAVE.
-      END.
-
-      IF li-tag-seq EQ 0 THEN DO:
-        FIND LAST rm-rdtlh NO-LOCK
-            WHERE rm-rdtlh.company EQ cocode
-              AND rm-rdtlh.tag     BEGINS STRING(po-ordl.po-no,"999999")
-              AND INT(SUBSTR(rm-rdtlh.tag,7,2)) GT li-tag-seq
-            USE-INDEX tag NO-ERROR.
-        IF AVAIL rm-rdtlh THEN li-tag-seq = INT(SUBSTR(rm-rdtlh.tag,7,2)).
-      END.
-
-      ASSIGN
-       li-tag-seq   = li-tag-seq + 1
-       rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} =
-           STRING(po-ordl.po-no,"999999") + STRING(li-tag-seq,"99").
+        IF ll-tag-meth AND adm-new-record THEN 
+        DO:
+            RUN pGetTagSequence(cocode, po-ordl.po-no, OUTPUT cNewTag).
+            rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = cNewTag.
     END.
+    /*        DO:                                                                                                                  */
+    /*            ASSIGN                                                                                                           */
+    /*                li-tag-seq = 0                                                                                               */
+    /*                lv-locode  = "".                                                                                             */
+    /*                                                                                                                             */
+    /*            DO WHILE TRUE:                                                                                                   */
+    /*                FIND FIRST b-rm-rctd                                                                                         */
+    /*                    WHERE b-rm-rctd.company EQ cocode                                                                        */
+    /*                    AND b-rm-rctd.loc     GT lv-locode                                                                       */
+    /*                    NO-LOCK NO-ERROR.                                                                                        */
+    /*                                                                                                                             */
+    /*                IF AVAILABLE b-rm-rctd THEN                                                                                  */
+    /*                DO:                                                                                                          */
+    /*                    lv-locode = b-rm-rctd.loc.                                                                               */
+    /*                                                                                                                             */
+    /*                    FOR EACH b-rm-rctd                                                                                       */
+    /*                        WHERE b-rm-rctd.company EQ cocode                                                                    */
+    /*                        AND b-rm-rctd.loc     EQ lv-locode                                                                   */
+    /*                        AND b-rm-rctd.tag     BEGINS STRING(po-ordl.po-no,"999999")                                          */
+    /*                        USE-INDEX tag NO-LOCK                                                                                */
+    /*                        BY b-rm-rctd.tag DESCENDING:                                                                         */
+    /*                                                                                                                             */
+    /*                        IF INT(SUBSTR(b-rm-rctd.tag,7,2)) GT li-tag-seq THEN                                                 */
+    /*                            li-tag-seq = INT(SUBSTR(b-rm-rctd.tag,7,2)).                                                     */
+    /*                        LEAVE.                                                                                               */
+    /*                    END.                                                                                                     */
+    /*                END.                                                                                                         */
+    /*                                                                                                                             */
+    /*                ELSE LEAVE.                                                                                                  */
+    /*            END.                                                                                                             */
+    /*                                                                                                                             */
+    /*            IF li-tag-seq EQ 0 THEN                                                                                          */
+    /*            DO:                                                                                                              */
+    /*                FIND LAST rm-rdtlh NO-LOCK                                                                                   */
+    /*                    WHERE rm-rdtlh.company EQ cocode                                                                         */
+    /*                    AND rm-rdtlh.tag     BEGINS STRING(po-ordl.po-no,"999999")                                               */
+    /*                    AND INT(SUBSTR(rm-rdtlh.tag,7,2)) GT li-tag-seq                                                          */
+    /*                    USE-INDEX tag NO-ERROR.                                                                                  */
+    /*                IF AVAILABLE rm-rdtlh THEN li-tag-seq = INT(SUBSTR(rm-rdtlh.tag,7,2)).                                       */
+    /*            END.                                                                                                             */
+    /*                                                                                                                             */
+    /*            ASSIGN                                                                                                           */
+    /*                li-tag-seq                                        = li-tag-seq + 1                                           */
+    /*                rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.po-no,"999999") + STRING(li-tag-seq,"99").*/
+    /*        END.                                                                                                                 */
   END.
 
 END PROCEDURE.
@@ -1953,9 +2026,9 @@ PROCEDURE display-po-job :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR li-po-cnt AS INT NO-UNDO.
-  DEF VAR po-list AS cha NO-UNDO .
-  DEF VAR v-date AS DATE NO-UNDO .
+    DEFINE VARIABLE li-po-cnt AS INTEGER NO-UNDO.
+    DEFINE VARIABLE po-list   AS cha     NO-UNDO .
+    DEFINE VARIABLE v-date    AS DATE    NO-UNDO .
   DO WITH FRAME {&FRAME-NAME}:
     lv-rowid = ?.
     FOR EACH po-ordl
@@ -1973,14 +2046,16 @@ PROCEDURE display-po-job :
       IF li-po-cnt GT 1 THEN LEAVE.
     END.
  
-    IF li-po-cnt GT 1 THEN DO:
+        IF li-po-cnt GT 1 THEN 
+        DO:
       lv-rowid = ?.
       EMPTY TEMP-TABLE tt-selected.
       RUN windows/l-poitmf.w (YES, rm-rctd.company, rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name},
                               YES, rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
                               ROWID(rm-rctd), OUTPUT lv-rowid, OUTPUT po-list).
       
-      IF po-list <> ""  THEN do:
+            IF po-list <> ""  THEN 
+            DO:
             v-date = DATE(rm-rctd.rct-date:SCREEN-VALUE IN BROWSE {&browse-name}) .
            RUN dispatch ('cancel-record').
            RUN create-rcptd(po-list,v-date) .
@@ -2034,7 +2109,7 @@ PROCEDURE find-exact-po :
           AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND po-ordl.item-type EQ YES
         USE-INDEX item-ordno NO-ERROR.
-    lv-rowid = IF AVAIL po-ordl THEN ROWID(po-ordl) ELSE ?.
+        lv-rowid = IF AVAILABLE po-ordl THEN ROWID(po-ordl) ELSE ?.
   END.
 
 END PROCEDURE.
@@ -2049,29 +2124,30 @@ PROCEDURE get-matrix :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def input parameter ip-first-disp as log no-undo.
+    DEFINE INPUT PARAMETER ip-first-disp AS LOG NO-UNDO.
   
-  def var v-len like po-ordl.s-len no-undo.
-  def var v-wid like po-ordl.s-len no-undo.
-  def var v-dep like po-ordl.s-len no-undo. 
-  def var v-bwt like po-ordl.s-len no-undo.
-  def var lv-out-qty LIKE rm-rctd.qty no-undo.
-  def var lv-out-cost LIKE rm-rctd.cost no-undo.
-  DEF VAR lv-qty-uom LIKE rm-rctd.pur-uom NO-UNDO.
-  DEF VAR lv-cost-uom LIKE rm-rctd.cost-uom NO-UNDO.
-  DEF VAR lv-cost AS DEC DECIMALS 10 NO-UNDO.
+    DEFINE VARIABLE v-len       LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE v-wid       LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE v-dep       LIKE po-ordl.s-len NO-UNDO. 
+    DEFINE VARIABLE v-bwt       LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE lv-out-qty  LIKE rm-rctd.qty NO-UNDO.
+    DEFINE VARIABLE lv-out-cost LIKE rm-rctd.cost NO-UNDO.
+    DEFINE VARIABLE lv-qty-uom  LIKE rm-rctd.pur-uom NO-UNDO.
+    DEFINE VARIABLE lv-cost-uom LIKE rm-rctd.cost-uom NO-UNDO.
+    DEFINE VARIABLE lv-cost     AS DECIMAL DECIMALS 10 NO-UNDO.
 
   /* gdm - 07210901 */
-  DEF VAR v-po-cost LIKE po-ordl.cost NO-UNDO.
-  DEF VAR v-po-cuom LIKE lv-cost-uom  NO-UNDO. 
+    DEFINE VARIABLE v-po-cost   LIKE po-ordl.cost NO-UNDO.
+    DEFINE VARIABLE v-po-cuom   LIKE lv-cost-uom NO-UNDO. 
   
-if avail rm-rctd then
+    IF AVAILABLE rm-rctd THEN
 if ip-first-disp AND
-   rm-rctd.i-no ne "" then do: /* for row-display */
+            rm-rctd.i-no NE "" THEN 
+        DO: /* for row-display */
   find item  where item.company eq cocode                           /* no screen-value used */
                      and item.i-no  eq rm-rctd.i-no /*:screen-value in browse {&browse-name}*/
                      use-index i-no no-error.
-  IF NOT AVAIL item THEN LEAVE.
+            IF NOT AVAILABLE item THEN LEAVE.
 
   IF item.cons-uom EQ "" THEN item.cons-uom = rm-rctd.pur-uom.
 
@@ -2092,35 +2168,40 @@ if ip-first-disp AND
                        and po-ordl.b-num = rm-rctd.b-num
                            no-lock no-error.
   /*if not avail po-ordl then return.  */
-  if avail po-ordl then do:
-     assign  v-len = po-ordl.s-len
+            IF AVAILABLE po-ordl THEN 
+            DO:
+                ASSIGN  
+                    v-len = po-ordl.s-len
              v-wid = po-ordl.s-wid
              v-bwt = 0.     
      {rm/pol-dims.i}
   end.
-  else do:
-        ASSIGN lv-qty-uom = rm-rctd.pur-uom
+            ELSE 
+            DO:
+                ASSIGN 
+                    lv-qty-uom  = rm-rctd.pur-uom
                lv-cost-uom = rm-rctd.cost-uom.
         find first job where job.company eq cocode
                          and job.job-no  eq rm-rctd.job-no
                          and job.job-no2 eq rm-rctd.job-no2
                 no-lock no-error.
-        if avail job then do :
+                IF AVAILABLE job THEN 
+                DO :
              find first job-mat where job-mat.company  eq cocode
                                   and job-mat.job      eq job.job
                                   and job-mat.i-no     eq rm-rctd.i-no
                                   and job-mat.frm      eq rm-rctd.s-num
                                   and job-mat.blank-no eq rm-rctd.b-num
                    no-lock no-error.
-             if avail job-mat then assign v-len         = job-mat.len
+                    IF AVAILABLE job-mat THEN ASSIGN v-len       = job-mat.len
                                           v-wid         = job-mat.wid
                                           v-bwt         = job-mat.basis-w
                                           lv-out-cost   = job-mat.std-cost
                                           lv-cost-uom   = job-mat.sc-uom.
         end.
-        if v-len eq 0 then v-len = if avail item then item.s-len else 0.
-        if v-wid eq 0 then v-wid = if avail item and item.r-wid ne 0 then item.r-wid else if avail item then item.s-wid else 0.
-        if v-bwt eq 0 then v-bwt = if avail item then item.basis-w else 0.    
+                IF v-len EQ 0 THEN v-len = IF AVAILABLE item THEN item.s-len ELSE 0.
+                IF v-wid EQ 0 THEN v-wid = IF AVAILABLE item AND item.r-wid NE 0 THEN item.r-wid ELSE IF AVAILABLE item THEN item.s-wid ELSE 0.
+                IF v-bwt EQ 0 THEN v-bwt = IF AVAILABLE item THEN item.basis-w ELSE 0.    
   end.
   
   /* convert qty    pr-qty-uom or po-ordl.pr-uom cons-uom*/
@@ -2177,11 +2258,12 @@ end.
 
 ELSE
 if NOT ip-first-disp                                        AND
-   rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" then do: /* in update mode - use screen-value */
+                rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN 
+            DO: /* in update mode - use screen-value */
   find item  where item.company eq cocode
                 and item.i-no  eq rm-rctd.i-no:screen-value in browse {&browse-name}
                       use-index i-no no-error.
-  IF NOT AVAIL item THEN LEAVE.
+                IF NOT AVAILABLE item THEN LEAVE.
 
   IF item.cons-uom EQ "" THEN item.cons-uom = rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name}.
 
@@ -2202,8 +2284,10 @@ if NOT ip-first-disp                                        AND
                        and po-ordl.b-num = integer(rm-rctd.b-num:screen-value)
                            no-lock no-error.
   
-  if avail po-ordl then do:
-     assign  v-len = po-ordl.s-len
+                IF AVAILABLE po-ordl THEN 
+                DO:
+                    ASSIGN  
+                        v-len     = po-ordl.s-len
              v-wid = po-ordl.s-wid
              v-bwt = 0
 
@@ -2213,32 +2297,36 @@ if NOT ip-first-disp                                        AND
 
      {rm/pol-dims.i}
   end.
-  else do:
-        ASSIGN lv-qty-uom = item.cons-uom
+                ELSE 
+                DO:
+                    ASSIGN 
+                        lv-qty-uom  = item.cons-uom
                lv-cost-uom = ITEM.cons-uom .
         find first job where job.company eq cocode
                          and job.job-no  eq rm-rctd.job-no:screen-value
                          and job.job-no2 eq integer(rm-rctd.job-no2:screen-value)
                 no-lock no-error.
-        if avail job then do :
+                    IF AVAILABLE job THEN 
+                    DO :
              find first job-mat where job-mat.company  eq cocode
                                   and job-mat.job      eq job.job
                                   and job-mat.i-no     eq rm-rctd.i-no:screen-value
                                   and job-mat.frm      eq integer(rm-rctd.s-num:screen-value)
                                   and job-mat.blank-no eq integer(rm-rctd.b-num:screen-value)
                    no-lock no-error.
-             if avail job-mat then assign v-len         = job-mat.len
+                        IF AVAILABLE job-mat THEN ASSIGN v-len       = job-mat.len
                                           v-wid         = job-mat.wid
                                           v-bwt         = job-mat.basis-w
                                           lv-out-cost   = job-mat.std-cost
                                           lv-cost-uom   = job-mat.sc-uom.
         end.
-        if v-len eq 0 then v-len = if avail item then item.s-len else 0.
-        if v-wid eq 0 then v-wid = if avail item and item.r-wid ne 0 then item.r-wid else if avail item then item.s-wid else 0.
-        if v-bwt eq 0 then v-bwt = if avail item then item.basis-w else 0.
+                    IF v-len EQ 0 THEN v-len = IF AVAILABLE item THEN item.s-len ELSE 0.
+                    IF v-wid EQ 0 THEN v-wid = IF AVAILABLE item AND item.r-wid NE 0 THEN item.r-wid ELSE IF AVAILABLE item THEN item.s-wid ELSE 0.
+                    IF v-bwt EQ 0 THEN v-bwt = IF AVAILABLE item THEN item.basis-w ELSE 0.
 
      /* gdm - 07210901 */
-     ASSIGN  v-po-cost = lv-out-cost 
+                    ASSIGN  
+                        v-po-cost = lv-out-cost 
              v-po-cuom = lv-cost-uom .
   end.
     
@@ -2302,7 +2390,8 @@ if NOT ip-first-disp                                        AND
   IF ll-add-setup AND lv-out-qty NE 0 THEN
      lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
 
-  ASSIGN ext-cost = ROUND(lv-out-qty * lv-out-cost,2)
+                ASSIGN 
+                    ext-cost                      = ROUND(lv-out-qty * lv-out-cost,2)
          rm-rctd.cost:SCREEN-VALUE = STRING(lv-out-cost)
          rm-rctd.cost-uom:SCREEN-VALUE = lv-cost-uom
          rm-rctd.qty:SCREEN-VALUE = STRING(lv-out-qty)
@@ -2333,15 +2422,16 @@ PROCEDURE get-remain-qty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  DEF OUTPUT PARAM op-remain-qty AS DEC NO-UNDO.
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-remain-qty AS DECIMAL NO-UNDO.
 
-  DEF VAR lv-rowid AS ROWID NO-UNDO.
+    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
 
 
   FIND po-ordl WHERE ROWID(po-ordl) EQ ip-rowid NO-LOCK NO-ERROR.
 
-  IF AVAIL po-ordl THEN DO:
+    IF AVAILABLE po-ordl THEN 
+    DO:
     FIND FIRST item
         WHERE item.company EQ po-ordl.company
           AND item.i-no    EQ po-ordl.i-no
@@ -2354,9 +2444,9 @@ PROCEDURE get-remain-qty :
 
     FIND FIRST tt-report WHERE tt-report.rec-id EQ RECID(po-ordl) NO-ERROR.
 
-    IF AVAIL tt-report THEN op-remain-qty = DEC(tt-report.key-01).
+        IF AVAILABLE tt-report THEN op-remain-qty = DEC(tt-report.key-01).
 
-    IF AVAIL ITEM                                                                AND
+        IF AVAILABLE ITEM                                                                AND
        po-ordl.cons-uom NE rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} THEN
       RUN custom/convquom.p (cocode,
                              po-ordl.cons-uom,
@@ -2446,17 +2536,17 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
- DEF BUFFER b-rm-rctd FOR rm-rctd.
+    DEFINE VARIABLE lv-rno LIKE fg-rctd.r-no NO-UNDO.
+    DEFINE BUFFER b-rm-rctd FOR rm-rctd.
  
   /* Code placed here will execute PRIOR to standard behavior. */
   
   FIND LAST b-rm-rctd USE-INDEX rm-rctd NO-LOCK NO-ERROR.
 
-  IF AVAIL b-rm-rctd AND b-rm-rctd.r-no GT lv-rno THEN lv-rno = b-rm-rctd.r-no.
+    IF AVAILABLE b-rm-rctd AND b-rm-rctd.r-no GT lv-rno THEN lv-rno = b-rm-rctd.r-no.
 
   FIND LAST rm-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
-  IF AVAIL rm-rcpth AND rm-rcpth.r-no GT lv-rno THEN lv-rno = rm-rcpth.r-no.
+    IF AVAILABLE rm-rcpth AND rm-rcpth.r-no GT lv-rno THEN lv-rno = rm-rcpth.r-no.
 
 
   /* Dispatch standard ADM method.                             */
@@ -2467,11 +2557,12 @@ PROCEDURE local-create-record :
   RUN sys/ref/asiseq.p (INPUT g_company, INPUT "rm_rcpt_seq", OUTPUT lv-rno) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN
     MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
-       VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
 
   FIND FIRST tt-rm-rctd NO-ERROR.
 
-  IF AVAIL tt-rm-rctd THEN DO:
+    IF AVAILABLE tt-rm-rctd THEN 
+    DO:
     BUFFER-COPY tt-rm-rctd EXCEPT rec_key TO rm-rctd.
     tt-rm-rctd.tt-rowid = ROWID(rm-rctd).
   END.
@@ -2482,7 +2573,8 @@ PROCEDURE local-create-record :
    rm-rctd.r-no      = lv-rno
    rm-rctd.rita-code = "R".
 
-  IF adm-adding-record THEN DO:
+    IF adm-adding-record THEN 
+    DO:
     ASSIGN
      rm-rctd.loc = gloc
      rm-rctd.s-num = 0
@@ -2508,9 +2600,9 @@ PROCEDURE local-create-record :
     FIND FIRST b-rm-rctd WHERE b-rm-rctd.company = cocode
                            AND b-rm-rctd.rita-code = "R"
                            AND recid(b-rm-rctd) <> RECID(rm-rctd) NO-LOCK NO-ERROR.
-    IF AVAIL b-rm-rctd THEN rm-rctd.rct-date = b-rm-rctd.rct-date.
+        IF AVAILABLE b-rm-rctd THEN rm-rctd.rct-date = b-rm-rctd.rct-date.
 
-    disp rm-rctd.rct-date rm-rctd.loc-bin with browse {&browse-name}.
+        DISPLAY rm-rctd.rct-date rm-rctd.loc-bin WITH BROWSE {&browse-name}.
   END.
 
 
@@ -2534,12 +2626,13 @@ PROCEDURE local-delete-record :
     v-new-mode = NO.
 
    /* WFK - don't know why rm-rctd is not available here, but it isn't */
-  IF NOT AVAIL rm-rctd THEN
+    IF NOT AVAILABLE rm-rctd THEN
      FIND FIRST rm-rctd WHERE rm-rctd.r-no EQ
        INTEGER(rm-rctd.r-no:SCREEN-VALUE IN BROWSE {&browse-name})
        EXCLUSIVE-LOCK NO-ERROR.
  
-  IF NOT adm-new-record THEN DO:
+    IF NOT adm-new-record THEN 
+    DO:
     {custom/askdel.i}
   END.
 
@@ -2582,15 +2675,16 @@ PROCEDURE local-enable-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var out-hd-lst as cha no-undo.
-  def var li as int no-undo.
-  def var hd-next as widget-handle no-undo.
+    DEFINE VARIABLE out-hd-lst AS cha           NO-UNDO.
+    DEFINE VARIABLE li         AS INTEGER       NO-UNDO.
+    DEFINE VARIABLE hd-next    AS WIDGET-HANDLE NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
   run get-link-handle in adm-broker-hdl (this-procedure,"record-target", output out-hd-lst).
   hd-post = widget-handle(out-hd-lst).  /* procedure */
-  if valid-handle(widget-handle(out-hd-lst)) then do:
+    IF VALID-HANDLE(WIDGET-HANDLE(out-hd-lst)) THEN 
+    DO:
      hd-post-child = hd-post:current-window.    
     /*  
      do while valid-handle(hd-post-child):
@@ -2652,7 +2746,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR li AS INT NO-UNDO.
+    DEFINE VARIABLE li AS INTEGER NO-UNDO.
     
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -2666,9 +2760,11 @@ PROCEDURE local-update-record :
 
   /* create a negative receipt for NON INVENTORY items item.inv-by-cust = yes */
   FIND CURRENT ITEM NO-LOCK NO-ERROR.
-  IF AVAIL ITEM AND ITEM.inv-by-cust AND v-new-mode THEN DO:
+    IF AVAILABLE ITEM AND ITEM.inv-by-cust AND v-new-mode THEN 
+    DO:
      RUN create-neg-rctd (INPUT RECID(rm-rctd)).                       
-     ASSIGN v-new-mode = NO.
+        ASSIGN 
+            v-new-mode = NO.
   END.
 
   RUN delete-tt.
@@ -2690,7 +2786,7 @@ PROCEDURE local-update-record :
                b-rm-rctd.company EQ cocode AND
                b-rm-rctd.rita-code = "R"
                NO-LOCK
-               BY b-rm-rctd.r-no DESC:
+                    BY b-rm-rctd.r-no DESCENDING:
                
                RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
                LEAVE.
@@ -2700,8 +2796,8 @@ PROCEDURE local-update-record :
                b-rm-rctd.company EQ cocode AND
                b-rm-rctd.rita-code = "R"
                NO-LOCK
-               BY b-rm-rctd.tag DESC
-               BY b-rm-rctd.r-no DESC:
+                    BY b-rm-rctd.tag DESCENDING
+                    BY b-rm-rctd.r-no DESCENDING:
 
                RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
                LEAVE.
@@ -2711,8 +2807,8 @@ PROCEDURE local-update-record :
                b-rm-rctd.company EQ cocode AND
                b-rm-rctd.rita-code = "R"
                NO-LOCK
-               BY b-rm-rctd.rct-date DESC
-               BY b-rm-rctd.r-no DESC:
+                    BY b-rm-rctd.rct-date DESCENDING
+                    BY b-rm-rctd.r-no DESCENDING:
 
                RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
                LEAVE.
@@ -2722,8 +2818,8 @@ PROCEDURE local-update-record :
                b-rm-rctd.company EQ cocode AND
                b-rm-rctd.rita-code = "R"
                NO-LOCK
-               BY b-rm-rctd.po-no DESC 
-               BY b-rm-rctd.r-no DESC:
+                    BY b-rm-rctd.po-no DESCENDING 
+                    BY b-rm-rctd.r-no DESCENDING:
 
                RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
                LEAVE.
@@ -2733,8 +2829,8 @@ PROCEDURE local-update-record :
                b-rm-rctd.company EQ cocode AND
                b-rm-rctd.rita-code = "R"
                NO-LOCK
-               BY b-rm-rctd.i-no DESC
-               BY b-rm-rctd.r-no DESC:
+                    BY b-rm-rctd.i-no DESCENDING
+                    BY b-rm-rctd.r-no DESCENDING:
 
                RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
                LEAVE.
@@ -2744,8 +2840,8 @@ PROCEDURE local-update-record :
                b-rm-rctd.company EQ cocode AND
                b-rm-rctd.rita-code = "R"
                NO-LOCK
-               BY b-rm-rctd.loc DESC
-               BY b-rm-rctd.r-no DESC:
+                    BY b-rm-rctd.loc DESCENDING
+                    BY b-rm-rctd.r-no DESCENDING:
 
                RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
                LEAVE.
@@ -2760,6 +2856,74 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTagSequence B-table-Win
+PROCEDURE pGetTagSequence:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the next available tag sequence for a given PO
+     Notes: This is logic for N-K TAG# Logical Value = Yes
+     Usage: RUN pGetTagSequence(cocode, po-ordl.po-no, rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name})
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoNo LIKE po-ordl.po-no NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSequence AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iSeq      AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        iSeq      = 0
+        cLocation = "".
+
+    DO WHILE TRUE:
+        FIND FIRST bf-rm-rctd
+            WHERE bf-rm-rctd.company EQ ipcCompany
+            AND bf-rm-rctd.loc     GT cLocation
+            NO-LOCK NO-ERROR.
+
+        IF AVAILABLE bf-rm-rctd THEN 
+        DO:
+            cLocation = bf-rm-rctd.loc.
+
+            FOR EACH bf-rm-rctd
+                WHERE bf-rm-rctd.company EQ ipcCompany
+                AND bf-rm-rctd.loc     EQ cLocation
+                AND bf-rm-rctd.tag     BEGINS STRING(ipiPoNo,"999999")
+                USE-INDEX tag NO-LOCK
+                BY bf-rm-rctd.tag DESCENDING:
+
+                IF INT(SUBSTR(bf-rm-rctd.tag,7,2)) GT iSeq THEN
+                    iSeq = INT(SUBSTR(bf-rm-rctd.tag,7,2)).
+                LEAVE.
+            END.
+        END.
+
+        ELSE LEAVE. /*no more locations*/
+    END.
+
+    IF iSeq GT 0 THEN 
+    DO:
+        FIND LAST rm-rdtlh NO-LOCK
+            WHERE rm-rdtlh.company EQ ipcCompany
+            AND rm-rdtlh.tag     BEGINS STRING(ipiPoNo,"999999")
+            AND INT(SUBSTR(rm-rdtlh.tag,7,2)) GT iSeq
+            USE-INDEX tag NO-ERROR.
+        IF AVAILABLE rm-rdtlh THEN 
+            iSeq = INT(SUBSTR(rm-rdtlh.tag,7,2)).
+    END.
+
+    ASSIGN
+        iSeq        = iSeq + 1
+        opcSequence = STRING(ipiPoNo,"999999") + STRING(iSeq,"99").
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE po-cost B-table-Win 
 PROCEDURE po-cost :
 /*------------------------------------------------------------------------------
@@ -2767,15 +2931,16 @@ PROCEDURE po-cost :
   Parameters:  <none>
   Notes:       
  ------------------------------------------------------------------------------*/
-  DEF VAR lv-cost AS DEC DECIMALS 10 NO-UNDO.
-  def var v-len like po-ordl.s-len no-undo.
-  def var v-wid like po-ordl.s-len no-undo.
-  def var v-dep like po-ordl.s-len no-undo. 
-  def var v-bwt like po-ordl.s-len no-undo.
-  def var lv-out-qty LIKE rm-rctd.qty no-undo.
-  DEF VAR lv-qty-uom LIKE rm-rctd.pur-uom NO-UNDO.
+    DEFINE VARIABLE lv-cost    AS DECIMAL DECIMALS 10 NO-UNDO.
+    DEFINE VARIABLE v-len      LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE v-wid      LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE v-dep      LIKE po-ordl.s-len NO-UNDO. 
+    DEFINE VARIABLE v-bwt      LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE lv-out-qty LIKE rm-rctd.qty NO-UNDO.
+    DEFINE VARIABLE lv-qty-uom LIKE rm-rctd.pur-uom NO-UNDO.
 
-  IF AVAIL po-ordl THEN DO WITH FRAME {&FRAME-NAME}:
+    IF AVAILABLE po-ordl THEN 
+    DO WITH FRAME {&FRAME-NAME}:
       
      FIND FIRST ITEM where
           item.company eq cocode AND
@@ -2783,7 +2948,7 @@ PROCEDURE po-cost :
           use-index i-no
           NO-LOCK no-error.
 
-     IF NOT AVAIL item THEN
+        IF NOT AVAILABLE item THEN
         LEAVE.
 
      assign
@@ -2824,7 +2989,7 @@ PROCEDURE po-cost :
     ELSE
        ASSIGN
           lv-cost = po-ordl.cost
-          ll-add-setup = IF AVAIL po-ord AND po-ord.type NE "S" THEN YES
+                ll-add-setup = IF AVAILABLE po-ord AND po-ord.type NE "S" THEN YES
                          ELSE NO.
 
     rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom.
@@ -2850,7 +3015,7 @@ PROCEDURE repo-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:    
     RUN clear_auto_find.
@@ -2912,7 +3077,7 @@ PROCEDURE tag-method :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def output parameter op-tag# as log no-undo.
+    DEFINE OUTPUT PARAMETER op-tag# AS LOG NO-UNDO.
   
   {rm/tag#.i}
   op-tag# = v-tag#.
@@ -2929,11 +3094,12 @@ PROCEDURE tag-sequence :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var v-tag-seq as int no-undo.
-  def var v-locode as cha no-undo.
-  def buffer xrm-rctd for rm-rctd.
+    DEFINE VARIABLE v-tag-seq AS INTEGER NO-UNDO.
+    DEFINE VARIABLE v-locode  AS cha     NO-UNDO.
+    DEFINE BUFFER xrm-rctd FOR rm-rctd.
   
-  assign v-tag-seq = 0
+    ASSIGN
+        v-tag-seq = 0
          v-locode  = "".
 
   do while true:
@@ -2942,14 +3108,15 @@ PROCEDURE tag-sequence :
           and xrm-rctd.loc     gt v-locode
         no-lock no-error.
 
-    if avail xrm-rctd then do:
+        IF AVAILABLE xrm-rctd THEN
+        DO:
       v-locode = xrm-rctd.loc.
 
       for each xrm-rctd where xrm-rctd.company eq rm-rctd.company
             and xrm-rctd.loc     eq v-locode
             and xrm-rctd.tag     begins string(int(rm-rctd.po-no:screen-value in browse {&browse-name}),"999999")
             use-index tag no-lock
-            by xrm-rctd.tag desc:
+                BY xrm-rctd.tag DESCENDING:
 
            if int(substr(xrm-rctd.tag,7,2)) gt v-tag-seq then
            v-tag-seq = int(substr(xrm-rctd.tag,7,2)).
@@ -2985,7 +3152,8 @@ PROCEDURE tag-sequence :
     else leave.
   end.
 ============================== */
-  assign  v-tag-seq   = v-tag-seq + 1
+    ASSIGN
+        v-tag-seq = v-tag-seq + 1
          /* rm-rctd.tag:screen-value in browse {&browse-name}
           = string(int(rm-rctd.po-no:screen-value in browse {&browse-name}),"999999") + string(v-tag-seq,"99").
            */
@@ -3003,8 +3171,8 @@ PROCEDURE update-begin :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   def var phandle as widget-handle no-undo.
-   def var char-hdl as cha no-undo.   
+    DEFINE VARIABLE phandle  AS WIDGET-HANDLE NO-UNDO.
+    DEFINE VARIABLE char-hdl AS cha           NO-UNDO.   
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
@@ -3023,7 +3191,7 @@ PROCEDURE update-from-po-line :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-ord-qty LIKE po-ordl.ord-qty NO-UNDO.
+    DEFINE VARIABLE lv-ord-qty LIKE po-ordl.ord-qty NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -3059,7 +3227,8 @@ PROCEDURE update-tt :
 
   DO WITH FRAME {&frame-name}:
     FIND FIRST tt-rm-rctd NO-ERROR.
-    IF AVAIL tt-rm-rctd THEN DO:
+        IF AVAILABLE tt-rm-rctd THEN 
+        DO:
       lv-rowid = tt-rm-rctd.po-rowid.
       RUN display-po-info.
       /*RUN show-bin-info.*/
@@ -3086,7 +3255,8 @@ PROCEDURE update-ttt :
 
   FIND FIRST tt-rm-rctd NO-ERROR.
 
-  IF AVAIL tt-rm-rctd THEN DO WITH FRAME {&FRAME-NAME}:
+    IF AVAILABLE tt-rm-rctd THEN 
+    DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = tt-rm-rctd.po-no
      rm-rctd.i-no:SCREEN-VALUE  IN BROWSE {&browse-name} = tt-rm-rctd.i-no
@@ -3107,38 +3277,40 @@ PROCEDURE create-rcptd :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-list AS cha NO-UNDO.
-  DEF INPUT PARAM ip-date AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ip-list AS cha NO-UNDO.
+    DEFINE INPUT PARAMETER ip-date AS DATE NO-UNDO.
 
-  DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
-  DEF BUFFER b-rm-rctd FOR rm-rctd.
-  DEF BUFFER bf-rm-rctd FOR rm-rctd.
-  DEF VAR li-tag-seq AS INT.
-  DEF VAR lv-rctd-rowid AS ROWID NO-UNDO.
-  DEF VAR lv-locode LIKE locode.
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR v-count AS INT INIT 1 NO-UNDO .
+    DEFINE VARIABLE lv-rno LIKE fg-rctd.r-no NO-UNDO.
+    DEFINE BUFFER b-rm-rctd  FOR rm-rctd.
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+    DEFINE VARIABLE li-tag-seq    AS INTEGER.
+    DEFINE VARIABLE lv-rctd-rowid AS ROWID     NO-UNDO.
+    DEFINE VARIABLE lv-locode     LIKE locode.
+    DEFINE VARIABLE li            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE v-count       AS INTEGER   INIT 1 NO-UNDO .
+    DEFINE VARIABLE cNewTag       AS CHARACTER NO-UNDO.
   
  FOR EACH tt-selected,
       FIRST po-ordl WHERE rowid(po-ordl) = tt-selected.tt-rowid NO-LOCK BY tt-item :
   
   FIND LAST b-rm-rctd USE-INDEX rm-rctd NO-LOCK NO-ERROR.
 
-  IF AVAIL b-rm-rctd AND b-rm-rctd.r-no GT lv-rno THEN lv-rno = b-rm-rctd.r-no.
+        IF AVAILABLE b-rm-rctd AND b-rm-rctd.r-no GT lv-rno THEN lv-rno = b-rm-rctd.r-no.
 
   FIND LAST rm-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
-  IF AVAIL rm-rcpth AND rm-rcpth.r-no GT lv-rno THEN lv-rno = rm-rcpth.r-no.
+        IF AVAILABLE rm-rcpth AND rm-rcpth.r-no GT lv-rno THEN lv-rno = rm-rcpth.r-no.
 
   CREATE rm-rctd .
   
   RUN sys/ref/asiseq.p (INPUT g_company, INPUT "rm_rcpt_seq", OUTPUT lv-rno) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN
     MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
-       VIEW-AS ALERT-BOX INFO BUTTONS OK.
+                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
 
   FIND FIRST tt-rm-rctd NO-ERROR.
 
-  IF AVAIL tt-rm-rctd THEN DO:
+        IF AVAILABLE tt-rm-rctd THEN 
+        DO:
     BUFFER-COPY tt-rm-rctd EXCEPT rec_key TO rm-rctd.
     tt-rm-rctd.tt-rowid = ROWID(rm-rctd).
   END.
@@ -3179,61 +3351,70 @@ PROCEDURE create-rcptd :
                    item.i-no = po-ordl.i-no
                   no-lock no-error.
 
-   IF AVAIL ITEM THEN
+        IF AVAILABLE ITEM THEN
        assign rm-rctd.loc =  item.loc
        rm-rctd.loc-bin =  item.loc-bin.
 
    IF rm-rctd.loc-bin = "" THEN
        rm-rctd.loc-bin = SUBSTR(v-bin,6).
 
-  IF ll-tag-meth  THEN DO:
-      ASSIGN
-          li-tag-seq = 0
-          lv-locode  = "".
-      
-      DO WHILE TRUE:
-        FIND FIRST bf-rm-rctd
-            WHERE bf-rm-rctd.company eq cocode
-              AND bf-rm-rctd.loc     gt lv-locode
-            NO-LOCK NO-ERROR.
-
-        IF AVAIL bf-rm-rctd THEN DO:
-          lv-locode = bf-rm-rctd.loc.
-
-          FOR EACH bf-rm-rctd
-              WHERE bf-rm-rctd.company EQ cocode
-                AND bf-rm-rctd.loc     EQ lv-locode
-                AND bf-rm-rctd.tag     BEGINS STRING(po-ordl.po-no,"999999")
-              USE-INDEX tag NO-LOCK
-              BY bf-rm-rctd.tag DESC:
-
-            IF INT(SUBSTR(bf-rm-rctd.tag,7,2)) GT li-tag-seq THEN
-              li-tag-seq = INT(SUBSTR(bf-rm-rctd.tag,7,2)).
-            LEAVE.
+        IF ll-tag-meth  THEN
+        DO:
+            RUN pGetTagSequence(cocode, po-ordl.po-no, OUTPUT cNewTag). 
+            rm-rctd.tag = cNewTag.
           END.
-        END.
-
-        ELSE LEAVE.
-      END.
-
-      IF li-tag-seq EQ 0 THEN DO:
-        FIND LAST rm-rdtlh NO-LOCK
-            WHERE rm-rdtlh.company EQ cocode
-              AND rm-rdtlh.tag     BEGINS STRING(po-ordl.po-no,"999999")
-              AND INT(SUBSTR(rm-rdtlh.tag,7,2)) GT li-tag-seq
-            USE-INDEX tag NO-ERROR.
-        IF AVAIL rm-rdtlh THEN li-tag-seq = INT(SUBSTR(rm-rdtlh.tag,7,2)).
-      END.
-
-      ASSIGN
-       li-tag-seq   = li-tag-seq + 1
-       rm-rctd.tag = STRING(po-ordl.po-no,"999999") + STRING(li-tag-seq,"99").
-  END. /* ll-tag-meth*/
-
+        /*        DO:                                                                            */
+        /*            ASSIGN                                                                     */
+        /*                li-tag-seq = 0                                                         */
+        /*                lv-locode  = "".                                                       */
+        /*                                                                                       */
+        /*            DO WHILE TRUE:                                                             */
+        /*                FIND FIRST bf-rm-rctd                                                  */
+        /*                    WHERE bf-rm-rctd.company EQ cocode                                 */
+        /*                    AND bf-rm-rctd.loc     GT lv-locode                                */
+        /*                    NO-LOCK NO-ERROR.                                                  */
+        /*                                                                                       */
+        /*                IF AVAILABLE bf-rm-rctd THEN                                           */
+        /*                DO:                                                                    */
+        /*                    lv-locode = bf-rm-rctd.loc.                                        */
+        /*                                                                                       */
+        /*                    FOR EACH bf-rm-rctd                                                */
+        /*                        WHERE bf-rm-rctd.company EQ cocode                             */
+        /*                        AND bf-rm-rctd.loc     EQ lv-locode                            */
+        /*                        AND bf-rm-rctd.tag     BEGINS STRING(po-ordl.po-no,"999999")   */
+        /*                        USE-INDEX tag NO-LOCK                                          */
+        /*                        BY bf-rm-rctd.tag DESCENDING:                                  */
+        /*                                                                                       */
+        /*                        IF INT(SUBSTR(bf-rm-rctd.tag,7,2)) GT li-tag-seq THEN          */
+        /*                            li-tag-seq = INT(SUBSTR(bf-rm-rctd.tag,7,2)).              */
+        /*                        LEAVE.                                                         */
+        /*                    END.                                                               */
+        /*                END.                                                                   */
+        /*                                                                                       */
+        /*                ELSE LEAVE.                                                            */
+        /*            END.                                                                       */
+        /*            MESSAGE "before" li-tag-seq VIEW-AS ALERT-BOX.                             */
+        /*            IF li-tag-seq GT 0 THEN                                                    */
+        /*            DO:                                                                        */
+        /*                FIND LAST rm-rdtlh NO-LOCK                                             */
+        /*                    WHERE rm-rdtlh.company EQ cocode                                   */
+        /*                    AND rm-rdtlh.tag     BEGINS STRING(po-ordl.po-no,"999999")         */
+        /*                    AND INT(SUBSTR(rm-rdtlh.tag,7,2)) GT li-tag-seq                    */
+        /*                    USE-INDEX tag NO-ERROR.                                            */
+        /*                IF AVAILABLE rm-rdtlh THEN li-tag-seq = INT(SUBSTR(rm-rdtlh.tag,7,2)). */
+        /*            END.                                                                       */
+        /*                                                                                       */
+        /*            ASSIGN                                                                     */
+        /*                li-tag-seq  = li-tag-seq + 1                                           */
+        /*                rm-rctd.tag = STRING(po-ordl.po-no,"999999") + STRING(li-tag-seq,"99").*/
+        /*        END. /* ll-tag-meth*/                                                          */
+        /*        MESSAGE "after" li-tag-seq VIEW-AS ALERT-BOX.                                  */
   FIND CURRENT ITEM NO-LOCK NO-ERROR.
-  IF AVAIL ITEM AND ITEM.inv-by-cust AND v-new-mode THEN DO:
+        IF AVAILABLE ITEM AND ITEM.inv-by-cust AND v-new-mode THEN 
+        DO:
      RUN create-neg-rctd (INPUT RECID(rm-rctd)).                       
-     ASSIGN v-new-mode = NO.
+            ASSIGN 
+                v-new-mode = NO.
   END.
 
  END.
@@ -3320,7 +3501,8 @@ PROCEDURE valid-b-num :
   DO WITH FRAME {&FRAME-NAME}:
     rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
+        IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+        DO:
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -3330,27 +3512,29 @@ PROCEDURE valid-b-num :
             AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL po-ordl THEN ERROR-STATUS:ERROR = YES.
+            IF NOT AVAILABLE po-ordl THEN ERROR-STATUS:ERROR = YES.
     END.
 
     ELSE
-    IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+            IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN 
+            DO:
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
             AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           NO-LOCK NO-ERROR.
-      IF AVAIL job THEN
+                IF AVAILABLE job THEN
       FIND FIRST job-mat
           WHERE job-mat.company  EQ rm-rctd.company
             AND job-mat.job      EQ job.job
             AND job-mat.frm      EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND job-mat.blank-no EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL job-mat THEN ERROR-STATUS:ERROR = YES.
+                IF NOT AVAILABLE job-mat THEN ERROR-STATUS:ERROR = YES.
     END.
 
-    IF ERROR-STATUS:ERROR THEN DO:
+        IF ERROR-STATUS:ERROR THEN 
+        DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO rm-rctd.b-num IN BROWSE {&browse-name}.
       RETURN ERROR.
@@ -3369,14 +3553,15 @@ PROCEDURE valid-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR v-msg AS CHAR NO-UNDO.
-  DEF VAR ll AS LOG NO-UNDO.
+    DEFINE VARIABLE v-msg AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ll    AS LOG       NO-UNDO.
 
         
   DO WITH FRAME {&FRAME-NAME}:
     rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
+        IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+        DO:
       RELEASE po-ord.
 
       FIND FIRST po-ordl
@@ -3388,7 +3573,7 @@ PROCEDURE valid-i-no :
             AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL po-ordl THEN v-msg = "Invalid PO Line Item, try help".
+            IF NOT AVAILABLE po-ordl THEN v-msg = "Invalid PO Line Item, try help".
        
       ELSE
       FIND FIRST po-ord WHERE
@@ -3397,7 +3582,8 @@ PROCEDURE valid-i-no :
            po-ord.TYPE    EQ "S"
         NO-LOCK NO-ERROR.
       
-      IF AVAIL po-ord THEN DO:
+            IF AVAILABLE po-ord THEN 
+            DO:
         FOR EACH rm-rcpth
             WHERE rm-rcpth.company   EQ po-ord.company
               AND rm-rcpth.vend-no   EQ po-ord.vend-no
@@ -3412,20 +3598,21 @@ PROCEDURE valid-i-no :
             NO-LOCK*/ :
           LEAVE.
         END.
-        IF NOT AVAIL rm-rcpth THEN v-msg = "No RM issued to this Sheet PO".
+                IF NOT AVAILABLE rm-rcpth THEN v-msg = "No RM issued to this Sheet PO".
       END.
 
       IF v-msg EQ "" AND po-ordl.stat EQ "C" THEN v-msg = "Closed".
     END.
 
     ELSE
-    IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+            IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN 
+            DO:
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
             AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           NO-LOCK NO-ERROR.
-      IF AVAIL job THEN
+                IF AVAILABLE job THEN
       FIND FIRST job-mat
           WHERE job-mat.company  EQ rm-rctd.company
             AND job-mat.job      EQ job.job
@@ -3433,21 +3620,24 @@ PROCEDURE valid-i-no :
             AND job-mat.blank-no EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND job-mat.i-no     EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL job-mat THEN v-msg = "This RM does not exist on Job, try help".
+                IF NOT AVAILABLE job-mat THEN v-msg = "This RM does not exist on Job, try help".
     END.
 
-    ELSE DO:
+            ELSE 
+            DO:
       FIND FIRST ITEM
           WHERE ITEM.company EQ cocode
             AND ITEM.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND ITEM.i-code  EQ "R"
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL item THEN v-msg = "This item does not exist in RM file, try help".
+                IF NOT AVAILABLE item THEN v-msg = "This item does not exist in RM file, try help".
     END.
 
-    IF v-msg NE "" THEN DO:
+        IF v-msg NE "" THEN 
+        DO:
       ll = NO.
-      IF v-msg EQ "Closed" THEN DO:
+            IF v-msg EQ "Closed" THEN 
+            DO:
         IF ll-warned THEN ll = YES.
         ELSE
           MESSAGE "PO Line is closed and may be re-opened during posting, continue?..."
@@ -3457,7 +3647,8 @@ PROCEDURE valid-i-no :
       ELSE MESSAGE TRIM(v-msg) + "..." VIEW-AS ALERT-BOX ERROR.
 
       IF ll THEN ll-warned = YES.
-      ELSE DO:
+            ELSE 
+            DO:
         APPLY "entry" TO rm-rctd.i-no IN BROWSE {&browse-name}.
         RETURN ERROR.
       END.
@@ -3483,23 +3674,25 @@ PROCEDURE valid-job-no :
      rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
      ERROR-STATUS:ERROR = NO.
 
-    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
+        IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+        DO:
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL po-ordl THEN ERROR-STATUS:ERROR = YES.
+            IF NOT AVAILABLE po-ordl THEN ERROR-STATUS:ERROR = YES.
     END.
 
     ELSE
-    IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+            IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN 
+            DO:
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
             AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL job THEN ERROR-STATUS:ERROR = YES.
+                IF NOT AVAILABLE job THEN ERROR-STATUS:ERROR = YES.
     END.
 
     ELSE
@@ -3507,7 +3700,8 @@ PROCEDURE valid-job-no :
        rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = ""
        rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name}   = "".
 
-    IF ERROR-STATUS:ERROR THEN DO:
+        IF ERROR-STATUS:ERROR THEN 
+        DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO rm-rctd.job-no IN BROWSE {&browse-name}.
       RETURN ERROR.
@@ -3532,7 +3726,8 @@ PROCEDURE valid-job-no2 :
      rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
      ERROR-STATUS:ERROR = NO.
 
-    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
+        IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+        DO:
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -3540,20 +3735,22 @@ PROCEDURE valid-job-no2 :
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL po-ordl THEN ERROR-STATUS:ERROR = YES.
+            IF NOT AVAILABLE po-ordl THEN ERROR-STATUS:ERROR = YES.
     END.
 
     ELSE
-    IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+            IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN 
+            DO:
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
             AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL job THEN ERROR-STATUS:ERROR = YES. 
+                IF NOT AVAILABLE job THEN ERROR-STATUS:ERROR = YES. 
     END.
 
-    IF ERROR-STATUS:ERROR THEN DO:
+        IF ERROR-STATUS:ERROR THEN 
+        DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO rm-rctd.job-no2 IN BROWSE {&browse-name}.
       RETURN ERROR.
@@ -3572,14 +3769,15 @@ PROCEDURE valid-loc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-focus AS WIDGET-HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER ip-focus AS WIDGET-HANDLE NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST loc
                     WHERE loc.company EQ cocode
                       AND loc.loc     EQ ip-focus:SCREEN-VALUE)
-    THEN DO:
+            THEN 
+        DO:
       MESSAGE "Invalid Warehouse, try help..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ip-focus.
@@ -3599,7 +3797,7 @@ PROCEDURE valid-loc-bin :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-focus AS WIDGET-HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER ip-focus AS WIDGET-HANDLE NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -3608,7 +3806,8 @@ PROCEDURE valid-loc-bin :
                       AND rm-bin.i-no    EQ ""
                       AND rm-bin.loc     EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
                       AND rm-bin.loc-bin EQ ip-focus:SCREEN-VALUE)
-    THEN DO:
+            THEN 
+        DO:
       MESSAGE "Invalid Bin, try help..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ip-focus.
@@ -3628,24 +3827,26 @@ PROCEDURE valid-po-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-type AS INT NO-UNDO.
+    DEFINE INPUT PARAMETER ip-type AS INTEGER NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
   
-    IF NOT AVAIL rm-rctd THEN
+        IF NOT AVAILABLE rm-rctd THEN
      FIND FIRST rm-rctd WHERE rm-rctd.r-no EQ
        INTEGER(rm-rctd.r-no:SCREEN-VALUE IN BROWSE {&browse-name})
        NO-LOCK NO-ERROR.
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0              AND
-       NOT CAN-FIND(FIRST tt-rm-rctd WHERE tt-rm-rctd.tt-rowid EQ ROWID(rm-rctd)) THEN DO:
+            NOT CAN-FIND(FIRST tt-rm-rctd WHERE tt-rm-rctd.tt-rowid EQ ROWID(rm-rctd)) THEN 
+        DO:
 
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ cocode
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL po-ordl THEN DO:
+            IF NOT AVAILABLE po-ordl THEN 
+            DO:
         MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO rm-rctd.po-no IN BROWSE {&browse-name}.
         RETURN ERROR.
@@ -3656,11 +3857,18 @@ PROCEDURE valid-po-no :
             AND po-ord.po-no   EQ po-ordl.po-no
           NO-LOCK NO-ERROR.
 
+            IF AVAILABLE po-ord AND po-ord.stat = "H" AND POHoldRct-log THEN DO: /* ticket 17372 */
+              MESSAGE "Unable to receive goods or materials for a purchase order that is on hold!"
+                      VIEW-AS ALERT-BOX error. 
+              RETURN ERROR.
+            END.
+      
       IF rmrecpt-cha EQ "POPUP"         AND
          ip-type EQ 1                   AND
-         AVAIL po-ord                   AND
+                AVAILABLE po-ord                   AND
          adm-adding-record              AND
-         NOT CAN-FIND(FIRST tt-rm-rctd) THEN DO:
+                NOT CAN-FIND(FIRST tt-rm-rctd) THEN 
+            DO:
 
         RUN fg/d-selpos.w (ROWID(po-ord), YES).
 
@@ -3683,11 +3891,12 @@ PROCEDURE valid-qty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-focus AS WIDGET-HANDLE NO-UNDO.
-  DEF OUTPUT PARAMETER op-error AS LOG NO-UNDO.
+    DEFINE INPUT PARAMETER ip-focus AS WIDGET-HANDLE NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF DEC(ip-focus:SCREEN-VALUE) EQ 0 THEN DO:
+        IF DEC(ip-focus:SCREEN-VALUE) EQ 0 THEN 
+        DO:
        MESSAGE "Receipt qty may not be zero..." VIEW-AS ALERT-BOX ERROR.
        APPLY "entry" TO ip-focus.
        op-error = YES.
@@ -3710,7 +3919,8 @@ PROCEDURE valid-s-num :
   DO WITH FRAME {&FRAME-NAME}:
     rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-    IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
+        IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+        DO:
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -3719,26 +3929,28 @@ PROCEDURE valid-s-num :
             AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL po-ordl THEN ERROR-STATUS:ERROR = YES.
+            IF NOT AVAILABLE po-ordl THEN ERROR-STATUS:ERROR = YES.
     END.
 
     ELSE
-    IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+            IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN 
+            DO:
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
             AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           NO-LOCK NO-ERROR.
-      IF AVAIL job THEN
+                IF AVAILABLE job THEN
       FIND FIRST job-mat
           WHERE job-mat.company EQ rm-rctd.company
             AND job-mat.job     EQ job.job
             AND job-mat.frm     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL job-mat THEN ERROR-STATUS:ERROR = YES.
+                IF NOT AVAILABLE job-mat THEN ERROR-STATUS:ERROR = YES.
     END.
 
-    IF ERROR-STATUS:ERROR THEN DO:
+        IF ERROR-STATUS:ERROR THEN 
+        DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO rm-rctd.s-num IN BROWSE {&browse-name}.
       RETURN ERROR.
@@ -3757,14 +3969,15 @@ PROCEDURE valid-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-focus AS WIDGET-HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER ip-focus AS WIDGET-HANDLE NO-UNDO.
 
-  DEF BUFFER b-rm-rctd FOR rm-rctd.
+    DEFINE BUFFER b-rm-rctd FOR rm-rctd.
 
 
     DO WITH FRAME {&FRAME-NAME}:
       IF rm-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
-         ip-focus:SCREEN-VALUE EQ ""                              THEN DO:
+            ip-focus:SCREEN-VALUE EQ ""                              THEN 
+        DO:
         MESSAGE TRIM(ip-focus:LABEL) + " must be entered when " +
                 TRIM(rm-rctd.tag2:LABEL IN BROWSE {&browse-name}) +
                 " is entered..."
@@ -3773,11 +3986,13 @@ PROCEDURE valid-tag :
         RETURN ERROR.
       END.
 
-      IF rmrecpt-int EQ 1 THEN DO:
+        IF rmrecpt-int EQ 1 THEN 
+        DO:
         FIND FIRST loadtag WHERE loadtag.company = rm-rctd.company
                              AND loadtag.item-type = YES
                              AND loadtag.tag-no = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
-        IF NOT AVAIL loadtag THEN DO:
+            IF NOT AVAILABLE loadtag THEN 
+            DO:
            MESSAGE "Invalid Tag#. Try help or Scan valid tag#..." VIEW-AS ALERT-BOX ERROR.
            ip-focus:SCREEN-VALUE = "".
            APPLY "entry" TO ip-focus.
@@ -3798,7 +4013,8 @@ PROCEDURE valid-tag :
          END.
 
       /* Check for a unique entry of a tag number when one is entered */
-      IF ip-focus:SCREEN-VALUE NE  "" THEN DO:
+        IF ip-focus:SCREEN-VALUE NE  "" THEN 
+        DO:
         RELEASE b-rm-rctd.
         RELEASE rm-rcpth.
       
@@ -3808,18 +4024,19 @@ PROCEDURE valid-tag :
             AND b-rm-rctd.tag       EQ ip-focus:SCREEN-VALUE
             AND ROWID(b-rm-rctd)    NE ROWID(rm-rctd)
           USE-INDEX tag NO-LOCK NO-ERROR.
-      IF NOT AVAIL b-rm-rctd THEN
+            IF NOT AVAILABLE b-rm-rctd THEN
       FIND FIRST rm-rdtlh
           WHERE rm-rdtlh.company EQ rm-rctd.company
             AND rm-rdtlh.loc     EQ rm-rctd.loc
             AND rm-rdtlh.tag     EQ ip-focus:SCREEN-VALUE
           USE-INDEX tag NO-LOCK NO-ERROR.
             
-      IF AVAIL rm-rdtlh THEN
+            IF AVAILABLE rm-rdtlh THEN
       FIND FIRST rm-rcpth WHERE rm-rcpth.r-no EQ rm-rdtlh.r-no NO-LOCK NO-ERROR.
-      IF AVAIL b-rm-rctd OR
-         (AVAIL rm-rcpth AND (rm-rcpth.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} OR
-                              DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0)) THEN DO:
+            IF AVAILABLE b-rm-rctd OR
+                (AVAILABLE rm-rcpth AND (rm-rcpth.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} OR
+                DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0)) THEN 
+            DO:
         MESSAGE "This Tag Number Has Already Been Used.  Please Enter A Unique Tag Number"
                 VIEW-AS ALERT-BOX.
         APPLY "entry" TO ip-focus.
@@ -3834,7 +4051,8 @@ PROCEDURE valid-tag :
             AND b-rm-rctd.tag     EQ ip-focus:SCREEN-VALUE
             AND ROWID(b-rm-rctd)  NE ROWID(rm-rctd)
           NO-LOCK NO-ERROR.
-      IF AVAIL b-rm-rctd THEN DO:
+            IF AVAILABLE b-rm-rctd THEN 
+            DO:
         MESSAGE "Transaction has already been entered with same Tag & Bin".
         APPLY "entry" TO ip-focus.
         RETURN ERROR.
@@ -3854,10 +4072,10 @@ PROCEDURE valid-uom :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-focus AS WIDGET-HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER ip-focus AS WIDGET-HANDLE NO-UNDO.
 
-  DEF VAR lv-uom-list AS cha INIT ["EA,TON,MSF,MSH,LB,LF"] NO-UNDO.
-  DEF VAR lv-uom-help AS CHAR NO-UNDO.
+    DEFINE VARIABLE lv-uom-list AS cha       INIT ["EA,TON,MSF,MSH,LB,LF"] NO-UNDO.
+    DEFINE VARIABLE lv-uom-help AS CHARACTER NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -3866,15 +4084,16 @@ PROCEDURE valid-uom :
           AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
 
-    IF AVAIL item THEN RUN sys/ref/uom-rm.p (INPUT item.mat-type, OUTPUT lv-uom-list).
+        IF AVAILABLE item THEN RUN sys/ref/uom-rm.p (INPUT item.mat-type, OUTPUT lv-uom-list).
 
-    IF AVAIL item AND INDEX("MOXY789@",ITEM.mat-type) GT 0 AND
+        IF AVAILABLE item AND INDEX("MOXY789@",ITEM.mat-type) GT 0 AND
        ip-focus:NAME EQ "cost-uom"         THEN
       lv-uom-list = lv-uom-list + ",L".
 
     lv-uom-help = "Must enter one of the following as the UOM: " + lv-uom-list.
 
-    IF INDEX(lv-uom-list,ip-focus:SCREEN-VALUE) LE 0 THEN DO:
+        IF INDEX(lv-uom-list,ip-focus:SCREEN-VALUE) LE 0 THEN 
+        DO:
       MESSAGE TRIM(lv-uom-help) + "..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ip-focus.
       RETURN ERROR.
@@ -3894,7 +4113,7 @@ PROCEDURE validate-item :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-DEF VAR v-rmpostgl-char AS cha NO-UNDO.
+    DEFINE VARIABLE v-rmpostgl-char AS cha NO-UNDO.
 DO TRANSACTION:
   {sys/inc/rmpostgl.i}
 END.
@@ -3904,9 +4123,10 @@ FIND FIRST ITEM WHERE ITEM.company = rm-rctd.company
                   AND ITEM.i-no = rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                   NO-LOCK NO-ERROR.
 
-IF  v-rmpostgl-char = "REALONLY" AND AVAIL ITEM AND  /* task# 05190516 */
+    IF  v-rmpostgl-char = "REALONLY" AND AVAILABLE ITEM AND  /* task# 05190516 */
     item.i-code = "E" AND TRIM(rm-rctd.job-no:SCREEN-VALUE) EQ ""
-THEN do:
+        THEN 
+    DO:
     MESSAGE "N-K-1 RMPOSTGL is REALONLY." skip
             "Estimated Materials can't be received without Job#."
         VIEW-AS ALERT-BOX ERROR.
@@ -3943,21 +4163,22 @@ FUNCTION display-adder RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR v-add-cost AS DEC NO-UNDO.
-  DEF VAR v-cost AS DEC NO-UNDO.
-  DEF VAR v-wid AS DEC NO-UNDO.
-  DEF VAR v-len AS DEC NO-UNDO.
-  DEF VAR v-basis-w AS DEC NO-UNDO.
-  DEF VAR v-dep AS DEC NO-UNDO.
-  DEF VAR v-qty-comp as dec no-undo.
-  DEF VAR v-setup like e-item-vend.setup no-undo.
-  DEF VAR i AS INT NO-UNDO.
-  DEF VAR v-uom AS CHAR INIT "MSF" NO-UNDO.
+    DEFINE VARIABLE v-add-cost AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-cost     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-wid      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-len      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-basis-w  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-dep      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-qty-comp AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-setup    LIKE e-item-vend.setup NO-UNDO.
+    DEFINE VARIABLE i          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE v-uom      AS CHARACTER INIT "MSF" NO-UNDO.
 
-  DEF BUFFER xjob-mat FOR job-mat.
-  DEF BUFFER ITEM-1 FOR ITEM.
+    DEFINE BUFFER xjob-mat FOR job-mat.
+    DEFINE BUFFER ITEM-1   FOR ITEM.
 
-  IF AVAIL rm-rctd THEN DO:
+    IF AVAILABLE rm-rctd THEN 
+    DO:
 
     FIND FIRST po-ordl
         WHERE po-ordl.company   EQ cocode
@@ -3970,7 +4191,8 @@ FUNCTION display-adder RETURNS DECIMAL
           AND po-ordl.item-type EQ YES
         NO-LOCK NO-ERROR.
 
-    IF AVAILABLE po-ordl THEN DO:
+        IF AVAILABLE po-ordl THEN 
+        DO:
       
       FIND FIRST po-ord WHERE
            po-ord.company EQ po-ordl.company AND
@@ -3983,7 +4205,7 @@ FUNCTION display-adder RETURNS DECIMAL
           job.job-no2 EQ po-ordl.job-no2
           NO-LOCK NO-ERROR.
        
-      IF AVAIL job THEN
+            IF AVAILABLE job THEN
         FIND FIRST xjob-mat WHERE
           xjob-mat.company  EQ job.company AND
           xjob-mat.job      EQ job.job AND
@@ -3994,7 +4216,7 @@ FUNCTION display-adder RETURNS DECIMAL
           USE-INDEX seq-idx
           NO-LOCK NO-ERROR.
       
-      IF AVAILABLE xjob-mat AND AVAIL po-ord THEN
+            IF AVAILABLE xjob-mat AND AVAILABLE po-ord THEN
         for each job-mat no-lock
            where job-mat.company  eq xjob-mat.company
              and job-mat.job      eq xjob-mat.job
@@ -4019,7 +4241,8 @@ FUNCTION display-adder RETURNS DECIMAL
                and e-item-vend.vend-no eq po-ord.vend-no
              no-error.
          
-         ASSIGN v-len = display-dimension('L')
+                    ASSIGN 
+                        v-len = display-dimension('L')
                 v-wid = display-dimension('W').
 
          FIND FIRST ITEM-1 WHERE
@@ -4027,12 +4250,13 @@ FUNCTION display-adder RETURNS DECIMAL
            item-1.i-no EQ rm-rctd.i-no
            NO-LOCK NO-ERROR.
     
-        IF AVAIL ITEM-1 THEN
+                    IF AVAILABLE ITEM-1 THEN
           ASSIGN
             v-basis-w = item-1.basis-w
             v-dep = item-1.s-dep.
 
-        if avail e-item and avail e-item-vend AND po-ord.vend-no NE "" then do:
+                    IF AVAILABLE e-item AND AVAILABLE e-item-vend AND po-ord.vend-no NE "" THEN 
+                    DO:
           if rm-rctd.pur-uom eq e-item.std-uom then
             v-qty-comp = rm-rctd.qty.
           else
@@ -4059,7 +4283,7 @@ FUNCTION display-adder RETURNS DECIMAL
                b-qty.code2   = e-item-vend.vend-no
                NO-LOCK NO-ERROR.
           
-          IF AVAIL b-qty THEN
+                        IF AVAILABLE b-qty THEN
           DO:
              FIND FIRST b-cost WHERE
                   b-cost.reftable = "vend-cost" AND
@@ -4101,7 +4325,8 @@ FUNCTION display-adder RETURNS DECIMAL
                                    v-cost, OUTPUT v-cost).
         END.
         
-        ELSE DO:
+                    ELSE 
+                    DO:
           v-cost = job-mat.std-cost.
 
           IF job-mat.sc-uom NE v-uom THEN
@@ -4131,21 +4356,22 @@ FUNCTION display-adder-screen RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR v-add-cost AS DEC NO-UNDO.
-  DEF VAR v-cost AS DEC NO-UNDO.
-  DEF VAR v-wid AS DEC NO-UNDO.
-  DEF VAR v-len AS DEC NO-UNDO.
-  DEF VAR v-basis-w AS DEC NO-UNDO.
-  DEF VAR v-dep AS DEC NO-UNDO.
-  DEF VAR v-qty-comp as dec no-undo.
-  DEF VAR v-setup like e-item-vend.setup no-undo.
-  DEF VAR i AS INT NO-UNDO.
-  DEF VAR v-uom AS CHAR INIT "MSF" NO-UNDO.
+    DEFINE VARIABLE v-add-cost AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-cost     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-wid      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-len      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-basis-w  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-dep      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-qty-comp AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-setup    LIKE e-item-vend.setup NO-UNDO.
+    DEFINE VARIABLE i          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE v-uom      AS CHARACTER INIT "MSF" NO-UNDO.
 
-  DEF BUFFER xjob-mat FOR job-mat.
-  DEF BUFFER ITEM-1 FOR ITEM.
+    DEFINE BUFFER xjob-mat FOR job-mat.
+    DEFINE BUFFER ITEM-1   FOR ITEM.
 
-  IF AVAIL rm-rctd THEN DO:
+    IF AVAILABLE rm-rctd THEN 
+    DO:
 
     FIND FIRST po-ordl
         WHERE po-ordl.company   EQ cocode
@@ -4158,7 +4384,8 @@ FUNCTION display-adder-screen RETURNS DECIMAL
           AND po-ordl.item-type EQ YES
         NO-LOCK NO-ERROR.
 
-    IF AVAILABLE po-ordl THEN DO:
+        IF AVAILABLE po-ordl THEN 
+        DO:
       
       FIND FIRST po-ord WHERE
            po-ord.company EQ po-ordl.company AND
@@ -4171,7 +4398,7 @@ FUNCTION display-adder-screen RETURNS DECIMAL
           job.job-no2 EQ po-ordl.job-no2
           NO-LOCK NO-ERROR.
        
-      IF AVAIL job THEN
+            IF AVAILABLE job THEN
         FIND FIRST xjob-mat WHERE
           xjob-mat.company  EQ job.company AND
           xjob-mat.job      EQ job.job AND
@@ -4182,7 +4409,7 @@ FUNCTION display-adder-screen RETURNS DECIMAL
           USE-INDEX seq-idx
           NO-LOCK NO-ERROR.
       
-      IF AVAILABLE xjob-mat AND AVAIL po-ord THEN
+            IF AVAILABLE xjob-mat AND AVAILABLE po-ord THEN
         for each job-mat no-lock
            where job-mat.company  eq xjob-mat.company
              and job-mat.job      eq xjob-mat.job
@@ -4207,7 +4434,8 @@ FUNCTION display-adder-screen RETURNS DECIMAL
                and e-item-vend.vend-no eq po-ord.vend-no
              no-error.
          
-         ASSIGN v-len = display-dimension-screen('L')
+                    ASSIGN 
+                        v-len = display-dimension-screen('L')
                 v-wid = display-dimension-screen('W').
 
          FIND FIRST ITEM-1 WHERE
@@ -4215,12 +4443,13 @@ FUNCTION display-adder-screen RETURNS DECIMAL
            item-1.i-no EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
            NO-LOCK NO-ERROR.
     
-        IF AVAIL ITEM-1 THEN
+                    IF AVAILABLE ITEM-1 THEN
           ASSIGN
             v-basis-w = item-1.basis-w
             v-dep = item-1.s-dep.
 
-        if avail e-item and avail e-item-vend AND po-ord.vend-no NE "" then do:
+                    IF AVAILABLE e-item AND AVAILABLE e-item-vend AND po-ord.vend-no NE "" THEN 
+                    DO:
           if rm-rctd.pur-uom:SCREEN-VALUE eq e-item.std-uom then
             v-qty-comp = DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}).
           else
@@ -4248,7 +4477,7 @@ FUNCTION display-adder-screen RETURNS DECIMAL
                b-qty.code2   = e-item-vend.vend-no
                NO-LOCK NO-ERROR.
           
-          IF AVAIL b-qty THEN
+                        IF AVAILABLE b-qty THEN
           DO:
              FIND FIRST b-cost WHERE
                   b-cost.reftable = "vend-cost" AND
@@ -4290,7 +4519,8 @@ FUNCTION display-adder-screen RETURNS DECIMAL
                                    v-cost, OUTPUT v-cost).
         END.
         
-        ELSE DO:
+                    ELSE 
+                    DO:
           v-cost = job-mat.std-cost.
 
           IF job-mat.sc-uom NE v-uom THEN
@@ -4315,29 +4545,31 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION display-dimension B-table-Win 
 FUNCTION display-dimension RETURNS DECIMAL
-  ( INPUT ip-dim AS char ) :
+    ( INPUT ip-dim AS CHARACTER ) :
 /*------------------------------------------------------------------------------
   Purpose:  from rcptdims.v  
     Notes:  
 ------------------------------------------------------------------------------*/
 
-  DEF VAR ld-dim AS DEC NO-UNDO.
-  DEF VAR v-wid-num AS DEC NO-UNDO.
-  DEF VAR v-len-num AS DEC NO-UNDO.
-  DEF BUFFER b-jm FOR job-mat.
+    DEFINE VARIABLE ld-dim    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-wid-num AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-len-num AS DECIMAL NO-UNDO.
+    DEFINE BUFFER b-jm FOR job-mat.
 
-  IF AVAIL rm-rctd THEN DO:
+    IF AVAILABLE rm-rctd THEN 
+    DO:
     FIND FIRST ITEM
         WHERE ITEM.company EQ cocode
           AND ITEM.i-no    EQ rm-rctd.i-no
           AND ITEM.i-code  EQ "R"
         NO-LOCK NO-ERROR.
-    IF AVAIL ITEM THEN
+        IF AVAILABLE ITEM THEN
       ASSIGN
        v-wid-num = IF ITEM.r-wid NE 0 THEN ITEM.r-wid ELSE ITEM.s-wid
        v-len-num = ITEM.s-len.
 
-    IF rm-rctd.po-no <> "" THEN DO:
+        IF rm-rctd.po-no <> "" THEN 
+        DO:
       find first po-ordl where po-ordl.company   eq cocode
                            and po-ordl.po-no     eq int(rm-rctd.po-no)
                            and po-ordl.i-no      eq rm-rctd.i-no
@@ -4346,10 +4578,11 @@ FUNCTION display-dimension RETURNS DECIMAL
                            and po-ordl.item-type eq yes
                            and po-ordl.s-num     eq rm-rctd.s-num
           no-lock no-error.
-      if avail po-ordl then
+            IF AVAILABLE po-ordl THEN
         ASSIGN  v-wid-num = po-ordl.s-wid
                 v-len-num = po-ordl.s-len.
-      else do:
+            ELSE 
+            DO:
         if rm-rctd.job-no ne "" then
            find first b-jm where b-jm.company eq cocode
                              and b-jm.rm-i-no eq rm-rctd.i-no
@@ -4357,13 +4590,14 @@ FUNCTION display-dimension RETURNS DECIMAL
                              and b-jm.job-no2 eq rm-rctd.job-no2
                              and b-jm.frm     eq rm-rctd.s-num
                              no-lock no-error.
-        if avail b-jm THEN ASSIGN v-wid-num = b-jm.wid
+                IF AVAILABLE b-jm THEN ASSIGN v-wid-num = b-jm.wid
                                   v-len-num = b-jm.len.
-        else do:
+                ELSE 
+                DO:
            find first ITEM where item.company eq cocode
                              and item.i-no    eq rm-rctd.i-no
                              no-lock no-error.
-           if avail item then
+                    IF AVAILABLE item THEN
               if item.r-wid eq 0 then
                  ASSIGN v-wid-num = item.s-wid
                         v-len-num = item.s-len.
@@ -4386,29 +4620,31 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION display-dimension-screen B-table-Win 
 FUNCTION display-dimension-screen RETURNS DECIMAL
-  ( INPUT ip-dim AS char ) :
+    ( INPUT ip-dim AS CHARACTER ) :
 /*------------------------------------------------------------------------------
   Purpose:  from rcptdims.v  
     Notes:  
 ------------------------------------------------------------------------------*/
 
-  DEF VAR ld-dim AS DEC NO-UNDO.
-  DEF VAR v-wid-num AS DEC NO-UNDO.
-  DEF VAR v-len-num AS DEC NO-UNDO.
-  DEF BUFFER b-jm FOR job-mat.
+    DEFINE VARIABLE ld-dim    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-wid-num AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-len-num AS DECIMAL NO-UNDO.
+    DEFINE BUFFER b-jm FOR job-mat.
 
-  IF AVAIL rm-rctd THEN DO:
+    IF AVAILABLE rm-rctd THEN 
+    DO:
     FIND FIRST ITEM
         WHERE ITEM.company EQ cocode
           AND ITEM.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND ITEM.i-code  EQ "R"
         NO-LOCK NO-ERROR.
-    IF AVAIL ITEM THEN
+        IF AVAILABLE ITEM THEN
       ASSIGN
        v-wid-num = IF ITEM.r-wid NE 0 THEN ITEM.r-wid ELSE ITEM.s-wid
        v-len-num = ITEM.s-len.
 
-    IF rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO:
+        IF rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN 
+        DO:
       find first po-ordl where po-ordl.company   eq cocode
                            and po-ordl.po-no     eq int(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
                            and po-ordl.i-no      eq rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -4417,10 +4653,11 @@ FUNCTION display-dimension-screen RETURNS DECIMAL
                            and po-ordl.item-type eq yes
                            and po-ordl.s-num     eq INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
           no-lock no-error.
-      if avail po-ordl then
+            IF AVAILABLE po-ordl THEN
         ASSIGN  v-wid-num = po-ordl.s-wid
                 v-len-num = po-ordl.s-len.
-      else do:
+            ELSE 
+            DO:
         if rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} ne "" then
            find first b-jm where b-jm.company eq cocode
                              and b-jm.rm-i-no eq rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -4428,13 +4665,14 @@ FUNCTION display-dimension-screen RETURNS DECIMAL
                              and b-jm.job-no2 eq INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
                              and b-jm.frm     eq INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
                              no-lock no-error.
-        if avail b-jm THEN ASSIGN v-wid-num = b-jm.wid
+                IF AVAILABLE b-jm THEN ASSIGN v-wid-num = b-jm.wid
                                   v-len-num = b-jm.len.
-        else do:
+                ELSE 
+                DO:
            find first ITEM where item.company eq cocode
                              and item.i-no    eq rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                              no-lock no-error.
-           if avail item then
+                    IF AVAILABLE item THEN
               if item.r-wid eq 0 then
                  ASSIGN v-wid-num = item.s-wid
                         v-len-num = item.s-len.
@@ -4462,16 +4700,18 @@ FUNCTION display-msf RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-msf AS DEC DECIMALS 3 NO-UNDO.
-  DEF VAR v-wid AS DEC NO-UNDO.
-  DEF VAR v-len AS DEC NO-UNDO.
-  DEF VAR v-basis-w AS DEC NO-UNDO.
-  DEF VAR v-out-qty AS DEC NO-UNDO.
-  DEF VAR v-dep AS DEC NO-UNDO.
+    DEFINE VARIABLE lv-msf    AS DECIMAL DECIMALS 3 NO-UNDO.
+    DEFINE VARIABLE v-wid     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-len     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-basis-w AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-out-qty AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-dep     AS DECIMAL NO-UNDO.
 
-  IF AVAIL rm-rctd THEN DO:
+    IF AVAILABLE rm-rctd THEN 
+    DO:
   
-    ASSIGN v-len = display-dimension('L')
+        ASSIGN 
+            v-len = display-dimension('L')
            v-wid = display-dimension('W').
 
     FIND FIRST po-ordl
@@ -4485,13 +4725,15 @@ FUNCTION display-msf RETURNS DECIMAL
           AND po-ordl.item-type EQ YES
         NO-LOCK NO-ERROR.
    
-    IF AVAIL po-ordl THEN DO:
+        IF AVAILABLE po-ordl THEN 
+        DO:
       IF rm-rctd.pur-uom EQ "EA" /*OR
          (NOT po-ordl.item-type AND
           LOOKUP(rm-rctd.pur-uom,fg-uom-list) GT 0)*/ THEN
          lv-msf = IF v-corr THEN ((v-len * v-wid * .007 * rm-rctd.qty) / 1000)
                   ELSE ((v-len * v-wid) / 144) * (rm-rctd.qty / 1000).
-      else do:
+            ELSE 
+            DO:
         /*convert whatever the UOM is into "EACH" first*/
         
         FIND FIRST ITEM WHERE
@@ -4499,12 +4741,13 @@ FUNCTION display-msf RETURNS DECIMAL
           item.i-no EQ rm-rctd.i-no
           NO-LOCK NO-ERROR.
     
-        IF AVAIL ITEM THEN
+                IF AVAILABLE ITEM THEN
           ASSIGN
             v-basis-w = item.basis-w
             v-dep = item.s-dep.
    
-        if rm-rctd.pur-uom NE "EA" then do:
+                IF rm-rctd.pur-uom NE "EA" THEN 
+                DO:
           run custom/convquom.p (cocode,
                                  rm-rctd.pur-uom,
                                  "EA",
@@ -4541,16 +4784,18 @@ FUNCTION display-msf-screen RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-msf AS DEC DECIMALS 3 NO-UNDO.
-  DEF VAR v-wid AS DEC NO-UNDO.
-  DEF VAR v-len AS DEC NO-UNDO.
-  DEF VAR v-basis-w AS DEC NO-UNDO.
-  DEF VAR v-out-qty AS DEC NO-UNDO.
-  DEF VAR v-dep AS DEC NO-UNDO.
+    DEFINE VARIABLE lv-msf    AS DECIMAL DECIMALS 3 NO-UNDO.
+    DEFINE VARIABLE v-wid     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-len     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-basis-w AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-out-qty AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-dep     AS DECIMAL NO-UNDO.
 
-  IF AVAIL rm-rctd THEN DO:
+    IF AVAILABLE rm-rctd THEN 
+    DO:
   
-    ASSIGN v-len = display-dimension-screen('L')
+        ASSIGN 
+            v-len = display-dimension-screen('L')
            v-wid = display-dimension-screen('W').
 
     FIND FIRST po-ordl
@@ -4564,13 +4809,15 @@ FUNCTION display-msf-screen RETURNS DECIMAL
           AND po-ordl.item-type EQ YES
         NO-LOCK NO-ERROR.
    
-    IF AVAIL po-ordl THEN DO:
+        IF AVAILABLE po-ordl THEN 
+        DO:
       IF rm-rctd.pur-uom:screen-value in BROWSE {&browse-name} EQ "EA" /*OR
          (NOT po-ordl.item-type AND
           LOOKUP(rm-rctd.pur-uom:screen-value in BROWSE {&browse-name},fg-uom-list) GT 0)*/ THEN
          lv-msf = IF v-corr THEN ((v-len * v-wid * .007 * DEC(rm-rctd.qty:screen-value in BROWSE {&browse-name})) / 1000)
                   ELSE ((v-len * v-wid) / 144) * (DEC(rm-rctd.qty:screen-value in BROWSE {&browse-name}) / 1000).
-      else do:
+            ELSE 
+            DO:
         /*convert whatever the UOM is into "EACH" first*/
         
         FIND FIRST ITEM WHERE
@@ -4578,12 +4825,13 @@ FUNCTION display-msf-screen RETURNS DECIMAL
           item.i-no EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
     
-        IF AVAIL ITEM THEN
+                IF AVAILABLE ITEM THEN
           ASSIGN
             v-basis-w = item.basis-w
             v-dep = item.s-dep.
    
-        if rm-rctd.pur-uom:screen-value in BROWSE {&browse-name} NE "EA" then do:
+                IF rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name} NE "EA" THEN 
+                DO:
           run custom/convquom.p (cocode,
                                  rm-rctd.pur-uom:screen-value in BROWSE {&browse-name},
                                  "EA",
@@ -4620,10 +4868,11 @@ FUNCTION display-setup RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR ld-setup AS DEC NO-UNDO.
+    DEFINE VARIABLE ld-setup AS DECIMAL NO-UNDO.
   
-  IF AVAIL rm-rctd AND
-    rm-rctd.po-no NE "" THEN DO:
+    IF AVAILABLE rm-rctd AND
+        rm-rctd.po-no NE "" THEN 
+    DO:
     
     FIND FIRST po-ordl
         WHERE po-ordl.company   EQ cocode
@@ -4636,7 +4885,7 @@ FUNCTION display-setup RETURNS DECIMAL
           AND po-ordl.item-type EQ YES
         NO-LOCK NO-ERROR.
 
-    if avail po-ordl then
+        IF AVAILABLE po-ordl THEN
     DO:
       ld-setup = po-ordl.setup.
 
@@ -4658,10 +4907,11 @@ FUNCTION display-setup-screen RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR ld-setup AS DEC NO-UNDO.
+    DEFINE VARIABLE ld-setup AS DECIMAL NO-UNDO.
   
-  IF AVAIL rm-rctd AND
-    rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+    IF AVAILABLE rm-rctd AND
+        rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN 
+    DO:
     
     FIND FIRST po-ordl
         WHERE po-ordl.company   EQ cocode
@@ -4674,7 +4924,7 @@ FUNCTION display-setup-screen RETURNS DECIMAL
           AND po-ordl.item-type EQ YES
         NO-LOCK NO-ERROR.
 
-    if avail po-ordl then
+        IF AVAILABLE po-ordl THEN
     DO:
       ld-setup = po-ordl.setup.
       RUN convert-vend-comp-curr(INPUT-OUTPUT ld-setup).

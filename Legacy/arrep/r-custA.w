@@ -614,6 +614,7 @@ DO:
  
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT tb_cust-list OR NOT AVAIL ttCustList THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
        EMPTY TEMP-TABLE ttCustList.
        RUN BuildCustList(INPUT cocode,
                          INPUT tb_cust-list AND glCustListActive,
@@ -755,8 +756,8 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-fonts.w ({&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
@@ -772,8 +773,8 @@ ON HELP OF begin_cust-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   .
 
 END.
@@ -788,8 +789,8 @@ ON HELP OF end_cust-no IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-cust.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val) .
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -1020,6 +1021,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           OUTPUT glCustListActive).
 
  {sys/inc/chblankcust.i}
+ {sys/inc/chblankcust.i ""AR1""}
 
   IF ou-log THEN DO:
       ASSIGN 
@@ -1258,6 +1260,7 @@ def var v-level like cust.cust-level init 99.
 def var v-sort as log format "Yes/No" init no.
 def var detailed as log format "Yes/No" init no.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form skip(1)
      cust.cust-no
@@ -1305,6 +1308,8 @@ assign
  v-level  = price-level
  v-sort   = rd_sort eq "N"
  detailed = tb_detailed.
+ detailed = tb_detailed
+ lSelected  = tb_cust-list.
 
 {sys/inc/print1.i}
 
@@ -1326,6 +1331,12 @@ IF tb_excel THEN DO:
                  + "Underrun,Overrun,E-Mail/Web Address,Load Tags".
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+END.
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
 END.
 
 if tb_show-parm then run show-param.
@@ -1368,6 +1379,13 @@ PROCEDURE run-report-contact :
    DEF VAR v-sort AS LOG NO-UNDO.
    DEF VAR excelheader AS CHAR NO-UNDO.
 
+   DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+   def var fcust as ch init "".
+   def var tcust like fcust init "zzzzzzzz".
+ ASSIGN  
+   lSelected  = tb_cust-list
+   fcust    = begin_cust-no
+   tcust    = end_cust-no .
    form tt-contact.attention LABEL "Contact"
        with frame contact-top stream-io down.
 
@@ -1378,6 +1396,12 @@ PROCEDURE run-report-contact :
       {sys/inc/ctrtext.i str-tit2 56}
       v-sort   = rd_sort eq "N".
 
+   IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+   END.
    {sys/inc/print1.i}
 
    {sys/inc/outprint.i value(lines-per-page)}
@@ -1428,6 +1452,13 @@ PROCEDURE run-report-invoice :
 ------------------------------------------------------------------------------*/
    DEF VAR v-sort AS LOG NO-UNDO.
    DEF VAR excelheader AS CHAR NO-UNDO.
+   DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+   def var fcust as ch init "".
+   def var tcust like fcust init "zzzzzzzz".
+ ASSIGN  
+   lSelected  = tb_cust-list
+   fcust    = begin_cust-no
+   tcust    = end_cust-no .
 
    {sys/form/r-top.f}
 
@@ -1435,6 +1466,14 @@ PROCEDURE run-report-invoice :
       str-tit2 = c-win:title
       {sys/inc/ctrtext.i str-tit2 56}
       v-sort   = rd_sort eq "N".
+      v-sort   = rd_sort eq "N"
+      lSelected = tb_cust-list.
+   IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN tcust = ttCustList.cust-no .
+   END.
 
    {sys/inc/print1.i}
 

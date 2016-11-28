@@ -25,7 +25,9 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "oeShipFrom,SSFGSCAN,Paperless,FGSetAssembly,AutoFGIssue,CustomerList,SSLoadtag,ChkFmtACH,"
             + "OESellPriceXfer,OEPO#Xfer,SSBolEmail,OEDateAuto,QuoteNotes,OEPriceMatrixCheck,GLJournalPost,"
             + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
-            + "OEJobHold,lmLock".
+            + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
+            + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget" .
+
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -194,6 +196,66 @@ CASE ip-nk1-value:
                           INPUT "Label Matrix Locking Option",
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                           INPUT NO /* Logical value */).
+    WHEN "CESample" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                          INPUT "Sample/Spec/NOC Format  ",
+                          INPUT "Partitions" /* Char Value */, INPUT 0 /* Int value */,
+                          INPUT NO /* Logical value */).
+    WHEN "DefaultDir" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                          INPUT "Set default folder for Attachments and Images",
+                          INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                          INPUT NO /* Logical value */).                                                    
+    WHEN "JobHoldReason" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                          INPUT "Prompt for Reason when Job Placed on Hold",
+                          INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                          INPUT NO /* Logical value */).
+    WHEN "ASIHelpService" THEN
+    RUN sys/inc/addnk1.p (INPUT "", INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                          INPUT "ASI Help Services",
+                          INPUT "-WSDL 'http:\\74.95.161.77/asihelpServices/helpmaintenance.asmx?WSDL'" /* Char Value */, INPUT 0 /* Int value */,
+                          INPUT NO /* Logical value */).
+    WHEN "CRMAuthToken" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                          INPUT "ZOHO CRM Authorization Token",
+                          INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                          INPUT NO /* Logical value */).
+    WHEN "TSAMPMWarn" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                          INPUT "AM/PM Toggle Button - Warning when changing AM/PM",
+                          INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                          INPUT NO /* Logical value */).
+    WHEN "SSScanVendor" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Additional fields required to scan in Scan Vendor Tags",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT NO /* Logical value */).
+    WHEN "OEBOLPrompt" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Prompt for BOL/INV on Order Entry Screen ",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT NO /* Logical value */).
+    WHEN "SHTCALCWarn" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Prompt for board differences on Sheet Calc button ",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT NO /* Logical value */).
+    WHEN "BOLFMTTran" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Transfer Bill of Lading Creation ",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT NO /* Logical value */).
+    WHEN "BOLMaster" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Master Bill of Lading Creation ",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT NO /* Logical value */).
+    WHEN "SalesBudget" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Budget Report",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT NO /* Logical value */).
 END CASE.
 ELSE
 CASE ip-nk1-value:
