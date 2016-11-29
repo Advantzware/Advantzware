@@ -949,7 +949,7 @@ END FUNCTION.
 
                 v-upc-lbl = " QC#".
                 IF FIRST-OF(eb.form-no) THEN
-                 PUT "<C1>  <P10><B>F/B  FG ITEM/PO#/Ln#   #UP   FORM/JOB QTY  NAME/DESCRIPTION               CARTON SIZE/STYLE        UPC#           ORD TYPE/CAD#" /*v-upc-lbl */ "</B>" SKIP.
+                 PUT "<C1>  <P10><B>F/B  FG ITEM/PO#/Ln#   #UP   FORM/JOB QTY  NAME/DESCRIPTION               CARTON SIZE/STYLE        UPC#/Prep#       ORD TYPE/CAD#" /*v-upc-lbl */ "</B>" SKIP.
                 v-job-qty = 0.
                 v-stock-no = IF est.est-type = 2 
                              THEN job-hdr.i-no 
@@ -1060,8 +1060,9 @@ END FUNCTION.
                     skip
                     v-po-no FORM "x(15)" AT 8
                     v-est-qty FORM  "->>>,>>>,>>9"         AT 32 SPACE(2)
-                    v-dsc[1] FORM "x(30)"  
-                    /*"PREV:"  v-prev-job FORM "x(21)"*/ v-stypart FORM "x(20)" SPACE(20)
+                    v-dsc[1] FORM "x(30)" 
+                    /*"PREV:"  v-prev-job FORM "x(21)"*/ v-stypart FORM "x(20)" SPACE(5)
+                    eb.spc-no FORMAT "x(15)" /*eb.cas-no*/ SPACE(1)
                     /*eb.cas-cnt   
                     oe-ordl.cas-cnt WHEN AVAIL oe-ordl AND oe-ordl.cas-cnt <> 0 @ eb.cas-cnt format "->>>>>9" SPACE(6) */
                     eb.cad-no  FORM "x(15)"                                                                                                                                
