@@ -3858,7 +3858,7 @@ PROCEDURE local-cancel-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEF BUFFER b-eb FOR eb.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -3872,6 +3872,15 @@ PROCEDURE local-cancel-record :
         RUN New_Record IN WIDGET-HANDLE(char-hdl) (v-rowid-eb).
        END.
 
+ IF AVAIL est AND est.est-type NE 1 AND
+     CAN-FIND(b-eb WHERE b-eb.company EQ est.company
+                     AND b-eb.est-no  EQ est.est-no) THEN DO:
+     
+     FIND CURRENT est.
+     est.est-type = 1.
+     FIND CURRENT est NO-LOCK.
+  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
