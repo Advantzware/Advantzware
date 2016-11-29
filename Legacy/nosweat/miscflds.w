@@ -14,7 +14,7 @@
 
   Author:            Ron Stark
 
-  Created:           03/01/98
+  Created:           03/01/98 (updated 11.28.2016)
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -71,7 +71,6 @@ DEF BUFFER b-mfdata FOR mfdata.
 DEF BUFFER b-attrb FOR attrb.
 
 /* trigger code attached to each created dynamic widget */
-
 &scoped-define trigger-code ~
 TRIGGERS: ~
   ON SELECTION ~
@@ -111,32 +110,32 @@ END. */
 &Scoped-define FRAME-NAME fMiscFlds
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-7 RECT-5 RECT-4 widgetRect RECT-6 ~
-RECT-2 RECT-3 mfgroupList btnProperty btnTabOrder btnCut btnCopy btnPaste ~
-btnRestore btnSave btnExit btnAddGroup btnCopyGroup btnRenameGroup ~
-btnDeleteGroup btnTest mfgroupTab btnNextTab btnPrevTab btnComboBox ~
-btnEditor tabLabels btnFillIn btnRadioSet btnRectangle btnSelectionList ~
-btnSlider btnText btnAddTab btnRenameTab btnDeleteTab btnToggleBox ~
-btnDownTab btnUpTab 
+&Scoped-Define ENABLED-OBJECTS btnAddTab btnDeleteTab btnDownTab btnExit ~
+btnNextTab btnPrevTab btnRenameTab btnUpTab btnAddGroup tabLabelsRect ~
+RECT-5 RECT-4 widgetRect tabNavRect RECT-2 RECT-3 RECT-8 mfgroupList ~
+mfgroupTab btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set ~
+btnRectangle btnSelection-List btnSlider btnText btnToggle-Box btnCopy ~
+btnCopyGroup btnCut btnDeleteGroup btnPaste btnProperty btnRenameGroup ~
+btnRestore btnSave btnTabOrder btnTest 
 &Scoped-Define DISPLAYED-OBJECTS mfgroupList mfgroupTab tabLabels ~
-gapFieldLabel widgetLabel pointerLabel comboBoxLabel editorLabel ~
-fillInLabel radioSetLabel rectangleLabel selectionListLabel sliderLabel ~
-textLabel toggleBoxLabel 
+widgetLabel tabCBLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
+fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
+textLabel toggle-BoxLabel gapFieldLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-1 widgetRect btnRenameGroup btnDeleteGroup btnTest ~
-gapField mfgroupTab btnPointer btnNextTab btnPrevTab btnComboBox btnEditor ~
-tabLabels btnFillIn btnRadioSet btnRectangle btnSelectionList btnSlider ~
-btnText btnAddTab btnRenameTab btnDeleteTab btnToggleBox btnDownTab ~
-btnUpTab widgetLabel pointerLabel comboBoxLabel editorLabel fillInLabel ~
-radioSetLabel rectangleLabel selectionListLabel sliderLabel textLabel ~
-toggleBoxLabel 
-&Scoped-define List-2 pointerLabel comboBoxLabel editorLabel fillInLabel ~
-radioSetLabel rectangleLabel selectionListLabel sliderLabel textLabel ~
-toggleBoxLabel 
-&Scoped-define List-3 btnPointer btnComboBox btnEditor btnFillIn ~
-btnRadioSet btnRectangle btnSelectionList btnSlider btnText btnToggleBox 
+&Scoped-define List-1 btnAddTab btnDeleteTab btnDownTab btnNextTab ~
+btnPrevTab btnRenameTab btnUpTab widgetRect mfgroupTab btnPointer ~
+btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle ~
+btnSelection-List btnSlider btnText btnToggle-Box gapField btnDeleteGroup ~
+btnRenameGroup btnTest widgetLabel pointerLabel tabNavLabel combo-BoxLabel ~
+editorLabel fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel ~
+sliderLabel textLabel toggle-BoxLabel 
+&Scoped-define List-2 pointerLabel combo-BoxLabel editorLabel fill-InLabel ~
+radio-SetLabel rectangleLabel selection-ListLabel sliderLabel textLabel ~
+toggle-BoxLabel 
+&Scoped-define List-3 btnPointer btnCombo-Box btnEditor btnFill-In ~
+btnRadio-Set btnRectangle btnSelection-List btnSlider btnText btnToggle-Box 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -150,7 +149,7 @@ DEFINE VAR wMiscFlds AS WIDGET-HANDLE NO-UNDO.
 
 /* Menu Definitions                                                     */
 DEFINE SUB-MENU m_File 
-       MENU-ITEM m_Restore      LABEL "&Restore"      
+       MENU-ITEM m_Reset        LABEL "&Reset"        
        MENU-ITEM m_Save         LABEL "&Save"         
        RULE
        MENU-ITEM m_Exit         LABEL "E&xit"         .
@@ -180,7 +179,7 @@ DEFINE SUB-MENU m_Tabs
 DEFINE SUB-MENU m_Widget 
        MENU-ITEM m_Tab_Order    LABEL "Tab &Order"    
        RULE
-       MENU-ITEM m_Property_Sheet LABEL "Propert&y Sheet"
+       MENU-ITEM m_Attributes   LABEL "Attributes"    
        RULE
        MENU-ITEM m_Pointer      LABEL "&Pointer"      
        MENU-ITEM m_Combo_Box    LABEL "&Combo Box"    
@@ -216,177 +215,165 @@ DEFINE MENU MENU-BAR-C-Win MENUBAR
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAddGroup 
-     IMAGE-UP FILE "images/new-au":U
-     IMAGE-DOWN FILE "images/new-ad":U
+     IMAGE-UP FILE "Graphics/16x16/plus.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Add Group" 
-     SIZE 5.6 BY 1.38 TOOLTIP "Add New Group".
+     SIZE 4.2 BY 1 TOOLTIP "Add New Group".
 
 DEFINE BUTTON btnAddTab 
+     IMAGE-UP FILE "Graphics/16x16/plus.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
-     SIZE 11.2 BY 1 TOOLTIP "Add New Tab (Page)"
+     SIZE 4.2 BY 1 TOOLTIP "Add New Tab (Page)"
      FONT 4.
 
-DEFINE BUTTON btnComboBox 
+DEFINE BUTTON btnCombo-Box 
      LABEL "Combo Box" 
-     SIZE 7 BY 1.67 TOOLTIP "Combo Box"
+     SIZE 6.4 BY 1.52 TOOLTIP "Combo Box"
      FONT 4.
 
 DEFINE BUTTON btnCopy 
-     IMAGE-UP FILE "images/copy-u":U
-     IMAGE-DOWN FILE "images/copy-d":U
-     IMAGE-INSENSITIVE FILE "images/copy-i":U
+     IMAGE-UP FILE "Graphics/32x32/copy.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Copy" 
-     SIZE 8.4 BY 2 TOOLTIP "Copy Selections to Clipboard".
+     SIZE 8 BY 1.91 TOOLTIP "Copy Selections to Clipboard".
 
 DEFINE BUTTON btnCopyGroup 
-     IMAGE-UP FILE "images/copy-u.bmp":U
-     IMAGE-DOWN FILE "images/copy-d.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/copy.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Add Group" 
-     SIZE 5.6 BY 1.38 TOOLTIP "Add New Group".
+     SIZE 4.2 BY 1 TOOLTIP "Add New Group".
 
 DEFINE BUTTON btnCut 
-     IMAGE-UP FILE "images/cut-u":U
-     IMAGE-DOWN FILE "images/cut-d":U
-     IMAGE-INSENSITIVE FILE "images/cut-i":U
+     IMAGE-UP FILE "Graphics/32x32/cut.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Cut" 
-     SIZE 8.4 BY 2 TOOLTIP "Cut Selections to Clipboard"
+     SIZE 8 BY 1.91 TOOLTIP "Cut Selections to Clipboard"
      FONT 4.
 
 DEFINE BUTTON btnDeleteGroup 
-     IMAGE-UP FILE "images/del-au":U
-     IMAGE-DOWN FILE "images/del-ad":U
-     IMAGE-INSENSITIVE FILE "images/del-ai":U
+     IMAGE-UP FILE "Graphics/16x16/delete.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete Group" 
-     SIZE 5.6 BY 1.38 TOOLTIP "Delete Current Group".
+     SIZE 4.2 BY 1 TOOLTIP "Delete Current Group".
 
 DEFINE BUTTON btnDeleteTab 
+     IMAGE-UP FILE "Graphics/16x16/delete.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
-     SIZE 11.2 BY 1 TOOLTIP "Delete Current Tab (Page)"
+     SIZE 4.2 BY 1 TOOLTIP "Delete Current Tab (Page)"
      FONT 4.
 
 DEFINE BUTTON btnDownTab 
+     IMAGE-UP FILE "Graphics/16x16/down.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Dn" 
-     SIZE 11.2 BY 1 TOOLTIP "Move Current Tab (Page) Down (Right)"
+     SIZE 4.2 BY 1 TOOLTIP "Move Current Tab (Page) Down (Right)"
      FONT 4.
 
 DEFINE BUTTON btnEditor 
      LABEL "Editor" 
-     SIZE 7 BY 1.67 TOOLTIP "Editor"
+     SIZE 6.4 BY 1.52 TOOLTIP "Editor"
      FONT 4.
 
 DEFINE BUTTON btnExit 
-     IMAGE-UP FILE "images/exit-au":U
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "E&xit" 
-     SIZE 8.4 BY 2 TOOLTIP "Exit"
+     SIZE 8 BY 1.91 TOOLTIP "Exit"
      FONT 4.
 
-DEFINE BUTTON btnFillIn 
+DEFINE BUTTON btnFill-In 
      LABEL "Fill In" 
-     SIZE 7 BY 1.67 TOOLTIP "Fill In"
+     SIZE 6.4 BY 1.52 TOOLTIP "Fill In"
      FONT 4.
 
 DEFINE BUTTON btnNextTab 
-     IMAGE-UP FILE "images/pvforw":U
-     IMAGE-DOWN FILE "images/pvforwd":U
-     IMAGE-INSENSITIVE FILE "images/pvforwx":U
+     IMAGE-UP FILE "Graphics/16x16/next.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Next Tab" 
-     SIZE 8 BY 1.38 TOOLTIP "Change to Next Tab (Page)"
+     SIZE 4.2 BY 1 TOOLTIP "Change to Next Tab (Page)"
      FONT 4.
 
 DEFINE BUTTON btnPaste 
-     IMAGE-UP FILE "images/paste-u":U
-     IMAGE-DOWN FILE "images/paste-d":U
-     IMAGE-INSENSITIVE FILE "images/paste-i":U
+     IMAGE-UP FILE "Graphics/32x32/clipboard_paste.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Paste" 
-     SIZE 8.4 BY 2 TOOLTIP "Paste from Clipboard".
+     SIZE 8 BY 1.91 TOOLTIP "Paste from Clipboard".
 
 DEFINE BUTTON btnPointer 
      LABEL "Pointer" 
-     SIZE 7 BY 1.67 TOOLTIP "Pointer".
+     SIZE 6.4 BY 1.52 TOOLTIP "Pointer".
 
 DEFINE BUTTON btnPrevTab 
-     IMAGE-UP FILE "images/pvback":U
-     IMAGE-DOWN FILE "images/pvbackd":U
-     IMAGE-INSENSITIVE FILE "images/pvbackx":U
+     IMAGE-UP FILE "Graphics/16x16/previous.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Previous Tab" 
-     SIZE 8 BY 1.38 TOOLTIP "Change to Previous Tab (Page)"
+     SIZE 4.2 BY 1 TOOLTIP "Change to Previous Tab (Page)"
      FONT 4.
 
 DEFINE BUTTON btnProperty 
-     IMAGE-UP FILE "images/props-u":U
-     IMAGE-DOWN FILE "images/props-d":U
-     IMAGE-INSENSITIVE FILE "images/props-i":U
+     IMAGE-UP FILE "Graphics/32x32/form.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Property" 
-     SIZE 8.4 BY 2 TOOLTIP "Current SelectionProperty Sheet"
+     SIZE 8 BY 1.91 TOOLTIP "Attributes"
      FONT 4.
 
-DEFINE BUTTON btnRadioSet 
+DEFINE BUTTON btnRadio-Set 
      LABEL "Radio Set" 
-     SIZE 7 BY 1.67 TOOLTIP "Radio Set"
+     SIZE 6.4 BY 1.52 TOOLTIP "Radio Set"
      FONT 4.
 
 DEFINE BUTTON btnRectangle 
      LABEL "Rectangle" 
-     SIZE 7 BY 1.67 TOOLTIP "Toggle Box"
+     SIZE 6.4 BY 1.52 TOOLTIP "Toggle Box"
      FONT 4.
 
 DEFINE BUTTON btnRenameGroup 
-     IMAGE-UP FILE "images/r-sort":U
-     IMAGE-DOWN FILE "images/r-sortd":U
+     IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Rename Group" 
-     SIZE 5.6 BY 1.38 TOOLTIP "Rename Current Group".
+     SIZE 4.2 BY 1 TOOLTIP "Rename Current Group".
 
 DEFINE BUTTON btnRenameTab 
+     IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Rename" 
-     SIZE 11.2 BY 1 TOOLTIP "Rename Current Tab (Page)"
+     SIZE 4.2 BY 1 TOOLTIP "Rename Current Tab (Page)"
      FONT 4.
 
 DEFINE BUTTON btnRestore 
-     IMAGE-UP FILE "images/reset-au":U
-     LABEL "Restore" 
-     SIZE 8.4 BY 2 TOOLTIP "Restore"
+     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset" 
+     SIZE 8 BY 1.91 TOOLTIP "Reset"
      FONT 4.
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "images/save-u":U
-     IMAGE-DOWN FILE "images/save-d":U
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
-     SIZE 8.4 BY 2 TOOLTIP "Save"
+     SIZE 8 BY 1.91 TOOLTIP "Save"
      FONT 4.
 
-DEFINE BUTTON btnSelectionList 
+DEFINE BUTTON btnSelection-List 
      LABEL "Selection List" 
-     SIZE 7 BY 1.67 TOOLTIP "Selection List"
+     SIZE 6.4 BY 1.52 TOOLTIP "Selection List"
      FONT 4.
 
 DEFINE BUTTON btnSlider 
      LABEL "Slider" 
-     SIZE 7 BY 1.67 TOOLTIP "Slider"
+     SIZE 6.4 BY 1.52 TOOLTIP "Slider"
      FONT 4.
 
 DEFINE BUTTON btnTabOrder 
-     IMAGE-UP FILE "images/idxup.bmp":U
+     IMAGE-UP FILE "Graphics/32x32/elements_cascade.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Tab Order" 
-     SIZE 8.4 BY 2 TOOLTIP "Current SelectionProperty Sheet"
+     SIZE 8 BY 1.91 TOOLTIP "Set Tab Order"
      FONT 4.
 
 DEFINE BUTTON btnTest 
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Test" 
-     SIZE 13.8 BY 1.24.
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON btnText 
      LABEL "Text" 
-     SIZE 7 BY 1.67 TOOLTIP "Text"
+     SIZE 6.4 BY 1.52 TOOLTIP "Text"
      FONT 4.
 
-DEFINE BUTTON btnToggleBox 
+DEFINE BUTTON btnToggle-Box 
      LABEL "Toggle Box" 
-     SIZE 7 BY 1.67 TOOLTIP "Toggle Box"
+     SIZE 6.4 BY 1.52 TOOLTIP "Toggle Box"
      FONT 4.
 
 DEFINE BUTTON btnUpTab 
+     IMAGE-UP FILE "Graphics/16x16/up.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Up" 
-     SIZE 11.2 BY 1 TOOLTIP "Move Current Tab (Page) Up (Left)"
+     SIZE 4.2 BY 1 TOOLTIP "Move Current Tab (Page) Up (Left)"
      FONT 4.
 
 DEFINE VARIABLE mfgroupList AS CHARACTER FORMAT "X(256)":U 
@@ -399,77 +386,84 @@ DEFINE VARIABLE mfgroupTab AS INTEGER FORMAT ">9":U INITIAL 1
      VIEW-AS COMBO-BOX INNER-LINES 1
      LIST-ITEMS "1" 
      DROP-DOWN-LIST
-     SIZE 8 BY 1 TOOLTIP "Change Current Tab (Page)"
-     BGCOLOR 15  NO-UNDO.
+     SIZE 8 BY 1 TOOLTIP "Change Current Tab (Page)" NO-UNDO.
 
-DEFINE VARIABLE comboBoxLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Combo Box" 
+DEFINE VARIABLE combo-BoxLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Combo Box" 
       VIEW-AS TEXT 
-     SIZE 16.8 BY 1.62
+     SIZE 14 BY 1.52
      BGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE VARIABLE editorLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Editor" 
       VIEW-AS TEXT 
-     SIZE 16.8 BY 1.62
+     SIZE 14 BY 1.52
      BGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE fillInLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Fill In" 
+DEFINE VARIABLE fill-InLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Fill In" 
       VIEW-AS TEXT 
-     SIZE 16.8 BY 1.62
+     SIZE 14 BY 1.52
      BGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE gapField AS INTEGER FORMAT "z9":U INITIAL 0 
+DEFINE VARIABLE gapField AS INTEGER FORMAT ">>9":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5.6 BY 1.24
+     SIZE 6.6 BY .91
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE gapFieldLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Gap:" 
+DEFINE VARIABLE gapFieldLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Gap" 
       VIEW-AS TEXT 
-     SIZE 5 BY .62 NO-UNDO.
+     SIZE 5 BY .91 NO-UNDO.
 
 DEFINE VARIABLE mfgroupField AS CHARACTER FORMAT "X(256)":U 
      LABEL "Group" 
      VIEW-AS FILL-IN 
-     SIZE 46 BY 1
-     BGCOLOR 15  NO-UNDO.
+     SIZE 48 BY .91 NO-UNDO.
 
 DEFINE VARIABLE pointerLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Pointer" 
       VIEW-AS TEXT 
-     SIZE 16.8 BY 1.62
-     BGCOLOR 7 FONT 4 NO-UNDO.
+     SIZE 14 BY 1.52
+     BGCOLOR 8 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE radioSetLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Radio Set" 
+DEFINE VARIABLE radio-SetLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Radio Set" 
       VIEW-AS TEXT 
-     SIZE 16.8 BY 1.62
+     SIZE 14 BY 1.52
      BGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE VARIABLE rectangleLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Rectangle" 
       VIEW-AS TEXT 
-     SIZE 17 BY 1.62
+     SIZE 14 BY 1.52
      BGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE selectionListLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Selection List" 
+DEFINE VARIABLE selection-ListLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Selection List" 
       VIEW-AS TEXT 
-     SIZE 16.8 BY 1.62
+     SIZE 14 BY 1.52
      BGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE VARIABLE sliderLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Slider" 
       VIEW-AS TEXT 
-     SIZE 16.8 BY 1.62
+     SIZE 14 BY 1.52
      BGCOLOR 15 FONT 4 NO-UNDO.
+
+DEFINE VARIABLE tabCBLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Tab:" 
+      VIEW-AS TEXT 
+     SIZE 4.5 BY .91 NO-UNDO.
 
 DEFINE VARIABLE tabField AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 23.8 BY 1
-     BGCOLOR 15 FONT 4 NO-UNDO.
+     SIZE 26 BY 1
+     FONT 4 NO-UNDO.
+
+DEFINE VARIABLE tabNavLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Tab Labels | Tab Order" 
+      VIEW-AS TEXT 
+     SIZE 22 BY .62
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE textLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Text" 
       VIEW-AS TEXT 
-     SIZE 16.8 BY 1.62
+     SIZE 14 BY 1.52
      BGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE toggleBoxLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Toggle Box" 
+DEFINE VARIABLE toggle-BoxLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Toggle Box" 
       VIEW-AS TEXT 
-     SIZE 16.8 BY 1.62
+     SIZE 14 BY 1.52
      BGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE VARIABLE widgetLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Widgets" 
@@ -478,9 +472,8 @@ DEFINE VARIABLE widgetLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Widgets"
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 147 BY 3.19
-     BGCOLOR 8 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 144 BY 3.19.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
@@ -498,212 +491,216 @@ DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE .2 BY 3.14.
 
-DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 26.6 BY 4.52
-     BGCOLOR 4 .
+DEFINE RECTANGLE RECT-8
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE .2 BY 3.14.
 
-DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 26.6 BY 16.19
-     BGCOLOR 4 .
+DEFINE RECTANGLE tabLabelsRect
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 27.6 BY 20.95.
+
+DEFINE RECTANGLE tabNavRect
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 27.6 BY 1.43
+     BGCOLOR 8 .
 
 DEFINE RECTANGLE widgetRect
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 26.6 BY 20.95
-     BGCOLOR 15 FGCOLOR 0 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 23.4 BY 18.81.
 
 DEFINE VARIABLE tabLabels AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE NO-DRAG SCROLLBAR-VERTICAL 
-     SIZE 23.8 BY 10 TOOLTIP "Change Current Tab (Page)"
-     BGCOLOR 15  NO-UNDO.
+     SIZE 26 BY 18.57 TOOLTIP "Change Current Tab (Page)" NO-UNDO.
 
 DEFINE RECTANGLE Rect-Bottom
      EDGE-PIXELS 0    
-     SIZE 89.8 BY .19
+     SIZE 95 BY .19
      BGCOLOR 7 .
 
 DEFINE RECTANGLE Rect-Left
      EDGE-PIXELS 0    
-     SIZE .6 BY 20.95
+     SIZE .6 BY 21.33
      BGCOLOR 15 .
 
 DEFINE RECTANGLE Rect-Main
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 90.4 BY 21.19
+     SIZE 95.4 BY 21.57
      BGCOLOR 8 FGCOLOR 0 .
 
 DEFINE RECTANGLE Rect-Right
      EDGE-PIXELS 0    
-     SIZE .6 BY 20.81
+     SIZE .6 BY 21.19
      BGCOLOR 7 .
 
 DEFINE RECTANGLE Rect-Top
      EDGE-PIXELS 0    
-     SIZE 89.8 BY .19
+     SIZE 95 BY .19
      BGCOLOR 15 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME fMiscFlds
-     mfgroupList AT ROW 1.67 COL 9 COLON-ALIGNED HELP
-          "Select Group Name" NO-LABEL
-     btnProperty AT ROW 1.71 COL 62 HELP
-          "Access PROPERTY SHEET of Currently Selected Widget"
-     btnTabOrder AT ROW 1.71 COL 73 HELP
-          "Set Tab Order"
-     btnCut AT ROW 1.71 COL 85 HELP
-          "CUT Selections"
-     btnCopy AT ROW 1.71 COL 95.2 HELP
-          "COPY Selections"
-     btnPaste AT ROW 1.71 COL 105.4 HELP
-          "PASTE Selections"
-     btnRestore AT ROW 1.71 COL 118 HELP
-          "RESTORE ALL Widgets"
-     btnSave AT ROW 1.71 COL 128.2 HELP
-          "SAVE Current Screen Layout"
-     btnExit AT ROW 1.71 COL 140 HELP
-          "CLOSE Design Layout Window"
-     btnAddGroup AT ROW 2.86 COL 3 HELP
-          "ADD GROU[ Name"
-     btnCopyGroup AT ROW 2.86 COL 14 HELP
-          "ADD GROU[ Name"
-     btnRenameGroup AT ROW 2.86 COL 26.2 HELP
-          "CHANGE GROU[ Name"
-     btnDeleteGroup AT ROW 2.86 COL 42.4 HELP
-          "DELETE GROU[ Name"
-     mfgroupField AT ROW 4.67 COL 9 COLON-ALIGNED HELP
-          "Enter Group Name"
-     btnTest AT ROW 4.67 COL 122.8
-     gapField AT ROW 4.67 COL 141.8 COLON-ALIGNED HELP
-          "Enter Gap Amount in Pixels" NO-LABEL
-     mfgroupTab AT ROW 6.48 COL 18 COLON-ALIGNED HELP
-          "Select Tab Number" NO-LABEL
-     btnPointer AT ROW 7 COL 124.2 HELP
-          "Restore Mouse Cursor to ARROW POINTER"
-     btnNextTab AT ROW 7.43 COL 20 HELP
-          "Next Tab"
-     btnPrevTab AT ROW 8.86 COL 20 HELP
-          "Previous tab"
-     btnComboBox AT ROW 9 COL 124.2 HELP
-          "Create New COMBO-BOX"
-     btnEditor AT ROW 11.05 COL 124.2 HELP
-          "Create New EDITOR"
-     tabLabels AT ROW 11.95 COL 3.8 HELP
-          "Select tab Label" NO-LABEL
-     btnFillIn AT ROW 12.95 COL 124.2 HELP
-          "Create New FILL-IN"
-     btnRadioSet AT ROW 15.05 COL 124.2 HELP
-          "Create New RADIO-SET"
-     btnRectangle AT ROW 16.95 COL 124 HELP
-          "Create New Rectangle"
-     btnSelectionList AT ROW 18.86 COL 124 HELP
-          "Create New SELECTION-LIST"
-     btnSlider AT ROW 20.86 COL 124 HELP
-          "Create New SLIDER"
-     tabField AT ROW 22.19 COL 2 COLON-ALIGNED HELP
-          "Enter Tab Label" NO-LABEL
-     btnText AT ROW 22.91 COL 124 HELP
-          "Create New TEXT"
-     btnAddTab AT ROW 23.38 COL 4 HELP
+     btnAddTab AT ROW 7.19 COL 125 HELP
           "ADD New Tab"
-     btnRenameTab AT ROW 23.38 COL 16.6 HELP
-          "RENAME Tab"
-     btnDeleteTab AT ROW 24.52 COL 9.6 HELP
+     btnDeleteTab AT ROW 7.19 COL 135 HELP
           "DELETE Tab"
-     btnToggleBox AT ROW 24.91 COL 124 HELP
-          "Create New TOGGLE-BOX"
-     btnDownTab AT ROW 25.76 COL 4 HELP
+     btnDownTab AT ROW 7.19 COL 140 HELP
           "Move Tab DOWN"
-     btnUpTab AT ROW 25.76 COL 16.6 HELP
+     btnExit AT ROW 1.48 COL 137 HELP
+          "Exit Design Layout Window"
+     btnNextTab AT ROW 4.81 COL 144.6 HELP
+          "Next Tab"
+     btnPrevTab AT ROW 4.81 COL 125.6 HELP
+          "Previous tab"
+     btnRenameTab AT ROW 7.19 COL 130 HELP
+          "RENAME Tab"
+     btnUpTab AT ROW 7.19 COL 145 HELP
           "Move Tab UP"
-     gapFieldLabel AT ROW 4.81 COL 136 COLON-ALIGNED NO-LABEL
-     widgetLabel AT ROW 6.24 COL 130 COLON-ALIGNED NO-LABEL
-     pointerLabel AT ROW 7 COL 129.2 COLON-ALIGNED NO-LABEL
-     comboBoxLabel AT ROW 9 COL 129.2 COLON-ALIGNED NO-LABEL
-     editorLabel AT ROW 11.05 COL 129.2 COLON-ALIGNED NO-LABEL
-     fillInLabel AT ROW 12.95 COL 129.2 COLON-ALIGNED NO-LABEL
-     radioSetLabel AT ROW 15.05 COL 129.2 COLON-ALIGNED NO-LABEL
-     rectangleLabel AT ROW 16.95 COL 129 COLON-ALIGNED NO-LABEL
-     selectionListLabel AT ROW 18.86 COL 129 COLON-ALIGNED NO-LABEL
+     btnAddGroup AT ROW 3.14 COL 11 HELP
+          "ADD GROU[ Name"
+     mfgroupField AT ROW 1.71 COL 9 COLON-ALIGNED HELP
+          "Enter Group Name"
+     mfgroupList AT ROW 1.71 COL 9 COLON-ALIGNED HELP
+          "Select Group Name" NO-LABEL
+     mfgroupTab AT ROW 4.81 COL 133.6 COLON-ALIGNED HELP
+          "Select Tab Number" NO-LABEL
+     btnPointer AT ROW 5.57 COL 3.2 HELP
+          "Restore Mouse Cursor to ARROW POINTER"
+     btnCombo-Box AT ROW 7.19 COL 3.2 HELP
+          "Create New COMBO-BOX"
+     tabField AT ROW 7.19 COL 124 HELP
+          "Enter Tab Label" NO-LABEL
+     tabLabels AT ROW 8.38 COL 124 HELP
+          "Select tab Label" NO-LABEL
+     btnEditor AT ROW 8.86 COL 3.2 HELP
+          "Create New EDITOR"
+     btnFill-In AT ROW 10.52 COL 3.2 HELP
+          "Create New FILL-IN"
+     btnRadio-Set AT ROW 12.19 COL 3.2 HELP
+          "Create New RADIO-SET"
+     btnRectangle AT ROW 13.86 COL 3 HELP
+          "Create New Rectangle"
+     btnSelection-List AT ROW 15.52 COL 3 HELP
+          "Create New SELECTION-LIST"
+     btnSlider AT ROW 17.19 COL 3 HELP
+          "Create New SLIDER"
+     btnText AT ROW 18.86 COL 3 HELP
+          "Create New TEXT"
+     btnToggle-Box AT ROW 20.52 COL 3 HELP
+          "Create New TOGGLE-BOX"
+     gapField AT ROW 22.19 COL 1 COLON-ALIGNED HELP
+          "Enter Gap Amount in Pixels" NO-LABEL
+     btnCopy AT ROW 1.48 COL 89 HELP
+          "Copy Selections"
+     btnCopyGroup AT ROW 3.14 COL 21 HELP
+          "ADD GROU[ Name"
+     btnCut AT ROW 1.48 COL 80 HELP
+          "Cut Selections"
+     btnDeleteGroup AT ROW 3.19 COL 46 HELP
+          "DELETE GROU[ Name"
+     btnPaste AT ROW 1.48 COL 98 HELP
+          "Paste Selections"
+     btnProperty AT ROW 1.48 COL 61 HELP
+          "Attributes"
+     btnRenameGroup AT ROW 3.14 COL 32.2 HELP
+          "CHANGE GROU[ Name"
+     btnRestore AT ROW 1.48 COL 118 HELP
+          "Reset"
+     btnSave AT ROW 1.48 COL 127 HELP
+          "Save"
+     btnTabOrder AT ROW 1.48 COL 70 HELP
+          "Set Tab Order"
+     btnTest AT ROW 1.48 COL 108
+     widgetLabel AT ROW 4.81 COL 8 COLON-ALIGNED NO-LABEL
+     tabCBLabel AT ROW 4.81 COL 129 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     pointerLabel AT ROW 5.57 COL 8.2 COLON-ALIGNED NO-LABEL
+     tabNavLabel AT ROW 6.48 COL 126 NO-LABEL WIDGET-ID 14
+     combo-BoxLabel AT ROW 7.19 COL 8.2 COLON-ALIGNED NO-LABEL
+     editorLabel AT ROW 8.86 COL 8.2 COLON-ALIGNED NO-LABEL
+     fill-InLabel AT ROW 10.52 COL 8.2 COLON-ALIGNED NO-LABEL
+     radio-SetLabel AT ROW 12.19 COL 8.2 COLON-ALIGNED NO-LABEL
+     rectangleLabel AT ROW 13.86 COL 8 COLON-ALIGNED NO-LABEL
+     selection-ListLabel AT ROW 15.52 COL 8 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 149.8 BY 26.24
-         BGCOLOR 3 .
+         BGCOLOR 15 .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fMiscFlds
-     sliderLabel AT ROW 20.86 COL 129 COLON-ALIGNED NO-LABEL
-     textLabel AT ROW 22.91 COL 129 COLON-ALIGNED NO-LABEL
-     toggleBoxLabel AT ROW 24.91 COL 129 COLON-ALIGNED NO-LABEL
-     "Tab Order" VIEW-AS TEXT
-          SIZE 10.6 BY .76 AT ROW 3.76 COL 72
-          BGCOLOR 8 FONT 4
-     "File Functions" VIEW-AS TEXT
-          SIZE 14 BY .76 AT ROW 3.76 COL 120.6
-          BGCOLOR 8 FONT 4
-     "Group:" VIEW-AS TEXT
-          SIZE 7 BY .76 AT ROW 1.71 COL 4
-          BGCOLOR 8 
-     "Sheet" VIEW-AS TEXT
-          SIZE 6 BY .76 AT ROW 3.76 COL 63.4
-          BGCOLOR 8 FONT 4
-     "E&xit" VIEW-AS TEXT
-          SIZE 4.2 BY .76 AT ROW 3.76 COL 142
-          BGCOLOR 8 FONT 4
-     "Delete" VIEW-AS TEXT
-          SIZE 7.2 BY .76 AT ROW 3.14 COL 49.4
-          BGCOLOR 8 FONT 4
-     "Rename" VIEW-AS TEXT
-          SIZE 8.6 BY .76 AT ROW 3.14 COL 32.8
-          BGCOLOR 8 FONT 4
-     "Current Tab #" VIEW-AS TEXT
-          SIZE 14 BY .76 AT ROW 6.67 COL 6
-          BGCOLOR 4 FGCOLOR 15 FONT 4
-     "Previous Tab" VIEW-AS TEXT
-          SIZE 14 BY .76 AT ROW 9.1 COL 6
-          BGCOLOR 4 FGCOLOR 15 FONT 4
-     "Add" VIEW-AS TEXT
-          SIZE 5 BY .76 AT ROW 3.14 COL 9
-          BGCOLOR 8 FONT 4
-     "Tab Labels | Tab Order" VIEW-AS TEXT
-          SIZE 23 BY .76 AT ROW 11 COL 4
-          BGCOLOR 4 FGCOLOR 15 FONT 4
-     "Edit Functions" VIEW-AS TEXT
-          SIZE 14 BY .76 AT ROW 3.76 COL 92.4
-          BGCOLOR 8 FONT 4
-     "Next Tab" VIEW-AS TEXT
-          SIZE 10.6 BY .76 AT ROW 7.76 COL 9.4
-          BGCOLOR 4 FGCOLOR 15 FONT 4
+     sliderLabel AT ROW 17.19 COL 8 COLON-ALIGNED NO-LABEL
+     textLabel AT ROW 18.86 COL 8 COLON-ALIGNED NO-LABEL
+     toggle-BoxLabel AT ROW 20.52 COL 8 COLON-ALIGNED NO-LABEL
+     gapFieldLabel AT ROW 22.19 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     "Save" VIEW-AS TEXT
+          SIZE 5 BY .76 AT ROW 3.62 COL 128 WIDGET-ID 12
+          BGCOLOR 15 FONT 4
+     "Paste" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 3.62 COL 99 WIDGET-ID 10
+          BGCOLOR 15 FONT 4
      "Copy" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 3.14 COL 20
-          BGCOLOR 8 
-     RECT-7 AT ROW 10.76 COL 2.4
-     RECT-1 AT ROW 1.38 COL 2.4
-     RECT-5 AT ROW 1.38 COL 138
-     RECT-4 AT ROW 1.38 COL 116
-     widgetRect AT ROW 6 COL 122.8
-     RECT-6 AT ROW 6 COL 2.4
-     RECT-2 AT ROW 1.38 COL 59.2
-     RECT-3 AT ROW 1.38 COL 83
+          SIZE 5 BY .76 AT ROW 3.62 COL 90 WIDGET-ID 8
+          BGCOLOR 15 FONT 4
+     "Atrributes" VIEW-AS TEXT
+          SIZE 9 BY .76 AT ROW 3.62 COL 61
+          BGCOLOR 15 FONT 4
+     "TabOrder" VIEW-AS TEXT
+          SIZE 9 BY .76 AT ROW 3.62 COL 70
+          BGCOLOR 15 FONT 4
+     "Preview" VIEW-AS TEXT
+          SIZE 8 BY .76 AT ROW 3.62 COL 108 WIDGET-ID 6
+          BGCOLOR 15 FONT 4
+     "E&xit" VIEW-AS TEXT
+          SIZE 4.2 BY .76 AT ROW 3.62 COL 139
+          BGCOLOR 15 FONT 4
+     "Delete" VIEW-AS TEXT
+          SIZE 7 BY .95 AT ROW 3.19 COL 51
+          BGCOLOR 15 FONT 4
+     "Rename" VIEW-AS TEXT
+          SIZE 8.6 BY .95 AT ROW 3.19 COL 37
+          BGCOLOR 15 FONT 4
+     "Copy" VIEW-AS TEXT
+          SIZE 5 BY .95 AT ROW 3.19 COL 26
+          BGCOLOR 15 
+     "Cut" VIEW-AS TEXT
+          SIZE 4 BY .76 AT ROW 3.62 COL 82
+          BGCOLOR 15 FONT 4
+     "Reset" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 3.62 COL 119
+          BGCOLOR 15 FONT 4
+     "Add" VIEW-AS TEXT
+          SIZE 4 BY .95 AT ROW 3.14 COL 16
+          BGCOLOR 15 FONT 4
+     "Group:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 1.71 COL 4
+          BGCOLOR 15 
+     tabLabelsRect AT ROW 6.24 COL 123
+     RECT-1 AT ROW 1.24 COL 2
+     RECT-5 AT ROW 1.24 COL 136
+     RECT-4 AT ROW 1.24 COL 107
+     widgetRect AT ROW 4.57 COL 2
+     tabNavRect AT ROW 4.57 COL 123
+     RECT-2 AT ROW 1.24 COL 60
+     RECT-3 AT ROW 1.24 COL 79
+     RECT-8 AT ROW 1.24 COL 117 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 149.8 BY 26.24
-         BGCOLOR 3 .
+         BGCOLOR 15 .
 
 DEFINE FRAME folderFrm
      Rect-Main AT ROW 2.05 COL 1.6
      Rect-Top AT ROW 2.14 COL 1.8
      Rect-Left AT ROW 2.19 COL 1.8
-     Rect-Right AT ROW 2.29 COL 91.2
-     Rect-Bottom AT ROW 23 COL 1.8
+     Rect-Right AT ROW 2.43 COL 96.2
+     Rect-Bottom AT ROW 23.38 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 30.4 ROW 4.67
-         SIZE 91.6 BY 22.29.
+         AT COL 26 ROW 4.52
+         SIZE 96.2 BY 22.62.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -722,7 +719,7 @@ DEFINE FRAME folderFrm
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wMiscFlds ASSIGN
          HIDDEN             = YES
-         TITLE              = "Misc. Fields Design Layout Window"
+         TITLE              = "User Defined Fields Design Layout Window"
          HEIGHT             = 26.24
          WIDTH              = 149.8
          MAX-HEIGHT         = 57.14
@@ -762,7 +759,7 @@ IF NOT wMiscFlds:LOAD-ICON("Graphics\asiicon.ico":U) THEN
    FRAME-NAME                                                           */
 /* SETTINGS FOR BUTTON btnAddTab IN FRAME fMiscFlds
    1                                                                    */
-/* SETTINGS FOR BUTTON btnComboBox IN FRAME fMiscFlds
+/* SETTINGS FOR BUTTON btnCombo-Box IN FRAME fMiscFlds
    1 3                                                                  */
 /* SETTINGS FOR BUTTON btnDeleteGroup IN FRAME fMiscFlds
    1                                                                    */
@@ -772,7 +769,7 @@ IF NOT wMiscFlds:LOAD-ICON("Graphics\asiicon.ico":U) THEN
    1                                                                    */
 /* SETTINGS FOR BUTTON btnEditor IN FRAME fMiscFlds
    1 3                                                                  */
-/* SETTINGS FOR BUTTON btnFillIn IN FRAME fMiscFlds
+/* SETTINGS FOR BUTTON btnFill-In IN FRAME fMiscFlds
    1 3                                                                  */
 /* SETTINGS FOR BUTTON btnNextTab IN FRAME fMiscFlds
    1                                                                    */
@@ -780,7 +777,7 @@ IF NOT wMiscFlds:LOAD-ICON("Graphics\asiicon.ico":U) THEN
    NO-ENABLE 1 3                                                        */
 /* SETTINGS FOR BUTTON btnPrevTab IN FRAME fMiscFlds
    1                                                                    */
-/* SETTINGS FOR BUTTON btnRadioSet IN FRAME fMiscFlds
+/* SETTINGS FOR BUTTON btnRadio-Set IN FRAME fMiscFlds
    1 3                                                                  */
 /* SETTINGS FOR BUTTON btnRectangle IN FRAME fMiscFlds
    1 3                                                                  */
@@ -788,7 +785,7 @@ IF NOT wMiscFlds:LOAD-ICON("Graphics\asiicon.ico":U) THEN
    1                                                                    */
 /* SETTINGS FOR BUTTON btnRenameTab IN FRAME fMiscFlds
    1                                                                    */
-/* SETTINGS FOR BUTTON btnSelectionList IN FRAME fMiscFlds
+/* SETTINGS FOR BUTTON btnSelection-List IN FRAME fMiscFlds
    1 3                                                                  */
 /* SETTINGS FOR BUTTON btnSlider IN FRAME fMiscFlds
    1 3                                                                  */
@@ -796,24 +793,24 @@ IF NOT wMiscFlds:LOAD-ICON("Graphics\asiicon.ico":U) THEN
    1                                                                    */
 /* SETTINGS FOR BUTTON btnText IN FRAME fMiscFlds
    1 3                                                                  */
-/* SETTINGS FOR BUTTON btnToggleBox IN FRAME fMiscFlds
+/* SETTINGS FOR BUTTON btnToggle-Box IN FRAME fMiscFlds
    1 3                                                                  */
 /* SETTINGS FOR BUTTON btnUpTab IN FRAME fMiscFlds
    1                                                                    */
-/* SETTINGS FOR FILL-IN comboBoxLabel IN FRAME fMiscFlds
+/* SETTINGS FOR FILL-IN combo-BoxLabel IN FRAME fMiscFlds
    NO-ENABLE 1 2                                                        */
 ASSIGN 
-       comboBoxLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
+       combo-BoxLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
 
 /* SETTINGS FOR FILL-IN editorLabel IN FRAME fMiscFlds
    NO-ENABLE 1 2                                                        */
 ASSIGN 
        editorLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
 
-/* SETTINGS FOR FILL-IN fillInLabel IN FRAME fMiscFlds
+/* SETTINGS FOR FILL-IN fill-InLabel IN FRAME fMiscFlds
    NO-ENABLE 1 2                                                        */
 ASSIGN 
-       fillInLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
+       fill-InLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
 
 /* SETTINGS FOR FILL-IN gapField IN FRAME fMiscFlds
    NO-DISPLAY NO-ENABLE 1                                               */
@@ -834,10 +831,10 @@ ASSIGN
 ASSIGN 
        pointerLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
 
-/* SETTINGS FOR FILL-IN radioSetLabel IN FRAME fMiscFlds
+/* SETTINGS FOR FILL-IN radio-SetLabel IN FRAME fMiscFlds
    NO-ENABLE 1 2                                                        */
 ASSIGN 
-       radioSetLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
+       radio-SetLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
 
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME fMiscFlds
    NO-ENABLE                                                            */
@@ -846,32 +843,36 @@ ASSIGN
 ASSIGN 
        rectangleLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
 
-/* SETTINGS FOR FILL-IN selectionListLabel IN FRAME fMiscFlds
+/* SETTINGS FOR FILL-IN selection-ListLabel IN FRAME fMiscFlds
    NO-ENABLE 1 2                                                        */
 ASSIGN 
-       selectionListLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
+       selection-ListLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
 
 /* SETTINGS FOR FILL-IN sliderLabel IN FRAME fMiscFlds
    NO-ENABLE 1 2                                                        */
 ASSIGN 
        sliderLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
 
+/* SETTINGS FOR FILL-IN tabCBLabel IN FRAME fMiscFlds
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN tabField IN FRAME fMiscFlds
-   NO-DISPLAY NO-ENABLE                                                 */
+   NO-DISPLAY NO-ENABLE ALIGN-L                                         */
 ASSIGN 
        tabField:HIDDEN IN FRAME fMiscFlds           = TRUE.
 
 /* SETTINGS FOR SELECTION-LIST tabLabels IN FRAME fMiscFlds
    1                                                                    */
+/* SETTINGS FOR FILL-IN tabNavLabel IN FRAME fMiscFlds
+   NO-ENABLE ALIGN-L 1                                                  */
 /* SETTINGS FOR FILL-IN textLabel IN FRAME fMiscFlds
    NO-ENABLE 1 2                                                        */
 ASSIGN 
        textLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
 
-/* SETTINGS FOR FILL-IN toggleBoxLabel IN FRAME fMiscFlds
+/* SETTINGS FOR FILL-IN toggle-BoxLabel IN FRAME fMiscFlds
    NO-ENABLE 1 2                                                        */
 ASSIGN 
-       toggleBoxLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
+       toggle-BoxLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
 
 /* SETTINGS FOR FILL-IN widgetLabel IN FRAME fMiscFlds
    NO-ENABLE 1                                                          */
@@ -914,7 +915,7 @@ THEN wMiscFlds:HIDDEN = no.
 
 &Scoped-define SELF-NAME wMiscFlds
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wMiscFlds wMiscFlds
-ON END-ERROR OF wMiscFlds /* Misc. Fields Design Layout Window */
+ON END-ERROR OF wMiscFlds /* User Defined Fields Design Layout Window */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -927,7 +928,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wMiscFlds wMiscFlds
-ON WINDOW-CLOSE OF wMiscFlds /* Misc. Fields Design Layout Window */
+ON WINDOW-CLOSE OF wMiscFlds /* User Defined Fields Design Layout Window */
 DO:
   IF mfpersist NE ? THEN DELETE PROCEDURE mfpersist.
   /* This event will close the window and terminate the procedure.  */
@@ -940,7 +941,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wMiscFlds wMiscFlds
-ON WINDOW-RESIZED OF wMiscFlds /* Misc. Fields Design Layout Window */
+ON WINDOW-RESIZED OF wMiscFlds /* User Defined Fields Design Layout Window */
 DO:
   RUN winReSize.
 END.
@@ -973,8 +974,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL folderFrm wMiscFlds
 ON MOUSE-SELECT-CLICK OF FRAME folderFrm
 DO:
-  IF CAN-DO("COMBO-BOX,EDITOR,FILL-IN,RADIO-SET,RECTANGLE,SELECTION-LIST,SLIDER,TEXT,TOGGLE-BOX",currentLabel) THEN
-  DO: /* only done when a new widget is being placed in design folderFrm */
+  /* only done when a new widget is being placed in design folderFrm */
+  IF CAN-DO("COMBO-BOX,EDITOR,FILL-IN,RADIO-SET,RECTANGLE,SELECTION-LIST,SLIDER,TEXT,TOGGLE-BOX",currentLabel) THEN DO:
     RUN newWidget.
     APPLY "CHOOSE" TO btnPointer IN FRAME {&FRAME-NAME}.
   END.
@@ -1014,11 +1015,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnComboBox
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnComboBox wMiscFlds
-ON CHOOSE OF btnComboBox IN FRAME fMiscFlds /* Combo Box */
+&Scoped-define SELF-NAME btnCombo-Box
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCombo-Box wMiscFlds
+ON CHOOSE OF btnCombo-Box IN FRAME fMiscFlds /* Combo Box */
 DO:
-  RUN selectNewWidgetType ("comboBox","images/combbox.cur").
+  RUN selectNewWidgetType ("Combo-Box","images/combbox.cur").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1099,7 +1100,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnEditor wMiscFlds
 ON CHOOSE OF btnEditor IN FRAME fMiscFlds /* Editor */
 DO:
-  RUN selectNewWidgetType ("editor","images/editor.cur").
+  RUN selectNewWidgetType ("Editor","images/editor.cur").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1118,11 +1119,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnFillIn
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFillIn wMiscFlds
-ON CHOOSE OF btnFillIn IN FRAME fMiscFlds /* Fill In */
+&Scoped-define SELF-NAME btnFill-In
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFill-In wMiscFlds
+ON CHOOSE OF btnFill-In IN FRAME fMiscFlds /* Fill In */
 DO:
-  RUN selectNewWidgetType ("fillIn","images/fill_in.cur").
+  RUN selectNewWidgetType ("Fill-In","images/fill_in.cur").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1188,11 +1189,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnRadioSet
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRadioSet wMiscFlds
-ON CHOOSE OF btnRadioSet IN FRAME fMiscFlds /* Radio Set */
+&Scoped-define SELF-NAME btnRadio-Set
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRadio-Set wMiscFlds
+ON CHOOSE OF btnRadio-Set IN FRAME fMiscFlds /* Radio Set */
 DO:
-  RUN selectNewWidgetType ("radioSet","images/radioset.cur").
+  RUN selectNewWidgetType ("Radio-Set","images/radioset.cur").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1203,7 +1204,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRectangle wMiscFlds
 ON CHOOSE OF btnRectangle IN FRAME fMiscFlds /* Rectangle */
 DO:
-  RUN selectNewWidgetType ("rectangle","images/rectangle.cur").
+  RUN selectNewWidgetType ("Rectangle","images/rectangle.cur").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1245,7 +1246,7 @@ END.
 
 &Scoped-define SELF-NAME btnRestore
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestore wMiscFlds
-ON CHOOSE OF btnRestore IN FRAME fMiscFlds /* Restore */
+ON CHOOSE OF btnRestore IN FRAME fMiscFlds /* Reset */
 DO:
   mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "1".
   RUN loadWidgetData.
@@ -1266,11 +1267,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSelectionList
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSelectionList wMiscFlds
-ON CHOOSE OF btnSelectionList IN FRAME fMiscFlds /* Selection List */
+&Scoped-define SELF-NAME btnSelection-List
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSelection-List wMiscFlds
+ON CHOOSE OF btnSelection-List IN FRAME fMiscFlds /* Selection List */
 DO:
-  RUN selectNewWidgetType ("selectionList","images/slctlist.cur").
+  RUN selectNewWidgetType ("Selection-List","images/slctlist.cur").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1281,7 +1282,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSlider wMiscFlds
 ON CHOOSE OF btnSlider IN FRAME fMiscFlds /* Slider */
 DO:
-  RUN selectNewWidgetType ("slider","images/slider.cur").
+  RUN selectNewWidgetType ("Slider","images/slider.cur").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1326,18 +1327,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnText wMiscFlds
 ON CHOOSE OF btnText IN FRAME fMiscFlds /* Text */
 DO:
-  RUN selectNewWidgetType ("text","images/text.cur").
+  RUN selectNewWidgetType ("Text","images/text.cur").
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnToggleBox
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnToggleBox wMiscFlds
-ON CHOOSE OF btnToggleBox IN FRAME fMiscFlds /* Toggle Box */
+&Scoped-define SELF-NAME btnToggle-Box
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnToggle-Box wMiscFlds
+ON CHOOSE OF btnToggle-Box IN FRAME fMiscFlds /* Toggle Box */
 DO:
-  RUN selectNewWidgetType ("toggleBox","images/toggle.cur").
+  RUN selectNewWidgetType ("Toggle-Box","images/toggle.cur").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1435,7 +1436,7 @@ END.
 
 &Scoped-define SELF-NAME mfgroupTab
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mfgroupTab wMiscFlds
-ON VALUE-CHANGED OF mfgroupTab IN FRAME fMiscFlds
+ON VALUE-CHANGED OF mfgroupTab IN FRAME fMiscFlds /* Tab */
 DO:
   DO i = 1 TO tabLabels:NUM-ITEMS: /* get index value of selected label */
     IF tabLabels:SCREEN-VALUE = tabLabels:ENTRY(i) THEN LEAVE.
@@ -1498,6 +1499,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME m_Attributes
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Attributes wMiscFlds
+ON CHOOSE OF MENU-ITEM m_Attributes /* Attributes */
+DO:
+  APPLY "CHOOSE" TO btnProperty IN FRAME {&FRAME-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME m_Bottom_Sides
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Bottom_Sides wMiscFlds
 ON CHOOSE OF MENU-ITEM m_Bottom_Sides /* Bottom Sides */
@@ -1524,7 +1536,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Combo_Box wMiscFlds
 ON CHOOSE OF MENU-ITEM m_Combo_Box /* Combo Box */
 DO:
-  APPLY "CHOOSE" TO btnComboBox IN FRAME {&FRAME-NAME}.
+  APPLY "CHOOSE" TO btnCombo-Box IN FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1612,7 +1624,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Fill_In wMiscFlds
 ON CHOOSE OF MENU-ITEM m_Fill_In /* Fill In */
 DO:
-  APPLY "CHOOSE" TO btnFillIn IN FRAME {&FRAME-NAME}.
+  APPLY "CHOOSE" TO btnFill-In IN FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1696,22 +1708,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME m_Property_Sheet
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Property_Sheet wMiscFlds
-ON CHOOSE OF MENU-ITEM m_Property_Sheet /* Property Sheet */
-DO:
-  APPLY "CHOOSE" TO btnProperty IN FRAME {&FRAME-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME m_Radio_Set
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Radio_Set wMiscFlds
 ON CHOOSE OF MENU-ITEM m_Radio_Set /* Radio Set */
 DO:
-  APPLY "CHOOSE" TO btnRadioSet IN FRAME {&FRAME-NAME}.
+  APPLY "CHOOSE" TO btnRadio-Set IN FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1729,9 +1730,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME m_Restore
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Restore wMiscFlds
-ON CHOOSE OF MENU-ITEM m_Restore /* Restore */
+&Scoped-define SELF-NAME m_Reset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Reset wMiscFlds
+ON CHOOSE OF MENU-ITEM m_Reset /* Reset */
 DO:
   APPLY "CHOOSE" TO btnRestore IN FRAME {&FRAME-NAME}.
 END.
@@ -1766,7 +1767,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Selection_List wMiscFlds
 ON CHOOSE OF MENU-ITEM m_Selection_List /* Selection List */
 DO:
-  APPLY "CHOOSE" TO btnSelectionList IN FRAME {&FRAME-NAME}.
+  APPLY "CHOOSE" TO btnSelection-List IN FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1810,7 +1811,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Toggle_Box wMiscFlds
 ON CHOOSE OF MENU-ITEM m_Toggle_Box /* Toggle Box */
 DO:
-  APPLY "CHOOSE" TO btnToggleBox IN FRAME {&FRAME-NAME}.
+  APPLY "CHOOSE" TO btnToggle-Box IN FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1902,22 +1903,25 @@ END.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN setTabOrder. /* natural order is left to right, we want top to bottom */
-  RUN loadImages.
-  RUN enable_UI.
-  RUN winReSize.
-  RUN loadWidgetData.
-  DISABLE btnPaste btnPointer btnProperty btnCut btnCopy WITH FRAME {&FRAME-NAME}.
-  IF mfpersist EQ ? THEN
-  RUN nosweat/mfpersist.p PERSISTENT SET mfpersist.
-  {methods/nowait.i}
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
   &IF DEFINED(UIB_is_Running) EQ 0 &THEN
   RUN sys/ref/d-passmi.w (OUTPUT continue).
   &ELSE
   continue = YES.
   &ENDIF
+  IF continue THEN DO:
+      /* natural order is left to right, we want top to bottom */
+      RUN setTabOrder.
+      RUN loadImages.
+      RUN enable_UI.
+      RUN winReSize.
+      RUN loadWidgetData.
+      DISABLE btnPaste btnPointer btnProperty btnCut btnCopy WITH FRAME {&FRAME-NAME}.
+      IF mfpersist EQ ? THEN
+      RUN nosweat/mfpersist.p PERSISTENT SET mfpersist.
+  END. /* continue */
+  {methods/nowait.i}
+  IF NOT THIS-PROCEDURE:PERSISTENT THEN
+    WAIT-FOR CLOSE OF THIS-PROCEDURE.
   IF NOT continue THEN
   APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
@@ -2719,16 +2723,18 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY mfgroupList mfgroupTab tabLabels gapFieldLabel widgetLabel 
-          pointerLabel comboBoxLabel editorLabel fillInLabel radioSetLabel 
-          rectangleLabel selectionListLabel sliderLabel textLabel toggleBoxLabel 
+  DISPLAY mfgroupList mfgroupTab tabLabels widgetLabel tabCBLabel pointerLabel 
+          tabNavLabel combo-BoxLabel editorLabel fill-InLabel radio-SetLabel 
+          rectangleLabel selection-ListLabel sliderLabel textLabel 
+          toggle-BoxLabel gapFieldLabel 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
-  ENABLE RECT-7 RECT-5 RECT-4 widgetRect RECT-6 RECT-2 RECT-3 mfgroupList 
-         btnProperty btnTabOrder btnCut btnCopy btnPaste btnRestore btnSave 
-         btnExit btnAddGroup btnCopyGroup btnRenameGroup btnDeleteGroup btnTest 
-         mfgroupTab btnNextTab btnPrevTab btnComboBox btnEditor tabLabels 
-         btnFillIn btnRadioSet btnRectangle btnSelectionList btnSlider btnText 
-         btnAddTab btnRenameTab btnDeleteTab btnToggleBox btnDownTab btnUpTab 
+  ENABLE btnAddTab btnDeleteTab btnDownTab btnExit btnNextTab btnPrevTab 
+         btnRenameTab btnUpTab btnAddGroup tabLabelsRect RECT-5 RECT-4 
+         widgetRect tabNavRect RECT-2 RECT-3 RECT-8 mfgroupList mfgroupTab 
+         btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle 
+         btnSelection-List btnSlider btnText btnToggle-Box btnCopy btnCopyGroup 
+         btnCut btnDeleteGroup btnPaste btnProperty btnRenameGroup btnRestore 
+         btnSave btnTabOrder btnTest 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
   {&OPEN-BROWSERS-IN-QUERY-fMiscFlds}
   ENABLE Rect-Top Rect-Left Rect-Right Rect-Bottom 
@@ -2761,32 +2767,32 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadImages wMiscFlds 
 PROCEDURE loadImages :
 /*------------------------------------------------------------------------------
-  Purpose:     Load Button Images
+  Purpose:     Load Button Graphics
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-      ldummy = btnPointer:LOAD-IMAGE-UP("images/wp_up",29,253,28,28)
-      ldummy = btnComboBox:LOAD-IMAGE-UP("images/wp_up",1,141,28,28)
-      ldummy = btnEditor:LOAD-IMAGE-UP("images/wp_up",29,113,28,28)
-      ldummy = btnFillIn:LOAD-IMAGE-UP("images/wp_up",29,141,28,28)
-      ldummy = btnRadioSet:LOAD-IMAGE-UP("images/wp_up",1,57,28,28)
-      ldummy = btnSelectionList:LOAD-IMAGE-UP("images/wp_up",1,113,28,28)
-      ldummy = btnSlider:LOAD-IMAGE-UP("images/wp_up",1,85,28,28)
-      ldummy = btnRectangle:LOAD-IMAGE-UP("images/wp_up",1,29,28,28)
-      ldummy = btnText:LOAD-IMAGE-UP("images/wp_up",1,169,28,28)
-      ldummy = btnToggleBox:LOAD-IMAGE-UP("images/wp_up",29,57,28,28)
-      ldummy = btnPointer:LOAD-IMAGE-INSENSITIVE("images/wp_down",29,253,28,28)
-      ldummy = btnComboBox:LOAD-IMAGE-INSENSITIVE("images/wp_down",1,141,28,28)
-      ldummy = btnEditor:LOAD-IMAGE-INSENSITIVE("images/wp_down",29,113,28,28)
-      ldummy = btnFillIn:LOAD-IMAGE-INSENSITIVE("images/wp_down",29,141,28,28)
-      ldummy = btnRadioSet:LOAD-IMAGE-INSENSITIVE("images/wp_down",1,57,28,28)
-      ldummy = btnSelectionList:LOAD-IMAGE-INSENSITIVE("images/wp_down",1,113,28,28)
-      ldummy = btnSlider:LOAD-IMAGE-INSENSITIVE("images/wp_down",1,85,28,28)
-      ldummy = btnRectangle:LOAD-IMAGE-INSENSITIVE("images/wp_down",1,29,28,28)
-      ldummy = btnText:LOAD-IMAGE-INSENSITIVE("images/wp_down",1,169,28,28)
-      ldummy = btnToggleBox:LOAD-IMAGE-INSENSITIVE("images/wp_down",29,57,28,28).
+      ldummy = btnPointer:LOAD-IMAGE-UP("Graphics/wp_up",29,253,28,28)
+      ldummy = btnCombo-Box:LOAD-IMAGE-UP("Graphics/wp_up",1,141,28,28)
+      ldummy = btnEditor:LOAD-IMAGE-UP("Graphics/wp_up",29,113,28,28)
+      ldummy = btnFill-In:LOAD-IMAGE-UP("Graphics/wp_up",29,141,28,28)
+      ldummy = btnRadio-Set:LOAD-IMAGE-UP("Graphics/wp_up",1,57,28,28)
+      ldummy = btnSelection-List:LOAD-IMAGE-UP("Graphics/wp_up",1,113,28,28)
+      ldummy = btnSlider:LOAD-IMAGE-UP("Graphics/wp_up",1,85,28,28)
+      ldummy = btnRectangle:LOAD-IMAGE-UP("Graphics/wp_up",1,29,28,28)
+      ldummy = btnText:LOAD-IMAGE-UP("Graphics/wp_up",1,169,28,28)
+      ldummy = btnToggle-Box:LOAD-IMAGE-UP("Graphics/wp_up",29,57,28,28)
+      ldummy = btnPointer:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",29,253,28,28)
+      ldummy = btnCombo-Box:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",1,141,28,28)
+      ldummy = btnEditor:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",29,113,28,28)
+      ldummy = btnFill-In:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",29,141,28,28)
+      ldummy = btnRadio-Set:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",1,57,28,28)
+      ldummy = btnSelection-List:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",1,113,28,28)
+      ldummy = btnSlider:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",1,85,28,28)
+      ldummy = btnRectangle:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",1,29,28,28)
+      ldummy = btnText:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",1,169,28,28)
+      ldummy = btnToggle-Box:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",29,57,28,28).
   END.
 
 END PROCEDURE.
@@ -2878,38 +2884,53 @@ PROCEDURE moveObjects :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE offset AS INTEGER NO-UNDO.
+  DEFINE VARIABLE offSet AS INTEGER NO-UNDO.
 
   ASSIGN
-    offset = FRAME folderFrm:WIDTH-PIXELS
+    offSet = FRAME folderFrm:WIDTH-PIXELS
     FRAME folderFrm:WIDTH-PIXELS = FRAME {&FRAME-NAME}:WIDTH-PIXELS - 291
     FRAME folderFrm:HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS - 80
-    offset = FRAME folderFrm:WIDTH-PIXELS - offset
-    gapField:X IN FRAME {&FRAME-NAME} = gapField:X + offset
-    gapFieldLabel:X = gapFieldLabel:X + offset
-    btnTest:X = btnTest:X + offset
-    widgetRect:X = widgetRect:X + offset
-    widgetLabel:X = widgetLabel:X + offset
-    btnPointer:X = btnPointer:X + offset
-    pointerLabel:X = pointerLabel:X + offset
-    btnComboBox:X = btnComboBox:X + offset
-    comboBoxLabel:X = comboBoxLabel:X + offset
-    btnEditor:X = btnEditor:X + offset
-    editorLabel:X = editorLabel:X + offset
-    btnFillIn:X = btnFillIn:X + offset
-    fillInLabel:X = fillInLabel:X + offset
-    btnRadioSet:X = btnRadioSet:X + offset
-    radioSetLabel:X = radioSetLabel:X + offset
-    btnRectangle:X = btnRectangle:X + offset
-    rectangleLabel:X = rectangleLabel:X + offset
-    btnSelectionList:X = btnSelectionList:X + offset
-    selectionListLabel:X = selectionListLabel:X + offset
-    btnSlider:X = btnSlider:X + offset
-    sliderLabel:X = sliderLabel:X + offset
-    btnText:X = btnText:X + offset
-    textLabel:X = textLabel:X + offset
-    btnToggleBox:X = btnToggleBox:X + offset
-    toggleBoxLabel:X = toggleBoxLabel:X + offset
+    offSet = FRAME folderFrm:WIDTH-PIXELS - offSet
+    tabNavRect:X = tabNavRect:X + offSet
+    btnPrevTab:X = btnPrevTab:X + offSet
+    tabCBLabel:X = tabCBLabel:X + offSet
+    mfgroupTab:X = mfgroupTab:X + offSet
+    btnNextTab:X = btnNextTab:X + offSet
+    tabLabelsRect:X = tabLabelsRect:X + offSet
+    tabNavLabel:X = tabNavLabel:X + offSet
+    btnAddTab:X = btnAddTab:X + offSet
+    btnRenameTab:X = btnRenameTab:X + offSet
+    btnDeleteTab:X = btnDeleteTab:X + offSet
+    btnDownTab:X = btnDownTab:X + offSet
+    btnUpTab:X = btnUpTab:X + offSet
+    tabLabels:X = tabLabels:X + offSet
+    tabField:X = tabField:X + offSet
+    /*
+    widgetRect:X = widgetRect:X + offSet
+    widgetLabel:X = widgetLabel:X + offSet
+    btnPointer:X = btnPointer:X + offSet
+    pointerLabel:X = pointerLabel:X + offSet
+    btnComboBox:X = btnComboBox:X + offSet
+    comboBoxLabel:X = comboBoxLabel:X + offSet
+    btnEditor:X = btnEditor:X + offSet
+    editorLabel:X = editorLabel:X + offSet
+    btnFillIn:X = btnFillIn:X + offSet
+    fillInLabel:X = fillInLabel:X + offSet
+    btnRadioSet:X = btnRadioSet:X + offSet
+    radioSetLabel:X = radioSetLabel:X + offSet
+    btnRectangle:X = btnRectangle:X + offSet
+    rectangleLabel:X = rectangleLabel:X + offSet
+    btnSelectionList:X = btnSelectionList:X + offSet
+    selectionListLabel:X = selectionListLabel:X + offSet
+    btnSlider:X = btnSlider:X + offSet
+    sliderLabel:X = sliderLabel:X + offSet
+    btnText:X = btnText:X + offSet
+    textLabel:X = textLabel:X + offSet
+    btnToggleBox:X = btnToggleBox:X + offSet
+    toggleBoxLabel:X = toggleBoxLabel:X + offSet
+    gapFieldLabel:X IN FRAME {&FRAME-NAME} = gapFieldLabel:X + offSet
+    gapField:X IN FRAME {&FRAME-NAME} = gapField:X + offSet
+    */
     Rect-Main:WIDTH-PIXELS IN FRAME folderFrm = FRAME folderFrm:WIDTH-PIXELS - 6
     Rect-Main:HEIGHT-PIXELS = FRAME folderFrm:HEIGHT-PIXELS - 23
     Rect-Top:WIDTH-PIXELS = Rect-Main:WIDTH-PIXELS - 2
@@ -3288,66 +3309,67 @@ PROCEDURE selectNewWidgetType :
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-      pointerLabel:BGCOLOR = 15
-      comboBoxLabel:BGCOLOR = 15
-      editorLabel:BGCOLOR = 15
-      fillInLabel:BGCOLOR = 15
-      radioSetLabel:BGCOLOR = 15
-      rectangleLabel:BGCOLOR = 15
-      selectionListLabel:BGCOLOR = 15
-      sliderLabel:BGCOLOR = 15
-      textLabel:BGCOLOR = 15
-      toggleBoxLabel:BGCOLOR = 15.
-    ENABLE {&LIST-3}.
+      pointerLabel:BGCOLOR = ?
+      combo-BoxLabel:BGCOLOR = ?
+      editorLabel:BGCOLOR = ?
+      fill-InLabel:BGCOLOR = ?
+      radio-SetLabel:BGCOLOR = ?
+      rectangleLabel:BGCOLOR = ?
+      selection-ListLabel:BGCOLOR = ?
+      sliderLabel:BGCOLOR = ?
+      textLabel:BGCOLOR = ?
+      toggle-BoxLabel:BGCOLOR = ?
+      .
+    ENABLE {&LIST-1} {&LIST-3}.
 
     CASE newWidgetType:
       WHEN "" THEN DO:
-        pointerLabel:BGCOLOR = 7.
-        DISABLE btnpointer.
+        pointerLabel:BGCOLOR = 8.
+        DISABLE btnPointer.
       END.
-&scoped-define widgettype comboBox
+&scoped-define widgettype Combo-Box
       WHEN "{&widgettype}" THEN DO:
-        {&widgettype}Label:BGCOLOR = 7.
+        {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype editor
+&scoped-define widgettype Editor
       WHEN "{&widgettype}" THEN DO:
-        {&widgettype}Label:BGCOLOR = 7.
+        {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype fillIn
+&scoped-define widgettype Fill-In
       WHEN "{&widgettype}" THEN DO:
-        {&widgettype}Label:BGCOLOR = 7.
+        {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype radioSet
+&scoped-define widgettype Radio-Set
       WHEN "{&widgettype}" THEN DO:
-        {&widgettype}Label:BGCOLOR = 7.
+        {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype rectangle
+&scoped-define widgettype Rectangle
       WHEN "{&widgettype}" THEN DO:
-        {&widgettype}Label:BGCOLOR = 7.
+        {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype selectionList
+&scoped-define widgettype Selection-List
       WHEN "{&widgettype}" THEN DO:
-        {&widgettype}Label:BGCOLOR = 7.
+        {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype slider
+&scoped-define widgettype Slider
       WHEN "{&widgettype}" THEN DO:
-        {&widgettype}Label:BGCOLOR = 7.
+        {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype text
+&scoped-define widgettype Text
       WHEN "{&widgettype}" THEN DO:
-        {&widgettype}Label:BGCOLOR = 7.
+        {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype toggleBox
+&scoped-define widgettype Toggle-Box
       WHEN "{&widgettype}" THEN DO:
-        {&widgettype}Label:BGCOLOR = 7.
+        {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
     END CASE.
@@ -3436,6 +3458,7 @@ PROCEDURE setTabOrder :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  /*
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
       ldummy = btnAddGroup:MOVE-AFTER(mfgroupList:HANDLE)
@@ -3451,6 +3474,7 @@ PROCEDURE setTabOrder :
       ldummy = btnDownTab:MOVE-AFTER(btnDeleteTab:HANDLE)
       ldummy = btnUpTab:MOVE-AFTER(btnDownTab:HANDLE).
   END.
+  */
 
 END PROCEDURE.
 
@@ -3523,7 +3547,8 @@ PROCEDURE updateAttrb :
       ELSE IF attrb.attr_type EQ "SLIDER" THEN STRING(currentWidget:HORIZONTAL)
       ELSE IF attrb.attr_type EQ "TEXT" THEN STRING(currentWidget:FONT)
       ELSE ""
-    attrb.attr_datatype = currentWidget:DATA-TYPE.
+    attrb.attr_datatype = currentWidget:DATA-TYPE
+    .
 
 END PROCEDURE.
 
@@ -3539,10 +3564,6 @@ PROCEDURE winReSize :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE offSet AS INTEGER NO-UNDO.
 
-  &IF DEFINED(UIB_is_Running) EQ 0 &THEN
-  MESSAGE "Not Running in App. Builder Mode" VIEW-AS ALERT-BOX.
-  &ENDIF
-
   {&WINDOW-NAME}:WINDOW-STATE = 1.
   offSet = IF {&WINDOW-NAME}:HEIGHT-PIXELS GT 600 THEN 50 ELSE 0.
   IF {&WINDOW-NAME}:HEIGHT-PIXELS LT 600 THEN {&WINDOW-NAME}:HEIGHT-PIXELS = 600.
@@ -3554,12 +3575,13 @@ PROCEDURE winReSize :
     FRAME {&FRAME-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
     FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
     FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-    FRAME folderFrm:GRID-FACTOR-VERTICAL = 5
-    FRAME folderFrm:GRID-FACTOR-HORIZONTAL = 5
+    FRAME folderFrm:GRID-FACTOR-VERTICAL = 4
+    FRAME folderFrm:GRID-FACTOR-HORIZONTAL = 10
     FRAME folderFrm:GRID-UNIT-WIDTH-PIXELS = 5
     FRAME folderFrm:GRID-UNIT-HEIGHT-PIXELS = 5
     FRAME folderFrm:GRID-SNAP = YES
-    FRAME folderFrm:GRID-VISIBLE = YES.
+    FRAME folderFrm:GRID-VISIBLE = YES
+    .
   RUN moveObjects.
 
 END PROCEDURE.

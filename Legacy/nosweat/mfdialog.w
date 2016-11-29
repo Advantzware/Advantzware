@@ -15,7 +15,7 @@
 
   Author:            Ron Stark
 
-  Created:           03/01/98
+  Created:           03/01/98 (updated 11.28.2016)
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -44,18 +44,18 @@ DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 &Scoped-define PROCEDURE-TYPE DIALOG-BOX
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS attr_label attr_name attr_values ~
-attr_default x-coord y-coord data_type pixel-height pixel-width data_format ~
-min_value max_value font-setting horz-bar vert-bar attr_enabled attr_proc ~
-Btn_Cancel Btn_OK 
-&Scoped-Define DISPLAYED-OBJECTS attr_id attr_order attr_type attr_label ~
-attr_name attr_values attr_default x-coord y-coord data_type pixel-height ~
-pixel-width data_format min_value max_value font-setting horz-bar vert-bar ~
-attr_enabled attr_proc 
+&Scoped-Define ENABLED-OBJECTS btnCancel btnOK horz-bar vert-bar ~
+attr_enabled attr_label attr_name attr_values attr_default x-coord y-coord ~
+min_value pixel-height pixel-width max_value data_type data_format ~
+font-setting attr_proc 
+&Scoped-Define DISPLAYED-OBJECTS attr_id attr_order attr_type horz-bar ~
+vert-bar attr_enabled attr_label attr_name attr_values attr_default x-coord ~
+y-coord min_value pixel-height pixel-width max_value data_type data_format ~
+font-setting attr_proc 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -70,14 +70,16 @@ attr_enabled attr_proc
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
+DEFINE BUTTON btnCancel AUTO-END-KEY 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Cancel" 
-     SIZE 16.8 BY 1
+     SIZE 8 BY 1.9
      BGCOLOR 8 FONT 4.
 
-DEFINE BUTTON Btn_OK AUTO-GO 
-     LABEL "&OK" 
-     SIZE 16.8 BY 1
+DEFINE BUTTON btnOK AUTO-GO 
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91
      BGCOLOR 8 FONT 4.
 
 DEFINE VARIABLE attr_proc AS CHARACTER FORMAT "X(256)":U 
@@ -177,7 +179,7 @@ DEFINE VARIABLE y-coord AS INTEGER FORMAT "zzz9":U INITIAL 0
 DEFINE VARIABLE attr_enabled AS LOGICAL INITIAL yes 
      LABEL "Enable" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.4 BY 1 NO-UNDO.
+     SIZE 11 BY 1 NO-UNDO.
 
 DEFINE VARIABLE horz-bar AS LOGICAL INITIAL no 
      LABEL "Horizontal Scrollbar" 
@@ -193,53 +195,53 @@ DEFINE VARIABLE vert-bar AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     attr_id AT ROW 1.24 COL 16.2 COLON-ALIGNED HELP
-          "Enter Attribute Identifier"
-     attr_order AT ROW 1.24 COL 58 COLON-ALIGNED
-     attr_type AT ROW 1.24 COL 83 COLON-ALIGNED
-     attr_label AT ROW 2.43 COL 16.2 COLON-ALIGNED HELP
-          "Enter Attribute Label"
-     attr_name AT ROW 3.62 COL 2.8 HELP
-          "Enter Attribute Name"
-     attr_values AT ROW 4.81 COL 2 HELP
-          "Enter Attribute Values"
-     attr_default AT ROW 6 COL 16 COLON-ALIGNED HELP
-          "Enter Attribute Default Value"
-     x-coord AT ROW 7.19 COL 16 COLON-ALIGNED HELP
-          "Enter X Coordinate"
-     y-coord AT ROW 7.19 COL 59.4 COLON-ALIGNED HELP
-          "Enter Y Coordinate"
-     data_type AT ROW 7.19 COL 83.2 COLON-ALIGNED HELP
-          "Select Data Type"
-     pixel-height AT ROW 8.38 COL 16 COLON-ALIGNED HELP
-          "Enter Pixel Height"
-     pixel-width AT ROW 8.38 COL 59.4 COLON-ALIGNED HELP
-          "Enter Pixel Width"
-     data_format AT ROW 8.38 COL 79 COLON-ALIGNED HELP
-          "Enter Data Format"
-     min_value AT ROW 9.57 COL 16 COLON-ALIGNED HELP
-          "Enter Slider's Minimum Value"
-     max_value AT ROW 9.57 COL 59.4 COLON-ALIGNED HELP
-          "Enter Slider's Maximum Value"
-     font-setting AT ROW 9.57 COL 89 COLON-ALIGNED HELP
-          "Select Font Size"
-     horz-bar AT ROW 10.76 COL 33 HELP
-          "Set Horizontal Scrollbar"
-     vert-bar AT ROW 10.76 COL 61.4 HELP
-          "Set Vertical Scrollbar"
-     attr_enabled AT ROW 10.76 COL 91 HELP
-          "Enable Attribute"
-     attr_proc AT ROW 11.95 COL 31 COLON-ALIGNED HELP
-          "Select Display/Load Values Procedure Name"
-     Btn_Cancel AT ROW 11.95 COL 73 HELP
+     btnCancel AT ROW 1.24 COL 100 HELP
           "CANCEL Edit Function"
-     Btn_OK AT ROW 11.95 COL 91 HELP
+     btnOK AT ROW 1.24 COL 91 HELP
           "OK to Save Edit Function Settings"
-     SPACE(0.19) SKIP(0.00)
+     attr_id AT ROW 1.24 COL 17.2 COLON-ALIGNED HELP
+          "Enter Attribute Identifier"
+     attr_order AT ROW 2.43 COL 17 COLON-ALIGNED
+     attr_type AT ROW 3.62 COL 17 COLON-ALIGNED
+     horz-bar AT ROW 3.62 COL 43 HELP
+          "Set Horizontal Scrollbar"
+     vert-bar AT ROW 3.62 COL 66 HELP
+          "Set Vertical Scrollbar"
+     attr_enabled AT ROW 3.62 COL 97 HELP
+          "Enable Attribute"
+     attr_label AT ROW 4.81 COL 17.2 COLON-ALIGNED HELP
+          "Enter Attribute Label"
+     attr_name AT ROW 6 COL 3.8 HELP
+          "Enter Attribute Name"
+     attr_values AT ROW 7.19 COL 3 HELP
+          "Enter Attribute Values"
+     attr_default AT ROW 8.38 COL 17 COLON-ALIGNED HELP
+          "Enter Attribute Default Value"
+     x-coord AT ROW 9.57 COL 17 COLON-ALIGNED HELP
+          "Enter X Coordinate"
+     y-coord AT ROW 9.57 COL 40 COLON-ALIGNED HELP
+          "Enter Y Coordinate"
+     min_value AT ROW 9.57 COL 67 COLON-ALIGNED HELP
+          "Enter Slider's Minimum Value"
+     pixel-height AT ROW 10.76 COL 17 COLON-ALIGNED HELP
+          "Enter Pixel Height"
+     pixel-width AT ROW 10.76 COL 40 COLON-ALIGNED HELP
+          "Enter Pixel Width"
+     max_value AT ROW 10.76 COL 67 COLON-ALIGNED HELP
+          "Enter Slider's Maximum Value"
+     data_type AT ROW 11.95 COL 17 COLON-ALIGNED HELP
+          "Select Data Type"
+     data_format AT ROW 11.95 COL 67 COLON-ALIGNED HELP
+          "Enter Data Format"
+     font-setting AT ROW 13.14 COL 17 COLON-ALIGNED HELP
+          "Select Font Size"
+     attr_proc AT ROW 13.14 COL 67 COLON-ALIGNED HELP
+          "Select Display/Load Values Procedure Name"
+     SPACE(0.79) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Attribute Editor"
-         DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel.
+         CANCEL-BUTTON btnCancel.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -258,7 +260,7 @@ DEFINE FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -331,9 +333,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_OK
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
-ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
+&Scoped-define SELF-NAME btnOK
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK Dialog-Frame
+ON CHOOSE OF btnOK IN FRAME Dialog-Frame
 DO:
   FIND attrb WHERE ROWID(attrb) = TO-ROWID(attrb_rowid) EXCLUSIVE-LOCK.
   ASSIGN 
@@ -347,10 +349,10 @@ DO:
     attrb.attr_width = INTEGER(pixel-width:SCREEN-VALUE)
     attrb.attr_order = INTEGER(attr_order:SCREEN-VALUE)
     attrb.attr_enabled = attr_enabled:SCREEN-VALUE EQ "YES"
-    attrb.attr_proc = attr_proc:SCREEN-VALUE.
+    attrb.attr_proc = attr_proc:SCREEN-VALUE
+    .
   CASE attrb.attr_type:
-    WHEN "FILL-IN" THEN
-    DO:
+    WHEN "FILL-IN" THEN DO:
       IF data_format:SCREEN-VALUE = "" THEN
       CASE data_type:SCREEN-VALUE:
         WHEN "Character" THEN
@@ -366,7 +368,8 @@ DO:
       END CASE.
       ASSIGN
         attrb.attr_datatype = data_type:SCREEN-VALUE
-        attrb.attr_settings = data_format:SCREEN-VALUE.
+        attrb.attr_settings = data_format:SCREEN-VALUE
+        .
     END.
     WHEN "COMBO-BOX" THEN
     attrb.attr_settings = data_format:SCREEN-VALUE.
@@ -377,7 +380,8 @@ DO:
     WHEN "SLIDER" THEN
     ASSIGN
       attr_values = min_value:SCREEN-VALUE + "," + max_value:SCREEN-VALUE
-      attr_settings = horz-bar:SCREEN-VALUE.
+      attr_settings = horz-bar:SCREEN-VALUE
+      .
     WHEN "TEXT" THEN
     attrb.attr_settings = font-setting:SCREEN-VALUE.
   END CASE.
@@ -456,33 +460,39 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     pixel-width:SCREEN-VALUE = STRING(attrb.attr_width)
     attr_order:SCREEN-VALUE = STRING(attrb.attr_order)
     attr_enabled:SCREEN-VALUE = STRING(attrb.attr_enabled)
-    attr_proc:SCREEN-VALUE = attrb.attr_proc.
+    attr_proc:SCREEN-VALUE = attrb.attr_proc
+    .
   CASE attrb.attr_type:
     WHEN "COMBO-BOX" THEN
     ASSIGN
       data_format:HIDDEN = NO
-      data_format:SCREEN-VALUE = attrb.attr_settings.
+      data_format:SCREEN-VALUE = attrb.attr_settings
+      .
     WHEN "EDITOR" THEN
     ASSIGN
       vert-bar:HIDDEN = NO
       horz-bar:HIDDEN = NO
       horz-bar:SCREEN-VALUE = ENTRY(1,attrb.attr_settings)
-      vert-bar:SCREEN-VALUE = ENTRY(2,attrb.attr_settings).
+      vert-bar:SCREEN-VALUE = ENTRY(2,attrb.attr_settings)
+      .
     WHEN "FILL-IN" THEN
     ASSIGN
       data_type:HIDDEN = NO
       data_format:HIDDEN = NO
       data_type:SCREEN-VALUE = attrb.attr_datatype
-      data_format:SCREEN-VALUE = attrb.attr_settings.
+      data_format:SCREEN-VALUE = attrb.attr_settings
+      .
     WHEN "RECTANGLE" THEN
     ASSIGN
       attr_label:HIDDEN = YES
       attr_values:HIDDEN = YES
-      attr_default:HIDDEN = YES.
+      attr_default:HIDDEN = YES
+      .
     WHEN "RADIO-SET" THEN
     ASSIGN
       horz-bar:HIDDEN = NO
-      horz-bar:SCREEN-VALUE = attrb.attr_settings.
+      horz-bar:SCREEN-VALUE = attrb.attr_settings
+      .
     WHEN "SLIDER" THEN
     DO:
       ASSIGN
@@ -492,12 +502,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         min_value:SCREEN-VALUE = ENTRY(1,attrb.attr_values)
         max_value:SCREEN-VALUE = ENTRY(2,attrb.attr_values)
         horz-bar:SCREEN-VALUE = ENTRY(1,attrb.attr_settings)
-        attr_values:HIDDEN = YES.
+        attr_values:HIDDEN = YES
+        .
     END.
     WHEN "TEXT" THEN
     ASSIGN
       font-setting:HIDDEN = NO
-      font-setting:SCREEN-VALUE = attrb.attr_settings.
+      font-setting:SCREEN-VALUE = attrb.attr_settings
+      .
   END CASE.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -537,15 +549,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY attr_id attr_order attr_type attr_label attr_name attr_values 
-          attr_default x-coord y-coord data_type pixel-height pixel-width 
-          data_format min_value max_value font-setting horz-bar vert-bar 
-          attr_enabled attr_proc 
+  DISPLAY attr_id attr_order attr_type horz-bar vert-bar attr_enabled attr_label 
+          attr_name attr_values attr_default x-coord y-coord min_value 
+          pixel-height pixel-width max_value data_type data_format font-setting 
+          attr_proc 
       WITH FRAME Dialog-Frame.
-  ENABLE attr_label attr_name attr_values attr_default x-coord y-coord 
-         data_type pixel-height pixel-width data_format min_value max_value 
-         font-setting horz-bar vert-bar attr_enabled attr_proc Btn_Cancel 
-         Btn_OK 
+  ENABLE btnCancel btnOK horz-bar vert-bar attr_enabled attr_label attr_name 
+         attr_values attr_default x-coord y-coord min_value pixel-height 
+         pixel-width max_value data_type data_format font-setting attr_proc 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

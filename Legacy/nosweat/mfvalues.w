@@ -10,7 +10,7 @@
 
   Author:            Ron Stark
 
-  Created:           03/01/98
+  Created:           03/01/98 (updated 11.28.2016)
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -29,9 +29,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 &IF DEFINED(dbnm) EQ 0 &THEN
-DEFINE INPUT PARAMETER ip-group AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ip-group   AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ip-rec_key AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-header AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ip-header  AS CHARACTER NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -40,17 +40,21 @@ DEFINE INPUT PARAMETER ip-header AS CHARACTER NO-UNDO.
 {custom/mfvalues.i}
 {methods/defines/miscflds.i &NEW="NEW"}
 
-DEFINE VARIABLE tabImage AS WIDGET-HANDLE EXTENT 18 NO-UNDO.
-DEFINE VARIABLE tabLabel AS WIDGET-HANDLE EXTENT 18 NO-UNDO.
-DEFINE VARIABLE labelWidget AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE dynWidget AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE tabImage      AS WIDGET-HANDLE NO-UNDO EXTENT 18.
+DEFINE VARIABLE tabLabel      AS WIDGET-HANDLE NO-UNDO EXTENT 18.
+DEFINE VARIABLE labelWidget   AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE dynWidget     AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE currentWidget AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE editorWidget AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE mfgrpList AS CHARACTER NO-UNDO.
-DEFINE VARIABLE tabLabels AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
-DEFINE VARIABLE currentTab AS INTEGER NO-UNDO.
-DEFINE VARIABLE i AS INTEGER NO-UNDO.
+DEFINE VARIABLE editorWidget  AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE mfgrpList     AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE tabLabels     AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE ldummy        AS LOGICAL       NO-UNDO.
+DEFINE VARIABLE currentTab    AS INTEGER       NO-UNDO.
+DEFINE VARIABLE i             AS INTEGER       NO-UNDO.
+DEFINE VARIABLE folderHeight  AS INTEGER       NO-UNDO.
+DEFINE VARIABLE folderWidth   AS INTEGER       NO-UNDO.
+DEFINE VARIABLE saveHeight    AS INTEGER       NO-UNDO.
+DEFINE VARIABLE saveWidth     AS INTEGER       NO-UNDO.
 
 DEFINE TEMP-TABLE t-mfvalues NO-UNDO LIKE {&dbnm}mfvalues.
 
@@ -81,9 +85,9 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Rect-Top Rect-Left Rect-Right Rect-Bottom ~
-btnOK btnApply btnClose 
-&Scoped-Define DISPLAYED-OBJECTS mfgroupList headerValue mfgroupLabel 
+&Scoped-Define ENABLED-OBJECTS btnExit btnApply Rect-Top Rect-Left btnSave ~
+Rect-Right Rect-Bottom 
+&Scoped-Define DISPLAYED-OBJECTS mfgroupList mfgroupLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -100,33 +104,31 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnApply 
-     LABEL "&Apply" 
-     SIZE 11.2 BY 1.38
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk_window.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Apply" 
+     SIZE 8 BY 1.91 TOOLTIP "Save"
      FONT 4.
 
-DEFINE BUTTON btnClose 
-     LABEL "&Cancel" 
-     SIZE 11.2 BY 1.38
+DEFINE BUTTON btnExit 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "E&xit" 
+     SIZE 8 BY 1.91 TOOLTIP "Exit"
      FONT 4.
 
-DEFINE BUTTON btnOK 
-     LABEL "&OK" 
-     SIZE 11.2 BY 1.38
+DEFINE BUTTON btnSave 
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Save" 
+     SIZE 8 BY 1.91 TOOLTIP "Save"
      FONT 4.
 
 DEFINE VARIABLE mfgroupList AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 1
      DROP-DOWN-LIST
-     SIZE 45.2 BY 1 NO-UNDO.
+     SIZE 58.2 BY 1 NO-UNDO.
 
-DEFINE VARIABLE headerValue AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE mfgroupLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Group:" 
       VIEW-AS TEXT 
-     SIZE 90 BY 1
-     BGCOLOR 15 FONT 6 NO-UNDO.
-
-DEFINE VARIABLE mfgroupLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Group:" 
-      VIEW-AS TEXT 
-     SIZE 7 BY .62 NO-UNDO.
+     SIZE 7 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE Rect-Bottom
      EDGE-PIXELS 0    
@@ -157,25 +159,24 @@ DEFINE RECTANGLE Rect-Top
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     mfgroupList AT ROW 22.67 COL 7 COLON-ALIGNED HELP
+     btnExit AT ROW 21.48 COL 84 HELP
+          "Exit Design Layout Window" WIDGET-ID 2
+     btnApply AT ROW 21.48 COL 68 HELP
+          "Apply" WIDGET-ID 4
+     btnSave AT ROW 21.48 COL 76 HELP
+          "Save" WIDGET-ID 6
+     mfgroupList AT ROW 21.95 COL 7 COLON-ALIGNED HELP
           "Select Group Name" NO-LABEL
-     btnOK AT ROW 22.67 COL 55.6 HELP
-          "Save and Close Window"
-     btnApply AT ROW 22.67 COL 68.2 HELP
-          "APPLY Changes"
-     btnClose AT ROW 22.67 COL 80.8 HELP
-          "CLOSE Attribute Window"
-     headerValue AT ROW 21.48 COL 2 NO-LABEL
-     mfgroupLabel AT ROW 22.91 COL 1 NO-LABEL
+     mfgroupLabel AT ROW 21.95 COL 2 NO-LABEL
      Rect-Main AT ROW 2.05 COL 1.6
      Rect-Top AT ROW 2.1 COL 1.8
-     Rect-Left AT ROW 2.19 COL 1.8
-     Rect-Right AT ROW 2.29 COL 91.2
-     Rect-Bottom AT ROW 21.05 COL 1.8
+     Rect-Left AT ROW 2.14 COL 1.8
+     Rect-Right AT ROW 2.24 COL 91.2
+     Rect-Bottom AT ROW 21.1 COL 1.8
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 91.6 BY 23.25.
+         SIZE 91.2 BY 22.57.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -194,9 +195,9 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Misc. Field Values"
-         HEIGHT             = 23.24
-         WIDTH              = 91.6
+         TITLE              = "User Defined Field Values"
+         HEIGHT             = 22.57
+         WIDTH              = 91.2
          MAX-HEIGHT         = 57.14
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 57.14
@@ -230,8 +231,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* SETTINGS FOR FILL-IN headerValue IN FRAME DEFAULT-FRAME
-   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN mfgroupLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR COMBO-BOX mfgroupList IN FRAME DEFAULT-FRAME
@@ -261,7 +260,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Misc. Field Values */
+ON END-ERROR OF C-Win /* User Defined Field Values */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -274,22 +273,12 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Misc. Field Values */
+ON WINDOW-CLOSE OF C-Win /* User Defined Field Values */
 DO:
   IF mfpersist NE ? THEN DELETE PROCEDURE mfpersist.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-RESIZED OF C-Win /* Misc. Field Values */
-DO:
-  RUN winReSize.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -307,9 +296,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnClose
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClose C-Win
-ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Cancel */
+&Scoped-define SELF-NAME btnExit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit C-Win
+ON CHOOSE OF btnExit IN FRAME DEFAULT-FRAME /* Exit */
 DO:
   IF mfpersist NE ? THEN DELETE PROCEDURE mfpersist.
   APPLY "CLOSE" TO THIS-PROCEDURE.
@@ -319,13 +308,13 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnOK
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK C-Win
-ON CHOOSE OF btnOK IN FRAME DEFAULT-FRAME /* OK */
+&Scoped-define SELF-NAME btnSave
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave C-Win
+ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME /* Save */
 DO:
-  RUN applyChanges.
-  IF RETURN-VALUE NE "NO-APPLY" THEN
-  APPLY "CLOSE" TO THIS-PROCEDURE.
+    RUN applyChanges.
+    IF RETURN-VALUE NE "NO-APPLY" THEN
+    APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -388,18 +377,21 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   RUN winReSize.
   {methods/wait.i}
-  FOR EACH {&dbnm}mfvalues NO-LOCK WHERE {&dbnm}mfvalues.rec_key = ip-rec_key:
+  FOR EACH {&dbnm}mfvalues NO-LOCK
+      WHERE {&dbnm}mfvalues.rec_key = ip-rec_key
+      :
     CREATE t-mfvalues.
     BUFFER-COPY {&dbnm}mfvalues TO t-mfvalues.
   END.
   IF mfpersist EQ ? THEN
   RUN nosweat/mfpersist.p PERSISTENT SET mfpersist.
   RUN loadWidgetData.
+  {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + ip-header.
   {methods/nowait.i}
   IF RETURN-VALUE EQ "EMPTY" THEN
-  DISABLE btnOK btnApply WITH FRAME {&FRAME-NAME}.
+  DISABLE btnSave btnApply WITH FRAME {&FRAME-NAME}.
   ELSE
-  APPLY "ENTRY" TO btnOK IN FRAME {&FRAME-NAME}.
+  APPLY "ENTRY" TO btnSave IN FRAME {&FRAME-NAME}.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -444,7 +436,7 @@ PROCEDURE applyChanges :
     BUFFER-COPY t-mfvalues TO {&dbnm}mfvalues.
   END.
   {methods/nowait.i}
-  btnClose:LABEL IN FRAME {&FRAME-NAME} = "&Close".
+  btnExit:LABEL IN FRAME {&FRAME-NAME} = "&Close".
   RETURN.
 
 END PROCEDURE.
@@ -506,6 +498,14 @@ PROCEDURE createTabs :
        NO-ERROR.
   IF NOT AVAILABLE {&dbnm}mfgroup THEN RETURN.
   DO i = 1 TO NUM-ENTRIES({&dbnm}mfgroup.mfgroup_tabs):
+      folderWidth = MAX(folderWidth,3 + (i - 1) * 72 + 72).
+      IF folderWidth + 15 GT FRAME {&FRAME-NAME}:WIDTH-PIXELS THEN
+      ASSIGN
+        {&WINDOW-NAME}:WIDTH-PIXELS = folderWidth + 10
+        {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
+        FRAME {&FRAME-NAME}:WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
+        FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
+        .
     CREATE IMAGE tabImage[i] IN WIDGET-POOL "widget-pool-tabs"
       ASSIGN
         FRAME = FRAME {&FRAME-NAME}:HANDLE
@@ -540,7 +540,8 @@ PROCEDURE createTabs :
         ldummy = tabImage[i]:MOVE-TO-TOP()
         ldummy = tabLabel[i]:MOVE-TO-TOP()
         tabImage[i]:HIDDEN = NO
-        tabLabel[i]:HIDDEN = NO.
+        tabLabel[i]:HIDDEN = NO
+        .
   END.
   /* use up tab image for currently selected tab */
   ASSIGN
@@ -565,16 +566,18 @@ PROCEDURE createWidgets :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   {methods/wait.i}
-  RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+  /* RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i). */
   DELETE WIDGET-POOL "attr-widget" NO-ERROR.
   CREATE WIDGET-POOL "attr-widget" PERSISTENT.
   FOR EACH attrb NO-LOCK
       WHERE attrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND attrb.attr_tab EQ currentTab
-      BY attrb.attr_order:
+      BY attrb.attr_order
+      :
     RUN dynamicWidget.
   END.
-  RUN LockWindowUpdate (0,OUTPUT i).
+  RUN moveObjects.
+  /* RUN LockWindowUpdate (0,OUTPUT i). */
   {methods/nowait.i}
 
 END PROCEDURE.
@@ -608,10 +611,10 @@ PROCEDURE dynamicWidget :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE horzBar AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE vertBar AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE initsv AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE sv AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE horzBar AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE vertBar AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE initsv  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE sv      AS CHARACTER NO-UNDO.
 
 &scoped-define defaults-code ~
           ASSIGN ~
@@ -703,9 +706,26 @@ PROCEDURE dynamicWidget :
 
   ASSIGN
     horzBar = IF NUM-ENTRIES(attrb.attr_settings) NE 0 AND
-                 ENTRY(1,attrb.attr_settings) EQ "yes" THEN yes ELSE no
+                 ENTRY(1,attrb.attr_settings) EQ "yes" THEN YES ELSE NO
     vertBar = IF NUM-ENTRIES(attrb.attr_settings) GT 1 AND
-                 ENTRY(2,attrb.attr_settings) EQ "yes" THEN yes ELSE no.
+                 ENTRY(2,attrb.attr_settings) EQ "yes" THEN YES ELSE NO
+    folderHeight = MAX(folderHeight,attrb.attr_y + attrb.attr_height)
+    folderWidth = MAX(folderWidth,attrb.attr_x + attrb.attr_width)
+    .
+  IF folderHeight + btnExit:HEIGHT-PIXELS IN FRAME {&FRAME-NAME} + 15 GT FRAME {&FRAME-NAME}:HEIGHT-PIXELS THEN
+  ASSIGN
+    {&WINDOW-NAME}:HEIGHT-PIXELS = folderHeight + btnExit:HEIGHT-PIXELS + 30
+    {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+    FRAME {&FRAME-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+    FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+    .
+  IF folderWidth + 15 GT FRAME {&FRAME-NAME}:WIDTH-PIXELS THEN
+  ASSIGN
+    {&WINDOW-NAME}:WIDTH-PIXELS = folderWidth + 10
+    {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
+    FRAME {&FRAME-NAME}:WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
+    FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
+    .
   RUN createLabelWidget (attrb.attr_type,attrb.attr_label,attrb.attr_x,attrb.attr_y).
   FIND t-mfvalues NO-LOCK
        WHERE t-mfvalues.rec_key = ip-rec_key
@@ -760,9 +780,10 @@ PROCEDURE dynamicWidget :
     END CASE.
     IF VALID-HANDLE(dynWidget) THEN
     ASSIGN
-      dynWidget:SENSITIVE = attrb.attr_enabled
-      ldummy = dynWidget:MOVE-TO-TOP()
-      dynWidget:HIDDEN = NO.
+        dynWidget:SENSITIVE = attrb.attr_enabled
+        ldummy = dynWidget:MOVE-TO-TOP()
+        dynWidget:HIDDEN = NO
+        .
     IF mfpersist NE ? AND attrb.attr_proc NE "" AND attrb.attr_proc NE ? THEN DO:
       RUN VALUE(attrb.attr_proc) IN mfpersist
           (t-mfvalues.mf_id,t-mfvalues.mf_value,t-mfvalues.rec_key,
@@ -772,7 +793,8 @@ PROCEDURE dynamicWidget :
         dynWidget:LIST-ITEMS = sv
         dynWidget:SCREEN-VALUE = IF CAN-DO(sv,initsv) THEN initsv
                             ELSE IF CAN-DO(sv,t-mfvalues.mf_value) THEN t-mfvalues.mf_value
-                            ELSE ?.
+                            ELSE ?
+        .
       ELSE dynWidget:SCREEN-VALUE = sv.
     END.
   END.
@@ -794,9 +816,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY mfgroupList headerValue mfgroupLabel 
+  DISPLAY mfgroupList mfgroupLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE Rect-Top Rect-Left Rect-Right Rect-Bottom btnOK btnApply btnClose 
+  ENABLE btnExit btnApply Rect-Top Rect-Left btnSave Rect-Right Rect-Bottom 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -812,20 +834,25 @@ PROCEDURE labelTrigger :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER tabno AS INTEGER NO-UNDO.
-
-  ASSIGN      
-    tabImage[currentTab]:HEIGHT-PIXEL = 24
-    ldummy = tabImage[currentTab]:LOAD-IMAGE("adeicon/ts-dn72")
-    ldummy = tabImage[currentTab]:MOVE-TO-TOP()
-    ldummy = tabLabel[currentTab]:MOVE-TO-TOP()
-    currentTab = tabno.
-  RUN createWidgets.
-  ASSIGN
-    tabImage[currentTab]:HEIGHT-PIXEL = 27
-    ldummy = tabImage[currentTab]:LOAD-IMAGE("adeicon/ts-up72")
-    ldummy = tabImage[currentTab]:MOVE-TO-TOP()
-    ldummy = tabLabel[currentTab]:MOVE-TO-TOP().
+    DEFINE INPUT PARAMETER tabno AS INTEGER NO-UNDO.
+    
+    RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+    ASSIGN
+        tabImage[currentTab]:HEIGHT-PIXEL = 24
+        ldummy = tabImage[currentTab]:LOAD-IMAGE("adeicon/ts-dn72")
+        ldummy = tabImage[currentTab]:MOVE-TO-TOP()
+        ldummy = tabLabel[currentTab]:MOVE-TO-TOP()
+        currentTab = tabno
+        .
+    RUN createWidgets.
+    ASSIGN
+        tabImage[currentTab]:HEIGHT-PIXEL = 27
+        ldummy = tabImage[currentTab]:LOAD-IMAGE("adeicon/ts-up72")
+        ldummy = tabImage[currentTab]:MOVE-TO-TOP()
+        ldummy = tabLabel[currentTab]:MOVE-TO-TOP()
+        .
+    RUN moveObjects.
+    RUN LockWindowUpdate (0,OUTPUT i).
 
 END PROCEDURE.
 
@@ -866,7 +893,8 @@ PROCEDURE loadWidgetData :
     mfgroupList:INNER-LINES IN FRAME {&FRAME-NAME} = NUM-ENTRIES(mfgrpList)
     mfgroupList:LIST-ITEMS IN FRAME {&FRAME-NAME} = mfgrpList
     mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ip-group
-    headerValue:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ip-header.
+    /* headerValue:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ip-header */
+    .
   APPLY "VALUE-CHANGED" TO mfgroupList IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -881,22 +909,40 @@ PROCEDURE moveObjects :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  ASSIGN
-    Rect-Main:WIDTH-PIXELS IN FRAME {&FRAME-NAME} = FRAME {&FRAME-NAME}:WIDTH-PIXELS - 6
-    Rect-Main:HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS - 84 - 30
-    Rect-Top:WIDTH-PIXELS = Rect-Main:WIDTH-PIXELS - 2
-    Rect-Left:HEIGHT-PIXELS = Rect-Main:HEIGHT-PIXELS - 5
-    Rect-Bottom:WIDTH-PIXELS = Rect-Main:WIDTH-PIXELS - 2
-    Rect-Bottom:Y = Rect-Main:HEIGHT-PIXELS + 17
-    Rect-Right:HEIGHT-PIXELS = Rect-Main:HEIGHT-PIXELS - 8
-    Rect-Right:X = Rect-Main:WIDTH-PIXELS - 1
-    headerValue:WIDTH-PIXELS = Rect-Main:WIDTH-PIXELS
-    headerValue:Y = Rect-Main:HEIGHT-PIXELS + 26
-    mfgroupLabel:Y = headerValue:Y + 30
-    mfgroupList:Y = headerValue:Y + 25
-    btnOK:Y = headerValue:Y + 25
-    btnApply:Y = headerValue:Y + 25
-    btnClose:Y = headerValue:Y + 25.
+    DEFINE VARIABLE iHeight AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iWidth  AS INTEGER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            iHeight = IF folderHeight NE 0 THEN folderHeight - 15
+                      ELSE FRAME {&FRAME-NAME}:WIDTH-PIXELS - 6
+            iWidth  = IF folderWidth NE 0 THEN folderWidth + 5
+                      ELSE FRAME {&FRAME-NAME}:WIDTH-PIXELS - 6
+            FRAME {&FRAME-NAME}:HEIGHT-PIXELS = iHeight + btnExit:HEIGHT-PIXELS + 30
+            FRAME {&FRAME-NAME}:WIDTH-PIXELS = iWidth + 10
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = FRAME {&FRAME-NAME}:WIDTH-PIXELS
+            Rect-Main:HEIGHT-PIXELS = iHeight
+            Rect-Main:WIDTH-PIXELS = iWidth
+            Rect-Top:WIDTH-PIXELS = Rect-Main:WIDTH-PIXELS - 2
+            Rect-Left:HEIGHT-PIXELS = Rect-Main:HEIGHT-PIXELS - 5
+            Rect-Bottom:WIDTH-PIXELS = Rect-Main:WIDTH-PIXELS - 2
+            Rect-Bottom:Y = Rect-Main:HEIGHT-PIXELS + 17
+            Rect-Right:HEIGHT-PIXELS = Rect-Main:HEIGHT-PIXELS - 8
+            Rect-Right:X = Rect-Main:WIDTH-PIXELS - 1
+            /* headerValue:WIDTH-PIXELS = Rect-Main:WIDTH-PIXELS */
+            /* headerValue:Y = Rect-Main:HEIGHT-PIXELS + 26 */
+            mfgroupLabel:Y = Rect-Main:HEIGHT-PIXELS + 36
+            mfgroupList:Y = Rect-Main:HEIGHT-PIXELS + 36
+            btnSave:Y = Rect-Main:HEIGHT-PIXELS + 26
+            btnApply:Y = Rect-Main:HEIGHT-PIXELS + 26
+            btnExit:Y = Rect-Main:HEIGHT-PIXELS + 26
+            {&WINDOW-NAME}:HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
+            {&WINDOW-NAME}:WIDTH-PIXELS = FRAME {&FRAME-NAME}:WIDTH-PIXELS
+            {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+            {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
+            .
+    END.
 
 END PROCEDURE.
 
@@ -910,7 +956,7 @@ PROCEDURE Set-Focus :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/setfocus.i btnClose}
+  {methods/setfocus.i btnExit}
 
 END PROCEDURE.
 
@@ -980,8 +1026,11 @@ PROCEDURE winReSize :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE offSet AS INTEGER NO-UNDO.
 
+  /*
   {&WINDOW-NAME}:WINDOW-STATE = 1.
-  offSet = IF {&WINDOW-NAME}:HEIGHT-PIXELS GT 600 THEN 30 ELSE 0.
+  offSet = IF {&WINDOW-NAME}:HEIGHT-PIXELS GT 600 THEN 60 ELSE 0.
+  */
+  offSet = 60.
   IF {&WINDOW-NAME}:HEIGHT-PIXELS LT 600 THEN {&WINDOW-NAME}:HEIGHT-PIXELS = 600.
   IF {&WINDOW-NAME}:WIDTH-PIXELS LT 800 THEN {&WINDOW-NAME}:WIDTH-PIXELS = 800.
   ASSIGN
@@ -989,9 +1038,7 @@ PROCEDURE winReSize :
     {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
     FRAME {&FRAME-NAME}:WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
     FRAME {&FRAME-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-    FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS + 6000
-    FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS + 3000.
-  RUN moveObjects.
+    .
 
 END PROCEDURE.
 

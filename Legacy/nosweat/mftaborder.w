@@ -54,7 +54,7 @@ DEFINE TEMP-TABLE tabOrder NO-UNDO
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tabOptions tabObjects btnCancel btnOK 
+&Scoped-Define ENABLED-OBJECTS btnExit btnSave tabOptions tabObjects 
 &Scoped-Define DISPLAYED-OBJECTS tabLabel tabOptions tabObjects 
 
 /* Custom List Definitions                                              */
@@ -73,10 +73,11 @@ DEFINE TEMP-TABLE tabOrder NO-UNDO
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnCancel AUTO-END-KEY 
-     LABEL "&Cancel" 
-     SIZE 15 BY 1.14
-     BGCOLOR 8 .
+DEFINE BUTTON btnExit AUTO-END-KEY 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "E&xit" 
+     SIZE 8 BY 1.91 TOOLTIP "Exit"
+     FONT 4.
 
 DEFINE BUTTON btnMoveDown 
      LABEL "Move &Down" 
@@ -94,10 +95,11 @@ DEFINE BUTTON btnMoveUp
      LABEL "Move &Up" 
      SIZE 15 BY 1.14.
 
-DEFINE BUTTON btnOK AUTO-GO 
-     LABEL "&OK" 
-     SIZE 15 BY 1.14
-     BGCOLOR 8 .
+DEFINE BUTTON btnSave AUTO-GO 
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Save" 
+     SIZE 8 BY 1.91 TOOLTIP "Save"
+     FONT 4.
 
 DEFINE VARIABLE tabOptions AS CHARACTER FORMAT "X(256)":U INITIAL "Default" 
      LABEL "&Tabbing Options" 
@@ -120,7 +122,11 @@ DEFINE VARIABLE tabObjects AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
+     btnExit AT ROW 21.95 COL 88 HELP
+          "Exit Design Layout Window" WIDGET-ID 4
      tabLabel AT ROW 1.24 COL 5 COLON-ALIGNED WIDGET-ID 2
+     btnSave AT ROW 21.95 COL 80 HELP
+          "Save" WIDGET-ID 8
      tabOptions AT ROW 1.24 COL 67 COLON-ALIGNED HELP
           "Select Tabbing Option"
      tabObjects AT ROW 2.43 COL 2 HELP
@@ -133,13 +139,11 @@ DEFINE FRAME Dialog-Frame
           "Move Selected Tabbable Object Down"
      btnMoveLast AT ROW 6.71 COL 81 HELP
           "Move Selected Tabbable Object to Last Object"
-     btnCancel AT ROW 21.24 COL 81
-     btnOK AT ROW 22.67 COL 81
-     SPACE(0.00) SKIP(0.05)
+     SPACE(0.00) SKIP(16.01)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Misc Fields Tab Order"
-         DEFAULT-BUTTON btnOK CANCEL-BUTTON btnCancel.
+         TITLE "User Defined Fields Tab Order"
+         CANCEL-BUTTON btnExit.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -184,7 +188,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Misc Fields Tab Order */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* User Defined Fields Tab Order */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
@@ -237,12 +241,12 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnOK
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK Dialog-Frame
-ON CHOOSE OF btnOK IN FRAME Dialog-Frame /* OK */
+&Scoped-define SELF-NAME btnSave
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave Dialog-Frame
+ON CHOOSE OF btnSave IN FRAME Dialog-Frame /* Save */
 DO:
-  RUN setTabOrder.
-  iopTabOrder = tabOptions.
+    RUN setTabOrder.
+    iopTabOrder = tabOptions.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -347,7 +351,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY tabLabel tabOptions tabObjects 
       WITH FRAME Dialog-Frame.
-  ENABLE tabOptions tabObjects btnCancel btnOK 
+  ENABLE btnExit btnSave tabOptions tabObjects 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
