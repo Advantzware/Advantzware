@@ -2515,7 +2515,7 @@ PROCEDURE calc-blank-size2 :
                     no-lock no-error.
    if AVAIL style AND style.material[7] ne "" then do:
      eb.adhesive = style.material[7].
-     if eb.gluelap ne 0 then eb.lin-in = eb.dep.
+     /*if eb.gluelap ne 0 then*/ eb.lin-in = eb.dep.  /* Ticket 13021 */
    end.
 
    {est/u2estc.i eb.gluelap 1}
