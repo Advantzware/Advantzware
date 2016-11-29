@@ -278,13 +278,7 @@ FOR EACH probeit
 
   IF b-probemk.val[1] GT probe.freight THEN probe.freight = b-probemk.val[1].
 
-  RUN custom/markup.p (ROWID(eb),
-                       INPUT-OUTPUT lv-sell-by,
-                       INPUT-OUTPUT v-pct).
-
-  IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN DO:
-    board-cst = 0.
-     
+    board-cst = 0. 
     FOR EACH blk WHERE blk.id EQ probeit.part-no,
         FIRST ef NO-LOCK
         WHERE ef.company EQ xest.company
@@ -296,7 +290,26 @@ FOR EACH probeit
     END.
 
     board-cst = board-cst / (v-qty / 1000).
-  END.
+  RUN custom/markup.p (ROWID(eb),
+                       board-cst,
+                       INPUT-OUTPUT lv-sell-by,
+                       INPUT-OUTPUT v-pct).
+
+/*  IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN DO:                        */
+/*    board-cst = 0.                                                                   */
+/*                                                                                     */
+/*    FOR EACH blk WHERE blk.id EQ probeit.part-no,                                    */
+/*        FIRST ef NO-LOCK                                                             */
+/*        WHERE ef.company EQ xest.company                                             */
+/*          AND ef.est-no  EQ xest.est-no                                              */
+/*          AND ef.form-no EQ blk.snum,                                                */
+/*        EACH brd WHERE brd.form-no EQ ef.form-no:                                    */
+/*                                                                                     */
+/*      board-cst = board-cst + (brd.cost-m * blk.pct * (t-blkqty[ef.form-no] / 1000)).*/
+/*    END.                                                                             */
+/*                                                                                     */
+/*    board-cst = board-cst / (v-qty / 1000).                                          */
+/*  END.                                                                               */
   IF AVAIL probe THEN
     FIND FIRST est-summ
         WHERE est-summ.company EQ probe.company

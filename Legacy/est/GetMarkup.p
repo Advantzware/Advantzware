@@ -26,7 +26,7 @@ DEFINE INPUT PARAMETER ipcProductCategory AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcStyleID AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdLookupValue AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opdMarkup AS DECIMAL NO-UNDO.
-DEFINE OUTPUT PARAMETER opdMarkupOn AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcMarkupOn AS CHARACTER NO-UNDO.
  
 DEFINE BUFFER bf-cust-markup FOR cust-markup.
 
@@ -46,11 +46,12 @@ RUN pGetMatrixMatch(ipcCompany,
     ipcProductCategory,
     ipcStyleID,
     BUFFER bf-cust-markup).
+  
 IF AVAILABLE bf-cust-markup THEN 
     RUN pGetMarkup(BUFFER bf-cust-markup, 
         ipdLookupValue,
         OUTPUT opdMarkup,
-        OUTPUT opdMarkupOn).
+        OUTPUT opcMarkupOn).
 
                
 
@@ -65,7 +66,7 @@ PROCEDURE pGetMarkup:
     DEFINE PARAMETER BUFFER ipbf-selected-cust-markup FOR cust-markup.
     DEFINE INPUT PARAMETER ipdLookupValue AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdReturnMarkup AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdReturnMarkupOn AS CHARACTER NO-UNDO. 
+    DEFINE OUTPUT PARAMETER opcReturnMarkupOn AS CHARACTER NO-UNDO. 
 
     DEFINE VARIABLE iIndexL     AS INTEGER NO-UNDO. 
     DEFINE VARIABLE iIndexU     AS INTEGER NO-UNDO. 
@@ -81,19 +82,22 @@ PROCEDURE pGetMarkup:
         OUTPUT dValue,
         OUTPUT iIndexL,
         OUTPUT iIndexU).
+    MESSAGE "ValueLower"  dValueLower skip 
+        "ValueUpper" dValueUpper skip 
+        "Value" dValue skip
+        "IndexLower" iIndexL skip
+        "IndexUpper" iIndexU
+        VIEW-AS ALERT-BOX.
         
-    IF iIndexL GT 0 THEN 
-        opdReturnMarkupOn = ipbf-selected-cust-markup.markup-on[iIndexL].     
+    IF iIndexU GT 0 THEN 
+        opcReturnMarkupOn = ipbf-selected-cust-markup.markup-on[iIndexU].     
     ELSE 
-        opdReturnMarkupOn = ipbf-selected-cust-markup.markup-on[1].      
+        opcReturnMarkupOn = ipbf-selected-cust-markup.markup-on[1].      
                                       
-    IF fInterpolateOn(ipbf-selected-cust-markup.company) THEN 
+    IF fInterpolateOn(ipbf-selected-cust-markup.company) AND iIndexL NE 0 THEN 
         opdReturnMarkup = dValue.
     ELSE
-        IF dValueUpper EQ ipdLookupValue THEN 
-            opdReturnMarkup = dValueUpper.
-        ELSE 
-            opdReturnMarkup = dValueLower.
+       opdReturnMarkup = dValueUpper.
                 
 
 END PROCEDURE.
@@ -125,10 +129,10 @@ PROCEDURE pGetMatrixMatch:
         ipbf-cust-markup.style  EQ "")
         AND (ipbf-cust-markup.procat EQ ipcProdCat OR
         ipbf-cust-markup.procat EQ "")
-        BREAK 
         BY ipbf-cust-markup.cust-no DESCENDING
         BY ipbf-cust-markup.procat DESCENDING
         BY ipbf-cust-markup.style  DESCENDING:
+           
         LEAVE.
     END.
   

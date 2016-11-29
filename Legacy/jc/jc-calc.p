@@ -952,17 +952,7 @@ DO:
                       RUN est/getsmanmtrx.p (ROWID(xest), "M",
                                              INPUT-OUTPUT v-probe-comm,
                                              INPUT-OUTPUT v-mp).
-                   RUN custom/markup.p (ROWID(xeb),
-                                        INPUT-OUTPUT lv-sell-by,
-                                        INPUT-OUTPUT v-pct-2).
-                
-                   IF ll-use-margin THEN
-                      v-pct-2 = v-mp.
-                
-                   v-qty-2 = IF eb.yrprice THEN blk.qyld ELSE blk.qreq.
-                
-                   IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN DO:
-                      ASSIGN
+                   ASSIGN
                          v-board-cst = 0
                          t-blkqty = 0.
 
@@ -987,7 +977,44 @@ DO:
                       END.
                      
                       v-board-cst = v-board-cst / (v-qty-2 / 1000).
-                   END.
+                      
+                   RUN custom/markup.p (ROWID(xeb),
+                                        v-board-cst,
+                                        INPUT-OUTPUT lv-sell-by,
+                                        INPUT-OUTPUT v-pct-2).
+                
+                   IF ll-use-margin THEN
+                      v-pct-2 = v-mp.
+                
+                   v-qty-2 = IF eb.yrprice THEN blk.qyld ELSE blk.qreq.
+                
+/*                   IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN DO:                                    */
+/*                      ASSIGN                                                                                      */
+/*                         v-board-cst = 0                                                                          */
+/*                         t-blkqty = 0.                                                                            */
+/*                                                                                                                  */
+/*                      FOR EACH b-eb2 fields(form-no yrprice yld-qty bl-qty) NO-LOCK WHERE                         */
+/*                          b-eb2.company EQ xest.company AND                                                       */
+/*                          b-eb2.est-no  EQ xest.est-no AND                                                        */
+/*                          b-eb2.form-no EQ job-hdr.frm:                                                           */
+/*                          /* set total # of blanks on all forms */                                                */
+/*                                                                                                                  */
+/*                          t-blkqty[b-eb2.form-no] = t-blkqty[b-eb2.form-no] +                                     */
+/*                                                    if b-eb2.yrprice THEN b-eb2.yld-qty ELSE b-eb2.bl-qty.        */
+/*                      END.                                                                                        */
+/*                                                                                                                  */
+/*                      FOR EACH b-blk WHERE b-blk.id EQ xeb.part-no,                                               */
+/*                          FIRST b-ef2 NO-LOCK                                                                     */
+/*                          WHERE b-ef2.company EQ xest.company                                                     */
+/*                            AND b-ef2.est-no  EQ xest.est-no                                                      */
+/*                            AND b-ef2.form-no EQ b-blk.snum,                                                      */
+/*                          EACH brd WHERE brd.form-no EQ b-ef2.form-no:                                            */
+/*                                                                                                                  */
+/*                          v-board-cst = v-board-cst + (brd.cost-m * b-blk.pct * (t-blkqty[b-ef2.form-no] / 1000)).*/
+/*                      END.                                                                                        */
+/*                                                                                                                  */
+/*                      v-board-cst = v-board-cst / (v-qty-2 / 1000).                                               */
+/*                   END.                                                                                           */
                    RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
                                           lv-sell-by,
                                           v-basis,

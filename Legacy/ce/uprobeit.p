@@ -318,15 +318,8 @@ FOR EACH probeit
 
   v-pct[5] = v-pct[2].
 
-  RUN custom/markup.p (ROWID(eb),
-                       INPUT-OUTPUT lv-sell-by,
-                       INPUT-OUTPUT v-pct[3]).
-
-  IF lv-sell-by-ce-ctrl NE "B" AND
-     lv-sell-by EQ "B" THEN DO:
-     board-cst = 0.
-     
-     FOR EACH blk WHERE blk.id EQ probeit.part-no,
+    board-cst = 0.
+    FOR EACH blk WHERE blk.id EQ probeit.part-no,
          FIRST ef FIELDS(form-no) NO-LOCK
          WHERE ef.company EQ xest.company
            AND ef.est-no  EQ xest.est-no
@@ -335,7 +328,25 @@ FOR EACH probeit
 
          board-cst = board-cst + (brd.cost-m * blk.pct * (t-blkqty[ef.form-no] / 1000)).
      END.
-  END.
+    RUN custom/markup.p (ROWID(eb),
+                       board-cst,
+                       INPUT-OUTPUT lv-sell-by,
+                       INPUT-OUTPUT v-pct[3]).
+
+/*  IF lv-sell-by-ce-ctrl NE "B" AND                                                      */
+/*     lv-sell-by EQ "B" THEN DO:                                                         */
+/*     board-cst = 0.                                                                     */
+/*                                                                                        */
+/*     FOR EACH blk WHERE blk.id EQ probeit.part-no,                                      */
+/*         FIRST ef FIELDS(form-no) NO-LOCK                                               */
+/*         WHERE ef.company EQ xest.company                                               */
+/*           AND ef.est-no  EQ xest.est-no                                                */
+/*           AND ef.form-no EQ blk.snum,                                                  */
+/*         EACH brd WHERE brd.form-no EQ ef.form-no:                                      */
+/*                                                                                        */
+/*         board-cst = board-cst + (brd.cost-m * blk.pct * (t-blkqty[ef.form-no] / 1000)).*/
+/*     END.                                                                               */
+/*  END.                                                                                  */
 
   v-pct[4] = v-pct[1] + v-markup.  /* from sys/inc/ceprice.i */
 

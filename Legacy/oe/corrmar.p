@@ -1,6 +1,6 @@
 /*Corrugated Available Margin logic
   oe\corrmar.p */
-
+/*NOTE:  Found no caller to this */
 DEF SHARED VAR cocode AS CHAR NO-UNDO.
 DEF SHARED VAR locode AS CHAR NO-UNDO.
 
@@ -78,6 +78,7 @@ END.
 
 
 RUN custom/markup.p (ROWID(xeb),
+                     0,
                      INPUT-OUTPUT lv-sell-by,
                      INPUT-OUTPUT v-pct).
 

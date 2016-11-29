@@ -92,22 +92,31 @@ ASSIGN
 
 {sys/inc/roundup.i v-gsh-qty}
 
-RUN custom/markup.p (ROWID(xeb),
-                     INPUT-OUTPUT lv-sell-by,
-                     INPUT-OUTPUT v-pct[3]).
-
-v-pct[1] = v-pct[1] + v-markup.  /* from sys/inc/ceprice.i */
-
-IF lv-sell-by-ce-ctrl NE "B" AND
-   lv-sell-by EQ "B" THEN DO:
-   board-cst = 0.
+board-cst = 0.
      
    FOR EACH brd WHERE brd.form-no EQ xef.form-no:
        board-cst = board-cst + (brd.cost-m * qty / 1000).
    END.
 
    board-cst = board-cst / (qty / 1000).
-END.
+   
+RUN custom/markup.p (ROWID(xeb),
+                     board-cst,
+                     INPUT-OUTPUT lv-sell-by,
+                     INPUT-OUTPUT v-pct[3]).
+
+v-pct[1] = v-pct[1] + v-markup.  /* from sys/inc/ceprice.i */
+
+/*IF lv-sell-by-ce-ctrl NE "B" AND                         */
+/*   lv-sell-by EQ "B" THEN DO:                            */
+/*   board-cst = 0.                                        */
+/*                                                         */
+/*   FOR EACH brd WHERE brd.form-no EQ xef.form-no:        */
+/*       board-cst = board-cst + (brd.cost-m * qty / 1000).*/
+/*   END.                                                  */
+/*                                                         */
+/*   board-cst = board-cst / (qty / 1000).                 */
+/*END.                                                     */
 
 IF v-pct[3] NE 0 THEN v-pct[1] = v-pct[3].
 

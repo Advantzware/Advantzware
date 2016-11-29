@@ -1,5 +1,6 @@
 /*Folding Logic
   oe\foldmar.p*/
+/*NOTE:  Found no caller to this */
 
 DEFINE INPUT PARAMETER ip-est-no AS CHAR NO-UNDO.
 DEFINE INPUT PARAMETER ip-qty AS DEC NO-UNDO.
@@ -77,6 +78,7 @@ IF AVAIL cust AND cust.markup NE 0 THEN
 
 IF AVAIL xeb THEN
    RUN custom/markup.p (ROWID(xeb),
+                        0,
                         INPUT-OUTPUT lv-sell-by,
                         INPUT-OUTPUT v-pct[3]).
 

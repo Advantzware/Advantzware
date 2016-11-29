@@ -98,13 +98,7 @@ IF lv-sell-by EQ "S" THEN DO:
   {cec/sqftmrkp.i "v-msf / 1000" v-pct}
 END.
 
-RUN custom/markup.p (ROWID(xeb),
-                     INPUT-OUTPUT lv-sell-by,
-                     INPUT-OUTPUT v-pct).
-
-IF lv-sell-by-ce-ctrl NE "B" AND
-   lv-sell-by EQ "B" THEN DO:
-  FIND FIRST probe-board
+FIND FIRST probe-board
       WHERE probe-board.reftable EQ "probe.board"
         AND probe-board.company  EQ probe.company
         AND probe-board.loc      EQ ""
@@ -112,7 +106,25 @@ IF lv-sell-by-ce-ctrl NE "B" AND
         AND probe-board.code2    EQ STRING(probe.line,"9999999999")
       NO-ERROR.
   IF AVAIL probe-board THEN board-cst = probe-board.val[1].
-END.
+
+RUN custom/markup.p (ROWID(xeb),
+                     board-cst,
+                     INPUT-OUTPUT lv-sell-by,
+                     INPUT-OUTPUT v-pct).
+
+/*IF lv-sell-by-ce-ctrl NE "B" AND                                   */
+/*   lv-sell-by EQ "B" THEN DO:                                      */
+/*  FIND FIRST probe-board                                           */
+/*      WHERE probe-board.reftable EQ "probe.board"                  */
+/*        AND probe-board.company  EQ probe.company                  */
+/*        AND probe-board.loc      EQ ""                             */
+/*        AND probe-board.code     EQ probe.est-no                   */
+/*        AND probe-board.code2    EQ STRING(probe.line,"9999999999")*/
+/*      NO-ERROR.                                                    */
+/*  IF AVAIL probe-board THEN board-cst = probe-board.val[1].        */
+/*END.                                                               */
+MESSAGE "BoardCost" board-cst skip
+probe.line VIEW-AS ALERT-BOX.
 
 IF cerunc EQ "Fibre" THEN
   RUN est/usemargin.p (ROWID(xest), OUTPUT ll-use-margin).
