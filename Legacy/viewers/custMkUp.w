@@ -781,33 +781,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTestMarkup V-table-Win 
-PROCEDURE pTestMarkup :
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dMarkup   AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cMarkupOn AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cValue    AS CHARACTER NO-UNDO.
-
-    cValue = fiTest:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
-
-    RUN est/GetMarkup (cust-markup.company, 
-        cust-markup.cust-no,
-        cust-markup.procat,
-        cust-markup.style,
-        dec(cValue),                   
-        OUTPUT dMarkup,
-        OUTPUT cMarkupOn).
-                   
-    MESSAGE dMarkup " on " cMarkupOn VIEW-AS ALERT-BOX.                   
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-key V-table-Win  adm/support/_key-snd.p
 PROCEDURE send-key :
 /*------------------------------------------------------------------------------

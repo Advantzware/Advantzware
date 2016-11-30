@@ -123,8 +123,6 @@ RUN custom/markup.p (ROWID(xeb),
 /*      NO-ERROR.                                                    */
 /*  IF AVAIL probe-board THEN board-cst = probe-board.val[1].        */
 /*END.                                                               */
-MESSAGE "BoardCost" board-cst skip
-probe.line VIEW-AS ALERT-BOX.
 
 IF cerunc EQ "Fibre" THEN
   RUN est/usemargin.p (ROWID(xest), OUTPUT ll-use-margin).
