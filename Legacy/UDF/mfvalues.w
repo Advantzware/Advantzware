@@ -10,7 +10,7 @@
 
   Author:            Ron Stark
 
-  Created:           03/01/98 (updated 11.28.2016)
+  Created:           03/01/98 (updated 11.29.2016)
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -29,9 +29,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 &IF DEFINED(dbnm) EQ 0 &THEN
-DEFINE INPUT PARAMETER ip-group   AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-rec_key AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-header  AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcGroup  AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcHeader AS CHARACTER NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -51,14 +51,12 @@ DEFINE VARIABLE tabLabels     AS CHARACTER     NO-UNDO.
 DEFINE VARIABLE ldummy        AS LOGICAL       NO-UNDO.
 DEFINE VARIABLE currentTab    AS INTEGER       NO-UNDO.
 DEFINE VARIABLE i             AS INTEGER       NO-UNDO.
-DEFINE VARIABLE folderHeight  AS INTEGER       NO-UNDO.
-DEFINE VARIABLE folderWidth   AS INTEGER       NO-UNDO.
-DEFINE VARIABLE saveHeight    AS INTEGER       NO-UNDO.
-DEFINE VARIABLE saveWidth     AS INTEGER       NO-UNDO.
+DEFINE VARIABLE folderHeight  AS INTEGER       NO-UNDO INITIAL 50.
+DEFINE VARIABLE folderWidth   AS INTEGER       NO-UNDO INITIAL 500.
 
-DEFINE TEMP-TABLE t-mfvalues NO-UNDO LIKE {&dbnm}mfvalues.
+DEFINE TEMP-TABLE ttMFValues NO-UNDO LIKE {&dbnm}mfvalues.
 
-&scoped-define trigger-code ~
+&SCOPED-DEFINE trigger-code ~
 TRIGGERS: ~
   ON VALUE-CHANGED ~
     PERSISTENT RUN valueChange IN THIS-PROCEDURE (dynWidget:HANDLE). ~
@@ -85,7 +83,7 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExit btnApply Rect-Top Rect-Left btnSave ~
+&Scoped-Define ENABLED-OBJECTS btnApply btnSave Rect-Top btnExit Rect-Left ~
 Rect-Right Rect-Bottom 
 &Scoped-Define DISPLAYED-OBJECTS mfgroupList mfgroupLabel 
 
@@ -106,7 +104,7 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE BUTTON btnApply 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk_window.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Apply" 
-     SIZE 8 BY 1.91 TOOLTIP "Save"
+     SIZE 8 BY 1.91 TOOLTIP "Apply"
      FONT 4.
 
 DEFINE BUTTON btnExit 
@@ -118,7 +116,7 @@ DEFINE BUTTON btnExit
 DEFINE BUTTON btnSave 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
-     SIZE 8 BY 1.91 TOOLTIP "Save"
+     SIZE 8 BY 1.91 TOOLTIP "Save and Exit"
      FONT 4.
 
 DEFINE VARIABLE mfgroupList AS CHARACTER FORMAT "X(256)":U 
@@ -159,12 +157,12 @@ DEFINE RECTANGLE Rect-Top
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnExit AT ROW 21.48 COL 84 HELP
-          "Exit Design Layout Window" WIDGET-ID 2
      btnApply AT ROW 21.48 COL 68 HELP
           "Apply" WIDGET-ID 4
      btnSave AT ROW 21.48 COL 76 HELP
-          "Save" WIDGET-ID 6
+          "Save & Exit" WIDGET-ID 6
+     btnExit AT ROW 21.48 COL 84 HELP
+          "Exit Design Layout Window" WIDGET-ID 2
      mfgroupList AT ROW 21.95 COL 7 COLON-ALIGNED HELP
           "Select Group Name" NO-LABEL
      mfgroupLabel AT ROW 21.95 COL 2 NO-LABEL
@@ -195,7 +193,7 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "User Defined Field Values"
+         TITLE              = "User Defined Fields Viewer"
          HEIGHT             = 22.57
          WIDTH              = 91.2
          MAX-HEIGHT         = 57.14
@@ -260,7 +258,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* User Defined Field Values */
+ON END-ERROR OF C-Win /* User Defined Fields Viewer */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -273,9 +271,9 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* User Defined Field Values */
+ON WINDOW-CLOSE OF C-Win /* User Defined Fields Viewer */
 DO:
-  IF mfpersist NE ? THEN DELETE PROCEDURE mfpersist.
+  IF hMFPersist NE ? THEN DELETE PROCEDURE hMFPersist.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -300,7 +298,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit C-Win
 ON CHOOSE OF btnExit IN FRAME DEFAULT-FRAME /* Exit */
 DO:
-  IF mfpersist NE ? THEN DELETE PROCEDURE mfpersist.
+  IF hMFPersist NE ? THEN DELETE PROCEDURE hMFPersist.
   APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
@@ -312,9 +310,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave C-Win
 ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME /* Save */
 DO:
-    RUN applyChanges.
-    IF RETURN-VALUE NE "NO-APPLY" THEN
-    APPLY "CLOSE" TO THIS-PROCEDURE.
+  RUN applyChanges.
+  IF RETURN-VALUE NE "NO-APPLY" THEN
+  APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -326,19 +324,22 @@ END.
 ON VALUE-CHANGED OF mfgroupList IN FRAME DEFAULT-FRAME
 DO:
   {methods/wait.i}
-  FOR EACH attrb
-      WHERE attrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND attrb.attr_type NE "TEXT" NO-LOCK:
-    FIND t-mfvalues NO-LOCK
-         WHERE t-mfvalues.rec_key EQ ip-rec_key
-           AND t-mfvalues.mf_id EQ attrb.attr_id NO-ERROR.
-    IF AVAILABLE t-mfvalues THEN NEXT.
-    CREATE t-mfvalues.
+  FOR EACH ttAttrb
+      WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        AND ttAttrb.attr_type NE "TEXT"
+      :
+    FIND ttMFValues
+        WHERE ttMFValues.rec_key EQ ipcRecKey
+          AND ttMFValues.mf_id EQ ttAttrb.attr_id
+        NO-ERROR.
+    IF AVAILABLE ttMFValues THEN NEXT.
+    CREATE ttMFValues.
     ASSIGN
-      t-mfvalues.rec_key = ip-rec_key
-      t-mfvalues.mf_id = attrb.attr_id
-      t-mfvalues.mf_value = attrb.attr_default
-      t-mfvalues.mf_datatype = attrb.attr_datatype.
+      ttMFValues.rec_key = ipcRecKey
+      ttMFValues.mf_id = ttAttrb.attr_id
+      ttMFValues.mf_value = ttAttrb.attr_default
+      ttMFValues.mf_datatype = ttAttrb.attr_datatype
+      .
   END.
   currentTab = 1.
   RUN createTabs.
@@ -378,15 +379,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN winReSize.
   {methods/wait.i}
   FOR EACH {&dbnm}mfvalues NO-LOCK
-      WHERE {&dbnm}mfvalues.rec_key = ip-rec_key
+      WHERE {&dbnm}mfvalues.rec_key = ipcRecKey
       :
-    CREATE t-mfvalues.
-    BUFFER-COPY {&dbnm}mfvalues TO t-mfvalues.
+    CREATE ttMFValues.
+    BUFFER-COPY {&dbnm}mfvalues TO ttMFValues.
   END.
-  IF mfpersist EQ ? THEN
-  RUN nosweat/mfpersist.p PERSISTENT SET mfpersist.
+  IF hMFPersist EQ ? THEN
+  RUN UDF/mfPersist.p PERSISTENT SET hMFPersist.
   RUN loadWidgetData.
-  {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + ip-header.
+  {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + ipcHeader.
   {methods/nowait.i}
   IF RETURN-VALUE EQ "EMPTY" THEN
   DISABLE btnSave btnApply WITH FRAME {&FRAME-NAME}.
@@ -409,31 +410,36 @@ PROCEDURE applyChanges :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ ? AND ip-group EQ "" THEN RETURN.
-  IF mfgroupList:SCREEN-VALUE NE ip-group AND ip-group NE "" THEN DO:
+  IF mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ ? AND ipcGroup EQ "" THEN RETURN.
+  IF mfgroupList:SCREEN-VALUE NE ipcGroup AND ipcGroup NE "" THEN DO:
     ldummy = NO.
-    MESSAGE "The Group Name has been changed from '" ip-group "' to '"
+    MESSAGE "The Group Name has been changed from '" ipcGroup "' to '"
             mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME} "'" SKIP(1)
-            "Attribute Values for Group '" ip-group
+            "Attribute Values for Group '" ipcGroup
             "' will be Deleted, Continue? (yes/no)"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE ldummy.
     IF NOT ldummy THEN RETURN "NO-APPLY".
   END.
   {methods/wait.i}
-  IF mfgroupList:SCREEN-VALUE NE ip-group THEN DO WITH FRAME {&FRAME-NAME}:
-    FOR EACH t-mfvalues WHERE t-mfvalues.rec_key EQ ip-rec_key EXCLUSIVE-LOCK:
-      IF CAN-FIND(attrb WHERE attrb.attr_id EQ t-mfvalues.mf_id
-                          AND attrb.attr_mfgroup EQ ip-group) THEN
-      DELETE t-mfvalues.
+  IF mfgroupList:SCREEN-VALUE NE ipcGroup THEN DO WITH FRAME {&FRAME-NAME}:
+    FOR EACH ttMFValues
+        WHERE ttMFValues.rec_key EQ ipcRecKey
+        :
+      IF CAN-FIND(ttAttrb
+                  WHERE ttAttrb.attr_id EQ ttMFValues.mf_id
+                    AND ttAttrb.attr_mfgroup EQ ipcGroup) THEN
+      DELETE ttMFValues.
     END.
-    ip-group = IF mfgroupList:SCREEN-VALUE EQ ? THEN ""
+    ipcGroup = IF mfgroupList:SCREEN-VALUE EQ ? THEN ""
                ELSE mfgroupList:SCREEN-VALUE.
   END.
   RUN widgetLeave (?).
-  DELETE FROM {&dbnm}mfvalues WHERE {&dbnm}mfvalues.rec_key = ip-rec_key.
-  FOR EACH t-mfvalues NO-LOCK WHERE t-mfvalues.rec_key EQ ip-rec_key:
+  DELETE FROM {&dbnm}mfvalues WHERE {&dbnm}mfvalues.rec_key = ipcRecKey.
+  FOR EACH ttMFValues
+      WHERE ttMFValues.rec_key EQ ipcRecKey
+      :
     CREATE {&dbnm}mfvalues.
-    BUFFER-COPY t-mfvalues TO {&dbnm}mfvalues.
+    BUFFER-COPY ttMFValues TO {&dbnm}mfvalues.
   END.
   {methods/nowait.i}
   btnExit:LABEL IN FRAME {&FRAME-NAME} = "&Close".
@@ -473,7 +479,8 @@ PROCEDURE createLabelWidget :
                       ELSE ipX - labelWidget:WIDTH-PIXELS - 1
       labelWidget:HEIGHT-CHARS = 1
       ldummy = labelWidget:MOVE-TO-TOP()
-      labelWidget:HIDDEN = NO.
+      labelWidget:HIDDEN = NO
+      .
   END.
 
 END PROCEDURE.
@@ -548,7 +555,8 @@ PROCEDURE createTabs :
     tabImage[currentTab]:HEIGHT-PIXEL = 27
     ldummy = tabImage[currentTab]:LOAD-IMAGE("adeicon/ts-up72")
     ldummy = tabImage[currentTab]:MOVE-TO-TOP()
-    ldummy = tabLabel[currentTab]:MOVE-TO-TOP().
+    ldummy = tabLabel[currentTab]:MOVE-TO-TOP()
+    .
   RUN LockWindowUpdate (0,OUTPUT i).
 
 END PROCEDURE.
@@ -569,10 +577,10 @@ PROCEDURE createWidgets :
   /* RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i). */
   DELETE WIDGET-POOL "attr-widget" NO-ERROR.
   CREATE WIDGET-POOL "attr-widget" PERSISTENT.
-  FOR EACH attrb NO-LOCK
-      WHERE attrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND attrb.attr_tab EQ currentTab
-      BY attrb.attr_order
+  FOR EACH ttAttrb NO-LOCK
+      WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        AND ttAttrb.attr_tab EQ currentTab
+      BY ttAttrb.attr_order
       :
     RUN dynamicWidget.
   END.
@@ -616,101 +624,101 @@ PROCEDURE dynamicWidget :
   DEFINE VARIABLE initsv  AS CHARACTER NO-UNDO.
   DEFINE VARIABLE sv      AS CHARACTER NO-UNDO.
 
-&scoped-define defaults-code ~
+&SCOPED-DEFINE defaults-code ~
           ASSIGN ~
             FRAME = FRAME {&FRAME-NAME}:HANDLE ~
-            X = attrb.attr_x ~
-            Y = attrb.attr_y ~
+            X = ttAttrb.attr_x ~
+            Y = ttAttrb.attr_y ~
             SENSITIVE = YES ~
-            PRIVATE-DATA = STRING(attrb.attr_id) ~
-            WIDTH-PIXELS = attrb.attr_width
-&scoped-define widget-code ~
+            PRIVATE-DATA = STRING(ttAttrb.attr_id) ~
+            WIDTH-PIXELS = ttAttrb.attr_width
+&SCOPED-DEFINE widget-code ~
             {&defaults-code} ~
             FONT = ? ~
-            HEIGHT-PIXELS = attrb.attr_height ~
+            HEIGHT-PIXELS = ttAttrb.attr_height ~
             SIDE-LABEL-HANDLE = labelWidget
-&scoped-define combo-box-code ~
+&SCOPED-DEFINE combo-box-code ~
             {&defaults-code} ~
             HIDDEN = yes ~
-            FORMAT = attrb.attr_settings ~
+            FORMAT = ttAttrb.attr_settings ~
             FONT = ? ~
             SIDE-LABEL-HANDLE = labelWidget ~
-            INNER-LINES = NUM-ENTRIES(attrb.attr_values) ~
-            LIST-ITEMS = attrb.attr_values ~
-            HELP = 'Select ''' + attrb.attr_label + ''' from COMBO-BOX List' ~
-            SCREEN-VALUE = t-mfvalues.mf_value ~
+            INNER-LINES = NUM-ENTRIES(ttAttrb.attr_values) ~
+            LIST-ITEMS = ttAttrb.attr_values ~
+            HELP = 'Select ''' + ttAttrb.attr_label + ''' from COMBO-BOX List' ~
+            SCREEN-VALUE = ttMFValues.mf_value ~
             {&trigger-code}
-&scoped-define editor-code ~
+&SCOPED-DEFINE editor-code ~
             {&widget-code} ~
             FONT = ? ~
             SCROLLBAR-VERTICAL = vertBar ~
             SCROLLBAR-HORIZONTAL = horzBar ~
-            HELP = 'Enter ''' + attrb.attr_label + ''' in EDITOR Field' ~
-            SCREEN-VALUE = t-mfvalues.mf_value ~
+            HELP = 'Enter ''' + ttAttrb.attr_label + ''' in EDITOR Field' ~
+            SCREEN-VALUE = ttMFValues.mf_value ~
             {&trigger-code}
-&scoped-define fill-in-code ~
+&SCOPED-DEFINE fill-in-code ~
             {&widget-code} ~
             FONT = ? ~
-            DATA-TYPE = attrb.attr_datatype ~
-            FORMAT = attrb.attr_settings ~
-            HELP = 'Enter ''' + attrb.attr_label + ''' in FILL-IN Field' ~
-            SCREEN-VALUE = t-mfvalues.mf_value ~
+            DATA-TYPE = ttAttrb.attr_datatype ~
+            FORMAT = ttAttrb.attr_settings ~
+            HELP = 'Enter ''' + ttAttrb.attr_label + ''' in FILL-IN Field' ~
+            SCREEN-VALUE = ttMFValues.mf_value ~
             {&trigger-code}
-&scoped-define radio-set-code ~
+&SCOPED-DEFINE radio-set-code ~
             {&widget-code} ~
             FONT = ? ~
             HORIZONTAL = horzBar ~
-            RADIO-BUTTONS = attrb.attr_values ~
-            HELP = 'Select ''' + attrb.attr_label + ''' from RADIO-SET Choices' ~
-            SCREEN-VALUE = t-mfvalues.mf_value ~
+            RADIO-BUTTONS = ttAttrb.attr_values ~
+            HELP = 'Select ''' + ttAttrb.attr_label + ''' from RADIO-SET Choices' ~
+            SCREEN-VALUE = ttMFValues.mf_value ~
             {&trigger-code}
-&scoped-define rectangle-code ~
+&SCOPED-DEFINE rectangle-code ~
             {&defaults-code} ~
             EDGE-PIXELS = 1 ~
             FILLED = NO ~
-            HEIGHT-PIXELS = attrb.attr_height ~
-            WIDTH-PIXELS = attrb.attr_width ~
+            HEIGHT-PIXELS = ttAttrb.attr_height ~
+            WIDTH-PIXELS = ttAttrb.attr_width ~
             {&trigger-code}
-&scoped-define selection-list-code ~
+&SCOPED-DEFINE selection-list-code ~
             {&widget-code} ~
             FONT = ? ~
-            LIST-ITEMS = attrb.attr_values ~
-            HELP = 'Select ''' + attrb.attr_label + ''' from SELECTION-LIST' ~
-            SCREEN-VALUE = t-mfvalues.mf_value ~
+            LIST-ITEMS = ttAttrb.attr_values ~
+            HELP = 'Select ''' + ttAttrb.attr_label + ''' from SELECTION-LIST' ~
+            SCREEN-VALUE = ttMFValues.mf_value ~
             {&trigger-code}
-&scoped-define slider-code ~
+&SCOPED-DEFINE slider-code ~
             {&widget-code} ~
             FONT = ? ~
             HORIZONTAL = horzBar ~
-            MIN-VALUE = INT(ENTRY(1,attrb.attr_values)) ~
-            MAX-VALUE = INT(ENTRY(2,attrb.attr_values)) ~
-            HELP = 'Set ''' + attrb.attr_label + ''' from SLIDER Range' ~
-            SCREEN-VALUE = t-mfvalues.mf_value ~
+            MIN-VALUE = INT(ENTRY(1,ttAttrb.attr_values)) ~
+            MAX-VALUE = INT(ENTRY(2,ttAttrb.attr_values)) ~
+            HELP = 'Set ''' + ttAttrb.attr_label + ''' from SLIDER Range' ~
+            SCREEN-VALUE = ttMFValues.mf_value ~
             {&trigger-code}
-&scoped-define text-code ~
+&SCOPED-DEFINE text-code ~
             {&defaults-code} ~
             PRIVATE-DATA = ? ~
             FORMAT = 'X(80)' ~
-            FONT = INTEGER(attrb.attr_settings) ~
-            HEIGHT-PIXELS = attrb.attr_height ~
-            HELP = '''' + attrb.attr_label + ''' is a TEXT Widget' ~
-            SCREEN-VALUE = attrb.attr_label.
-&scoped-define toggle-box-code ~
+            FONT = INTEGER(ttAttrb.attr_settings) ~
+            HEIGHT-PIXELS = ttAttrb.attr_height ~
+            HELP = '''' + ttAttrb.attr_label + ''' is a TEXT Widget' ~
+            SCREEN-VALUE = ttAttrb.attr_label.
+&SCOPED-DEFINE toggle-box-code ~
             {&defaults-code} ~
             FONT = ? ~
-            LABEL = attrb.attr_label ~
-            HEIGHT-PIXELS = attrb.attr_height ~
-            HELP = 'Set ''' + attrb.attr_label + ''' TOGGLE-BOX On/Off' ~
-            SCREEN-VALUE = t-mfvalues.mf_value ~
+            LABEL = ttAttrb.attr_label ~
+            HEIGHT-PIXELS = ttAttrb.attr_height ~
+            HELP = 'Set ''' + ttAttrb.attr_label + ''' TOGGLE-BOX On/Off' ~
+            SCREEN-VALUE = ttMFValues.mf_value ~
             {&trigger-code}
 
   ASSIGN
-    horzBar = IF NUM-ENTRIES(attrb.attr_settings) NE 0 AND
-                 ENTRY(1,attrb.attr_settings) EQ "yes" THEN YES ELSE NO
-    vertBar = IF NUM-ENTRIES(attrb.attr_settings) GT 1 AND
-                 ENTRY(2,attrb.attr_settings) EQ "yes" THEN YES ELSE NO
-    folderHeight = MAX(folderHeight,attrb.attr_y + attrb.attr_height)
-    folderWidth = MAX(folderWidth,attrb.attr_x + attrb.attr_width)
+    horzBar = IF NUM-ENTRIES(ttAttrb.attr_settings) NE 0 AND
+                 ENTRY(1,ttAttrb.attr_settings) EQ "yes" THEN YES ELSE NO
+    vertBar = IF NUM-ENTRIES(ttAttrb.attr_settings) GT 1 AND
+                 ENTRY(2,ttAttrb.attr_settings) EQ "yes" THEN YES ELSE NO
+    folderHeight = MAX(folderHeight,ttAttrb.attr_y + ttAttrb.attr_height)
+    folderWidth = MAX(folderWidth,ttAttrb.attr_x + ttAttrb.attr_width)
     .
   IF folderHeight + btnExit:HEIGHT-PIXELS IN FRAME {&FRAME-NAME} + 15 GT FRAME {&FRAME-NAME}:HEIGHT-PIXELS THEN
   ASSIGN
@@ -726,53 +734,53 @@ PROCEDURE dynamicWidget :
     FRAME {&FRAME-NAME}:WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
     FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
     .
-  RUN createLabelWidget (attrb.attr_type,attrb.attr_label,attrb.attr_x,attrb.attr_y).
-  FIND t-mfvalues NO-LOCK
-       WHERE t-mfvalues.rec_key = ip-rec_key
-         AND t-mfvalues.mf_id = attrb.attr_id NO-ERROR.
+  RUN createLabelWidget (ttAttrb.attr_type,ttAttrb.attr_label,ttAttrb.attr_x,ttAttrb.attr_y).
+  FIND ttMFValues NO-LOCK
+       WHERE ttMFValues.rec_key = ipcRecKey
+         AND ttMFValues.mf_id = ttAttrb.attr_id NO-ERROR.
   DO ON ERROR UNDO, RETURN "CREATE-ERROR":
-    CASE attrb.attr_type:
-&scoped-define widget-type COMBO-BOX
+    CASE ttAttrb.attr_type:
+&SCOPED-DEFINE widget-type COMBO-BOX
       WHEN "{&widget-type}" THEN DO:
         CREATE {&widget-type} dynWidget IN WIDGET-POOL "attr-widget"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type EDITOR
+&SCOPED-DEFINE widget-type EDITOR
       WHEN "{&widget-type}" THEN DO:
         CREATE {&widget-type} dynWidget IN WIDGET-POOL "attr-widget"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type FILL-IN
+&SCOPED-DEFINE widget-type FILL-IN
       WHEN "{&widget-type}" THEN DO:
         CREATE {&widget-type} dynWidget IN WIDGET-POOL "attr-widget"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type RADIO-SET
+&SCOPED-DEFINE widget-type RADIO-SET
       WHEN "{&widget-type}" THEN DO:
         CREATE {&widget-type} dynWidget IN WIDGET-POOL "attr-widget"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type RECTANGLE
+&SCOPED-DEFINE widget-type RECTANGLE
       WHEN "{&widget-type}" THEN DO:
         CREATE {&widget-type} dynWidget IN WIDGET-POOL "attr-widget"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type SELECTION-LIST
+&SCOPED-DEFINE widget-type SELECTION-LIST
       WHEN "{&widget-type}" THEN DO:
         CREATE {&widget-type} dynWidget IN WIDGET-POOL "attr-widget"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type SLIDER
+&SCOPED-DEFINE widget-type SLIDER
       WHEN "{&widget-type}" THEN DO:
         CREATE {&widget-type} dynWidget IN WIDGET-POOL "attr-widget"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type TEXT
+&SCOPED-DEFINE widget-type TEXT
       WHEN "{&widget-type}" THEN DO:
         CREATE {&widget-type} dynWidget IN WIDGET-POOL "attr-widget"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type TOGGLE-BOX
+&SCOPED-DEFINE widget-type TOGGLE-BOX
       WHEN "{&widget-type}" THEN DO:
         CREATE {&widget-type} dynWidget IN WIDGET-POOL "attr-widget"
         {&{&widget-type}-code}
@@ -780,19 +788,19 @@ PROCEDURE dynamicWidget :
     END CASE.
     IF VALID-HANDLE(dynWidget) THEN
     ASSIGN
-        dynWidget:SENSITIVE = attrb.attr_enabled
+        dynWidget:SENSITIVE = ttAttrb.attr_enabled
         ldummy = dynWidget:MOVE-TO-TOP()
         dynWidget:HIDDEN = NO
         .
-    IF mfpersist NE ? AND attrb.attr_proc NE "" AND attrb.attr_proc NE ? THEN DO:
-      RUN VALUE(attrb.attr_proc) IN mfpersist
-          (t-mfvalues.mf_id,t-mfvalues.mf_value,t-mfvalues.rec_key,
+    IF hMFPersist NE ? AND ttAttrb.attr_proc NE "" AND ttAttrb.attr_proc NE ? THEN DO:
+      RUN VALUE(ttAttrb.attr_proc) IN hMFPersist
+          (ttMFValues.mf_id,ttMFValues.mf_value,ttMFValues.rec_key,
            OUTPUT sv,OUTPUT initsv).
-      IF CAN-DO("COMBO-BOX,SELECTION-LIST",attrb.attr_type) THEN
+      IF CAN-DO("COMBO-BOX,SELECTION-LIST",ttAttrb.attr_type) THEN
       ASSIGN
         dynWidget:LIST-ITEMS = sv
         dynWidget:SCREEN-VALUE = IF CAN-DO(sv,initsv) THEN initsv
-                            ELSE IF CAN-DO(sv,t-mfvalues.mf_value) THEN t-mfvalues.mf_value
+                            ELSE IF CAN-DO(sv,ttMFValues.mf_value) THEN ttMFValues.mf_value
                             ELSE ?
         .
       ELSE dynWidget:SCREEN-VALUE = sv.
@@ -818,7 +826,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY mfgroupList mfgroupLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnExit btnApply Rect-Top Rect-Left btnSave Rect-Right Rect-Bottom 
+  ENABLE btnApply btnSave Rect-Top btnExit Rect-Left Rect-Right Rect-Bottom 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -867,14 +875,14 @@ PROCEDURE loadWidgetData :
   Notes:       
 ------------------------------------------------------------------------------*/
   IF NOT CAN-FIND(FIRST {&dbnm}mfgroup) THEN DO:
-    MESSAGE "No '" + ip-group + "' Group Exists!!!" VIEW-AS ALERT-BOX INFORMATION.
+    MESSAGE "No '" + ipcGroup + "' Group Exists!!!" VIEW-AS ALERT-BOX INFORMATION.
     RETURN "EMPTY".
   END.
   FOR EACH {&dbnm}mfgroup NO-LOCK:
     mfgrpList = mfgrpList + (IF mfgrpList NE "" THEN "," ELSE "") + {&dbnm}mfgroup.mfgroup_data.
   END.
-  IF NOT CAN-DO(mfgrpList,ip-group) THEN DO:
-    MESSAGE "No '" + ip-group + "' Group Exists!!!" VIEW-AS ALERT-BOX INFORMATION.
+  IF NOT CAN-DO(mfgrpList,ipcGroup) THEN DO:
+    MESSAGE "No '" + ipcGroup + "' Group Exists!!!" VIEW-AS ALERT-BOX INFORMATION.
     RETURN "EMPTY".
   END.
   OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat").
@@ -884,18 +892,17 @@ PROCEDURE loadWidgetData :
   OUTPUT CLOSE.
   INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat") NO-ECHO.
   REPEAT:
-    CREATE attrb.
-    IMPORT attrb.
+    CREATE ttAttrb.
+    IMPORT ttAttrb.
   END.
   INPUT CLOSE.
-  IF attrb.attr_type = "" THEN DELETE attrb.
+  IF ttAttrb.attr_type EQ "" THEN DELETE ttAttrb.
   ASSIGN
     mfgroupList:INNER-LINES IN FRAME {&FRAME-NAME} = NUM-ENTRIES(mfgrpList)
-    mfgroupList:LIST-ITEMS IN FRAME {&FRAME-NAME} = mfgrpList
-    mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ip-group
-    /* headerValue:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ip-header */
+    mfgroupList:LIST-ITEMS = mfgrpList
+    mfgroupList:SCREEN-VALUE = ipcGroup
     .
-  APPLY "VALUE-CHANGED" TO mfgroupList IN FRAME {&FRAME-NAME}.
+  APPLY "VALUE-CHANGED" TO mfgroupList.
 
 END PROCEDURE.
 
@@ -930,8 +937,6 @@ PROCEDURE moveObjects :
             Rect-Bottom:Y = Rect-Main:HEIGHT-PIXELS + 17
             Rect-Right:HEIGHT-PIXELS = Rect-Main:HEIGHT-PIXELS - 8
             Rect-Right:X = Rect-Main:WIDTH-PIXELS - 1
-            /* headerValue:WIDTH-PIXELS = Rect-Main:WIDTH-PIXELS */
-            /* headerValue:Y = Rect-Main:HEIGHT-PIXELS + 26 */
             mfgroupLabel:Y = Rect-Main:HEIGHT-PIXELS + 36
             mfgroupList:Y = Rect-Main:HEIGHT-PIXELS + 36
             btnSave:Y = Rect-Main:HEIGHT-PIXELS + 26
@@ -972,12 +977,13 @@ PROCEDURE valueChange :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER attribute AS WIDGET-HANDLE NO-UNDO.
 
-  FIND t-mfvalues EXCLUSIVE-LOCK
-      WHERE t-mfvalues.rec_key = ip-rec_key
-        AND t-mfvalues.mf_id = attribute:PRIVATE-DATA.
+  FIND ttMFValues EXCLUSIVE-LOCK
+      WHERE ttMFValues.rec_key = ipcRecKey
+        AND ttMFValues.mf_id = attribute:PRIVATE-DATA.
   ASSIGN
-    t-mfvalues.mf_value = attribute:SCREEN-VALUE
-    editorWidget = ?.
+    ttMFValues.mf_value = attribute:SCREEN-VALUE
+    editorWidget = ?
+    .
 
 END PROCEDURE.
 
@@ -1024,17 +1030,10 @@ PROCEDURE winReSize :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE offSet AS INTEGER NO-UNDO.
-
-  /*
-  {&WINDOW-NAME}:WINDOW-STATE = 1.
-  offSet = IF {&WINDOW-NAME}:HEIGHT-PIXELS GT 600 THEN 60 ELSE 0.
-  */
-  offSet = 60.
   IF {&WINDOW-NAME}:HEIGHT-PIXELS LT 600 THEN {&WINDOW-NAME}:HEIGHT-PIXELS = 600.
   IF {&WINDOW-NAME}:WIDTH-PIXELS LT 800 THEN {&WINDOW-NAME}:WIDTH-PIXELS = 800.
   ASSIGN
-    {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - offSet
+    {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - 60
     {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
     FRAME {&FRAME-NAME}:WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
     FRAME {&FRAME-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS

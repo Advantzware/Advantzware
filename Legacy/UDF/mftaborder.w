@@ -15,7 +15,7 @@
 
   Author: Ron Stark
 
-  Created: 2.15.2012
+  Created: 2.15.2012 (updated 11.29.2016)
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -26,18 +26,19 @@
 
 DEFINE INPUT PARAMETER ipFrameHandle AS WIDGET NO-UNDO.
 DEFINE INPUT PARAMETER ipTabLabel AS CHARACTER NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopTabOrder AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopttTabOrder AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
 {methods/defines/miscflds.i}
 
-DEFINE TEMP-TABLE tabOrder NO-UNDO
+DEFINE TEMP-TABLE ttTabOrder NO-UNDO
   FIELD objOrder AS INTEGER
   FIELD objX AS INTEGER
   FIELD objY AS INTEGER
   FIELD objName AS CHARACTER
-  FIELD objRowID AS ROWID.
+  FIELD objRowID AS ROWID
+  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -54,12 +55,12 @@ DEFINE TEMP-TABLE tabOrder NO-UNDO
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExit btnSave tabOptions tabObjects 
+&Scoped-Define ENABLED-OBJECTS tabOptions tabObjects btnExit btnSave 
 &Scoped-Define DISPLAYED-OBJECTS tabLabel tabOptions tabObjects 
 
 /* Custom List Definitions                                              */
 /* moveButtons,topButtons,bottomButtons,List-4,List-5,List-6            */
-&Scoped-define moveButtons btnMoveFirst btnMoveUp btnMoveDown btnMoveLast 
+&Scoped-define moveButtons btnMoveDown btnMoveFirst btnMoveLast btnMoveUp 
 &Scoped-define topButtons btnMoveFirst btnMoveUp 
 &Scoped-define bottomButtons btnMoveDown btnMoveLast 
 
@@ -80,20 +81,28 @@ DEFINE BUTTON btnExit AUTO-END-KEY
      FONT 4.
 
 DEFINE BUTTON btnMoveDown 
+     IMAGE-UP FILE "Graphics/16x16/down.jpg":U
+     IMAGE-INSENSITIVE FILE "Graphics/16x16/sign_forbidden.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Move &Down" 
-     SIZE 15 BY 1.14.
+     SIZE 4.2 BY 1.
 
 DEFINE BUTTON btnMoveFirst 
+     IMAGE-UP FILE "Graphics/16x16/nav_up.gif":U
+     IMAGE-INSENSITIVE FILE "Graphics/16x16/sign_forbidden.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Move &First" 
-     SIZE 15 BY 1.14.
+     SIZE 4.2 BY 1.
 
 DEFINE BUTTON btnMoveLast 
+     IMAGE-UP FILE "Graphics/16x16/nav_down.gif":U
+     IMAGE-INSENSITIVE FILE "Graphics/16x16/sign_forbidden.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Move &Last" 
-     SIZE 15 BY 1.14.
+     SIZE 4.2 BY 1.
 
 DEFINE BUTTON btnMoveUp 
+     IMAGE-UP FILE "Graphics/16x16/up.jpg":U
+     IMAGE-INSENSITIVE FILE "Graphics/16x16/sign_forbidden.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Move &Up" 
-     SIZE 15 BY 1.14.
+     SIZE 4.2 BY 1.
 
 DEFINE BUTTON btnSave AUTO-GO 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
@@ -111,35 +120,35 @@ DEFINE VARIABLE tabOptions AS CHARACTER FORMAT "X(256)":U INITIAL "Default"
 DEFINE VARIABLE tabLabel AS CHARACTER FORMAT "X(256)":U 
      LABEL "Tab" 
      VIEW-AS FILL-IN 
-     SIZE 43 BY 1
+     SIZE 45 BY 1
      BGCOLOR 15 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE tabObjects AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 78 BY 21.43 NO-UNDO.
+     SIZE 78 BY 25.24 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btnExit AT ROW 21.95 COL 88 HELP
-          "Exit Design Layout Window" WIDGET-ID 4
+     btnMoveDown AT ROW 8.86 COL 81 HELP
+          "Move Selected Tabbable Object Down"
+     btnMoveFirst AT ROW 6.48 COL 81 HELP
+          "Move Selected Tabbable Object to First Object"
+     btnMoveLast AT ROW 10.05 COL 81 HELP
+          "Move Selected Tabbable Object to Last Object"
+     btnMoveUp AT ROW 7.67 COL 81 HELP
+          "Move Selected Tabbable Object Up"
      tabLabel AT ROW 1.24 COL 5 COLON-ALIGNED WIDGET-ID 2
-     btnSave AT ROW 21.95 COL 80 HELP
-          "Save" WIDGET-ID 8
      tabOptions AT ROW 1.24 COL 67 COLON-ALIGNED HELP
           "Select Tabbing Option"
      tabObjects AT ROW 2.43 COL 2 HELP
           "Select Tabbable Object to Move" NO-LABEL
-     btnMoveFirst AT ROW 2.43 COL 81 HELP
-          "Move Selected Tabbable Object to First Object"
-     btnMoveUp AT ROW 3.86 COL 81 HELP
-          "Move Selected Tabbable Object Up"
-     btnMoveDown AT ROW 5.29 COL 81 HELP
-          "Move Selected Tabbable Object Down"
-     btnMoveLast AT ROW 6.71 COL 81 HELP
-          "Move Selected Tabbable Object to Last Object"
-     SPACE(0.00) SKIP(16.01)
+     btnExit AT ROW 25.76 COL 88 HELP
+          "Exit Design Layout Window" WIDGET-ID 4
+     btnSave AT ROW 25.76 COL 80 HELP
+          "Save" WIDGET-ID 8
+     SPACE(7.99) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "User Defined Fields Tab Order"
@@ -245,8 +254,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave Dialog-Frame
 ON CHOOSE OF btnSave IN FRAME Dialog-Frame /* Save */
 DO:
-    RUN setTabOrder.
-    iopTabOrder = tabOptions.
+    RUN setttTabOrder.
+    iopttTabOrder = tabOptions.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -299,7 +308,6 @@ END.
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
-
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -307,7 +315,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   ASSIGN
     tabObjects:DELIMITER = '|'
-    tabOptions = iopTabOrder.
+    tabOptions = iopttTabOrder
+    .
   RUN enable_UI.
   tabLabel:SCREEN-VALUE = ipTabLabel.
   RUN loadObjects.
@@ -351,7 +360,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY tabLabel tabOptions tabObjects 
       WITH FRAME Dialog-Frame.
-  ENABLE btnExit btnSave tabOptions tabObjects 
+  ENABLE tabOptions tabObjects btnExit btnSave 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -369,19 +378,21 @@ PROCEDURE loadObjects :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE current-widget AS WIDGET-HANDLE NO-UNDO.
 
-  EMPTY TEMP-TABLE tabOrder.
+  EMPTY TEMP-TABLE ttTabOrder.
   ASSIGN
     current-widget = ipFrameHandle
     current-widget = current-widget:FIRST-CHILD
-    current-widget = current-widget:FIRST-CHILD.
+    current-widget = current-widget:FIRST-CHILD
+    .
   DO WHILE current-widget NE ?:
     IF NOT CAN-DO('Image,Rectangle,Text',current-widget:TYPE) THEN DO:
-      CREATE tabOrder.
+      CREATE ttTabOrder.
       ASSIGN
-        tabOrder.objName = current-widget:NAME
-        tabOrder.objX = current-widget:X
-        tabOrder.objY = current-widget:Y
-        tabOrder.objRowID = TO-ROWID(ENTRY(1,current-widget:PRIVATE-DATA,'|')).
+        ttTabOrder.objName = current-widget:NAME
+        ttTabOrder.objX = current-widget:X
+        ttTabOrder.objY = current-widget:Y
+        ttTabOrder.objRowID = TO-ROWID(ENTRY(1,current-widget:PRIVATE-DATA,'|'))
+        .
     END.
     current-widget = current-widget:NEXT-SIBLING.
   END.
@@ -407,27 +418,27 @@ PROCEDURE moveObject :
     DO idx = 1 TO tabObjects:NUM-ITEMS:
       IF tabObjects:IS-SELECTED(idx) THEN LEAVE.
     END.
-    FIND FIRST attrb EXCLUSIVE-LOCK
-         WHERE ROWID(attrb) EQ TO-ROWID(tabObjects:ENTRY(idx)).
+    FIND FIRST ttAttrb
+         WHERE ROWID(ttAttrb) EQ TO-ROWID(tabObjects:ENTRY(idx)).
     CASE ipMove:
       WHEN 'First' THEN DO:
         tabObjects:DELETE(idx).
-        tabObjects:ADD-FIRST(attrb.attr_name,STRING(ROWID(attrb))).
+        tabObjects:ADD-FIRST(ttAttrb.attr_name,STRING(ROWID(ttAttrb))).
         idx = 1.
       END.
       WHEN 'Up' THEN DO:
         tabObjects:DELETE(idx).
         idx = idx - 1.
-        tabObjects:INSERT(attrb.attr_name,STRING(ROWID(attrb)),idx).
+        tabObjects:INSERT(ttAttrb.attr_name,STRING(ROWID(ttAttrb)),idx).
       END.
       WHEN 'Down' THEN DO:
         tabObjects:DELETE(idx).
         idx = idx + 1.
-        tabObjects:INSERT(attrb.attr_name,STRING(ROWID(attrb)),idx).
+        tabObjects:INSERT(ttAttrb.attr_name,STRING(ROWID(ttAttrb)),idx).
       END.
       WHEN 'Last' THEN DO:
         tabObjects:DELETE(idx).
-        tabObjects:ADD-LAST(attrb.attr_name,STRING(ROWID(attrb))).
+        tabObjects:ADD-LAST(ttAttrb.attr_name,STRING(ROWID(ttAttrb))).
         idx = tabObjects:NUM-ITEMS.
       END.
     END CASE.
@@ -437,7 +448,7 @@ PROCEDURE moveObject :
 
 END PROCEDURE.
 
-/*  tabObjects:ADD-LAST(tabOrder.objName,STRING(tabOrder.objRowID)).*/
+/*  tabObjects:ADD-LAST(ttTabOrder.objName,STRING(ttTabOrder.objRowID)).*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -449,7 +460,7 @@ PROCEDURE setObjOrder :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  &SCOPED-DEFINE objAssign ASSIGN   tabOrder.objOrder = idx   idx = idx + 1.
+  &SCOPED-DEFINE objAssign ASSIGN ttTabOrder.objOrder = idx idx = idx + 1.
 
   DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 
@@ -459,32 +470,32 @@ PROCEDURE setObjOrder :
       idx = 1.
     CASE tabOptions:
       WHEN 'Default' THEN
-      FOR EACH tabOrder:
+      FOR EACH ttTabOrder:
         {&objAssign}
       END.
       WHEN 'Custom' THEN
-      FOR EACH tabOrder BY tabOrder.objOrder:
+      FOR EACH ttTabOrder BY ttTabOrder.objOrder:
         {&objAssign}
       END.
       WHEN 'Left to Right By Columns' THEN
-      FOR EACH tabOrder BY tabOrder.objX BY tabOrder.objY:
+      FOR EACH ttTabOrder BY ttTabOrder.objX BY ttTabOrder.objY:
         {&objAssign}
       END.
       WHEN 'Left to Right By Rows' THEN
-      FOR EACH tabOrder BY tabOrder.objY BY tabOrder.objX:
+      FOR EACH ttTabOrder BY ttTabOrder.objY BY ttTabOrder.objX:
         {&objAssign}
       END.
       WHEN 'Right to Left By Columns' THEN
-      FOR EACH tabOrder BY tabOrder.objX DESC BY tabOrder.objY:
+      FOR EACH ttTabOrder BY ttTabOrder.objX DESC BY ttTabOrder.objY:
         {&objAssign}
       END.
       WHEN 'Right to Left By Rows' THEN
-      FOR EACH tabOrder BY tabOrder.objY BY tabOrder.objX DESC:
+      FOR EACH ttTabOrder BY ttTabOrder.objY BY ttTabOrder.objX DESC:
         {&objAssign}
       END.
     END CASE.
-    FOR EACH tabOrder BY tabOrder.objOrder:
-      tabObjects:ADD-LAST(tabOrder.objName,STRING(tabOrder.objRowID)).
+    FOR EACH ttTabOrder BY ttTabOrder.objOrder:
+      tabObjects:ADD-LAST(ttTabOrder.objName,STRING(ttTabOrder.objRowID)).
     END.
   END.
 
@@ -503,9 +514,9 @@ PROCEDURE setTabOrder :
   DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 
   DO idx = 1 TO tabObjects:NUM-ITEMS IN FRAME {&FRAME-NAME}:
-    FIND FIRST attrb EXCLUSIVE-LOCK
-         WHERE ROWID(attrb) EQ TO-ROWID(tabObjects:ENTRY(idx)).
-    attrb.attr_order = idx.
+    FIND FIRST ttAttrb
+         WHERE ROWID(ttAttrb) EQ TO-ROWID(tabObjects:ENTRY(idx)).
+    ttAttrb.attr_order = idx.
   END.
 
 END PROCEDURE.

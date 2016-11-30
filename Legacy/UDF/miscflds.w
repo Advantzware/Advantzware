@@ -14,7 +14,7 @@
 
   Author:            Ron Stark
 
-  Created:           03/01/98 (updated 11.28.2016)
+  Created:           03/01/98 (updated 11.29.2016)
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -37,41 +37,36 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
-&scoped-define widget-pool-name dynamic-widget
+&SCOPED-DEFINE widgetPoolName dynamic-widget
 
 {methods/defines/miscflds.i &NEW="NEW"}
 
-DEFINE TEMP-TABLE del-mfvalues NO-UNDO
+DEFINE TEMP-TABLE ttDeleteMFValues NO-UNDO
   FIELD mfvalues_recid AS RECID.
 
-DEFINE VARIABLE tabImage AS WIDGET-HANDLE EXTENT 18 NO-UNDO.
-DEFINE VARIABLE tabLabel AS WIDGET-HANDLE EXTENT 18 NO-UNDO.
-DEFINE VARIABLE labelWidget AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE dynWidget AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE saveWidget AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE tabImage      AS WIDGET-HANDLE NO-UNDO EXTENT 18.
+DEFINE VARIABLE tabLabel      AS WIDGET-HANDLE NO-UNDO EXTENT 18.
+DEFINE VARIABLE labelWidget   AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE dynWidget     AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE saveWidget    AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE currentWidget AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE currentLabel  AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE cdummy        AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE tabOrder      AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE ldummy        AS LOGICAL       NO-UNDO.
+DEFINE VARIABLE newMFGroup    AS LOGICAL       NO-UNDO.
+DEFINE VARIABLE copyMFGroup   AS LOGICAL       NO-UNDO.
+DEFINE VARIABLE newTab        AS LOGICAL       NO-UNDO.
+DEFINE VARIABLE leftright     AS LOGICAL       NO-UNDO.
+DEFINE VARIABLE continue      AS LOGICAL       NO-UNDO.
+DEFINE VARIABLE currentTab    AS INTEGER       NO-UNDO.
+DEFINE VARIABLE lastID        AS INTEGER       NO-UNDO.
+DEFINE VARIABLE i             AS INTEGER       NO-UNDO.
 
-DEFINE VARIABLE currentLabel AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cdummy AS CHARACTER NO-UNDO.
-DEFINE VARIABLE tabOrder AS CHARACTER NO-UNDO.
-
-DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
-DEFINE VARIABLE newMFGroup AS LOGICAL NO-UNDO.
-DEFINE VARIABLE copyMFGroup AS LOGICAL NO-UNDO.
-DEFINE VARIABLE newTab AS LOGICAL NO-UNDO.
-DEFINE VARIABLE leftright AS LOGICAL NO-UNDO.
-DEFINE VARIABLE continue AS LOGICAL NO-UNDO.
-
-DEFINE VARIABLE currentTab AS INTEGER NO-UNDO.
-DEFINE VARIABLE lastID AS INTEGER NO-UNDO.
-DEFINE VARIABLE i AS INTEGER NO-UNDO.
-
-DEF BUFFER b-mfgroup FOR mfgroup.
-DEF BUFFER b-mfdata FOR mfdata.
-DEF BUFFER b-attrb FOR attrb.
+DEFINE BUFFER bAttrb FOR ttAttrb.
 
 /* trigger code attached to each created dynamic widget */
-&scoped-define trigger-code ~
+&SCOPED-DEFINE trigger-code ~
 TRIGGERS: ~
   ON SELECTION ~
     PERSISTENT RUN selectWidget IN THIS-PROCEDURE. ~
@@ -86,12 +81,6 @@ TRIGGERS: ~
   ON END-RESIZE ~
     PERSISTENT RUN resizeWidget IN THIS-PROCEDURE (dynWidget:HANDLE). ~
 END TRIGGERS.
-
-/* to delete a selected widget if focus is outside the design frame folderFrm */
-/*
-ON DELETE-CHARACTER ANYWHERE DO:
-  RUN cutWidgets.
-END. */
 
 {methods/lockWindowUpdate.i}
 
@@ -110,13 +99,13 @@ END. */
 &Scoped-define FRAME-NAME fMiscFlds
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnAddTab btnDeleteTab btnDownTab btnExit ~
-btnNextTab btnPrevTab btnRenameTab btnUpTab btnAddGroup tabLabelsRect ~
-RECT-5 RECT-4 widgetRect tabNavRect RECT-2 RECT-3 RECT-8 mfgroupList ~
-mfgroupTab btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set ~
-btnRectangle btnSelection-List btnSlider btnText btnToggle-Box btnCopy ~
-btnCopyGroup btnCut btnDeleteGroup btnPaste btnProperty btnRenameGroup ~
-btnRestore btnSave btnTabOrder btnTest 
+&Scoped-Define ENABLED-OBJECTS btnAddTab btnCopy btnCut tabLabelsRect ~
+btnDeleteTab btnDownTab RECT-5 RECT-4 widgetRect tabNavRect RECT-2 RECT-3 ~
+RECT-8 portRect tabNavRect-3 mfgroupList mfgroupTab btnCombo-Box btnExit ~
+tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle btnSelection-List ~
+btnSlider btnText btnToggle-Box btnExport btnImport btnNextTab btnPaste ~
+btnPrevTab btnProperty btnRenameTab btnUpTab btnAddGroup btnCopyGroup ~
+btnDeleteGroup btnRenameGroup btnRestore btnSave btnTabOrder btnTest 
 &Scoped-Define DISPLAYED-OBJECTS mfgroupList mfgroupTab tabLabels ~
 widgetLabel tabCBLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
 fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
@@ -124,13 +113,13 @@ textLabel toggle-BoxLabel gapFieldLabel
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-1 btnAddTab btnDeleteTab btnDownTab btnNextTab ~
-btnPrevTab btnRenameTab btnUpTab widgetRect mfgroupTab btnPointer ~
-btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle ~
-btnSelection-List btnSlider btnText btnToggle-Box gapField btnDeleteGroup ~
-btnRenameGroup btnTest widgetLabel pointerLabel tabNavLabel combo-BoxLabel ~
-editorLabel fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel ~
-sliderLabel textLabel toggle-BoxLabel 
+&Scoped-define List-1 btnAddTab btnDeleteTab btnDownTab widgetRect ~
+mfgroupTab btnPointer btnCombo-Box tabLabels btnEditor btnFill-In ~
+btnRadio-Set btnRectangle btnSelection-List btnSlider btnText btnToggle-Box ~
+btnNextTab btnPrevTab btnRenameTab btnUpTab btnDeleteGroup btnRenameGroup ~
+btnTest widgetLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
+fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
+textLabel toggle-BoxLabel 
 &Scoped-define List-2 pointerLabel combo-BoxLabel editorLabel fill-InLabel ~
 radio-SetLabel rectangleLabel selection-ListLabel sliderLabel textLabel ~
 toggle-BoxLabel 
@@ -231,7 +220,8 @@ DEFINE BUTTON btnCombo-Box
      FONT 4.
 
 DEFINE BUTTON btnCopy 
-     IMAGE-UP FILE "Graphics/32x32/copy.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/copy.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/sign_forbidden.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Copy" 
      SIZE 8 BY 1.91 TOOLTIP "Copy Selections to Clipboard".
 
@@ -241,7 +231,8 @@ DEFINE BUTTON btnCopyGroup
      SIZE 4.2 BY 1 TOOLTIP "Add New Group".
 
 DEFINE BUTTON btnCut 
-     IMAGE-UP FILE "Graphics/32x32/cut.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/cut.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/sign_forbidden.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Cut" 
      SIZE 8 BY 1.91 TOOLTIP "Cut Selections to Clipboard"
      FONT 4.
@@ -252,13 +243,15 @@ DEFINE BUTTON btnDeleteGroup
      SIZE 4.2 BY 1 TOOLTIP "Delete Current Group".
 
 DEFINE BUTTON btnDeleteTab 
-     IMAGE-UP FILE "Graphics/16x16/delete.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/delete.jpg":U
+     IMAGE-INSENSITIVE FILE "Graphics/16x16/sign_forbidden.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 4.2 BY 1 TOOLTIP "Delete Current Tab (Page)"
      FONT 4.
 
 DEFINE BUTTON btnDownTab 
-     IMAGE-UP FILE "Graphics/16x16/down.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/down.jpg":U
+     IMAGE-INSENSITIVE FILE "Graphics/16x16/sign_forbidden.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Dn" 
      SIZE 4.2 BY 1 TOOLTIP "Move Current Tab (Page) Down (Right)"
      FONT 4.
@@ -274,19 +267,33 @@ DEFINE BUTTON btnExit
      SIZE 8 BY 1.91 TOOLTIP "Exit"
      FONT 4.
 
+DEFINE BUTTON btnExport 
+     IMAGE-UP FILE "Graphics/32x32/export.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Export" 
+     SIZE 8 BY 1.91 TOOLTIP "Export"
+     FONT 4.
+
 DEFINE BUTTON btnFill-In 
      LABEL "Fill In" 
      SIZE 6.4 BY 1.52 TOOLTIP "Fill In"
      FONT 4.
 
+DEFINE BUTTON btnImport 
+     IMAGE-UP FILE "Graphics/32x32/import.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Import" 
+     SIZE 8 BY 1.91 TOOLTIP "Import"
+     FONT 4.
+
 DEFINE BUTTON btnNextTab 
-     IMAGE-UP FILE "Graphics/16x16/next.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/next.jpg":U
+     IMAGE-INSENSITIVE FILE "Graphics/16x16/sign_forbidden.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Next Tab" 
      SIZE 4.2 BY 1 TOOLTIP "Change to Next Tab (Page)"
      FONT 4.
 
 DEFINE BUTTON btnPaste 
-     IMAGE-UP FILE "Graphics/32x32/clipboard_paste.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/clipboard_paste.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/sign_forbidden.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Paste" 
      SIZE 8 BY 1.91 TOOLTIP "Paste from Clipboard".
 
@@ -295,13 +302,15 @@ DEFINE BUTTON btnPointer
      SIZE 6.4 BY 1.52 TOOLTIP "Pointer".
 
 DEFINE BUTTON btnPrevTab 
-     IMAGE-UP FILE "Graphics/16x16/previous.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/previous.jpg":U
+     IMAGE-INSENSITIVE FILE "Graphics/16x16/sign_forbidden.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Previous Tab" 
      SIZE 4.2 BY 1 TOOLTIP "Change to Previous Tab (Page)"
      FONT 4.
 
 DEFINE BUTTON btnProperty 
-     IMAGE-UP FILE "Graphics/32x32/form.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/form.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/sign_forbidden.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Property" 
      SIZE 8 BY 1.91 TOOLTIP "Attributes"
      FONT 4.
@@ -371,12 +380,14 @@ DEFINE BUTTON btnToggle-Box
      FONT 4.
 
 DEFINE BUTTON btnUpTab 
-     IMAGE-UP FILE "Graphics/16x16/up.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/up.jpg":U
+     IMAGE-INSENSITIVE FILE "Graphics/16x16/sign_forbidden.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Up" 
      SIZE 4.2 BY 1 TOOLTIP "Move Current Tab (Page) Up (Left)"
      FONT 4.
 
 DEFINE VARIABLE mfgroupList AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Group" 
      VIEW-AS COMBO-BOX SORT INNER-LINES 20
      DROP-DOWN-LIST
      SIZE 48 BY 1
@@ -408,9 +419,9 @@ DEFINE VARIABLE gapField AS INTEGER FORMAT ">>9":U INITIAL 0
      SIZE 6.6 BY .91
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE gapFieldLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Gap" 
+DEFINE VARIABLE gapFieldLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Align Gap" 
       VIEW-AS TEXT 
-     SIZE 5 BY .91 NO-UNDO.
+     SIZE 13 BY .91 NO-UNDO.
 
 DEFINE VARIABLE mfgroupField AS CHARACTER FORMAT "X(256)":U 
      LABEL "Group" 
@@ -444,7 +455,7 @@ DEFINE VARIABLE sliderLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Slider"
 
 DEFINE VARIABLE tabCBLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Tab:" 
       VIEW-AS TEXT 
-     SIZE 4.5 BY .91 NO-UNDO.
+     SIZE 4.6 BY .91 NO-UNDO.
 
 DEFINE VARIABLE tabField AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -453,8 +464,7 @@ DEFINE VARIABLE tabField AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE tabNavLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Tab Labels | Tab Order" 
       VIEW-AS TEXT 
-     SIZE 22 BY .62
-     BGCOLOR 15  NO-UNDO.
+     SIZE 22 BY .62 NO-UNDO.
 
 DEFINE VARIABLE textLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Text" 
       VIEW-AS TEXT 
@@ -468,12 +478,16 @@ DEFINE VARIABLE toggle-BoxLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Toggle 
 
 DEFINE VARIABLE widgetLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Widgets" 
       VIEW-AS TEXT 
-     SIZE 8 BY .62
-     BGCOLOR 15  NO-UNDO.
+     SIZE 8 BY .62 NO-UNDO.
+
+DEFINE RECTANGLE portRect
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 23 BY 3.33
+     BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 144 BY 3.19.
+     SIZE 141 BY 3.19.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
@@ -500,6 +514,11 @@ DEFINE RECTANGLE tabLabelsRect
      SIZE 27.6 BY 20.95.
 
 DEFINE RECTANGLE tabNavRect
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 27.6 BY 1.43
+     BGCOLOR 8 .
+
+DEFINE RECTANGLE tabNavRect-3
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 27.6 BY 1.43
      BGCOLOR 8 .
@@ -543,32 +562,26 @@ DEFINE RECTANGLE Rect-Top
 DEFINE FRAME fMiscFlds
      btnAddTab AT ROW 7.19 COL 125 HELP
           "ADD New Tab"
+     btnCopy AT ROW 1.48 COL 88 HELP
+          "Copy Selections"
+     btnCut AT ROW 1.48 COL 80 HELP
+          "Cut Selections"
      btnDeleteTab AT ROW 7.19 COL 135 HELP
           "DELETE Tab"
      btnDownTab AT ROW 7.19 COL 140 HELP
           "Move Tab DOWN"
-     btnExit AT ROW 1.48 COL 137 HELP
-          "Exit Design Layout Window"
-     btnNextTab AT ROW 4.81 COL 144.6 HELP
-          "Next Tab"
-     btnPrevTab AT ROW 4.81 COL 125.6 HELP
-          "Previous tab"
-     btnRenameTab AT ROW 7.19 COL 130 HELP
-          "RENAME Tab"
-     btnUpTab AT ROW 7.19 COL 145 HELP
-          "Move Tab UP"
-     btnAddGroup AT ROW 3.14 COL 11 HELP
-          "ADD GROU[ Name"
-     mfgroupField AT ROW 1.71 COL 9 COLON-ALIGNED HELP
+     mfgroupList AT ROW 1.71 COL 8 COLON-ALIGNED HELP
+          "Select Group Name"
+     mfgroupField AT ROW 1.71 COL 8 COLON-ALIGNED HELP
           "Enter Group Name"
-     mfgroupList AT ROW 1.71 COL 9 COLON-ALIGNED HELP
-          "Select Group Name" NO-LABEL
      mfgroupTab AT ROW 4.81 COL 133.6 COLON-ALIGNED HELP
           "Select Tab Number" NO-LABEL
      btnPointer AT ROW 5.57 COL 3.2 HELP
           "Restore Mouse Cursor to ARROW POINTER"
      btnCombo-Box AT ROW 7.19 COL 3.2 HELP
           "Create New COMBO-BOX"
+     btnExit AT ROW 1.48 COL 134 HELP
+          "Exit Design Layout Window"
      tabField AT ROW 7.19 COL 124 HELP
           "Enter Tab Label" NO-LABEL
      tabLabels AT ROW 8.38 COL 124 HELP
@@ -589,29 +602,39 @@ DEFINE FRAME fMiscFlds
           "Create New TEXT"
      btnToggle-Box AT ROW 20.52 COL 3 HELP
           "Create New TOGGLE-BOX"
+     btnExport AT ROW 23.86 COL 15 HELP
+          "Export" WIDGET-ID 26
      gapField AT ROW 22.19 COL 1 COLON-ALIGNED HELP
           "Enter Gap Amount in Pixels" NO-LABEL
-     btnCopy AT ROW 1.48 COL 89 HELP
-          "Copy Selections"
-     btnCopyGroup AT ROW 3.14 COL 21 HELP
-          "ADD GROU[ Name"
-     btnCut AT ROW 1.48 COL 80 HELP
-          "Cut Selections"
-     btnDeleteGroup AT ROW 3.19 COL 46 HELP
-          "DELETE GROU[ Name"
-     btnPaste AT ROW 1.48 COL 98 HELP
+     btnImport AT ROW 23.86 COL 4 HELP
+          "Import" WIDGET-ID 24
+     btnNextTab AT ROW 4.81 COL 144.6 HELP
+          "Next Tab"
+     btnPaste AT ROW 1.48 COL 96 HELP
           "Paste Selections"
-     btnProperty AT ROW 1.48 COL 61 HELP
+     btnPrevTab AT ROW 4.81 COL 125.6 HELP
+          "Previous tab"
+     btnProperty AT ROW 1.48 COL 60 HELP
           "Attributes"
-     btnRenameGroup AT ROW 3.14 COL 32.2 HELP
+     btnRenameTab AT ROW 7.19 COL 130 HELP
+          "RENAME Tab"
+     btnUpTab AT ROW 7.19 COL 145 HELP
+          "Move Tab UP"
+     btnAddGroup AT ROW 3.14 COL 10 HELP
+          "ADD GROU[ Name"
+     btnCopyGroup AT ROW 3.14 COL 20 HELP
+          "ADD GROU[ Name"
+     btnDeleteGroup AT ROW 3.19 COL 45 HELP
+          "DELETE GROU[ Name"
+     btnRenameGroup AT ROW 3.14 COL 31.2 HELP
           "CHANGE GROU[ Name"
-     btnRestore AT ROW 1.48 COL 118 HELP
+     btnRestore AT ROW 1.48 COL 116 HELP
           "Reset"
-     btnSave AT ROW 1.48 COL 127 HELP
+     btnSave AT ROW 1.48 COL 124 HELP
           "Save"
      btnTabOrder AT ROW 1.48 COL 70 HELP
           "Set Tab Order"
-     btnTest AT ROW 1.48 COL 108
+     btnTest AT ROW 1.48 COL 106
      widgetLabel AT ROW 4.81 COL 8 COLON-ALIGNED NO-LABEL
      tabCBLabel AT ROW 4.81 COL 129 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      pointerLabel AT ROW 5.57 COL 8.2 COLON-ALIGNED NO-LABEL
@@ -620,76 +643,78 @@ DEFINE FRAME fMiscFlds
      editorLabel AT ROW 8.86 COL 8.2 COLON-ALIGNED NO-LABEL
      fill-InLabel AT ROW 10.52 COL 8.2 COLON-ALIGNED NO-LABEL
      radio-SetLabel AT ROW 12.19 COL 8.2 COLON-ALIGNED NO-LABEL
-     rectangleLabel AT ROW 13.86 COL 8 COLON-ALIGNED NO-LABEL
-     selection-ListLabel AT ROW 15.52 COL 8 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 149.8 BY 26.24
-         BGCOLOR 15 .
+         SIZE 149.6 BY 26.24.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fMiscFlds
+     rectangleLabel AT ROW 13.86 COL 8 COLON-ALIGNED NO-LABEL
+     selection-ListLabel AT ROW 15.52 COL 8 COLON-ALIGNED NO-LABEL
      sliderLabel AT ROW 17.19 COL 8 COLON-ALIGNED NO-LABEL
      textLabel AT ROW 18.86 COL 8 COLON-ALIGNED NO-LABEL
      toggle-BoxLabel AT ROW 20.52 COL 8 COLON-ALIGNED NO-LABEL
      gapFieldLabel AT ROW 22.19 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      "Save" VIEW-AS TEXT
-          SIZE 5 BY .76 AT ROW 3.62 COL 128 WIDGET-ID 12
-          BGCOLOR 15 FONT 4
-     "Paste" VIEW-AS TEXT
-          SIZE 6 BY .76 AT ROW 3.62 COL 99 WIDGET-ID 10
-          BGCOLOR 15 FONT 4
+          SIZE 5 BY .76 AT ROW 3.62 COL 125 WIDGET-ID 12
+          FONT 4
      "Copy" VIEW-AS TEXT
-          SIZE 5 BY .76 AT ROW 3.62 COL 90 WIDGET-ID 8
-          BGCOLOR 15 FONT 4
+          SIZE 5 BY .76 AT ROW 3.62 COL 89 WIDGET-ID 8
+          FONT 4
      "Atrributes" VIEW-AS TEXT
-          SIZE 9 BY .76 AT ROW 3.62 COL 61
-          BGCOLOR 15 FONT 4
-     "TabOrder" VIEW-AS TEXT
-          SIZE 9 BY .76 AT ROW 3.62 COL 70
-          BGCOLOR 15 FONT 4
-     "Preview" VIEW-AS TEXT
-          SIZE 8 BY .76 AT ROW 3.62 COL 108 WIDGET-ID 6
-          BGCOLOR 15 FONT 4
-     "E&xit" VIEW-AS TEXT
-          SIZE 4.2 BY .76 AT ROW 3.62 COL 139
-          BGCOLOR 15 FONT 4
-     "Delete" VIEW-AS TEXT
-          SIZE 7 BY .95 AT ROW 3.19 COL 51
-          BGCOLOR 15 FONT 4
-     "Rename" VIEW-AS TEXT
-          SIZE 8.6 BY .95 AT ROW 3.19 COL 37
-          BGCOLOR 15 FONT 4
-     "Copy" VIEW-AS TEXT
-          SIZE 5 BY .95 AT ROW 3.19 COL 26
-          BGCOLOR 15 
+          SIZE 9 BY .76 AT ROW 3.62 COL 59
+          FONT 4
+     "Export" VIEW-AS TEXT
+          SIZE 7 BY .76 AT ROW 26 COL 15 WIDGET-ID 30
+          FONT 4
      "Cut" VIEW-AS TEXT
           SIZE 4 BY .76 AT ROW 3.62 COL 82
-          BGCOLOR 15 FONT 4
+          FONT 4
      "Reset" VIEW-AS TEXT
-          SIZE 6 BY .76 AT ROW 3.62 COL 119
-          BGCOLOR 15 FONT 4
+          SIZE 6 BY .76 AT ROW 3.62 COL 117
+          FONT 4
      "Add" VIEW-AS TEXT
-          SIZE 4 BY .95 AT ROW 3.14 COL 16
-          BGCOLOR 15 FONT 4
-     "Group:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 1.71 COL 4
-          BGCOLOR 15 
+          SIZE 4 BY .95 AT ROW 3.14 COL 15
+          FONT 4
+     "Copy" VIEW-AS TEXT
+          SIZE 5 BY .95 AT ROW 3.19 COL 25
+     "Rename" VIEW-AS TEXT
+          SIZE 8.6 BY .95 AT ROW 3.19 COL 36
+          FONT 4
+     "Delete" VIEW-AS TEXT
+          SIZE 7 BY .95 AT ROW 3.19 COL 50
+          FONT 4
+     "E&xit" VIEW-AS TEXT
+          SIZE 4.2 BY .76 AT ROW 3.62 COL 136
+          FONT 4
+     "Preview" VIEW-AS TEXT
+          SIZE 8 BY .76 AT ROW 3.62 COL 106 WIDGET-ID 6
+          FONT 4
+     "Tab Order" VIEW-AS TEXT
+          SIZE 10 BY .76 AT ROW 3.62 COL 69
+          FONT 4
+     "Import" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 26 COL 5 WIDGET-ID 28
+          FONT 4
+     "Paste" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 3.62 COL 97 WIDGET-ID 10
+          FONT 4
      tabLabelsRect AT ROW 6.24 COL 123
      RECT-1 AT ROW 1.24 COL 2
-     RECT-5 AT ROW 1.24 COL 136
-     RECT-4 AT ROW 1.24 COL 107
+     RECT-5 AT ROW 1.24 COL 133
+     RECT-4 AT ROW 1.24 COL 105
      widgetRect AT ROW 4.57 COL 2
      tabNavRect AT ROW 4.57 COL 123
-     RECT-2 AT ROW 1.24 COL 60
+     RECT-2 AT ROW 1.24 COL 58
      RECT-3 AT ROW 1.24 COL 79
-     RECT-8 AT ROW 1.24 COL 117 WIDGET-ID 4
+     RECT-8 AT ROW 1.24 COL 115 WIDGET-ID 4
+     portRect AT ROW 23.62 COL 2 WIDGET-ID 20
+     tabNavRect-3 AT ROW 4.57 COL 123 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 149.8 BY 26.24
-         BGCOLOR 15 .
+         SIZE 149.6 BY 26.24.
 
 DEFINE FRAME folderFrm
      Rect-Main AT ROW 2.05 COL 1.6
@@ -719,9 +744,9 @@ DEFINE FRAME folderFrm
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wMiscFlds ASSIGN
          HIDDEN             = YES
-         TITLE              = "User Defined Fields Design Layout Window"
+         TITLE              = "User Defined Fields Builder"
          HEIGHT             = 26.24
-         WIDTH              = 149.8
+         WIDTH              = 149.6
          MAX-HEIGHT         = 57.14
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 57.14
@@ -813,7 +838,7 @@ ASSIGN
        fill-InLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
 
 /* SETTINGS FOR FILL-IN gapField IN FRAME fMiscFlds
-   NO-DISPLAY NO-ENABLE 1                                               */
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        gapField:HIDDEN IN FRAME fMiscFlds           = TRUE.
 
@@ -915,7 +940,7 @@ THEN wMiscFlds:HIDDEN = no.
 
 &Scoped-define SELF-NAME wMiscFlds
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wMiscFlds wMiscFlds
-ON END-ERROR OF wMiscFlds /* User Defined Fields Design Layout Window */
+ON END-ERROR OF wMiscFlds /* User Defined Fields Builder */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -928,9 +953,9 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wMiscFlds wMiscFlds
-ON WINDOW-CLOSE OF wMiscFlds /* User Defined Fields Design Layout Window */
+ON WINDOW-CLOSE OF wMiscFlds /* User Defined Fields Builder */
 DO:
-  IF mfpersist NE ? THEN DELETE PROCEDURE mfpersist.
+  IF hMFPersist NE ? THEN DELETE PROCEDURE hMFPersist.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -941,7 +966,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wMiscFlds wMiscFlds
-ON WINDOW-RESIZED OF wMiscFlds /* User Defined Fields Design Layout Window */
+ON WINDOW-RESIZED OF wMiscFlds /* User Defined Fields Builder */
 DO:
   RUN winReSize.
 END.
@@ -990,8 +1015,9 @@ END.
 ON CHOOSE OF btnAddGroup IN FRAME fMiscFlds /* Add Group */
 DO:
   ASSIGN
-     newMFGroup = YES
-     copyMFGroup = NO.
+    newMFGroup = YES
+    copyMFGroup = NO
+    .
   ENABLE mfgroupField WITH FRAME {&FRAME-NAME}.
   mfgroupField:SCREEN-VALUE = "".
   APPLY "ENTRY" TO mfgroupField.
@@ -1042,8 +1068,9 @@ END.
 ON CHOOSE OF btnCopyGroup IN FRAME fMiscFlds /* Add Group */
 DO:
   ASSIGN
-     copyMFGroup = YES
-     newMFGroup = NO.
+    copyMFGroup = YES
+    newMFGroup = NO
+    .
   ENABLE mfgroupField WITH FRAME {&FRAME-NAME}.
   APPLY "ENTRY" TO mfgroupField IN FRAME {&FRAME-NAME}.
 END.
@@ -1111,8 +1138,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit wMiscFlds
 ON CHOOSE OF btnExit IN FRAME fMiscFlds /* Exit */
 DO:
-  IF mfpersist NE ? THEN DELETE PROCEDURE mfpersist.
+  IF hMFPersist NE ? THEN DELETE PROCEDURE hMFPersist.
   APPLY "CLOSE" TO THIS-PROCEDURE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnExport
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExport wMiscFlds
+ON CHOOSE OF btnExport IN FRAME fMiscFlds /* Export */
+DO:
+  RUN exportLayouts.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1124,6 +1162,17 @@ END.
 ON CHOOSE OF btnFill-In IN FRAME fMiscFlds /* Fill In */
 DO:
   RUN selectNewWidgetType ("Fill-In","images/fill_in.cur").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnImport
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnImport wMiscFlds
+ON CHOOSE OF btnImport IN FRAME fMiscFlds /* Import */
+DO:
+  RUN importLayouts.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1216,8 +1265,9 @@ END.
 ON CHOOSE OF btnRenameGroup IN FRAME fMiscFlds /* Rename Group */
 DO:
   ASSIGN
-     newMFGroup = NO
-     copyMFGroup = NO.
+    newMFGroup = NO
+    copyMFGroup = NO
+    .
   ENABLE mfgroupField WITH FRAME {&FRAME-NAME}.
   mfgroupField:SCREEN-VALUE = "".
   APPLY "ENTRY" TO mfgroupField.
@@ -1236,7 +1286,8 @@ DO:
   ASSIGN
     tabField:SCREEN-VALUE = ENTRY(1,tabLabels:SCREEN-VALUE,"|")
     tabOrder = IF NUM-ENTRIES(tabLabels:SCREEN-VALUE,"|") GT 1 THEN
-               ENTRY(2,tabLabels:SCREEN-VALUE,"|") ELSE 'Default'.
+               ENTRY(2,tabLabels:SCREEN-VALUE,"|") ELSE "Default"
+    .
   APPLY "ENTRY" TO tabField.
 END.
 
@@ -1314,7 +1365,7 @@ DO:
     ELSE currentWidget = currentWidget:NEXT-SIBLING.
   END.
   FIND prgrms WHERE prgrms.prgmname = "prgrms." NO-LOCK.
-  RUN nosweat/mfvalues.w PERSISTENT
+  RUN UDF/mfvalues.w PERSISTENT
       (mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME},
        prgrms.rec_key,{methods/headers/prgrms.i}).
 END.
@@ -1398,7 +1449,8 @@ DO:
     ASSIGN
       cdummy = {&SELF-NAME}:SCREEN-VALUE
       ldummy = NO
-      currentLabel = "".
+      currentLabel = ""
+      .
     DO i = 1 TO mfgroupList:NUM-ITEMS: /* see if item already exists */
       IF mfgroupList:ENTRY(i) = cdummy THEN ldummy = YES.
     END.
@@ -1411,7 +1463,8 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
       mfgroupList:SCREEN-VALUE = cdummy
-      {&SELF-NAME}:HIDDEN = YES.
+      {&SELF-NAME}:HIDDEN = YES
+      .
     DISABLE {&SELF-NAME}.
     APPLY "ENTRY" TO mfgroupList.
     APPLY "VALUE-CHANGED" TO mfgroupList.
@@ -1424,7 +1477,7 @@ END.
 
 &Scoped-define SELF-NAME mfgroupList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mfgroupList wMiscFlds
-ON VALUE-CHANGED OF mfgroupList IN FRAME fMiscFlds
+ON VALUE-CHANGED OF mfgroupList IN FRAME fMiscFlds /* Group */
 DO:
   mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "1". /* set to first tab */
   RUN createWidgets.
@@ -1436,12 +1489,14 @@ END.
 
 &Scoped-define SELF-NAME mfgroupTab
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mfgroupTab wMiscFlds
-ON VALUE-CHANGED OF mfgroupTab IN FRAME fMiscFlds /* Tab */
+ON VALUE-CHANGED OF mfgroupTab IN FRAME fMiscFlds
 DO:
   DO i = 1 TO tabLabels:NUM-ITEMS: /* get index value of selected label */
-    IF tabLabels:SCREEN-VALUE = tabLabels:ENTRY(i) THEN LEAVE.
+    IF tabLabels:SCREEN-VALUE = tabLabels:ENTRY(i) THEN
+    LEAVE.
   END.
-  IF i = INTEGER(mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN RETURN NO-APPLY.
+  IF i = INTEGER(mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN
+  RETURN NO-APPLY.
   RUN createWidgets.
 END.
 
@@ -1558,7 +1613,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_copyGroup wMiscFlds
 ON CHOOSE OF MENU-ITEM m_copyGroup /* Copy Group */
 DO:
-   APPLY "CHOOSE" TO btnCopyGroup IN FRAME {&FRAME-NAME}.
+  APPLY "CHOOSE" TO btnCopyGroup IN FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1894,36 +1949,38 @@ ON CLOSE OF THIS-PROCEDURE
 PAUSE 0 BEFORE-HIDE.
 
 ON ESC OF {&WINDOW-NAME} ANYWHERE DO:
-  APPLY 'CLOSE' TO THIS-PROCEDURE.
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
+&IF DEFINED(UIB_is_Running) EQ 0 &THEN
+RUN util/chk-mod.p ("ASI","UDFB") NO-ERROR.
+continue = NOT ERROR-STATUS:ERROR.
+&ELSE
+continue = YES.
+&ENDIF
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  &IF DEFINED(UIB_is_Running) EQ 0 &THEN
-  RUN sys/ref/d-passmi.w (OUTPUT continue).
-  &ELSE
-  continue = YES.
-  &ENDIF
   IF continue THEN DO:
-      /* natural order is left to right, we want top to bottom */
-      RUN setTabOrder.
+      &IF DEFINED(UIB_is_Running) EQ 0 &THEN
+      MESSAGE "Valid UDF Builder License!" VIEW-AS ALERT-BOX.
+      &ENDIF
       RUN loadImages.
       RUN enable_UI.
       RUN winReSize.
       RUN loadWidgetData.
       DISABLE btnPaste btnPointer btnProperty btnCut btnCopy WITH FRAME {&FRAME-NAME}.
-      IF mfpersist EQ ? THEN
-      RUN nosweat/mfpersist.p PERSISTENT SET mfpersist.
+      IF hMFPersist EQ ? THEN
+      RUN UDF/mfPersist.p PERSISTENT SET hMFPersist.
   END. /* continue */
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
   IF NOT continue THEN
-  APPLY 'CLOSE' TO THIS-PROCEDURE.
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1941,10 +1998,10 @@ PROCEDURE addGroup :
 ------------------------------------------------------------------------------*/
   IF NOT ldummy THEN DO:
     ldummy = mfgroupList:ADD-LAST(cdummy) IN FRAME {&FRAME-NAME}.
-    CREATE tmfgroup.
+    CREATE ttMFGroup.
     ASSIGN
-      tmfgroup.mfgroup_data = cdummy
-      tmfgroup.mfgroup_tabs = " ".
+      ttMFGroup.mfgroup_data = cdummy
+      ttMFGroup.mfgroup_tabs = " ".
   END.
   ELSE MESSAGE "Group" cdummy "Already Exists!" VIEW-AS ALERT-BOX.
 
@@ -1965,12 +2022,14 @@ PROCEDURE addTab :
       IF tabLabels:IS-SELECTED(i) THEN /* find out which one is selected */
       LEAVE.
     END.
-    FIND tmfgroup EXCLUSIVE-LOCK WHERE tmfgroup.mfgroup_data = mfgroupList:SCREEN-VALUE.
+    FIND ttMFGroup
+        WHERE ttMFGroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE.
     ASSIGN
       ldummy = tabLabels:INSERT(tabField:SCREEN-VALUE + "|Default",i + 1)
       tabLabels:SCREEN-VALUE = tabLabels:ENTRY(i + 1)
       ldummy = mfgroupTab:ADD-LAST(STRING(tabLabels:NUM-ITEMS))
-      tmfgroup.mfgroup_tabs = tabLabels:LIST-ITEMS.
+      ttMFGroup.mfgroup_tabs = tabLabels:LIST-ITEMS
+      .
   END.
 
 END PROCEDURE.
@@ -2002,7 +2061,8 @@ PROCEDURE alignWidgets :
   ASSIGN
     currentWidget = FRAME folderFrm:HANDLE
     currentWidget = currentWidget:FIRST-CHILD
-    currentWidget = currentWidget:FIRST-CHILD.
+    currentWidget = currentWidget:FIRST-CHILD
+    .
   DO WHILE currentWidget NE ?:
     IF currentWidget:SELECTED THEN
     CASE alignType:
@@ -2027,7 +2087,8 @@ PROCEDURE alignWidgets :
     ASSIGN
       currentWidget = FRAME folderFrm:HANDLE
       currentWidget = currentWidget:FIRST-CHILD
-      currentWidget = currentWidget:FIRST-CHILD.
+      currentWidget = currentWidget:FIRST-CHILD
+      .
     DO WHILE currentWidget NE ?:
       IF currentWidget:PRIVATE-DATA NE ? AND
          LOOKUP(ENTRY(1,currentWidget:PRIVATE-DATA,"|"),recidStr) NE 0 THEN
@@ -2039,7 +2100,8 @@ PROCEDURE alignWidgets :
   ASSIGN
     currentWidget = FRAME folderFrm:HANDLE
     currentWidget = currentWidget:FIRST-CHILD
-    currentWidget = currentWidget:FIRST-CHILD.
+    currentWidget = currentWidget:FIRST-CHILD
+    .
   DO WHILE currentWidget NE ?:
     IF currentWidget:SELECTED THEN DO:
       CASE alignType:
@@ -2091,8 +2153,8 @@ PROCEDURE clearClipboard :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  FOR EACH wtbl-clipboard EXCLUSIVE-LOCK:
-    DELETE wtbl-clipboard.
+  FOR EACH wtClipboard:
+    DELETE wtClipboard.
   END.
 
 END PROCEDURE.
@@ -2107,25 +2169,29 @@ PROCEDURE copyGroup :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER b-tmfgroup FOR tmfgroup.
+  DEF BUFFER b-ttMFGroup FOR ttMFGroup.
 
   IF NOT ldummy THEN DO:
      SESSION:SET-WAIT-STATE("general").
      mfgroupList:ADD-LAST(cdummy) IN FRAME {&FRAME-NAME}.
-     FIND b-tmfgroup WHERE b-tmfgroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE NO-ERROR.
-     IF AVAIL b-tmfgroup THEN DO:
-        CREATE tmfgroup.
+     FIND b-ttMFGroup
+         WHERE b-ttMFGroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE
+         NO-ERROR.
+     IF AVAIL b-ttMFGroup THEN DO:
+        CREATE ttMFGroup.
         ASSIGN
-           tmfgroup.mfgroup_data = cdummy
-           tmfgroup.mfgroup_tabs = b-tmfgroup.mfgroup_tabs.
+          ttMFGroup.mfgroup_data = cdummy
+          ttMFGroup.mfgroup_tabs = b-ttMFGroup.mfgroup_tabs
+          .
      END.
-     FOR EACH attrb WHERE
-         attrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}:
-         CREATE b-attrb.
+     FOR EACH ttAttrb
+         WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+         :
+         CREATE bAttrb.
          RUN setAttrID-buffer.
-         BUFFER-COPY attrb EXCEPT attr_id ATTR_mfgroup TO b-attrb
-             ASSIGN b-attrb.ATTR_mfgroup = mfgroupField:SCREEN-VALUE.
-         RELEASE b-attrb.
+         BUFFER-COPY ttAttrb EXCEPT attr_id attr_mfgroup TO bAttrb
+             ASSIGN bAttrb.attr_mfgroup = mfgroupField:SCREEN-VALUE.
+         RELEASE bAttrb.
      END.
      SESSION:SET-WAIT-STATE("").
   END.
@@ -2142,10 +2208,10 @@ PROCEDURE copyToClipboard :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  FIND attrb EXCLUSIVE-LOCK
-       WHERE ROWID(attrb) = TO-ROWID(ENTRY(1,currentWidget:PRIVATE-DATA,"|")).
-  CREATE wtbl-clipboard.
-  BUFFER-COPY attrb TO wtbl-clipboard.
+  FIND ttAttrb
+       WHERE ROWID(ttAttrb) EQ TO-ROWID(ENTRY(1,currentWidget:PRIVATE-DATA,"|")).
+  CREATE wtClipboard.
+  BUFFER-COPY ttAttrb TO wtClipboard.
 
 END PROCEDURE.
 
@@ -2163,13 +2229,14 @@ PROCEDURE copyWidgets :
   ASSIGN
     currentWidget = FRAME folderFrm:HANDLE
     currentWidget = currentWidget:FIRST-CHILD
-    currentWidget = currentWidget:FIRST-CHILD.
+    currentWidget = currentWidget:FIRST-CHILD
+    .
   DO WHILE currentWidget NE ?:
     IF currentWidget:SELECTED THEN
     RUN copyToClipboard.
     currentWidget = currentWidget:NEXT-SIBLING.
   END.
-  IF CAN-FIND(FIRST wtbl-clipboard) THEN
+  IF CAN-FIND(FIRST wtClipboard) THEN
   ENABLE btnPaste WITH FRAME {&FRAME-NAME}.
   ELSE
   DISABLE btnPaste WITH FRAME {&FRAME-NAME}.
@@ -2186,31 +2253,31 @@ PROCEDURE createLabelWidget :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-type AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ip-label AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ip-x AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ip-y AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcType  AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcLabel AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipiX     AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipiY     AS INTEGER NO-UNDO.
 
-  IF NOT CAN-DO("RECTANGLE,TEXT,TOGGLE-BOX",ip-type) THEN DO: /* text and toggle-box have no labels */
-    CREATE TEXT labelWidget IN WIDGET-POOL "{&widget-pool-name}"
+  IF NOT CAN-DO("RECTANGLE,TEXT,TOGGLE-BOX",ipcType) THEN DO: /* text and toggle-box have no labels */
+    CREATE TEXT labelWidget IN WIDGET-POOL "{&widgetPoolName}"
       ASSIGN
         FRAME = FRAME folderFrm:HANDLE
         AUTO-RESIZE = YES
-        Y = ip-y
+        Y = ipiY
         FORMAT = "X(" +
-          (IF LENGTH(ip-label) NE 0 THEN STRING(LENGTH(ip-label) + 1)
+          (IF LENGTH(ipcLabel) NE 0 THEN STRING(LENGTH(ipcLabel) + 1)
           ELSE "1") + ")"
         SENSITIVE = YES
-        SCREEN-VALUE = IF ip-label = "" THEN ""
-                       ELSE ip-label + ":".
-    
+        SCREEN-VALUE = IF ipcLabel = "" THEN "" ELSE ipcLabel + ":"
+        .
     ASSIGN
       labelWidget:FONT = ?
-      labelWidget:X = IF ip-x - labelWidget:WIDTH-PIXELS - 1 LT 0 THEN 0
-                       ELSE ip-x - labelWidget:WIDTH-PIXELS - 1
+      labelWidget:X = IF ipiX - labelWidget:WIDTH-PIXELS - 1 LT 0 THEN 0
+                       ELSE ipiX - labelWidget:WIDTH-PIXELS - 1
       labelWidget:HEIGHT-CHARS = 1
       ldummy = labelWidget:MOVE-TO-TOP()
-      labelWidget:HIDDEN = NO.
+      labelWidget:HIDDEN = NO
+      .
   END.
 
 END PROCEDURE.
@@ -2229,12 +2296,14 @@ PROCEDURE createTabs :
 
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
   DO WITH FRAME {&FRAME-NAME}:
-    FIND tmfgroup NO-LOCK WHERE tmfgroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE NO-ERROR.
-    IF NOT AVAILABLE tmfgroup THEN DO:
+    FIND ttMFGroup
+        WHERE ttMFGroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE NO-ERROR.
+    IF NOT AVAILABLE ttMFGroup THEN DO:
       ASSIGN
         mfgroupTab:LIST-ITEMS = "1"
         tabLabels:LIST-ITEMS = ""
-        tabLabels:INNER-LINES = 1.
+        tabLabels:INNER-LINES = 1
+        .
       DISABLE {&LIST-1} {&LIST-3}.
       RETURN.
     END.
@@ -2244,19 +2313,21 @@ PROCEDURE createTabs :
     END.
     ASSIGN
       currentTab = INTEGER(mfgroupTab:SCREEN-VALUE)
-      cdummy = "1".
-    DO i = 2 TO NUM-ENTRIES(tmfgroup.mfgroup_tabs):
+      cdummy = "1"
+      .
+    DO i = 2 TO NUM-ENTRIES(ttMFGroup.mfgroup_tabs):
       cdummy = cdummy + "," + STRING(i).
     END.
     ASSIGN
-      mfgroupTab:INNER-LINES = NUM-ENTRIES(tmfgroup.mfgroup_tabs)
+      mfgroupTab:INNER-LINES = NUM-ENTRIES(ttMFGroup.mfgroup_tabs)
       mfgroupTab:LIST-ITEMS = cdummy
       mfgroupTab:SCREEN-VALUE = STRING(currentTab)
-      tabLabels:INNER-LINES = NUM-ENTRIES(tmfgroup.mfgroup_tabs)
-      tabLabels:LIST-ITEMS = tmfgroup.mfgroup_tabs
-      tabLabels:SCREEN-VALUE = tabLabels:ENTRY(currentTab).
+      tabLabels:INNER-LINES = NUM-ENTRIES(ttMFGroup.mfgroup_tabs)
+      tabLabels:LIST-ITEMS = ttMFGroup.mfgroup_tabs
+      tabLabels:SCREEN-VALUE = tabLabels:ENTRY(currentTab)
+      .
     IF currentTab EQ 1 THEN DISABLE btnPrevTab.
-    IF currentTab EQ NUM-ENTRIES(tmfgroup.mfgroup_tabs) THEN DISABLE btnNextTab.
+    IF currentTab EQ NUM-ENTRIES(ttMFGroup.mfgroup_tabs) THEN DISABLE btnNextTab.
     DO i = 1 TO tabLabels:NUM-ITEMS:
       IF tabLabels:IS-SELECTED(i) THEN LEAVE.
     END.
@@ -2269,8 +2340,8 @@ PROCEDURE createTabs :
     IF NUM-ENTRIES(tabLabels:ENTRY(i),"|") GT 1 THEN NEXT.
     tabLabels:REPLACE(tabLabels:ENTRY(i) + "|Default",tabLabels:ENTRY(i)).
   END.
-  DO i = 1 TO NUM-ENTRIES(tmfgroup.mfgroup_tabs):
-    CREATE IMAGE tabImage[i] IN WIDGET-POOL "{&widget-pool-name}"
+  DO i = 1 TO NUM-ENTRIES(ttMFGroup.mfgroup_tabs):
+    CREATE IMAGE tabImage[i] IN WIDGET-POOL "{&widgetPoolName}"
       ASSIGN
         FRAME = FRAME folderFrm:HANDLE
         X = 3 + (i - 1) * 72
@@ -2282,7 +2353,7 @@ PROCEDURE createTabs :
         ON MOUSE-SELECT-CLICK 
            PERSISTENT RUN labelTrigger IN THIS-PROCEDURE (i).
       END TRIGGERS.         
-      CREATE TEXT tabLabel[i] IN WIDGET-POOL "{&widget-pool-name}"
+      CREATE TEXT tabLabel[i] IN WIDGET-POOL "{&widgetPoolName}"
         ASSIGN 
           FRAME = FRAME folderFrm:HANDLE
           X = tabImage[i]:X + 9
@@ -2293,7 +2364,7 @@ PROCEDURE createTabs :
           SENSITIVE = YES 
           FONT = ?
           BGCOLOR = 8
-          SCREEN-VALUE = ENTRY(1, ENTRY(i,tmfgroup.mfgroup_tabs) ,"|")
+          SCREEN-VALUE = ENTRY(1, ENTRY(i,ttMFGroup.mfgroup_tabs) ,"|")
         TRIGGERS:      
           ON MOUSE-SELECT-CLICK 
              PERSISTENT RUN labelTrigger IN THIS-PROCEDURE (i).
@@ -2304,7 +2375,8 @@ PROCEDURE createTabs :
         ldummy = tabImage[i]:MOVE-TO-TOP()
         ldummy = tabLabel[i]:MOVE-TO-TOP()
         tabImage[i]:HIDDEN = NO
-        tabLabel[i]:HIDDEN = NO.
+        tabLabel[i]:HIDDEN = NO
+        .
     DISABLE btnCut btnCopy WITH FRAME {&FRAME-NAME}.
   END.
   /* use up tab image for currently selected tab */
@@ -2313,7 +2385,8 @@ PROCEDURE createTabs :
     tabImage[currentTab]:HEIGHT-PIXEL = 27
     ldummy = tabImage[currentTab]:LOAD-IMAGE("adeicon/ts-up72")
     ldummy = tabImage[currentTab]:MOVE-TO-TOP()
-    ldummy = tabLabel[currentTab]:MOVE-TO-TOP().
+    ldummy = tabLabel[currentTab]:MOVE-TO-TOP()
+    .
   RUN LockWindowUpdate (0,OUTPUT i).
 
 END PROCEDURE.
@@ -2331,12 +2404,13 @@ PROCEDURE createWidgets :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
-  DELETE WIDGET-POOL "{&widget-pool-name}" NO-ERROR.
-  CREATE WIDGET-POOL "{&widget-pool-name}" PERSISTENT.
+  DELETE WIDGET-POOL "{&widgetPoolName}" NO-ERROR.
+  CREATE WIDGET-POOL "{&widgetPoolName}" PERSISTENT.
   RUN createTabs.
-  FOR EACH attrb NO-LOCK
-      WHERE attrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND attrb.attr_tab EQ INTEGER(mfgroupTab:SCREEN-VALUE):
+  FOR EACH ttAttrb
+      WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        AND ttAttrb.attr_tab EQ INTEGER(mfgroupTab:SCREEN-VALUE)
+      :
     RUN dynamicWidget.
   END.
   RUN LockWindowUpdate (0,OUTPUT i).
@@ -2357,25 +2431,26 @@ PROCEDURE cutWidgets :
   ASSIGN
     currentWidget = FRAME folderFrm:HANDLE
     currentWidget = currentWidget:FIRST-CHILD
-    currentWidget = currentWidget:FIRST-CHILD.
+    currentWidget = currentWidget:FIRST-CHILD
+    .
   WIDGET-TREE:
   DO WHILE currentWidget NE ?:
     IF currentWidget:SELECTED THEN DO:
       RUN copyToClipboard.
-      IF CAN-FIND(FIRST mfvalues WHERE mfvalues.mf_id = attrb.attr_id) THEN DO:
+      IF CAN-FIND(FIRST mfvalues WHERE mfvalues.mf_id = ttAttrb.attr_id) THEN DO:
         ldummy = NO.
         MESSAGE "Attribute Value Records Exist!" SKIP(1)
                 "Cut Attribute Widget & Delete Attribute Value Records When Layout SAVED? (yes/no)" SKIP(1)
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "Attribute Widget: " + attrb.attr_label
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "Attribute Widget: " + ttAttrb.attr_label
                 UPDATE ldummy.
         IF NOT ldummy THEN DO:
-          DELETE wtbl-clipboard.
+          DELETE wtClipboard.
           currentWidget = currentWidget:NEXT-SIBLING.
           NEXT WIDGET-TREE.
         END.
       END.
       RUN deleteMFValues.
-      DELETE attrb.
+      DELETE ttAttrb.
       IF NOT CAN-DO("RECTANGLE,TEXT,TOGGLE-BOX",currentWidget:TYPE) THEN DO:
         labelWidget = currentWidget:SIDE-LABEL-HANDLE.
         DELETE WIDGET labelWidget.
@@ -2387,7 +2462,7 @@ PROCEDURE cutWidgets :
     ELSE
     currentWidget = currentWidget:NEXT-SIBLING.
   END.
-  IF CAN-FIND(FIRST wtbl-clipboard) THEN
+  IF CAN-FIND(FIRST wtClipboard) THEN
   ENABLE btnPaste WITH FRAME {&FRAME-NAME}.
   ELSE
   DISABLE btnPaste WITH FRAME {&FRAME-NAME}.
@@ -2410,27 +2485,33 @@ PROCEDURE deleteGroup :
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE " Delete Group "
         UPDATE ldummy.
     IF NOT ldummy THEN RETURN.
-    FOR EACH attrb WHERE attrb.attr_mfgroup = mfgroupList:SCREEN-VALUE NO-LOCK:
-      IF CAN-FIND(FIRST mfvalues WHERE mfvalues.mf_id = attrb.attr_id) THEN DO:
+    FOR EACH ttAttrb
+        WHERE ttAttrb.attr_mfgroup = mfgroupList:SCREEN-VALUE
+        :
+      IF CAN-FIND(FIRST mfvalues WHERE mfvalues.mf_id = ttAttrb.attr_id) THEN DO:
         ldummy = NO.
         MESSAGE "Attribute Value Records Exist!" SKIP(1)
                 "Delete Group & Delete Attribute Value Records When Layout SAVED? (yes/no)"
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "Delete Group: " + attrb.attr_mfgroup
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "Delete Group: " + ttAttrb.attr_mfgroup
             UPDATE ldummy.
         IF NOT ldummy THEN RETURN.
         LEAVE.
       END.
     END.
-    FIND tmfgroup WHERE tmfgroup.mfgroup_data = mfgroupList:SCREEN-VALUE EXCLUSIVE-LOCK.
-    DELETE tmfgroup.
-    FOR EACH attrb WHERE attrb.attr_mfgroup = mfgroupList:SCREEN-VALUE EXCLUSIVE-LOCK:
+    FIND ttMFGroup
+        WHERE ttMFGroup.mfgroup_data = mfgroupList:SCREEN-VALUE.
+    DELETE ttMFGroup.
+    FOR EACH ttAttrb
+        WHERE ttAttrb.attr_mfgroup = mfgroupList:SCREEN-VALUE
+        :
       RUN deleteMFValues.
-      DELETE attrb.
+      DELETE ttAttrb.
     END.
     ASSIGN
       ldummy = mfgroupList:DELETE(mfgroupList:SCREEN-VALUE)
       mfgroupList:SCREEN-VALUE = IF mfgroupList:NUM-ITEMS GT 1 THEN mfgroupList:ENTRY(2)
-                                ELSE mfgroupList:ENTRY(1).
+                                 ELSE mfgroupList:ENTRY(1)
+      .
     APPLY "ENTRY" TO mfgroupList.
     APPLY "VALUE-CHANGED" TO mfgroupList.
   END.
@@ -2447,11 +2528,15 @@ PROCEDURE deleteMFValues :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  FOR EACH mfvalues WHERE mfvalues.mf_id = attrb.attr_id NO-LOCK:
-    FIND del-mfvalues WHERE mfvalues_recid = RECID(mfvalues) NO-LOCK NO-ERROR.
-    IF AVAILABLE del-mfvalues THEN NEXT.
-    CREATE del-mfvalues.
-    del-mfvalues.mfvalues_recid = RECID(mfvalues).
+  FOR EACH mfvalues
+      WHERE mfvalues.mf_id = ttAttrb.attr_id
+      :
+    FIND ttDeleteMFValues
+        WHERE mfvalues_recid = RECID(mfvalues)
+        NO-ERROR.
+    IF AVAILABLE ttDeleteMFValues THEN NEXT.
+    CREATE ttDeleteMFValues.
+    ttDeleteMFValues.mfvalues_recid = RECID(mfvalues).
   END.
 
 END PROCEDURE.
@@ -2471,10 +2556,12 @@ PROCEDURE deleteTab :
       IF tabLabels:IS-SELECTED(i) THEN
       LEAVE.
     END.
-    FOR EACH attrb NO-LOCK
-        WHERE attrb.attr_mfgroup = mfgroupList:SCREEN-VALUE
-          AND attrb.attr_tab = i:
-      IF CAN-FIND(FIRST mfvalues WHERE mfvalues.mf_id = attrb.attr_id) THEN DO:
+    FOR EACH ttAttrb
+        WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE
+          AND ttAttrb.attr_tab EQ i
+        :
+      IF CAN-FIND(FIRST mfvalues
+                  WHERE mfvalues.mf_id = ttAttrb.attr_id) THEN DO:
         ldummy = NO.
         MESSAGE "Attribute Value Records Exist!" SKIP(1)
                 "Remove Tab & Delete Attribute Value Records When Layout SAVED? (yes/no)"
@@ -2484,18 +2571,22 @@ PROCEDURE deleteTab :
         LEAVE.
       END.
     END.
-    FOR EACH attrb EXCLUSIVE-LOCK
-        WHERE attrb.attr_mfgroup = mfgroupList:SCREEN-VALUE AND attrb.attr_tab = i:
+    FOR EACH ttAttrb
+        WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE
+          AND ttAttrb.attr_tab EQ i
+        :
       RUN deleteMFValues.
-      DELETE attrb.
+      DELETE ttAttrb.
     END.
-    FIND tmfgroup WHERE tmfgroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE EXCLUSIVE-LOCK.
+    FIND ttMFGroup
+        WHERE ttMFGroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE.
     ASSIGN
       ldummy = tabLabels:DELETE(i)
       tabLabels:SCREEN-VALUE = tabLabels:ENTRY(1)
       ldummy = mfgroupTab:DELETE(i)
       mfgroupTab:SCREEN-VALUE = mfgroupTab:ENTRY(1)
-      tmfgroup.mfgroup_tabs = tabLabels:LIST-ITEMS.
+      ttMFGroup.mfgroup_tabs = tabLabels:LIST-ITEMS
+      .
     RUN createWidgets.
     DISABLE btnCut btnCopy WITH FRAME {&FRAME-NAME}.
   END.
@@ -2554,156 +2645,158 @@ PROCEDURE dynamicWidget :
   DEFINE VARIABLE horz-bar AS LOGICAL NO-UNDO.
   DEFINE VARIABLE vert-bar AS LOGICAL NO-UNDO.
 
-&scoped-define defaults-code ~
+&SCOPED-DEFINE defaults-code ~
           ASSIGN ~
             FRAME = FRAME folderFrm:HANDLE ~
-            NAME = attrb.attr_name ~
-            X = attrb.attr_x ~
-            Y = attrb.attr_y ~
+            NAME = ttAttrb.attr_name ~
+            X = ttAttrb.attr_x ~
+            Y = ttAttrb.attr_y ~
             SENSITIVE = YES ~
             MOVABLE = YES ~
             SELECTABLE = YES ~
             RESIZABLE = YES ~
-            PRIVATE-DATA = STRING(ROWID(attrb)) + "|" + ~
+            PRIVATE-DATA = STRING(ROWID(ttAttrb)) + "|" + ~
                            mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME} ~
-            WIDTH-PIXELS = attrb.attr_width
-&scoped-define widget-code ~
+            WIDTH-PIXELS = ttAttrb.attr_width
+&SCOPED-DEFINE widget-code ~
             {&defaults-code} ~
             FONT = ? ~
-            HEIGHT-PIXELS = attrb.attr_height ~
+            HEIGHT-PIXELS = ttAttrb.attr_height ~
             SIDE-LABEL-HANDLE = labelWidget
-&scoped-define combo-box-code ~
+&SCOPED-DEFINE combo-box-code ~
             {&defaults-code} ~
             HIDDEN = yes ~
-            FORMAT = attrb.attr_settings ~
+            FORMAT = ttAttrb.attr_settings ~
             FONT = ? ~
             SIDE-LABEL-HANDLE = labelWidget ~
-            INNER-LINES = NUM-ENTRIES(attrb.attr_values) ~
-            LIST-ITEMS = attrb.attr_values ~
-            HELP = 'Select ''' + attrb.attr_label + ''' from COMBO-BOX List' ~
-            SCREEN-VALUE = attrb.attr_default ~
+            INNER-LINES = NUM-ENTRIES(ttAttrb.attr_values) ~
+            LIST-ITEMS = ttAttrb.attr_values ~
+            HELP = 'Select ''' + ttAttrb.attr_label + ''' from COMBO-BOX List' ~
+            SCREEN-VALUE = ttAttrb.attr_default ~
             {&trigger-code}
-&scoped-define editor-code ~
+&SCOPED-DEFINE editor-code ~
             {&widget-code} ~
             FONT = ? ~
             SCROLLBAR-VERTICAL = vert-bar ~
             SCROLLBAR-HORIZONTAL = horz-bar ~
-            HELP = 'Enter ''' + attrb.attr_label + ''' in EDITOR Field' ~
-            SCREEN-VALUE = attrb.attr_default ~
+            HELP = 'Enter ''' + ttAttrb.attr_label + ''' in EDITOR Field' ~
+            SCREEN-VALUE = ttAttrb.attr_default ~
             {&trigger-code}
-&scoped-define fill-in-code ~
+&SCOPED-DEFINE fill-in-code ~
             {&widget-code} ~
             FONT = ? ~
-            DATA-TYPE = attrb.attr_datatype ~
-            FORMAT = attrb.attr_settings ~
-            HELP = 'Enter ''' + attrb.attr_label + ''' in FILL-IN Field' ~
-            SCREEN-VALUE = attrb.attr_default ~
+            DATA-TYPE = ttAttrb.attr_datatype ~
+            FORMAT = ttAttrb.attr_settings ~
+            HELP = 'Enter ''' + ttAttrb.attr_label + ''' in FILL-IN Field' ~
+            SCREEN-VALUE = ttAttrb.attr_default ~
             {&trigger-code}
-&scoped-define radio-set-code ~
+&SCOPED-DEFINE radio-set-code ~
             {&widget-code} ~
             FONT = ? ~
             HORIZONTAL = horz-bar ~
-            RADIO-BUTTONS = attrb.attr_values ~
-            HELP = 'Select ''' + attrb.attr_label + ''' from RADIO-SET Choices' ~
-            SCREEN-VALUE = attrb.attr_default ~
+            RADIO-BUTTONS = ttAttrb.attr_values ~
+            HELP = 'Select ''' + ttAttrb.attr_label + ''' from RADIO-SET Choices' ~
+            SCREEN-VALUE = ttAttrb.attr_default ~
             {&trigger-code}
-&scoped-define rectangle-code ~
+&SCOPED-DEFINE rectangle-code ~
             {&defaults-code} ~
             EDGE-PIXELS = 1 ~
             FILLED = NO ~
-            HEIGHT-PIXELS = attrb.attr_height ~
-            WIDTH-PIXELS = attrb.attr_width ~
+            HEIGHT-PIXELS = ttAttrb.attr_height ~
+            WIDTH-PIXELS = ttAttrb.attr_width ~
             {&trigger-code}
-&scoped-define selection-list-code ~
+&SCOPED-DEFINE selection-list-code ~
             {&widget-code} ~
             FONT = ? ~
-            LIST-ITEMS = attrb.attr_values ~
-            HELP = 'Select ''' + attrb.attr_label + ''' from SELECTION-LIST' ~
-            SCREEN-VALUE = attrb.attr_default ~
+            LIST-ITEMS = ttAttrb.attr_values ~
+            HELP = 'Select ''' + ttAttrb.attr_label + ''' from SELECTION-LIST' ~
+            SCREEN-VALUE = ttAttrb.attr_default ~
             {&trigger-code}
-&scoped-define slider-code ~
+&SCOPED-DEFINE slider-code ~
             {&widget-code} ~
             FONT = ? ~
             HORIZONTAL = horz-bar ~
-            MIN-VALUE = INT(ENTRY(1,attrb.attr_values)) ~
-            MAX-VALUE = INT(ENTRY(2,attrb.attr_values)) ~
-            HELP = 'Set ''' + attrb.attr_label + ''' from SLIDER Range' ~
-            SCREEN-VALUE = attrb.attr_default ~
+            MIN-VALUE = INT(ENTRY(1,ttAttrb.attr_values)) ~
+            MAX-VALUE = INT(ENTRY(2,ttAttrb.attr_values)) ~
+            HELP = 'Set ''' + ttAttrb.attr_label + ''' from SLIDER Range' ~
+            SCREEN-VALUE = ttAttrb.attr_default ~
             {&trigger-code}
-&scoped-define text-code ~
+&SCOPED-DEFINE text-code ~
             {&defaults-code} ~
             FORMAT = 'X(80)' ~
-            FONT = INTEGER(attrb.attr_settings) ~
-            HEIGHT-PIXELS = attrb.attr_height ~
-            HELP = '''' + attrb.attr_label + ''' is a TEXT Widget' ~
-            SCREEN-VALUE = attrb.attr_label ~
+            FONT = INTEGER(ttAttrb.attr_settings) ~
+            HEIGHT-PIXELS = ttAttrb.attr_height ~
+            HELP = '''' + ttAttrb.attr_label + ''' is a TEXT Widget' ~
+            SCREEN-VALUE = ttAttrb.attr_label ~
             {&trigger-code}
-&scoped-define toggle-box-code ~
+&SCOPED-DEFINE toggle-box-code ~
             {&defaults-code} ~
             FONT = ? ~
-            LABEL = attrb.attr_label ~
-            HEIGHT-PIXELS = attrb.attr_height ~
-            HELP = 'Set ''' + attrb.attr_label + ''' TOGGLE-BOX On/Off' ~
-            SCREEN-VALUE = attrb.attr_default ~
+            LABEL = ttAttrb.attr_label ~
+            HEIGHT-PIXELS = ttAttrb.attr_height ~
+            HELP = 'Set ''' + ttAttrb.attr_label + ''' TOGGLE-BOX On/Off' ~
+            SCREEN-VALUE = ttAttrb.attr_default ~
             {&trigger-code}
   ASSIGN
-    horz-bar = IF NUM-ENTRIES(attrb.attr_settings) NE 0 AND
-                  ENTRY(1,attrb.attr_settings) = "yes" THEN YES ELSE no
-    vert-bar = IF NUM-ENTRIES(attrb.attr_settings) GT 1 AND
-                  ENTRY(2,attrb.attr_settings) = "yes" THEN yes ELSE no.
-  RUN createLabelWidget (attrb.attr_type,attrb.attr_label,attrb.attr_x,attrb.attr_y).
+    horz-bar = IF NUM-ENTRIES(ttAttrb.attr_settings) NE 0 AND
+                  ENTRY(1,ttAttrb.attr_settings) = "yes" THEN YES ELSE NO
+    vert-bar = IF NUM-ENTRIES(ttAttrb.attr_settings) GT 1 AND
+                  ENTRY(2,ttAttrb.attr_settings) = "yes" THEN YES ELSE NO
+    .
+  RUN createLabelWidget (ttAttrb.attr_type,ttAttrb.attr_label,ttAttrb.attr_x,ttAttrb.attr_y).
   DO ON ERROR UNDO, RETURN "CREATE-ERROR":
-    CASE attrb.attr_type:
-&scoped-define widget-type COMBO-BOX
+    CASE ttAttrb.attr_type:
+&SCOPED-DEFINE widget-type COMBO-BOX
       WHEN "{&widget-type}" THEN DO:
-        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widget-pool-name}"
+        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widgetPoolName}"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type EDITOR
+&SCOPED-DEFINE widget-type EDITOR
       WHEN "{&widget-type}" THEN DO:
-        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widget-pool-name}"
+        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widgetPoolName}"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type FILL-IN
+&SCOPED-DEFINE widget-type FILL-IN
       WHEN "{&widget-type}" THEN DO:
-        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widget-pool-name}"
+        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widgetPoolName}"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type RADIO-SET
+&SCOPED-DEFINE widget-type RADIO-SET
       WHEN "{&widget-type}" THEN DO:
-        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widget-pool-name}"
+        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widgetPoolName}"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type RECTANGLE
+&SCOPED-DEFINE widget-type RECTANGLE
       WHEN "{&widget-type}" THEN DO:
-        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widget-pool-name}"
+        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widgetPoolName}"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type SELECTION-LIST
+&SCOPED-DEFINE widget-type SELECTION-LIST
       WHEN "{&widget-type}" THEN DO:
-        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widget-pool-name}"
+        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widgetPoolName}"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type SLIDER
+&SCOPED-DEFINE widget-type SLIDER
       WHEN "{&widget-type}" THEN DO:
-        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widget-pool-name}"
+        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widgetPoolName}"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type TEXT
+&SCOPED-DEFINE widget-type TEXT
       WHEN "{&widget-type}" THEN DO:
-        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widget-pool-name}"
+        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widgetPoolName}"
         {&{&widget-type}-code}
       END.
-&scoped-define widget-type TOGGLE-BOX
+&SCOPED-DEFINE widget-type TOGGLE-BOX
       WHEN "{&widget-type}" THEN DO:
-        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widget-pool-name}"
+        CREATE {&widget-type} dynWidget IN WIDGET-POOL "{&widgetPoolName}"
         {&{&widget-type}-code}
       END.
     END CASE.
     IF VALID-HANDLE(dynWidget) THEN
     ASSIGN
       ldummy = dynWidget:MOVE-TO-TOP()
-      dynWidget:HIDDEN = NO.
+      dynWidget:HIDDEN = NO
+      .
   END.
   RETURN.
 
@@ -2728,19 +2821,48 @@ PROCEDURE enable_UI :
           rectangleLabel selection-ListLabel sliderLabel textLabel 
           toggle-BoxLabel gapFieldLabel 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
-  ENABLE btnAddTab btnDeleteTab btnDownTab btnExit btnNextTab btnPrevTab 
-         btnRenameTab btnUpTab btnAddGroup tabLabelsRect RECT-5 RECT-4 
-         widgetRect tabNavRect RECT-2 RECT-3 RECT-8 mfgroupList mfgroupTab 
-         btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle 
-         btnSelection-List btnSlider btnText btnToggle-Box btnCopy btnCopyGroup 
-         btnCut btnDeleteGroup btnPaste btnProperty btnRenameGroup btnRestore 
-         btnSave btnTabOrder btnTest 
+  ENABLE btnAddTab btnCopy btnCut tabLabelsRect btnDeleteTab btnDownTab RECT-5 
+         RECT-4 widgetRect tabNavRect RECT-2 RECT-3 RECT-8 portRect 
+         tabNavRect-3 mfgroupList mfgroupTab btnCombo-Box btnExit tabLabels 
+         btnEditor btnFill-In btnRadio-Set btnRectangle btnSelection-List 
+         btnSlider btnText btnToggle-Box btnExport btnImport btnNextTab 
+         btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab btnAddGroup 
+         btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave 
+         btnTabOrder btnTest 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
   {&OPEN-BROWSERS-IN-QUERY-fMiscFlds}
   ENABLE Rect-Top Rect-Left Rect-Right Rect-Bottom 
       WITH FRAME folderFrm IN WINDOW wMiscFlds.
   {&OPEN-BROWSERS-IN-QUERY-folderFrm}
   VIEW wMiscFlds.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE exportLayouts wMiscFlds 
+PROCEDURE exportLayouts :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    MESSAGE "Export Functionality Not Yet Enabled" VIEW-AS ALERT-BOX.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE importLayouts wMiscFlds 
+PROCEDURE importLayouts :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    MESSAGE "Import Functionality Not Yet Enabled" VIEW-AS ALERT-BOX.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2755,7 +2877,8 @@ PROCEDURE labelTrigger :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER tabno AS INTEGER NO-UNDO.
 
-  IF tabno = INTEGER(mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN RETURN.
+  IF tabno EQ INTEGER(mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN
+  RETURN.
   mfgroupTab:SCREEN-VALUE = STRING(tabno).
   RUN createWidgets.
 
@@ -2792,7 +2915,8 @@ PROCEDURE loadImages :
       ldummy = btnSlider:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",1,85,28,28)
       ldummy = btnRectangle:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",1,29,28,28)
       ldummy = btnText:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",1,169,28,28)
-      ldummy = btnToggle-Box:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",29,57,28,28).
+      ldummy = btnToggle-Box:LOAD-IMAGE-INSENSITIVE("Graphics/wp_down",29,57,28,28)
+      .
   END.
 
 END PROCEDURE.
@@ -2817,7 +2941,7 @@ PROCEDURE loadWidgetData :
 
   OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/mfgroup.dat").
   EXPORT groupList.
-  FOR EACH mfgroup:
+  FOR EACH mfgroup NO-LOCK:
     EXPORT mfgroup.mfgroup_tabs.
   END.
   OUTPUT CLOSE.
@@ -2828,47 +2952,40 @@ PROCEDURE loadWidgetData :
   END.
   OUTPUT CLOSE.
 
-  EMPTY TEMP-TABLE tmfgroup.
-  EMPTY TEMP-TABLE attrb.
-  EMPTY TEMP-TABLE del-mfvalues.
+  EMPTY TEMP-TABLE ttMFGroup.
+  EMPTY TEMP-TABLE ttAttrb.
+  EMPTY TEMP-TABLE ttDeleteMFValues.
 
   INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/mfdata.dat") NO-ECHO.
   REPEAT:
-    CREATE attrb.
-    IMPORT attrb.
- /* attrb.attr_name = "".
-    IF CAN-DO("Text,rectangle",attrb.attr_type) THEN
-    attrb.attr_name = attrb.attr_id.
-    ELSE
-    ASSIGN
-      attrb.attr_name = IF attrb.attr_label EQ "" THEN attrb.attr_id
-                        ELSE REPLACE(attrb.attr_label," ","_")
-      attrb.attr_name = "Tab_" + STRING(attrb.attr_tab) + "_" + attrb.attr_name. */
-  END.
+    CREATE ttAttrb.
+    IMPORT ttAttrb.
+  END. /* repeat */
   INPUT CLOSE.
-  IF attrb.attr_type EQ "" THEN DELETE attrb.
+  IF ttAttrb.attr_type EQ "" THEN DELETE ttAttrb.
 
   INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/mfgroup.dat").
   IMPORT cdummy.
   DO i = 1 TO NUM-ENTRIES(cdummy):
     IMPORT currentLabel.
-    CREATE tmfgroup.
+    CREATE ttMFGroup.
     ASSIGN
-      tmfgroup.mfgroup_data = ENTRY(i,cdummy)
-      tmfgroup.mfgroup_tabs = currentLabel.
+      ttMFGroup.mfgroup_data = ENTRY(i,cdummy)
+      ttMFGroup.mfgroup_tabs = currentLabel
+      .
   END.
   INPUT CLOSE.
 
-  FIND LAST attrb NO-LOCK USE-INDEX si-attrb NO-ERROR.
+  FIND LAST ttAttrb USE-INDEX si-attrb NO-ERROR.
   DO WITH FRAME {&FRAME-NAME}:
-    lastID = IF AVAILABLE attrb THEN INTEGER(attrb.attr_id) ELSE 0 NO-ERROR.
+    lastID = IF AVAILABLE ttAttrb THEN INTEGER(ttAttrb.attr_id) ELSE 0 NO-ERROR.
     ASSIGN
       mfgroupList:LIST-ITEMS = IF cdummy NE "" THEN cdummy ELSE " "
       mfgroupList:SCREEN-VALUE =
           IF mfgroupList:NUM-ITEMS GT 1 THEN mfgroupList:ENTRY(2)
-          ELSE mfgroupList:ENTRY(1).
+          ELSE mfgroupList:ENTRY(1)
+      .
   END.
-
   RUN createWidgets.
   APPLY "ENTRY" TO mfgroupList IN FRAME {&FRAME-NAME}.
 
@@ -2905,32 +3022,6 @@ PROCEDURE moveObjects :
     btnUpTab:X = btnUpTab:X + offSet
     tabLabels:X = tabLabels:X + offSet
     tabField:X = tabField:X + offSet
-    /*
-    widgetRect:X = widgetRect:X + offSet
-    widgetLabel:X = widgetLabel:X + offSet
-    btnPointer:X = btnPointer:X + offSet
-    pointerLabel:X = pointerLabel:X + offSet
-    btnComboBox:X = btnComboBox:X + offSet
-    comboBoxLabel:X = comboBoxLabel:X + offSet
-    btnEditor:X = btnEditor:X + offSet
-    editorLabel:X = editorLabel:X + offSet
-    btnFillIn:X = btnFillIn:X + offSet
-    fillInLabel:X = fillInLabel:X + offSet
-    btnRadioSet:X = btnRadioSet:X + offSet
-    radioSetLabel:X = radioSetLabel:X + offSet
-    btnRectangle:X = btnRectangle:X + offSet
-    rectangleLabel:X = rectangleLabel:X + offSet
-    btnSelectionList:X = btnSelectionList:X + offSet
-    selectionListLabel:X = selectionListLabel:X + offSet
-    btnSlider:X = btnSlider:X + offSet
-    sliderLabel:X = sliderLabel:X + offSet
-    btnText:X = btnText:X + offSet
-    textLabel:X = textLabel:X + offSet
-    btnToggleBox:X = btnToggleBox:X + offSet
-    toggleBoxLabel:X = toggleBoxLabel:X + offSet
-    gapFieldLabel:X IN FRAME {&FRAME-NAME} = gapFieldLabel:X + offSet
-    gapField:X IN FRAME {&FRAME-NAME} = gapField:X + offSet
-    */
     Rect-Main:WIDTH-PIXELS IN FRAME folderFrm = FRAME folderFrm:WIDTH-PIXELS - 6
     Rect-Main:HEIGHT-PIXELS = FRAME folderFrm:HEIGHT-PIXELS - 23
     Rect-Top:WIDTH-PIXELS = Rect-Main:WIDTH-PIXELS - 2
@@ -2957,7 +3048,8 @@ PROCEDURE moveTab :
   DEFINE VARIABLE j AS INTEGER NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    FIND tmfgroup EXCLUSIVE-LOCK WHERE tmfgroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE.
+    FIND ttMFGroup
+        WHERE ttMFGroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE.
     DO i = 1 TO tabLabels:NUM-ITEMS:
       IF tabLabels:IS-SELECTED(i) THEN LEAVE.
     END.
@@ -2967,22 +3059,26 @@ PROCEDURE moveTab :
                                     ELSE tabLabels:INSERT(tabLabels:SCREEN-VALUE,j)
       ldummy = IF moveTab EQ "Down" THEN tabLabels:DELETE(i)
                                     ELSE tabLabels:DELETE(i + 1)
-      tmfgroup.mfgroup_tabs = tabLabels:LIST-ITEMS
-      tabLabels:SCREEN-VALUE = tabLabels:ENTRY(j).
-    FOR EACH attrb EXCLUSIVE-LOCK
-        WHERE attrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE
-          AND attrb.attr_tab = i:
-      attrb.attr_tab = 0.
+      ttMFGroup.mfgroup_tabs = tabLabels:LIST-ITEMS
+      tabLabels:SCREEN-VALUE = tabLabels:ENTRY(j)
+      .
+    FOR EACH ttAttrb
+        WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE
+          AND ttAttrb.attr_tab EQ i
+        :
+      ttAttrb.attr_tab = 0.
     END.
-    FOR EACH attrb EXCLUSIVE-LOCK
-        WHERE attrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE
-          AND attrb.attr_tab = j:
-      attrb.attr_tab = i.
+    FOR EACH ttAttrb
+        WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE
+          AND ttAttrb.attr_tab EQ j
+        :
+      ttAttrb.attr_tab = i.
     END.
-    FOR EACH attrb EXCLUSIVE-LOCK
-        WHERE attrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE
-          AND attrb.attr_tab = 0:
-      attrb.attr_tab = j.
+    FOR EACH ttAttrb
+        WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE
+          AND ttAttrb.attr_tab EQ 0
+        :
+      ttAttrb.attr_tab = j.
     END.
   END.
   APPLY "VALUE-CHANGED" TO tabLabels IN FRAME {&FRAME-NAME}.
@@ -3002,7 +3098,8 @@ PROCEDURE moveWidget :
   ASSIGN
     currentWidget = FRAME folderFrm:HANDLE
     currentWidget = currentWidget:FIRST-CHILD
-    currentWidget = currentWidget:FIRST-CHILD.
+    currentWidget = currentWidget:FIRST-CHILD
+    .
   DO WHILE currentWidget NE ?:
     IF currentWidget:SELECTED THEN DO:
       RUN updateAttrb.
@@ -3031,40 +3128,41 @@ PROCEDURE newWidget :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  CREATE attrb.
+  CREATE ttAttrb.
   RUN setAttrID.
   ASSIGN
-    attrb.attr_mfgroup = mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-    attrb.attr_tab = INTEGER(mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-    attrb.attr_type = currentLabel
-    attrb.attr_label = IF currentLabel = "RECTANGLE" THEN ""
-                       ELSE "NEW " + currentLabel
-    attrb.attr_values = IF currentLabel = "RADIO-SET" THEN "Empty,0"
-                   ELSE IF currentLabel = "RECTANGLE" THEN ""
-                   ELSE IF currentLabel = "SLIDER" THEN "0,100"
-                   ELSE IF currentLabel = "TEXT" THEN ""
-                   ELSE "Empty"
-    attrb.attr_default = IF CAN-DO("RADIO-SET,SLIDER",currentLabel) THEN "0"
-                    ELSE IF currentLabel = "RECTANGLE" THEN ""
-                    ELSE IF currentLabel = "TEXT" THEN ""
-                    ELSE IF currentLabel = "TOGGLE-BOX" THEN "no"
-                    ELSE "Empty"
-    attrb.attr_x = LAST-EVENT:X
-    attrb.attr_y = LAST-EVENT:Y
-    attrb.attr_width = IF currentLabel = "SLIDER" THEN 70 ELSE 105
-    attrb.attr_height = IF currentLabel = "SLIDER" THEN 31 ELSE 21
-    attrb.attr_settings = IF currentLabel = "EDITOR" THEN "no,yes"
-                     ELSE IF currentLabel = "FILL-IN" THEN "X(256)"
-                     ELSE IF currentLabel = "COMBO-BOX" THEN "X(256)"
-                     ELSE IF currentLabel = "RADIO-SET" THEN "yes"
-                     ELSE IF currentLabel = "SLIDER" THEN "yes"
-                     ELSE IF currentLabel = "TEXT" THEN "4"
-                     ELSE ""
-    attrb.attr_datatype = IF currentLabel = "SLIDER" THEN "integer"
-                     ELSE IF currentLabel = "TOGGLE-BOX" THEN "logical"
-                     ELSE "character".
+    ttAttrb.attr_mfgroup = mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+    ttAttrb.attr_tab = INTEGER(mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+    ttAttrb.attr_type = currentLabel
+    ttAttrb.attr_label = IF currentLabel = "RECTANGLE" THEN ""
+                         ELSE "NEW " + currentLabel
+    ttAttrb.attr_values = IF currentLabel = "RADIO-SET" THEN "Empty,0"
+                     ELSE IF currentLabel = "RECTANGLE" THEN ""
+                     ELSE IF currentLabel = "SLIDER" THEN "0,100"
+                     ELSE IF currentLabel = "TEXT" THEN ""
+                     ELSE "Empty"
+    ttAttrb.attr_default = IF CAN-DO("RADIO-SET,SLIDER",currentLabel) THEN "0"
+                      ELSE IF currentLabel = "RECTANGLE" THEN ""
+                      ELSE IF currentLabel = "TEXT" THEN ""
+                      ELSE IF currentLabel = "TOGGLE-BOX" THEN "no"
+                      ELSE "Empty"
+    ttAttrb.attr_x = LAST-EVENT:X
+    ttAttrb.attr_y = LAST-EVENT:Y
+    ttAttrb.attr_width = IF currentLabel = "SLIDER" THEN 70 ELSE 105
+    ttAttrb.attr_height = IF currentLabel = "SLIDER" THEN 31 ELSE 21
+    ttAttrb.attr_settings = IF currentLabel = "EDITOR" THEN "no,yes"
+                       ELSE IF currentLabel = "FILL-IN" THEN "X(256)"
+                       ELSE IF currentLabel = "COMBO-BOX" THEN "X(256)"
+                       ELSE IF currentLabel = "RADIO-SET" THEN "yes"
+                       ELSE IF currentLabel = "SLIDER" THEN "yes"
+                       ELSE IF currentLabel = "TEXT" THEN "4"
+                       ELSE ""
+    ttAttrb.attr_datatype = IF currentLabel = "SLIDER" THEN "integer"
+                       ELSE IF currentLabel = "TOGGLE-BOX" THEN "logical"
+                       ELSE "character"
+    .
   RUN dynamicWidget.
-  IF RETURN-VALUE = "CREATE-ERROR" THEN DELETE attrb.
+  IF RETURN-VALUE = "CREATE-ERROR" THEN DELETE ttAttrb.
   ELSE DO:
     dynWidget:SELECTED = YES.
     ENABLE btnCut btnCopy WITH FRAME {&FRAME-NAME}.
@@ -3082,23 +3180,24 @@ PROCEDURE pasteFromClipboard :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  FOR EACH wtbl-clipboard:
-    CREATE attrb.
+  FOR EACH wtClipboard:
+    CREATE ttAttrb.
     RUN setAttrID.
     ASSIGN
-      attrb.attr_mfgroup = mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-      attrb.attr_tab = INTEGER(mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-      attrb.attr_type = wtbl-clipboard.attr_type
-      attrb.attr_label = wtbl-clipboard.attr_label
-      attrb.attr_name = wtbl-clipboard.attr_name
-      attrb.attr_values = wtbl-clipboard.attr_values
-      attrb.attr_default = wtbl-clipboard.attr_default
-      attrb.attr_x = wtbl-clipboard.attr_x
-      attrb.attr_y = wtbl-clipboard.attr_y
-      attrb.attr_height = wtbl-clipboard.attr_height
-      attrb.attr_width = wtbl-clipboard.attr_width
-      attrb.attr_settings = wtbl-clipboard.attr_settings
-      attrb.attr_datatype = wtbl-clipboard.attr_datatype.
+      ttAttrb.attr_mfgroup = mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+      ttAttrb.attr_tab = INTEGER(mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+      ttAttrb.attr_type = wtClipboard.attr_type
+      ttAttrb.attr_label = wtClipboard.attr_label
+      ttAttrb.attr_name = wtClipboard.attr_name
+      ttAttrb.attr_values = wtClipboard.attr_values
+      ttAttrb.attr_default = wtClipboard.attr_default
+      ttAttrb.attr_x = wtClipboard.attr_x
+      ttAttrb.attr_y = wtClipboard.attr_y
+      ttAttrb.attr_height = wtClipboard.attr_height
+      ttAttrb.attr_width = wtClipboard.attr_width
+      ttAttrb.attr_settings = wtClipboard.attr_settings
+      ttAttrb.attr_datatype = wtClipboard.attr_datatype
+      .
     RUN dynamicWidget.
     dynWidget:SELECTED = YES.
     ENABLE btnCut btnCopy WITH FRAME {&FRAME-NAME}.
@@ -3119,13 +3218,14 @@ PROCEDURE propertySheet :
   ASSIGN
     currentWidget = FRAME folderFrm:HANDLE
     currentWidget = currentWidget:FIRST-CHILD
-    currentWidget = currentWidget:FIRST-CHILD.
+    currentWidget = currentWidget:FIRST-CHILD
+    .
   DO WHILE currentWidget NE ?:
     IF currentWidget:SELECTED THEN
     DO WITH FRAME {&FRAME-NAME}:
-      RUN nosweat/mfdialog.w (ENTRY(1,currentWidget:PRIVATE-DATA,"|")).
-      FIND attrb NO-LOCK
-           WHERE ROWID(attrb) = TO-ROWID(ENTRY(1,currentWidget:PRIVATE-DATA,"|")).
+      RUN UDF/mfdialog.w (ENTRY(1,currentWidget:PRIVATE-DATA,"|")).
+      FIND ttAttrb
+          WHERE ROWID(ttAttrb) EQ TO-ROWID(ENTRY(1,currentWidget:PRIVATE-DATA,"|")).
       IF NOT CAN-DO("RECTANGLE,TEXT,TOGGLE-BOX",currentWidget:TYPE) THEN DO:
         labelWidget = currentWidget:SIDE-LABEL-HANDLE.
         DELETE WIDGET labelWidget.
@@ -3162,29 +3262,34 @@ PROCEDURE renameGroup :
     MESSAGE "Group" cdummy "Already Exists, Merge" mfgroupList:SCREEN-VALUE "with" cdummy "?" VIEW-AS ALERT-BOX
       QUESTION BUTTONS YES-NO TITLE " Change Group " UPDATE ldummy.
     IF ldummy THEN DO:
-      FOR EACH attrb WHERE attrb.attr_mfgroup = mfgroupList:SCREEN-VALUE EXCLUSIVE-LOCK:
-        attrb.attr_mfgroup = cdummy.
+      FOR EACH ttAttrb
+          WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE
+          :
+        ttAttrb.attr_mfgroup = cdummy.
       END.
       DO i = mfgroupList:NUM-ITEMS TO 1 BY -1:
         IF mfgroupList:ENTRY(i) = mfgroupField:SCREEN-VALUE THEN
         currentLabel = "yes".
         IF mfgroupList:ENTRY(i) = mfgroupList:SCREEN-VALUE THEN DO:
-          FIND tmfgroup WHERE tmfgroup.mfgroup_data EQ mfgroupList:ENTRY(i) EXCLUSIVE-LOCK.
+          FIND ttMFGroup
+              WHERE ttMFGroup.mfgroup_data EQ mfgroupList:ENTRY(i).
           ASSIGN
-            save_labels = tmfgroup.mfgroup_tabs
-            ldummy = mfgroupList:DELETE(i).
+            save_labels = ttMFGroup.mfgroup_tabs
+            ldummy = mfgroupList:DELETE(i)
+            .
           DELETE mfgroup.
         END.
         IF mfgroupList:ENTRY(i) = mfgroupField:SCREEN-VALUE THEN
         currentLabel = "yes".
       END.
       IF currentLabel NE "yes" THEN DO:
-        CREATE tmfgroup.
+        CREATE ttMFGroup.
         ASSIGN
-          tmfgroup.mfgroup_data = mfgroupField:SCREEN-VALUE
-          tmfgroup.mfgroup_tabs = save_labels
+          ttMFGroup.mfgroup_data = mfgroupField:SCREEN-VALUE
+          ttMFGroup.mfgroup_tabs = save_labels
           ldummy = mfgroupList:ADD-LAST(mfgroupField:SCREEN-VALUE)
-          currentLabel = "".
+          currentLabel = ""
+          .
       END.
     END.
     ELSE cdummy = mfgroupList:SCREEN-VALUE.
@@ -3203,13 +3308,15 @@ PROCEDURE renameTab :
   Notes:       
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&FRAME-NAME}:
-    FIND tmfgroup EXCLUSIVE-LOCK WHERE tmfgroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE.
+    FIND ttMFGroup
+        WHERE ttMFGroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE.
     ASSIGN
       tabField:SCREEN-VALUE = tabField:SCREEN-VALUE + "|" + tabOrder
       tabField
       ldummy = tabLabels:REPLACE(tabField:SCREEN-VALUE,tabLabels:SCREEN-VALUE)
       tabLabels:SCREEN-VALUE = tabField:SCREEN-VALUE
-      tmfgroup.mfgroup_tabs = tabLabels:LIST-ITEMS.
+      ttMFGroup.mfgroup_tabs = tabLabels:LIST-ITEMS
+      .
     RUN createTabs.
   END.
 
@@ -3244,41 +3351,42 @@ PROCEDURE saveLayout :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE textstring AS CHARACTER NO-UNDO.
 
-  IF CAN-FIND(FIRST del-mfvalues) THEN DO:
+  IF CAN-FIND(FIRST ttDeleteMFValues) THEN DO:
     ldummy = NO.
     MESSAGE "Attribute Value Records are marked for DELETION, Continue? (yes/no)"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE ldummy.
     IF ldummy THEN
-    FOR EACH del-mfvalues:
-      FIND mfvalues WHERE RECID(mfvalues) EQ del-mfvalues.mfvalues_recid EXCLUSIVE-LOCK.
+    FOR EACH ttDeleteMFValues:
+      FIND mfvalues
+          WHERE RECID(mfvalues) EQ ttDeleteMFValues.mfvalues_recid.
       DELETE mfvalues.
-      DELETE del-mfvalues.
+      DELETE ttDeleteMFValues.
     END.
   END.
 
   OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/mfgroup.dat").
   EXPORT mfgroupList:LIST-ITEMS IN FRAME {&FRAME-NAME}.
   DO i = 1 TO mfgroupList:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
-    FIND tmfgroup WHERE tmfgroup.mfgroup_data EQ ENTRY(i,mfgroupList:LIST-ITEMS) NO-LOCK NO-ERROR.
-    IF AVAILABLE tmfgroup THEN
-    EXPORT tmfgroup.mfgroup_tabs.
+    FIND ttMFGroup
+        WHERE ttMFGroup.mfgroup_data EQ ENTRY(i,mfgroupList:LIST-ITEMS)
+        NO-ERROR.
+    IF AVAILABLE ttMFGroup THEN
+    EXPORT ttMFGroup.mfgroup_tabs.
     ELSE
     EXPORT " ".
   END.
   OUTPUT CLOSE.
 
   DELETE FROM mfgroup.
-  FOR EACH tmfgroup:
+  FOR EACH ttMFGroup:
     CREATE mfgroup.
-    BUFFER-COPY tmfgroup TO mfgroup.
+    BUFFER-COPY ttMFGroup TO mfgroup.
   END.
 
   OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat").
-  FOR EACH attrb:
- /* IF NOT CAN-DO('text,rectangle',attrb.ATTR_type) THEN
-    attrb.attr_enabled = YES. */
-    EXPORT attrb.attr_mfgroup.
-    EXPORT attrb.
+  FOR EACH ttAttrb:
+    EXPORT ttAttrb.attr_mfgroup.
+    EXPORT ttAttrb.
   END.
   OUTPUT CLOSE.
   
@@ -3327,47 +3435,47 @@ PROCEDURE selectNewWidgetType :
         pointerLabel:BGCOLOR = 8.
         DISABLE btnPointer.
       END.
-&scoped-define widgettype Combo-Box
+&SCOPED-DEFINE widgettype Combo-Box
       WHEN "{&widgettype}" THEN DO:
         {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype Editor
+&SCOPED-DEFINE widgettype Editor
       WHEN "{&widgettype}" THEN DO:
         {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype Fill-In
+&SCOPED-DEFINE widgettype Fill-In
       WHEN "{&widgettype}" THEN DO:
         {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype Radio-Set
+&SCOPED-DEFINE widgettype Radio-Set
       WHEN "{&widgettype}" THEN DO:
         {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype Rectangle
+&SCOPED-DEFINE widgettype Rectangle
       WHEN "{&widgettype}" THEN DO:
         {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype Selection-List
+&SCOPED-DEFINE widgettype Selection-List
       WHEN "{&widgettype}" THEN DO:
         {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype Slider
+&SCOPED-DEFINE widgettype Slider
       WHEN "{&widgettype}" THEN DO:
         {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype Text
+&SCOPED-DEFINE widgettype Text
       WHEN "{&widgettype}" THEN DO:
         {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
       END.
-&scoped-define widgettype Toggle-Box
+&SCOPED-DEFINE widgettype Toggle-Box
       WHEN "{&widgettype}" THEN DO:
         {&widgettype}Label:BGCOLOR = 8.
         DISABLE btn{&widgettype}.
@@ -3391,7 +3499,7 @@ PROCEDURE selectWidget :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF FRAME folderFrm:NUM-SELECTED-WIDGETS = 0 THEN
+  IF FRAME folderFrm:NUM-SELECTED-WIDGETS EQ 0 THEN
   ENABLE btnProperty btnCut btnCopy WITH FRAME {&FRAME-NAME}.
   ELSE
   DISABLE btnProperty WITH FRAME {&FRAME-NAME}.
@@ -3423,10 +3531,12 @@ PROCEDURE setAttrID :
   Notes:       
 ------------------------------------------------------------------------------*/
   DO i = 1 TO lastID:
-     IF NOT CAN-FIND(attrb WHERE attrb.attr_id EQ STRING(i,'99999')) THEN LEAVE.
+     IF NOT CAN-FIND(ttAttrb
+                     WHERE ttAttrb.attr_id EQ STRING(i,'99999')) THEN
+     LEAVE.
   END.
   IF i GT lastID THEN lastID = i.
-  attrb.attr_id = STRING(i,'99999').
+  ttAttrb.attr_id = STRING(i,'99999').
 
 END PROCEDURE.
 
@@ -3441,40 +3551,12 @@ PROCEDURE setAttrID-buffer :
   Notes:       
 ------------------------------------------------------------------------------*/
    DO i = 1 TO lastID:
-     IF NOT CAN-FIND(attrb WHERE attrb.attr_id EQ STRING(i,'99999')) THEN LEAVE.
+     IF NOT CAN-FIND(ttAttrb
+                     WHERE ttAttrb.attr_id EQ STRING(i,'99999')) THEN
+     LEAVE.
   END.
   IF i GT lastID THEN lastID = i.
-  b-attrb.attr_id = STRING(i,'99999').
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setTabOrder wMiscFlds 
-PROCEDURE setTabOrder :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  /*
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-      ldummy = btnAddGroup:MOVE-AFTER(mfgroupList:HANDLE)
-      ldummy = btnRenameGroup:MOVE-AFTER(btnAddGroup:HANDLE)
-      ldummy = btnDeleteGroup:MOVE-AFTER(btnRenameGroup:HANDLE)
-      ldummy = mfgroupTab:MOVE-AFTER(btnExit:HANDLE)
-      ldummy = btnNextTab:MOVE-AFTER(mfgroupTab:HANDLE)
-      ldummy = btnPrevTab:MOVE-AFTER(btnNextTab:HANDLE)
-      ldummy = tabLabels:MOVE-AFTER(btnPrevTab:HANDLE)
-      ldummy = btnAddTab:MOVE-AFTER(tabLabels:HANDLE)
-      ldummy = btnRenameTab:MOVE-AFTER(btnAddTab:HANDLE)
-      ldummy = btnDeleteTab:MOVE-AFTER(btnRenameTab:HANDLE)
-      ldummy = btnDownTab:MOVE-AFTER(btnDeleteTab:HANDLE)
-      ldummy = btnUpTab:MOVE-AFTER(btnDownTab:HANDLE).
-  END.
-  */
+  bAttrb.attr_id = STRING(i,'99999').
 
 END PROCEDURE.
 
@@ -3490,13 +3572,14 @@ PROCEDURE tabOrder :
 ------------------------------------------------------------------------------*/
   tabOrder = IF NUM-ENTRIES(tabLabels:SCREEN-VALUE IN FRAME {&FRAME-NAME},"|") GT 1 THEN
              ENTRY(2,tabLabels:SCREEN-VALUE,"|") ELSE 'Default'.
-  RUN nosweat/mftaborder.w (FRAME folderFrm:HANDLE,
+  RUN UDF/mftaborder.w (FRAME folderFrm:HANDLE,
                             ENTRY(1,tabLabels:SCREEN-VALUE,"|"),
                             INPUT-OUTPUT tabOrder).
   tabLabels:REPLACE(ENTRY(1,tabLabels:SCREEN-VALUE,"|") + "|" + tabOrder,
                     tabLabels:SCREEN-VALUE).
-  FIND tmfgroup EXCLUSIVE-LOCK WHERE tmfgroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE.
-  tmfgroup.mfgroup_tabs = tabLabels:LIST-ITEMS.
+  FIND ttMFGroup
+      WHERE ttMFGroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE.
+  ttMFGroup.mfgroup_tabs = tabLabels:LIST-ITEMS.
   RUN createWidgets.
 
 END PROCEDURE.
@@ -3511,43 +3594,43 @@ PROCEDURE updateAttrb :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  FIND attrb
-      WHERE ROWID(attrb) = TO-ROWID(ENTRY(1,currentWidget:PRIVATE-DATA,"|"))
-          EXCLUSIVE-LOCK NO-ERROR.
-  IF NOT AVAILABLE attrb THEN DO:
-    CREATE attrb.
+  FIND ttAttrb
+      WHERE ROWID(ttAttrb) EQ TO-ROWID(ENTRY(1,currentWidget:PRIVATE-DATA,"|"))
+      NO-ERROR.
+  IF NOT AVAILABLE ttAttrb THEN DO:
+    CREATE ttAttrb.
     RUN setAttrID.
   END.
   ASSIGN
-    attrb.attr_mfgroup = mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-    attrb.attr_tab = INTEGER(ENTRY(2,currentWidget:PRIVATE-DATA,"|"))
-    attrb.attr_type = currentWidget:TYPE
-    attrb.attr_label = IF currentWidget:TYPE EQ "RECTANGLE" THEN ""
+    ttAttrb.attr_mfgroup = mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+    ttAttrb.attr_tab = INTEGER(ENTRY(2,currentWidget:PRIVATE-DATA,"|"))
+    ttAttrb.attr_type = currentWidget:TYPE
+    ttAttrb.attr_label = IF currentWidget:TYPE EQ "RECTANGLE" THEN ""
       ELSE IF currentWidget:TYPE EQ "TOGGLE-BOX" THEN currentWidget:LABEL
       ELSE IF currentWidget:TYPE EQ "TEXT" THEN currentWidget:SCREEN-VALUE
       ELSE SUBSTR(currentWidget:LABEL,1,LENGTH(currentWidget:LABEL) - 1)
-    attrb.attr_values =
+    ttAttrb.attr_values =
            IF CAN-DO("COMBO-BOX,SELECTION-LIST",currentWidget:TYPE) THEN currentWidget:LIST-ITEMS
       ELSE IF currentWidget:TYPE EQ "RADIO-SET" THEN currentWidget:RADIO-BUTTONS
       ELSE IF currentWidget:TYPE EQ "SLIDER" THEN STRING(currentWidget:MIN-VALUE) + "," + STRING(currentWidget:MAX-VALUE)
       ELSE ""
-    attrb.attr_default = IF currentWidget:TYPE EQ "RECTANGLE" THEN ""
-                    ELSE IF currentWidget:TYPE EQ "TEXT" THEN ""
-                    ELSE currentWidget:SCREEN-VALUE
-    attrb.attr_x = currentWidget:X
-    attrb.attr_y = currentWidget:Y
-    attrb.attr_height = currentWidget:HEIGHT-PIXELS
-    attrb.attr_width = currentWidget:WIDTH-PIXELS
-    attrb.attr_settings =
-           IF attrb.attr_type EQ "EDITOR" THEN
+    ttAttrb.attr_default = IF currentWidget:TYPE EQ "RECTANGLE" THEN ""
+                      ELSE IF currentWidget:TYPE EQ "TEXT" THEN ""
+                      ELSE currentWidget:SCREEN-VALUE
+    ttAttrb.attr_x = currentWidget:X
+    ttAttrb.attr_y = currentWidget:Y
+    ttAttrb.attr_height = currentWidget:HEIGHT-PIXELS
+    ttAttrb.attr_width = currentWidget:WIDTH-PIXELS
+    ttAttrb.attr_settings =
+           IF ttAttrb.attr_type EQ "EDITOR" THEN
            STRING(currentWidget:SCROLLBAR-HORIZONTAL) + "," + STRING(currentWidget:SCROLLBAR-VERTICAL)
-      ELSE IF attrb.attr_type EQ "FILL-IN" THEN currentWidget:FORMAT
-      ELSE IF attrb.attr_type EQ "COMBO-BOX" THEN currentWidget:FORMAT
-      ELSE IF attrb.attr_type EQ "RADIO-SET" THEN STRING(currentWidget:HORIZONTAL)
-      ELSE IF attrb.attr_type EQ "SLIDER" THEN STRING(currentWidget:HORIZONTAL)
-      ELSE IF attrb.attr_type EQ "TEXT" THEN STRING(currentWidget:FONT)
+      ELSE IF ttAttrb.attr_type EQ "FILL-IN" THEN currentWidget:FORMAT
+      ELSE IF ttAttrb.attr_type EQ "COMBO-BOX" THEN currentWidget:FORMAT
+      ELSE IF ttAttrb.attr_type EQ "RADIO-SET" THEN STRING(currentWidget:HORIZONTAL)
+      ELSE IF ttAttrb.attr_type EQ "SLIDER" THEN STRING(currentWidget:HORIZONTAL)
+      ELSE IF ttAttrb.attr_type EQ "TEXT" THEN STRING(currentWidget:FONT)
       ELSE ""
-    attrb.attr_datatype = currentWidget:DATA-TYPE
+    ttAttrb.attr_datatype = currentWidget:DATA-TYPE
     .
 
 END PROCEDURE.

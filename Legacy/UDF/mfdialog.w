@@ -15,7 +15,7 @@
 
   Author:            Ron Stark
 
-  Created:           03/01/98 (updated 11.28.2016)
+  Created:           03/01/98 (updated 11.29.2016)
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -48,10 +48,10 @@ DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCancel btnOK horz-bar vert-bar ~
-attr_enabled attr_label attr_name attr_values attr_default x-coord y-coord ~
-min_value pixel-height pixel-width max_value data_type data_format ~
-font-setting attr_proc 
+&Scoped-Define ENABLED-OBJECTS btnCancel horz-bar vert-bar attr_enabled ~
+attr_label attr_name attr_values attr_default x-coord y-coord min_value ~
+pixel-height pixel-width btnOK max_value data_type data_format font-setting ~
+attr_proc 
 &Scoped-Define DISPLAYED-OBJECTS attr_id attr_order attr_type horz-bar ~
 vert-bar attr_enabled attr_label attr_name attr_values attr_default x-coord ~
 y-coord min_value pixel-height pixel-width max_value data_type data_format ~
@@ -73,7 +73,7 @@ font-setting attr_proc
 DEFINE BUTTON btnCancel AUTO-END-KEY 
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Cancel" 
-     SIZE 8 BY 1.9
+     SIZE 8 BY 1.91
      BGCOLOR 8 FONT 4.
 
 DEFINE BUTTON btnOK AUTO-GO 
@@ -197,8 +197,6 @@ DEFINE VARIABLE vert-bar AS LOGICAL INITIAL no
 DEFINE FRAME Dialog-Frame
      btnCancel AT ROW 1.24 COL 100 HELP
           "CANCEL Edit Function"
-     btnOK AT ROW 1.24 COL 91 HELP
-          "OK to Save Edit Function Settings"
      attr_id AT ROW 1.24 COL 17.2 COLON-ALIGNED HELP
           "Enter Attribute Identifier"
      attr_order AT ROW 2.43 COL 17 COLON-ALIGNED
@@ -227,6 +225,8 @@ DEFINE FRAME Dialog-Frame
           "Enter Pixel Height"
      pixel-width AT ROW 10.76 COL 40 COLON-ALIGNED HELP
           "Enter Pixel Width"
+     btnOK AT ROW 1.24 COL 92 HELP
+          "OK to Save Edit Function Settings"
      max_value AT ROW 10.76 COL 67 COLON-ALIGNED HELP
           "Enter Slider's Maximum Value"
      data_type AT ROW 11.95 COL 17 COLON-ALIGNED HELP
@@ -237,10 +237,10 @@ DEFINE FRAME Dialog-Frame
           "Select Font Size"
      attr_proc AT ROW 13.14 COL 67 COLON-ALIGNED HELP
           "Select Display/Load Values Procedure Name"
-     SPACE(0.79) SKIP(0.00)
+     SPACE(0.80) SKIP(0.19)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Attribute Editor"
+         TITLE "User Defined Fields Attribute Editor"
          CANCEL-BUTTON btnCancel.
 
 
@@ -296,7 +296,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Attribute Editor */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* User Defined Fields Attribute Editor */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
@@ -337,21 +337,21 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK Dialog-Frame
 ON CHOOSE OF btnOK IN FRAME Dialog-Frame
 DO:
-  FIND attrb WHERE ROWID(attrb) = TO-ROWID(attrb_rowid) EXCLUSIVE-LOCK.
+  FIND ttAttrb WHERE ROWID(ttAttrb) EQ TO-ROWID(attrb_rowid).
   ASSIGN 
-    attrb.attr_label = attr_label:SCREEN-VALUE
-    attrb.attr_name = attr_name:SCREEN-VALUE
-    attrb.attr_values = attr_values:SCREEN-VALUE
-    attrb.attr_default = attr_default:SCREEN-VALUE
-    attrb.attr_x = INTEGER(x-coord:SCREEN-VALUE)
-    attrb.attr_y = INTEGER(y-coord:SCREEN-VALUE)
-    attrb.attr_height = INTEGER(pixel-height:SCREEN-VALUE)
-    attrb.attr_width = INTEGER(pixel-width:SCREEN-VALUE)
-    attrb.attr_order = INTEGER(attr_order:SCREEN-VALUE)
-    attrb.attr_enabled = attr_enabled:SCREEN-VALUE EQ "YES"
-    attrb.attr_proc = attr_proc:SCREEN-VALUE
+    ttAttrb.attr_label = attr_label:SCREEN-VALUE
+    ttAttrb.attr_name = attr_name:SCREEN-VALUE
+    ttAttrb.attr_values = attr_values:SCREEN-VALUE
+    ttAttrb.attr_default = attr_default:SCREEN-VALUE
+    ttAttrb.attr_x = INTEGER(x-coord:SCREEN-VALUE)
+    ttAttrb.attr_y = INTEGER(y-coord:SCREEN-VALUE)
+    ttAttrb.attr_height = INTEGER(pixel-height:SCREEN-VALUE)
+    ttAttrb.attr_width = INTEGER(pixel-width:SCREEN-VALUE)
+    ttAttrb.attr_order = INTEGER(attr_order:SCREEN-VALUE)
+    ttAttrb.attr_enabled = attr_enabled:SCREEN-VALUE EQ "YES"
+    ttAttrb.attr_proc = attr_proc:SCREEN-VALUE
     .
-  CASE attrb.attr_type:
+  CASE ttAttrb.attr_type:
     WHEN "FILL-IN" THEN DO:
       IF data_format:SCREEN-VALUE = "" THEN
       CASE data_type:SCREEN-VALUE:
@@ -367,23 +367,23 @@ DO:
         data_format:SCREEN-VALUE = "yes/no".
       END CASE.
       ASSIGN
-        attrb.attr_datatype = data_type:SCREEN-VALUE
-        attrb.attr_settings = data_format:SCREEN-VALUE
+        ttAttrb.attr_datatype = data_type:SCREEN-VALUE
+        ttAttrb.attr_settings = data_format:SCREEN-VALUE
         .
     END.
     WHEN "COMBO-BOX" THEN
-    attrb.attr_settings = data_format:SCREEN-VALUE.
+    ttAttrb.attr_settings = data_format:SCREEN-VALUE.
     WHEN "EDITOR" THEN
-    attrb.attr_settings = horz-bar:SCREEN-VALUE + "," + vert-bar:SCREEN-VALUE.
+    ttAttrb.attr_settings = horz-bar:SCREEN-VALUE + "," + vert-bar:SCREEN-VALUE.
     WHEN "RADIO-SET" THEN
-    attrb.attr_settings = horz-bar:SCREEN-VALUE.
+    ttAttrb.attr_settings = horz-bar:SCREEN-VALUE.
     WHEN "SLIDER" THEN
     ASSIGN
       attr_values = min_value:SCREEN-VALUE + "," + max_value:SCREEN-VALUE
       attr_settings = horz-bar:SCREEN-VALUE
       .
     WHEN "TEXT" THEN
-    attrb.attr_settings = font-setting:SCREEN-VALUE.
+    ttAttrb.attr_settings = font-setting:SCREEN-VALUE.
   END CASE.
 END.
 
@@ -431,15 +431,16 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  FIND attrb WHERE ROWID(attrb) EQ TO-ROWID(attrb_rowid) NO-LOCK.
+  FIND ttAttrb
+      WHERE ROWID(ttAttrb) EQ TO-ROWID(attrb_rowid).
   RUN enable_UI.
-  IF mfpersist NE ? THEN DO:
+  IF hMFPersist NE ? THEN DO:
     attr_proc:LIST-ITEMS = ?.
     attr_proc:ADD-LAST("").
-    DO idx = 1 TO NUM-ENTRIES(mfpersist:INTERNAL-ENTRIES):
-      attr_proc:ADD-LAST(ENTRY(idx,mfpersist:INTERNAL-ENTRIES)).
-    END.
-  END.
+    DO idx = 1 TO NUM-ENTRIES(hMFPersist:INTERNAL-ENTRIES):
+      attr_proc:ADD-LAST(ENTRY(idx,hMFPersist:INTERNAL-ENTRIES)).
+    END. /* do idx */
+  END. /* hmfpersist */
   ASSIGN
     vert-bar:HIDDEN = YES
     horz-bar:HIDDEN = YES
@@ -448,39 +449,39 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     font-setting:HIDDEN = YES
     data_type:HIDDEN = YES
     data_format:HIDDEN = YES
-    attr_id:SCREEN-VALUE = STRING(attrb.attr_id)
-    attr_type:SCREEN-VALUE = attrb.attr_type
-    attr_label:SCREEN-VALUE = attrb.attr_label
-    attr_name:SCREEN-VALUE = attrb.attr_name
-    attr_values:SCREEN-VALUE = attrb.attr_values
-    attr_default:SCREEN-VALUE = attrb.attr_default
-    x-coord:SCREEN-VALUE = STRING(attrb.attr_x)
-    y-coord:SCREEN-VALUE = STRING(attrb.attr_y)
-    pixel-height:SCREEN-VALUE = STRING(attrb.attr_height)
-    pixel-width:SCREEN-VALUE = STRING(attrb.attr_width)
-    attr_order:SCREEN-VALUE = STRING(attrb.attr_order)
-    attr_enabled:SCREEN-VALUE = STRING(attrb.attr_enabled)
-    attr_proc:SCREEN-VALUE = attrb.attr_proc
+    attr_id:SCREEN-VALUE = STRING(ttAttrb.attr_id)
+    attr_type:SCREEN-VALUE = ttAttrb.attr_type
+    attr_label:SCREEN-VALUE = ttAttrb.attr_label
+    attr_name:SCREEN-VALUE = ttAttrb.attr_name
+    attr_values:SCREEN-VALUE = ttAttrb.attr_values
+    attr_default:SCREEN-VALUE = ttAttrb.attr_default
+    x-coord:SCREEN-VALUE = STRING(ttAttrb.attr_x)
+    y-coord:SCREEN-VALUE = STRING(ttAttrb.attr_y)
+    pixel-height:SCREEN-VALUE = STRING(ttAttrb.attr_height)
+    pixel-width:SCREEN-VALUE = STRING(ttAttrb.attr_width)
+    attr_order:SCREEN-VALUE = STRING(ttAttrb.attr_order)
+    attr_enabled:SCREEN-VALUE = STRING(ttAttrb.attr_enabled)
+    attr_proc:SCREEN-VALUE = ttAttrb.attr_proc
     .
-  CASE attrb.attr_type:
+  CASE ttAttrb.attr_type:
     WHEN "COMBO-BOX" THEN
     ASSIGN
       data_format:HIDDEN = NO
-      data_format:SCREEN-VALUE = attrb.attr_settings
+      data_format:SCREEN-VALUE = ttAttrb.attr_settings
       .
     WHEN "EDITOR" THEN
     ASSIGN
       vert-bar:HIDDEN = NO
       horz-bar:HIDDEN = NO
-      horz-bar:SCREEN-VALUE = ENTRY(1,attrb.attr_settings)
-      vert-bar:SCREEN-VALUE = ENTRY(2,attrb.attr_settings)
+      horz-bar:SCREEN-VALUE = ENTRY(1,ttAttrb.attr_settings)
+      vert-bar:SCREEN-VALUE = ENTRY(2,ttAttrb.attr_settings)
       .
     WHEN "FILL-IN" THEN
     ASSIGN
       data_type:HIDDEN = NO
       data_format:HIDDEN = NO
-      data_type:SCREEN-VALUE = attrb.attr_datatype
-      data_format:SCREEN-VALUE = attrb.attr_settings
+      data_type:SCREEN-VALUE = ttAttrb.attr_datatype
+      data_format:SCREEN-VALUE = ttAttrb.attr_settings
       .
     WHEN "RECTANGLE" THEN
     ASSIGN
@@ -491,24 +492,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     WHEN "RADIO-SET" THEN
     ASSIGN
       horz-bar:HIDDEN = NO
-      horz-bar:SCREEN-VALUE = attrb.attr_settings
+      horz-bar:SCREEN-VALUE = ttAttrb.attr_settings
       .
     WHEN "SLIDER" THEN
-    DO:
-      ASSIGN
-        min_value:HIDDEN = NO
-        max_value:HIDDEN = NO
-        horz-bar:HIDDEN = NO
-        min_value:SCREEN-VALUE = ENTRY(1,attrb.attr_values)
-        max_value:SCREEN-VALUE = ENTRY(2,attrb.attr_values)
-        horz-bar:SCREEN-VALUE = ENTRY(1,attrb.attr_settings)
-        attr_values:HIDDEN = YES
-        .
-    END.
+    ASSIGN
+      min_value:HIDDEN = NO
+      max_value:HIDDEN = NO
+      horz-bar:HIDDEN = NO
+      min_value:SCREEN-VALUE = ENTRY(1,ttAttrb.attr_values)
+      max_value:SCREEN-VALUE = ENTRY(2,ttAttrb.attr_values)
+      horz-bar:SCREEN-VALUE = ENTRY(1,ttAttrb.attr_settings)
+      attr_values:HIDDEN = YES
+      .
     WHEN "TEXT" THEN
     ASSIGN
       font-setting:HIDDEN = NO
-      font-setting:SCREEN-VALUE = attrb.attr_settings
+      font-setting:SCREEN-VALUE = ttAttrb.attr_settings
       .
   END CASE.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -554,9 +553,10 @@ PROCEDURE enable_UI :
           pixel-height pixel-width max_value data_type data_format font-setting 
           attr_proc 
       WITH FRAME Dialog-Frame.
-  ENABLE btnCancel btnOK horz-bar vert-bar attr_enabled attr_label attr_name 
+  ENABLE btnCancel horz-bar vert-bar attr_enabled attr_label attr_name 
          attr_values attr_default x-coord y-coord min_value pixel-height 
-         pixel-width max_value data_type data_format font-setting attr_proc 
+         pixel-width btnOK max_value data_type data_format font-setting 
+         attr_proc 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
