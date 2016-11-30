@@ -99,32 +99,34 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME fMiscFlds
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnAddTab btnCopy btnCut tabLabelsRect ~
-btnDeleteTab btnDownTab RECT-5 RECT-4 widgetRect tabNavRect RECT-2 RECT-3 ~
-RECT-8 portRect tabNavRect-3 mfgroupList mfgroupTab btnCombo-Box btnExit ~
-tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle btnSelection-List ~
-btnSlider btnText btnToggle-Box btnExport btnImport btnNextTab btnPaste ~
-btnPrevTab btnProperty btnRenameTab btnUpTab btnAddGroup btnCopyGroup ~
-btnDeleteGroup btnRenameGroup btnRestore btnSave btnTabOrder btnTest 
+&Scoped-Define ENABLED-OBJECTS btnAddTab tabLabelsRect RECT-5 RECT-4 ~
+widgetRect tabNavRect RECT-2 RECT-3 RECT-8 portRect tabNavRect-3 ~
+mfgroupList mfgroupTab btnCombo-Box tabLabels btnEditor btnFill-In ~
+btnRadio-Set btnRectangle btnSelection-List btnSlider btnText btnToggle-Box ~
+btnCopy btnCut btnDeleteTab btnDownTab btnExit btnExport btnImport ~
+btnNextTab btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab ~
+btnAddGroup btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave ~
+btnTabOrder btnTest 
 &Scoped-Define DISPLAYED-OBJECTS mfgroupList mfgroupTab tabLabels ~
 widgetLabel tabCBLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
 fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
 textLabel toggle-BoxLabel gapFieldLabel 
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-1 btnAddTab btnDeleteTab btnDownTab widgetRect ~
-mfgroupTab btnPointer btnCombo-Box tabLabels btnEditor btnFill-In ~
-btnRadio-Set btnRectangle btnSelection-List btnSlider btnText btnToggle-Box ~
+/* notFoundIn234,widgetLabels,widgetButtons,propertyCutCopy,List-5,List-6 */
+&Scoped-define notFoundIn234 btnAddTab widgetRect mfgroupTab btnPointer ~
+btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle ~
+btnSelection-List btnSlider btnText btnToggle-Box btnDeleteTab btnDownTab ~
 btnNextTab btnPrevTab btnRenameTab btnUpTab btnDeleteGroup btnRenameGroup ~
 btnTest widgetLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
 fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
 textLabel toggle-BoxLabel 
-&Scoped-define List-2 pointerLabel combo-BoxLabel editorLabel fill-InLabel ~
-radio-SetLabel rectangleLabel selection-ListLabel sliderLabel textLabel ~
-toggle-BoxLabel 
-&Scoped-define List-3 btnPointer btnCombo-Box btnEditor btnFill-In ~
+&Scoped-define widgetLabels pointerLabel combo-BoxLabel editorLabel ~
+fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
+textLabel toggle-BoxLabel 
+&Scoped-define widgetButtons btnPointer btnCombo-Box btnEditor btnFill-In ~
 btnRadio-Set btnRectangle btnSelection-List btnSlider btnText btnToggle-Box 
+&Scoped-define propertyCutCopy btnCopy btnCut btnProperty 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -562,14 +564,6 @@ DEFINE RECTANGLE Rect-Top
 DEFINE FRAME fMiscFlds
      btnAddTab AT ROW 7.19 COL 125 HELP
           "ADD New Tab"
-     btnCopy AT ROW 1.48 COL 88 HELP
-          "Copy Selections"
-     btnCut AT ROW 1.48 COL 80 HELP
-          "Cut Selections"
-     btnDeleteTab AT ROW 7.19 COL 135 HELP
-          "DELETE Tab"
-     btnDownTab AT ROW 7.19 COL 140 HELP
-          "Move Tab DOWN"
      mfgroupList AT ROW 1.71 COL 8 COLON-ALIGNED HELP
           "Select Group Name"
      mfgroupField AT ROW 1.71 COL 8 COLON-ALIGNED HELP
@@ -580,8 +574,6 @@ DEFINE FRAME fMiscFlds
           "Restore Mouse Cursor to ARROW POINTER"
      btnCombo-Box AT ROW 7.19 COL 3.2 HELP
           "Create New COMBO-BOX"
-     btnExit AT ROW 1.48 COL 134 HELP
-          "Exit Design Layout Window"
      tabField AT ROW 7.19 COL 124 HELP
           "Enter Tab Label" NO-LABEL
      tabLabels AT ROW 8.38 COL 124 HELP
@@ -602,10 +594,20 @@ DEFINE FRAME fMiscFlds
           "Create New TEXT"
      btnToggle-Box AT ROW 20.52 COL 3 HELP
           "Create New TOGGLE-BOX"
-     btnExport AT ROW 23.86 COL 15 HELP
-          "Export" WIDGET-ID 26
      gapField AT ROW 22.19 COL 1 COLON-ALIGNED HELP
           "Enter Gap Amount in Pixels" NO-LABEL
+     btnCopy AT ROW 1.48 COL 88 HELP
+          "Copy Selections"
+     btnCut AT ROW 1.48 COL 80 HELP
+          "Cut Selections"
+     btnDeleteTab AT ROW 7.19 COL 135 HELP
+          "DELETE Tab"
+     btnDownTab AT ROW 7.19 COL 140 HELP
+          "Move Tab DOWN"
+     btnExit AT ROW 1.48 COL 134 HELP
+          "Exit Design Layout Window"
+     btnExport AT ROW 23.86 COL 15 HELP
+          "Export" WIDGET-ID 26
      btnImport AT ROW 23.86 COL 4 HELP
           "Import" WIDGET-ID 24
      btnNextTab AT ROW 4.81 COL 144.6 HELP
@@ -786,6 +788,10 @@ IF NOT wMiscFlds:LOAD-ICON("Graphics\asiicon.ico":U) THEN
    1                                                                    */
 /* SETTINGS FOR BUTTON btnCombo-Box IN FRAME fMiscFlds
    1 3                                                                  */
+/* SETTINGS FOR BUTTON btnCopy IN FRAME fMiscFlds
+   4                                                                    */
+/* SETTINGS FOR BUTTON btnCut IN FRAME fMiscFlds
+   4                                                                    */
 /* SETTINGS FOR BUTTON btnDeleteGroup IN FRAME fMiscFlds
    1                                                                    */
 /* SETTINGS FOR BUTTON btnDeleteTab IN FRAME fMiscFlds
@@ -802,6 +808,8 @@ IF NOT wMiscFlds:LOAD-ICON("Graphics\asiicon.ico":U) THEN
    NO-ENABLE 1 3                                                        */
 /* SETTINGS FOR BUTTON btnPrevTab IN FRAME fMiscFlds
    1                                                                    */
+/* SETTINGS FOR BUTTON btnProperty IN FRAME fMiscFlds
+   4                                                                    */
 /* SETTINGS FOR BUTTON btnRadio-Set IN FRAME fMiscFlds
    1 3                                                                  */
 /* SETTINGS FOR BUTTON btnRectangle IN FRAME fMiscFlds
@@ -1972,7 +1980,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN enable_UI.
       RUN winReSize.
       RUN loadWidgetData.
-      DISABLE btnPaste btnPointer btnProperty btnCut btnCopy WITH FRAME {&FRAME-NAME}.
+      DISABLE btnPaste btnPointer {&propertyCutCopy} WITH FRAME {&FRAME-NAME}.
       IF hMFPersist EQ ? THEN
       RUN UDF/mfPersist.p PERSISTENT SET hMFPersist.
   END. /* continue */
@@ -2304,11 +2312,11 @@ PROCEDURE createTabs :
         tabLabels:LIST-ITEMS = ""
         tabLabels:INNER-LINES = 1
         .
-      DISABLE {&LIST-1} {&LIST-3}.
+      DISABLE {&notFoundIn234} {&widgetButtons}.
       RETURN.
     END.
     ELSE DO:
-      ENABLE {&LIST-1} {&LIST-3}.
+      ENABLE {&notFoundIn234} {&widgetButtons}.
       RUN selectNewWidgetType ("","arrow").
     END.
     ASSIGN
@@ -2377,7 +2385,7 @@ PROCEDURE createTabs :
         tabImage[i]:HIDDEN = NO
         tabLabel[i]:HIDDEN = NO
         .
-    DISABLE btnCut btnCopy WITH FRAME {&FRAME-NAME}.
+    DISABLE {&propertyCutCopy} WITH FRAME {&FRAME-NAME}.
   END.
   /* use up tab image for currently selected tab */
   ASSIGN
@@ -2588,7 +2596,7 @@ PROCEDURE deleteTab :
       ttMFGroup.mfgroup_tabs = tabLabels:LIST-ITEMS
       .
     RUN createWidgets.
-    DISABLE btnCut btnCopy WITH FRAME {&FRAME-NAME}.
+    DISABLE {&propertyCutCopy} WITH FRAME {&FRAME-NAME}.
   END.
 
 END PROCEDURE.
@@ -2609,7 +2617,7 @@ PROCEDURE deselectWidget :
   DISABLE btnProperty WITH FRAME {&FRAME-NAME}.
 
   IF FRAME folderFrm:NUM-SELECTED-WIDGETS EQ 1 THEN
-  DISABLE btnCut btnCopy WITH FRAME {&FRAME-NAME}.
+  DISABLE {&propertyCutCopy} WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -2821,11 +2829,11 @@ PROCEDURE enable_UI :
           rectangleLabel selection-ListLabel sliderLabel textLabel 
           toggle-BoxLabel gapFieldLabel 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
-  ENABLE btnAddTab btnCopy btnCut tabLabelsRect btnDeleteTab btnDownTab RECT-5 
-         RECT-4 widgetRect tabNavRect RECT-2 RECT-3 RECT-8 portRect 
-         tabNavRect-3 mfgroupList mfgroupTab btnCombo-Box btnExit tabLabels 
-         btnEditor btnFill-In btnRadio-Set btnRectangle btnSelection-List 
-         btnSlider btnText btnToggle-Box btnExport btnImport btnNextTab 
+  ENABLE btnAddTab tabLabelsRect RECT-5 RECT-4 widgetRect tabNavRect RECT-2 
+         RECT-3 RECT-8 portRect tabNavRect-3 mfgroupList mfgroupTab 
+         btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle 
+         btnSelection-List btnSlider btnText btnToggle-Box btnCopy btnCut 
+         btnDeleteTab btnDownTab btnExit btnExport btnImport btnNextTab 
          btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab btnAddGroup 
          btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave 
          btnTabOrder btnTest 
@@ -3114,7 +3122,7 @@ PROCEDURE moveWidget :
     END.
     ELSE currentWidget = currentWidget:NEXT-SIBLING.
   END.
-  DISABLE btnCut btnCopy WITH FRAME {&FRAME-NAME}.
+  DISABLE {&propertyCutCopy} WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -3165,7 +3173,7 @@ PROCEDURE newWidget :
   IF RETURN-VALUE = "CREATE-ERROR" THEN DELETE ttAttrb.
   ELSE DO:
     dynWidget:SELECTED = YES.
-    ENABLE btnCut btnCopy WITH FRAME {&FRAME-NAME}.
+    ENABLE {&propertyCutCopy} WITH FRAME {&FRAME-NAME}.
   END.
 
 END PROCEDURE.
@@ -3428,7 +3436,7 @@ PROCEDURE selectNewWidgetType :
       textLabel:BGCOLOR = ?
       toggle-BoxLabel:BGCOLOR = ?
       .
-    ENABLE {&LIST-1} {&LIST-3}.
+    ENABLE {&notFoundIn234} {&widgetButtons}.
 
     CASE newWidgetType:
       WHEN "" THEN DO:
@@ -3500,7 +3508,7 @@ PROCEDURE selectWidget :
   Notes:       
 ------------------------------------------------------------------------------*/
   IF FRAME folderFrm:NUM-SELECTED-WIDGETS EQ 0 THEN
-  ENABLE btnProperty btnCut btnCopy WITH FRAME {&FRAME-NAME}.
+  ENABLE {&propertyCutCopy} WITH FRAME {&FRAME-NAME}.
   ELSE
   DISABLE btnProperty WITH FRAME {&FRAME-NAME}.
 
