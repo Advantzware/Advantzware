@@ -802,7 +802,8 @@ DEF VAR lv-last-date AS DATE NO-UNDO.
                UPDATE v-post AS LOG .
 
       if v-post then do:
-        run fg/fgpstall.w (tran-date,"").
+     /* RUN fg/fgpstall.w (tran-date,""). */
+        RUN fg/fgpstmn1.p (trans-date,"").
         if not choice then return.
       end.
       

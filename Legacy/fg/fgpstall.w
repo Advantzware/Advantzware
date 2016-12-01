@@ -21,9 +21,10 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEF INPUT PARAMETER ip-post-eom-date AS DATE NO-UNDO.
-DEF INPUT PARAMETER ip-run-what AS CHAR NO-UNDO. /* "SETUP" from initial setup (addon/sshoot/sssetups.w), 
-                                                   else "" */
+/* DEF INPUT PARAMETER ip-post-eom-date AS DATE NO-UNDO. */
+/* DEF INPUT PARAMETER ip-run-what AS CHAR NO-UNDO. /* "SETUP" from initial setup (addon/sshoot/sssetups.w), */
+/*                                                   else "" */ */
+
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
@@ -41,7 +42,7 @@ assign
  cocode = gcompany
  locode = gloc.
 
-DEF SHARED VAR choice AS LOG NO-UNDO.
+DEFINE {1} SHARED VARIABLE choice AS LOG NO-UNDO.
 
 DEF VAR v-fgpostgl AS CHAR NO-UNDO.
 def var v-fg-value as dec format "->,>>>,>>9.99".
