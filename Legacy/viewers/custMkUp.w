@@ -73,7 +73,7 @@ cust-markup.run-qty[8] cust-markup.markup[8] cust-markup.run-qty[9] ~
 cust-markup.markup[9] cust-markup.run-qty[10] cust-markup.markup[10] 
 &Scoped-define ENABLED-TABLES cust-markup
 &Scoped-define FIRST-ENABLED-TABLE cust-markup
-&Scoped-Define ENABLED-OBJECTS RECT-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-10 
 &Scoped-Define DISPLAYED-FIELDS cust-markup.cust-no cust-markup.procat ~
 cust-markup.style cust-markup.run-qty[1] cust-markup.markup[1] ~
 cust-markup.run-qty[2] cust-markup.markup[2] cust-markup.run-qty[3] ~
@@ -85,9 +85,9 @@ cust-markup.markup[9] cust-markup.run-qty[10] cust-markup.markup[10]
 &Scoped-define DISPLAYED-TABLES cust-markup
 &Scoped-define FIRST-DISPLAYED-TABLE cust-markup
 &Scoped-Define DISPLAYED-OBJECTS custName procatDscr styleDscr ~
-fiLookupValue cb_markup-on-01 cb_markup-on-02 cb_markup-on-03 ~
-cb_markup-on-04 cb_markup-on-05 cb_markup-on-06 cb_markup-on-07 ~
-cb_markup-on-08 cb_markup-on-09 cb_markup-on-10 
+fiLookupValue fiLookupValueRed cb_markup-on-01 cb_markup-on-02 ~
+cb_markup-on-03 cb_markup-on-04 cb_markup-on-05 cb_markup-on-06 ~
+cb_markup-on-07 cb_markup-on-08 cb_markup-on-09 cb_markup-on-10 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -152,196 +152,210 @@ FUNCTION getStyleDscr RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE cb_markup-on-01 AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEMS "(N)et","(G)ross","(B)oard" 
-    DROP-DOWN-LIST
-    SIZE 23 BY 1 NO-UNDO.
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "(N)et","(G)ross","(B)oard" 
+     DROP-DOWN-LIST
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cb_markup-on-02 AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEMS "(N)et","(G)ross","(B)oard" 
-    DROP-DOWN-LIST
-    SIZE 23 BY 1 NO-UNDO.
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "(N)et","(G)ross","(B)oard" 
+     DROP-DOWN-LIST
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cb_markup-on-03 AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEMS "(N)et","(G)ross","(B)oard" 
-    DROP-DOWN-LIST
-    SIZE 23 BY 1 NO-UNDO.
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "(N)et","(G)ross","(B)oard" 
+     DROP-DOWN-LIST
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cb_markup-on-04 AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEMS "(N)et","(G)ross","(B)oard" 
-    DROP-DOWN-LIST
-    SIZE 23 BY 1 NO-UNDO.
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "(N)et","(G)ross","(B)oard" 
+     DROP-DOWN-LIST
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cb_markup-on-05 AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEMS "(N)et","(G)ross","(B)oard" 
-    DROP-DOWN-LIST
-    SIZE 23 BY 1 NO-UNDO.
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "(N)et","(G)ross","(B)oard" 
+     DROP-DOWN-LIST
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cb_markup-on-06 AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEMS "(N)et","(G)ross","(B)oard" 
-    DROP-DOWN-LIST
-    SIZE 23 BY 1 NO-UNDO.
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "(N)et","(G)ross","(B)oard" 
+     DROP-DOWN-LIST
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cb_markup-on-07 AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEMS "(N)et","(G)ross","(B)oard" 
-    DROP-DOWN-LIST
-    SIZE 23 BY 1 NO-UNDO.
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "(N)et","(G)ross","(B)oard" 
+     DROP-DOWN-LIST
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cb_markup-on-08 AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEMS "(N)et","(G)ross","(B)oard" 
-    DROP-DOWN-LIST
-    SIZE 23 BY 1 NO-UNDO.
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "(N)et","(G)ross","(B)oard" 
+     DROP-DOWN-LIST
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cb_markup-on-09 AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEMS "(N)et","(G)ross","(B)oard" 
-    DROP-DOWN-LIST
-    SIZE 23 BY 1 NO-UNDO.
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "(N)et","(G)ross","(B)oard" 
+     DROP-DOWN-LIST
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cb_markup-on-10 AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEMS "(N)et","(G)ross","(B)oard" 
-    DROP-DOWN-LIST
-    SIZE 23 BY 1 NO-UNDO.
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "(N)et","(G)ross","(B)oard" 
+     DROP-DOWN-LIST
+     SIZE 23 BY 1 NO-UNDO.
 
-DEFINE VARIABLE custName        AS CHARACTER FORMAT "x(30)" 
-    VIEW-AS FILL-IN 
-    SIZE 38 BY 1
-    BGCOLOR 15 .
+DEFINE VARIABLE custName AS CHARACTER FORMAT "x(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 38 BY 1
+     BGCOLOR 15 .
 
-DEFINE VARIABLE fiLookupValue   AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1 NO-UNDO.
+DEFINE VARIABLE fiLookupValue AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1 NO-UNDO.
 
-DEFINE VARIABLE procatDscr      AS CHARACTER FORMAT "x(20)" 
-    VIEW-AS FILL-IN 
-    SIZE 26 BY 1
-    BGCOLOR 15 .
+DEFINE VARIABLE fiLookupValueRed AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1 NO-UNDO.
 
-DEFINE VARIABLE styleDscr       AS CHARACTER FORMAT "x(25)" 
-    VIEW-AS FILL-IN 
-    SIZE 32 BY 1
-    BGCOLOR 15 .
+DEFINE VARIABLE procatDscr AS CHARACTER FORMAT "x(20)" 
+     VIEW-AS FILL-IN 
+     SIZE 26 BY 1
+     BGCOLOR 15 .
+
+DEFINE VARIABLE styleDscr AS CHARACTER FORMAT "x(25)" 
+     VIEW-AS FILL-IN 
+     SIZE 32 BY 1
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-1
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 144 BY 17.14.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 144 BY 17.14.
+
+DEFINE RECTANGLE RECT-10
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 53 BY 13.81.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-    cust-markup.cust-no AT ROW 1.24 COL 14 COLON-ALIGNED WIDGET-ID 2
-    VIEW-AS FILL-IN 
-    SIZE 11.6 BY 1
-    BGCOLOR 15 
-    custName AT ROW 1.24 COL 27 COLON-ALIGNED HELP
-    "Enter the customer's name." NO-LABEL WIDGET-ID 8
-    cust-markup.procat AT ROW 2.43 COL 14 COLON-ALIGNED WIDGET-ID 4
-    VIEW-AS FILL-IN 
-    SIZE 8 BY 1
-    BGCOLOR 15 
-    procatDscr AT ROW 2.43 COL 27 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-    cust-markup.style AT ROW 3.62 COL 14 COLON-ALIGNED WIDGET-ID 6
-    VIEW-AS FILL-IN 
-    SIZE 9.2 BY 1
-    BGCOLOR 15 
-    styleDscr AT ROW 3.62 COL 27 COLON-ALIGNED HELP
-    "Enter Description of Style" NO-LABEL WIDGET-ID 12
-    fiLookupValue AT ROW 4.81 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 80
-    cust-markup.run-qty[1] AT ROW 6 COL 8 NO-LABEL WIDGET-ID 56 FORMAT ">>>,>>>,>>9.9<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1
-    cust-markup.markup[1] AT ROW 6 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    cb_markup-on-01 AT ROW 6 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-    cust-markup.run-qty[2] AT ROW 7.19 COL 8 NO-LABEL WIDGET-ID 58 FORMAT ">>>,>>>,>>9.9<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1
-    cust-markup.markup[2] AT ROW 7.19 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 38
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    cb_markup-on-02 AT ROW 7.19 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-    cust-markup.run-qty[3] AT ROW 8.38 COL 8 NO-LABEL WIDGET-ID 60 FORMAT ">>>,>>>,>>9.9<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1
-    cust-markup.markup[3] AT ROW 8.38 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 40
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    cb_markup-on-03 AT ROW 8.38 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-    cust-markup.run-qty[4] AT ROW 9.57 COL 8 NO-LABEL WIDGET-ID 62 FORMAT ">>>,>>>,>>9.9<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1
-    cust-markup.markup[4] AT ROW 9.57 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 42
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    cb_markup-on-04 AT ROW 9.57 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-    cust-markup.run-qty[5] AT ROW 10.76 COL 8 NO-LABEL WIDGET-ID 64 FORMAT ">>>,>>>,>>9.9<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1
-    cust-markup.markup[5] AT ROW 10.76 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 44
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    cb_markup-on-05 AT ROW 10.76 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 22
-    cust-markup.run-qty[6] AT ROW 11.95 COL 8 NO-LABEL WIDGET-ID 66 FORMAT ">>>,>>>,>>9.9<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1
-    cust-markup.markup[6] AT ROW 11.95 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    cb_markup-on-06 AT ROW 11.95 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 24
-    cust-markup.run-qty[7] AT ROW 13.14 COL 8 NO-LABEL WIDGET-ID 68 FORMAT ">>>,>>>,>>9.9<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1
-    cust-markup.markup[7] AT ROW 13.14 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 48
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    cb_markup-on-07 AT ROW 13.14 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+     cust-markup.cust-no AT ROW 1.24 COL 14 COLON-ALIGNED WIDGET-ID 2
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
+          BGCOLOR 15 
+     custName AT ROW 1.24 COL 27 COLON-ALIGNED HELP
+          "Enter the customer's name." NO-LABEL WIDGET-ID 8
+     cust-markup.procat AT ROW 2.43 COL 14 COLON-ALIGNED WIDGET-ID 4
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+          BGCOLOR 15 
+     procatDscr AT ROW 2.43 COL 27 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     cust-markup.style AT ROW 3.62 COL 14 COLON-ALIGNED WIDGET-ID 6
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+          BGCOLOR 15 
+     styleDscr AT ROW 3.62 COL 27 COLON-ALIGNED HELP
+          "Enter Description of Style" NO-LABEL WIDGET-ID 12
+     fiLookupValue AT ROW 4.81 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 80
+     fiLookupValueRed AT ROW 4.81 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 86
+     cust-markup.run-qty[1] AT ROW 6 COL 8 NO-LABEL WIDGET-ID 56 FORMAT ">>>,>>>,>>9.9<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     cust-markup.markup[1] AT ROW 6 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     cb_markup-on-01 AT ROW 6 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     cust-markup.run-qty[2] AT ROW 7.19 COL 8 NO-LABEL WIDGET-ID 58 FORMAT ">>>,>>>,>>9.9<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     cust-markup.markup[2] AT ROW 7.19 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 38
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     cb_markup-on-02 AT ROW 7.19 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     cust-markup.run-qty[3] AT ROW 8.38 COL 8 NO-LABEL WIDGET-ID 60 FORMAT ">>>,>>>,>>9.9<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     cust-markup.markup[3] AT ROW 8.38 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     cb_markup-on-03 AT ROW 8.38 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     cust-markup.run-qty[4] AT ROW 9.57 COL 8 NO-LABEL WIDGET-ID 62 FORMAT ">>>,>>>,>>9.9<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     cust-markup.markup[4] AT ROW 9.57 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 42
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     cb_markup-on-04 AT ROW 9.57 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     cust-markup.run-qty[5] AT ROW 10.76 COL 8 NO-LABEL WIDGET-ID 64 FORMAT ">>>,>>>,>>9.9<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     cust-markup.markup[5] AT ROW 10.76 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 44
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     cb_markup-on-05 AT ROW 10.76 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     cust-markup.run-qty[6] AT ROW 11.95 COL 8 NO-LABEL WIDGET-ID 66 FORMAT ">>>,>>>,>>9.9<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     cust-markup.markup[6] AT ROW 11.95 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     cb_markup-on-06 AT ROW 11.95 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     cust-markup.run-qty[7] AT ROW 13.14 COL 8 NO-LABEL WIDGET-ID 68 FORMAT ">>>,>>>,>>9.9<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     cust-markup.markup[7] AT ROW 13.14 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1 SCROLLABLE 
-    FONT 6 WIDGET-ID 100.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6 WIDGET-ID 100.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-    cust-markup.run-qty[8] AT ROW 14.33 COL 8 NO-LABEL WIDGET-ID 70 FORMAT ">>>,>>>,>>9.9<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1
-    cust-markup.markup[8] AT ROW 14.33 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    cb_markup-on-08 AT ROW 14.33 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 28
-    cust-markup.run-qty[9] AT ROW 15.52 COL 8 NO-LABEL WIDGET-ID 72 FORMAT ">>>,>>>,>>9.9<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1
-    cust-markup.markup[9] AT ROW 15.52 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 52
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    cb_markup-on-09 AT ROW 15.52 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 30
-    cust-markup.run-qty[10] AT ROW 16.71 COL 8 NO-LABEL WIDGET-ID 54 FORMAT ">>>,>>>,>>9.9<<<<"
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1
-    cust-markup.markup[10] AT ROW 16.71 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 34
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    cb_markup-on-10 AT ROW 16.71 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 32
-    "Markup On" VIEW-AS TEXT
-    SIZE 14 BY 1 AT ROW 4.81 COL 40 WIDGET-ID 74
-    "Markup" VIEW-AS TEXT
-    SIZE 12 BY 1 AT ROW 4.81 COL 27 WIDGET-ID 76
-    RECT-1 AT ROW 1 COL 1
+     cb_markup-on-07 AT ROW 13.14 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+     cust-markup.run-qty[8] AT ROW 14.33 COL 8 NO-LABEL WIDGET-ID 70 FORMAT ">>>,>>>,>>9.9<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     cust-markup.markup[8] AT ROW 14.33 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     cb_markup-on-08 AT ROW 14.33 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     cust-markup.run-qty[9] AT ROW 15.52 COL 8 NO-LABEL WIDGET-ID 72 FORMAT ">>>,>>>,>>9.9<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     cust-markup.markup[9] AT ROW 15.52 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 52
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     cb_markup-on-09 AT ROW 15.52 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+     cust-markup.run-qty[10] AT ROW 16.71 COL 8 NO-LABEL WIDGET-ID 54 FORMAT ">>>,>>>,>>9.9<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     cust-markup.markup[10] AT ROW 16.71 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     cb_markup-on-10 AT ROW 16.71 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     "Markup On" VIEW-AS TEXT
+          SIZE 14 BY 1 AT ROW 4.81 COL 40 WIDGET-ID 74
+     "Markup Reduction" VIEW-AS TEXT
+          SIZE 23 BY 1 AT ROW 4.81 COL 93 WIDGET-ID 88
+     "Markup" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 4.81 COL 27 WIDGET-ID 76
+     "Reduction Matrix" VIEW-AS TEXT
+          SIZE 24 BY .62 AT ROW 3.86 COL 73 WIDGET-ID 84
+     RECT-1 AT ROW 1 COL 1
+     RECT-10 AT ROW 4.1 COL 71 WIDGET-ID 82
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1 SCROLLABLE 
-    FONT 6 WIDGET-ID 100.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -358,11 +372,10 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN 
-DO:
-    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+  RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -398,8 +411,8 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
-       FRAME F-Main:SCROLLABLE = FALSE
-       FRAME F-Main:HIDDEN     = TRUE.
+       FRAME F-Main:SCROLLABLE       = FALSE
+       FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR COMBO-BOX cb_markup-on-01 IN FRAME F-Main
    NO-ENABLE 2                                                          */
@@ -424,6 +437,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN custName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiLookupValue IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiLookupValueRed IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust-markup.markup[10] IN FRAME F-Main
    2                                                                    */
@@ -537,11 +552,11 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-    {src/adm/template/row-find.i "cust-markup"}
+  {src/adm/template/row-find.i "cust-markup"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
-    {src/adm/template/row-end.i}
+  {src/adm/template/row-end.i}
 
 END PROCEDURE.
 
@@ -550,17 +565,17 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME F-Main.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME F-Main.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -568,7 +583,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -601,7 +616,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
 PROCEDURE local-cancel-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -623,7 +638,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -650,7 +665,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -692,7 +707,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -715,7 +730,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisableAll V-table-Win 
 PROCEDURE pDisableAll :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -730,7 +745,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayMarkupOn V-table-Win 
 PROCEDURE pDisplayMarkupOn :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -754,7 +769,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -790,7 +805,7 @@ PROCEDURE send-key :
 ------------------------------------------------------------------------------*/
 
   /* Define variables needed by this internal procedure.             */
-    {src/adm/template/sndkytop.i}
+  {src/adm/template/sndkytop.i}
 
   /* Return the key value associated with each key case.             */
   {src/adm/template/sndkycas.i "company" "cust-markup" "company"}
@@ -812,7 +827,7 @@ PROCEDURE send-records :
 ------------------------------------------------------------------------------*/
 
   /* Define variables needed by this internal procedure.               */
-    {src/adm/template/snd-head.i}
+  {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "cust-markup"}
@@ -827,7 +842,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
-    /* -----------------------------------------------------------
+/* -----------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
