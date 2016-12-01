@@ -1206,13 +1206,13 @@ PROCEDURE ship-zip :
   
   DO WITH FRAME {&FRAME-NAME}:
     IF shipto.ship-zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE
+    FIND FIRST ASI.zipcode
+        WHERE ASI.zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
-      shipto.ship-state:SCREEN-VALUE = nosweat.zipcode.state.
+    IF AVAIL ASI.zipcode THEN do:
+      shipto.ship-state:SCREEN-VALUE = ASI.zipcode.state.
       IF shipto.ship-city:SCREEN-VALUE EQ "" THEN
-        shipto.ship-city:SCREEN-VALUE = nosweat.zipcode.city.
+        shipto.ship-city:SCREEN-VALUE = ASI.zipcode.city.
     END.
   END. 
 END PROCEDURE.

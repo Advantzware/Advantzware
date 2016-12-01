@@ -1174,7 +1174,7 @@ PROCEDURE hold-release :
         FIND bf-po-ord EXCLUSIVE-LOCK WHERE RECID(bf-po-ord) EQ recid(po-ord) NO-ERROR.
         IF bf-po-ord.stat = "H" then
            ASSIGN bf-po-ord.approved-date = today
-                  bf-po-ord.approved-id = userid('nosweat')
+                  bf-po-ord.approved-id = userid("ASI")
                   bf-po-ord.approved-time = TIME. 
         ELSE ASSIGN bf-po-ord.approved-date = ?
                   bf-po-ord.approved-id = ""
@@ -1667,7 +1667,7 @@ PROCEDURE local-create-record :
          po-ord.po-no          = inextPO         
          po-ord.po-date        = TODAY
          po-ord.loc            = locode
-         po-ord.buyer          = USERID("NOSWEAT")  /*global-uid*/
+         po-ord.buyer          = USERID("ASI")  /*global-uid*/
          po-ord.under-pct      = 10
          po-ord.over-pct       = 10         
          po-ord.due-date       = po-ord.po-date + 
@@ -1848,7 +1848,7 @@ PROCEDURE local-update-record :
                notes.rec_key   = po-ord.rec_key
                notes.note_date = TODAY
                notes.note_time = TIME
-               notes.user_id   = USERID("NOSWEAT").
+               notes.user_id   = USERID("ASI").
         END.
 
         RELEASE b-po-ord.

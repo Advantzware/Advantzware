@@ -261,12 +261,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   FOR EACH prgrms WHERE prgrms.popup NO-LOCK:
     RUN Check_Groups (prgrms.can_run).
-    IF CAN-DO(prgrms.can_run,USERID("NOSWEAT")) OR RETURN-VALUE = "yes" THEN
+    IF CAN-DO(prgrms.can_run,USERID("ASI")) OR RETURN-VALUE = "yes" THEN
     ldummy = popup_selections:ADD-LAST(prgrms.prgtitle).
   END.
   RUN enable_UI.
   ASSIGN
-    user_id:SCREEN-VALUE = USERID("NOSWEAT")
+    user_id:SCREEN-VALUE = USERID("ASI")
     popup_selections:SCREEN-VALUE = popup_selections:ENTRY(1)
     ldummy = {&WINDOW-NAME}:MOVE-TO-TOP().
   {methods/nowait.i}

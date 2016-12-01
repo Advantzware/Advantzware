@@ -13,6 +13,6 @@ IF NOT AVAIL reftable THEN DO:
 END.
 
 ASSIGN
- reftable.loc   = USERID("nosweat")
+ reftable.loc   = USERID("ASI")
  reftable.code  = STRING(TODAY,"99/99/9999")
  reftable.code2 = STRING(TIME,"99999").

@@ -710,7 +710,7 @@ PROCEDURE CreateOrder :
          oe-ord.loc = g_loc
          oe-ord.ord-date = today
          oe-ord.ord-no = ttHeader.Order#
-         oe-ord.user-id = userid("nosweat")
+         oe-ord.user-id = USERID("ASI")
          oe-ord.type = "O"
          oe-ord.stat = "W"  /* OW menu */
          oe-ord.due-code = "ON"
@@ -1103,7 +1103,7 @@ PROCEDURE CreateSpecNote :
          notes.note_text =  ttDetail.Notes
          notes.note_date = TODAY
          notes.note_time = TIME
-         notes.user_id = USERID("NOSWEAT").
+         notes.user_id = USERID("ASI").
 
 
 

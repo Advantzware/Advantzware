@@ -1775,7 +1775,7 @@ PROCEDURE upd-cost-date2-proc :
    IF AVAIL b-e-item-vend THEN
    DO:
       ASSIGN
-         b-e-item-vend.updated-id[1] = USERID("NOSWEAT")
+         b-e-item-vend.updated-id[1] = USERID("ASI")
          b-e-item-vend.updated-date[1] = TODAY.
    
       FIND CURRENT b-e-item-vend NO-LOCK.

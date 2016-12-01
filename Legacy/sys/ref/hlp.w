@@ -623,7 +623,7 @@ PROCEDURE local-enable :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-    IF USERID("nosweat") NE "ASI" THEN
+    IF USERID("ASI") NE "ASI" THEN
         btDataDigger:VISIBLE IN FRAME f-main = NO.
 END PROCEDURE.
 

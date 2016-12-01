@@ -1621,10 +1621,10 @@ PROCEDURE unapprove :
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
 
    IF v-unapp-security THEN DO:
-      IF USERID("nosweat") NE job.cs-user-id-t THEN DO:
+      IF USERID("ASI") NE job.cs-user-id-t THEN DO:
          FIND FIRST usergrps WHERE usergrps.usergrps = "JU2" NO-LOCK NO-ERROR.
          IF NOT AVAILABLE usergrps THEN DO:
-            MESSAGE "User ID: " USERID("nosweat") 
+            MESSAGE "User ID: " USERID("ASI") 
                     " did not approve this JOB and " SKIP
                     "there is no JU2 group override available." SKIP(1)
                     "Contact your system administrator."
@@ -1633,15 +1633,15 @@ PROCEDURE unapprove :
             RETURN NO-APPLY.        
          END. /* IF NOT AVAIL usergrps */
          ELSE IF AVAILABLE usergrps AND 
-                 NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN DO:
-            MESSAGE "User ID: " USERID("nosweat") 
+                 NOT CAN-DO(usergrps.users,USERID("ASI")) THEN DO:
+            MESSAGE "User ID: " USERID("ASI") 
                     " did not approve this JOB and " SKIP
                     "is not a memeber of the JU2 override group." SKIP(1)
                     "Contact your system administrator."
             VIEW-AS ALERT-BOX ERROR.
             RETURN NO-APPLY.
          END. /* ELSE IF AVAIL usergrps AND */
-      END. /* IF USERID("nosweat") NE job.USER-ID */
+      END. /* IF USERID("ASI") NE job.USER-ID */
    END. /* IF AVAIL sys-ctrl AND sys-ctrl.log-fld */
     
   IF AVAILABLE job THEN DO:

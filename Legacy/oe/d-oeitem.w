@@ -1553,7 +1553,7 @@ DO:
 
     IF v-date-change-reason GT "" THEN
         ASSIGN oe-ordl.spare-char-3 = v-date-change-reason               
-               oe-ordl.spare-char-4 = USERID("NOSWEAT").
+               oe-ordl.spare-char-4 = USERID("ASI").
    
   END.
   
@@ -1570,7 +1570,7 @@ DO:
        OUTPUT v-date-change-reason, OUTPUT v-added-rowid)  .
 
     IF v-date-change-reason GT "" THEN
-        ASSIGN oe-ordl.spare-char-5 = USERID("NOSWEAT") + "," + v-date-change-reason.                              
+        ASSIGN oe-ordl.spare-char-5 = USERID("ASI") + "," + v-date-change-reason.                              
    
   END.
   
@@ -3299,7 +3299,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           NO-LOCK NO-ERROR.
 
      IF AVAIL usergrps AND
-        (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
+        (NOT CAN-DO(usergrps.users,USERID("ASI")) AND
          TRIM(usergrps.users) NE "*") THEN
         ASSIGN
            oe-ordl.cost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
@@ -6455,7 +6455,7 @@ PROCEDURE get-prom-dt-info :
 /*        NO-LOCK NO-ERROR.                                       */
 /*     IF AVAIL rejct-cd THEN                                     */
 /*       fiPromDtChangeDesc:SCREEN-VALUE = rejct-cd.dscr.         */
-/*     oe-ordl.spare-char-4:SCREEN-VALUE = USERID("NOSWEAT").     */
+/*     oe-ordl.spare-char-4:SCREEN-VALUE = USERID("ASI").     */
 /*   END.                                                         */
 END PROCEDURE.
 

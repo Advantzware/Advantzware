@@ -11,7 +11,7 @@
 /* CONNECT -pf {&dbDir}/addon/rfq-tst.pf.      */
 /* commented out by DGD 04/01/2007 to remove error messages. */
 
-CONNECT -H asisbs -N TCP -S 3802 -db nosweat   -ld NOSWEAT.
+/* CONNECT -H asisbs -N TCP -S 3802 -db nosweat   -ld NOSWEAT. */
 CONNECT -H asisbs -N tcp -S 3800 -db	asi       -ld ASI.
 CONNECT -H asisbs -N tcp -S 3801 -db asihelp   -ld ASIHLP.
 CONNECT -H asisbs -N tcp -S 3808 -db emptrack  -ld EMPTRACK.

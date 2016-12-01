@@ -18,7 +18,7 @@
 " " ~
 */
 
-&Scoped-define lookup-db NOSWEAT.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file prgrms
 &Scoped-define where-statement INDEX(prgrms.prgmname,'.') NE 0
 &Scoped-define return-field prgmname

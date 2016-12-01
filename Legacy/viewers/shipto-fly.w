@@ -1385,27 +1385,27 @@ PROCEDURE ship-zip :
                            
 /*   DO WITH FRAME {&FRAME-NAME}:                                        */
 /*     IF shipto.ship-zip:SCREEN-VALUE NE "" THEN                        */
-/*     FIND FIRST nosweat.zipcode                                        */
-/*         WHERE nosweat.zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE */
+/*     FIND FIRST ASI.zipcode                                        */
+/*         WHERE ASI.zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE */
 /*         NO-LOCK NO-ERROR.                                             */
-/*     IF AVAIL nosweat.zipcode THEN DO:                                 */
-/*       shipto.ship-state:SCREEN-VALUE = nosweat.zipcode.state.         */
+/*     IF AVAIL ASI.zipcode THEN DO:                                 */
+/*       shipto.ship-state:SCREEN-VALUE = ASI.zipcode.state.         */
 /*       IF shipto.ship-city:SCREEN-VALUE EQ "" THEN                     */
-/*         shipto.ship-city:SCREEN-VALUE = nosweat.zipcode.city.         */
+/*         shipto.ship-city:SCREEN-VALUE = ASI.zipcode.city.         */
 /*     END.                                                              */
 /*   END.                                                                */
   DO WITH FRAME {&FRAME-NAME}:
     IF shipto.ship-zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE
+    FIND FIRST ASI.zipcode
+        WHERE ASI.zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN DO:
-      shipto.ship-state:SCREEN-VALUE = nosweat.zipcode.state.
+    IF AVAIL ASI.zipcode THEN DO:
+      shipto.ship-state:SCREEN-VALUE = ASI.zipcode.state.
 /*       IF shipto.ship-city:SCREEN-VALUE EQ "" THEN */
-        shipto.ship-city:SCREEN-VALUE = nosweat.zipcode.city.
+        shipto.ship-city:SCREEN-VALUE = ASI.zipcode.city.
       ASSIGN
-         shipto.carrier:SCREEN-VALUE = nosweat.zipcode.carrier 
-         shipto.dest-code:SCREEN-VALUE = nosweat.zipcode.del-zone.
+         shipto.carrier:SCREEN-VALUE = ASI.zipcode.carrier 
+         shipto.dest-code:SCREEN-VALUE = ASI.zipcode.del-zone.
 /*       DISPLAY shipto.ship-state:SCREEN-VALUE shipto.ship-city:SCREEN-VALUE shipto.carrier:SCREEN-VALUE shipto.dest-code:SCREEN-VALUE WITH FRAME {&FRAME-NAME}. */
     END.
   END. 
@@ -1421,20 +1421,20 @@ PROCEDURE ship-zip-lookup :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF BUFFER b-zipcode FOR nosweat.zipcode.
+DEF BUFFER b-zipcode FOR ASI.zipcode.
 
   DO WITH FRAME {&FRAME-NAME}:
     IF shipto.ship-zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.b-zipcode
-        WHERE nosweat.b-zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE
+    FIND FIRST ASI.b-zipcode
+        WHERE ASI.b-zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.b-zipcode THEN DO:
-      shipto.ship-state:SCREEN-VALUE = nosweat.b-zipcode.state.
+    IF AVAIL ASI.b-zipcode THEN DO:
+      shipto.ship-state:SCREEN-VALUE = ASI.b-zipcode.state.
 /*       IF shipto.ship-city:SCREEN-VALUE EQ "" THEN */
-        shipto.ship-city:SCREEN-VALUE = nosweat.b-zipcode.city.
+        shipto.ship-city:SCREEN-VALUE = ASI.b-zipcode.city.
       ASSIGN
-         shipto.carrier:SCREEN-VALUE = nosweat.b-zipcode.carrier 
-         shipto.dest-code:SCREEN-VALUE = nosweat.b-zipcode.del-zone.
+         shipto.carrier:SCREEN-VALUE = ASI.b-zipcode.carrier 
+         shipto.dest-code:SCREEN-VALUE = ASI.b-zipcode.del-zone.
 /*       DISPLAY shipto.ship-state:SCREEN-VALUE shipto.ship-city:SCREEN-VALUE shipto.carrier:SCREEN-VALUE shipto.dest-code:SCREEN-VALUE WITH FRAME {&FRAME-NAME}. */
     END.
   END. 

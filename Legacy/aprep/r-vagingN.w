@@ -45,10 +45,10 @@ assign
 DEF VAR lv-default-comp AS CHAR NO-UNDO.
 DEF VAR v-count AS INT NO-UNDO INIT 0.
 
-FOR EACH usercomp WHERE usercomp.USER_id = USERID("nosweat") AND  usercomp.loc = "" NO-LOCK :
+FOR EACH usercomp WHERE usercomp.USER_id = USERID("ASI") AND  usercomp.loc = "" NO-LOCK :
     v-count = v-count + 1 .
 END.
-FIND FIRST usercomp WHERE usercomp.USER_id = USERID("nosweat") AND
+FIND FIRST usercomp WHERE usercomp.USER_id = USERID("ASI") AND
                                   usercomp.company_default NO-LOCK NO-ERROR.
 ASSIGN     
 lv-default-comp = IF AVAIL usercomp THEN usercomp.company ELSE "001".

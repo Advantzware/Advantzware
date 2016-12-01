@@ -1089,7 +1089,7 @@ PROCEDURE run-process :
    kest.ord-date = ?
    kest.est-date = today
    kest.rec_key = ls-key
-   kest.entered-id = USERID("nosweat")   .
+   kest.entered-id = USERID("ASI")   .
 
   DISABLE TRIGGERS FOR LOAD OF keb.
 

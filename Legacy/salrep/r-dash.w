@@ -592,7 +592,7 @@ DO:
 
          FOR EACH reftable WHERE
              reftable.reftable EQ "HM1SF" AND
-             reftable.company EQ USERID("NOSWEAT")
+             reftable.company EQ USERID("ASI")
              NO-LOCK,
              FIRST company WHERE
                    company.company = reftable.loc
@@ -630,7 +630,7 @@ DO:
          
          FOR EACH reftable WHERE
              reftable.reftable EQ "HM1" AND
-             reftable.company EQ USERID("NOSWEAT") AND
+             reftable.company EQ USERID("ASI") AND
              reftable.loc = fi_company
              NO-LOCK,
              FIRST mach WHERE
@@ -663,7 +663,7 @@ DO:
 
          FOR EACH reftable WHERE
              reftable.reftable EQ "HM1Acct" AND
-             reftable.company EQ USERID("NOSWEAT") AND
+             reftable.company EQ USERID("ASI") AND
              reftable.loc = fi_company:SCREEN-VALUE
              NO-LOCK,
              FIRST account WHERE
@@ -744,7 +744,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
      FOR EACH reftable WHERE
          reftable.reftable EQ "HM1SF" AND
-         reftable.company EQ USERID("NOSWEAT")
+         reftable.company EQ USERID("ASI")
          NO-LOCK,
          FIRST company WHERE
                company.company = reftable.loc
@@ -768,7 +768,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
      FOR EACH reftable WHERE
          reftable.reftable EQ "HM1" AND
-         reftable.company EQ USERID("NOSWEAT") AND
+         reftable.company EQ USERID("ASI") AND
          reftable.loc = fi_company:SCREEN-VALUE
          NO-LOCK,
          FIRST mach WHERE
@@ -800,7 +800,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
      FOR EACH reftable WHERE
          reftable.reftable EQ "HM1Acct" AND
-         reftable.company EQ USERID("NOSWEAT") AND
+         reftable.company EQ USERID("ASI") AND
          reftable.loc = fi_company:SCREEN-VALUE
          NO-LOCK,
          FIRST account WHERE
@@ -3526,7 +3526,7 @@ PROCEDURE saveparameters :
 ------------------------------------------------------------------------------*/
    DEF VAR v-user AS CHAR NO-UNDO.
 
-   v-user = USERID("NOSWEAT").
+   v-user = USERID("ASI").
        
    DO TRANSACTION:
    

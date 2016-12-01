@@ -63,7 +63,7 @@ DO TRANSACTION:
      probe.est-qty      = {1}
      probe.line         = v-line
      probe.freight      = li-rels
-     probe.probe-user   = USERID("nosweat").
+     probe.probe-user   = USERID("ASI").
   END.
 
   ASSIGN

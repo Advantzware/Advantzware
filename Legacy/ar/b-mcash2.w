@@ -550,7 +550,7 @@ PROCEDURE local-create-record :
   BUFFER-COPY ar-mcash EXCEPT rec_key actnum check-amt TO ar-mcashl
   ASSIGN
    ar-mcashl.m-no = li-next-mno
-   ar-mcashl.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999").
+   ar-mcashl.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
 
   CREATE rec_key.
   ASSIGN

@@ -299,7 +299,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
 ON MOUSE-SELECT-DBLCLICK OF BROWSE-2 IN FRAME D-Dialog
 DO:  
-  IF (USERID("nosweat") EQ "asi" OR l-jcMchUpd-sec) AND
+  IF (USERID("ASI") EQ "asi" OR l-jcMchUpd-sec) AND
     AVAILABLE tt-mch-tran THEN DO:
     RUN set-read-only (INPUT NO,
                        INPUT tt-mch-tran.tran-type EQ "HRS").

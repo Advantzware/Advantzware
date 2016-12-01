@@ -2271,7 +2271,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      .
    
     IF bardir-int = 1 THEN DO:
-       FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
+       FIND FIRST users WHERE users.user_id EQ USERID("ASI") NO-LOCK NO-ERROR.
        IF AVAIL users AND users.user_program[3] NE "" THEN
            ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3]
                   userLabelPath = users.USER_program[3].       
@@ -2312,7 +2312,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        begin_filename:SCREEN-VALUE = bardir-desc.
 
     IF bardir-int = 1 THEN DO:
-       FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
+       FIND FIRST users WHERE users.user_id EQ USERID("ASI") NO-LOCK NO-ERROR.
        IF AVAIL users AND users.user_program[3] NE "" THEN
            ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3].                  
     END.
@@ -3415,7 +3415,7 @@ PROCEDURE create-text-file :
   DEF VAR liTagCounter AS INT NO-UNDO.
   DEF VAR cTmpFile AS CHAR NO-UNDO.
 
-  cTmpFile = SESSION:TEMP-DIRECTORY + "/" + USERID("NOSWEAT") + STRING(TIME).
+  cTmpFile = SESSION:TEMP-DIRECTORY + "/" + USERID("ASI") + STRING(TIME).
   FIND FIRST w-ord NO-ERROR.
   DEF BUFFER bf-cust FOR cust.
 

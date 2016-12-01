@@ -7,7 +7,7 @@ DEF BUFFER b-ap-inv FOR ap-inv.
 FOR EACH ap-inv NO-LOCK
     WHERE ap-inv.company  EQ ip-company
       AND ap-inv.posted   EQ NO
-      AND ap-inv.user-id  EQ USERID("nosweat")
+      AND ap-inv.user-id  EQ USERID("ASI")
       AND (ap-inv.inv-no  BEGINS FILL(" ",100) OR
            ap-inv.i-no    EQ 0):
 

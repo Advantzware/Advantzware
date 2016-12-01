@@ -50,9 +50,9 @@ ASSIGN
 
 DEFINE TEMP-TABLE tt-note NO-UNDO
   FIELD employee LIKE emplogin.employee
-  FIELD rec_key LIKE nosweat.notes.rec_key
-  FIELD note_date LIKE nosweat.notes.note_date
-  FIELD note_title LIKE nosweat.notes.note_title
+  FIELD rec_key LIKE ASI.notes.rec_key
+  FIELD note_date LIKE ASI.notes.note_date
+  FIELD note_title LIKE ASI.notes.note_title
   FIELD note_src AS CHARACTER
   INDEX noteindex employee note_date.
 

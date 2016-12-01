@@ -8,17 +8,16 @@
 {methods/defines/hndldefs.i &NEW="NEW"}
 
 DEFINE NEW SHARED VARIABLE quit_login AS LOGICAL NO-UNDO.
-DEFINE VARIABLE m_id LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE VARIABLE m_id LIKE ASI._user._userid NO-UNDO.
 DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEF NEW GLOBAL SHARED VAR g-sharpshooter AS LOG NO-UNDO.  /* no, it's yes only from sharpsh.p */
 
-g-sharpshooter = NO.
-
 ASSIGN
+  g-sharpshooter = NO
   ldummy = SESSION:SET-WAIT-STATE("GENERAL")
-  g_version = "2.1A-8.2A".
-
+  g_version = "2.1A-8.2A"
+  .
 /*m_id = OS-GETENV("opsysid").                          */
 /*                                                      */
 /*IF m_id = ? THEN m_id = "".                           */
@@ -43,7 +42,6 @@ ASSIGN
 /*g_track_usage = users.track_usage.                                  */
 
 FOR EACH parmfile NO-LOCK:
-
   IF SEARCH (parmfile.parmfile) > "" THEN 
     CONNECT -pf VALUE(parmfile.parmfile) NO-ERROR.
   ELSE 
@@ -52,8 +50,7 @@ FOR EACH parmfile NO-LOCK:
   ELSE DO:
       MESSAGE "Cannot find .pf file: " parmfile.parmfile SKIP 
       REPLACE (parmfile.parmfile, ".~\", "")
-          VIEW-AS ALERT-BOX ERROR .
-          
+          VIEW-AS ALERT-BOX ERROR .          
       RETURN .     
   END.
   
@@ -70,8 +67,7 @@ END.
 /*IF userid("nosweat") = "ASI" OR USERID("nosweat") = "NOSWEAT" THEN RUN asiload.p.*/
 
 RUN chkdate.p.
-IF CONNECTED("NOSWEAT") THEN
-DO:
+IF CONNECTED("ASI") THEN DO:
   RUN createSingleUserPFs.
   {methods/setdevid.i}
   RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
@@ -79,17 +75,14 @@ DO:
   RUN Get_Procedure IN Persistent-HANDLE ("user_dir.",OUTPUT run-proc,YES).
   g_groups = "". /* YSK need to reset */
   FOR EACH usergrps NO-LOCK:
-    IF CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN
+    IF CAN-DO(usergrps.users,USERID("ASI")) THEN
     g_groups = g_groups + usergrps.usergrps + ",".  /* YSK "," added  */
   END.
   
   init_menu = YES.
   DO WHILE init_menu:
     init_menu = NO.
-
-
-/*    RUN Advantzware/Windows/SmartFramework/Menu/mainmenu_stub.p PERSISTENT .*/
-
+/*    RUN Advantzware/Windows/SmartFramework/Menu/mainmenu_stub.p PERSISTENT . */
 /*ASSIGN                                                                       */
 /*  g_init = TRUE                                                              */
 /*  g_company = ""                                                             */
@@ -103,20 +96,17 @@ DO:
 /*      "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.*/
 /*  RETURN.                                                                    */
 /*END.                                                                         */
-
     RUN Advantzware/Windows/SmartFramework/Menu/start.p . 
-
 /*    RUN Get_Procedure IN Persistent-Handle ("{&execProgram}",OUTPUT run-proc,yes).*/
   END.
 END.
-ELSE
-DO:
+ELSE DO:
   ldummy = SESSION:SET-WAIT-STATE("").
-  MESSAGE "CONNECT to NOSWEAT'S Database Failed" SKIP(1)
+  MESSAGE "CONNECT to ASI Database Failed" SKIP(1)
     "Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
 END. 
 
-ldummy = SESSION:SET-WAIT-STATE("").
+SESSION:SET-WAIT-STATE("").
 QUIT.
 
 PROCEDURE createSingleUserPFs:

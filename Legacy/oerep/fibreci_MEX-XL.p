@@ -80,7 +80,7 @@ DEFINE new SHARED TEMP-TABLE tt-filelist
 DEF BUFFER tt-freight-class-1 FOR tt-freight-class.
 
 FIND FIRST users WHERE
-     users.user_id EQ USERID("NOSWEAT")
+     users.user_id EQ USERID("ASI")
      NO-LOCK NO-ERROR.
 
 IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -491,7 +491,7 @@ PROCEDURE FillData :
 
  ASSIGN
      chWorkSheet:Range("A" + STRING(viCount)):value = "Se declara bajo protesta de decir verdad:"
-     v-sig-image = "signature\spanish\" + USERID("nosweat") + ".jpg"
+     v-sig-image = "signature\spanish\" + USERID("ASI") + ".jpg"
      FILE-INFO:FILE-NAME = v-sig-image.
      
   /*ESP - Only way I know how to get signature to work is for it to be on its own line */

@@ -89,7 +89,7 @@ FOR EACH oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no,
 
   DO TRANSACTION:
     oe-relh.printed = YES.
-    oe-relh.spare-char-3 = USERID("NOSWEAT").
+    oe-relh.spare-char-3 = USERID("ASI").
       FIND oe-bolh WHERE ROWID(oe-bolh) EQ iprBolh EXCLUSIVE-LOCK NO-ERROR.
     IF NOT AVAIL oe-bolh THEN DO:
       {oe/oe-bolno.i} 

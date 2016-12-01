@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -254,20 +254,20 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "NOSWEAT.phone,NOSWEAT.rec_key OF NOSWEAT.phone,NOSWEAT.prgmxref OF NOSWEAT.rec_key"
+     _TblList          = "ASI.phone,ASI.rec_key OF ASI.phone,ASI.prgmxref OF ASI.rec_key"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,,"
      _Where[1]         = "attention CONTAINS word_search OR word_search = ''"
-     _FldNameList[1]   = NOSWEAT.phone.attention
-     _FldNameList[2]   = NOSWEAT.phone.phone_ctry_code
-     _FldNameList[3]   = NOSWEAT.phone.phone_city_code
-     _FldNameList[4]   = NOSWEAT.phone.phone
-     _FldNameList[5]   = NOSWEAT.phone.phone_ext
-     _FldNameList[6]   = NOSWEAT.phone.fax_ctry_code
-     _FldNameList[7]   = NOSWEAT.phone.fax_city_code
-     _FldNameList[8]   = NOSWEAT.phone.fax
-     _FldNameList[9]   = NOSWEAT.rec_key.table_name
-     _FldNameList[10]   = NOSWEAT.prgmxref.prgmname
+     _FldNameList[1]   = ASI.phone.attention
+     _FldNameList[2]   = ASI.phone.phone_ctry_code
+     _FldNameList[3]   = ASI.phone.phone_city_code
+     _FldNameList[4]   = ASI.phone.phone
+     _FldNameList[5]   = ASI.phone.phone_ext
+     _FldNameList[6]   = ASI.phone.fax_ctry_code
+     _FldNameList[7]   = ASI.phone.fax_city_code
+     _FldNameList[8]   = ASI.phone.fax
+     _FldNameList[9]   = ASI.rec_key.table_name
+     _FldNameList[10]   = ASI.prgmxref.prgmname
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

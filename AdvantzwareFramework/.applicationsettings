@@ -1,6 +1,6 @@
 {
     "appServerKeepAlivePeriod":"120",
-    "authenticationDb":"nosweat",
+    "authenticationDb":"asi",
     "authenticateWithDomainName": "false",
     "homePageUrl":"http://www.consultingwerk.de",
     "_frameworkLoader":"Consultingwerk.SmartComponentsDemo.CustomerExplorer.FrameworkLoader",
@@ -12,5 +12,7 @@
     "SmtpSenderName":"no-reply@consultingwerk.de",
     
     "AnnotationCacheMaxAge": "60",
-    "BusinessEntityDescriptorCacheMaxAge": "60"        
+    "BusinessEntityDescriptorCacheMaxAge": "60"   ,
+    
+    "InfragisticsStyleSheetFolder": "Advantzware/Windows/Styles"     
 }

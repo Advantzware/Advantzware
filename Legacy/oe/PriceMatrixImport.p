@@ -244,7 +244,7 @@ PROCEDURE InitializeLogFile :
   Notes:       
 ------------------------------------------------------------------------------*/
 FIND FIRST users 
-    WHERE users.user_id EQ USERID("nosweat")  
+    WHERE users.user_id EQ USERID("ASI")  
     NO-LOCK NO-ERROR.
  
 IF AVAIL users AND users.user_program[2] NE "" THEN

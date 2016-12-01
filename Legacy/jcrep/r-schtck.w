@@ -78,7 +78,7 @@ DEF VAR v-dir AS CHAR NO-UNDO.
 /* {cecrep/tt-artios.i "NEW"} */
 
 /* FIND FIRST users                                               */
-/*     WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR. */
+/*     WHERE users.user_id EQ USERID("ASI") NO-LOCK NO-ERROR. */
 /* IF AVAIL users AND users.user_program[2] NE "" THEN            */
 /*    v-dir = users.user_program[2] + "\".                        */
 /* ELSE                                                           */
@@ -1106,7 +1106,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*   END.                                                                                                                                                           */
 /*                                                       */
 /*   FIND FIRST users WHERE                              */
-/*        users.user_id EQ USERID("NOSWEAT")             */
+/*        users.user_id EQ USERID("ASI")             */
 /*        NO-LOCK NO-ERROR.                              */
 /*                                                       */
 /*   IF AVAIL users AND users.user_program[2] NE "" THEN */
@@ -1520,7 +1520,7 @@ ASSIGN
  s-prt-ship-split       = tb_prompt-ship.
 
 FIND FIRST users 
-    WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
+    WHERE users.user_id EQ USERID("ASI") NO-LOCK NO-ERROR.
 IF AVAIL users AND users.user_program[2] NE "" 
   THEN init-dir = users.user_program[2].
   ELSE init-dir = "c:\tmp".

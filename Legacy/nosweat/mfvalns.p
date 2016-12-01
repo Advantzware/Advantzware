@@ -18,5 +18,5 @@ DEFINE INPUT PARAMETER ip-group AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ip-rec_key AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ip-header AS CHARACTER NO-UNDO.                            
                             
-&SCOPED-DEFINE dbnm NOSWEAT.
+&SCOPED-DEFINE dbnm ASI.
 {nosweat/mfvalues.w}

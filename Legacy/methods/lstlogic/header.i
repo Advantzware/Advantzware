@@ -3,7 +3,7 @@
 DEFINE VARIABLE rpt_title AS CHARACTER FORMAT "x(36)" NO-UNDO.
 DEFINE VARIABLE rpt_name AS CHARACTER FORMAT "x(20)" NO-UNDO.
 
-FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK.
+FIND users WHERE users.user_id = USERID("ASI") NO-LOCK.
 
 ASSIGN
   SUBSTR(rpt_title,16 - INT(LENGTH(bprgrms.prgtitle) / 2)) = bprgrms.prgtitle

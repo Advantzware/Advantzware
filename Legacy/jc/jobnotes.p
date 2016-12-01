@@ -30,7 +30,7 @@ IF AVAIL est THEN DO:
   ASSIGN
      v-old-job-rec_key = io-job.rec_key
      io-job.rec_key = STRING(TODAY,"99999999") +
-                      STRING(NEXT-VALUE(rec_key_seq,nosweat),"99999999").
+                      STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
 
   CREATE rec_key.
   ASSIGN
@@ -69,8 +69,8 @@ IF AVAIL est THEN DO:
      RUN touch/savenoteA.p (io-job.rec_key,STRING(io-job.job)).
     
   END.
-  /*IF CAN-FIND(FIRST nosweat._file WHERE
-                    nosweat._file._file-name = "mfgroup") THEN
+  /*IF CAN-FIND(FIRST ASI._file WHERE
+                    ASI._file._file-name = "mfgroup") THEN
      RUN custom/mfvalue-rec-key-update.p(INPUT v-old-job-rec_key,
                                          INPUT io-job.rec_key).*/
 END.

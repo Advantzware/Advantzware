@@ -2278,8 +2278,8 @@ PROCEDURE create-wiptag :
    wiptag.sts          = IF vl-InputParameters THEN "Issued" ELSE "Printed"
    wiptag.tag-date     = w-job.tag-date
    wiptag.tag-time     = (INT(SUBSTRING(w-job.tag-timex,1,2)) * 3600) + (INT(SUBSTRING(w-job.tag-timex,4)) * 60)
-   wiptag.crt-user     = USERID("NOSWEAT")
-   wiptag.upd-user     = USERID("NOSWEAT")
+   wiptag.crt-user     = USERID("ASI")
+   wiptag.upd-user     = USERID("ASI")
    wiptag.crt-time     = w-job.upd-time
    wiptag.upd-time     = w-job.upd-time
    wiptag.crt-date     = w-job.upd-date
@@ -3035,7 +3035,7 @@ PROCEDURE reprintTag :
         ASSIGN
            wiptag.upd-date = TODAY
            wiptag.upd-time = TIME
-           wiptag.upd-user = USERID("NOSWEAT")
+           wiptag.upd-user = USERID("ASI")
            wiptag.tag-date = w-job.tag-date
            wiptag.tag-time = (INT(SUBSTRING(w-job.tag-timex,1,2)) * 3600) + (INT(SUBSTRING(w-job.tag-timex,4)) * 60)
            wiptag.partial  = w-job.partial

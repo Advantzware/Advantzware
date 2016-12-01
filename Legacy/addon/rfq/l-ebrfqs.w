@@ -57,7 +57,7 @@ DEF VAR period_pos AS INTEGER NO-UNDO.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
        INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
        INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-   v-prgmname = USERID("NOSWEAT") + "..".
+   v-prgmname = USERID("ASI") + "..".
 ELSE ASSIGN period_pos = INDEX(PROGRAM-NAME(1),".")
             v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 9) + 1)
             v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).

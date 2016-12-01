@@ -164,7 +164,7 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME DIALOG-1 /* OK */
 DO:                
   ASSIGN m_id m_password.
-  IF NOT SETUSERID(m_id,m_password,"NOSWEAT") THEN
+  IF NOT SETUSERID(m_id,m_password,"ASI") THEN
   MESSAGE "Invalid User ID / Password, Please Re-enter" 
       VIEW-AS ALERT-BOX ERROR.
   ELSE
@@ -224,9 +224,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       m_id:SCREEN-VALUE       = "asi"
       m_password:SCREEN-VALUE = "yorkie".
 
-  IF USERID("NOSWEAT") NE "" THEN
+  IF USERID("ASI") NE "" THEN
   DO:
-    m_id:SCREEN-VALUE = USERID("NOSWEAT").
+    m_id:SCREEN-VALUE = USERID("ASI").
     APPLY "ENTRY" TO m_password.
   END.
   ldummy = SESSION:SET-WAIT-STATE("").

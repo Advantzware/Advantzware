@@ -47,7 +47,7 @@ PROCEDURE pc-prdhCreate:
       pc-prdh.m-code = ipMCode
       pc-prdh.shift = ipShift
       pc-prdh.trans-date = ipTransDate
-      pc-prdh.user-id = USERID('NOSWEAT')
+      pc-prdh.user-id = USERID("ASI")
       pc-prdh.dept = mach.dept[1].
   END.
 END PROCEDURE.

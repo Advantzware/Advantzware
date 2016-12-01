@@ -4,7 +4,7 @@
 {methods/defines/hndldefs.i &NEW="NEW"}
 
 DEFINE NEW SHARED VARIABLE quit_login AS LOGICAL NO-UNDO.
-DEFINE VARIABLE m_id LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE VARIABLE m_id LIKE ASI._user._userid NO-UNDO.
 DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
@@ -17,18 +17,18 @@ IF m_id = ? THEN
 m_id = "".
 
 /*
-IF NOT SETUSERID(m_id,"","NOSWEAT") OR m_id EQ "" THEN
+IF NOT SETUSERID(m_id,"","ASI") OR m_id EQ "" THEN
 RUN nosweat/login.w.  */
 
-if setuserid ("loadtag", "loadtag", "nosweat") then.
+if setuserid ("loadtag", "loadtag", "ASI") then.
 
-IF USERID("NOSWEAT") = "" OR quit_login THEN
+IF USERID("ASI") = "" OR quit_login THEN
 DO:
   ldummy = SESSION:SET-WAIT-STATE("").
   QUIT.
 END.
 
-FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.
+FIND users WHERE users.user_id = USERID("ASI") NO-LOCK NO-ERROR.
 IF NOT AVAILABLE users THEN
 DO:     
   ldummy = SESSION:SET-WAIT-STATE("").
@@ -50,7 +50,7 @@ END.
 
 RUN chkdate.p.
 
-IF CONNECTED("NOSWEAT") THEN
+IF CONNECTED("ASI") THEN
 DO:
   {methods/setdevid.i}
   RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
@@ -59,7 +59,7 @@ DO:
   g_groups = "". /* YSK need to reset */
   
   FOR EACH usergrps NO-LOCK:
-    IF CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN
+    IF CAN-DO(usergrps.users,USERID("ASI")) THEN
     g_groups = g_groups + usergrps.usergrps + ",".  /* ysk "," added  */
   END.
   

@@ -430,7 +430,7 @@ FOR EACH bf-itemfg
        fg-rctd.po-no = TRIM(STRING(bf-fg-bin.po-no,">>>>>>>>>>")).
        
 
-       begin_userid = USERID("NOSWEAT").
+       begin_userid = USERID("ASI").
        END_userid   = begin_userid.
 
        {fg/fg-cpost.i}

@@ -249,7 +249,7 @@ DO:   /* must run from laptop only not from server */
            view-as alert-box question button yes-no update ll-ans as log.
    if not ll-ans then return no-apply.
                
-  /* init-dir = "users\" + USERID("NOSWEAT") + "\contactx.rpt".  */
+  /* init-dir = "users\" + USERID("ASI") + "\contactx.rpt".  */
   
    SESSION:SET-WAIT-STATE("GENERAL").
    status default "Connecting to Server. Please wait." .
@@ -272,9 +272,9 @@ DO:   /* must run from laptop only not from server */
                                              emp_server.contact.sman <= end-sman
                                   :
        find emp_server.usergrps where emp_server.usergrps.usergrps = "sman" no-lock no-error.
-       if not can-do(emp_server.usergrps.users,userid("Nosweat")) then next.
+       if not can-do(emp_server.usergrps.users,USERID("ASI")) then next.
 
-       find emp_server.usergrps where emp_server.usergrps.usergrps = userid("nosweat") no-lock no-error.
+       find emp_server.usergrps where emp_server.usergrps.usergrps = USERID("ASI") no-lock no-error.
        if not can-do(emp_server.usergrps.users,contact.sman) then next.
 
        /*export contact.*/
@@ -338,7 +338,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
  
   /* this procedure must run from laptop only not on server */
-   if index(dbparam("nosweat"),"-1") <= 0 then do:
+   if index(dbparam("ASI"),"-1") <= 0 then do:
       message "This Procedure Can Run Only From Laptop or Single User." view-as alert-box error.
       APPLY "CLOSE" TO THIS-PROCEDURE.
       return.

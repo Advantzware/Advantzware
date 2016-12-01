@@ -499,7 +499,7 @@ END.
 {sys/inc/f3help.i}
 
 ON 'MOUSE-SELECT-DBLCLICK':U OF {&browse-name} DO:
-  IF USERID("nosweat") EQ "asi" THEN DO:
+  IF USERID("ASI") EQ "asi" THEN DO:
     RUN set-read-only (NO).
 
     APPLY "entry" TO w-job.cust-no IN BROWSE {&browse-name}.
@@ -561,7 +561,7 @@ DO:
         NO-LOCK NO-ERROR.
 
    IF AVAIL usergrps AND
-      (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
+      (NOT CAN-DO(usergrps.users,USERID("ASI")) AND
        TRIM(usergrps.users) NE "*") THEN
       ASSIGN
          w-job.std-tot-cost:VISIBLE IN BROWSE {&browse-name} = NO

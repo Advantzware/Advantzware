@@ -937,9 +937,9 @@ PROCEDURE getUserNames :
     ldummy = userName:ADD-LAST(users.user_id).
   END.
   ASSIGN
-    userName:SCREEN-VALUE = USERID('NoSweat')
+    userName:SCREEN-VALUE = USERID("ASI")
     userName.
-  IF NOT CAN-DO('ASI,NoSweat',USERID('NoSweat')) THEN
+  IF NOT CAN-DO('ASI,NoSweat',USERID("ASI")) THEN
   DISABLE userName WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.

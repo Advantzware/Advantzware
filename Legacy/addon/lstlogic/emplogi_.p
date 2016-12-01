@@ -47,9 +47,9 @@ END PROCEDURE. /* List-Logic */
 
 /* edited =========*/
 def temp-table tt-note field employee like emplogin.employee
-                       field rec_key like nosweat.notes.rec_key
-                       field note_date like nosweat.notes.note_date
-                       field note_title like nosweat.notes.note_title
+                       field rec_key like ASI.notes.rec_key
+                       field note_date like ASI.notes.note_date
+                       field note_title like ASI.notes.note_title
                        field note_src as cha .
 
 PROCEDURE list-logic:

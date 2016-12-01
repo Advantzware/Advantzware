@@ -35,7 +35,7 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-v-prgmname = USERID("NOSWEAT") + "..".
+v-prgmname = USERID("ASI") + "..".
 ELSE
 ASSIGN
   period_pos = INDEX(PROGRAM-NAME(1),".")
@@ -725,7 +725,7 @@ PROCEDURE InitializeLogFile :
   Notes:       
 ------------------------------------------------------------------------------*/
 FIND FIRST users 
-    WHERE users.user_id EQ USERID("nosweat")  
+    WHERE users.user_id EQ USERID("ASI")  
     NO-LOCK NO-ERROR.
  
 IF AVAIL users AND users.user_program[2] NE "" THEN

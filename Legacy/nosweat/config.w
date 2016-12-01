@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -259,7 +259,7 @@ THEN C-Win:HIDDEN = no.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME DEFAULT-FRAME
 /* Query rebuild information for FRAME DEFAULT-FRAME
-     _TblList          = "nosweat.config"
+     _TblList          = "ASI.config"
      _Query            is OPENED
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME

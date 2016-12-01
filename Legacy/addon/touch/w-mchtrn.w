@@ -687,7 +687,7 @@ PROCEDURE select_dept2 :
         RUN touch/copynote.p (job.rec_key).
        /* move to touch/copynote.p
         FOR EACH nosweat-asi.notes WHERE asi.notes.rec_key = job.rec_key NO-LOCK:
-           BUFFER-COPY nosweat-asi.notes TO nosweat.notes. 
+           BUFFER-COPY nosweat-asi.notes TO ASI.notes. 
         END.
        */     
      */

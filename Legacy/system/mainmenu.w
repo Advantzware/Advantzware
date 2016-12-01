@@ -328,7 +328,7 @@ END.
 /*  defined on the window.)                                             */
 ON WINDOW-CLOSE OF {&WINDOW-NAME} DO:
   closeMenu = YES.
-  IF USERID('nosweat') NE "Nosweat" THEN
+  IF USERID("ASI") NE "ASI" THEN
   MESSAGE 'Exit AdvantzWare?' VIEW-AS ALERT-BOX
       QUESTION BUTTONS YES-NO UPDATE closeMenu.
   IF NOT closeMenu THEN RETURN NO-APPLY.
@@ -538,8 +538,8 @@ PROCEDURE Read_Menus :
 
   ls-menu-lst[1] = TRIM(ls-menu-lst[1]) + "." + TRIM(ls-menu-lst[2]).
   /* ========== end of mods =========================*/
-  IF SEARCH("usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1]) <> ? THEN
-      ls-menu-lst[1] = "usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1].
+  IF SEARCH("usermenu\" + USERID("ASI") + "\" + ls-menu-lst[1]) <> ? THEN
+      ls-menu-lst[1] = "usermenu\" + USERID("ASI") + "\" + ls-menu-lst[1].
 
   INPUT FROM VALUE(ls-menu-lst[1]) NO-ECHO.
   REPEAT:

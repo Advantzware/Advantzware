@@ -379,7 +379,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   {methods/nowait.i}
      FIND FIRST usercomp WHERE
-      usercomp.user_id = userid("nosweat") AND
+      usercomp.user_id = USERID("ASI") AND
       usercomp.loc = '' AND
       usercomp.company_default = YES
       NO-LOCK NO-ERROR.

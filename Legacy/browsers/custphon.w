@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
@@ -308,22 +308,22 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "NOSWEAT.phone WHERE asi.emailcod <external> ... ...,asi.cust WHERE NOSWEAT.phone ..."
+     _TblList          = "ASI.phone WHERE asi.emailcod <external> ... ...,asi.cust WHERE ASI.phone ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, FIRST USED"
-     _JoinCode[1]      = "NOT NOSWEAT.phone.table_rec_key = ''"
+     _JoinCode[1]      = "NOT ASI.phone.table_rec_key = ''"
      _JoinCode[2]      = "cust.rec_key EQ phone.table_rec_key"
      _FldNameList[1]   > asi.cust.cust-no
 "cust.cust-no" ? ? "character" ? ? ? 4 15 ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.cust.name
 "cust.name" ? ? "character" ? ? ? 4 15 ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > NOSWEAT.phone.attention
+     _FldNameList[3]   > ASI.phone.attention
 "phone.attention" ? ? "character" ? ? ? 4 15 ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > NOSWEAT.phone.titlcode
+     _FldNameList[4]   > ASI.phone.titlcode
 "phone.titlcode" "Title" ? "character" ? ? ? 4 15 ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.cust.rec_key
 "cust.rec_key" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > NOSWEAT.phone.rec_key
+     _FldNameList[6]   > ASI.phone.rec_key
 "phone.rec_key" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

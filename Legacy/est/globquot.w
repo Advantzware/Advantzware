@@ -833,7 +833,7 @@ lv-reft = "est/globquot.w"              + " " +
           STRING(MONTH(TODAY),"99")     +
           STRING(DAY(TODAY),"99")       + " " +
           STRING(TIME,"99999")          + " " +
-          USERID("nosweat")             + " " +
+          USERID("ASI")             + " " +
           STRING(cocode,"x(10)")        + " " +
           STRING(locode,"x(10)").
 

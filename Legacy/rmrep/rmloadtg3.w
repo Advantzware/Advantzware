@@ -859,7 +859,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        userLabelPath = bardir-desc.
 
     IF bardir-int = 1 THEN DO:
-       FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
+       FIND FIRST users WHERE users.user_id EQ USERID("ASI") NO-LOCK NO-ERROR.
        IF AVAIL users AND users.user_program[3] NE "" THEN
            ASSIGN scr-text-file-path:SCREEN-VALUE = users.user_program[3]
                   userLabelPath = users.USER_program[3].       
@@ -1083,7 +1083,7 @@ PROCEDURE create-loadtag :
        rm-rctd.loc        = loadtag.loc
        rm-rctd.loc-bin    = loadtag.loc-bin
        rm-rctd.tag        = loadtag.tag-no
-       rm-rctd.user-id  = USERID("nosweat")
+       rm-rctd.user-id  = USERID("ASI")
        rm-rctd.upd-date = TODAY
        rm-rctd.upd-time = TIME. 
 

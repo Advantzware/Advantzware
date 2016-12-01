@@ -67,7 +67,7 @@ DEFINE VARIABLE save-rowid AS ROWID NO-UNDO.
 &Scoped-define ENABLED-FIELDS-IN-QUERY-companies 
 &Scoped-define FIELD-PAIRS-IN-QUERY-companies
 &Scoped-define OPEN-QUERY-companies OPEN QUERY companies FOR EACH usercomp ~
-      WHERE usercomp.user_id = USERID('NOSWEAT') AND ~
+      WHERE usercomp.user_id = USERID("ASI") AND ~
 usercomp.loc = '' AND ~
 (IF g_init THEN usercomp.company_default = yes ~
  ELSE TRUE) NO-LOCK, ~
@@ -82,7 +82,7 @@ usercomp.loc = '' AND ~
 &Scoped-define ENABLED-FIELDS-IN-QUERY-locations 
 &Scoped-define FIELD-PAIRS-IN-QUERY-locations
 &Scoped-define OPEN-QUERY-locations OPEN QUERY locations FOR EACH usercomp ~
-      WHERE usercomp.user_id = USERID("NOSWEAT") AND ~
+      WHERE usercomp.user_id = USERID("ASI") AND ~
 usercomp.company = company.company AND ~
 usercomp.loc NE "" AND ~
 (IF g_init THEN usercomp.loc_default = yes ~
@@ -241,7 +241,7 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for BROWSE companies
      _TblList          = "ASI.usercomp,ASI.company WHERE ASI.usercomp ..."
      _Options          = "NO-LOCK"
-     _Where[1]         = "usercomp.user_id = USERID('NOSWEAT') AND
+     _Where[1]         = "usercomp.user_id = USERID("ASI") AND
 usercomp.loc = '' AND
 (IF g_init THEN usercomp.company_default = yes
  ELSE TRUE)"
@@ -256,7 +256,7 @@ usercomp.loc = '' AND
 /* Query rebuild information for BROWSE locations
      _TblList          = "ASI.usercomp,ASI.loc OF ASI.usercomp"
      _Options          = "NO-LOCK"
-     _Where[1]         = "usercomp.user_id = USERID(""NOSWEAT"") AND
+     _Where[1]         = "usercomp.user_id = USERID(""ASI"") AND
 usercomp.company = company.company AND
 usercomp.loc NE """" AND
 (IF g_init THEN usercomp.loc_default = yes

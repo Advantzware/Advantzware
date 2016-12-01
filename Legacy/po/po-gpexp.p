@@ -411,7 +411,7 @@ FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
       
       ASSIGN
           cTargetType = "FILE"
-          cFile = session:TEMP-DIR + "\" + USERID("Nosweat") + STRING(TIME)
+          cFile = session:TEMP-DIR + "\" + USERID("ASI") + STRING(TIME)
           lFormatted = YES
           cEncoding = ?
           cSchemaLocation = ?

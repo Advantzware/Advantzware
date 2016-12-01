@@ -566,7 +566,7 @@ PROCEDURE loadPatchData :
         patchhst.run-once = tPatchDat.run-once
         patchhst.descr = tPatchDat.descr
         patchhst.dependancy = tPatchDat.dependancy
-        patchhst.user_id = USERID('NoSweat').
+        patchhst.user_id = USERID("ASI").
     END. /* repeat */
     INPUT CLOSE.
   END.

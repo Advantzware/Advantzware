@@ -1,6 +1,6 @@
 /* usergrps.i
 "usergrps"
-"NOSWEAT"
+"ASI"
 "usergrps"
 "usergrps"
 "User Group"

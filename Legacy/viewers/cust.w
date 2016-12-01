@@ -1949,20 +1949,20 @@ PROCEDURE local-assign-record :
    IF adm-new-record THEN DO:
        
        FOR EACH bf-usercust WHERE bf-usercust.company = cocode
-                 AND bf-usercust.USER_id EQ USERID("nosweat") NO-LOCK,
+                 AND bf-usercust.USER_id EQ USERID("ASI") NO-LOCK,
             FIRST bff-cust WHERE bff-cust.company EQ bf-usercust.company 
                           AND bff-cust.cust-no EQ bf-usercust.cust-no NO-LOCK :
            LEAVE.
        END.
        IF AVAIL bff-cust  THEN
        IF ou-log AND NOT CAN-FIND(FIRST usercust WHERE
-             usercust.user_id EQ USERID("nosweat") AND
+             usercust.user_id EQ USERID("ASI") AND
              usercust.company EQ cocode AND
              usercust.cust-no EQ cust.cust-no) THEN
              DO:
                 CREATE usercust.
                 ASSIGN
-                   usercust.user_id = USERID("nosweat")
+                   usercust.user_id = USERID("ASI")
                    usercust.company = cocode
                    usercust.cust-no = cust.cust-no.
                 RELEASE usercust.

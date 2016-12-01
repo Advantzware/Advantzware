@@ -1498,7 +1498,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   glPaperless  = GetPaperlessLogical().
   
   FIND FIRST users WHERE
-       users.user_id EQ USERID("NOSWEAT")
+       users.user_id EQ USERID("ASI")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -2397,7 +2397,7 @@ if td-show-parm then run show-param.
 
 {sa/sa-sls01.i}
 
-v-term-id = v-term + USERID("nosweat").
+v-term-id = v-term + USERID("ASI").
 
 SESSION:SET-WAIT-STATE ("general").
 

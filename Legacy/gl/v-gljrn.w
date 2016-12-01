@@ -960,7 +960,7 @@ PROCEDURE proc-enable :
         RUN apply-cancel IN WIDGET-HANDLE(char-hdl).
      END.
     
-     IF USERID("nosweat") NE gl-jrn.user-id AND
+     IF USERID("ASI") NE gl-jrn.user-id AND
         gl-jrn.user-id NE ""                THEN DO:
         MESSAGE "This Journal was created by User: " +
                TRIM(gl-jrn.user-id) + ", do you wish update anyway?"
