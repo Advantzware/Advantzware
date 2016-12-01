@@ -494,13 +494,13 @@ PROCEDURE sold-zip :
   
   DO WITH FRAME {&FRAME-NAME}:
     IF soldto.sold-zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ soldto.sold-zip:SCREEN-VALUE
+    FIND FIRST ASI.zipcode
+        WHERE ASI.zipcode.zipcode EQ soldto.sold-zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
-      soldto.sold-state:SCREEN-VALUE = nosweat.zipcode.state.
+    IF AVAIL ASI.zipcode THEN do:
+      soldto.sold-state:SCREEN-VALUE = ASI.zipcode.state.
       IF soldto.sold-city:SCREEN-VALUE EQ "" THEN
-        soldto.sold-city:SCREEN-VALUE = nosweat.zipcode.city.
+        soldto.sold-city:SCREEN-VALUE = ASI.zipcode.city.
     END.
   END.
 END PROCEDURE.

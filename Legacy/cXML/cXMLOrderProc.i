@@ -41,7 +41,7 @@ PROCEDURE genOrderHeader:
                           ,INT(SUBSTR(ipcOrderDate,9,2))
                           ,INT(SUBSTR(ipcOrderDate,1,4)))
     oe-ord.ord-no = ipiNextOrderNumber /*INTEGER(orderID)*/
-    oe-ord.user-id = USERID('NoSweat')
+    oe-ord.user-id = USERID("ASI")
     oe-ord.type = 'O'
     oe-ord.stat = 'W'
     oe-ord.due-code = 'ON'.

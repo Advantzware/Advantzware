@@ -124,7 +124,7 @@ DEF VAR cCustNo AS CHAR NO-UNDO.
          quoteitm.q-no       = quotehd.q-no
          quoteitm.line       = li
          quoteitm.upd-date   = TODAY
-         quoteitm.upd-user   = USERID("nosweat")
+         quoteitm.upd-user   = USERID("ASI")
          quoteitm.part-no    = IF lv-part-no EQ "" THEN itemfg.part-no
                                                    ELSE lv-part-no
          quoteitm.part-dscr1 = itemfg.i-name
@@ -149,7 +149,7 @@ DEF VAR cCustNo AS CHAR NO-UNDO.
        quoteqty.price      = quoteitm.price
        quoteqty.uom        = quoteitm.uom
        quoteqty.quote-date = TODAY
-       quoteqty.quote-user = USERID("nosweat").
+       quoteqty.quote-user = USERID("ASI").
   
       RUN sys/ref/convcuom.p(itemfg.prod-uom, "M", 0, 0, 0, 0,
                              itemfg.std-mat-cost,
@@ -201,7 +201,7 @@ DEF VAR cCustNo AS CHAR NO-UNDO.
          quoteitm.q-no       = quotehd.q-no
          quoteitm.line       = li
          quoteitm.upd-date   = TODAY
-         quoteitm.upd-user   = USERID("nosweat")
+         quoteitm.upd-user   = USERID("ASI")
          quoteitm.part-no    = IF lv-part-no EQ "" THEN itemfg.part-no
                                                    ELSE lv-part-no
          quoteitm.part-dscr1 = itemfg.i-name
@@ -225,7 +225,7 @@ DEF VAR cCustNo AS CHAR NO-UNDO.
        quoteqty.price      = tt-inv.sell-pric
        quoteqty.uom        = tt-inv.pr-qty-uom
        quoteqty.quote-date = TODAY
-       quoteqty.quote-user = USERID("nosweat").
+       quoteqty.quote-user = USERID("ASI").
   
       RUN sys/ref/convcuom.p(itemfg.prod-uom, "M", 0, 0, 0, 0,
                              itemfg.std-mat-cost,

@@ -913,7 +913,7 @@ PROCEDURE clear-ap :
   for each ap-inv
     where ap-inv.company  eq cocode
       and ap-inv.posted   eq no
-      AND ap-inv.user-id  EQ USERID("nosweat")
+      AND ap-inv.user-id  EQ USERID("ASI")
       /*
       and xap-inv.inv-date ge v-s-date
       and xap-inv.inv-date le v-e-date 

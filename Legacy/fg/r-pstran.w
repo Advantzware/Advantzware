@@ -4179,7 +4179,7 @@ SESSION:SET-WAIT-STATE ("general").
 ASSIGN
  str-tit2 = CURRENT-WINDOW:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
- str-tit3 = "Period Date: " /*+ string(v-post-date,"99/99/9999")*/ + "             Posted by: " + USERID('nosweat') + "  As of " + string(TODAY,"99/99/9999")
+ str-tit3 = "Period Date: " /*+ string(v-post-date,"99/99/9999")*/ + "             Posted by: " + USERID("ASI") + "  As of " + string(TODAY,"99/99/9999")
  {sys/inc/ctrtext.i str-tit3 132}
 
  v-postlst   = "T"  
@@ -4253,7 +4253,7 @@ PROCEDURE send-fgemail :
   DEFINE BUFFER bf-itemfg FOR itemfg.
 
   FIND FIRST users WHERE
-       users.user_id EQ USERID("NOSWEAT")
+       users.user_id EQ USERID("ASI")
        NO-LOCK NO-ERROR.
 
   IF AVAILABLE users AND users.user_program[2] NE "" THEN

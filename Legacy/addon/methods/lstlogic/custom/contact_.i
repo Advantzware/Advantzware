@@ -109,13 +109,13 @@ for each contact where contact.company eq selected-company
           trim(contact.state) v-delim
           trim(contact.zip) v-delim
           trim(contact.country) v-delim skip.
-    create nosweat.note.
-    assign nosweat.note.rec_key = contact.rec_key
-           nosweat.note.note_date = TODAY
-           nosweat.note.note_time = TIME
-           nosweat.note.user_id = USERID("NOSWEAT")
-           nosweat.note.note_title = FILL-IN-Title
-           nosweat.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
+    create ASI.note.
+    assign ASI.note.rec_key = contact.rec_key
+           ASI.note.note_date = TODAY
+           ASI.note.note_time = TIME
+           ASI.note.user_id = USERID("ASI")
+           ASI.note.note_title = FILL-IN-Title
+           ASI.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
                                     string(note.note_date,"99/99/9999") + " " +
                                     string(note.note_time,"HH:MM:SS AM").
   end.

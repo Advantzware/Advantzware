@@ -1318,7 +1318,7 @@ PROCEDURE pSetNames :
         FIND FIRST user-print NO-LOCK
              WHERE user-print.company    EQ "001"
                AND user-print.program-id EQ aoaProgramID
-               AND user-print.user-id    EQ "NoSweat"
+               AND user-print.user-id    EQ "ASI"
                AND user-print.batch      EQ ""
              NO-ERROR.
         IF NOT AVAILABLE user-print THEN

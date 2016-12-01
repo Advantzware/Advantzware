@@ -1,5 +1,5 @@
 /* address.i
-"NOSWEAT" "address"
+"ASI" "address"
 "zipcode" "Zip/Postal Code" ""
 "address1" "Address Line 1" ""
 "" "" ""

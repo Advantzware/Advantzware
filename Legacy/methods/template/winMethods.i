@@ -77,7 +77,6 @@ DEFINE VARIABLE misc_header_value AS CHARACTER NO-UNDO.
 
 
 /* ***************************  Main Block  *************************** */
-
 {methods/menus/{&winMethods}.i}
 {methods/enhance.i}
 {sys/inc/f3helpw.i}
@@ -263,7 +262,7 @@ PROCEDURE local-initialize :
       APPLY 'CLOSE' TO THIS-PROCEDURE.
       RETURN.
   END.
-
+  
   &IF "{&FIRST-EXTERNAL-TABLE}" = "address" OR
       "{&FIRST-EXTERNAL-TABLE}" = "notes" OR
       "{&FIRST-EXTERNAL-TABLE}" = "phone" OR
@@ -272,7 +271,7 @@ PROCEDURE local-initialize :
   &ENDIF
   
         /* check if maximized for user */
-  IF SEARCH('users/' + USERID('NOSWEAT') + '/' + v-prgmname + 'winReSize') NE ? OR
+  IF SEARCH('users/' + USERID("ASI") + '/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users */
      SEARCH('users/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users all programs */
@@ -346,7 +345,7 @@ PROCEDURE Run-Search :
   Parameters:  
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF CAN-DO(g_developer,USERID("NOSWEAT")) THEN
+  IF CAN-DO(g_developer,USERID("ASI")) THEN
   DO:
     MESSAGE "Update Search Program?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE updatesrch AS LOGICAL.
@@ -568,11 +567,11 @@ PROCEDURE winReSize PRIVATE :
     DEFINE VARIABLE winReSizeDat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE currentWidget AS HANDLE NO-UNDO.
     
-    IF {&WINDOW-NAME}:WINDOW-STATE NE 1 THEN RETURN.
+/*    IF {&WINDOW-NAME}:WINDOW-STATE NE 1 THEN RETURN.*/
 
-    winReSizeDat = 'users/' + USERID('NOSWEAT') + '/winReSize.dat'.
+    winReSizeDat = 'users/' + USERID("ASI") + '/winReSize.dat'.
     IF SEARCH(winReSizeDat) NE ? THEN DO:
-      INPUT FROM VALUE(winReSizeDat).
+      INPUT FROM VALUE(SEARCH(winReSizeDat)).
       IMPORT ^ screenRatio.
       INPUT CLOSE.
     END.

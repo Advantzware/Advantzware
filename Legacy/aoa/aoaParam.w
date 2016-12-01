@@ -1258,7 +1258,7 @@ PROCEDURE pExcel :
             FILE-INFO:FILE-NAME = cExcelFile
             cExcelFile = FILE-INFO:FULL-PATHNAME
             cExcelFile = REPLACE(cExcelFile,".keep",aoaTitle + " (")
-                       + USERID("NoSweat") + ").xls"
+                       + USERID("ASI") + ").xls"
             .
 
         IF SEARCH(cExcelFile) NE ? THEN
@@ -1375,7 +1375,7 @@ PROCEDURE pExcel :
         ASSIGN
             chWorkSheet:Cells(iStatusRow,2):Value = "Running Query..."
             cDynFunc = "f" + REPLACE(aoaTitle," ","")
-            hTable = DYNAMIC-FUNCTION(cDynFunc IN hAppSrv, aoaCompany,0,USERID("NoSweat")).
+            hTable = DYNAMIC-FUNCTION(cDynFunc IN hAppSrv, aoaCompany,0,USERID("ASI")).
         IF NOT VALID-HANDLE(hTable) THEN RETURN.
 
         hTable = hTable:DEFAULT-BUFFER-HANDLE.
@@ -1533,7 +1533,7 @@ PROCEDURE pGenerateInclude :
 
     IF NOT VALID-HANDLE(hFrame) THEN RETURN.
 
-    IF NOT CAN-DO("ASI,NoSweat",USERID("NoSweat")) THEN RETURN.
+    IF NOT CAN-DO("ASI,NoSweat",USERID("ASI")) THEN RETURN.
 
     OUTPUT TO VALUE("aoa/includes/p" + REPLACE(aoaTitle," ","") + ".i") NO-ECHO.
     PUT UNFORMATTED
@@ -1731,7 +1731,7 @@ PROCEDURE pGetUserPrint :
           AND bUserPrint.batch      EQ "Batch"
           AND bUserPrint.batch-seq  GT 0
           AND bUserPrint.program-id EQ aoaProgramID
-          AND bUserPrint.user-id    EQ USERID("NoSweat")
+          AND bUserPrint.user-id    EQ USERID("ASI")
         :
         CREATE ttUserPrint.
         BUFFER-COPY bUserPrint TO ttUserPrint.

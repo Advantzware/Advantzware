@@ -472,7 +472,7 @@ DO:
 
    DO WITH FRAME {&FRAME-NAME}:
    
-      IF USERID("NOSWEAT") EQ "ASI" AND AVAIL oe-ordm AND
+      IF USERID("ASI") EQ "ASI" AND AVAIL oe-ordm AND
          oe-ordm.bill EQ "I" THEN
       DO:
          MESSAGE "Change Bill to 'B'?"

@@ -1490,7 +1490,7 @@ IF g_batch THEN
 FIND FIRST user-print NO-LOCK WHERE ROWID(user-print) EQ g_batch-rowid NO-ERROR.
 ELSE 
 FIND FIRST user-print NO-LOCK
-     {&where-phrase} AND user-print.user-id EQ USERID("nosweat") NO-ERROR.
+     {&where-phrase} AND user-print.user-id EQ USERID("ASI") NO-ERROR.
 
 IF NOT AVAIL user-print THEN
 FIND FIRST user-print NO-LOCK {&where-phrase} AND user-print.user-id EQ "" NO-ERROR.

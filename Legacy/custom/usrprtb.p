@@ -51,7 +51,7 @@ IF g_batch-rowid <> ? THEN
    FIND FIRST user-print WHERE ROWID(user-print) = g_batch-rowid NO-ERROR.
 ELSE FIND FIRST user-print
     {&where-phrase}
-      AND user-print.user-id EQ USERID("nosweat") 
+      AND user-print.user-id EQ USERID("ASI") 
     NO-ERROR.
 
 IF NOT AVAIL user-print THEN
@@ -67,7 +67,7 @@ IF AVAIL user-print THEN BUFFER-COPY user-print TO tt-user-print.
 ASSIGN
  tt-user-print.company = cocode
  tt-user-print.program-id = ip-program-id
- tt-user-print.user-id = USERID("nosweat")
+ tt-user-print.user-id = USERID("ASI")
  tt-user-print.batch = "Batch"
  tt-user-print.field-label = ""
  tt-user-print.field-name  = ""

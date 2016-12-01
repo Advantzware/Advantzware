@@ -229,7 +229,7 @@ do v-local-loop = 1 to v-local-copies:
         /* rstark 05181205 */
         RUN XMLOutput (lXMLOutput,'JobTicketHeader','','Row').
         RUN XMLOutput (lXMLOutput,'Page',STRING(PAGE-NUM),'Col').
-        RUN XMLOutput (lXMLOutput,'User_ID',USERID('NoSweat'),'Col').
+        RUN XMLOutput (lXMLOutput,'User_ID',USERID("ASI"),'Col').
         RUN XMLOutput (lXMLOutput,'Job',v-job-prt,'Col').
         RUN XMLOutput (lXMLOutput,'Estimate',v-est-no,'Col').
         RUN XMLOutput (lXMLOutput,'Order',v-ord-no,'Col').

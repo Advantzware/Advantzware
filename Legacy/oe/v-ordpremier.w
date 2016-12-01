@@ -3882,8 +3882,8 @@ PROCEDURE hold-approve :
                 
                 FIND CURRENT oe-ord EXCLUSIVE-LOCK.
                 ASSIGN
-                    oe-ord.user-id     = USERID("nosweat")
-                    oe-ord.approved-id = USERID("nosweat")
+                    oe-ord.user-id     = USERID("ASI")
+                    oe-ord.approved-id = USERID("ASI")
                     oe-ord.t-freight   = 0.
       
                 IF oe-ord.type EQ "" THEN oe-ord.type = "O".
@@ -4670,8 +4670,8 @@ PROCEDURE local-create-record :
          bf-oe-ord.loc      = g_loc
          bf-oe-ord.ord-date = TODAY
          bf-oe-ord.ord-no   = li-next-ordno
-         bf-oe-ord.user-id  = USERID("nosweat")
-         bf-oe-ord.entered-id = USERID("nosweat")
+         bf-oe-ord.user-id  = USERID("ASI")
+         bf-oe-ord.entered-id = USERID("ASI")
          bf-oe-ord.type     = "O"
          bf-oe-ord.due-code = "ON" NO-ERROR.
 

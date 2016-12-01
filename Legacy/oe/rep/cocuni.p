@@ -37,7 +37,7 @@ DEFINE NEW SHARED TEMP-TABLE tt-filelist
              TT-FILECTR.
 
 FIND FIRST users WHERE
-     users.user_id EQ USERID("NOSWEAT")
+     users.user_id EQ USERID("ASI")
      NO-LOCK NO-ERROR.
 
 IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -96,7 +96,7 @@ END.
 
 ASSIGN
    viWorkSheetCount = 0
-   FILE-INFO:FILE-NAME = "signature\" + USERID("nosweat") + ".jpg".
+   FILE-INFO:FILE-NAME = "signature\" + USERID("ASI") + ".jpg".
 
 for each report where report.term-id eq v-term-id no-lock,
     first oe-boll where recid(oe-boll) eq report.rec-id no-lock,

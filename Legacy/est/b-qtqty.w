@@ -458,7 +458,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN quoteqty.quote-user = USERID('nosweat')
+  ASSIGN quoteqty.quote-user = USERID("ASI")
         /* quoteqty.quote-date = TODAY*/ .
 
   /* update rfqitem qty - start */
@@ -523,7 +523,7 @@ PROCEDURE local-create-record :
         quoteqty.q-no = quoteitm.q-no
         quoteqty.line = quoteitm.line
         quoteqty.quote-date = TODAY
-        quoteqty.quote-user = USERID("nosweat")
+        quoteqty.quote-user = USERID("ASI")
         .
 
 END PROCEDURE.

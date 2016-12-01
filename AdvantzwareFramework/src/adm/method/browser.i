@@ -149,9 +149,12 @@ PROCEDURE winkit-initialize:
     RUN get-link-handle IN adm-broker-hdl
            (INPUT THIS-PROCEDURE, INPUT 'CONTAINER-SOURCE':U, OUTPUT char-hdl).
     ASSIGN container-hdl = WIDGET-HANDLE(char-hdl).
+    
+/* rstark 11.18.2016 - prevent .net grid rendering */
+    IF TRUE THEN RETURN .
 
     IF VALID-HANDLE (container-hdl) AND Consultingwerk.Util.ProcedureHelper:HasEntry (container-hdl, "getEmbeddedWindowForm") THEN DO:
-         
+        
         RUN get-attribute IN container-hdl ("current-page") .
         
         ASSIGN iPage = Consultingwerk.Util.DataTypeHelper:ToInteger (RETURN-VALUE) . 

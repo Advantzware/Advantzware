@@ -211,7 +211,7 @@ DEFINE BUFFER bf-usercust FOR usercust.
 
 FOR EACH bf-usercust 
     WHERE bf-usercust.company EQ ipcCompany 
-      AND bf-usercust.user_id EQ USERID("nosweat") 
+      AND bf-usercust.user_id EQ USERID("ASI") 
     NO-LOCK,
     FIRST cust WHERE cust.company EQ ipcCompany 
      AND cust.cust-no = bf-usercust.cust-no NO-LOCK :

@@ -565,7 +565,7 @@ DO:
   DEFINE VARIABLE cGetField AS CHARACTER NO-UNDO.
 
   IF svLookupDB EQ "" THEN
-  svLookupDB = "NOSWEAT".
+  svLookupDB = "ASI".
   CREATE ALIAS dictdb FOR DATABASE VALUE(svLookupDB).
   cGetField = svLookupDB:SCREEN-VALUE + "."
             + svLookupFile:SCREEN-VALUE + "."
@@ -691,7 +691,7 @@ DO:
   ASSIGN svEndInclude = REPLACE(svEndInclude,'"','""').
 
   PUT UNFORMATTED "/* " mLookupPrgm "p - Generated " TODAY FORMAT "99/99/9999"
-    " - " STRING(TIME,"HH:MM am") " by " USERID("NOSWEAT") SKIP
+    " - " STRING(TIME,"HH:MM am") " by " USERID("ASI") SKIP
     "~"" mLookupPrgm " ~" ~~" SKIP
     "~"" svLookupDB " ~" ~~" SKIP
     "~"" svLookupFile " ~" ~~" SKIP         
@@ -939,7 +939,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svUIPrgmname C-Win
 ON HELP OF svUIPrgmname IN FRAME DEFAULT-FRAME /* UI Program */
 DO:
-  CREATE ALIAS dictdb FOR DATABASE NOSWEAT.
+  CREATE ALIAS dictdb FOR DATABASE ASI.
   RUN "lookups/ui_lkup.p".
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = g_lookup-var

@@ -669,7 +669,7 @@ ASSIGN
                      STRING(MONTH(TODAY),"99")  +
                      STRING(DAY(TODAY),"99")
  reftable.code     = STRING(TIME,"99999")
- reftable.code2    = USERID("nosweat").
+ reftable.code2    = USERID("ASI").
 
 RUN get-params (OUTPUT reftable.dscr).
 

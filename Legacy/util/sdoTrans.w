@@ -232,7 +232,7 @@ EMPTY TEMP-TABLE inv-line.
 FOR EACH _trans WHERE _Trans._Trans-State EQ "Active"
   BY  _Trans._Trans-Duration DESCENDING:
 
-   FIND FIRST nosweat._Connect WHERE nosweat._Connect._Connect-Usr = _Trans._Trans-Usrnum.
+   FIND FIRST ASI._Connect WHERE ASI._Connect._Connect-Usr = _Trans._Trans-Usrnum.
  
   CREATE inv-line.
   ASSIGN   

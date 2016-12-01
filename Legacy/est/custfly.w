@@ -1796,13 +1796,13 @@ PROCEDURE cust-zip :
 ------------------------------------------------------------------------------*/
  DO WITH FRAME {&FRAME-NAME}:
     IF cust.zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ cust.zip:SCREEN-VALUE
+    FIND FIRST ASI.zipcode
+        WHERE ASI.zipcode.zipcode EQ cust.zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
-      cust.state:SCREEN-VALUE = nosweat.zipcode.state.
+    IF AVAIL ASI.zipcode THEN do:
+      cust.state:SCREEN-VALUE = ASI.zipcode.state.
       IF cust.city:SCREEN-VALUE EQ "" THEN
-        cust.city:SCREEN-VALUE = nosweat.zipcode.city.
+        cust.city:SCREEN-VALUE = ASI.zipcode.city.
     END.
   END.
 END PROCEDURE.

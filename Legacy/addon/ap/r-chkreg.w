@@ -1031,8 +1031,8 @@ IF AVAILABLE(asi._lock) THEN DO:
 
     FIND FIRST asi._connect WHERE _connect-usr = _lock-usr NO-LOCK.
     IF AVAIL(asi._connect) AND asi._connect._connect-name = "" THEN
-        FIND nosweat._user 
-          WHERE nosweat._user._user_number EQ asi._connect._connect-usr
+        FIND ASI._user 
+          WHERE ASI._user._user_number EQ asi._connect._connect-usr
         NO-LOCK NO-ERROR.
     ASSIGN oplLocked = YES
            opcUsr    = asi._connect._connect-usr
@@ -1040,10 +1040,10 @@ IF AVAILABLE(asi._lock) THEN DO:
            opcDevice = _connect-device.
 
     IF asi._connect._connect-name EQ "" THEN
-        FIND nosweat._connect WHERE nosweat._connect._connect-usr EQ asi._connect._connect-usr NO-LOCK.
+        FIND ASI._connect WHERE ASI._connect._connect-usr EQ asi._connect._connect-usr NO-LOCK.
 
-    IF AVAIL(nosweat._connect) THEN
-       opcName = nosweat._connect._connect-name.    
+    IF AVAIL(ASI._connect) THEN
+       opcName = ASI._connect._connect-name.    
 
 END.
 

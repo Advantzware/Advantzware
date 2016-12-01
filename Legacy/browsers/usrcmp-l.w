@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
@@ -184,7 +184,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartNavBrowser
-   External Tables: NOSWEAT.users,ASI.company
+   External Tables: ASI.users,ASI.company
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: External-Tables
@@ -249,7 +249,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.usercomp OF NOSWEAT.users,ASI.loc OF ASI.usercomp"
+     _TblList          = "ASI.usercomp OF ASI.users,ASI.loc OF ASI.usercomp"
      _Options          = "NO-LOCK SORTBY-PHRASE"
      _TblOptList       = "USED,"
      _Where[1]         = "usercomp.company = company.company AND

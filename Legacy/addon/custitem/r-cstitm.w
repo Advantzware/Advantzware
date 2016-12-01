@@ -977,7 +977,7 @@ ELSE ls-selection = "".
 
 {sys/inc/sa-sls01.i}
 
-FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
+FIND FIRST users WHERE users.user_id EQ USERID("ASI") NO-LOCK NO-ERROR.
 
 IF AVAIL users AND users.user_program[2] NE "" THEN
    init-dir = users.user_program[2].

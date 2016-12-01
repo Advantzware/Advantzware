@@ -116,7 +116,7 @@ for each cldata:
           corr2asi.cl-total-start-blanks = (cldata.cl-total-start-blanks)
           corr2asi.import-date = today
           corr2asi.import-time = time
-          corr2asi.import-user = userid('nosweat')
+          corr2asi.import-user = USERID("ASI")
           .
 end.
 

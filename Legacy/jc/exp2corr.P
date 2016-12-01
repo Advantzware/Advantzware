@@ -746,7 +746,7 @@ DOWNLOADEDORDERS[DOWNLOADCOUNT] = jobNumber /*ORDERS.ORDER-NUMBER*/ .
             asi2corr.job-no2 = job-hdr.job-no2
             asi2corr.download-date = today
             asi2corr.download-time = time
-            asi2corr.download-user = userid('nosweat').
+            asi2corr.download-user = USERID("ASI").
      RELEASE asi2corr.
   end.         
 

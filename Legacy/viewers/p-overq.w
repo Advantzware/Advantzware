@@ -298,7 +298,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF USERID("nosweat") NE "asi" THEN DO WITH FRAME {&FRAME-NAME}:
+  IF USERID("ASI") NE "asi" THEN DO WITH FRAME {&FRAME-NAME}:
     DISABLE ALL.
   END.
 

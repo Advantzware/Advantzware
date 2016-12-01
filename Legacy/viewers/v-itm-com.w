@@ -708,7 +708,7 @@ PROCEDURE local-create-record :
      ASSIGN
         item-comm.create-date = TODAY
         item-comm.create-time = TIME 
-        item-comm.create-user-id = USERID("nosweat")
+        item-comm.create-user-id = USERID("ASI")
         item-comm.rec_key = STRING(YEAR(TODAY), "9999") + STRING(MONTH(TODAY), "99") + STRING(DAY(TODAY), "99") + STRING(TIME).
   END.
 

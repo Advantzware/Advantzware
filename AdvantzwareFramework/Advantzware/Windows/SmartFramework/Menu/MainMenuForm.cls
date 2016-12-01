@@ -1380,7 +1380,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         THIS-OBJECT:Icon = CAST(resources:GetObject("$this.Icon":U), System.Drawing.Icon).
         THIS-OBJECT:IsMdiContainer = TRUE.
         THIS-OBJECT:Name = "MainMenuForm":U.
-        THIS-OBJECT:Text = "Consultingwerk SmartComponent Library":U.
+        THIS-OBJECT:Text = "Advantzware - Manufacturing and Distribution Software for Packaging":U.
         THIS-OBJECT:WindowPositionRegistryKey = "CustomerExplorer":U.
         CAST(THIS-OBJECT:ultraExplorerBar1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ultraGridColumnChooser1, System.ComponentModel.ISupportInitialize):EndInit().

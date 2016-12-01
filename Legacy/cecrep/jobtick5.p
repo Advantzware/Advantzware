@@ -271,7 +271,7 @@ IF production AND
     IF AVAIL b-job THEN
       ASSIGN
        b-job.pr-printed    = YES
-       b-job.pr-user-id-p  = USERID("nosweat")
+       b-job.pr-user-id-p  = USERID("ASI")
        b-job.pr-print-date = TODAY
        b-job.pr-print-time = TIME
        li                  = 1000.
@@ -303,14 +303,14 @@ ELSE DO:
       IF NOT b-job.cs-printed THEN
         ASSIGN
          b-job.cs-printed    = YES
-         b-job.cs-user-id-p  = USERID("nosweat")
+         b-job.cs-user-id-p  = USERID("ASI")
          b-job.cs-print-date = TODAY
          b-job.cs-print-time = TIME.
 
       IF approve THEN
         ASSIGN
          b-job.cs-to-pr      = YES
-         b-job.cs-user-id-t  = USERID("nosweat")
+         b-job.cs-user-id-t  = USERID("ASI")
          b-job.cs-trans-date = TODAY
          b-job.cs-trans-time = TIME.
     END.

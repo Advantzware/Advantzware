@@ -469,7 +469,7 @@ PROCEDURE create-loadtag-proc :
     rm-rctd.loc        = loadtag.loc
     rm-rctd.loc-bin    = loadtag.loc-bin
     rm-rctd.tag        = loadtag.tag-no
-    rm-rctd.user-id  = USERID("nosweat")
+    rm-rctd.user-id  = USERID("ASI")
     rm-rctd.upd-date = TODAY
     rm-rctd.upd-time = TIME. 
   

@@ -60,7 +60,7 @@ IF v-continue THEN DO:
 
   IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
      INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
-     INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN v-prgmname = USERID("NOSWEAT") + "..".
+     INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN v-prgmname = USERID("ASI") + "..".
   ELSE DO:
      v-prgmname = PROGRAM-NAME(1).
   

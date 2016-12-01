@@ -1719,7 +1719,7 @@ PROCEDURE update-image :
              END.
              ELSE DO:
                  /*OS-COMMAND SILENT VALUE("custom\mspaint.exe " + box-design-hdr.box-image:SCREEN-VALUE IN FRAME {&FRAME-NAME} )*/
-                 FIND FIRST users WHERE users.USER_id = USERID('nosweat') NO-LOCK NO-ERROR.
+                 FIND FIRST users WHERE users.USER_id = USERID("ASI") NO-LOCK NO-ERROR.
                  IF AVAILABLE users AND users.USER_program[1] <> "" /*AND SEARCH(users.USER_program[1]) <> ?*/
                      THEN ASSIGN lv-cmd = users.USER_program[1]
                      lv-cmd2 = chr(34) + users.USER_program[1] + CHR(34) .
@@ -1751,7 +1751,7 @@ PROCEDURE update-image :
              END.
 
              ELSE do:
-                 FIND FIRST users WHERE users.USER_id = USERID('nosweat') NO-LOCK NO-ERROR.
+                 FIND FIRST users WHERE users.USER_id = USERID("ASI") NO-LOCK NO-ERROR.
                  IF AVAILABLE users AND users.USER_program[1] <> "" /*AND SEARCH(users.USER_program[1]) <> ?*/
                      THEN ASSIGN lv-cmd = users.USER_program[1]
                      lv-cmd2 = chr(34) + users.USER_program[1] + CHR(34) .

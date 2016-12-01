@@ -5,7 +5,7 @@ DEF VAR v-check-blank AS LOG INIT NO NO-UNDO.
 
 FOR EACH bf-usercust 
     WHERE bf-usercust.company EQ cocode 
-      AND bf-usercust.user_id EQ USERID("nosweat") 
+      AND bf-usercust.user_id EQ USERID("ASI") 
     NO-LOCK,
     FIRST cust WHERE cust.company EQ cocode 
      AND cust.cust-no = bf-usercust.cust-no NO-LOCK :

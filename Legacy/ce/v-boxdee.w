@@ -1451,7 +1451,7 @@ PROCEDURE update-image :
                  RUN WinExec (INPUT lv-cmd, INPUT 1,OUTPUT lv-return).
              END.
              ELSE DO:
-                 FIND FIRST users WHERE users.USER_id = USERID('nosweat') NO-LOCK NO-ERROR.
+                 FIND FIRST users WHERE users.USER_id = USERID("ASI") NO-LOCK NO-ERROR.
                  IF AVAIL users AND users.USER_program[1] <> "" /*AND SEARCH(users.USER_program[1]) <> ?*/
                      THEN ASSIGN lv-cmd = users.USER_program[1]
                      lv-cmd2 = chr(34) + users.USER_program[1] + CHR(34) .
@@ -1482,7 +1482,7 @@ PROCEDURE update-image :
                  RUN WinExec (INPUT lv-cmd, INPUT 1,OUTPUT lv-return).
              END.
              ELSE do:
-                 FIND FIRST users WHERE users.USER_id = USERID('nosweat') NO-LOCK NO-ERROR.
+                 FIND FIRST users WHERE users.USER_id = USERID("ASI") NO-LOCK NO-ERROR.
                  IF AVAIL users AND users.USER_program[1] <> "" /*AND SEARCH(users.USER_program[1]) <> ?*/
                      THEN ASSIGN lv-cmd = users.USER_program[1]
                      lv-cmd2 = chr(34) + users.USER_program[1] + CHR(34) .

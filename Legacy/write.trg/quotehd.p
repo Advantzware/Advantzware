@@ -9,7 +9,7 @@ TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 ASSIGN
    {&TABLENAME}.upd-date = TODAY 
    {&TABLENAME}.upd-time = TIME
-   {&TABLENAME}.upd-user = USERID("nosweat").
+   {&TABLENAME}.upd-user = USERID("ASI").
 
 IF {&TABLENAME}.company NE ""     AND
    {&TABLENAME}.cust-no NE "TEMP" THEN DO:

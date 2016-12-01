@@ -18,7 +18,7 @@
 "prgmxref. " ~
 */
 
-&Scoped-define lookup-db NOSWEAT.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file prgmxref
 &Scoped-define where-statement TRUE
 &Scoped-define return-field table_name

@@ -1068,7 +1068,7 @@ PROCEDURE copyOrder :
 /*     assign b-oe-ord.company = g_company                       */
 /*          b-oe-ord.ord-date = today                            */
 /*          b-oe-ord.ord-no = li-next-ordno                      */
-/*          b-oe-ord.user-id = userid("nosweat")                 */
+/*          b-oe-ord.user-id = userid("ASI")                 */
 /*     NO-ERROR.                                                 */
 /*     IF ERROR-STATUS:ERROR OR AVAIL oe-ordl THEN DO:           */
 /*         IF liNumTries GT 20  THEN DO:                         */

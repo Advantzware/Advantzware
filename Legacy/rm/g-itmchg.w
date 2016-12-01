@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME gDialog

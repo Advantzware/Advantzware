@@ -875,7 +875,7 @@ PROCEDURE local-update-record :
  
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF USERID("NOSWEAT") NE "ASI" THEN do:
+  IF USERID("ASI") NE "ASI" THEN do:
        MESSAGE "User not ASI update not allow... " VIEW-AS ALERT-BOX ERROR .
        RETURN NO-APPLY.
    END.

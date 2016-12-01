@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -250,24 +250,24 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "NOSWEAT.prgrms"
+     _TblList          = "ASI.prgrms"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   = NOSWEAT.prgrms.prgmname
-     _FldNameList[2]   = NOSWEAT.prgrms.prgtitle
-     _FldNameList[3]   = NOSWEAT.prgrms.dir_group
-     _FldNameList[4]   = NOSWEAT.prgrms.menu_item
-     _FldNameList[5]   > NOSWEAT.prgrms.can_run
+     _FldNameList[1]   = ASI.prgrms.prgmname
+     _FldNameList[2]   = ASI.prgrms.prgtitle
+     _FldNameList[3]   = ASI.prgrms.dir_group
+     _FldNameList[4]   = ASI.prgrms.menu_item
+     _FldNameList[5]   > ASI.prgrms.can_run
 "prgrms.can_run" "View ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > NOSWEAT.prgrms.can_create
+     _FldNameList[6]   > ASI.prgrms.can_create
 "prgrms.can_create" "Add ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > NOSWEAT.prgrms.can_update
+     _FldNameList[7]   > ASI.prgrms.can_update
 "prgrms.can_update" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > NOSWEAT.prgrms.can_delete
+     _FldNameList[8]   > ASI.prgrms.can_delete
 "prgrms.can_delete" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   = NOSWEAT.prgrms.track_usage
-     _FldNameList[10]   = NOSWEAT.prgrms.popup
-     _FldNameList[11]   > NOSWEAT.prgrms.mfgroup
+     _FldNameList[9]   = ASI.prgrms.track_usage
+     _FldNameList[10]   = ASI.prgrms.popup
+     _FldNameList[11]   > ASI.prgrms.mfgroup
 "prgrms.mfgroup" "Parent(s)" "X(50)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

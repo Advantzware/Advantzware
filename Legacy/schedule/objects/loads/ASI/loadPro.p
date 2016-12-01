@@ -1625,7 +1625,7 @@ PROCEDURE loadUserFieldLabelWidth:
   ASSIGN
     cascadeJob = SEARCH(findProgram('{&data}/',ID,'/noCascade.dat')) EQ ?
     changeResource = YES
-    loginID = USERID('NoSweat') + '.' + STRING(TODAY,'999999') + '.' + STRING(TIME,'99999')
+    loginID = USERID("ASI") + '.' + STRING(TODAY,'999999') + '.' + STRING(TIME,'99999')
     statusObject[1] = ',Ready/Pending'
     statusObject[2] = 'Machine MR,Completed/Pending'
     statusObject[3] = 'Machine Run,Completed/Pending'

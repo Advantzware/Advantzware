@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME D-Dialog
@@ -112,7 +112,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartDialog
-   External Tables: NOSWEAT.notes
+   External Tables: ASI.notes
    Allow: Basic,Browse,DB-Fields,Query,Smart
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS

@@ -528,7 +528,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF SEARCH('users/' + USERID('NOSWEAT') + '/w-glinvl.winReSize') EQ ? THEN DO:
+  IF SEARCH('users/' + USERID("ASI") + '/w-glinvl.winReSize') EQ ? THEN DO:
     {&WINDOW-NAME}:WINDOW-STATE = 1.
     RUN winReSize.
   END.

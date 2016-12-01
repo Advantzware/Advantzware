@@ -212,7 +212,7 @@ DO:
          userEula.accepted  = TRUE
          userEula.eula_date = TODAY
          userEula.eula_time = TIME
-         userEula.user_id   = USERID("Nosweat").
+         userEula.user_id   = USERID("ASI").
   oplAccepts = TRUE.       
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   
@@ -367,7 +367,7 @@ INPUT CLOSE.
   /* Code placed here will execute AFTER standard behavior.    */
 edEulaText:SCREEN-VALUE  IN FRAME {&FRAME-NAME} = cEntireText.
 FIND FIRST userEula NO-LOCK WHERE userEula.eula_code EQ cVersion
-  AND userEula.user_id = USERID("nosweat") NO-ERROR.
+  AND userEula.user_id = USERID("ASI") NO-ERROR.
 IF AVAILABLE userEula THEN DO WITH FRAME {&frame-name}:
     ASSIGN btAccept:HIDDEN = TRUE
            btReject:HIDDEN = TRUE

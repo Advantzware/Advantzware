@@ -277,11 +277,11 @@ PROCEDURE enable-copy :
         
         group-ok = yes.
      END.
-     IF NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
+     IF NOT CAN-DO(b-prgrms.can_update,USERID("ASI")) AND
         NOT group-ok THEN
         access-close = YES.  /* used later in methods/template/windows.i - local-initialize procedure */
      ELSE 
-        IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) THEN
+        IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("ASI")) THEN
            v-can-update = YES.
   END. 
   ELSE

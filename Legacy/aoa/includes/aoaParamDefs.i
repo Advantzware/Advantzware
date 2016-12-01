@@ -47,7 +47,7 @@ ASSIGN
     aoaParam        = REPLACE(aoaParam,".p",".w")
     aoaCompany      = ipcCompany
     aoaLocation     = ipcLocation
-    aoaUserID       = USERID("NoSweat")
+    aoaUserID       = USERID("ASI")
     .
 
 /* used for testing in AppBuilder */

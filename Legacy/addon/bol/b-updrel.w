@@ -2512,7 +2512,7 @@ BolPostLog = SEARCH('logs/bolpstall.log') NE ?.
 IF BolPostLog THEN
 OUTPUT STREAM logFile TO VALUE('logs/bolpstall.' +
      STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
-IF BolPostLog THEN RUN BolPostLog ('Started updrel ' + USERID("NOSWEAT")).
+IF BolPostLog THEN RUN BolPostLog ('Started updrel ' + USERID("ASI")).
 IF BolPostLog AND avail(tt-relbol) THEN RUN BolPostLog ('Current Release ' + STRING(tt-relbol.release#)).
 
 {sa/sa-sls01.i}

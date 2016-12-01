@@ -14,7 +14,7 @@ DEF VAR li1 AS INT NO-UNDO.
 
 IF {&TABLENAME}.company NE "" AND {&TABLENAME}.r-no NE 0 THEN DO:
 ASSIGN
-   {&TABLENAME}.user-id  = USERID("nosweat")
+   {&TABLENAME}.user-id  = USERID("ASI")
    {&TABLENAME}.upd-date = TODAY
    {&TABLENAME}.upd-time = TIME.
 END.

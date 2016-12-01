@@ -19,7 +19,7 @@
 "titlcode. " ~
 */
 
-&Scoped-define search-db NOSWEAT.
+&Scoped-define search-db ASI.
 &Scoped-define search-file titlcode
 &Scoped-define where-statement TRUE
 &Scoped-define return-field titlcode

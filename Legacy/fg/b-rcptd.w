@@ -1383,7 +1383,7 @@ DO:
         NO-LOCK NO-ERROR.
 
    IF AVAIL usergrps AND
-      (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
+      (NOT CAN-DO(usergrps.users,USERID("ASI")) AND
        TRIM(usergrps.users) NE "*") THEN
       ASSIGN
          fg-rctd.std-cost:VISIBLE IN BROWSE {&BROWSE-NAME} = NO
