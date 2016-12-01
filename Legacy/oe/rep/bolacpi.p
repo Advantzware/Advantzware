@@ -277,10 +277,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
       end.
 
       assign v-terms = oe-ord.terms-d
-             v-frt-terms = if cust.frt-pay eq "P" then "Prepaid"
-                           else if cust.frt-pay eq "B" then "Bill"
-                           else if cust.frt-pay eq "C" then "Collect"
-                           else if cust.frt-pay eq "T" then "Third Party"
+             v-frt-terms = if ord.frt-pay eq "P" then "Prepaid"
+                           else if ord.frt-pay eq "B" then "Bill"
+                           else if ord.frt-pay eq "C" then "Collect"
+                           else if ord.frt-pay eq "T" then "Third Party"
                            else ""
              v-zone = cust.del-zone.
              
