@@ -1145,8 +1145,6 @@ IF tb_excel THEN
        AND ar-inv.inv-date LE end_date NO-LOCK, 
       FIRST cust OF ar-inv NO-LOCK BREAK BY ar-invl.inv-no DESC :
 
-       MESSAGE "hello12    " + STRING(ar-inv.inv-date) + "    " + STRING(ar-inv.inv-date) VIEW-AS ALERT-BOX ERROR.
-
          ASSIGN
              amount = 0
              amount = IF NOT ar-invl.billable AND ar-invl.misc THEN 0 ELSE ar-invl.amt.
