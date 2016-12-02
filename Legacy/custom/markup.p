@@ -47,16 +47,14 @@ DO:
     ELSE 
         dLookup = ipdBoardCost.
         
-    RUN est/GetMarkup(eb.company,
+    RUN est/GetMarkup.p (eb.company,
         eb.cust-no,
         eb.procat,
         eb.style,
         dLookup,
         OUTPUT iopdMarkup,
         OUTPUT iopcMarkupOn).
-    
-    MESSAGE dLookup SKIP
-        "Return values " iopdMarkup iopcMarkupOn VIEW-AS ALERT-BOX.
+
 /*    FOR EACH cust-markup NO-LOCK                          */
 /*        WHERE cust-markup.company EQ eb.company           */
 /*        AND cust-markup.cust-no EQ eb.cust-no             */
