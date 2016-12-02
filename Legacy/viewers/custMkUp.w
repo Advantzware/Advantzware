@@ -879,7 +879,7 @@ FUNCTION getCustName RETURNS CHARACTER
             WHERE cust.company EQ g_company
             AND cust.cust-no EQ ipCustNo
             NO-ERROR.
-        IF AVAILABLE cust-itm THEN 
+        IF AVAILABLE cust THEN 
             cCust = cust.name.
         ELSE 
             cCust = "Invalid Customer".
