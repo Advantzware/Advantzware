@@ -18,10 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "AL3" }
 END.
 
-IF SelectRptColumn-log THEN RUN arrep/r-dtlinvN.w.
-ELSE RUN arrep/r-dtlinvA.w.     
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN arrep/r-dtlinvN.w PERSISTENT.
+ELSE RUN arrep/r-dtlinvA.w PERSISTENT.

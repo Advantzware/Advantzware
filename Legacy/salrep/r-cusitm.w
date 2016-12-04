@@ -19,6 +19,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "HZ" }
 END.
 
-IF SelectRptColumn-log THEN RUN salrep/r-cusitmN.w.
-ELSE RUN salrep/r-cusitmA.w.
-
+IF SelectRptColumn-log THEN RUN salrep/r-cusitmN.w PERSISTENT.
+ELSE RUN salrep/r-cusitmA.w PERSISTENT.

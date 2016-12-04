@@ -18,6 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "HL" }
 END.
 
-IF SelectRptColumn-log THEN RUN salrep/r-lastvsN.w.
-ELSE RUN salrep/r-lastvsA.w.
-        
+IF SelectRptColumn-log THEN RUN salrep/r-lastvsN.w PERSISTENT.
+ELSE RUN salrep/r-lastvsA.w PERSISTENT.

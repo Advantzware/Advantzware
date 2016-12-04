@@ -18,6 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IL8" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-stajobN.w.
-ELSE RUN fgrep/r-stajobA.w.     
-        
+IF SelectRptColumn-log THEN RUN fgrep/r-stajobN.w PERSISTENT.
+ELSE RUN fgrep/r-stajobA.w PERSISTENT.

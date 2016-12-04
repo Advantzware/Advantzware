@@ -18,13 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IR3" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-alphlN.w.
-ELSE RUN fgrep/r-alphlA.w.     
-        
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN fgrep/r-alphlN.w PERSISTENT.
+ELSE RUN fgrep/r-alphlA.w PERSISTENT.

@@ -18,10 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "GR3" }
 END.
 
-IF SelectRptColumn-log THEN RUN glrep/r-trnjoN.w.
-ELSE RUN glrep/r-trnjoA.w.     
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN glrep/r-trnjoN.w PERSISTENT.
+ELSE RUN glrep/r-trnjoA.w PERSISTENT.

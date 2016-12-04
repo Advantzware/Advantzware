@@ -215,8 +215,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-post C-Win
 ON CHOOSE OF btn-post IN FRAME DEFAULT-FRAME /* Post Returns */
 DO:
-  /* RUN fg/fgpstall.w (?,"SETUP"). */
-     RUN fg/fgpstmn1.p (?,"SETUP").
+     RUN fg/fgpstall.w PERSISTENT (?,"SETUP").
 END.
 
 /* _UIB-CODE-BLOCK-END */

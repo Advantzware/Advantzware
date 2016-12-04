@@ -18,8 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IL10" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-shpcnN.w.
-ELSE RUN fgrep/r-shpcnA.w.     
-        
-
-
+IF SelectRptColumn-log THEN RUN fgrep/r-shpcnN.w PERSISTENT.
+ELSE RUN fgrep/r-shpcnA.w PERSISTENT.

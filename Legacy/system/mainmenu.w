@@ -643,7 +643,29 @@ PROCEDURE Run_Button :
     DEFINE VARIABLE current-widget AS WIDGET-HANDLE NO-UNDO.
     DEFINE VARIABLE save-widget    AS WIDGET-HANDLE NO-UNDO.
 
-    IF button-handle:NAME = 'Exit' THEN APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
+    DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE hDelete AS HANDLE  NO-UNDO EXTENT 100.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+
+    IF button-handle:NAME EQ 'Exit' THEN DO:
+        /* do not remove, used to detect running programs 
+        hWidget = SESSION:FIRST-CHILD.
+        DO WHILE VALID-HANDLE(hWidget):
+	    IF hWidget:TYPE EQ "WINDOW" AND
+    	       hWidget:TITLE NE ? AND
+	       hWidget NE {&WINDOW-NAME}:HANDLE THEN
+	    ASSIGN
+	        idx = idx + 1
+	        hDelete[idx] = hWidget.
+            hWidget = hWidget:NEXT-SIBLING.
+        END.
+        DO idx = 1 TO EXTENT(hDelete):
+	    IF NOT VALID-HANDLE(hDelete[idx]) THEN LEAVE.
+            APPLY "WINDOW-CLOSE" TO hDelete[idx].
+        END.
+        */
+        APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
+    END.
 
     ASSIGN
         current-widget = FRAME {&FRAME-NAME}:HANDLE

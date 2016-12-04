@@ -18,10 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "AR2" }
 END.
 
-IF SelectRptColumn-log THEN RUN arrep/r-carrN.w.
-ELSE RUN arrep/r-carrA.w.     
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN arrep/r-carrN.w PERSISTENT.
+ELSE RUN arrep/r-carrA.w PERSISTENT.

@@ -18,20 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "PR4" }
 END.
 
-IF SelectRptColumn-log THEN RUN porep/r-matjobN.w.
-ELSE RUN porep/r-matjobA.w.     
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN porep/r-matjobN.w PERSISTENT.
+ELSE RUN porep/r-matjobA.w PERSISTENT.

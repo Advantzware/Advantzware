@@ -18,9 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IR4" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-qtyvlN.w.
-ELSE RUN fgrep/r-qtyvlA.w.     
-        
-
-
-
+IF SelectRptColumn-log THEN RUN fgrep/r-qtyvlN.w PERSISTENT.
+ELSE RUN fgrep/r-qtyvlA.w PERSISTENT.

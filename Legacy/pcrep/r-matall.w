@@ -18,5 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "DR9" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-matallN.w.
-ELSE RUN pcrep/r-matallA.w.  
+IF SelectRptColumn-log THEN RUN pcrep/r-matallN.w PERSISTENT.
+ELSE RUN pcrep/r-matallA.w PERSISTENT.

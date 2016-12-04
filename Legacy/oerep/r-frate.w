@@ -18,7 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "OR15" }
 END.
 
-IF SelectRptColumn-log THEN RUN oerep/r-frateN.w.
-ELSE RUN oerep/r-frateA.w.     
-
-
+IF SelectRptColumn-log THEN RUN oerep/r-frateN.w PERSISTENT.
+ELSE RUN oerep/r-frateA.w PERSISTENT.

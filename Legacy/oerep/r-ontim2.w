@@ -18,8 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "DR15" }
 END.
 
-IF SelectRptColumn-log THEN RUN oerep/r-ontim2N.w.
-ELSE RUN oerep/r-ontim2A.w.     
-
-
-
+IF SelectRptColumn-log THEN RUN oerep/r-ontim2N.w PERSISTENT.
+ELSE RUN oerep/r-ontim2A.w PERSISTENT.

@@ -18,18 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "PR14" }
 END.
 
-IF SelectRptColumn-log THEN RUN porep/r-rschrpN.w.
-ELSE RUN porep/r-rschrpA.w.     
-        
-
-
-
-
-
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN porep/r-rschrpN.w PERSISTENT.
+ELSE RUN porep/r-rschrpA.w PERSISTENT.

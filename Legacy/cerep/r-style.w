@@ -19,10 +19,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "ER3" }
 END.
 
-IF SelectRptColumn-log THEN RUN cerep/r-styleN.w.
-ELSE RUN cerep/r-styleA.w.
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN cerep/r-styleN.w PERSISTENT.
+ELSE RUN cerep/r-styleA.w PERSISTENT.

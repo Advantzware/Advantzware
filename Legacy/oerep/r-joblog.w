@@ -18,8 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "OR3" }
 END.
 
-IF SelectRptColumn-log THEN RUN oerep/r-joblgN.w.
-ELSE RUN oerep/r-joblgA.w.     
-
-
-
+IF SelectRptColumn-log THEN RUN oerep/r-joblgN.w PERSISTENT.
+ELSE RUN oerep/r-joblgA.w PERSISTENT.

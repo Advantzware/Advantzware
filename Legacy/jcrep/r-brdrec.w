@@ -18,5 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "JR8" }
 END.
 
-IF SelectRptColumn-log THEN RUN jcrep/r-brdreN.w.
-ELSE RUN jcrep/r-brdreA.w.     
+IF SelectRptColumn-log THEN RUN jcrep/r-brdreN.w PERSISTENT.
+ELSE RUN jcrep/r-brdreA.w PERSISTENT.

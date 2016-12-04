@@ -18,6 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IL6" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-fgpstrN.w.
-ELSE RUN fgrep/r-fgpstrA.w.     
-        
+IF SelectRptColumn-log THEN RUN fgrep/r-fgpstrN.w PERSISTENT.
+ELSE RUN fgrep/r-fgpstrA.w PERSISTENT.

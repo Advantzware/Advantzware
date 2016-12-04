@@ -231,8 +231,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Post s-object
 ON CHOOSE OF Btn_Post IN FRAME F-Main /* Post */
 DO:
- /* run fg/fgpstall.w (?). */
-    RUN fg/fgpstmn1.p (?,"").
+    RUN fg/fgpstall.w PERSISTENT (?,"").
 END.
 
 /* _UIB-CODE-BLOCK-END */

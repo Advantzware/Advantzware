@@ -18,8 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "VR4" }
 END.
 
-IF SelectRptColumn-log THEN RUN aprep/r-venlsN.w.
-ELSE RUN aprep/r-venlsA.w.     
-
-
-
+IF SelectRptColumn-log THEN RUN aprep/r-venlsN.w PERSISTENT.
+ELSE RUN aprep/r-venlsA.w PERSISTENT.

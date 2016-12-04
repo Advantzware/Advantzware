@@ -18,10 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "GR2" }
 END.
 
-IF SelectRptColumn-log THEN RUN glrep/r-curdetN.w.
-ELSE RUN glrep/r-curdetA.w.     
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN glrep/r-curdetN.w PERSISTENT.
+ELSE RUN glrep/r-curdetA.w PERSISTENT.

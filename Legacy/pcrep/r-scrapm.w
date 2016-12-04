@@ -18,9 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "DR12" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-scrapmN.w.
-ELSE RUN pcrep/r-scrapmA.w.     
-
-
-
-
+IF SelectRptColumn-log THEN RUN pcrep/r-scrapmN.w PERSISTENT.
+ELSE RUN pcrep/r-scrapmA.w PERSISTENT.

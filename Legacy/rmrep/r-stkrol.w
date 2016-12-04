@@ -18,16 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "MR9" }
 END.
 
-IF SelectRptColumn-log THEN RUN rmrep/r-stkrolN.w.
-ELSE RUN rmrep/r-stkrolA.w.     
-        
-
-
-
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN rmrep/r-stkrolN.w PERSISTENT.
+ELSE RUN rmrep/r-stkrolA.w PERSISTENT.

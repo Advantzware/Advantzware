@@ -18,7 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "GR7" }
 END.
 
-IF SelectRptColumn-log THEN RUN glrep/r-postckN.w.
-ELSE RUN glrep/r-postckA.w.     
-
-
+IF SelectRptColumn-log THEN RUN glrep/r-postckN.w PERSISTENT.
+ELSE RUN glrep/r-postckA.w PERSISTENT.

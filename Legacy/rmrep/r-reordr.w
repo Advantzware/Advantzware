@@ -18,16 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "MR2" }
 END.
 
-IF SelectRptColumn-log THEN RUN rmrep/r-reordrN.w.
-ELSE RUN rmrep/r-reordrA.w.     
-        
-
-
-
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN rmrep/r-reordrN.w PERSISTENT.
+ELSE RUN rmrep/r-reordrA.w PERSISTENT.

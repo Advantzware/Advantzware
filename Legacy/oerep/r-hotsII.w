@@ -18,8 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "OZ6" }
 END.
 
-IF SelectRptColumn-log THEN RUN oerep/r-hotIIN.w.
-ELSE RUN oerep/r-hotIIA.w.     
-
-
-
+IF SelectRptColumn-log THEN RUN oerep/r-hotIIN.w PERSISTENT.
+ELSE RUN oerep/r-hotIIA.w PERSISTENT.

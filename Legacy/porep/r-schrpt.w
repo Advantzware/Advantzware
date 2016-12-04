@@ -18,7 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "PR2" }
 END.
 
-IF SelectRptColumn-log THEN RUN porep/r-shrptN.w.
-ELSE RUN porep/r-shrptA.w.
-        
-
+IF SelectRptColumn-log THEN RUN porep/r-shrptN.w PERSISTENT.
+ELSE RUN porep/r-shrptA.w PERSISTENT.

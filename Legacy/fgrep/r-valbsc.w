@@ -18,9 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IL13" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-valbscN.w.
-ELSE RUN fgrep/r-valbscA.w.     
-
-   
-        
-
+IF SelectRptColumn-log THEN RUN fgrep/r-valbscN.w PERSISTENT.
+ELSE RUN fgrep/r-valbscA.w PERSISTENT.

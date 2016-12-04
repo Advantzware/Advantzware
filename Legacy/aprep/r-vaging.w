@@ -18,8 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "VR1" }
 END.
 
-IF SelectRptColumn-log THEN RUN aprep/r-vagingN.w.
-ELSE RUN aprep/r-vagingA.w.     
-
-
-
+IF SelectRptColumn-log THEN RUN aprep/r-vagingN.w PERSISTENT.
+ELSE RUN aprep/r-vagingA.w PERSISTENT.

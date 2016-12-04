@@ -18,13 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "JL1" }
 END.
 
-IF SelectRptColumn-log THEN RUN jcrep/r-jobdueN.w.
-ELSE RUN jcrep/r-jobdueA.w.     
-
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN jcrep/r-jobdueN.w PERSISTENT.
+ELSE RUN jcrep/r-jobdueA.w PERSISTENT.

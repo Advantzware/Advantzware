@@ -19,7 +19,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "HB" }
 END.
 
-IF SelectRptColumn-log THEN RUN salrep/r-detjnlN.w.
-ELSE RUN salrep/r-detjnlA.w.
-
-
+IF SelectRptColumn-log THEN RUN salrep/r-detjnlN.w PERSISTENT.
+ELSE RUN salrep/r-detjnlA.w PERSISTENT.

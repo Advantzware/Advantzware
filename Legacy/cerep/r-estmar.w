@@ -19,7 +19,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "ER10" }
 END.
 
-IF SelectRptColumn-log THEN RUN cerep/r-estmarN.w.
-ELSE RUN cerep/r-estmarA.w.
-
-
+IF SelectRptColumn-log THEN RUN cerep/r-estmarN.w PERSISTENT.
+ELSE RUN cerep/r-estmarA.w PERSISTENT.

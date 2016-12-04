@@ -20,12 +20,13 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "HR5" }
 END.
 
-IF SelectRptColumn-log THEN RUN salrep/r-itcshN.w.
-ELSE RUN salrep/r-itcshA.w.
-  
+IF SelectRptColumn-log THEN RUN salrep/r-itcshN.w PERSISTENT.
+ELSE RUN salrep/r-itcshA.w PERSISTENT.
+
+/*
 APPLY 'close-window' TO THIS-PROCEDURE.
 APPLY 'close' TO THIS-PROCEDURE.
 lvhRun-Proc = THIS-PROCEDURE.
 /* Without this, if running persistent, don't close */
 DELETE OBJECT lvhRun-Proc NO-ERROR.
-
+*/

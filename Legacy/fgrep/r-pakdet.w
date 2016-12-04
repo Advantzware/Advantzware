@@ -18,7 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IL11" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-pakdetN.w.
-ELSE RUN fgrep/r-pakdetA.w.     
-        
-
+IF SelectRptColumn-log THEN RUN fgrep/r-pakdetN.w PERSISTENT.
+ELSE RUN fgrep/r-pakdetA.w PERSISTENT.

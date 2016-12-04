@@ -18,8 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "AR15" }
 END.
 
-IF SelectRptColumn-log THEN RUN oerep/r-commrN.w.
-ELSE RUN oerep/r-commrA.w.
-        
-
-
+IF SelectRptColumn-log THEN RUN oerep/r-commrN.w PERSISTENT.
+ELSE RUN oerep/r-commrA.w PERSISTENT.
