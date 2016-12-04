@@ -42,6 +42,7 @@ DEFINE INPUT PARAMETER ipcParamStr AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hParamFrame      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hAppSrv          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hAppSrvBin       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrinterFile     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrinterList     AS CHARACTER NO-UNDO.
@@ -65,8 +66,8 @@ DEFINE TEMP-TABLE ttParamValue NO-UNDO
         INDEX paramOrder IS PRIMARY paramOrder
     .
 
-RUN aoa\appServer\aoaBin.p PERSISTENT SET hAppSrv.
-SESSION:ADD-SUPER-PROCEDURE (hAppSrv).
+RUN aoa\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
+SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
 
 DEFINE BUFFER bUserPrint FOR user-print.
 
@@ -650,11 +651,6 @@ ON WINDOW-CLOSE OF W-Win /* AdvantzwareOA */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  
-  IF VALID-HANDLE(hAppSrv) THEN DO:
-      DELETE OBJECT hAppSrv.
-  END. /* valid happsrv */
-
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -707,6 +703,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel W-Win
 ON CHOOSE OF btnCancel IN FRAME paramFrame /* Cancel */
 DO:
+    IF VALID-HANDLE(hAppSrvBin) THEN DELETE OBJECT hAppSrvBin.
+    IF VALID-HANDLE(hAppSrv)    THEN DELETE OBJECT hAppSrv.
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
 END.

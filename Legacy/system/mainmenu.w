@@ -34,13 +34,13 @@ ON CTRL-P HELP.
 
 ON 'CTRL-ALT-D':U ANYWHERE
     DO:
-        RUN aoa/aoaLauncher.w ("Dashboard").
+        RUN aoa/aoaLauncher.w PERSISTENT ("Dashboard").
         RETURN.
     END.
 
 ON 'CTRL-ALT-R':U ANYWHERE
     DO:
-        RUN aoa/aoaLauncher.w ("Report").
+        RUN aoa/aoaLauncher.w PERSISTENT ("Report").
         RETURN.
     END.
    
@@ -64,6 +64,10 @@ ON 'CTRL-ALT-R':U ANYWHERE
 
 /* System Constant Values */
 {system/sysconst.i}
+
+DEFINE TEMP-TABLE ttPersistent NO-UNDO
+    FIELD prgmTitle AS CHARACTER
+	INDEX ttPersistent IS PRIMARY prgmTitle.
 
 DEFINE TEMP-TABLE ttbl NO-UNDO
     FIELD menu-order AS INTEGER
@@ -301,10 +305,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
-    DO:
-   
-        RUN disable_UI.
-    END.    
+    RUN disable_UI.
 
 /* These events will close the window and terminate the procedure.      */
 /* (NOTE: this will override any user-defined triggers previously       */
@@ -334,9 +335,9 @@ ON WINDOW-CLOSE OF {&WINDOW-NAME}
                    userLog.userStatus = "User Logged Out".
             FIND CURRENT userLog NO-LOCK.
         END.
-        
-        APPLY "CLOSE":U TO THIS-PROCEDURE.
-        RETURN NO-APPLY.
+/*      APPLY "CLOSE":U TO THIS-PROCEDURE. */
+/*      RETURN NO-APPLY. */
+        QUIT. /* kills all processes */
     END.
 
 ON ENDKEY, END-ERROR OF {&WINDOW-NAME} ANYWHERE 
@@ -648,32 +649,14 @@ PROCEDURE Run_Button :
     DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
 
     IF button-handle:NAME EQ 'Exit' THEN DO:
-        /* do not remove, used to detect running programs 
-        hWidget = SESSION:FIRST-CHILD.
-        DO WHILE VALID-HANDLE(hWidget):
-	    IF hWidget:TYPE EQ "WINDOW" AND
-    	       hWidget:TITLE NE ? AND
-	       hWidget NE {&WINDOW-NAME}:HANDLE THEN
-	    ASSIGN
-	        idx = idx + 1
-	        hDelete[idx] = hWidget.
-            hWidget = hWidget:NEXT-SIBLING.
-        END.
-        DO idx = 1 TO EXTENT(hDelete):
-	    IF NOT VALID-HANDLE(hDelete[idx]) THEN LEAVE.
-            APPLY "WINDOW-CLOSE" TO hDelete[idx].
-        END.
-        */
-        APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
-    END.
+    APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
 
     ASSIGN
         current-widget = FRAME {&FRAME-NAME}:HANDLE
         current-widget = current-widget:FIRST-CHILD
         current-widget = current-widget:FIRST-CHILD.
     DO WHILE current-widget NE ?:
-        IF current-widget:TYPE = 'BUTTON' THEN
-        DO:
+        IF current-widget:TYPE = 'BUTTON' THEN DO:
             IF current-widget:COLUMN GT button-handle:COLUMN AND
                 current-widget:DYNAMIC THEN
             DO:
@@ -703,7 +686,7 @@ PROCEDURE Run_Button :
         /* check module liscense first before run it YSK 08/24/04 TASK# 08060406 */
         RUN util/chk-mod.p ("ASI", button-handle:NAME) NO-ERROR.
         IF NOT ERROR-STATUS:ERROR THEN 
-            RUN Get_Procedure IN Persistent-Handle(button-handle:NAME,OUTPUT run-proc,YES).
+        RUN Get_Procedure IN Persistent-Handle(button-handle:NAME,OUTPUT run-proc,YES).
     END.
 
 END PROCEDURE.
