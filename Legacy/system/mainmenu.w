@@ -648,7 +648,7 @@ PROCEDURE Run_Button :
     DEFINE VARIABLE hDelete AS HANDLE  NO-UNDO EXTENT 100.
     DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
 
-    IF button-handle:NAME EQ 'Exit' THEN DO:
+    IF button-handle:NAME EQ 'Exit' THEN
     APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
 
     ASSIGN
@@ -658,8 +658,7 @@ PROCEDURE Run_Button :
     DO WHILE current-widget NE ?:
         IF current-widget:TYPE = 'BUTTON' THEN DO:
             IF current-widget:COLUMN GT button-handle:COLUMN AND
-                current-widget:DYNAMIC THEN
-            DO:
+                current-widget:DYNAMIC THEN DO:
                 IF NOT CAN-DO('&F File Maintenance >,&I Inquiries >,&R Reports >',
                     current-widget:LABEL) AND
            INDEX(current-widget:LABEL,'&') NE 0 THEN button-count = button-count - 1.
@@ -680,9 +679,7 @@ PROCEDURE Run_Button :
         button-handle:FONT = 6
         button-col         = button-handle:COLUMN + {&button-width} + {&button-gap}.
     IF INDEX(button-handle:NAME,'.') = 0 THEN RUN Create_Buttons(button-handle:NAME).
-    ELSE 
-    DO:
-      
+    ELSE DO:
         /* check module liscense first before run it YSK 08/24/04 TASK# 08060406 */
         RUN util/chk-mod.p ("ASI", button-handle:NAME) NO-ERROR.
         IF NOT ERROR-STATUS:ERROR THEN 
