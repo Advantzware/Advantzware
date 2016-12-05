@@ -14,7 +14,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-BLOCK-LEVEL ON ERROR UNDO, THROW.
+/*BLOCK-LEVEL ON ERROR UNDO, THROW.*/
 
 DEFINE INPUT PARAMETER ipdValueToLookup AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER ipdArrayToLookup AS DECIMAL EXTENT NO-UNDO.

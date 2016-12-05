@@ -18,17 +18,19 @@
 
 /* ***************************  Definitions  ************************** */
 
-BLOCK-LEVEL ON ERROR UNDO, THROW.
+/*BLOCK-LEVEL ON ERROR UNDO, THROW.*/
 
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcProductCategory AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcStyleID AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdLookupValue AS DECIMAL NO-UNDO.
+/*DEFINE INPUT PARAMETER ipdLookupValueReduction AS DECIMAL NO-UNDO.*/
 DEFINE OUTPUT PARAMETER opdMarkup AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMarkupOn AS CHARACTER NO-UNDO.
  
 DEFINE BUFFER bf-cust-markup FOR cust-markup.
+DEFINE VARIABLE dMarkupReduction AS DECIMAL NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -47,12 +49,18 @@ RUN pGetMatrixMatch(ipcCompany,
     ipcStyleID,
     BUFFER bf-cust-markup).
   
-IF AVAILABLE bf-cust-markup THEN 
+IF AVAILABLE bf-cust-markup THEN DO: 
     RUN pGetMarkup(BUFFER bf-cust-markup, 
         ipdLookupValue,
         OUTPUT opdMarkup,
         OUTPUT opcMarkupOn).
-
+    
+/*    RUN pGetMarkupReduction(BUFFER bf-cust-markup,*/
+/*        ipdLookupValueReduction,                  */
+/*        OUTPUT dMarkupReduction).                 */
+    
+    opdMarkup = opdMarkup - dMarkupReduction.
+END.
                
 
 /* **********************  Internal Procedures  *********************** */
@@ -82,7 +90,9 @@ PROCEDURE pGetMarkup:
         OUTPUT dValue,
         OUTPUT iIndexL,
         OUTPUT iIndexU).
-    MESSAGE "ValueLower"  dValueLower skip 
+    MESSAGE 
+        "Board Cost/Lookup" ipdLookupValue skip
+        "ValueLower"  dValueLower skip 
         "ValueUpper" dValueUpper skip 
         "Value" dValue skip
         "IndexLower" iIndexL skip
@@ -100,6 +110,41 @@ PROCEDURE pGetMarkup:
        opdReturnMarkup = dValueUpper.
                 
 
+END PROCEDURE.
+
+PROCEDURE pGetMarkupReduction:
+ /*------------------------------------------------------------------------------
+     Purpose:  Returns the effective markup reduction based on input lookup
+     Notes:  Refernece NK1 CEMarkupMatrixInterpolate logical value 
+             for interpolate vs. step
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-selected-cust-markup FOR cust-markup.
+    DEFINE INPUT PARAMETER ipdLookupValue AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdReturnMarkup AS DECIMAL NO-UNDO.
+     
+    DEFINE VARIABLE iIndexL     AS INTEGER NO-UNDO. 
+    DEFINE VARIABLE iIndexU     AS INTEGER NO-UNDO. 
+    DEFINE VARIABLE dValueLower AS DECIMAL NO-UNDO. 
+    DEFINE VARIABLE dValueUpper AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dValue      AS DECIMAL NO-UNDO.
+ 
+/*    RUN custom\Lookup1D.p (ipdLookupValue,         */
+/*        ipbf-selected-cust-markup.lookup_reduction,*/
+/*        ipbf-selected-cust-markup.markup_reduction,*/
+/*        OUTPUT dValueLower,                        */
+/*        OUTPUT dValueUpper,                        */
+/*        OUTPUT dValue,                             */
+/*        OUTPUT iIndexL,                            */
+/*        OUTPUT iIndexU).                           */
+/*    MESSAGE "ValueLowerRed"  dValueLower skip      */
+/*        "ValueUpperRed" dValueUpper skip           */
+/*        "ValueRed" dValue skip                     */
+/*        "IndexLowerRed" iIndexL skip               */
+/*        "IndexUpperRed" iIndexU                    */
+/*        VIEW-AS ALERT-BOX.                         */
+        
+    opdReturnMarkup = dValueUpper.
+                
 END PROCEDURE.
 
 PROCEDURE pGetMatrixMatch:
