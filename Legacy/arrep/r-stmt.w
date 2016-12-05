@@ -3073,6 +3073,7 @@ DEF VAR ld-due AS DEC NO-UNDO.
 DEF VAR lv-curr LIKE currency.c-desc NO-UNDO.
 DEF VAR lv-terms LIKE terms.dscr NO-UNDO.
 DEF VAR lc-attn AS CHAR NO-UNDO.
+DEFINE VARIABLE lCheckCaseInv AS LOGICAL INITIAL NO NO-UNDO .
 
 DEF BUFFER lb-cust FOR cust.
 def var msgx as int no-undo.
@@ -3300,7 +3301,7 @@ FIRST cust no-lock
       ld-due = ar-inv.net.
     else
       ld-due = ar-inv.gross.
-
+    ASSIGN lCheckCaseInv = NO .
     for each ar-cashl
         where ar-cashl.company  eq ar-inv.company
           and ar-cashl.posted   eq yes
@@ -3323,6 +3324,7 @@ FIRST cust no-lock
           ld-due = ld-due + (ar-cashl.amt-paid + (- (ar-cashl.amt-disc))).
       else
         ld-due = ld-due + ((ar-cashl.amt-paid * -1) + (ar-cashl.amt-disc * -1)).
+        ASSIGN lCheckCaseInv = YES .
     end.
 
     IF ld-due NE 0 THEN DO:
@@ -3340,7 +3342,7 @@ FIRST cust no-lock
        tt-inv.inv-no     = ar-inv.inv-no
        tt-inv.type       = if ar-inv.type gt ' ' then ar-inv.type else 'I'
        tt-inv.inv-amt    = ar-inv.gross
-       tt-inv.amount     = if v-detail then
+       tt-inv.amount     = if v-detail OR  NOT lCheckCaseInv then
                            if ar-inv.net     eq
                               ar-inv.gross   +
                               ar-inv.freight +
