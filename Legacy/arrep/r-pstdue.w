@@ -18,5 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "AR11" }
 END.
 
-IF SelectRptColumn-log THEN RUN arrep/r-pstdueN.w PERSISTENT.
-ELSE RUN arrep/r-pstdueA.w PERSISTENT.
+IF SelectRptColumn-log THEN RUN arrep/r-pstdueN.w.
+ELSE RUN arrep/r-pstdueA.w.
