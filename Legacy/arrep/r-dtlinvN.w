@@ -1583,7 +1583,7 @@ FOR EACH ar-ledger
           AND ar-cash.check-no EQ INT(SUBSTR(ar-ledger.ref-num,6,8))
         NO-LOCK,
 
-        FIRST ar-cashl WHERE ar-cashl.c-no EQ ar-cash.c-no NO-LOCK:
+        EACH ar-cashl WHERE ar-cashl.c-no EQ ar-cash.c-no NO-LOCK:
       /* gdm - 09240903 */
       lv-jrnl = IF ar-cashl.amt-paid - ar-cashl.amt-disc GT 0
                 THEN "DBMEM" ELSE "CRMEM".
