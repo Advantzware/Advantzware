@@ -791,7 +791,7 @@ DO:
                        buf-inv-head.bol-no EQ begin_bol
                        NO-LOCK:
              ASSIGN lCheckHoldStat = YES .
-             RETURN.
+             LEAVE .
           END.
       IF NOT lCheckHoldStat THEN
       for each buf-inv-head WHERE
