@@ -1453,7 +1453,10 @@ PROCEDURE setEstNoSearch:
 ------------------------------------------------------------------------------*/
 DEF INPUT PARAM ipiEstNo LIKE eb.est-no NO-UNDO.
 
-ASSIGN vi_est-no = ipiEstNo.
+ASSIGN vi_est-no = ipiEstNo
+       tb_single = YES 
+       tb_set    = YES 
+       tb_tancom = YES   .
 
 END PROCEDURE.
 	
