@@ -1140,21 +1140,22 @@ IF tb_excel THEN
        AND ar-invl.po-no GE begin_po-no
        AND ar-invl.po-no LE end_po-no
        AND ar-invl.inv-no NE 0 AND ar-invl.inv-no <> ? NO-LOCK, 
-      FIRST ar-inv WHERE ar-inv.x-no = ar-invl.x-no 
+       FIRST ar-inv WHERE ar-inv.x-no = ar-invl.x-no 
        AND ar-inv.inv-date GE begin_date
-       AND ar-inv.inv-date LE end_date NO-LOCK, 
-      FIRST cust OF ar-inv NO-LOCK BREAK BY ar-invl.inv-no DESC :
-
+       AND ar-inv.inv-date LE end_date NO-LOCK 
+        BREAK BY ar-invl.inv-no DESC :
+            
          ASSIGN
              amount = 0
              amount = IF NOT ar-invl.billable AND ar-invl.misc THEN 0 ELSE ar-invl.amt.
              
-        
-        ASSIGN
-        distot[2]    = 0 
-        Amounttot[2] = 0
-        costot[2]    = 0.
+        IF FIRST-OF(ar-invl.inv-no) THEN
+            ASSIGN
+            distot[2]    = 0 
+            Amounttot[2] = 0
+            costot[2]    = 0.
 
+         IF FIRST-OF(ar-invl.inv-no) THEN
          FOR EACH bf-ar-invl WHERE bf-ar-invl.company = ar-invl.company 
              AND bf-ar-invl.inv-no = ar-invl.inv-no NO-LOCK:
              ASSIGN
@@ -1202,7 +1203,7 @@ IF tb_excel THEN
                     cExcelDisplay = cExcelDisplay + quoter(" ")  /*GetFieldValue(hField))*/ + ",".
                  END.
         END.
-          ELSE DO:       
+          ELSE DO:      
              CASE cTmpField:
                   WHEN "actdscr" THEN cVarValue   =  STRING( get-actdscr() ).
                   WHEN "amount" THEN cVarValue    =  STRING(amount).
@@ -1238,12 +1239,7 @@ IF tb_excel THEN
      END.
 
      v-excel-detail-lines = "".
-       /*vline = NO.*/
-       IF FIRST-OF(ar-invl.inv-no) THEN
-       vline = NO .
-       ELSE
-          vline = YES .
-       
+      
    END.
 
 IF tb_excel THEN DO:
