@@ -678,7 +678,8 @@ DO:
         "(v-job-rec-key,v-job-header)"}
 
        {methods/run_link.i "CONTAINER-SOURCE" "MF-Message"
-       "(CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = v-job-rec-key))"}
+       "(CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = job.rec_key))"}
+     /*"(CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = v-job-rec-key))"}*/
        
        IF job-hdr.est-no GT "" THEN DO:
            FIND FIRST xeb NO-LOCK WHERE xeb.company EQ job-hdr.company
