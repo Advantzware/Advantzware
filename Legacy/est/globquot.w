@@ -642,6 +642,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
+    tb_undo:HIDDEN  = YES .
     APPLY "entry" TO begin_cust.
   END.
 
@@ -825,7 +826,7 @@ assign
  v-pct   = percent_chg
  v-round = rd_round
  v-round-EA = rd_round-EA
- v-undo  = tb_undo.
+ v-undo  = /*tb_undo*/ NO .
 
 session:set-wait-state("General").
 
