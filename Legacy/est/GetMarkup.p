@@ -90,15 +90,7 @@ PROCEDURE pGetMarkup:
         OUTPUT dValue,
         OUTPUT iIndexL,
         OUTPUT iIndexU).
-    MESSAGE 
-        "Board Cost/Lookup" ipdLookupValue skip
-        "ValueLower"  dValueLower skip 
-        "ValueUpper" dValueUpper skip 
-        "Value" dValue skip
-        "IndexLower" iIndexL skip
-        "IndexUpper" iIndexU
-        VIEW-AS ALERT-BOX.
-        
+
     IF iIndexU GT 0 THEN 
         opcReturnMarkupOn = ipbf-selected-cust-markup.markup-on[iIndexU].     
     ELSE 
