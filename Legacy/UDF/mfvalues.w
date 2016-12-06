@@ -83,8 +83,8 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnApply btnSave Rect-Top btnExit Rect-Left ~
-Rect-Right Rect-Bottom 
+&Scoped-Define ENABLED-OBJECTS btnApply Rect-Top Rect-Left btnSave ~
+Rect-Right Rect-Bottom btnExit 
 &Scoped-Define DISPLAYED-OBJECTS mfgroupList mfgroupLabel 
 
 /* Custom List Definitions                                              */
@@ -161,10 +161,10 @@ DEFINE FRAME DEFAULT-FRAME
           "Apply" WIDGET-ID 4
      btnSave AT ROW 21.48 COL 76 HELP
           "Save & Exit" WIDGET-ID 6
-     btnExit AT ROW 21.48 COL 84 HELP
-          "Exit Design Layout Window" WIDGET-ID 2
      mfgroupList AT ROW 21.95 COL 7 COLON-ALIGNED HELP
           "Select Group Name" NO-LABEL
+     btnExit AT ROW 21.48 COL 84 HELP
+          "Exit Design Layout Window" WIDGET-ID 2
      mfgroupLabel AT ROW 21.95 COL 2 NO-LABEL
      Rect-Main AT ROW 2.05 COL 1.6
      Rect-Top AT ROW 2.1 COL 1.8
@@ -501,7 +501,7 @@ PROCEDURE createTabs :
   DELETE WIDGET-POOL "widget-pool-tabs" NO-ERROR.
   CREATE WIDGET-POOL "widget-pool-tabs" PERSISTENT.
   FIND {&dbnm}mfgroup NO-LOCK
-       WHERE {&dbnm}mfgroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+       WHERE {&dbnm}mfgroup.mfgroup_data BEGINS mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
        NO-ERROR.
   IF NOT AVAILABLE {&dbnm}mfgroup THEN RETURN.
   DO i = 1 TO NUM-ENTRIES({&dbnm}mfgroup.mfgroup_tabs):
@@ -826,7 +826,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY mfgroupList mfgroupLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnApply btnSave Rect-Top btnExit Rect-Left Rect-Right Rect-Bottom 
+  ENABLE btnApply Rect-Top Rect-Left btnSave Rect-Right Rect-Bottom btnExit 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -879,7 +879,7 @@ PROCEDURE loadWidgetData :
     RETURN "EMPTY".
   END.
   FOR EACH {&dbnm}mfgroup NO-LOCK:
-    mfgrpList = mfgrpList + (IF mfgrpList NE "" THEN "," ELSE "") + {&dbnm}mfgroup.mfgroup_data.
+    mfgrpList = mfgrpList + (IF mfgrpList NE "" THEN "," ELSE "") + ENTRY(1,{&dbnm}mfgroup.mfgroup_data,"|").
   END.
   IF NOT CAN-DO(mfgrpList,ipcGroup) THEN DO:
     MESSAGE "No '" + ipcGroup + "' Group Exists!!!" VIEW-AS ALERT-BOX INFORMATION.

@@ -5,7 +5,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-  File: Ron Stark
+  File: mftaborder.w
 
   Description: module to select tab order for misc fields
 
@@ -133,22 +133,22 @@ DEFINE VARIABLE tabObjects AS CHARACTER
 DEFINE FRAME Dialog-Frame
      btnMoveDown AT ROW 8.86 COL 81 HELP
           "Move Selected Tabbable Object Down"
+     tabLabel AT ROW 1.24 COL 5 COLON-ALIGNED WIDGET-ID 2
      btnMoveFirst AT ROW 6.48 COL 81 HELP
           "Move Selected Tabbable Object to First Object"
-     btnMoveLast AT ROW 10.05 COL 81 HELP
-          "Move Selected Tabbable Object to Last Object"
-     btnMoveUp AT ROW 7.67 COL 81 HELP
-          "Move Selected Tabbable Object Up"
-     tabLabel AT ROW 1.24 COL 5 COLON-ALIGNED WIDGET-ID 2
      tabOptions AT ROW 1.24 COL 67 COLON-ALIGNED HELP
           "Select Tabbing Option"
+     btnMoveLast AT ROW 10.05 COL 81 HELP
+          "Move Selected Tabbable Object to Last Object"
      tabObjects AT ROW 2.43 COL 2 HELP
           "Select Tabbable Object to Move" NO-LABEL
+     btnMoveUp AT ROW 7.67 COL 81 HELP
+          "Move Selected Tabbable Object Up"
      btnExit AT ROW 25.76 COL 88 HELP
           "Exit Design Layout Window" WIDGET-ID 4
      btnSave AT ROW 25.76 COL 80 HELP
           "Save" WIDGET-ID 8
-     SPACE(7.99) SKIP(0.00)
+     SPACE(8.00) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "User Defined Fields Tab Order"

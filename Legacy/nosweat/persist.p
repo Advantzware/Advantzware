@@ -25,16 +25,17 @@ PROCEDURE Check-Exit :
   Notes :     
   --------------------------------------------------------------------------- */
   DEFINE OUTPUT PARAMETER close-ok AS LOGICAL NO-UNDO.
+
   DEFINE BUFFER b1-prgrms FOR prgrms.
   DEFINE BUFFER b2-prgrms FOR prgrms.
 
   ASSIGN
     close-ok = yes
-    phandle = SESSION:FIRST-PROCEDURE.
+    phandle = SESSION:FIRST-PROCEDURE
+    .
   DO WHILE VALID-HANDLE(phandle):
     IF phandle:PRIVATE-DATA NE ? AND
-       INDEX(PROGRAM-NAME(2),phandle:PRIVATE-DATA) NE 0 THEN
-    DO:
+       INDEX(PROGRAM-NAME(2),phandle:PRIVATE-DATA) NE 0 THEN DO:
       close-ok = no.
       /* get parent record */
       FIND b1-prgrms WHERE b1-prgrms.prgmname = phandle:PRIVATE-DATA NO-LOCK.
@@ -80,18 +81,20 @@ LITERAL,RADIO-SET,SELECTION-LIST,SLIDER,TEXT,TOGGLE-BOX" NO-UNDO.
   IF AVAILABLE users THEN
   ASSIGN
     use_fonts = users.use_font
-    use_colors = users.use_colors.
+    use_colors = users.use_colors
+    .
 
-  IF NOT(use_fonts OR use_colors) THEN
-  DO:
+  IF NOT(use_fonts OR use_colors) THEN DO:
     ASSIGN
       prgm-name = SUBSTR(PROGRAM-NAME(2),INDEX(PROGRAM-NAME(2),"/") + 1)
-      prgm-name = SUBSTR(prgm-name,1,LENGTH(prgm-name) - 1).
+      prgm-name = SUBSTR(prgm-name,1,LENGTH(prgm-name) - 1)
+      .
     FIND prgrms WHERE prgrms.prgmname = prgm-name NO-LOCK NO-ERROR.
     IF AVAILABLE prgrms THEN
     ASSIGN
       use_fonts = prgrms.use_font
-      use_colors = prgrms.use_colors.
+      use_colors = prgrms.use_colors
+      .
     IF NOT(use_fonts OR use_colors) THEN
     RETURN.
     DO i = 1 TO NUM-ENTRIES(widget-list):
@@ -106,30 +109,31 @@ LITERAL,RADIO-SET,SELECTION-LIST,SLIDER,TEXT,TOGGLE-BOX" NO-UNDO.
     ASSIGN
       w-bgc[i] = users.widget_bgc[i]
       w-fgc[i] = users.widget_fgc[i]
-      w-font[i] = users.widget_font[i].
+      w-font[i] = users.widget_font[i]
+      .
   END.
 
   current-widget = current-frame.
-  IF CAN-DO(widget-list,current-widget:TYPE) THEN
-  DO:
+  IF CAN-DO(widget-list,current-widget:TYPE) THEN DO:
     IF use_colors THEN
     ASSIGN
       current-widget:BGCOLOR = w-bgc[LOOKUP(current-widget:TYPE,widget-list)]
-      current-widget:FGCOLOR = w-fgc[LOOKUP(current-widget:TYPE,widget-list)].
+      current-widget:FGCOLOR = w-fgc[LOOKUP(current-widget:TYPE,widget-list)]
+      .
   END.
   ASSIGN
     current-widget = current-widget:FIRST-CHILD
-    current-widget = current-widget:FIRST-CHILD.
-
+    current-widget = current-widget:FIRST-CHILD
+    .
   DO WHILE current-widget NE ?:
-    IF CAN-DO(widget-list,current-widget:TYPE) THEN
-    DO:
+    IF CAN-DO(widget-list,current-widget:TYPE) THEN DO:
       IF use_fonts AND current-widget:TYPE NE "BROWSE" THEN
       current-widget:FONT = w-font[LOOKUP(current-widget:TYPE,widget-list)].
       IF use_colors THEN
       ASSIGN
         current-widget:BGCOLOR = w-bgc[LOOKUP(current-widget:TYPE,widget-list)]
-        current-widget:FGCOLOR = w-fgc[LOOKUP(current-widget:TYPE,widget-list)].
+        current-widget:FGCOLOR = w-fgc[LOOKUP(current-widget:TYPE,widget-list)]
+        .
     END.
     current-widget = current-widget:NEXT-SIBLING.
   END.
@@ -164,39 +168,30 @@ PROCEDURE Get_Procedure :
   
   FIND buf-prgrms WHERE buf-prgrms.prgmname = proc-name NO-LOCK NO-ERROR.
 
-  IF AVAILABLE buf-prgrms THEN
-  DO:
+  IF AVAILABLE buf-prgrms THEN DO:
     run-proc = buf-prgrms.dir_group + "/" + proc-name + "r".
     IF SEARCH(run-proc) = ? THEN
     run-proc = buf-prgrms.dir_group + "/" + proc-name + "p".
     IF SEARCH(run-proc) = ? THEN
     run-proc = buf-prgrms.dir_group + "/" + proc-name + "w".
-    IF SEARCH(run-proc) = ? THEN
-    DO:
-      IF NOT SESSION:BATCH-MODE THEN
-      DO:
+    IF SEARCH(run-proc) = ? THEN DO:
+      IF NOT SESSION:BATCH-MODE THEN DO:
         RUN Set_Cursor ("").
         MESSAGE "Procedure" SUBSTR(run-proc,1,LENGTH(run-proc) - 2) "Does Not Exist"
             VIEW-AS ALERT-BOX ERROR.
       END.
       run-proc = "".
     END.
-    ELSE
-    DO:
-      IF buf-prgrms.track_usage OR g_track_usage THEN
-      DO:
+    ELSE DO:
+      IF buf-prgrms.track_usage OR g_track_usage THEN DO:
         FIND FIRST config NO-LOCK.
         OUTPUT TO VALUE(config.logs_dir + "/trackuse.log") APPEND.
         EXPORT USERID("NOSWEAT") buf-prgrms.prgmname TODAY FORMAT "99/99/9999" TIME.
         OUTPUT CLOSE.
       END.
-      IF run-now THEN
-      DO:
-
-        IF buf-prgrms.run_persistent THEN
-        DO:
-          IF INDEX(proc-name,"_.") NE 0 THEN
-          DO:
+      IF run-now THEN DO:
+        IF buf-prgrms.run_persistent THEN DO:
+          IF INDEX(proc-name,"_.") NE 0 THEN DO:
             run-proc = "system/listrqst.w".
             {methods/smartrun.i (buf-prgrms.prgmname)}
           END.
@@ -209,17 +204,13 @@ PROCEDURE Get_Procedure :
         ELSE
         IF proc-name= "help." AND INDEX(PROGRAM-NAME(2),"mainmenu") NE 0 THEN
         RUN VALUE(run-proc) ("mainmenu.",0).
-        ELSE do:
-
-        RUN VALUE(run-proc).
-        end.
+        ELSE RUN VALUE(run-proc).
         run-proc = "".
       END.
     END.
   END.
   ELSE
-  IF NOT SESSION:BATCH-MODE THEN
-  DO:
+  IF NOT SESSION:BATCH-MODE THEN DO:
     RUN Set_Cursor ("").
     MESSAGE "Program :" proc-name SKIP(1)
         "Program Master Record Does Not Exist - Contact Systems Manager" 
@@ -241,7 +232,8 @@ PROCEDURE Run_applhelp :
   ASSIGN
     current-widget = current-frame
     current-widget = current-widget:FIRST-CHILD
-    current-widget = current-widget:FIRST-CHILD.
+    current-widget = current-widget:FIRST-CHILD
+    .
   DO WHILE current-widget NE ?:
     IF current-widget:NAME = FRAME-FIELD THEN
     LEAVE.
@@ -267,16 +259,15 @@ PROCEDURE Running_Procedures :
 
   ASSIGN
     is-running = no
-    phandle = SESSION:FIRST-PROCEDURE.
+    phandle = SESSION:FIRST-PROCEDURE
+    .
   DO WHILE VALID-HANDLE(phandle):
-    IF INDEX(phandle:FILE-NAME,progname) NE 0 THEN
-    DO:
+    IF INDEX(phandle:FILE-NAME,progname) NE 0 THEN DO:
       IF INDEX(progname,"notes.") NE 0 OR
          INDEX(progname,"mfvalues.") NE 0 OR
          INDEX(progname,"listrqst.") NE 0 THEN
       DELETE PROCEDURE phandle.
-      ELSE
-      DO:
+      ELSE DO:
         is-running = yes.
         RUN Set_Cursor ("").
         RUN Set-Focus IN phandle NO-ERROR.
@@ -296,6 +287,7 @@ PROCEDURE Set_Cursor :
   Notes :     
 ----------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER cursor_type AS CHARACTER NO-UNDO.
+
   DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 
   ldummy = SESSION:SET-WAIT-STATE(IF cursor_type = "WAIT" THEN "GENERAL" ELSE "").
@@ -315,15 +307,13 @@ PROCEDURE Set_Primary_Fields :
   ASSIGN
     current-widget = current-frame
     current-widget = current-widget:FIRST-CHILD
-    current-widget = current-widget:FIRST-CHILD.
+    current-widget = current-widget:FIRST-CHILD
+    .
   DO WHILE current-widget NE ?:
-    IF current-widget:DBNAME NE ? THEN
-    DO:
-      IF indx-fields = "" THEN
-      DO:
+    IF current-widget:DBNAME NE ? THEN DO:
+      IF indx-fields = "" THEN DO:
         RUN Get_Procedure IN THIS-PROCEDURE ("primflds.",OUTPUT run-proc,no).
-        IF run-proc NE "" THEN
-        DO:
+        IF run-proc NE "" THEN DO:
           CREATE ALIAS dictdb FOR DATABASE VALUE(current-widget:DBNAME).
           RUN VALUE(run-proc) (current-widget:TABLE,OUTPUT indx-fields).
         END.
@@ -331,7 +321,8 @@ PROCEDURE Set_Primary_Fields :
       IF CAN-DO(indx-fields,current-widget:NAME) THEN
       ASSIGN
         current-widget:BGCOLOR = 3
-        current-widget:FGCOLOR = 15.
+        current-widget:FGCOLOR = 15
+        .
     END.
     current-widget = current-widget:NEXT-SIBLING.
   END.
@@ -353,10 +344,10 @@ PROCEDURE Tool_Tips :
   ASSIGN
     current-widget = current-frame
     current-widget = current-widget:FIRST-CHILD
-    current-widget = current-widget:FIRST-CHILD.
+    current-widget = current-widget:FIRST-CHILD
+    .
   DO WHILE current-widget NE ?:
-    IF current-widget:TYPE NE "RECTANGLE" AND current-widget:LABEL NE "" THEN
-    DO:
+    IF current-widget:TYPE NE "RECTANGLE" AND current-widget:LABEL NE "" THEN DO:
       FIND acclrtrs WHERE acclrtrs.acclrtr = current-widget:LABEL NO-LOCK NO-ERROR.
       IF AVAILABLE acclrtrs THEN
       current-widget:TOOLTIP = current-widget:TOOLTIP + " - " + acclrtrs.func_key.

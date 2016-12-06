@@ -38,3 +38,9 @@ DEFINE {&NEW} SHARED TEMP-TABLE ttAttrb NO-UNDO
       attr_id
     INDEX si-name
       attr_name.
+
+DEFINE {&NEW} SHARED TEMP-TABLE ttMFPrgrms NO-UNDO
+  FIELD mfgroup    AS CHARACTER
+  FIELD prgmname LIKE prgrms.prgmname
+  FIELD prgtitle LIKE prgrms.prgtitle
+    INDEX ttMFPrgrms IS PRIMARY prgmname.

@@ -7,6 +7,8 @@ RUN sysCtrlMiscFlds (OUTPUT miscFlds).
 RUN hideMiscFlds IN h_miscflds.*/
 
 PROCEDURE selectMiscFlds:
+  DEFINE VARIABLE isRunning AS LOGICAL NO-UNDO.
+
   IF NOT AVAILABLE job THEN DO:
       MESSAGE "No job is available"
           VIEW-AS ALERT-BOX INFO BUTTONS OK.
@@ -15,8 +17,9 @@ PROCEDURE selectMiscFlds:
 
   RUN sysCtrlMiscFlds (OUTPUT miscFlds).
   IF NOT miscFlds THEN RETURN.
-
-  RUN nosweat/mfvalns.p (sys-ctrl.char-fld,{&mfRecKey},{&mfHeader}).
+  
+  RUN Running_Procedures IN Persistent-Handle ("mfvalues.",OUTPUT isRunning).
+  RUN UDF/mfvalues.w PERSISTENT (sys-ctrl.char-fld,{&mfRecKey},{&mfHeader}).
 END PROCEDURE.
 
 PROCEDURE sysCtrlMiscFlds:
