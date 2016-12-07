@@ -26,6 +26,7 @@ def var v-last-page         as   int.
 def var v-page-tot          as   dec format ">>9".
 
 DEF TEMP-TABLE tt-boll LIKE oe-boll
-    FIELD rec_id AS CHAR.
+    FIELD rec_id AS CHAR
+    FIELD unitCount as INTEGER .
 
 DEF BUFFER b-tt-boll FOR tt-boll.
