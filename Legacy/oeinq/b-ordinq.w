@@ -241,7 +241,7 @@ oe-ordl.cust-no oe-ord.cust-name oe-ordl.qty oe-ordl.ship-qty ~
 oe-ordl.req-date oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no ~
 oe-ordl.job-no oe-ordl.job-no2 oe-ord.ord-date oe-ord.stat oe-ordl.inv-qty ~
 oe-ordl.i-name getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
-get-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc
+fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-ordl oe-ord
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ordl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ord
@@ -385,8 +385,8 @@ FUNCTION get-prod RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-qty-nothand B-table-Win 
-FUNCTION get-qty-nothand RETURNS INTEGER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fget-qty-nothand B-table-Win 
+FUNCTION fget-qty-nothand RETURNS INTEGER
   (ipBal AS INTEGER,ipHand AS INTEGER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -633,7 +633,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 15.4  LABEL-BGCOLOR 14  /* mod 01 Task 10111317  */
       getTotalReturned() @ dTotQtyRet COLUMN-LABEL "Total Qty Returned" FORMAT ">>>,>>9":U
       getReturnedInv() @ dTotRetInv COLUMN-LABEL "Qty Ret. Inventory" FORMAT ">>>,>>9":U
-      get-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
+      fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
             
   ENABLE
       oe-ordl.ord-no
@@ -881,7 +881,7 @@ oe-ordl.ord-no eq 999999999"
      _FldNameList[35]   > "_<CALC>"
 "getReturnedInv() @ dTotRetInv" "Qty Ret. Inventory" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
     _FldNameList[35]   > "_<CALC>"
-"get-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -3758,19 +3758,19 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-qty-nothand B-table-Win 
-FUNCTION get-qty-nothand RETURNS INTEGER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fget-qty-nothand B-table-Win 
+FUNCTION fget-qty-nothand RETURNS INTEGER
   (ipBal AS INTEGER,ipHand AS INTEGER ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE rtnValue AS INTEGER NO-UNDO.
+  DEFINE VARIABLE irtnValue AS INTEGER NO-UNDO.
 
-    rtnValue = (ipHand  - ipBal ).
+    irtnValue = (ipHand  - ipBal ).
    
   
-  RETURN rtnValue.
+  RETURN irtnValue.
 
 END FUNCTION.
 
