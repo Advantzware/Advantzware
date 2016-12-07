@@ -25,25 +25,25 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER pcCustFrom   AS CHAR NO-UNDO.
-DEFINE INPUT PARAMETER pcinvFrom    AS INT NO-UNDO.
-DEFINE INPUT PARAMETER pcitemFrom   AS CHAR NO-UNDO.
-DEFINE INPUT PARAMETER pcbolFrom    AS INT NO-UNDO.
-DEFINE INPUT PARAMETER pcpoFrom     AS CHAR NO-UNDO.
-DEFINE INPUT PARAMETER pcCustTo     AS CHAR NO-UNDO.
-DEFINE INPUT PARAMETER pcinvTo      AS INT NO-UNDO.
-DEFINE INPUT PARAMETER pcitemTo     AS CHAR NO-UNDO.
-DEFINE INPUT PARAMETER pcbolTo      AS INT NO-UNDO.
-DEFINE INPUT PARAMETER pcpoTo       AS CHAR NO-UNDO.
+DEFINE INPUT PARAMETER pcCustFrom   AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER pcinvFrom    AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER pcitemFrom   AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER pcbolFrom    AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER pcpoFrom     AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER pcCustTo     AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER pcinvTo      AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER pcitemTo     AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER pcbolTo      AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER pcpoTo       AS CHARACTER NO-UNDO.
 
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
-DEF BUFFER m-oe-prmtx FOR oe-prmtx.
+DEFINE BUFFER m-oe-prmtx FOR oe-prmtx.
 
-DEFINE VARIABLE v-prgmname AS CHAR NO-UNDO.
+DEFINE VARIABLE v-prgmname AS CHARACTER NO-UNDO.
 DEFINE VARIABLE period_pos AS INTEGER NO-UNDO.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -65,19 +65,19 @@ ASSIGN
 
 {sys/inc/var.i new shared}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
 DEFINE STREAM excel.
 
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR cFieldType AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
+DEFINE VARIABLE ldummy AS LOG NO-UNDO.
+DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
+DEFINE VARIABLE cFieldType AS cha NO-UNDO.
+DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Invoice#,Bol#,Customer,Cust Name,Inv Date,GL Account#,Acc Desc,FG Item#,Item Name," +
                             "Item Desccription,Cust Part#,Order#,Cust Po#,Est#,Shipto,Tax Code,Term Code,Term Desc," +
@@ -137,7 +137,7 @@ fi_file
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD appendXLLine Dialog-Frame 
 FUNCTION appendXLLine RETURNS CHARACTER
-( ipc-append AS CHAR )  FORWARD.
+( ipc-append AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -272,13 +272,13 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 34 BY 5.52 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL YES 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
@@ -312,8 +312,8 @@ DEFINE FRAME Dialog-Frame
           "Enter Beginning Invoice Date" WIDGET-ID 100
      end_date AT ROW 7.57 COL 71 COLON-ALIGNED HELP
           "Enter Ending Invoice Date" WIDGET-ID 120
-     sl_avail AT ROW 10.1 COL 6.6 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 10.1 COL 62.6 NO-LABEL WIDGET-ID 28
+     sl_avail AT ROW 10.1 COL 6.6 NO-LABELS WIDGET-ID 26
+     sl_selected AT ROW 10.1 COL 62.6 NO-LABELS WIDGET-ID 28
      Btn_Add AT ROW 10.57 COL 43.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
      Btn_Remove AT ROW 11.76 COL 43.6 HELP
@@ -438,30 +438,30 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Customer Invoice Excel Export */
 DO:
-DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-DEF VAR ls-cur-val AS CHAR NO-UNDO.
-DEF VAR char-val AS CHAR NO-UNDO.
+DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE ls-cur-val AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
    lw-focus = FOCUS.
 
-   case lw-focus:name :
+   CASE lw-focus:NAME :
 
-       when "begin_cust-no" then do:
-           ls-cur-val = lw-focus:screen-value.
-           run windows/l-cust.w (cocode,ls-cur-val, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* cust-no*/  
-       when "end_cust-no" then do:
-           ls-cur-val = lw-focus:screen-value.
-           run windows/l-cust.w (cocode,ls-cur-val, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* cust-no*/  
+       WHEN "begin_cust-no" THEN DO:
+           ls-cur-val = lw-focus:SCREEN-VALUE.
+           RUN windows/l-cust.w (cocode,ls-cur-val, OUTPUT char-val).
+           IF char-val <> "" THEN DO:
+              lw-focus:SCREEN-VALUE =  ENTRY(1,char-val).
+           END.
+           RETURN NO-APPLY.
+       END.  /* cust-no*/  
+       WHEN "end_cust-no" THEN DO:
+           ls-cur-val = lw-focus:SCREEN-VALUE.
+           RUN windows/l-cust.w (cocode,ls-cur-val, OUTPUT char-val).
+           IF char-val <> "" THEN DO:
+              lw-focus:SCREEN-VALUE =  ENTRY(1,char-val).
+           END.
+           RETURN NO-APPLY.
+       END.  /* cust-no*/  
        /*when "begin_item" then do:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-itemfg.w (cocode, begin_cust-no, begin_item, output char-val).
@@ -515,7 +515,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_bol-no Dialog-Frame
 ON LEAVE OF begin_bol-no IN FRAME Dialog-Frame /* From Bol */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -526,7 +526,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no Dialog-Frame
 ON LEAVE OF begin_cust-no IN FRAME Dialog-Frame /* From Customer Code */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -537,7 +537,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date Dialog-Frame
 ON LEAVE OF begin_date IN FRAME Dialog-Frame /* From Invoice Date */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -548,7 +548,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no Dialog-Frame
 ON LEAVE OF begin_i-no IN FRAME Dialog-Frame /* From FG Item # */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -559,7 +559,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv-no Dialog-Frame
 ON LEAVE OF begin_inv-no IN FRAME Dialog-Frame /* From Invoice */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -570,7 +570,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_po-no Dialog-Frame
 ON LEAVE OF begin_po-no IN FRAME Dialog-Frame /* From Cust Po# */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -581,7 +581,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel Dialog-Frame
 ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -596,7 +596,7 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
   RUN GetSelectionList. 
-  run run-report.
+  RUN run-report.
 
  END.
 
@@ -608,7 +608,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add Dialog-Frame
 ON CHOOSE OF Btn_Add IN FRAME Dialog-Frame /* Add >> */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -672,7 +672,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_bol-no Dialog-Frame
 ON LEAVE OF end_bol-no IN FRAME Dialog-Frame /* To Bol */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -683,7 +683,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no Dialog-Frame
 ON LEAVE OF end_cust-no IN FRAME Dialog-Frame /* To Customer Code */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -694,7 +694,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date Dialog-Frame
 ON LEAVE OF end_date IN FRAME Dialog-Frame /* To Invoice Date */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -705,7 +705,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no Dialog-Frame
 ON LEAVE OF end_i-no IN FRAME Dialog-Frame /* To FG Item# */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -716,7 +716,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv-no Dialog-Frame
 ON LEAVE OF end_inv-no IN FRAME Dialog-Frame /* To Invoice */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -727,7 +727,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_po-no Dialog-Frame
 ON LEAVE OF end_po-no IN FRAME Dialog-Frame /* To Cust Po# */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -738,7 +738,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file Dialog-Frame
 ON LEAVE OF fi_file IN FRAME Dialog-Frame /* If Yes, File Name */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -808,7 +808,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel Dialog-Frame
 ON VALUE-CHANGED OF tb_excel IN FRAME Dialog-Frame /* Export To Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -819,7 +819,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel Dialog-Frame
 ON VALUE-CHANGED OF tb_runExcel IN FRAME Dialog-Frame /* Auto Run Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -834,7 +834,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
 
@@ -899,8 +899,8 @@ PROCEDURE DisplaySelectionList :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:   
      RETURN.
@@ -934,8 +934,8 @@ PROCEDURE DisplaySelectionList2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE cListContents AS cha NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:     
      RETURN.
@@ -999,7 +999,7 @@ PROCEDURE GetSelectionList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+ DEFINE VARIABLE cTmpList AS cha NO-UNDO.
 
  EMPTY TEMP-TABLE ttRptSelected.
  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1007,14 +1007,14 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-    IF NOT AVAIL ttRptList THEN
+    IF NOT AVAILABLE ttRptList THEN
         MESSAGE "no " i ENTRY(i,ctmplist) SKIP
         ctmplist
-            VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
            ttRptSelected.DisplayOrder = i
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
@@ -1067,35 +1067,35 @@ PROCEDURE run-report :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF BUFFER b-oe-prmtx FOR oe-prmtx.
-DEF VAR str-tit4 AS cha NO-UNDO.
-DEF VAR str-tit5 AS cha NO-UNDO.
-DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE BUFFER b-oe-prmtx FOR oe-prmtx.
+DEFINE VARIABLE str-tit4 AS cha NO-UNDO.
+DEFINE VARIABLE str-tit5 AS cha NO-UNDO.
+DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.
 
-DEF BUFFER b-ar-invl FOR ar-invl.
-DEF BUFFER bar-inv FOR ar-inv.
-DEF BUFFER bf-ar-invl FOR ar-invl.
+DEFINE BUFFER b-ar-invl FOR ar-invl.
+DEFINE BUFFER bar-inv FOR ar-inv.
+DEFINE BUFFER bf-ar-invl FOR ar-invl.
 
-DEF VAR v-excelheader AS CHAR NO-UNDO.
-DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
+DEFINE VARIABLE v-excelheader AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-excel-detail-lines AS CHARACTER NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-DEF VAR ino AS CHAR FORMAT "x(15)" NO-UNDO.
-DEF VAR amount AS DEC  NO-UNDO.
-DEF VAR chk-amount AS DEC NO-UNDO.
-DEF VAR pricbas AS CHAR NO-UNDO.
-DEF VAR distot AS DEC EXTENT 2 NO-UNDO.
-DEF VAR Amounttot AS DEC EXTENT 2 FORMAT "->>>,>>>,>99.99" NO-UNDO.
-DEF VAR costot AS DEC EXTENT 2 FORMAT "->>>,>>>,>99.99" NO-UNDO.
-DEF VAR vline AS LOG NO-UNDO INIT NO .
+DEFINE VARIABLE ino AS CHARACTER FORMAT "x(15)" NO-UNDO.
+DEFINE VARIABLE amount AS DECIMAL  NO-UNDO.
+DEFINE VARIABLE chk-amount AS DECIMAL NO-UNDO.
+DEFINE VARIABLE pricbas AS CHARACTER NO-UNDO.
+DEFINE VARIABLE distot AS DECIMAL EXTENT 2 NO-UNDO.
+DEFINE VARIABLE Amounttot AS DECIMAL EXTENT 2 FORMAT "->>>,>>>,>99.99" NO-UNDO.
+DEFINE VARIABLE costot AS DECIMAL EXTENT 2 FORMAT "->>>,>>>,>99.99" NO-UNDO.
+DEFINE VARIABLE vline AS LOG NO-UNDO INIT NO .
 
-DEF VAR cDisplay AS cha NO-UNDO.
-DEF VAR cExcelDisplay AS cha NO-UNDO.
-DEF VAR hField AS HANDLE NO-UNDO.
-DEF VAR cTmpField AS CHA NO-UNDO.
-DEF VAR cVarValue AS cha NO-UNDO.
-DEF VAR cExcelVarValue AS cha NO-UNDO.
-DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE cDisplay AS cha NO-UNDO.
+DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
+DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
+DEFINE VARIABLE cVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
+DEFINE VARIABLE cFieldName AS cha NO-UNDO.
+DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
 DO WITH FRAME {&FRAME-NAME}:
@@ -1105,7 +1105,7 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN
    OUTPUT STREAM excel TO VALUE(fi_file).
 
- DEF VAR cslist AS cha NO-UNDO.
+ DEFINE VARIABLE cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
@@ -1128,7 +1128,8 @@ IF tb_excel THEN
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 
     
-   FOR EACH ar-invl WHERE ar-invl.company EQ cocode AND ar-invl.posted EQ YES
+   FOR EACH ar-invl NO-LOCK 
+     WHERE ar-invl.company EQ cocode AND ar-invl.posted EQ YES
        AND ar-invl.cust-no GE begin_cust-no
        AND ar-invl.cust-no LE end_cust-no 
        AND ar-invl.inv-no GE begin_inv-no
@@ -1139,22 +1140,24 @@ IF tb_excel THEN
        AND ar-invl.bol-no LE end_bol-no
        AND ar-invl.po-no GE begin_po-no
        AND ar-invl.po-no LE end_po-no
-       AND ar-invl.inv-no NE 0 AND ar-invl.inv-no <> ? NO-LOCK, 
-      FIRST ar-inv WHERE ar-inv.x-no = ar-invl.x-no 
-       AND ar-inv.inv-date GE begin_date
-       AND ar-inv.inv-date LE end_date NO-LOCK, 
-      FIRST cust OF ar-inv NO-LOCK BREAK BY ar-invl.inv-no DESC :
-
+       AND ar-invl.inv-no NE 0 AND ar-invl.inv-no <> ? , 
+       FIRST ar-inv NO-LOCK 
+       WHERE ar-inv.x-no = ar-invl.x-no 
+         AND ar-inv.inv-date GE begin_date
+         AND ar-inv.inv-date LE end_date  
+         BREAK BY ar-invl.inv-no DESCENDING :
+            
          ASSIGN
              amount = 0
              amount = IF NOT ar-invl.billable AND ar-invl.misc THEN 0 ELSE ar-invl.amt.
              
-        
-        ASSIGN
-        distot[2]    = 0 
-        Amounttot[2] = 0
-        costot[2]    = 0.
+        IF FIRST-OF(ar-invl.inv-no) THEN
+            ASSIGN
+            distot[2]    = 0 
+            Amounttot[2] = 0
+            costot[2]    = 0.
 
+         IF FIRST-OF(ar-invl.inv-no) THEN
          FOR EACH bf-ar-invl WHERE bf-ar-invl.company = ar-invl.company 
              AND bf-ar-invl.inv-no = ar-invl.inv-no NO-LOCK:
              ASSIGN
@@ -1171,9 +1174,9 @@ IF tb_excel THEN
            cVarValue = ""
            cExcelDisplay = ""
            cExcelVarValue = "".
-     IF AVAIL ar-invl THEN
+     IF AVAILABLE ar-invl THEN
      BUFFER b-ar-invl:FIND-BY-ROWID(ROWID(ar-invl), NO-LOCK) .
-     IF AVAIL ar-inv THEN
+     IF AVAILABLE ar-inv THEN
        BUFFER bar-inv:FIND-BY-ROWID(ROWID(ar-inv), NO-LOCK) .
        ASSIGN
        distot[1] = distot[1] + ar-inv.disc-taken 
@@ -1181,7 +1184,7 @@ IF tb_excel THEN
        costot[1] = costot[1] + ar-invl.cost .
 
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-       cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+       cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
 
        IF INDEX(cTmpField,".") > 0 THEN DO:
             cFieldName = cTmpField .
@@ -1190,32 +1193,32 @@ IF tb_excel THEN
            IF cFieldName BEGINS "ar-invl" THEN hField = BUFFER b-ar-invl:BUFFER-FIELD(cTmpField) .
            ELSE IF cFieldName BEGINS "ar-inv" THEN hField = BUFFER bar-inv:BUFFER-FIELD(cTmpField).
           IF hField <> ? THEN DO:                      
-           cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
+           cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                cDisplay = cDisplay + cTmpField + 
-                   FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)).
+                   FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)).
 
            cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".    
           END.
           ELSE DO:
-                    cTmpField = substring(cFieldName,1,int( entry( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
-                    cDisplay = cDisplay + FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
+                    cTmpField = SUBSTRING(cFieldName,1,int( ENTRY( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
+                    cDisplay = cDisplay + FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
                     cExcelDisplay = cExcelDisplay + quoter(" ")  /*GetFieldValue(hField))*/ + ",".
                  END.
         END.
-          ELSE DO:       
+          ELSE DO:      
              CASE cTmpField:
                   WHEN "actdscr" THEN cVarValue   =  STRING( get-actdscr() ).
                   WHEN "amount" THEN cVarValue    =  STRING(amount).
-                  WHEN "dscr[1]" THEN cVarValue = string(ar-invl.dscr[1]). 
-                  WHEN "sman[1]" THEN cVarValue = string(ar-invl.sman[1]). 
-                  WHEN "sman[2]" THEN cVarValue = string(ar-invl.sman[2]). 
-                  WHEN "sman[3]" THEN cVarValue = string(ar-invl.sman[3]). 
-                  WHEN "s-pct[1]" THEN cVarValue = string(ar-invl.s-pct[1]).
-                  WHEN "s-pct[2]" THEN cVarValue = string(ar-invl.s-pct[2]).
+                  WHEN "dscr[1]" THEN cVarValue = STRING(ar-invl.dscr[1]). 
+                  WHEN "sman[1]" THEN cVarValue = STRING(ar-invl.sman[1]). 
+                  WHEN "sman[2]" THEN cVarValue = STRING(ar-invl.sman[2]). 
+                  WHEN "sman[3]" THEN cVarValue = STRING(ar-invl.sman[3]). 
+                  WHEN "s-pct[1]" THEN cVarValue = STRING(ar-invl.s-pct[1]).
+                  WHEN "s-pct[2]" THEN cVarValue = STRING(ar-invl.s-pct[2]).
                   WHEN "s-pct[3]" THEN cVarValue = STRING(ar-invl.s-pct[3]) .
-                  WHEN "s-comm[1]" THEN cVarValue = string(ar-invl.s-comm[1]).
-                  WHEN "s-comm[2]" THEN cVarValue = string(ar-invl.s-comm[2]).
-                  WHEN "s-comm[3]" THEN cVarValue = string(ar-invl.s-comm[3]).
+                  WHEN "s-comm[1]" THEN cVarValue = STRING(ar-invl.s-comm[1]).
+                  WHEN "s-comm[2]" THEN cVarValue = STRING(ar-invl.s-comm[2]).
+                  WHEN "s-comm[3]" THEN cVarValue = STRING(ar-invl.s-comm[3]).
                   WHEN "line-amt" THEN cVarValue = STRING(Amounttot[2]).
                   WHEN "line-cst" THEN cVarValue  = STRING(costot[2]) .
                   WHEN "total-amt" THEN cVarValue = STRING(Amounttot[1]).
@@ -1227,7 +1230,7 @@ IF tb_excel THEN
 
              cExcelVarValue = cVarValue.
              cDisplay = cDisplay + cVarValue +
-                                   FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                                   FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
          END.
       END.
@@ -1238,12 +1241,7 @@ IF tb_excel THEN
      END.
 
      v-excel-detail-lines = "".
-       /*vline = NO.*/
-       IF FIRST-OF(ar-invl.inv-no) THEN
-       vline = NO .
-       ELSE
-          vline = YES .
-       
+      
    END.
 
 IF tb_excel THEN DO:
@@ -1265,13 +1263,13 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION appendXLLine Dialog-Frame 
 FUNCTION appendXLLine RETURNS CHARACTER
-( ipc-append AS CHAR ) :
+( ipc-append AS CHARACTER ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
 
-DEF VAR lc-line AS CHAR NO-UNDO.
+DEFINE VARIABLE lc-line AS CHARACTER NO-UNDO.
 
 ipc-append = REPLACE(ipc-append, '"', '').
 ipc-append = REPLACE(ipc-append, ',', ' ').
@@ -1290,10 +1288,10 @@ FUNCTION get-actdscr RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  IF AVAIL ar-invl THEN DO:
+  IF AVAILABLE ar-invl THEN DO:
      FIND FIRST account WHERE account.company = g_company
                           AND account.actnum = ar-invl.actnum NO-LOCK NO-ERROR.
-     IF AVAIL account THEN RETURN account.dscr.
+     IF AVAILABLE account THEN RETURN account.dscr.
      ELSE RETURN "".
   END.
   ELSE RETURN "".   /* Function return value. */
@@ -1311,7 +1309,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN string(hipField:BUFFER-VALUE).
+  RETURN STRING(hipField:BUFFER-VALUE).
 
 END FUNCTION.
 
