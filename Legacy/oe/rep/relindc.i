@@ -373,9 +373,11 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                    tt-rell.qty-case SPACE(3)
                    tt-rell.cases SPACE(1) SKIP .
                                                              
-                ASSIGN iCountLine = 1 . 
+                ASSIGN iCountLine = 1 .
 
+                IF AVAILABLE oe-ordl THEN
                 v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(INTEGER(oe-ordl.job-no2), "99" ) .
+                ELSE v-job-no = "" .
                  
                       PUT SPACE(1) v-job-no FORMAT "X(11)"  .
                 
@@ -432,6 +434,10 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                                           AND oe-rell.loc-bin  EQ fg-bin.loc-bin
                                           AND oe-rell.tag      EQ fg-bin.tag) THEN
                       NEXT.
+                  IF AVAILABLE oe-ordl THEN DO:
+                      IF oe-ordl.job-no NE "" THEN
+                         IF  fg-bin.job-no NE oe-ordl.job-no THEN NEXT .
+                  END.
 
                     IF LINE-COUNTER GT 55 THEN DO:
                        PAGE .
@@ -606,6 +612,11 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                                           AND oe-rell.loc-bin  EQ fg-bin.loc-bin
                                           AND oe-rell.tag      EQ fg-bin.tag) THEN
                       NEXT.
+
+                   IF AVAILABLE oe-ordl THEN DO:
+                      IF oe-ordl.job-no NE "" THEN
+                         IF  fg-bin.job-no NE oe-ordl.job-no THEN NEXT .
+                   END.
 
                    IF FIRST-OF(fg-bin.loc-bin) THEN
                          ASSIGN iv-comp-unit = 0 . 
