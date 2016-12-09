@@ -65,23 +65,49 @@ DEFINE QUERY external_tables FOR cust-markup.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS cust-markup.cust-no cust-markup.procat ~
 cust-markup.style cust-markup.run-qty[1] cust-markup.markup[1] ~
-cust-markup.run-qty[2] cust-markup.markup[2] cust-markup.run-qty[3] ~
-cust-markup.markup[3] cust-markup.run-qty[4] cust-markup.markup[4] ~
-cust-markup.run-qty[5] cust-markup.markup[5] cust-markup.run-qty[6] ~
-cust-markup.markup[6] cust-markup.run-qty[7] cust-markup.markup[7] ~
-cust-markup.run-qty[8] cust-markup.markup[8] cust-markup.run-qty[9] ~
-cust-markup.markup[9] cust-markup.run-qty[10] cust-markup.markup[10] 
+cust-markup.lookup_reduction[1] cust-markup.markup_reduction[1] ~
+cust-markup.run-qty[2] cust-markup.markup[2] ~
+cust-markup.lookup_reduction[2] cust-markup.markup_reduction[2] ~
+cust-markup.run-qty[3] cust-markup.markup[3] ~
+cust-markup.lookup_reduction[3] cust-markup.markup_reduction[3] ~
+cust-markup.run-qty[4] cust-markup.markup[4] ~
+cust-markup.lookup_reduction[4] cust-markup.markup_reduction[4] ~
+cust-markup.run-qty[5] cust-markup.markup[5] ~
+cust-markup.lookup_reduction[5] cust-markup.markup_reduction[5] ~
+cust-markup.run-qty[6] cust-markup.markup[6] ~
+cust-markup.lookup_reduction[6] cust-markup.markup_reduction[6] ~
+cust-markup.run-qty[7] cust-markup.markup[7] ~
+cust-markup.lookup_reduction[7] cust-markup.markup_reduction[7] ~
+cust-markup.run-qty[8] cust-markup.markup[8] ~
+cust-markup.lookup_reduction[8] cust-markup.markup_reduction[8] ~
+cust-markup.run-qty[9] cust-markup.markup[9] ~
+cust-markup.lookup_reduction[9] cust-markup.markup_reduction[9] ~
+cust-markup.run-qty[10] cust-markup.markup[10] ~
+cust-markup.lookup_reduction[10] cust-markup.markup_reduction[10] 
 &Scoped-define ENABLED-TABLES cust-markup
 &Scoped-define FIRST-ENABLED-TABLE cust-markup
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-10 
 &Scoped-Define DISPLAYED-FIELDS cust-markup.cust-no cust-markup.procat ~
 cust-markup.style cust-markup.run-qty[1] cust-markup.markup[1] ~
-cust-markup.run-qty[2] cust-markup.markup[2] cust-markup.run-qty[3] ~
-cust-markup.markup[3] cust-markup.run-qty[4] cust-markup.markup[4] ~
-cust-markup.run-qty[5] cust-markup.markup[5] cust-markup.run-qty[6] ~
-cust-markup.markup[6] cust-markup.run-qty[7] cust-markup.markup[7] ~
-cust-markup.run-qty[8] cust-markup.markup[8] cust-markup.run-qty[9] ~
-cust-markup.markup[9] cust-markup.run-qty[10] cust-markup.markup[10] 
+cust-markup.lookup_reduction[1] cust-markup.markup_reduction[1] ~
+cust-markup.run-qty[2] cust-markup.markup[2] ~
+cust-markup.lookup_reduction[2] cust-markup.markup_reduction[2] ~
+cust-markup.run-qty[3] cust-markup.markup[3] ~
+cust-markup.lookup_reduction[3] cust-markup.markup_reduction[3] ~
+cust-markup.run-qty[4] cust-markup.markup[4] ~
+cust-markup.lookup_reduction[4] cust-markup.markup_reduction[4] ~
+cust-markup.run-qty[5] cust-markup.markup[5] ~
+cust-markup.lookup_reduction[5] cust-markup.markup_reduction[5] ~
+cust-markup.run-qty[6] cust-markup.markup[6] ~
+cust-markup.lookup_reduction[6] cust-markup.markup_reduction[6] ~
+cust-markup.run-qty[7] cust-markup.markup[7] ~
+cust-markup.lookup_reduction[7] cust-markup.markup_reduction[7] ~
+cust-markup.run-qty[8] cust-markup.markup[8] ~
+cust-markup.lookup_reduction[8] cust-markup.markup_reduction[8] ~
+cust-markup.run-qty[9] cust-markup.markup[9] ~
+cust-markup.lookup_reduction[9] cust-markup.markup_reduction[9] ~
+cust-markup.run-qty[10] cust-markup.markup[10] ~
+cust-markup.lookup_reduction[10] cust-markup.markup_reduction[10] 
 &Scoped-define DISPLAYED-TABLES cust-markup
 &Scoped-define FIRST-DISPLAYED-TABLE cust-markup
 &Scoped-Define DISPLAYED-OBJECTS custName procatDscr styleDscr ~
@@ -240,7 +266,7 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-10
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 53 BY 13.81.
+     SIZE 46 BY 13.81.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -272,6 +298,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-01 AT ROW 6 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     cust-markup.lookup_reduction[1] AT ROW 6 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     cust-markup.markup_reduction[1] AT ROW 6 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 112
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      cust-markup.run-qty[2] AT ROW 7.19 COL 8 NO-LABEL WIDGET-ID 58 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
@@ -279,6 +311,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-02 AT ROW 7.19 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     cust-markup.lookup_reduction[2] AT ROW 7.19 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 94
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     cust-markup.markup_reduction[2] AT ROW 7.19 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 114
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      cust-markup.run-qty[3] AT ROW 8.38 COL 8 NO-LABEL WIDGET-ID 60 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
@@ -286,6 +324,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-03 AT ROW 8.38 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     cust-markup.lookup_reduction[3] AT ROW 8.38 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 96
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     cust-markup.markup_reduction[3] AT ROW 8.38 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 116
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      cust-markup.run-qty[4] AT ROW 9.57 COL 8 NO-LABEL WIDGET-ID 62 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
@@ -293,6 +337,19 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-04 AT ROW 9.57 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     cust-markup.lookup_reduction[4] AT ROW 9.57 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 98
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6 WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     cust-markup.markup_reduction[4] AT ROW 9.57 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 118
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      cust-markup.run-qty[5] AT ROW 10.76 COL 8 NO-LABEL WIDGET-ID 64 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
@@ -300,6 +357,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-05 AT ROW 10.76 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     cust-markup.lookup_reduction[5] AT ROW 10.76 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 100
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     cust-markup.markup_reduction[5] AT ROW 10.76 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 120
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      cust-markup.run-qty[6] AT ROW 11.95 COL 8 NO-LABEL WIDGET-ID 66 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
@@ -307,10 +370,42 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-06 AT ROW 11.95 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     cust-markup.lookup_reduction[6] AT ROW 11.95 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 102
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     cust-markup.markup_reduction[6] AT ROW 11.95 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 122
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      cust-markup.run-qty[7] AT ROW 13.14 COL 8 NO-LABEL WIDGET-ID 68 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
      cust-markup.markup[7] AT ROW 13.14 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     cb_markup-on-07 AT ROW 13.14 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+     cust-markup.lookup_reduction[7] AT ROW 13.14 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     cust-markup.markup_reduction[7] AT ROW 13.14 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 124
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     cust-markup.run-qty[8] AT ROW 14.33 COL 8 NO-LABEL WIDGET-ID 70 FORMAT ">>>,>>>,>>9.9<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     cust-markup.markup[8] AT ROW 14.33 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     cb_markup-on-08 AT ROW 14.33 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     cust-markup.lookup_reduction[8] AT ROW 14.33 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     cust-markup.markup_reduction[8] AT ROW 14.33 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 126
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     cust-markup.run-qty[9] AT ROW 15.52 COL 8 NO-LABEL WIDGET-ID 72 FORMAT ">>>,>>>,>>9.9<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     cust-markup.markup[9] AT ROW 15.52 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 52
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -320,21 +415,13 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     cb_markup-on-07 AT ROW 13.14 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 26
-     cust-markup.run-qty[8] AT ROW 14.33 COL 8 NO-LABEL WIDGET-ID 70 FORMAT ">>>,>>>,>>9.9<<<<"
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     cust-markup.markup[8] AT ROW 14.33 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-     cb_markup-on-08 AT ROW 14.33 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 28
-     cust-markup.run-qty[9] AT ROW 15.52 COL 8 NO-LABEL WIDGET-ID 72 FORMAT ">>>,>>>,>>9.9<<<<"
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     cust-markup.markup[9] AT ROW 15.52 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 52
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
      cb_markup-on-09 AT ROW 15.52 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+     cust-markup.lookup_reduction[9] AT ROW 15.52 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 108
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     cust-markup.markup_reduction[9] AT ROW 15.52 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 128
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      cust-markup.run-qty[10] AT ROW 16.71 COL 8 NO-LABEL WIDGET-ID 54 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
@@ -342,14 +429,20 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-10 AT ROW 16.71 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 32
-     "Markup On" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 4.81 COL 40 WIDGET-ID 74
+     cust-markup.lookup_reduction[10] AT ROW 16.71 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     cust-markup.markup_reduction[10] AT ROW 16.71 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 110
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      "Markup Reduction" VIEW-AS TEXT
           SIZE 23 BY 1 AT ROW 4.81 COL 93 WIDGET-ID 88
      "Markup" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 4.81 COL 27 WIDGET-ID 76
      "Reduction Matrix" VIEW-AS TEXT
           SIZE 24 BY .62 AT ROW 3.86 COL 73 WIDGET-ID 84
+     "Markup On" VIEW-AS TEXT
+          SIZE 14 BY 1 AT ROW 4.81 COL 40 WIDGET-ID 74
      RECT-1 AT ROW 1 COL 1
      RECT-10 AT ROW 4.1 COL 71 WIDGET-ID 82
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
