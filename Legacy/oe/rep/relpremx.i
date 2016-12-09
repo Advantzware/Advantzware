@@ -673,7 +673,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               IF lv-tot-cust-qty GT 0 AND sw = YES /*AND v-cq = NO*/ THEN DO:
                   RUN right-just (INPUT 11, 
                     INPUT 8,
-                    INPUT trim(STRING(lv-tot-cust-qty, "->>>>>")),
+                    INPUT trim(STRING(lv-tot-cust-qty, "->>>>>>>>")),
                     INPUT lv-save-cust-uom,
                     OUTPUT v-cust-value).
                   DISPLAY {2}
@@ -702,7 +702,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                   DOWN WITH FRAME rel-mid.
                   RUN right-just (INPUT 11, 
                     INPUT 8,
-                    INPUT trim(STRING(lv-tot-cust-qty, "->>>>>")),
+                    INPUT trim(STRING(lv-tot-cust-qty, "->>>>>>>>")),
                     INPUT lv-save-cust-uom,
                     OUTPUT v-cust-value).
 
