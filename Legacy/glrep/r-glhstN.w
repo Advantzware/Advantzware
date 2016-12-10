@@ -1479,11 +1479,14 @@ SESSION:SET-WAIT-STATE ("general").
         open-amt = open-amt + gltrans.tr-amt.
       END.
 
+      IF tb_exc-acc AND open-amt EQ 0 THEN NEXT .
+
    /*   display string(account.actnum) + "  " + account.dscr format "x(75)" @
               account.actnum
               open-amt with frame r-cmon.
       down.*/
 
+      
       ASSIGN cDisplay = ""
           cTmpField = ""
           cVarValue = ""
@@ -1512,13 +1515,12 @@ SESSION:SET-WAIT-STATE ("general").
             cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
        
    END.
-   /*PUT UNFORMATTED cDisplay SKIP.*/
-   DISPLAY STRING(cDisplay) FORMAT "x(230)" @
+   PUT UNFORMATTED cDisplay SKIP.
+   /*DISPLAY STRING(cDisplay) FORMAT "x(230)" @
               account.actnum
                WITH FRAME r-cmon2.
-   DOWN.
-  
-   IF tb_excel THEN DO:
+   DOWN.*/
+  IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
                cExcelDisplay SKIP.
    END. 
