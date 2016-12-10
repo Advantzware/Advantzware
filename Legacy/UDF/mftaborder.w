@@ -55,7 +55,7 @@ DEFINE TEMP-TABLE ttTabOrder NO-UNDO
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tabOptions tabObjects btnExit btnSave 
+&Scoped-Define ENABLED-OBJECTS btnExit btnSave tabOptions tabObjects 
 &Scoped-Define DISPLAYED-OBJECTS tabLabel tabOptions tabObjects 
 
 /* Custom List Definitions                                              */
@@ -104,7 +104,7 @@ DEFINE BUTTON btnMoveUp
      LABEL "Move &Up" 
      SIZE 4.2 BY 1.
 
-DEFINE BUTTON btnSave AUTO-GO 
+DEFINE BUTTON btnSave 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save"
@@ -131,24 +131,24 @@ DEFINE VARIABLE tabObjects AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btnMoveDown AT ROW 8.86 COL 81 HELP
-          "Move Selected Tabbable Object Down"
-     tabLabel AT ROW 1.24 COL 5 COLON-ALIGNED WIDGET-ID 2
-     btnMoveFirst AT ROW 6.48 COL 81 HELP
-          "Move Selected Tabbable Object to First Object"
-     tabOptions AT ROW 1.24 COL 67 COLON-ALIGNED HELP
-          "Select Tabbing Option"
-     btnMoveLast AT ROW 10.05 COL 81 HELP
-          "Move Selected Tabbable Object to Last Object"
-     tabObjects AT ROW 2.43 COL 2 HELP
-          "Select Tabbable Object to Move" NO-LABEL
-     btnMoveUp AT ROW 7.67 COL 81 HELP
-          "Move Selected Tabbable Object Up"
      btnExit AT ROW 25.76 COL 88 HELP
           "Exit Design Layout Window" WIDGET-ID 4
      btnSave AT ROW 25.76 COL 80 HELP
           "Save" WIDGET-ID 8
-     SPACE(8.00) SKIP(0.00)
+     btnMoveDown AT ROW 8.86 COL 81 HELP
+          "Move Selected Tabbable Object Down"
+     tabLabel AT ROW 1.24 COL 5 COLON-ALIGNED WIDGET-ID 2
+     tabOptions AT ROW 1.24 COL 67 COLON-ALIGNED HELP
+          "Select Tabbing Option"
+     tabObjects AT ROW 2.43 COL 2 HELP
+          "Select Tabbable Object to Move" NO-LABEL
+     btnMoveFirst AT ROW 6.48 COL 81 HELP
+          "Move Selected Tabbable Object to First Object"
+     btnMoveLast AT ROW 10.05 COL 81 HELP
+          "Move Selected Tabbable Object to Last Object"
+     btnMoveUp AT ROW 7.67 COL 81 HELP
+          "Move Selected Tabbable Object Up"
+     SPACE(10.80) SKIP(19.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "User Defined Fields Tab Order"
@@ -254,8 +254,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave Dialog-Frame
 ON CHOOSE OF btnSave IN FRAME Dialog-Frame /* Save */
 DO:
-    RUN setttTabOrder.
+    RUN setTabOrder.
     iopttTabOrder = tabOptions.
+    MESSAGE "UDF Tab Order Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -360,7 +361,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY tabLabel tabOptions tabObjects 
       WITH FRAME Dialog-Frame.
-  ENABLE tabOptions tabObjects btnExit btnSave 
+  ENABLE btnExit btnSave tabOptions tabObjects 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

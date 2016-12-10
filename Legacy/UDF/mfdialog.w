@@ -48,10 +48,10 @@ DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCancel horz-bar vert-bar attr_enabled ~
-attr_label attr_name attr_values attr_default x-coord y-coord min_value ~
-pixel-height pixel-width btnOK max_value data_type data_format font-setting ~
-attr_proc 
+&Scoped-Define ENABLED-OBJECTS btnOK btnCancel horz-bar vert-bar ~
+attr_enabled attr_label attr_name attr_values attr_default x-coord y-coord ~
+min_value pixel-height pixel-width max_value data_type data_format ~
+font-setting attr_proc 
 &Scoped-Define DISPLAYED-OBJECTS attr_id attr_order attr_type horz-bar ~
 vert-bar attr_enabled attr_label attr_name attr_values attr_default x-coord ~
 y-coord min_value pixel-height pixel-width max_value data_type data_format ~
@@ -76,7 +76,7 @@ DEFINE BUTTON btnCancel AUTO-END-KEY
      SIZE 8 BY 1.91
      BGCOLOR 8 FONT 4.
 
-DEFINE BUTTON btnOK AUTO-GO 
+DEFINE BUTTON btnOK 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91
@@ -195,6 +195,8 @@ DEFINE VARIABLE vert-bar AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
+     btnOK AT ROW 1.24 COL 92 HELP
+          "OK to Save Edit Function Settings"
      btnCancel AT ROW 1.24 COL 100 HELP
           "CANCEL Edit Function"
      attr_id AT ROW 1.24 COL 17.2 COLON-ALIGNED HELP
@@ -225,8 +227,6 @@ DEFINE FRAME Dialog-Frame
           "Enter Pixel Height"
      pixel-width AT ROW 10.76 COL 40 COLON-ALIGNED HELP
           "Enter Pixel Width"
-     btnOK AT ROW 1.24 COL 92 HELP
-          "OK to Save Edit Function Settings"
      max_value AT ROW 10.76 COL 67 COLON-ALIGNED HELP
           "Enter Slider's Maximum Value"
      data_type AT ROW 11.95 COL 17 COLON-ALIGNED HELP
@@ -237,7 +237,7 @@ DEFINE FRAME Dialog-Frame
           "Select Font Size"
      attr_proc AT ROW 13.14 COL 67 COLON-ALIGNED HELP
           "Select Display/Load Values Procedure Name"
-     SPACE(0.80) SKIP(0.19)
+     SPACE(0.80) SKIP(0.29)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "User Defined Fields Attribute Editor"
@@ -385,6 +385,7 @@ DO:
     WHEN "TEXT" THEN
     ttAttrb.attr_settings = font-setting:SCREEN-VALUE.
   END CASE.
+  MESSAGE "UDF Attributes Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -553,10 +554,9 @@ PROCEDURE enable_UI :
           pixel-height pixel-width max_value data_type data_format font-setting 
           attr_proc 
       WITH FRAME Dialog-Frame.
-  ENABLE btnCancel horz-bar vert-bar attr_enabled attr_label attr_name 
+  ENABLE btnOK btnCancel horz-bar vert-bar attr_enabled attr_label attr_name 
          attr_values attr_default x-coord y-coord min_value pixel-height 
-         pixel-width btnOK max_value data_type data_format font-setting 
-         attr_proc 
+         pixel-width max_value data_type data_format font-setting attr_proc 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

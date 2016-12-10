@@ -19,7 +19,7 @@ PROCEDURE selectMiscFlds:
   IF NOT miscFlds THEN RETURN.
   
   RUN Running_Procedures IN Persistent-Handle ("mfvalues.",OUTPUT isRunning).
-  RUN UDF/mfvalues.w PERSISTENT (sys-ctrl.char-fld,{&mfRecKey},{&mfHeader}).
+  RUN UDF/mfvalues.w PERSISTENT (sys-ctrl.char-fld,{&mfRecKey},{&mfHeader},?).
 END PROCEDURE.
 
 PROCEDURE sysCtrlMiscFlds:

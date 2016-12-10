@@ -570,7 +570,10 @@ PROCEDURE UDF :
 
     IF AVAILABLE(mfgroup) THEN DO:
         RUN Running_Procedures IN Persistent-Handle ("mfvalues.",OUTPUT isRunning).
-        RUN UDF/mfvalues.w PERSISTENT (ENTRY(1,mfgroup.mfgroup_data,"|"), rec_key_value, header_value).
+        RUN UDF/mfvalues.w (ENTRY(1,mfgroup.mfgroup_data,"|"),
+                            rec_key_value,
+                            header_value,
+                            h_smartmsg).
     END. /* avail mfgroup */
 
 END PROCEDURE.

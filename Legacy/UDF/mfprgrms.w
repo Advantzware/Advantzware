@@ -90,8 +90,8 @@ srchPrgTitle EQ "") NO-LOCK INDEXED-REPOSITION.
     ~{&OPEN-QUERY-browsePrgrms}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnClearSrchPrgmName btnClearSrchPrgTitle ~
-srchPrgmName srchPrgTitle browseMFPrgrms browsePrgrms btnRestore btnSave ~
+&Scoped-Define ENABLED-OBJECTS btnSave btnClearSrchPrgmName srchPrgmName ~
+srchPrgTitle browseMFPrgrms btnClearSrchPrgTitle browsePrgrms btnRestore ~
 btnExit 
 &Scoped-Define DISPLAYED-OBJECTS mfGroup srchPrgmName srchPrgTitle 
 
@@ -185,27 +185,27 @@ DEFINE BROWSE browsePrgrms
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
+     btnSave AT ROW 1 COL 145 HELP
+          "Save" WIDGET-ID 8
      btnClearSrchPrgmName AT ROW 3.14 COL 99 HELP
           "Clear Program Search" WIDGET-ID 18
-     btnClearSrchPrgTitle AT ROW 3.14 COL 157 HELP
-          "Clear Program Search" WIDGET-ID 20
      mfGroup AT ROW 2.19 COL 14 COLON-ALIGNED WIDGET-ID 10
      srchPrgmName AT ROW 3.14 COL 80 COLON-ALIGNED HELP
           "Search Program" WIDGET-ID 14
      srchPrgTitle AT ROW 3.14 COL 101 COLON-ALIGNED HELP
           "Search Title" NO-LABEL WIDGET-ID 16
      browseMFPrgrms AT ROW 4.33 COL 1 WIDGET-ID 200
+     btnClearSrchPrgTitle AT ROW 3.14 COL 157 HELP
+          "Clear Program Search" WIDGET-ID 20
      browsePrgrms AT ROW 4.33 COL 82 WIDGET-ID 100
      btnRestore AT ROW 1 COL 137 HELP
           "Reset" WIDGET-ID 12
-     btnSave AT ROW 1 COL 145 HELP
-          "Save" WIDGET-ID 8
      btnExit AT ROW 1 COL 153 HELP
           "Exit Design Layout Window" WIDGET-ID 4
-     SPACE(0.19) SKIP(26.65)
+     SPACE(0.20) SKIP(26.66)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "User Defined Fields Attach Program"
+         TITLE "User Defined Fields Attached Programs"
          CANCEL-BUTTON btnExit.
 
 
@@ -227,7 +227,7 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
 /* BROWSE-TAB browseMFPrgrms srchPrgTitle Dialog-Frame */
-/* BROWSE-TAB browsePrgrms browseMFPrgrms Dialog-Frame */
+/* BROWSE-TAB browsePrgrms btnClearSrchPrgTitle Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -275,7 +275,7 @@ srchPrgTitle EQ """")"
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* User Defined Fields Attach Program */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* User Defined Fields Attached Programs */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
@@ -368,6 +368,7 @@ END.
 ON CHOOSE OF btnSave IN FRAME Dialog-Frame /* Save */
 DO:
     RUN saveMFPrgrms.
+    MESSAGE "UDF Attach Programs Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -398,7 +399,7 @@ END.
 
 &Scoped-define SELF-NAME srchPrgTitle
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL srchPrgTitle Dialog-Frame
-ON ENTRY OF srchPrgTitle IN FRAME Dialog-Frame /* Search Title */
+ON ENTRY OF srchPrgTitle IN FRAME Dialog-Frame
 DO:
     {&SELF-NAME}:SET-SELECTION(1,256).
 END.
@@ -408,7 +409,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL srchPrgTitle Dialog-Frame
-ON VALUE-CHANGED OF srchPrgTitle IN FRAME Dialog-Frame /* Search Title */
+ON VALUE-CHANGED OF srchPrgTitle IN FRAME Dialog-Frame
 DO:
     ASSIGN {&SELF-NAME}.
     {&OPEN-QUERY-browsePrgrms}
@@ -477,8 +478,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY mfGroup srchPrgmName srchPrgTitle 
       WITH FRAME Dialog-Frame.
-  ENABLE btnClearSrchPrgmName btnClearSrchPrgTitle srchPrgmName srchPrgTitle 
-         browseMFPrgrms browsePrgrms btnRestore btnSave btnExit 
+  ENABLE btnSave btnClearSrchPrgmName srchPrgmName srchPrgTitle browseMFPrgrms 
+         btnClearSrchPrgTitle browsePrgrms btnRestore btnExit 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
