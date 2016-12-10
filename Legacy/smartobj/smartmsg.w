@@ -9,12 +9,12 @@ USING Consultingwerk.WindowIntegrationKit.Forms.* FROM PROPATH.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
 /*------------------------------------------------------------------------
 
-  File:
+  File: smartMsg.w
 
   Description: from SMART.W - Template for basic SmartObject
 
-  Author:
-  Created:
+  Author: Ron Stark
+  Created: 1.1.1999 (updated 12.4.2016)
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -36,6 +36,8 @@ DEFINE VARIABLE oNotesForm AS INotes NO-UNDO .
 
 /* Local Variable Definitions ---                                       */
 
+{methods/defines/hndlset.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -51,6 +53,7 @@ DEFINE VARIABLE oNotesForm AS INotes NO-UNDO .
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
+&Scoped-Define ENABLED-OBJECTS UDF 
 &Scoped-Define DISPLAYED-OBJECTS mf-message notes-message 
 
 /* Custom List Definitions                                              */
@@ -67,20 +70,25 @@ DEFINE VARIABLE oNotesForm AS INotes NO-UNDO .
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE mf-message AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
-     SIZE 32 BY .62
+     SIZE 28 BY .62
      FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE notes-message AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
-     SIZE 32 BY .62
+     SIZE 28 BY .62
      FGCOLOR 0  NO-UNDO.
+
+DEFINE RECTANGLE UDF
+     EDGE-PIXELS 0    
+     SIZE 2.6 BY .62.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     mf-message AT ROW 1 COL 1 NO-LABEL
-     notes-message AT ROW 1.52 COL 1 NO-LABEL
+     mf-message AT ROW 1 COL 5 NO-LABEL
+     notes-message AT ROW 1.52 COL 5 NO-LABEL
+     UDF AT ROW 1 COL 2 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -114,7 +122,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 1.14
-         WIDTH              = 32.2.
+         WIDTH              = 32.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -160,6 +168,33 @@ ASSIGN
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME mf-message
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mf-message s-object
+ON LEFT-MOUSE-DOWN OF mf-message IN FRAME F-Main
+DO:
+    {methods/run_link.i "CONTAINER-SOURCE" "UDF"}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME UDF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
+ON LEFT-MOUSE-DOWN OF UDF IN FRAME F-Main
+DO:
+    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
 
@@ -278,18 +313,20 @@ PROCEDURE Show-MF-Message :
   Parameters:  ip-notes
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-misc-flds AS LOGICAL NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-      mf-message:HIDDEN = IF ip-misc-flds THEN no ELSE yes
-      mf-message:SCREEN-VALUE = IF ip-misc-flds THEN
-          " Misc Flds Data Exists for Record " ELSE "".
-  END.
-
-  IF VALID-OBJECT (oNotesForm) THEN 
-     oNotesForm:HasCustomFields = ip-misc-flds . 
-
+    DEFINE INPUT PARAMETER ip-misc-flds AS LOGICAL NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            UDF:BGCOLOR = IF ip-misc-flds THEN 3 ELSE 0
+            mf-message:SENSITIVE = YES
+         /* mf-message:HIDDEN = NOT ip-misc-flds */
+            mf-message:SCREEN-VALUE = " UDF Data "
+                                    + IF ip-misc-flds THEN "Exists"
+                                      ELSE ""
+            .
+    END.
+    IF VALID-OBJECT (oNotesForm) THEN
+        oNotesForm:HasCustomFields = ip-misc-flds . 
 
 END PROCEDURE.
 
@@ -307,15 +344,14 @@ PROCEDURE Show-Notes-Message :
 
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN
-      notes-message:HIDDEN = IF ip-notes THEN no ELSE yes
+      notes-message:HIDDEN = NOT ip-notes
       notes-message:SCREEN-VALUE = IF ip-notes THEN
-          " Notes Exist for Selected Record " ELSE "".
+          " Notes Exist " ELSE ""
+      .
   END.
-
   IF VALID-OBJECT (oNotesForm) THEN 
-     oNotesForm:HasNotes = ip-notes . 
-
-
+      oNotesForm:HasNotes = ip-notes .
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

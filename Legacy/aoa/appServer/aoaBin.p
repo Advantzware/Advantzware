@@ -256,8 +256,14 @@ FUNCTION fDateOptionDate RETURNS DATE
         WHEN "Start of this Month" THEN
             dtDate = DATE(MONTH(TODAY),1,YEAR(TODAY)).
         WHEN "End of this Month" THEN
+            IF MONTH(TODAY) EQ 12 THEN
+            dtDate = DATE(12,31,YEAR(TODAY)).
+            ELSE
             dtDate = DATE(MONTH(TODAY) + 1,1,YEAR(TODAY)) - 1.
         WHEN "First Day of last Month" THEN
+            IF MONTH(TODAY) EQ 1 THEN
+            dtDate = DATE(12,1,YEAR(TODAY) - 1).
+            ELSE
             dtDate = DATE(MONTH(TODAY) - 1,1,YEAR(TODAY)).
         WHEN "Last Day of last Month" THEN
             dtDate = DATE(MONTH(TODAY),1,YEAR(TODAY)) - 1.

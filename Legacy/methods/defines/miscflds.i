@@ -1,6 +1,6 @@
 /* miscflds.i */
 
-&scoped-define table-fields ~
+&SCOPED-DEFINE table-fields ~
   FIELD attr_id AS CHARACTER FORMAT 'X(20)' ~
   FIELD attr_mfgroup AS CHARACTER FORMAT 'X(20)' ~
   FIELD attr_tab AS INTEGER FORMAT 'z9' ~
@@ -20,15 +20,15 @@
   FIELD attr_proc AS CHARACTER FORMA 'X(40)'
 
 &IF "{&NEW}" EQ "NEW" &THEN
-DEFINE TEMP-TABLE tmfgroup NO-UNDO LIKE {&dbnm}mfgroup.
+DEFINE TEMP-TABLE ttMFGroup NO-UNDO LIKE {&dbnm}mfgroup.
 
-DEFINE WORK-TABLE wtbl-clipboard NO-UNDO
+DEFINE WORK-TABLE wtClipboard NO-UNDO
   {&table-fields}.
 &ENDIF
 
-DEFINE {&NEW} SHARED VARIABLE mfpersist AS HANDLE NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE hMFPersist AS HANDLE NO-UNDO.
 
-DEFINE {&NEW} SHARED TEMP-TABLE attrb NO-UNDO
+DEFINE {&NEW} SHARED TEMP-TABLE ttAttrb NO-UNDO
   {&table-fields}
     INDEX pi-attrb IS PRIMARY
       attr_mfgroup
@@ -38,3 +38,9 @@ DEFINE {&NEW} SHARED TEMP-TABLE attrb NO-UNDO
       attr_id
     INDEX si-name
       attr_name.
+
+DEFINE {&NEW} SHARED TEMP-TABLE ttMFPrgrms NO-UNDO
+  FIELD mfgroup    AS CHARACTER
+  FIELD prgmname LIKE prgrms.prgmname
+  FIELD prgtitle LIKE prgrms.prgtitle
+    INDEX ttMFPrgrms IS PRIMARY prgmname.

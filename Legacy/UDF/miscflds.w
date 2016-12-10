@@ -4,7 +4,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wMiscFlds 
 /*------------------------------------------------------------------------
 
-  File:              nosweat\miscflds.w
+  File:              miscflds.w
 
   Description:       Misc. Fields Design Layout Window
 
@@ -99,28 +99,28 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME fMiscFlds
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnAddTab tabLabelsRect RECT-5 RECT-4 ~
-widgetRect tabNavRect RECT-2 RECT-3 RECT-8 portRect tabNavRect-3 ~
-mfgroupList mfgroupTab btnCombo-Box tabLabels btnEditor btnFill-In ~
-btnRadio-Set btnRectangle btnSelection-List btnSlider btnText btnToggle-Box ~
-btnCopy btnCut btnDeleteTab btnDownTab btnExit btnExport btnImport ~
-btnNextTab btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab ~
-btnAddGroup btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave ~
-btnTabOrder btnTest 
+&Scoped-Define ENABLED-OBJECTS btnMFPrgrms btnAddTab tabLabelsRect RECT-5 ~
+RECT-4 btnCopy widgetRect btnCut tabNavRect btnDeleteTab RECT-2 btnDownTab ~
+RECT-3 btnExit btnExport RECT-8 portRect btnImport btnNextTab tabNavRect-3 ~
+btnPaste prgrmsRect btnPrevTab mfgroupList btnProperty mfgroupTab ~
+btnRenameTab btnUpTab btnCombo-Box btnAddGroup btnCopyGroup tabLabels ~
+btnDeleteGroup btnEditor btnRenameGroup btnFill-In btnRestore btnRadio-Set ~
+btnSave btnRectangle btnTabOrder btnSelection-List btnTest btnSlider ~
+btnText btnToggle-Box 
 &Scoped-Define DISPLAYED-OBJECTS mfgroupList mfgroupTab tabLabels ~
 widgetLabel tabCBLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
 fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
-textLabel toggle-BoxLabel gapFieldLabel 
+textLabel toggle-BoxLabel gapFieldLabel prgrmsLabel 
 
 /* Custom List Definitions                                              */
 /* notFoundIn234,widgetLabels,widgetButtons,propertyCutCopy,List-5,List-6 */
-&Scoped-define notFoundIn234 btnAddTab widgetRect mfgroupTab btnPointer ~
-btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle ~
-btnSelection-List btnSlider btnText btnToggle-Box btnDeleteTab btnDownTab ~
-btnNextTab btnPrevTab btnRenameTab btnUpTab btnDeleteGroup btnRenameGroup ~
-btnTest widgetLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
-fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
-textLabel toggle-BoxLabel 
+&Scoped-define notFoundIn234 btnAddTab widgetRect btnDeleteTab btnDownTab ~
+btnNextTab btnPrevTab mfgroupTab btnRenameTab btnPointer btnUpTab ~
+btnCombo-Box tabLabels btnDeleteGroup btnEditor btnRenameGroup btnFill-In ~
+btnRadio-Set btnRectangle btnSelection-List btnTest btnSlider btnText ~
+btnToggle-Box widgetLabel pointerLabel tabNavLabel combo-BoxLabel ~
+editorLabel fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel ~
+sliderLabel textLabel toggle-BoxLabel prgrmsLabel 
 &Scoped-define widgetLabels pointerLabel combo-BoxLabel editorLabel ~
 fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
 textLabel toggle-BoxLabel 
@@ -286,6 +286,12 @@ DEFINE BUTTON btnImport
      SIZE 8 BY 1.91 TOOLTIP "Import"
      FONT 4.
 
+DEFINE BUTTON btnMFPrgrms 
+     IMAGE-UP FILE "Graphics/32x32/windows.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Programs" 
+     SIZE 8 BY 1.91 TOOLTIP "Programs"
+     FONT 4.
+
 DEFINE BUTTON btnNextTab 
      IMAGE-UP FILE "Graphics/16x16/next.jpg":U
      IMAGE-INSENSITIVE FILE "Graphics/16x16/sign_forbidden.gif":U NO-FOCUS FLAT-BUTTON
@@ -435,6 +441,10 @@ DEFINE VARIABLE pointerLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Pointer"
      SIZE 14 BY 1.52
      BGCOLOR 8 FONT 4 NO-UNDO.
 
+DEFINE VARIABLE prgrmsLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Programs" 
+      VIEW-AS TEXT 
+     SIZE 9 BY .62 NO-UNDO.
+
 DEFINE VARIABLE radio-SetLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Radio Set" 
       VIEW-AS TEXT 
      SIZE 14 BY 1.52
@@ -487,6 +497,11 @@ DEFINE RECTANGLE portRect
      SIZE 23 BY 3.33
      BGCOLOR 8 .
 
+DEFINE RECTANGLE prgrmsRect
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 27 BY 3.33
+     BGCOLOR 8 .
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 141 BY 3.19.
@@ -513,7 +528,7 @@ DEFINE RECTANGLE RECT-8
 
 DEFINE RECTANGLE tabLabelsRect
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 27.6 BY 20.95.
+     SIZE 27.6 BY 17.14.
 
 DEFINE RECTANGLE tabNavRect
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
@@ -531,7 +546,7 @@ DEFINE RECTANGLE widgetRect
 
 DEFINE VARIABLE tabLabels AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE NO-DRAG SCROLLBAR-VERTICAL 
-     SIZE 26 BY 18.57 TOOLTIP "Change Current Tab (Page)" NO-UNDO.
+     SIZE 26 BY 14.76 TOOLTIP "Change Current Tab (Page)" NO-UNDO.
 
 DEFINE RECTANGLE Rect-Bottom
      EDGE-PIXELS 0    
@@ -562,40 +577,10 @@ DEFINE RECTANGLE Rect-Top
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME fMiscFlds
+     btnMFPrgrms AT ROW 23.86 COL 132 HELP
+          "Programs" WIDGET-ID 34
      btnAddTab AT ROW 7.19 COL 125 HELP
           "ADD New Tab"
-     mfgroupList AT ROW 1.71 COL 8 COLON-ALIGNED HELP
-          "Select Group Name"
-     mfgroupField AT ROW 1.71 COL 8 COLON-ALIGNED HELP
-          "Enter Group Name"
-     mfgroupTab AT ROW 4.81 COL 133.6 COLON-ALIGNED HELP
-          "Select Tab Number" NO-LABEL
-     btnPointer AT ROW 5.57 COL 3.2 HELP
-          "Restore Mouse Cursor to ARROW POINTER"
-     btnCombo-Box AT ROW 7.19 COL 3.2 HELP
-          "Create New COMBO-BOX"
-     tabField AT ROW 7.19 COL 124 HELP
-          "Enter Tab Label" NO-LABEL
-     tabLabels AT ROW 8.38 COL 124 HELP
-          "Select tab Label" NO-LABEL
-     btnEditor AT ROW 8.86 COL 3.2 HELP
-          "Create New EDITOR"
-     btnFill-In AT ROW 10.52 COL 3.2 HELP
-          "Create New FILL-IN"
-     btnRadio-Set AT ROW 12.19 COL 3.2 HELP
-          "Create New RADIO-SET"
-     btnRectangle AT ROW 13.86 COL 3 HELP
-          "Create New Rectangle"
-     btnSelection-List AT ROW 15.52 COL 3 HELP
-          "Create New SELECTION-LIST"
-     btnSlider AT ROW 17.19 COL 3 HELP
-          "Create New SLIDER"
-     btnText AT ROW 18.86 COL 3 HELP
-          "Create New TEXT"
-     btnToggle-Box AT ROW 20.52 COL 3 HELP
-          "Create New TOGGLE-BOX"
-     gapField AT ROW 22.19 COL 1 COLON-ALIGNED HELP
-          "Enter Gap Amount in Pixels" NO-LABEL
      btnCopy AT ROW 1.48 COL 88 HELP
           "Copy Selections"
      btnCut AT ROW 1.48 COL 80 HELP
@@ -616,27 +601,59 @@ DEFINE FRAME fMiscFlds
           "Paste Selections"
      btnPrevTab AT ROW 4.81 COL 125.6 HELP
           "Previous tab"
+     mfgroupList AT ROW 1.71 COL 8 COLON-ALIGNED HELP
+          "Select Group Name"
      btnProperty AT ROW 1.48 COL 60 HELP
           "Attributes"
+     mfgroupField AT ROW 1.71 COL 8 COLON-ALIGNED HELP
+          "Enter Group Name"
+     mfgroupTab AT ROW 4.81 COL 133.6 COLON-ALIGNED HELP
+          "Select Tab Number" NO-LABEL
      btnRenameTab AT ROW 7.19 COL 130 HELP
           "RENAME Tab"
+     btnPointer AT ROW 5.57 COL 3.2 HELP
+          "Restore Mouse Cursor to ARROW POINTER"
      btnUpTab AT ROW 7.19 COL 145 HELP
           "Move Tab UP"
+     btnCombo-Box AT ROW 7.19 COL 3.2 HELP
+          "Create New COMBO-BOX"
      btnAddGroup AT ROW 3.14 COL 10 HELP
           "ADD GROU[ Name"
      btnCopyGroup AT ROW 3.14 COL 20 HELP
           "ADD GROU[ Name"
+     tabField AT ROW 7.19 COL 124 HELP
+          "Enter Tab Label" NO-LABEL
+     tabLabels AT ROW 8.38 COL 124 HELP
+          "Select tab Label" NO-LABEL
      btnDeleteGroup AT ROW 3.19 COL 45 HELP
           "DELETE GROU[ Name"
+     btnEditor AT ROW 8.86 COL 3.2 HELP
+          "Create New EDITOR"
      btnRenameGroup AT ROW 3.14 COL 31.2 HELP
           "CHANGE GROU[ Name"
+     btnFill-In AT ROW 10.52 COL 3.2 HELP
+          "Create New FILL-IN"
      btnRestore AT ROW 1.48 COL 116 HELP
           "Reset"
+     btnRadio-Set AT ROW 12.19 COL 3.2 HELP
+          "Create New RADIO-SET"
      btnSave AT ROW 1.48 COL 124 HELP
           "Save"
+     btnRectangle AT ROW 13.86 COL 3 HELP
+          "Create New Rectangle"
      btnTabOrder AT ROW 1.48 COL 70 HELP
           "Set Tab Order"
+     btnSelection-List AT ROW 15.52 COL 3 HELP
+          "Create New SELECTION-LIST"
      btnTest AT ROW 1.48 COL 106
+     btnSlider AT ROW 17.19 COL 3 HELP
+          "Create New SLIDER"
+     btnText AT ROW 18.86 COL 3 HELP
+          "Create New TEXT"
+     btnToggle-Box AT ROW 20.52 COL 3 HELP
+          "Create New TOGGLE-BOX"
+     gapField AT ROW 22.19 COL 1 COLON-ALIGNED HELP
+          "Enter Gap Amount in Pixels" NO-LABEL
      widgetLabel AT ROW 4.81 COL 8 COLON-ALIGNED NO-LABEL
      tabCBLabel AT ROW 4.81 COL 129 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      pointerLabel AT ROW 5.57 COL 8.2 COLON-ALIGNED NO-LABEL
@@ -644,7 +661,6 @@ DEFINE FRAME fMiscFlds
      combo-BoxLabel AT ROW 7.19 COL 8.2 COLON-ALIGNED NO-LABEL
      editorLabel AT ROW 8.86 COL 8.2 COLON-ALIGNED NO-LABEL
      fill-InLabel AT ROW 10.52 COL 8.2 COLON-ALIGNED NO-LABEL
-     radio-SetLabel AT ROW 12.19 COL 8.2 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -652,23 +668,19 @@ DEFINE FRAME fMiscFlds
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fMiscFlds
+     radio-SetLabel AT ROW 12.19 COL 8.2 COLON-ALIGNED NO-LABEL
      rectangleLabel AT ROW 13.86 COL 8 COLON-ALIGNED NO-LABEL
      selection-ListLabel AT ROW 15.52 COL 8 COLON-ALIGNED NO-LABEL
      sliderLabel AT ROW 17.19 COL 8 COLON-ALIGNED NO-LABEL
      textLabel AT ROW 18.86 COL 8 COLON-ALIGNED NO-LABEL
      toggle-BoxLabel AT ROW 20.52 COL 8 COLON-ALIGNED NO-LABEL
      gapFieldLabel AT ROW 22.19 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     prgrmsLabel AT ROW 26 COL 131 NO-LABEL WIDGET-ID 36
+     "Paste" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 3.62 COL 97 WIDGET-ID 10
+          FONT 4
      "Save" VIEW-AS TEXT
           SIZE 5 BY .76 AT ROW 3.62 COL 125 WIDGET-ID 12
-          FONT 4
-     "Copy" VIEW-AS TEXT
-          SIZE 5 BY .76 AT ROW 3.62 COL 89 WIDGET-ID 8
-          FONT 4
-     "Atrributes" VIEW-AS TEXT
-          SIZE 9 BY .76 AT ROW 3.62 COL 59
-          FONT 4
-     "Export" VIEW-AS TEXT
-          SIZE 7 BY .76 AT ROW 26 COL 15 WIDGET-ID 30
           FONT 4
      "Cut" VIEW-AS TEXT
           SIZE 4 BY .76 AT ROW 3.62 COL 82
@@ -693,14 +705,20 @@ DEFINE FRAME fMiscFlds
      "Preview" VIEW-AS TEXT
           SIZE 8 BY .76 AT ROW 3.62 COL 106 WIDGET-ID 6
           FONT 4
-     "Tab Order" VIEW-AS TEXT
-          SIZE 10 BY .76 AT ROW 3.62 COL 69
-          FONT 4
      "Import" VIEW-AS TEXT
           SIZE 6 BY .76 AT ROW 26 COL 5 WIDGET-ID 28
           FONT 4
-     "Paste" VIEW-AS TEXT
-          SIZE 6 BY .76 AT ROW 3.62 COL 97 WIDGET-ID 10
+     "Tab Order" VIEW-AS TEXT
+          SIZE 10 BY .76 AT ROW 3.62 COL 69
+          FONT 4
+     "Copy" VIEW-AS TEXT
+          SIZE 5 BY .76 AT ROW 3.62 COL 89 WIDGET-ID 8
+          FONT 4
+     "Export" VIEW-AS TEXT
+          SIZE 7 BY .76 AT ROW 26 COL 15 WIDGET-ID 30
+          FONT 4
+     "Atrributes" VIEW-AS TEXT
+          SIZE 9 BY .76 AT ROW 3.62 COL 59
           FONT 4
      tabLabelsRect AT ROW 6.24 COL 123
      RECT-1 AT ROW 1.24 COL 2
@@ -713,6 +731,7 @@ DEFINE FRAME fMiscFlds
      RECT-8 AT ROW 1.24 COL 115 WIDGET-ID 4
      portRect AT ROW 23.62 COL 2 WIDGET-ID 20
      tabNavRect-3 AT ROW 4.57 COL 123 WIDGET-ID 22
+     prgrmsRect AT ROW 23.62 COL 123 WIDGET-ID 32
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -864,6 +883,8 @@ ASSIGN
 ASSIGN 
        pointerLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
 
+/* SETTINGS FOR FILL-IN prgrmsLabel IN FRAME fMiscFlds
+   NO-ENABLE ALIGN-L 1                                                  */
 /* SETTINGS FOR FILL-IN radio-SetLabel IN FRAME fMiscFlds
    NO-ENABLE 1 2                                                        */
 ASSIGN 
@@ -1187,6 +1208,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnMFPrgrms
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMFPrgrms wMiscFlds
+ON CHOOSE OF btnMFPrgrms IN FRAME fMiscFlds /* Programs */
+DO:
+    RUN attachPrgrms.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnNextTab
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNextTab wMiscFlds
 ON CHOOSE OF btnNextTab IN FRAME fMiscFlds /* Next Tab */
@@ -1320,6 +1352,7 @@ END.
 ON CHOOSE OF btnSave IN FRAME fMiscFlds /* Save */
 DO:
   RUN saveLayout.
+  MESSAGE "UDF Build Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1489,6 +1522,7 @@ ON VALUE-CHANGED OF mfgroupList IN FRAME fMiscFlds /* Group */
 DO:
   mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "1". /* set to first tab */
   RUN createWidgets.
+  RUN btnMFPrgrmsToolTip.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1983,6 +2017,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       DISABLE btnPaste btnPointer {&propertyCutCopy} WITH FRAME {&FRAME-NAME}.
       IF hMFPersist EQ ? THEN
       RUN UDF/mfPersist.p PERSISTENT SET hMFPersist.
+      RUN btnMFPrgrmsToolTip.
   END. /* continue */
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -2148,6 +2183,44 @@ PROCEDURE alignWidgets :
     ELSE
     currentWidget = currentWidget:NEXT-SIBLING.
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE attachPrgrms wMiscFlds 
+PROCEDURE attachPrgrms :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN UDF/mfprgrms.w (mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+    RUN btnMFPrgrmsToolTip.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE btnMFPrgrmsToolTip wMiscFlds 
+PROCEDURE btnMFPrgrmsToolTip :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cToolTip AS CHARACTER NO-UNDO.
+
+    FOR EACH ttMFPrgrms
+        WHERE ttMFPrgrms.mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        :
+        cToolTip = cToolTip + CHR(10)
+                 + ttMFPrgrms.prgmname + ": "
+                 + ttMFPrgrms.prgtitle.
+    END. /* each ttmfprgrms */
+    btnMFPrgrms:TOOLTIP = "Attached Programs:" + chr(10) + cToolTip.
 
 END PROCEDURE.
 
@@ -2827,16 +2900,16 @@ PROCEDURE enable_UI :
   DISPLAY mfgroupList mfgroupTab tabLabels widgetLabel tabCBLabel pointerLabel 
           tabNavLabel combo-BoxLabel editorLabel fill-InLabel radio-SetLabel 
           rectangleLabel selection-ListLabel sliderLabel textLabel 
-          toggle-BoxLabel gapFieldLabel 
+          toggle-BoxLabel gapFieldLabel prgrmsLabel 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
-  ENABLE btnAddTab tabLabelsRect RECT-5 RECT-4 widgetRect tabNavRect RECT-2 
-         RECT-3 RECT-8 portRect tabNavRect-3 mfgroupList mfgroupTab 
-         btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle 
-         btnSelection-List btnSlider btnText btnToggle-Box btnCopy btnCut 
-         btnDeleteTab btnDownTab btnExit btnExport btnImport btnNextTab 
-         btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab btnAddGroup 
-         btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave 
-         btnTabOrder btnTest 
+  ENABLE btnMFPrgrms btnAddTab tabLabelsRect RECT-5 RECT-4 btnCopy widgetRect 
+         btnCut tabNavRect btnDeleteTab RECT-2 btnDownTab RECT-3 btnExit 
+         btnExport RECT-8 portRect btnImport btnNextTab tabNavRect-3 btnPaste 
+         prgrmsRect btnPrevTab mfgroupList btnProperty mfgroupTab btnRenameTab 
+         btnUpTab btnCombo-Box btnAddGroup btnCopyGroup tabLabels 
+         btnDeleteGroup btnEditor btnRenameGroup btnFill-In btnRestore 
+         btnRadio-Set btnSave btnRectangle btnTabOrder btnSelection-List 
+         btnTest btnSlider btnText btnToggle-Box 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
   {&OPEN-BROWSERS-IN-QUERY-fMiscFlds}
   ENABLE Rect-Top Rect-Left Rect-Right Rect-Bottom 
@@ -2943,9 +3016,26 @@ PROCEDURE loadWidgetData :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   IF NOT CAN-FIND(FIRST mfgroup) THEN RETURN.
+
+  EMPTY TEMP-TABLE ttMFPrgrms.
+
   FOR EACH mfgroup NO-LOCK:
-    groupList = groupList + (IF groupList NE "" THEN "," ELSE "") + mfgroup.mfgroup_data.
-  END.
+    groupList = groupList
+              + (IF groupList NE "" THEN "," ELSE "")
+              + ENTRY(1,mfgroup.mfgroup_data,"|").
+    DO i = 2 TO NUM-ENTRIES(mfgroup.mfgroup_data,"|"):
+      FIND FIRST prgrms NO-LOCK
+           WHERE prgrms.prgmname EQ ENTRY(i,mfgroup.mfgroup_data,"|")
+           NO-ERROR.
+      IF NOT AVAILABLE prgrms THEN NEXT.
+      CREATE ttMFPrgrms.
+      ASSIGN
+        ttMFPrgrms.mfgroup  = ENTRY(1,mfgroup.mfgroup_data,"|")
+        ttMFPrgrms.prgmname = prgrms.prgmname
+        ttMFPrgrms.prgtitle = prgrms.prgtitle
+        .
+    END. /* do i */
+  END. /* each mfgroup */
 
   OUTPUT TO VALUE("users/" + USERID("ASI") + "/mfgroup.dat").
   EXPORT groupList.
@@ -3038,6 +3128,9 @@ PROCEDURE moveObjects :
     Rect-Bottom:Y = Rect-Main:HEIGHT-PIXELS + 17
     Rect-Right:HEIGHT-PIXELS = Rect-Main:HEIGHT-PIXELS - 8
     Rect-Right:X = Rect-Main:WIDTH-PIXELS - 1
+    prgrmsRect:X = prgrmsRect:X + offSet
+    btnMFPrgrms:X = btnMFPrgrms:X + offSet
+    prgrmsLabel:X = prgrmsLabel:X + offSet
     .
 
 END PROCEDURE.
@@ -3374,10 +3467,10 @@ PROCEDURE saveLayout :
 
   OUTPUT TO VALUE("users/" + USERID("ASI") + "/mfgroup.dat").
   EXPORT mfgroupList:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-  DO i = 1 TO mfgroupList:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
-    FIND ttMFGroup
-        WHERE ttMFGroup.mfgroup_data EQ ENTRY(i,mfgroupList:LIST-ITEMS)
-        NO-ERROR.
+  DO i = 1 TO mfgroupList:NUM-ITEMS:
+    FIND FIRST ttMFGroup
+         WHERE ttMFGroup.mfgroup_data EQ ENTRY(i,mfgroupList:LIST-ITEMS)
+         NO-ERROR.
     IF AVAILABLE ttMFGroup THEN
     EXPORT ttMFGroup.mfgroup_tabs.
     ELSE
@@ -3387,8 +3480,15 @@ PROCEDURE saveLayout :
 
   DELETE FROM mfgroup.
   FOR EACH ttMFGroup:
+    textstring = "".
+    FOR EACH ttMFPrgrms
+        WHERE ttMFPrgrms.mfgroup EQ ttMFGroup.mfgroup_data
+        :
+        textstring = textstring + "|" + ttMFPrgrms.prgmname.
+    END.
     CREATE mfgroup.
     BUFFER-COPY ttMFGroup TO mfgroup.
+    mfgroup.mfgroup_data = mfgroup.mfgroup_data + textstring.
   END.
 
   OUTPUT TO VALUE("users/" + USERID("ASI") + "/miscflds.dat").

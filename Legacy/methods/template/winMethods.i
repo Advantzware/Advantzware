@@ -64,7 +64,7 @@ DEFINE VARIABLE misc_header_value AS CHARACTER NO-UNDO.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Include ASSIGN
-         HEIGHT             = 21.81
+         HEIGHT             = 23.81
          WIDTH              = 46.8.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -77,6 +77,7 @@ DEFINE VARIABLE misc_header_value AS CHARACTER NO-UNDO.
 
 
 /* ***************************  Main Block  *************************** */
+
 {methods/menus/{&winMethods}.i}
 {methods/enhance.i}
 {sys/inc/f3helpw.i}
@@ -262,16 +263,16 @@ PROCEDURE local-initialize :
       APPLY 'CLOSE' TO THIS-PROCEDURE.
       RETURN.
   END.
-  
-  &IF "{&FIRST-EXTERNAL-TABLE}" = "address" OR
-      "{&FIRST-EXTERNAL-TABLE}" = "notes" OR
-      "{&FIRST-EXTERNAL-TABLE}" = "phone" OR
-      "{&FIRST-EXTERNAL-TABLE}" = "oe-ord" &THEN
+
+  &IF "{&FIRST-EXTERNAL-TABLE}" EQ "address" OR
+      "{&FIRST-EXTERNAL-TABLE}" EQ "notes" OR
+      "{&FIRST-EXTERNAL-TABLE}" EQ "phone" OR
+      "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ord" &THEN
     {methods/windows/initial/{&FIRST-EXTERNAL-TABLE}.i}
   &ENDIF
   
         /* check if maximized for user */
-  IF SEARCH('users/' + USERID("ASI") + '/' + v-prgmname + 'winReSize') NE ? OR
+  IF SEARCH('users/' + USERID('ASI') + '/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users */
      SEARCH('users/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users all programs */
@@ -297,6 +298,8 @@ PROCEDURE MF-Message :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-misc-flds AS LOGICAL NO-UNDO.
 
+  IF CAN-FIND(FIRST mfgroup
+              WHERE LOOKUP(v-prgmname,mfgroup.mfgroup_data,"|") NE 0) THEN
   RUN Show-MF-Message IN h_smartmsg (ip-misc-flds).
 
 END PROCEDURE.
@@ -551,6 +554,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE UDF Include 
+PROCEDURE UDF :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE isRunning AS LOGICAL NO-UNDO.
+
+    FOR EACH mfgroup NO-LOCK:
+        IF LOOKUP(v-prgmname,mfgroup.mfgroup_data,"|") EQ 0 THEN NEXT.
+        LEAVE.
+    END. /* each mfgroup */
+
+    IF AVAILABLE(mfgroup) THEN DO:
+        RUN Running_Procedures IN Persistent-Handle ("mfvalues.",OUTPUT isRunning).
+        RUN UDF/mfvalues.w (ENTRY(1,mfgroup.mfgroup_data,"|"),
+                            rec_key_value,
+                            header_value,
+                            h_smartmsg).
+    END. /* avail mfgroup */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winReSize Include 
 PROCEDURE winReSize PRIVATE :
 /*------------------------------------------------------------------------------
@@ -567,11 +597,11 @@ PROCEDURE winReSize PRIVATE :
     DEFINE VARIABLE winReSizeDat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE currentWidget AS HANDLE NO-UNDO.
     
-/*    IF {&WINDOW-NAME}:WINDOW-STATE NE 1 THEN RETURN.*/
+    IF {&WINDOW-NAME}:WINDOW-STATE NE 1 THEN RETURN.
 
-    winReSizeDat = 'users/' + USERID("ASI") + '/winReSize.dat'.
+    winReSizeDat = 'users/' + USERID('ASI') + '/winReSize.dat'.
     IF SEARCH(winReSizeDat) NE ? THEN DO:
-      INPUT FROM VALUE(SEARCH(winReSizeDat)).
+      INPUT FROM VALUE(winReSizeDat).
       IMPORT ^ screenRatio.
       INPUT CLOSE.
     END.

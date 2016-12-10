@@ -29,9 +29,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 &IF DEFINED(dbnm) EQ 0 &THEN
-DEFINE INPUT PARAMETER ipcGroup  AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcHeader AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcGroup    AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKey   AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcHeader   AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER iphSmartMsg AS HANDLE    NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -83,9 +84,10 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnApply btnSave Rect-Top btnExit Rect-Left ~
-Rect-Right Rect-Bottom 
-&Scoped-Define DISPLAYED-OBJECTS mfgroupList mfgroupLabel 
+&Scoped-Define ENABLED-OBJECTS btnDelete Rect-Top Rect-Left Rect-Right ~
+Rect-Bottom btnSave btnExit 
+&Scoped-Define DISPLAYED-OBJECTS mfgroupList mfRecKey mfgroupLabel ~
+mfRecKeyLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -101,10 +103,10 @@ Rect-Right Rect-Bottom
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnApply 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk_window.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Apply" 
-     SIZE 8 BY 1.91 TOOLTIP "Apply"
+DEFINE BUTTON btnDelete 
+     IMAGE-UP FILE "Graphics/32x32/delete.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Delete" 
+     SIZE 8 BY 1.9 TOOLTIP "Delete"
      FONT 4.
 
 DEFINE BUTTON btnExit 
@@ -122,11 +124,21 @@ DEFINE BUTTON btnSave
 DEFINE VARIABLE mfgroupList AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 1
      DROP-DOWN-LIST
-     SIZE 58.2 BY 1 NO-UNDO.
+     SIZE 56.2 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE mfgroupLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Group:" 
       VIEW-AS TEXT 
      SIZE 7 BY 1 NO-UNDO.
+
+DEFINE VARIABLE mfRecKey AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 56 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE mfRecKeyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Rec Key:" 
+      VIEW-AS TEXT 
+     SIZE 9 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE Rect-Bottom
      EDGE-PIXELS 0    
@@ -157,15 +169,17 @@ DEFINE RECTANGLE Rect-Top
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnApply AT ROW 21.48 COL 68 HELP
-          "Apply" WIDGET-ID 4
-     btnSave AT ROW 21.48 COL 76 HELP
-          "Save & Exit" WIDGET-ID 6
-     btnExit AT ROW 21.48 COL 84 HELP
-          "Exit Design Layout Window" WIDGET-ID 2
-     mfgroupList AT ROW 21.95 COL 7 COLON-ALIGNED HELP
+     btnDelete AT ROW 21.71 COL 68 HELP
+          "Delete" WIDGET-ID 4
+     mfgroupList AT ROW 21.48 COL 9 COLON-ALIGNED HELP
           "Select Group Name" NO-LABEL
-     mfgroupLabel AT ROW 21.95 COL 2 NO-LABEL
+     mfRecKey AT ROW 22.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     btnSave AT ROW 21.71 COL 76 HELP
+          "Save & Exit" WIDGET-ID 6
+     btnExit AT ROW 21.71 COL 84 HELP
+          "Exit Design Layout Window" WIDGET-ID 2
+     mfgroupLabel AT ROW 21.48 COL 3 NO-LABEL
+     mfRecKeyLabel AT ROW 22.67 COL 1 NO-LABEL WIDGET-ID 10
      Rect-Main AT ROW 2.05 COL 1.6
      Rect-Top AT ROW 2.1 COL 1.8
      Rect-Left AT ROW 2.14 COL 1.8
@@ -174,7 +188,7 @@ DEFINE FRAME DEFAULT-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 91.2 BY 22.57.
+         SIZE 91.2 BY 22.67.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -194,7 +208,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "User Defined Fields Viewer"
-         HEIGHT             = 22.57
+         HEIGHT             = 22.67
          WIDTH              = 91.2
          MAX-HEIGHT         = 57.14
          MAX-WIDTH          = 320
@@ -233,6 +247,13 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR COMBO-BOX mfgroupList IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN mfRecKey IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       mfRecKey:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+/* SETTINGS FOR FILL-IN mfRecKeyLabel IN FRAME DEFAULT-FRAME
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR RECTANGLE Rect-Main IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -283,11 +304,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnApply
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnApply C-Win
-ON CHOOSE OF btnApply IN FRAME DEFAULT-FRAME /* Apply */
+&Scoped-define SELF-NAME btnDelete
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDelete C-Win
+ON CHOOSE OF btnDelete IN FRAME DEFAULT-FRAME /* Delete */
 DO:
-  RUN applyChanges.
+  RUN deleteValues.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -310,9 +331,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave C-Win
 ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME /* Save */
 DO:
-  RUN applyChanges.
-  IF RETURN-VALUE NE "NO-APPLY" THEN
-  APPLY "CLOSE" TO THIS-PROCEDURE.
+  RUN saveValues.
+  IF VALID-HANDLE(iphSmartMsg) THEN
+  RUN Show-MF-Message IN iphSmartMsg (YES).
+  MESSAGE "UDF Values Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -327,6 +349,7 @@ DO:
   FOR EACH ttAttrb
       WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND ttAttrb.attr_type NE "TEXT"
+        AND ttAttrb.attr_type NE "RECTANGLE"
       :
     FIND ttMFValues
         WHERE ttMFValues.rec_key EQ ipcRecKey
@@ -390,7 +413,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + ipcHeader.
   {methods/nowait.i}
   IF RETURN-VALUE EQ "EMPTY" THEN
-  DISABLE btnSave btnApply WITH FRAME {&FRAME-NAME}.
+  DISABLE btnSave btnDelete WITH FRAME {&FRAME-NAME}.
   ELSE
   APPLY "ENTRY" TO btnSave IN FRAME {&FRAME-NAME}.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -402,53 +425,6 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE applyChanges C-Win 
-PROCEDURE applyChanges :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  IF mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ ? AND ipcGroup EQ "" THEN RETURN.
-  IF mfgroupList:SCREEN-VALUE NE ipcGroup AND ipcGroup NE "" THEN DO:
-    ldummy = NO.
-    MESSAGE "The Group Name has been changed from '" ipcGroup "' to '"
-            mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME} "'" SKIP(1)
-            "Attribute Values for Group '" ipcGroup
-            "' will be Deleted, Continue? (yes/no)"
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE ldummy.
-    IF NOT ldummy THEN RETURN "NO-APPLY".
-  END.
-  {methods/wait.i}
-  IF mfgroupList:SCREEN-VALUE NE ipcGroup THEN DO WITH FRAME {&FRAME-NAME}:
-    FOR EACH ttMFValues
-        WHERE ttMFValues.rec_key EQ ipcRecKey
-        :
-      IF CAN-FIND(ttAttrb
-                  WHERE ttAttrb.attr_id EQ ttMFValues.mf_id
-                    AND ttAttrb.attr_mfgroup EQ ipcGroup) THEN
-      DELETE ttMFValues.
-    END.
-    ipcGroup = IF mfgroupList:SCREEN-VALUE EQ ? THEN ""
-               ELSE mfgroupList:SCREEN-VALUE.
-  END.
-  RUN widgetLeave (?).
-  DELETE FROM {&dbnm}mfvalues WHERE {&dbnm}mfvalues.rec_key = ipcRecKey.
-  FOR EACH ttMFValues
-      WHERE ttMFValues.rec_key EQ ipcRecKey
-      :
-    CREATE {&dbnm}mfvalues.
-    BUFFER-COPY ttMFValues TO {&dbnm}mfvalues.
-  END.
-  {methods/nowait.i}
-  btnExit:LABEL IN FRAME {&FRAME-NAME} = "&Close".
-  RETURN.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createLabelWidget C-Win 
 PROCEDURE createLabelWidget :
@@ -501,7 +477,7 @@ PROCEDURE createTabs :
   DELETE WIDGET-POOL "widget-pool-tabs" NO-ERROR.
   CREATE WIDGET-POOL "widget-pool-tabs" PERSISTENT.
   FIND {&dbnm}mfgroup NO-LOCK
-       WHERE {&dbnm}mfgroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+       WHERE {&dbnm}mfgroup.mfgroup_data BEGINS mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
        NO-ERROR.
   IF NOT AVAILABLE {&dbnm}mfgroup THEN RETURN.
   DO i = 1 TO NUM-ENTRIES({&dbnm}mfgroup.mfgroup_tabs):
@@ -587,6 +563,36 @@ PROCEDURE createWidgets :
   RUN moveObjects.
   /* RUN LockWindowUpdate (0,OUTPUT i). */
   {methods/nowait.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE deleteValues C-Win 
+PROCEDURE deleteValues :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  IF mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ ? AND ipcGroup EQ "" THEN RETURN.
+  MESSAGE "Delete UDF Values?"
+      VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "Delete"
+      UPDATE deleteUDF AS LOGICAL.
+  IF NOT deleteUDF THEN RETURN.
+  {methods/wait.i}
+  RUN widgetLeave (?).
+  FOR EACH ttMFValues
+      WHERE ttMFValues.rec_key EQ ipcRecKey
+      :
+    DELETE ttMFValues.
+  END. /* each ttmfvalues */
+  {methods/nowait.i}
+  RUN saveValues.
+  IF VALID-HANDLE(iphSmartMsg) THEN
+  RUN Show-MF-Message IN iphSmartMsg (NO).
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
 
 END PROCEDURE.
 
@@ -735,9 +741,9 @@ PROCEDURE dynamicWidget :
     FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
     .
   RUN createLabelWidget (ttAttrb.attr_type,ttAttrb.attr_label,ttAttrb.attr_x,ttAttrb.attr_y).
-  FIND ttMFValues NO-LOCK
-       WHERE ttMFValues.rec_key = ipcRecKey
-         AND ttMFValues.mf_id = ttAttrb.attr_id NO-ERROR.
+  FIND FIRST ttMFValues NO-LOCK
+       WHERE ttMFValues.rec_key EQ ipcRecKey
+         AND ttMFValues.mf_id EQ ttAttrb.attr_id NO-ERROR.
   DO ON ERROR UNDO, RETURN "CREATE-ERROR":
     CASE ttAttrb.attr_type:
 &SCOPED-DEFINE widget-type COMBO-BOX
@@ -824,9 +830,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY mfgroupList mfgroupLabel 
+  DISPLAY mfgroupList mfRecKey mfgroupLabel mfRecKeyLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnApply btnSave Rect-Top btnExit Rect-Left Rect-Right Rect-Bottom 
+  ENABLE btnDelete Rect-Top Rect-Left Rect-Right Rect-Bottom btnSave btnExit 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -879,7 +885,9 @@ PROCEDURE loadWidgetData :
     RETURN "EMPTY".
   END.
   FOR EACH {&dbnm}mfgroup NO-LOCK:
-    mfgrpList = mfgrpList + (IF mfgrpList NE "" THEN "," ELSE "") + {&dbnm}mfgroup.mfgroup_data.
+    mfgrpList = mfgrpList
+              + (IF mfgrpList NE "" THEN "," ELSE "")
+              + ENTRY(1,{&dbnm}mfgroup.mfgroup_data,"|").
   END.
   IF NOT CAN-DO(mfgrpList,ipcGroup) THEN DO:
     MESSAGE "No '" + ipcGroup + "' Group Exists!!!" VIEW-AS ALERT-BOX INFORMATION.
@@ -901,6 +909,7 @@ PROCEDURE loadWidgetData :
     mfgroupList:INNER-LINES IN FRAME {&FRAME-NAME} = NUM-ENTRIES(mfgrpList)
     mfgroupList:LIST-ITEMS = mfgrpList
     mfgroupList:SCREEN-VALUE = ipcGroup
+    mfRecKey:SCREEN-VALUE = ipcRecKey
     .
   APPLY "VALUE-CHANGED" TO mfgroupList.
 
@@ -925,7 +934,7 @@ PROCEDURE moveObjects :
                       ELSE FRAME {&FRAME-NAME}:WIDTH-PIXELS - 6
             iWidth  = IF folderWidth NE 0 THEN folderWidth + 5
                       ELSE FRAME {&FRAME-NAME}:WIDTH-PIXELS - 6
-            FRAME {&FRAME-NAME}:HEIGHT-PIXELS = iHeight + btnExit:HEIGHT-PIXELS + 30
+            FRAME {&FRAME-NAME}:HEIGHT-PIXELS = iHeight + btnExit:HEIGHT-PIXELS + 35
             FRAME {&FRAME-NAME}:WIDTH-PIXELS = iWidth + 10
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = FRAME {&FRAME-NAME}:WIDTH-PIXELS
@@ -937,17 +946,65 @@ PROCEDURE moveObjects :
             Rect-Bottom:Y = Rect-Main:HEIGHT-PIXELS + 17
             Rect-Right:HEIGHT-PIXELS = Rect-Main:HEIGHT-PIXELS - 8
             Rect-Right:X = Rect-Main:WIDTH-PIXELS - 1
-            mfgroupLabel:Y = Rect-Main:HEIGHT-PIXELS + 36
-            mfgroupList:Y = Rect-Main:HEIGHT-PIXELS + 36
-            btnSave:Y = Rect-Main:HEIGHT-PIXELS + 26
-            btnApply:Y = Rect-Main:HEIGHT-PIXELS + 26
-            btnExit:Y = Rect-Main:HEIGHT-PIXELS + 26
+            mfgroupLabel:Y = Rect-Main:HEIGHT-PIXELS + 26
+            mfgroupList:Y = Rect-Main:HEIGHT-PIXELS + 26
+            mfRecKeyLabel:Y = Rect-Main:HEIGHT-PIXELS + 51
+            mfRecKey:Y = Rect-Main:HEIGHT-PIXELS + 51
+            btnSave:Y = Rect-Main:HEIGHT-PIXELS + 31
+            btnDelete:Y = Rect-Main:HEIGHT-PIXELS + 31
+            btnExit:Y = Rect-Main:HEIGHT-PIXELS + 31
             {&WINDOW-NAME}:HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
             {&WINDOW-NAME}:WIDTH-PIXELS = FRAME {&FRAME-NAME}:WIDTH-PIXELS
             {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
             {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
             .
     END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE saveValues C-Win 
+PROCEDURE saveValues :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  IF mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ ? AND ipcGroup EQ "" THEN RETURN.
+  IF mfgroupList:SCREEN-VALUE NE ipcGroup AND ipcGroup NE "" THEN DO:
+    ldummy = NO.
+    MESSAGE "The Group Name has been changed from '" ipcGroup "' to '"
+            mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME} "'" SKIP(1)
+            "Attribute Values for Group '" ipcGroup
+            "' will be Deleted, Continue? (yes/no)"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE ldummy.
+    IF NOT ldummy THEN RETURN "NO-APPLY".
+  END.
+  {methods/wait.i}
+  IF mfgroupList:SCREEN-VALUE NE ipcGroup THEN DO WITH FRAME {&FRAME-NAME}:
+    FOR EACH ttMFValues
+        WHERE ttMFValues.rec_key EQ ipcRecKey
+        :
+      IF CAN-FIND(ttAttrb
+                  WHERE ttAttrb.attr_id EQ ttMFValues.mf_id
+                    AND ttAttrb.attr_mfgroup EQ ipcGroup) THEN
+      DELETE ttMFValues.
+    END.
+    ipcGroup = IF mfgroupList:SCREEN-VALUE EQ ? THEN ""
+               ELSE mfgroupList:SCREEN-VALUE.
+  END.
+  RUN widgetLeave (?).
+  DELETE FROM {&dbnm}mfvalues WHERE {&dbnm}mfvalues.rec_key = ipcRecKey.
+  FOR EACH ttMFValues
+      WHERE ttMFValues.rec_key EQ ipcRecKey
+      :
+    CREATE {&dbnm}mfvalues.
+    BUFFER-COPY ttMFValues TO {&dbnm}mfvalues.
+  END. /* each ttmfvalues */
+  {methods/nowait.i}
+  RETURN.
 
 END PROCEDURE.
 
