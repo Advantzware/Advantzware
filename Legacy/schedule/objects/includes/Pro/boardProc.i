@@ -1410,6 +1410,26 @@ PROCEDURE saveScenario :
       ttblJob.jobCompleted
       ttblJob.rowIDs
       ttblJob.keyValue
+      ttblJob.udfField01
+      ttblJob.udfField02
+      ttblJob.udfField03
+      ttblJob.udfField04
+      ttblJob.udfField05
+      ttblJob.udfField06
+      ttblJob.udfField07
+      ttblJob.udfField08
+      ttblJob.udfField09
+      ttblJob.udfField10
+      ttblJob.udfField11
+      ttblJob.udfField12
+      ttblJob.udfField13
+      ttblJob.udfField14
+      ttblJob.udfField15
+      ttblJob.udfField16
+      ttblJob.udfField17
+      ttblJob.udfField18
+      ttblJob.udfField19
+      ttblJob.udfField20
       ttblJob.userField01
       ttblJob.userField02
       ttblJob.userField03

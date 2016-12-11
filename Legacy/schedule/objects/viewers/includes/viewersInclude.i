@@ -156,6 +156,11 @@ PROCEDURE getCellColumns :
     cellColumn[i]:WIDTH-CHARS = 10.
     IF cellColumn[i]:NAME EQ 'userValue' THEN
     cellColumn[i]:WIDTH-CHARS = 80.
+    IF cellColumn[i]:NAME BEGINS 'udfField' THEN
+    ASSIGN
+      idx = INTEGER(SUBSTRING(cellColumn[i]:NAME,9,2))
+      cellColumn[i]:LABEL = udfLabel[idx]
+      cellColumn[i]:WIDTH-CHARS = udfWidth[idx].
     IF cellColumn[i]:NAME BEGINS 'userField' THEN
     ASSIGN
       idx = INTEGER(SUBSTRING(cellColumn[i]:NAME,10,2))
@@ -275,6 +280,26 @@ PROCEDURE reopenBrowse :
     WHEN 'userValue' THEN
     IF ascendingSort THEN RUN byUserValueAscending.
     ELSE RUN byUserValueDescending.
+    {{&viewers}/includes/byReopenBrowse.i "udf" 01}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 02}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 03}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 04}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 05}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 06}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 07}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 08}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 09}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 10}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 11}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 12}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 13}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 14}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 15}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 16}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 17}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 18}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 19}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 20}
     {{&viewers}/includes/byReopenBrowse.i "user" 01}
     {{&viewers}/includes/byReopenBrowse.i "user" 02}
     {{&viewers}/includes/byReopenBrowse.i "user" 03}

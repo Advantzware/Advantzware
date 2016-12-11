@@ -20,6 +20,26 @@
     INDEX resourceDetailFlag resourceDetailFlag
     INDEX printFlag printFlag
     INDEX sortBy sortBy
+    INDEX udfFields01 udfField01
+    INDEX udfFields02 udfField02
+    INDEX udfFields03 udfField03
+    INDEX udfFields04 udfField04
+    INDEX udfFields05 udfField05
+    INDEX udfFields06 udfField06
+    INDEX udfFields07 udfField07
+    INDEX udfFields08 udfField08
+    INDEX udfFields09 udfField09
+    INDEX udfFields10 udfField10
+    INDEX udfFields11 udfField11
+    INDEX udfFields12 udfField12
+    INDEX udfFields13 udfField13
+    INDEX udfFields14 udfField14
+    INDEX udfFields15 udfField15
+    INDEX udfFields16 udfField16
+    INDEX udfFields17 udfField17
+    INDEX udfFields18 udfField18
+    INDEX udfFields19 udfField19
+    INDEX udfFields20 udfField20
     INDEX userFields01 userField01
     INDEX userFields02 userField02
     INDEX userFields03 userField03

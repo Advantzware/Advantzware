@@ -15,9 +15,10 @@
 &GLOBAL-DEFINE prompts {&objects}/prompts
 &GLOBAL-DEFINE viewers {&objects}/viewers
 
-/* cellColumn = userExtent + 30 */
-&GLOBAL-DEFINE cellColumn 128
+/* cellColumn = udfExtent + userExtent + 30 */
+&GLOBAL-DEFINE cellColumn 148
 &GLOBAL-DEFINE statusExtent 30
+&GLOBAL-DEFINE udfExtent 20
 &GLOBAL-DEFINE userExtent 98
 /*******************************************************************
 when expanding userExtent, changes need to be made in the following:
@@ -33,31 +34,31 @@ when expanding userExtent, changes need to be made in the following:
    8. viewers/includes/viewersInclude.i (reopenBrowse)
    9. config.w [fieldsFrame] (defs)
 *******************************************************************/
-&GLOBAL-DEFINE version1 v2.010
-&GLOBAL-DEFINE version2 v2.011
-&GLOBAL-DEFINE version3 v2.012
-&GLOBAL-DEFINE version4 v2.013
-&GLOBAL-DEFINE version5 v2.014
-&GLOBAL-DEFINE version6 v2.015
-&GLOBAL-DEFINE version7 v2.016
-&GLOBAL-DEFINE version8 v3.001
-&GLOBAL-DEFINE version9 v3.002
-&GLOBAL-DEFINE version v3.003
+&GLOBAL-DEFINE version1 v2.011
+&GLOBAL-DEFINE version2 v2.012
+&GLOBAL-DEFINE version3 v2.013
+&GLOBAL-DEFINE version4 v2.014
+&GLOBAL-DEFINE version5 v2.015
+&GLOBAL-DEFINE version6 v2.016
+&GLOBAL-DEFINE version7 v3.001
+&GLOBAL-DEFINE version8 v3.002
+&GLOBAL-DEFINE version9 v3.003
+&GLOBAL-DEFINE version v3.004
 
 &IF DEFINED(installDir) EQ 0 &THEN
 DEFINE VARIABLE clientDat AS CHARACTER NO-UNDO.
-DEFINE VARIABLE codeDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE codeDir   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE staticDat AS CHARACTER NO-UNDO.
-DEFINE VARIABLE sbUser AS CHARACTER NO-UNDO.
+DEFINE VARIABLE sbUser    AS CHARACTER NO-UNDO.
 
 ASSIGN
   clientDat = SEARCH('{&data}\validID.dat')
   clientDat = REPLACE(clientDat,REPLACE('{&data}\validID.dat','/','\') ,'')
-  codeDir = SEARCH('{&startDir}\sbPro.r')
-  codeDir = REPLACE(codeDir,'{&startDir}\sbPro.r','')
+  codeDir   = SEARCH('{&startDir}\sbPro.r')
+  codeDir   = REPLACE(codeDir,'{&startDir}\sbPro.r','')
   staticDat = SEARCH('{&startDir}\about.txt')
   staticDat = REPLACE(staticDat,'{&startDir}\about.txt','')
-  sbUser = USERID('{&sbDB}')
+  sbUser    = USERID('{&sbDB}')
   .
 
 IF codeDir EQ ? THEN

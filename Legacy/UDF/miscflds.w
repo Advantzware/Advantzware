@@ -99,14 +99,14 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME fMiscFlds
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnMFPrgrms btnAddTab tabLabelsRect RECT-5 ~
-RECT-4 btnCopy widgetRect btnCut tabNavRect btnDeleteTab RECT-2 btnDownTab ~
-RECT-3 btnExit btnExport RECT-8 portRect btnImport btnNextTab tabNavRect-3 ~
-btnPaste prgrmsRect btnPrevTab mfgroupList btnProperty mfgroupTab ~
-btnRenameTab btnUpTab btnCombo-Box btnAddGroup btnCopyGroup tabLabels ~
-btnDeleteGroup btnEditor btnRenameGroup btnFill-In btnRestore btnRadio-Set ~
-btnSave btnRectangle btnTabOrder btnSelection-List btnTest btnSlider ~
-btnText btnToggle-Box 
+&Scoped-Define ENABLED-OBJECTS btnMFPrgrms tabLabelsRect RECT-5 RECT-4 ~
+widgetRect tabNavRect RECT-2 RECT-3 RECT-8 portRect tabNavRect-3 prgrmsRect ~
+mfgroupList mfgroupTab btnCombo-Box tabLabels btnEditor btnFill-In ~
+btnRadio-Set btnRectangle btnAddTab btnSelection-List btnSlider btnText ~
+btnToggle-Box btnCopy btnCut btnDeleteTab btnDownTab btnExit btnExport ~
+btnImport btnNextTab btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab ~
+btnAddGroup btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave ~
+btnTabOrder btnTest 
 &Scoped-Define DISPLAYED-OBJECTS mfgroupList mfgroupTab tabLabels ~
 widgetLabel tabCBLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
 fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
@@ -114,13 +114,13 @@ textLabel toggle-BoxLabel gapFieldLabel prgrmsLabel
 
 /* Custom List Definitions                                              */
 /* notFoundIn234,widgetLabels,widgetButtons,propertyCutCopy,List-5,List-6 */
-&Scoped-define notFoundIn234 btnAddTab widgetRect btnDeleteTab btnDownTab ~
-btnNextTab btnPrevTab mfgroupTab btnRenameTab btnPointer btnUpTab ~
-btnCombo-Box tabLabels btnDeleteGroup btnEditor btnRenameGroup btnFill-In ~
-btnRadio-Set btnRectangle btnSelection-List btnTest btnSlider btnText ~
-btnToggle-Box widgetLabel pointerLabel tabNavLabel combo-BoxLabel ~
-editorLabel fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel ~
-sliderLabel textLabel toggle-BoxLabel prgrmsLabel 
+&Scoped-define notFoundIn234 widgetRect mfgroupTab btnPointer btnCombo-Box ~
+tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle btnAddTab ~
+btnSelection-List btnSlider btnText btnToggle-Box btnDeleteTab btnDownTab ~
+btnNextTab btnPrevTab btnRenameTab btnUpTab btnDeleteGroup btnRenameGroup ~
+btnTest widgetLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
+fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
+textLabel toggle-BoxLabel prgrmsLabel 
 &Scoped-define widgetLabels pointerLabel combo-BoxLabel editorLabel ~
 fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
 textLabel toggle-BoxLabel 
@@ -579,8 +579,40 @@ DEFINE RECTANGLE Rect-Top
 DEFINE FRAME fMiscFlds
      btnMFPrgrms AT ROW 23.86 COL 132 HELP
           "Programs" WIDGET-ID 34
+     mfgroupList AT ROW 1.71 COL 8 COLON-ALIGNED HELP
+          "Select Group Name"
+     mfgroupField AT ROW 1.71 COL 8 COLON-ALIGNED HELP
+          "Enter Group Name"
+     mfgroupTab AT ROW 4.81 COL 133.6 COLON-ALIGNED HELP
+          "Select Tab Number" NO-LABEL
+     btnPointer AT ROW 5.57 COL 3.2 HELP
+          "Restore Mouse Cursor to ARROW POINTER"
+     btnCombo-Box AT ROW 7.19 COL 3.2 HELP
+          "Create New COMBO-BOX"
+     tabField AT ROW 7.19 COL 124 HELP
+          "Enter Tab Label" NO-LABEL
+     tabLabels AT ROW 8.38 COL 124 HELP
+          "Select tab Label" NO-LABEL
+     btnEditor AT ROW 8.86 COL 3.2 HELP
+          "Create New EDITOR"
+     btnFill-In AT ROW 10.52 COL 3.2 HELP
+          "Create New FILL-IN"
+     btnRadio-Set AT ROW 12.19 COL 3.2 HELP
+          "Create New RADIO-SET"
+     btnRectangle AT ROW 13.86 COL 3 HELP
+          "Create New Rectangle"
      btnAddTab AT ROW 7.19 COL 125 HELP
           "ADD New Tab"
+     btnSelection-List AT ROW 15.52 COL 3 HELP
+          "Create New SELECTION-LIST"
+     btnSlider AT ROW 17.19 COL 3 HELP
+          "Create New SLIDER"
+     btnText AT ROW 18.86 COL 3 HELP
+          "Create New TEXT"
+     btnToggle-Box AT ROW 20.52 COL 3 HELP
+          "Create New TOGGLE-BOX"
+     gapField AT ROW 22.19 COL 1 COLON-ALIGNED HELP
+          "Enter Gap Amount in Pixels" NO-LABEL
      btnCopy AT ROW 1.48 COL 88 HELP
           "Copy Selections"
      btnCut AT ROW 1.48 COL 80 HELP
@@ -601,59 +633,27 @@ DEFINE FRAME fMiscFlds
           "Paste Selections"
      btnPrevTab AT ROW 4.81 COL 125.6 HELP
           "Previous tab"
-     mfgroupList AT ROW 1.71 COL 8 COLON-ALIGNED HELP
-          "Select Group Name"
      btnProperty AT ROW 1.48 COL 60 HELP
           "Attributes"
-     mfgroupField AT ROW 1.71 COL 8 COLON-ALIGNED HELP
-          "Enter Group Name"
-     mfgroupTab AT ROW 4.81 COL 133.6 COLON-ALIGNED HELP
-          "Select Tab Number" NO-LABEL
      btnRenameTab AT ROW 7.19 COL 130 HELP
           "RENAME Tab"
-     btnPointer AT ROW 5.57 COL 3.2 HELP
-          "Restore Mouse Cursor to ARROW POINTER"
      btnUpTab AT ROW 7.19 COL 145 HELP
           "Move Tab UP"
-     btnCombo-Box AT ROW 7.19 COL 3.2 HELP
-          "Create New COMBO-BOX"
      btnAddGroup AT ROW 3.14 COL 10 HELP
           "ADD GROU[ Name"
      btnCopyGroup AT ROW 3.14 COL 20 HELP
           "ADD GROU[ Name"
-     tabField AT ROW 7.19 COL 124 HELP
-          "Enter Tab Label" NO-LABEL
-     tabLabels AT ROW 8.38 COL 124 HELP
-          "Select tab Label" NO-LABEL
      btnDeleteGroup AT ROW 3.19 COL 45 HELP
           "DELETE GROU[ Name"
-     btnEditor AT ROW 8.86 COL 3.2 HELP
-          "Create New EDITOR"
      btnRenameGroup AT ROW 3.14 COL 31.2 HELP
           "CHANGE GROU[ Name"
-     btnFill-In AT ROW 10.52 COL 3.2 HELP
-          "Create New FILL-IN"
      btnRestore AT ROW 1.48 COL 116 HELP
           "Reset"
-     btnRadio-Set AT ROW 12.19 COL 3.2 HELP
-          "Create New RADIO-SET"
      btnSave AT ROW 1.48 COL 124 HELP
           "Save"
-     btnRectangle AT ROW 13.86 COL 3 HELP
-          "Create New Rectangle"
      btnTabOrder AT ROW 1.48 COL 70 HELP
           "Set Tab Order"
-     btnSelection-List AT ROW 15.52 COL 3 HELP
-          "Create New SELECTION-LIST"
      btnTest AT ROW 1.48 COL 106
-     btnSlider AT ROW 17.19 COL 3 HELP
-          "Create New SLIDER"
-     btnText AT ROW 18.86 COL 3 HELP
-          "Create New TEXT"
-     btnToggle-Box AT ROW 20.52 COL 3 HELP
-          "Create New TOGGLE-BOX"
-     gapField AT ROW 22.19 COL 1 COLON-ALIGNED HELP
-          "Enter Gap Amount in Pixels" NO-LABEL
      widgetLabel AT ROW 4.81 COL 8 COLON-ALIGNED NO-LABEL
      tabCBLabel AT ROW 4.81 COL 129 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      pointerLabel AT ROW 5.57 COL 8.2 COLON-ALIGNED NO-LABEL
@@ -676,12 +676,6 @@ DEFINE FRAME fMiscFlds
      toggle-BoxLabel AT ROW 20.52 COL 8 COLON-ALIGNED NO-LABEL
      gapFieldLabel AT ROW 22.19 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      prgrmsLabel AT ROW 26 COL 131 NO-LABEL WIDGET-ID 36
-     "Paste" VIEW-AS TEXT
-          SIZE 6 BY .76 AT ROW 3.62 COL 97 WIDGET-ID 10
-          FONT 4
-     "Save" VIEW-AS TEXT
-          SIZE 5 BY .76 AT ROW 3.62 COL 125 WIDGET-ID 12
-          FONT 4
      "Cut" VIEW-AS TEXT
           SIZE 4 BY .76 AT ROW 3.62 COL 82
           FONT 4
@@ -719,6 +713,12 @@ DEFINE FRAME fMiscFlds
           FONT 4
      "Atrributes" VIEW-AS TEXT
           SIZE 9 BY .76 AT ROW 3.62 COL 59
+          FONT 4
+     "Paste" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 3.62 COL 97 WIDGET-ID 10
+          FONT 4
+     "Save" VIEW-AS TEXT
+          SIZE 5 BY .76 AT ROW 3.62 COL 125 WIDGET-ID 12
           FONT 4
      tabLabelsRect AT ROW 6.24 COL 123
      RECT-1 AT ROW 1.24 COL 2
@@ -2044,7 +2044,7 @@ PROCEDURE addGroup :
     CREATE ttMFGroup.
     ASSIGN
       ttMFGroup.mfgroup_data = cdummy
-      ttMFGroup.mfgroup_tabs = " ".
+      ttMFGroup.mfgroup_tabs = "Tab|Default".
   END.
   ELSE MESSAGE "Group" cdummy "Already Exists!" VIEW-AS ALERT-BOX.
 
@@ -2902,14 +2902,14 @@ PROCEDURE enable_UI :
           rectangleLabel selection-ListLabel sliderLabel textLabel 
           toggle-BoxLabel gapFieldLabel prgrmsLabel 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
-  ENABLE btnMFPrgrms btnAddTab tabLabelsRect RECT-5 RECT-4 btnCopy widgetRect 
-         btnCut tabNavRect btnDeleteTab RECT-2 btnDownTab RECT-3 btnExit 
-         btnExport RECT-8 portRect btnImport btnNextTab tabNavRect-3 btnPaste 
-         prgrmsRect btnPrevTab mfgroupList btnProperty mfgroupTab btnRenameTab 
-         btnUpTab btnCombo-Box btnAddGroup btnCopyGroup tabLabels 
-         btnDeleteGroup btnEditor btnRenameGroup btnFill-In btnRestore 
-         btnRadio-Set btnSave btnRectangle btnTabOrder btnSelection-List 
-         btnTest btnSlider btnText btnToggle-Box 
+  ENABLE btnMFPrgrms tabLabelsRect RECT-5 RECT-4 widgetRect tabNavRect RECT-2 
+         RECT-3 RECT-8 portRect tabNavRect-3 prgrmsRect mfgroupList mfgroupTab 
+         btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle 
+         btnAddTab btnSelection-List btnSlider btnText btnToggle-Box btnCopy 
+         btnCut btnDeleteTab btnDownTab btnExit btnExport btnImport btnNextTab 
+         btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab btnAddGroup 
+         btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave 
+         btnTabOrder btnTest 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
   {&OPEN-BROWSERS-IN-QUERY-fMiscFlds}
   ENABLE Rect-Top Rect-Left Rect-Right Rect-Bottom 

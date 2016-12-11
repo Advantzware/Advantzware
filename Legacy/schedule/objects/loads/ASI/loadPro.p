@@ -21,6 +21,7 @@
 
 {schedule/scopDir.i}
 {{&loads}/loadPro.i}
+{UDF/ttUDF.i}
 
 /* configuration vars */
 {{&includes}/configVars.i}
@@ -51,6 +52,7 @@ DEFINE VARIABLE useField AS LOGICAL NO-UNDO EXTENT {&userExtent}.
 DEFINE VARIABLE useNotes AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE useSalesRep AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE useStatus AS LOGICAL NO-UNDO INIT YES.
+DEFINE VARIABLE udfGroup AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bJobMch FOR job-mch.
 
@@ -187,6 +189,14 @@ FUNCTION getSetPOQtyRec RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHA
     rtnQty = rtnQty + qty.
   END.
   RETURN STRING(rtnQty).
+END FUNCTION.
+
+FUNCTION getUDFGroup RETURNS CHARACTER ():
+    FIND FIRST mfgroup NO-LOCK
+         WHERE LOOKUP("sbPro.",mfgroup.mfgroup_data,"|") NE 0
+         NO-ERROR.
+    RETURN IF NOT AVAILABLE mfgroup THEN ?
+           ELSE ENTRY(1,mfgroup.mfgroup_data,"|").
 END FUNCTION.
 
 FUNCTION prodQty RETURNS CHARACTER (ipCompany AS CHARACTER,ipResource AS CHARACTER,
@@ -413,23 +423,24 @@ END FUNCTION.
 
 FUNCTION noDate RETURN LOGICAL (ipCompany AS CHARACTER):
   RETURN CAN-FIND(FIRST sys-ctrl NO-LOCK
-                  WHERE sys-ctrl.company EQ ipCompany
-                    AND sys-ctrl.name EQ 'Schedule'
+                  WHERE sys-ctrl.company  EQ ipCompany
+                    AND sys-ctrl.name     EQ 'Schedule'
                     AND sys-ctrl.char-fld EQ 'NoDate'
-                    AND sys-ctrl.int-fld EQ 0
-                    AND sys-ctrl.log-fld EQ YES).
+                    AND sys-ctrl.int-fld  EQ 0
+                    AND sys-ctrl.log-fld  EQ YES).
 END FUNCTION.
 
 IF VALID-HANDLE(ipContainerHandle) THEN DO:
     RUN asiCommaList IN ipContainerHandle ('Company',OUTPUT asiCompany).
     RUN asiCommaList IN ipContainerHandle ('Location',OUTPUT asiLocation).
 END.
-IF asiCompany EQ '' THEN asiCompany = '001'.
+IF asiCompany  EQ '' THEN asiCompany  = '001'.
 IF asiLocation EQ '' THEN asiLocation = 'Main'.
 
 ASSIGN
   useDeptSort = SEARCH(findProgram('{&data}/',ID,'/useDeptSort.dat')) NE ?
   useSalesRep = SEARCH(findProgram('{&data}/',ID,'/useSalesRep.dat')) NE ?
+  udfGroup    = getUDFGroup()
   .
 
 IF useSalesRep THEN DO:
@@ -623,6 +634,7 @@ FOR EACH job-hdr NO-LOCK
       timeSpan = calcJobTime(job-mch.mr-hr,job-mch.run-hr)
       unitFound = NO
       userField = ''
+      udfField  = ''
       .
   
     /* surely, jobs shouldn't be this old, if any, move to pending */
@@ -882,6 +894,7 @@ FOR EACH job-hdr NO-LOCK
     END. /* not salesrepfound */
 
     IF ufItemFG THEN DO:
+      EMPTY TEMP-TABLE ttUDF.
       RELEASE itemfg.
       IF job-mch.i-no NE '' THEN
       FIND FIRST itemfg NO-LOCK
@@ -891,6 +904,14 @@ FOR EACH job-hdr NO-LOCK
       FIND FIRST itemfg NO-LOCK
            WHERE itemfg.company EQ job-hdr.company
              AND itemfg.i-no EQ job-hdr.i-no NO-ERROR.
+      IF AVAILABLE itemfg AND udfGroup NE ? THEN DO:
+          IF CAN-FIND(FIRST mfvalues
+                      WHERE mfvalues.rec_key EQ itemfg.rec_key) THEN
+          RUN UDF/UDF.p (udfGroup, itemfg.rec_key, OUTPUT TABLE ttUDF).
+          FOR EACH ttUDF WHERE ttUDF.udfOrder GT 0:
+              udfField[ttUDF.udfOrder] = ttUDF.udfValue.
+          END. /* each ttudf */
+      END. /* udfGroup */
     END. /* if ufitemfg */
 
     IF traceON THEN
@@ -1714,6 +1735,8 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[83] = 'Job Status'      userWidth[83] = 12
     userLabel[84] = 'Total Price'     userWidth[84] = 20
     userLabel[85] = 'Due Qty'         userWidth[85] = 12
+    userLabel[86] = 'UnderRun%'       userWidth[86] = 10
+    userLabel[87] = 'OverRun%'        userWidth[87] = 10
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */

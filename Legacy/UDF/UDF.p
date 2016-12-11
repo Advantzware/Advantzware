@@ -45,11 +45,11 @@ PROCEDURE pGetMFData:
 END PROCEDURE.
 
 PROCEDURE pBuildttUDF:
-    DEFINE VARIABLE cName      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLabel     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFormat    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cValue     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cName   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLabel  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER   NO-UNDO.
     
     FOR EACH ttAttrb
         BREAK BY ttAttrb.attr_tab
@@ -59,10 +59,10 @@ PROCEDURE pBuildttUDF:
         :
         IF FIRST-OF(ttAttrb.attr_tab) THEN DO:
             ASSIGN
-                cLabel            = ENTRY(1,ENTRY(ttAttrb.attr_tab,mfgroup.mfgroup_tab),"|")
-                cValue            = STRING(ttAttrb.attr_tab)
-                cFormat           = "x(" + STRING(MAX(LENGTH(cLabel),LENGTH(cValue))) + ")"
-                idx               = 0
+                cLabel  = ENTRY(1,ENTRY(ttAttrb.attr_tab,mfgroup.mfgroup_tab),"|")
+                cValue  = STRING(ttAttrb.attr_tab)
+                cFormat = "x(" + STRING(MAX(LENGTH(cLabel),LENGTH(cValue))) + ")"
+                idx     = 0
                 .
             RUN pCreatettUDF (ipcRecKey,
                               ttAttrb.attr_tab,
