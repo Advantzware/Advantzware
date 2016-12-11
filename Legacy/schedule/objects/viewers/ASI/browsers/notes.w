@@ -2,7 +2,6 @@
 &ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
-          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 

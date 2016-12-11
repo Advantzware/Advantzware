@@ -9,6 +9,11 @@ IF NOT ipExcel AND ipShowParametersPage THEN DO:
     'To: ' AT 50 STRING(toDueDate,'99.99.9999')
     'Job: ' AT 10 jobValueLo 'To: ' AT 50 jobValueHi
     'Resource: ' AT 10 resourceValueLo 'To: ' AT 50 resourceValueHi.
+  DO i = 1 TO {&udfExtent}:
+    IF udfLabel[i] NE 'Not Used' THEN
+    PUT UNFORMATTED udfLabel[i] AT 10 ': ' udfValueLo[i]
+      'To: ' AT 50 udfValueHi[i].
+  END.
   DO i = 1 TO {&userExtent}:
     IF userLabel[i] NE 'Not Used' THEN
     PUT UNFORMATTED userLabel[i] AT 10 ': ' userValueLo[i]

@@ -164,6 +164,26 @@ PROCEDURE buildLines:
       {{&includes}/jobStatus.i 12}
       {{&includes}/jobStatus.i 13}
       {{&includes}/jobStatus.i 14}
+      {{&includes}/udfField.i 01}
+      {{&includes}/udfField.i 02}
+      {{&includes}/udfField.i 03}
+      {{&includes}/udfField.i 04}
+      {{&includes}/udfField.i 05}
+      {{&includes}/udfField.i 06}
+      {{&includes}/udfField.i 07}
+      {{&includes}/udfField.i 08}
+      {{&includes}/udfField.i 09}
+      {{&includes}/udfField.i 10}
+      {{&includes}/udfField.i 11}
+      {{&includes}/udfField.i 12}
+      {{&includes}/udfField.i 13}
+      {{&includes}/udfField.i 14}
+      {{&includes}/udfField.i 15}
+      {{&includes}/udfField.i 16}
+      {{&includes}/udfField.i 17}
+      {{&includes}/udfField.i 18}
+      {{&includes}/udfField.i 19}
+      {{&includes}/udfField.i 20}
       {{&includes}/userField.i 01}
       {{&includes}/userField.i 02}
       {{&includes}/userField.i 03}

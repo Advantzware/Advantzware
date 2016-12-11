@@ -21,6 +21,7 @@
     FIND browseColumn NO-LOCK WHERE browseColumn.colOrder EQ i NO-ERROR.
     IF AVAILABLE browseColumn AND (browseColumn.colName EQ 'calcTimeField' OR
                                    browseColumn.colName EQ 'jobCompleted' OR
+                                   browseColumn.colName BEGINS 'udf' OR
                                    browseColumn.colName BEGINS 'user') THEN
     CASE browseColumn.colLabel:
       WHEN 'C' THEN

@@ -45,16 +45,16 @@ DEFINE VARIABLE i AS INTEGER NO-UNDO.
 &Scoped-define PROCEDURE-TYPE Dialog-Box
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS customValueListValue statusObjectValue ~
-userLabelValue userWidthValue btnCancel 
+userLabelValue userWidthValue udfLabelValue udfWidthValue btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS asOfTimeValue customValueListValue ~
-statusObjectValue userLabelValue userWidthValue capacityLoadValue ~
-cascadeJobValue changeResourceValue copyToResourceValue endDateMoveValue ~
-idValue printPrgmValue departmentListValue 
+statusObjectValue userLabelValue userWidthValue udfLabelValue udfWidthValue ~
+capacityLoadValue cascadeJobValue changeResourceValue copyToResourceValue ~
+endDateMoveValue idValue printPrgmValue departmentListValue 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -83,7 +83,7 @@ DEFINE VARIABLE asOfTimeValue AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE departmentListValue AS CHARACTER FORMAT "X(256)":U 
      LABEL "departmentList" 
      VIEW-AS FILL-IN 
-     SIZE 118 BY 1
+     SIZE 161 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE idValue AS CHARACTER FORMAT "X(256)":U 
@@ -95,7 +95,7 @@ DEFINE VARIABLE idValue AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE printPrgmValue AS CHARACTER FORMAT "X(256)":U 
      LABEL "printPrgm" 
      VIEW-AS FILL-IN 
-     SIZE 118 BY 1
+     SIZE 161 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE customValueListValue AS CHARACTER 
@@ -105,6 +105,14 @@ DEFINE VARIABLE customValueListValue AS CHARACTER
 DEFINE VARIABLE statusObjectValue AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
      SIZE 46 BY 12.86 NO-UNDO.
+
+DEFINE VARIABLE udfLabelValue AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     SIZE 25 BY 12.86 NO-UNDO.
+
+DEFINE VARIABLE udfWidthValue AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     SIZE 16 BY 12.86 NO-UNDO.
 
 DEFINE VARIABLE userLabelValue AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
@@ -148,6 +156,8 @@ DEFINE FRAME Dialog-Frame
      statusObjectValue AT ROW 1.71 COL 60 NO-LABEL
      userLabelValue AT ROW 1.71 COL 107 NO-LABEL
      userWidthValue AT ROW 1.71 COL 133 NO-LABEL
+     udfLabelValue AT ROW 1.71 COL 150 NO-LABEL WIDGET-ID 2
+     udfWidthValue AT ROW 1.71 COL 176 NO-LABEL WIDGET-ID 4
      capacityLoadValue AT ROW 2.91 COL 7
      cascadeJobValue AT ROW 3.86 COL 7
      changeResourceValue AT ROW 4.81 COL 7
@@ -157,15 +167,19 @@ DEFINE FRAME Dialog-Frame
      btnCancel AT ROW 9.1 COL 14
      printPrgmValue AT ROW 14.81 COL 29 COLON-ALIGNED
      departmentListValue AT ROW 16 COL 29 COLON-ALIGNED
-     "statusObject" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1 COL 78
-     "userWidth" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1 COL 135
-     "userLabel" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1 COL 114
+     "udfLabel" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1 COL 157 WIDGET-ID 8
+     "udfWidth" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1 COL 178 WIDGET-ID 6
      "customValueList" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 1 COL 36
-     SPACE(96.99) SKIP(15.37)
+     "userLabel" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1 COL 114
+     "userWidth" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1 COL 135
+     "statusObject" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 1 COL 78
+     SPACE(101.99) SKIP(15.37)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Shared Var Values".
@@ -187,7 +201,7 @@ DEFINE FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -251,7 +265,6 @@ END.
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
-
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -276,6 +289,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ASSIGN
       ldummy = userLabelValue:ADD-LAST(userLabel[i])
       ldummy = userWidthValue:ADD-LAST(STRING(userWidth[i])).
+  END.
+  DO i = 1 TO EXTENT(udfLabel):
+    ASSIGN
+      ldummy = udfLabelValue:ADD-LAST(udfLabel[i])
+      ldummy = udfWidthValue:ADD-LAST(STRING(udfWidth[i])).
   END.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -316,12 +334,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY asOfTimeValue customValueListValue statusObjectValue userLabelValue 
-          userWidthValue capacityLoadValue cascadeJobValue changeResourceValue 
-          copyToResourceValue endDateMoveValue idValue printPrgmValue 
-          departmentListValue 
+          userWidthValue udfLabelValue udfWidthValue capacityLoadValue 
+          cascadeJobValue changeResourceValue copyToResourceValue 
+          endDateMoveValue idValue printPrgmValue departmentListValue 
       WITH FRAME Dialog-Frame.
   ENABLE customValueListValue statusObjectValue userLabelValue userWidthValue 
-         btnCancel 
+         udfLabelValue udfWidthValue btnCancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

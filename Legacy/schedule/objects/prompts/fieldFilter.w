@@ -42,6 +42,8 @@ DEFINE INPUT PARAMETER ipUsage AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+DEFINE VARIABLE udfFieldLo AS WIDGET-HANDLE NO-UNDO EXTENT {&udfExtent}.
+DEFINE VARIABLE udfFieldHi AS WIDGET-HANDLE NO-UNDO EXTENT {&udfExtent}.
 DEFINE VARIABLE userFieldLo AS WIDGET-HANDLE NO-UNDO EXTENT {&userExtent}.
 DEFINE VARIABLE userFieldHi AS WIDGET-HANDLE NO-UNDO EXTENT {&userExtent}.
 DEFINE VARIABLE winTitle AS CHARACTER NO-UNDO.
@@ -833,6 +835,14 @@ PROCEDURE applyFields :
   DEFINE VARIABLE runProgram AS CHARACTER NO-UNDO.
   DEFINE VARIABLE runTitle AS CHARACTER NO-UNDO.
 
+  DO i = 1 TO EXTENT(udfFieldLo):
+    IF VALID-HANDLE(udfFieldLo[i]) THEN
+    udfValueLo[i] = udfFieldLo[i]:SCREEN-VALUE.
+    IF VALID-HANDLE(udfFieldHi[i]) THEN
+    udfValueHi[i] = udfFieldHi[i]:SCREEN-VALUE.
+    IF udfValueHi[i] EQ '' THEN
+    udfValueHi[i] = FILL(CHR(122),20).
+  END. /* do i */
   DO i = 1 TO EXTENT(userFieldLo):
     IF VALID-HANDLE(userFieldLo[i]) THEN
     userValueLo[i] = userFieldLo[i]:SCREEN-VALUE.
@@ -933,6 +943,12 @@ PROCEDURE blankFields :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+  DO i = 1 TO EXTENT(udfFieldLo):
+    IF VALID-HANDLE(udfFieldLo[i]) THEN
+    udfFieldLo[i]:SCREEN-VALUE = ''.
+    IF VALID-HANDLE(udfFieldHi[i]) THEN
+    udfFieldHi[i]:SCREEN-VALUE = ''.
+  END.
   DO i = 1 TO EXTENT(userFieldLo):
     IF VALID-HANDLE(userFieldLo[i]) THEN
     userFieldLo[i]:SCREEN-VALUE = ''.
@@ -975,6 +991,15 @@ PROCEDURE createFields :
   DELETE WIDGET-POOL ipUsage NO-ERROR.
   CREATE WIDGET-POOL ipUsage PERSISTENT.
   
+  DO i = 1 TO EXTENT(udfFieldLo) WITH FRAME {&FRAME-NAME}:
+    IF udfLabel[i] EQ 'Not Used' THEN NEXT.
+    FIND FIRST rptFields NO-LOCK WHERE rptFields.fieldLabel EQ udfLabel[i]
+                                   AND ID BEGINS rptFields.rptID NO-ERROR.
+    IF AVAILABLE rptFields AND NOT rptFields.filterField THEN NEXT.
+    RUN createObject (udfLabel[i],udfValueLo[i],udfValueHi[i],
+                      INPUT-OUTPUT ipYCoord,OUTPUT udfFieldLo[i],OUTPUT udfFieldHi[i]).
+    IF ipYCoord GT hiCoord THEN hiCoord = ipYCoord.
+  END. /* do i */
   DO i = 1 TO EXTENT(userFieldLo) WITH FRAME {&FRAME-NAME}:
     IF userLabel[i] EQ 'Not Used' THEN NEXT.
     FIND FIRST rptFields NO-LOCK WHERE rptFields.fieldLabel EQ userLabel[i]
@@ -1181,6 +1206,12 @@ PROCEDURE resetFields :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+  DO i = 1 TO EXTENT(udfFieldLo):
+    IF VALID-HANDLE(udfFieldLo[i]) THEN
+    udfFieldLo[i]:SCREEN-VALUE = udfValueLo[i].
+    IF VALID-HANDLE(udfFieldHi[i]) THEN
+    udfFieldHi[i]:SCREEN-VALUE = udfValueHi[i].
+  END.
   DO i = 1 TO EXTENT(userFieldLo):
     IF VALID-HANDLE(userFieldLo[i]) THEN
     userFieldLo[i]:SCREEN-VALUE = userValueLo[i].
