@@ -868,9 +868,9 @@ PROCEDURE proc-enable :
     ------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF NOT adm-new-record THEN
-            DISABLE cust-markup.style
-                cust-markup.procat.
+/*        IF NOT adm-new-record THEN   */
+/*            DISABLE cust-markup.style*/
+/*                cust-markup.procat.  */
 
         ENABLE cb_markup-on-01
             cb_markup-on-02
