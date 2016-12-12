@@ -25,7 +25,7 @@ DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcProductCategory AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcStyleID AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdLookupValue AS DECIMAL NO-UNDO.
-/*DEFINE INPUT PARAMETER ipdLookupValueReduction AS DECIMAL NO-UNDO.*/
+DEFINE INPUT PARAMETER ipdLookupValueReduction AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opdMarkup AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMarkupOn AS CHARACTER NO-UNDO.
  
@@ -55,11 +55,13 @@ IF AVAILABLE bf-cust-markup THEN DO:
         OUTPUT opdMarkup,
         OUTPUT opcMarkupOn).
     
-/*    RUN pGetMarkupReduction(BUFFER bf-cust-markup,*/
-/*        ipdLookupValueReduction,                  */
-/*        OUTPUT dMarkupReduction).                 */
-    
+    IF ipdLookupValueReduction GT 0 THEN 
+        RUN pGetMarkupReduction(BUFFER bf-cust-markup,
+            ipdLookupValueReduction,
+            OUTPUT dMarkupReduction).
+            
     opdMarkup = opdMarkup - dMarkupReduction.
+    IF opdMarkup LT 0 THEN opdMarkup = 0.
 END.
                
 
@@ -100,7 +102,6 @@ PROCEDURE pGetMarkup:
         opdReturnMarkup = dValue.
     ELSE
        opdReturnMarkup = dValueUpper.
-                
 
 END PROCEDURE.
 
@@ -111,8 +112,8 @@ PROCEDURE pGetMarkupReduction:
              for interpolate vs. step
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-selected-cust-markup FOR cust-markup.
-    DEFINE INPUT PARAMETER ipdLookupValue AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdReturnMarkup AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdLookupValueRed AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdReturnMarkupRed AS DECIMAL NO-UNDO.
      
     DEFINE VARIABLE iIndexL     AS INTEGER NO-UNDO. 
     DEFINE VARIABLE iIndexU     AS INTEGER NO-UNDO. 
@@ -120,22 +121,16 @@ PROCEDURE pGetMarkupReduction:
     DEFINE VARIABLE dValueUpper AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dValue      AS DECIMAL NO-UNDO.
  
-/*    RUN custom\Lookup1D.p (ipdLookupValue,         */
-/*        ipbf-selected-cust-markup.lookup_reduction,*/
-/*        ipbf-selected-cust-markup.markup_reduction,*/
-/*        OUTPUT dValueLower,                        */
-/*        OUTPUT dValueUpper,                        */
-/*        OUTPUT dValue,                             */
-/*        OUTPUT iIndexL,                            */
-/*        OUTPUT iIndexU).                           */
-/*    MESSAGE "ValueLowerRed"  dValueLower skip      */
-/*        "ValueUpperRed" dValueUpper skip           */
-/*        "ValueRed" dValue skip                     */
-/*        "IndexLowerRed" iIndexL skip               */
-/*        "IndexUpperRed" iIndexU                    */
-/*        VIEW-AS ALERT-BOX.                         */
-        
-    opdReturnMarkup = dValueUpper.
+    RUN custom\Lookup1D.p (ipdLookupValueRed,
+        ipbf-selected-cust-markup.lookup_reduction,
+        ipbf-selected-cust-markup.markup_reduction,
+        OUTPUT dValueLower,
+        OUTPUT dValueUpper,
+        OUTPUT dValue,
+        OUTPUT iIndexL,
+        OUTPUT iIndexU).
+           
+    opdReturnMarkupRed = dValueUpper.
                 
 END PROCEDURE.
 

@@ -729,6 +729,7 @@ PROCEDURE create-order-lines.
                      
                   RUN custom/markup.p (ROWID(xeb),
                                        v-board-cst,
+                                       0,
                                        INPUT-OUTPUT lv-sell-by,
                                        INPUT-OUTPUT v-pct-2).
                  

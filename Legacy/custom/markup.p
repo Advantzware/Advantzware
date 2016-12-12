@@ -1,6 +1,7 @@
 
 DEFINE INPUT PARAMETER ipriEb AS ROWID NO-UNDO.
 DEFINE INPUT PARAMETER ipdBoardCost AS DECIMAL NO-UNDO.
+DEFINE INPUT PARAMETER ipdBoardPct AS DECIMAL NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcMarkupOn AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopdMarkup AS DECIMAL NO-UNDO.
 
@@ -52,32 +53,10 @@ DO:
         eb.procat,
         eb.style,
         dLookup,
+        ipdBoardPct,
         OUTPUT iopdMarkup,
         OUTPUT iopcMarkupOn).
-
-/*    FOR EACH cust-markup NO-LOCK                          */
-/*        WHERE cust-markup.company EQ eb.company           */
-/*        AND cust-markup.cust-no EQ eb.cust-no             */
-/*        AND (cust-markup.style  EQ eb.style OR            */
-/*        cust-markup.style  EQ "")                         */
-/*        AND (cust-markup.procat EQ eb.procat OR           */
-/*        cust-markup.procat EQ "")                         */
-/*        BREAK BY cust-markup.procat DESCENDING            */
-/*        BY cust-markup.style  DESCENDING:                 */
-/*                                                          */
-/*                                                          */
-/*        DO li = 1 TO EXTENT(cust-markup.run-qty):         */
-/*            IF cust-markup.run-qty[li] GE dSqf THEN     */
-/*            DO:                                           */
-/*                ASSIGN                                    */
-/*                    iopcMarkupOn = cust-markup.markup-on[li]*/
-/*                    iopdMarkup     = cust-markup.markup[li].  */
-/*                LEAVE.                                    */
-/*            END.                                          */
-/*        END.                                              */
-/*                                                          */
-/*        LEAVE.                                            */
-/*    END.                                                  */
+        
 END.
 
 IF iopcMarkupOn EQ "" THEN iopcMarkupOn = "N".

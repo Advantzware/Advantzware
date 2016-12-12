@@ -46,7 +46,7 @@ RUN pGetIndex(ipdValueToLookup,
 
 /*Set return values and values needed for interpolation*/
 ASSIGN 
-    opiValueIndexLT            = opiValueIndexGE - 1
+    opiValueIndexLT            = IF opiValueIndexGE GT 0 THEN opiValueIndexGE - 1 ELSE 0
     opdValueToReturnDiscreteLT = IF opiValueIndexLT GT 0 THEN ipdArrayToReturn[opiValueIndexLT] ELSE 0
     opdValueToReturnDiscreteGE = IF opiValueIndexGE LE iExtent THEN ipdArrayToReturn[opiValueIndexGE] ELSE ipdArrayToReturn[iExtent]
     dLookupLowerBound          = IF opiValueIndexLT GT 0 THEN ipdArrayToLookup[opiValueIndexLT] ELSE 0
