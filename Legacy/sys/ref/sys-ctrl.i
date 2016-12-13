@@ -238,6 +238,27 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[154] = "Square Feet,Board Cost"
        .
 
+	
+IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
+     ASSIGN
+	   str-init[1]  = "quoprint 1,quoprint 2"
+       str-init[2]  = "invprint 1,invprint 2"
+       str-init[8]  = "poprint 1,poprint 2"
+       str-init[9]  = "relprint 1,relprint 2"
+       str-init[10] = "bolfmt 1,bolfmt 2"
+       str-init[11] = "chkfmt 1,chkfmt 2"
+       str-init[13] = "ackhead 1,ackhead 2"
+       str-init[29] = "bolcert 1,bolcert 2"
+       str-init[30] = "cerunc 1,cerunc 2"
+       str-init[31] = "cerunf 1,cerunf 2"
+       str-init[32] = "jobcardc 1,jobcardc 2"
+       str-init[33] = "jobcardf 1,jobcardf 2"
+       str-init[89] = "stmtprint 1,stmtprint 2"  /*stmtprin*/
+       str-init[141] = "AckMaster 1,AckMaster 2" /*"3CPack"*/
+       str-init[151] = "bolfmt1" .
+
+end.
+
 FOR EACH ASI.item-spec FIELDS(CODE) WHERE
     ASI.item-spec.company = g_company AND
     ASI.item-spec.i-no = '' NO-LOCK  
