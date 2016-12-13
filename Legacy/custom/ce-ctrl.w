@@ -905,6 +905,7 @@ ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
 DO:
   IF {&SELF-NAME}:LABEL = "&Close" THEN do:
     run spec-%or$ (.01).
+    find current ce-ctrl NO-LOCK NO-ERROR.  
     
     APPLY "CLOSE" TO THIS-PROCEDURE.
   end.
@@ -958,6 +959,7 @@ DO:
     
     RUN reftable-values (NO).
   END.
+  find current ce-ctrl NO-LOCK NO-ERROR.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
