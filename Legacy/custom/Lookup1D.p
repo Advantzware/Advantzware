@@ -44,23 +44,25 @@ RUN pGetIndex(ipdValueToLookup,
     ipdArrayToLookup, 
     OUTPUT opiValueIndexGE).
 
-/*Set return values and values needed for interpolation*/
-ASSIGN 
-    opiValueIndexLT            = IF opiValueIndexGE GT 0 THEN opiValueIndexGE - 1 ELSE 0
-    opdValueToReturnDiscreteLT = IF opiValueIndexLT GT 0 THEN ipdArrayToReturn[opiValueIndexLT] ELSE 0
-    opdValueToReturnDiscreteGE = IF opiValueIndexGE LE iExtent THEN ipdArrayToReturn[opiValueIndexGE] ELSE ipdArrayToReturn[iExtent]
-    dLookupLowerBound          = IF opiValueIndexLT GT 0 THEN ipdArrayToLookup[opiValueIndexLT] ELSE 0
-    dLookupUpperBound          = IF opiValueIndexGE LE iExtent THEN ipdArrayToLookup[opiValueIndexGE] ELSE ipdArrayToLookup[iExtent]
-    .
+IF opiValueIndexGE GT 0 THEN 
+DO:
+    /*Set return values and values needed for interpolation*/
+    ASSIGN 
+        opiValueIndexLT            = IF opiValueIndexGE GT 0 THEN opiValueIndexGE - 1 ELSE 0
+        opdValueToReturnDiscreteLT = IF opiValueIndexLT GT 0 THEN ipdArrayToReturn[opiValueIndexLT] ELSE 0
+        opdValueToReturnDiscreteGE = IF opiValueIndexGE LE iExtent THEN ipdArrayToReturn[opiValueIndexGE] ELSE ipdArrayToReturn[iExtent]
+        dLookupLowerBound          = IF opiValueIndexLT GT 0 THEN ipdArrayToLookup[opiValueIndexLT] ELSE 0
+        dLookupUpperBound          = IF opiValueIndexGE LE iExtent THEN ipdArrayToLookup[opiValueIndexGE] ELSE ipdArrayToLookup[iExtent]
+        .
 
-/*Calculate interpolation*/    
-RUN pInterpolate(ipdValueToLookup, 
-    dLookupLowerBound, 
-    dLookupUpperBound, 
-    opdValueToReturnDiscreteLT, 
-    opdValueToReturnDiscreteGE, 
-    OUTPUT opdValueToReturnInterpolated).
-
+    /*Calculate interpolation*/    
+    RUN pInterpolate(ipdValueToLookup, 
+        dLookupLowerBound, 
+        dLookupUpperBound, 
+        opdValueToReturnDiscreteLT, 
+        opdValueToReturnDiscreteGE, 
+        OUTPUT opdValueToReturnInterpolated).
+END.
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pGetIndex:
