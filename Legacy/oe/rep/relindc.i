@@ -365,10 +365,10 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
               
               ASSIGN iCountLine = 0 .
               PUT SPACE(1) oe-ordl.part-no FORMAT "x(15)" SPACE(1)
-                  "<UNITS=INCHES><R+1><FROM><AT=+.22,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" +
+                  "<UNITS=INCHES><R+0.5><FROM><AT=+.22,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" +
                    STRING(tt-rell.i-no) + ">" FORM "x(100)" "<P10>" 
                    "<AT=,2.2>" tt-rell.i-no FORM "x(15)"  SPACE(1) .
-              PUT "<R-3> " SPACE(2)
+              PUT "<R-2.8> " SPACE(2)
                    IF AVAIL oe-ordl THEN oe-ordl.i-name ELSE "" FORMAT "x(30)" AT 44 SPACE(1) 
                    tt-rell.qty-case SPACE(3)
                    tt-rell.cases SPACE(1) SKIP .
@@ -450,6 +450,8 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                    IF LAST-OF(fg-bin.loc-bin) THEN do:
                        v-job-no = fg-bin.job-no + "-" + STRING(INTEGER(fg-bin.job-no2), "99" )  .
                        IF (v-job-no EQ "-" OR v-job-no EQ "-00" ) THEN v-job-no = "".
+                       IF FIRST(fg-bin.job-no) THEN
+                           PUT SKIP(1) .
                        PUT SPACE(1)
                            v-job-no FORMAT "X(11)" AT 2
                            fg-bin.loc FORMAT "x(6)" AT 44 SPACE(1)
@@ -473,7 +475,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                             AND bf-ship.cust-no EQ bf-cust.cust-no
                             NO-LOCK NO-ERROR.
                         IF avail bf-ship THEN DO:
-                           PUT  SKIP /*SPACE(1) v-job-no FORMAT "X(11)"*/
+                           PUT  SKIP(1) /*SPACE(1) v-job-no FORMAT "X(11)"*/
                                 bf-ship.loc FORMAT "x(6)" AT 44 SPACE(1)
                                 bf-ship.loc-bin FORMAT "x(8)" space(1)
                                  .  
@@ -497,10 +499,10 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                
                ASSIGN iCountLine = 0 .
                PUT SPACE(1) oe-ordl.part-no FORMAT "x(15)" SPACE(1)
-                  "<UNITS=INCHES><R+1><FROM><AT=+.22,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" +
+                  "<UNITS=INCHES><R+0.5><FROM><AT=+.22,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" +
                    STRING(tt-rell.i-no) + ">" FORM "x(100)" "<P10>" 
                    "<AT=,2.2>" tt-rell.i-no FORM "x(15)"  SPACE(1) .
-              PUT "<R-3> "
+              PUT "<R-2.8> "
                    IF AVAIL oe-ordl THEN oe-ordl.i-name ELSE "" FORMAT "x(30)" AT 44 SPACE(1)
                    tt-rell.qty-case SPACE(3)
                    tt-rell.cases SPACE(1) SKIP .
@@ -544,10 +546,10 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
          
           ASSIGN iCountLine = 0 .
            PUT SPACE(1) oe-ordl.part-no FORMAT "x(15)" SPACE(1)
-                  "<UNITS=INCHES><R+1><FROM><AT=+.22,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" +
+                  "<UNITS=INCHES><R+0.5><FROM><AT=+.22,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" +
                    STRING(tt-rell.i-no) + ">" FORM "x(100)" "<P10>" 
                    "<AT=,2.2>" tt-rell.i-no FORM "x(15)"  SPACE(1) .
-              PUT "<R-3> " 
+              PUT "<R-2.8> " 
                    IF AVAIL oe-ordl THEN oe-ordl.i-name ELSE "" FORMAT "x(30)" AT 44 SPACE(1)
                    tt-rell.qty-case SPACE(3)
                    tt-rell.cases SPACE(1) SKIP .
@@ -632,6 +634,8 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                   IF LAST-OF(fg-bin.loc-bin) THEN do: 
                       v-job-no = fg-bin.job-no + "-" + STRING(INTEGER(fg-bin.job-no2), "99" )  .
                       IF (v-job-no EQ "-" OR v-job-no EQ "-00" ) THEN v-job-no = "".
+                      IF FIRST(fg-bin.job-no) THEN
+                           PUT SKIP(1) .
 
                       PUT
                           v-job-no FORMAT "X(11)" AT 2
@@ -656,7 +660,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                             AND bf-ship.cust-no EQ bf-cust.cust-no
                             NO-LOCK NO-ERROR.
                         IF avail bf-ship THEN DO:
-                           PUT  SKIP 
+                           PUT  SKIP(1) 
                                 bf-ship.loc FORMAT "x(6)" AT 44 SPACE(1)
                                 bf-ship.loc-bin FORMAT "x(8)" space(1)
                                  .  
