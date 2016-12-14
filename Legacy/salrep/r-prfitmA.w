@@ -1357,7 +1357,7 @@ form header
      " Number"
      v-label7
      "Categ"
-     " Qty Shipped"
+     "    Quantity"
      "    SqFt"
      "    MSF"
      "$/MSF"
@@ -1412,7 +1412,7 @@ form header
      " Number"
      v-label7
      "Categ"
-     " Qty Shipped"
+     "    Quantity"
      "    SqFt"
      "    MSF"
      "$/MSF"
@@ -1543,7 +1543,7 @@ IF tb_excel THEN DO:
          "Invoice#"
           v-label8
          "Prod Categ"
-         "Qty Shipped"
+         "Quantity"
          "Item SquFT"
          "Total MSF"
          "$/MSF"
@@ -1563,7 +1563,7 @@ IF tb_excel THEN DO:
          "Invoice#"
          v-label8
          "Prod Categ"
-         "Qty Shipped"
+         "Quantity"
          "Item SquFT"
          "Total MSF"
          "$/MSF"
