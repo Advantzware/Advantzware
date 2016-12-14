@@ -140,9 +140,30 @@ PROCEDURE loadRptFields :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE inputFile AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE inputColumns AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cLabel AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cName AS CHARACTER NO-UNDO.
 
   EMPTY TEMP-TABLE rptFields.
   EMPTY TEMP-TABLE browseRptFields.
+  
+  inputColumns = findProgram('{&data}/',ID,'/columns.dat').
+  INPUT FROM VALUE(inputColumns) NO-ECHO.
+  REPEAT:
+    IMPORT ^ ^ cLabel cName.
+    IF NOT cName BEGINS "udfField" THEN NEXT.
+    IF cLabel EQ "Unused" THEN NEXT.
+    CREATE browseRptFields.
+    ASSIGN
+        browseRptFields.fieldLabel = cLabel
+        browseRptFields.fieldName  = cName
+        browseRptFields.fieldFormat = FILL("X",20)
+        .
+    CREATE rptFields.
+    BUFFER-COPY browseRptFields TO rptFields.
+  END. /* repeat */
+  INPUT CLOSE.
+  
   inputFile = findProgram('{&data}/','','rptFields.dat').
   INPUT FROM VALUE(inputFile) NO-ECHO.
   REPEAT:
@@ -153,7 +174,8 @@ PROCEDURE loadRptFields :
        ID BEGINS ttblRptFields.rptID THEN DO:
       FIND FIRST rptFields EXCLUSIVE-LOCK
            WHERE rptFields.fieldName EQ ttblRptFields.fieldName
-             AND ttblRptFields.fieldName NE 'calcTimeField' NO-ERROR.
+             AND ttblRptFields.fieldName NE 'calcTimeField'
+           NO-ERROR.
       IF NOT AVAILABLE rptFields THEN
       CREATE rptFields.
       BUFFER-COPY ttblRptFields TO rptFields.
@@ -182,7 +204,8 @@ PROCEDURE loadRptFormat :
   DO i = 1 TO 2:
     ASSIGN
       lvID = IF i EQ 1 THEN '' ELSE ID
-      inputFile = findProgram('{&data}/',lvID,'/rptFormat.dat').
+      inputFile = findProgram('{&data}/',lvID,'/rptFormat.dat')
+      .
     INPUT FROM VALUE(inputFile) NO-ECHO.
     REPEAT:
       IMPORT ttblRptFormat.
@@ -219,7 +242,8 @@ PROCEDURE loadRptLayout :
   DO i = 1 TO 2:
     ASSIGN
       lvID = IF i EQ 1 THEN '' ELSE ID
-      inputFile = findProgram('{&data}/',lvID,'/rptLayout.dat').
+      inputFile = findProgram('{&data}/',lvID,'/rptLayout.dat')
+      .
     INPUT FROM VALUE(inputFile) NO-ECHO.
     REPEAT:
       IMPORT ttblRptLayout.
@@ -229,7 +253,8 @@ PROCEDURE loadRptLayout :
              WHERE rptLayout.rptName EQ ttblRptLayout.rptName
                AND rptLayout.rptFormat EQ ttblRptLayout.rptFormat
                AND rptLayout.fieldLabel EQ ttblRptLayout.fieldLabel
-               AND rptLayout.fieldName EQ ttblRptLayout.fieldName NO-ERROR.
+               AND rptLayout.fieldName EQ ttblRptLayout.fieldName
+             NO-ERROR.
         IF NOT AVAILABLE rptLayout THEN DO:
           CREATE rptLayout.
           BUFFER-COPY ttblRptLayout TO rptLayout.
@@ -238,7 +263,8 @@ PROCEDURE loadRptLayout :
         ASSIGN
           rptLayout.rptLine = ttblRptLayout.rptLine
           rptLayout.rptColumn = ttblRptLayout.rptColumn
-          rptLayout.excelColumn = ttblRptLayout.excelColumn.
+          rptLayout.excelColumn = ttblRptLayout.excelColumn
+          .
       END. /* if */
     END. /* repeat */
     INPUT CLOSE.
@@ -284,8 +310,9 @@ PROCEDURE saveRptFields :
   Notes:       
 ------------------------------------------------------------------------------*/
   OUTPUT TO VALUE(staticDat + '{&data}/rptFields.dat').
-  FOR EACH browseRptFields NO-LOCK
-      BY browseRptFields.rptID BY browseRptFields.fieldName:
+  FOR EACH browseRptFields
+      BY browseRptFields.rptID BY browseRptFields.fieldName
+      :
     EXPORT browseRptFields.
   END.
   OUTPUT CLOSE.
@@ -305,7 +332,9 @@ PROCEDURE saveRptFormat :
   Notes:       
 ------------------------------------------------------------------------------*/
   OUTPUT TO VALUE(clientDat + '{&data}/' + ID + '/rptFormat.dat').
-  FOR EACH rptFormat NO-LOCK WHERE rptFormat.rptID EQ ID:
+  FOR EACH rptFormat
+      WHERE rptFormat.rptID EQ ID
+      :
     EXPORT rptFormat.
   END. /* each rptFormat */
   OUTPUT CLOSE.
@@ -322,21 +351,26 @@ PROCEDURE saveRptLayout :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  FOR EACH rptFormat EXCLUSIVE-LOCK WHERE rptFormat.rptID EQ ID:
+  FOR EACH rptFormat
+      WHERE rptFormat.rptID EQ ID
+      :
     DELETE rptFormat.
   END. /* each rptformat */
   OUTPUT TO VALUE(clientDat + '{&data}/' + ID + '/rptLayout.dat').
-  FOR EACH rptLayout EXCLUSIVE-LOCK WHERE rptLayout.rptID EQ ID
-                                      AND (rptLayout.rptLine NE 0
-                                       OR rptLayout.rptColumn NE 0
-                                       OR rptLayout.excelColumn NE 0)
-      BREAK BY rptLayout.rptName BY rptLayout.rptFormat:
+  FOR EACH rptLayout
+      WHERE rptLayout.rptID EQ ID
+        AND (rptLayout.rptLine NE 0
+         OR rptLayout.rptColumn NE 0
+         OR rptLayout.excelColumn NE 0)
+      BREAK BY rptLayout.rptName BY rptLayout.rptFormat
+      :
     &IF DEFINED(designMode) NE 0 &THEN
     IF rptLayout.rptName EQ selectedReport AND
        rptLayout.rptFormat EQ layoutFormat THEN
     ASSIGN
       rptLayout.exclude = excludeFormat
-      rptLayout.rptAltName = alternateName.
+      rptLayout.rptAltName = alternateName
+      .
     &ENDIF
     IF FIRST-OF(rptLayout.rptFormat) THEN DO:
       IF NOT CAN-FIND(FIRST rptFormat
@@ -348,7 +382,8 @@ PROCEDURE saveRptLayout :
           rptFormat.rptName = rptLayout.rptName
           rptFormat.rptFormat = rptLayout.rptFormat
           rptFormat.exclude = rptLayout.exclude
-          rptFormat.rptAltName = rptLayout.rptAltName.
+          rptFormat.rptAltName = rptLayout.rptAltName
+          .
       END. /* if not can-find */
     END. /* if first-of */
     EXPORT rptLayout.
@@ -371,16 +406,18 @@ PROCEDURE setFilterField :
   INPUT FROM VALUE(staticDat + '{&data}/rptFields.sav') NO-ECHO.
   REPEAT:
     IMPORT ttblRptFields.
-    FIND FIRST browseRptFields EXCLUSIVE-LOCK
+    FIND FIRST browseRptFields
          WHERE browseRptFields.rptID EQ ttblRptFields.rptID
            AND browseRptFields.fieldLabel EQ ttblRptFields.fieldLabel
-           AND browseRptFields.fieldName EQ ttblRptFields.fieldName NO-ERROR.
+           AND browseRptFields.fieldName EQ ttblRptFields.fieldName
+         NO-ERROR.
     IF AVAILABLE browseRptFields THEN
     browseRptFields.filterField = ttblRptFields.filterField.
-    FIND FIRST rptFields EXCLUSIVE-LOCK
+    FIND FIRST rptFields
          WHERE rptFields.rptID EQ ttblRptFields.rptID
            AND rptFields.fieldLabel EQ ttblRptFields.fieldLabel
-           AND rptFields.fieldName EQ ttblRptFields.fieldName NO-ERROR.
+           AND rptFields.fieldName EQ ttblRptFields.fieldName
+         NO-ERROR.
     IF AVAILABLE rptFields THEN
     rptFields.filterField = ttblRptFields.filterField.
   END. /* repeat */
