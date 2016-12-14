@@ -18,7 +18,7 @@ DEFINE OUTPUT PARAMETER TABLE FOR ttUDF.
 {methods/defines/miscflds.i &NEW="NEW"}
 
 EMPTY TEMP-TABLE ttUDF.
-
+    
 FIND FIRST mfgroup NO-LOCK
      WHERE mfgroup.mfgroup_data BEGINS ipcMFGroup
      NO-ERROR.
@@ -28,14 +28,14 @@ RUN pGetMFData.
 RUN pBuildttUDF.
 
 PROCEDURE pGetMFData:
-    OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat").
+    OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/UDF.dat").
     FOR EACH mfdata NO-LOCK
         WHERE mfdata.mfgroup_data EQ ipcMFGroup
         :
       PUT UNFORMATTED mfdata.miscflds_data SKIP.
     END.
     OUTPUT CLOSE.
-    INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat") NO-ECHO.
+    INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/UDF.dat") NO-ECHO.
     REPEAT:
       CREATE ttAttrb.
       IMPORT ttAttrb.
@@ -45,11 +45,13 @@ PROCEDURE pGetMFData:
 END PROCEDURE.
 
 PROCEDURE pBuildttUDF:
-    DEFINE VARIABLE cName   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLabel  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFormat AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cValue  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cName     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cColLabel AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormat   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cValue    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLabel    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iSBField  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
     
     FOR EACH ttAttrb
         BREAK BY ttAttrb.attr_tab
@@ -64,14 +66,16 @@ PROCEDURE pBuildttUDF:
                 cFormat = "x(" + STRING(MAX(LENGTH(cLabel),LENGTH(cValue))) + ")"
                 idx     = 0
                 .
-            RUN pCreatettUDF (ipcRecKey,
+            RUN pCreate_ttUDF (ipcRecKey,
                               ttAttrb.attr_tab,
                               idx,
                               "tab",
                               "character",
                               cFormat,
                               cLabel,
-                              cValue
+                              cValue,
+                              "Tab",
+                              0
                               ).
         END. /* first of tab */
         IF NOT CAN-DO("Rectangle,Text",ttAttrb.attr_type) THEN DO:
@@ -95,21 +99,23 @@ PROCEDURE pBuildttUDF:
                 cFormat = "x(" + STRING(MAX(LENGTH(cLabel),LENGTH(cValue))) + ")".
                 IF ttAttrb.attr_datatype EQ "logical" THEN
                 cFormat = "yes/no".
-                RUN pCreatettUDF (ipcRecKey,
+                RUN pCreate_ttUDF (ipcRecKey,
                                   ttAttrb.attr_tab,
                                   idx,
                                   ttAttrb.attr_id,
                                   LC(ttAttrb.attr_datatype),
                                   cFormat,
                                   cLabel,
-                                  cValue
+                                  cValue,
+                                  ttAttrb.attr_colLabel,
+                                  ttAttrb.attr_sbField
                                   ).
             END. /* avail mfvalues */
         END. /* not rect or text */
     END. /* each ttAttrb */
 END PROCEDURE.
 
-PROCEDURE pCreatettUDF:
+PROCEDURE pCreate_ttUDF:
     DEFINE INPUT PARAMETER ipcRecKey   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiTab      AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipiOrder    AS INTEGER   NO-UNDO.
@@ -118,6 +124,8 @@ PROCEDURE pCreatettUDF:
     DEFINE INPUT PARAMETER ipcFormat   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLabel    AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcValue    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcColLabel AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiSBField  AS INTEGER   NO-UNDO.
 
     CREATE ttUDF.
     ASSIGN
@@ -129,5 +137,7 @@ PROCEDURE pCreatettUDF:
         ttUDF.udfFormat   = ipcFormat
         ttUDF.udfLabel    = ipcLabel
         ttUDF.udfValue    = ipcValue
+        ttUDF.udfColLabel = ipcColLabel
+        ttUDF.udfSBField  = ipiSBField
         .
 END PROCEDURE.

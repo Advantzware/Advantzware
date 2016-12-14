@@ -17,7 +17,9 @@
   FIELD attr_datatype AS CHARACTER FORMAT 'X(10)' ~
   FIELD attr_order AS INTEGER FORMAT 'z9' ~
   FIELD attr_enabled AS LOGICAL ~
-  FIELD attr_proc AS CHARACTER FORMA 'X(40)'
+  FIELD attr_proc AS CHARACTER FORMAT 'X(40)' ~
+  FIELD attr_colLabel AS CHARACTER FORMAT 'X(20)' ~
+  FIELD attr_sbField AS INTEGER FORMAT '>9'
 
 &IF "{&NEW}" EQ "NEW" &THEN
 DEFINE TEMP-TABLE ttMFGroup NO-UNDO LIKE {&dbnm}mfgroup.
