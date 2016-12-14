@@ -106,7 +106,7 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE BUTTON btnDelete 
      IMAGE-UP FILE "Graphics/32x32/delete.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
-     SIZE 8 BY 1.9 TOOLTIP "Delete"
+     SIZE 8 BY 1.91 TOOLTIP "Delete"
      FONT 4.
 
 DEFINE BUTTON btnExit 
@@ -987,7 +987,7 @@ PROCEDURE saveValues :
     FOR EACH ttMFValues
         WHERE ttMFValues.rec_key EQ ipcRecKey
         :
-      IF CAN-FIND(ttAttrb
+      IF CAN-FIND(FIRST ttAttrb
                   WHERE ttAttrb.attr_id EQ ttMFValues.mf_id
                     AND ttAttrb.attr_mfgroup EQ ipcGroup) THEN
       DELETE ttMFValues.
@@ -1034,9 +1034,11 @@ PROCEDURE valueChange :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER attribute AS WIDGET-HANDLE NO-UNDO.
 
-  FIND ttMFValues EXCLUSIVE-LOCK
-      WHERE ttMFValues.rec_key = ipcRecKey
-        AND ttMFValues.mf_id = attribute:PRIVATE-DATA.
+  FIND FIRST ttMFValues EXCLUSIVE-LOCK
+       WHERE ttMFValues.rec_key EQ ipcRecKey
+         AND ttMFValues.mf_id   EQ attribute:PRIVATE-DATA
+       NO-ERROR.
+  IF AVAILABLE ttMFValues THEN
   ASSIGN
     ttMFValues.mf_value = attribute:SCREEN-VALUE
     editorWidget = ?
@@ -1072,7 +1074,7 @@ PROCEDURE widgetLeave :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER attribute AS WIDGET-HANDLE NO-UNDO.
 
-  IF VALID-HANDLE(attribute) THEN RUN valueChange (attribute:HANDLE).
+  IF VALID-HANDLE(attribute)    THEN RUN valueChange (attribute:HANDLE).
   IF VALID-HANDLE(editorWidget) THEN RUN valueChange (editorWidget:HANDLE).
 
 END PROCEDURE.

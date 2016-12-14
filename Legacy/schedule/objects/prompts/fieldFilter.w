@@ -992,7 +992,7 @@ PROCEDURE createFields :
   CREATE WIDGET-POOL ipUsage PERSISTENT.
   
   DO i = 1 TO EXTENT(udfFieldLo) WITH FRAME {&FRAME-NAME}:
-    IF udfLabel[i] EQ 'Not Used' THEN NEXT.
+    IF udfLabel[i] EQ 'Unused' THEN NEXT.
     FIND FIRST rptFields NO-LOCK WHERE rptFields.fieldLabel EQ udfLabel[i]
                                    AND ID BEGINS rptFields.rptID NO-ERROR.
     IF AVAILABLE rptFields AND NOT rptFields.filterField THEN NEXT.

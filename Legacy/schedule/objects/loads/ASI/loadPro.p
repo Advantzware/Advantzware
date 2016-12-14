@@ -92,7 +92,7 @@ FUNCTION fDueQty RETURNS CHARACTER (ipiRunQty AS INTEGER,ipiProdQty AS INTEGER,
 
     IF dDueQty LT 0 THEN dDueQty = 0.
     
-    RETURN LEFT-TRIM(STRING(dDueQty,'zzz,zzz,zz9')).
+    RETURN LEFT-TRIM(STRING(dDueQty,'-zzz,zzz,zz9')).
 END FUNCTION.
 
 FUNCTION getItemName RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARACTER,
@@ -211,7 +211,7 @@ FUNCTION prodQty RETURNS CHARACTER (ipCompany AS CHARACTER,ipResource AS CHARACT
   PUT UNFORMATTED 'Function prodQty @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
   
   RUN VALUE(ipProdQtyProgram) (ipCompany,ipResource,ipJobNo,ipJobNo2,ipFrm,ipBlankNo,ipPass,OUTPUT prodQty).
-  RETURN LEFT-TRIM(STRING(prodQty,'zzz,zzz,zz9')).
+  RETURN LEFT-TRIM(STRING(prodQty,'-zzz,zzz,zz9')).
 END FUNCTION.
 
 FUNCTION setUserField RETURNS CHARACTER (ipIdx AS INTEGER, ipValue AS CHARACTER):
@@ -908,8 +908,16 @@ FOR EACH job-hdr NO-LOCK
           IF CAN-FIND(FIRST mfvalues
                       WHERE mfvalues.rec_key EQ itemfg.rec_key) THEN
           RUN UDF/UDF.p (udfGroup, itemfg.rec_key, OUTPUT TABLE ttUDF).
-          FOR EACH ttUDF WHERE ttUDF.udfOrder GT 0:
-              udfField[ttUDF.udfOrder] = ttUDF.udfValue.
+          FOR EACH ttUDF
+              WHERE ttUDF.udfOrder   GT 0
+                AND ttUDF.udfSBField GT 0
+              :
+              ASSIGN
+                  udfField[ttUDF.udfSBField] = ttUDF.udfValue
+                  udfLabel[ttUDF.udfSBField] = IF ttUDF.udfColLabel NE "" THEN ttUDF.udfColLabel
+                                               ELSE ttUDF.udfID
+                  udfWidth[ttUDF.udfSBField] = MAX(20,LENGTH(udfLabel[ttUDF.udfSBField]))
+                  .
           END. /* each ttudf */
       END. /* udfGroup */
     END. /* if ufitemfg */
@@ -1405,6 +1413,7 @@ END PROCEDURE.
 PROCEDURE colCheck:
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE notUsed AS CHARACTER NO-UNDO INITIAL 'Not Used'.
+  DEFINE VARIABLE unused  AS CHARACTER NO-UNDO INITIAL 'Unused'.
 
   CREATE colCheck.
   ASSIGN colCheck.fld1 = 'Seq' colCheck.fld2 = 'jobSequence'
@@ -1550,6 +1559,12 @@ PROCEDURE colCheck:
     CREATE colCheck.
     ASSIGN colCheck.fld1 = notUsed colCheck.fld2 = 'userField' + STRING(i,'99')
            colCheck.fld3 = notUsed colCheck.fld4 = 'userField' + STRING(i,'99').
+  END. /* do i */
+  /* add 12.12.2016 to ttblJob */
+  DO i = 1 TO {&udfExtent}:
+    CREATE colCheck.
+    ASSIGN colCheck.fld1 = unused colCheck.fld2 = 'udfField' + STRING(i,'99')
+           colCheck.fld3 = udfLabel[i] colCheck.fld4 = 'udfField' + STRING(i,'99').
   END. /* do i */
   /* added 6.20.2006 to ttblJob */
   CREATE colCheck.

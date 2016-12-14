@@ -99,11 +99,11 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME fMiscFlds
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnMFPrgrms tabLabelsRect RECT-5 RECT-4 ~
-widgetRect tabNavRect RECT-2 RECT-3 RECT-8 portRect tabNavRect-3 prgrmsRect ~
-mfgroupList mfgroupTab btnCombo-Box tabLabels btnEditor btnFill-In ~
-btnRadio-Set btnRectangle btnAddTab btnSelection-List btnSlider btnText ~
-btnToggle-Box btnCopy btnCut btnDeleteTab btnDownTab btnExit btnExport ~
+&Scoped-Define ENABLED-OBJECTS btnMFPrgrms btnAddTab tabLabelsRect btnCopy ~
+RECT-5 RECT-4 widgetRect tabNavRect RECT-2 RECT-3 RECT-8 portRect ~
+tabNavRect-3 prgrmsRect mfgroupList mfgroupTab btnCombo-Box btnCut ~
+tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle btnSelection-List ~
+btnSlider btnText btnToggle-Box btnDeleteTab btnDownTab btnExit btnExport ~
 btnImport btnNextTab btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab ~
 btnAddGroup btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave ~
 btnTabOrder btnTest 
@@ -114,8 +114,8 @@ textLabel toggle-BoxLabel gapFieldLabel prgrmsLabel
 
 /* Custom List Definitions                                              */
 /* notFoundIn234,widgetLabels,widgetButtons,propertyCutCopy,List-5,List-6 */
-&Scoped-define notFoundIn234 widgetRect mfgroupTab btnPointer btnCombo-Box ~
-tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle btnAddTab ~
+&Scoped-define notFoundIn234 btnAddTab widgetRect mfgroupTab btnPointer ~
+btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle ~
 btnSelection-List btnSlider btnText btnToggle-Box btnDeleteTab btnDownTab ~
 btnNextTab btnPrevTab btnRenameTab btnUpTab btnDeleteGroup btnRenameGroup ~
 btnTest widgetLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
@@ -579,6 +579,10 @@ DEFINE RECTANGLE Rect-Top
 DEFINE FRAME fMiscFlds
      btnMFPrgrms AT ROW 23.86 COL 132 HELP
           "Programs" WIDGET-ID 34
+     btnAddTab AT ROW 7.19 COL 125 HELP
+          "ADD New Tab"
+     btnCopy AT ROW 1.48 COL 88 HELP
+          "Copy Selections"
      mfgroupList AT ROW 1.71 COL 8 COLON-ALIGNED HELP
           "Select Group Name"
      mfgroupField AT ROW 1.71 COL 8 COLON-ALIGNED HELP
@@ -591,6 +595,8 @@ DEFINE FRAME fMiscFlds
           "Create New COMBO-BOX"
      tabField AT ROW 7.19 COL 124 HELP
           "Enter Tab Label" NO-LABEL
+     btnCut AT ROW 1.48 COL 80 HELP
+          "Cut Selections"
      tabLabels AT ROW 8.38 COL 124 HELP
           "Select tab Label" NO-LABEL
      btnEditor AT ROW 8.86 COL 3.2 HELP
@@ -601,8 +607,6 @@ DEFINE FRAME fMiscFlds
           "Create New RADIO-SET"
      btnRectangle AT ROW 13.86 COL 3 HELP
           "Create New Rectangle"
-     btnAddTab AT ROW 7.19 COL 125 HELP
-          "ADD New Tab"
      btnSelection-List AT ROW 15.52 COL 3 HELP
           "Create New SELECTION-LIST"
      btnSlider AT ROW 17.19 COL 3 HELP
@@ -613,10 +617,6 @@ DEFINE FRAME fMiscFlds
           "Create New TOGGLE-BOX"
      gapField AT ROW 22.19 COL 1 COLON-ALIGNED HELP
           "Enter Gap Amount in Pixels" NO-LABEL
-     btnCopy AT ROW 1.48 COL 88 HELP
-          "Copy Selections"
-     btnCut AT ROW 1.48 COL 80 HELP
-          "Cut Selections"
      btnDeleteTab AT ROW 7.19 COL 135 HELP
           "DELETE Tab"
      btnDownTab AT ROW 7.19 COL 140 HELP
@@ -676,8 +676,31 @@ DEFINE FRAME fMiscFlds
      toggle-BoxLabel AT ROW 20.52 COL 8 COLON-ALIGNED NO-LABEL
      gapFieldLabel AT ROW 22.19 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      prgrmsLabel AT ROW 26 COL 131 NO-LABEL WIDGET-ID 36
-     "Cut" VIEW-AS TEXT
-          SIZE 4 BY .76 AT ROW 3.62 COL 82
+     "Copy" VIEW-AS TEXT
+          SIZE 5 BY .76 AT ROW 3.62 COL 89 WIDGET-ID 8
+          FONT 4
+     "Import" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 26 COL 5 WIDGET-ID 28
+          FONT 4
+     "Export" VIEW-AS TEXT
+          SIZE 7 BY .76 AT ROW 26 COL 15 WIDGET-ID 30
+          FONT 4
+     "E&xit" VIEW-AS TEXT
+          SIZE 4.2 BY .76 AT ROW 3.62 COL 136
+          FONT 4
+     "Delete" VIEW-AS TEXT
+          SIZE 7 BY .95 AT ROW 3.19 COL 50
+          FONT 4
+     "Copy" VIEW-AS TEXT
+          SIZE 5 BY .95 AT ROW 3.19 COL 25
+     "Atrributes" VIEW-AS TEXT
+          SIZE 9 BY .76 AT ROW 3.62 COL 59
+          FONT 4
+     "Save" VIEW-AS TEXT
+          SIZE 5 BY .76 AT ROW 3.62 COL 125 WIDGET-ID 12
+          FONT 4
+     "Paste" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 3.62 COL 97 WIDGET-ID 10
           FONT 4
      "Reset" VIEW-AS TEXT
           SIZE 6 BY .76 AT ROW 3.62 COL 117
@@ -685,40 +708,17 @@ DEFINE FRAME fMiscFlds
      "Add" VIEW-AS TEXT
           SIZE 4 BY .95 AT ROW 3.14 COL 15
           FONT 4
-     "Copy" VIEW-AS TEXT
-          SIZE 5 BY .95 AT ROW 3.19 COL 25
-     "Rename" VIEW-AS TEXT
-          SIZE 8.6 BY .95 AT ROW 3.19 COL 36
-          FONT 4
-     "Delete" VIEW-AS TEXT
-          SIZE 7 BY .95 AT ROW 3.19 COL 50
-          FONT 4
-     "E&xit" VIEW-AS TEXT
-          SIZE 4.2 BY .76 AT ROW 3.62 COL 136
+     "Cut" VIEW-AS TEXT
+          SIZE 4 BY .76 AT ROW 3.62 COL 82
           FONT 4
      "Preview" VIEW-AS TEXT
           SIZE 8 BY .76 AT ROW 3.62 COL 106 WIDGET-ID 6
           FONT 4
-     "Import" VIEW-AS TEXT
-          SIZE 6 BY .76 AT ROW 26 COL 5 WIDGET-ID 28
+     "Rename" VIEW-AS TEXT
+          SIZE 8.6 BY .95 AT ROW 3.19 COL 36
           FONT 4
      "Tab Order" VIEW-AS TEXT
           SIZE 10 BY .76 AT ROW 3.62 COL 69
-          FONT 4
-     "Copy" VIEW-AS TEXT
-          SIZE 5 BY .76 AT ROW 3.62 COL 89 WIDGET-ID 8
-          FONT 4
-     "Export" VIEW-AS TEXT
-          SIZE 7 BY .76 AT ROW 26 COL 15 WIDGET-ID 30
-          FONT 4
-     "Atrributes" VIEW-AS TEXT
-          SIZE 9 BY .76 AT ROW 3.62 COL 59
-          FONT 4
-     "Paste" VIEW-AS TEXT
-          SIZE 6 BY .76 AT ROW 3.62 COL 97 WIDGET-ID 10
-          FONT 4
-     "Save" VIEW-AS TEXT
-          SIZE 5 BY .76 AT ROW 3.62 COL 125 WIDGET-ID 12
           FONT 4
      tabLabelsRect AT ROW 6.24 COL 123
      RECT-1 AT ROW 1.24 COL 2
@@ -768,9 +768,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "User Defined Fields Builder"
          HEIGHT             = 26.24
          WIDTH              = 149.6
-         MAX-HEIGHT         = 57.14
+         MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
-         VIRTUAL-HEIGHT     = 57.14
+         VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
          MAX-BUTTON         = no
          RESIZE             = no
@@ -1408,7 +1408,7 @@ DO:
   FIND prgrms WHERE prgrms.prgmname = "prgrms." NO-LOCK.
   RUN UDF/mfvalues.w PERSISTENT
       (mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-       prgrms.rec_key,{methods/headers/prgrms.i}).
+       prgrms.rec_key,{methods/headers/prgrms.i},?).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2902,14 +2902,14 @@ PROCEDURE enable_UI :
           rectangleLabel selection-ListLabel sliderLabel textLabel 
           toggle-BoxLabel gapFieldLabel prgrmsLabel 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
-  ENABLE btnMFPrgrms tabLabelsRect RECT-5 RECT-4 widgetRect tabNavRect RECT-2 
-         RECT-3 RECT-8 portRect tabNavRect-3 prgrmsRect mfgroupList mfgroupTab 
-         btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle 
-         btnAddTab btnSelection-List btnSlider btnText btnToggle-Box btnCopy 
-         btnCut btnDeleteTab btnDownTab btnExit btnExport btnImport btnNextTab 
-         btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab btnAddGroup 
-         btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave 
-         btnTabOrder btnTest 
+  ENABLE btnMFPrgrms btnAddTab tabLabelsRect btnCopy RECT-5 RECT-4 widgetRect 
+         tabNavRect RECT-2 RECT-3 RECT-8 portRect tabNavRect-3 prgrmsRect 
+         mfgroupList mfgroupTab btnCombo-Box btnCut tabLabels btnEditor 
+         btnFill-In btnRadio-Set btnRectangle btnSelection-List btnSlider 
+         btnText btnToggle-Box btnDeleteTab btnDownTab btnExit btnExport 
+         btnImport btnNextTab btnPaste btnPrevTab btnProperty btnRenameTab 
+         btnUpTab btnAddGroup btnCopyGroup btnDeleteGroup btnRenameGroup 
+         btnRestore btnSave btnTabOrder btnTest 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
   {&OPEN-BROWSERS-IN-QUERY-fMiscFlds}
   ENABLE Rect-Top Rect-Left Rect-Right Rect-Bottom 
@@ -3458,8 +3458,8 @@ PROCEDURE saveLayout :
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE ldummy.
     IF ldummy THEN
     FOR EACH ttDeleteMFValues:
-      FIND mfvalues
-          WHERE RECID(mfvalues) EQ ttDeleteMFValues.mfvalues_recid.
+      FIND FIRST mfvalues
+           WHERE RECID(mfvalues) EQ ttDeleteMFValues.mfvalues_recid.
       DELETE mfvalues.
       DELETE ttDeleteMFValues.
     END.
@@ -3755,8 +3755,10 @@ PROCEDURE winReSize :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE offSet AS INTEGER NO-UNDO.
 
-  {&WINDOW-NAME}:WINDOW-STATE = 1.
-  offSet = IF {&WINDOW-NAME}:HEIGHT-PIXELS GT 600 THEN 50 ELSE 0.
+  ASSIGN
+      {&WINDOW-NAME}:WINDOW-STATE = 1
+      offSet = IF {&WINDOW-NAME}:HEIGHT-PIXELS GT 600 THEN 50 ELSE 0
+      .
   IF {&WINDOW-NAME}:HEIGHT-PIXELS LT 600 THEN {&WINDOW-NAME}:HEIGHT-PIXELS = 600.
   IF {&WINDOW-NAME}:WIDTH-PIXELS LT 800 THEN {&WINDOW-NAME}:WIDTH-PIXELS = 800.
   ASSIGN

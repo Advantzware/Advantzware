@@ -38,7 +38,8 @@ DEFINE TEMP-TABLE statusCheckOffs NO-UNDO
   FIELD materialType AS CHARACTER
     INDEX statusCheckOffs statusCheckOffs.
 
-RUN updateColumns. /* add newly added columns incase they are missing */
+/* moved to loadProEnd.i */
+/* RUN updateColumns. /* add newly added columns incase they are missing */ */
 
 traceON = SEARCH(findProgram('{&startDir}/','','traceON.dat')) NE ?.
 

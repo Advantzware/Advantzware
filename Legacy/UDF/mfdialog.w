@@ -25,7 +25,7 @@
 
 /* Parameters Definitions ---                                           */
 
-DEFINE INPUT PARAMETER attrb_rowid AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcAttrbRowID AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
@@ -48,14 +48,14 @@ DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnOK btnCancel horz-bar vert-bar ~
-attr_enabled attr_label attr_name attr_values attr_default x-coord y-coord ~
-min_value pixel-height pixel-width max_value data_type data_format ~
-font-setting attr_proc 
+&Scoped-Define ENABLED-OBJECTS btnOK horz-bar vert-bar attr_enabled ~
+attr_label attr_colLabel attr_name attr_values attr_default x-coord y-coord ~
+min_value attr_sbField pixel-height pixel-width max_value font-setting ~
+data_type data_format attr_proc btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS attr_id attr_order attr_type horz-bar ~
-vert-bar attr_enabled attr_label attr_name attr_values attr_default x-coord ~
-y-coord min_value pixel-height pixel-width max_value data_type data_format ~
-font-setting attr_proc 
+vert-bar attr_enabled attr_label attr_colLabel attr_name attr_values ~
+attr_default x-coord y-coord min_value attr_sbField pixel-height ~
+pixel-width max_value font-setting data_type data_format attr_proc 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -87,7 +87,14 @@ DEFINE VARIABLE attr_proc AS CHARACTER FORMAT "X(256)":U
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
-     SIZE 39 BY 1 NO-UNDO.
+     SIZE 40 BY 1 NO-UNDO.
+
+DEFINE VARIABLE attr_sbField AS INTEGER FORMAT "z9":U INITIAL 0 
+     LABEL "SB Field #" 
+     VIEW-AS COMBO-BOX INNER-LINES 21
+     LIST-ITEMS "0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20" 
+     DROP-DOWN-LIST
+     SIZE 7.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE data_type AS CHARACTER FORMAT "X(256)":U INITIAL "Character" 
      LABEL "Data Type" 
@@ -101,7 +108,12 @@ DEFINE VARIABLE font-setting AS INTEGER FORMAT "z9":U INITIAL 0
      VIEW-AS COMBO-BOX INNER-LINES 10
      LIST-ITEMS "0","1","2","3","4","5","6","7","8" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1 NO-UNDO.
+     SIZE 7.8 BY 1 NO-UNDO.
+
+DEFINE VARIABLE attr_colLabel AS CHARACTER FORMAT "X(20)":U 
+     LABEL "Column Label" 
+     VIEW-AS FILL-IN 
+     SIZE 29.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE attr_default AS CHARACTER FORMAT "X(256)" 
      LABEL "Attribute Default" 
@@ -195,13 +207,11 @@ DEFINE VARIABLE vert-bar AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btnOK AT ROW 1.24 COL 92 HELP
-          "OK to Save Edit Function Settings"
-     btnCancel AT ROW 1.24 COL 100 HELP
-          "CANCEL Edit Function"
      attr_id AT ROW 1.24 COL 17.2 COLON-ALIGNED HELP
           "Enter Attribute Identifier"
      attr_order AT ROW 2.43 COL 17 COLON-ALIGNED
+     btnOK AT ROW 1.24 COL 92 HELP
+          "OK to Save Edit Function Settings"
      attr_type AT ROW 3.62 COL 17 COLON-ALIGNED
      horz-bar AT ROW 3.62 COL 43 HELP
           "Set Horizontal Scrollbar"
@@ -211,33 +221,39 @@ DEFINE FRAME Dialog-Frame
           "Enable Attribute"
      attr_label AT ROW 4.81 COL 17.2 COLON-ALIGNED HELP
           "Enter Attribute Label"
-     attr_name AT ROW 6 COL 3.8 HELP
+     attr_colLabel AT ROW 6 COL 17 COLON-ALIGNED HELP
+          "Enter Column Label" WIDGET-ID 4
+     attr_name AT ROW 7.19 COL 3.8 HELP
           "Enter Attribute Name"
-     attr_values AT ROW 7.19 COL 3 HELP
+     attr_values AT ROW 8.38 COL 3 HELP
           "Enter Attribute Values"
-     attr_default AT ROW 8.38 COL 17 COLON-ALIGNED HELP
+     attr_default AT ROW 9.57 COL 17 COLON-ALIGNED HELP
           "Enter Attribute Default Value"
-     x-coord AT ROW 9.57 COL 17 COLON-ALIGNED HELP
+     x-coord AT ROW 10.76 COL 17 COLON-ALIGNED HELP
           "Enter X Coordinate"
-     y-coord AT ROW 9.57 COL 40 COLON-ALIGNED HELP
+     y-coord AT ROW 10.76 COL 40 COLON-ALIGNED HELP
           "Enter Y Coordinate"
-     min_value AT ROW 9.57 COL 67 COLON-ALIGNED HELP
+     min_value AT ROW 10.76 COL 67 COLON-ALIGNED HELP
           "Enter Slider's Minimum Value"
-     pixel-height AT ROW 10.76 COL 17 COLON-ALIGNED HELP
+     attr_sbField AT ROW 10.76 COL 99 COLON-ALIGNED HELP
+          "Select Schedule Board Field Number" WIDGET-ID 2
+     pixel-height AT ROW 11.95 COL 17 COLON-ALIGNED HELP
           "Enter Pixel Height"
-     pixel-width AT ROW 10.76 COL 40 COLON-ALIGNED HELP
+     pixel-width AT ROW 11.95 COL 40 COLON-ALIGNED HELP
           "Enter Pixel Width"
-     max_value AT ROW 10.76 COL 67 COLON-ALIGNED HELP
+     max_value AT ROW 11.95 COL 67 COLON-ALIGNED HELP
           "Enter Slider's Maximum Value"
-     data_type AT ROW 11.95 COL 17 COLON-ALIGNED HELP
-          "Select Data Type"
-     data_format AT ROW 11.95 COL 67 COLON-ALIGNED HELP
-          "Enter Data Format"
-     font-setting AT ROW 13.14 COL 17 COLON-ALIGNED HELP
+     font-setting AT ROW 11.95 COL 99 COLON-ALIGNED HELP
           "Select Font Size"
+     data_type AT ROW 13.14 COL 17 COLON-ALIGNED HELP
+          "Select Data Type"
+     data_format AT ROW 13.14 COL 67 COLON-ALIGNED HELP
+          "Enter Data Format"
      attr_proc AT ROW 13.14 COL 67 COLON-ALIGNED HELP
           "Select Display/Load Values Procedure Name"
-     SPACE(0.80) SKIP(0.29)
+     btnCancel AT ROW 1.24 COL 100 HELP
+          "CANCEL Edit Function"
+     SPACE(12.79) SKIP(11.09)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "User Defined Fields Attribute Editor"
@@ -305,6 +321,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME attr_colLabel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL attr_colLabel Dialog-Frame
+ON LEAVE OF attr_colLabel IN FRAME Dialog-Frame /* Column Label */
+DO:
+    IF SELF:SCREEN-VALUE EQ "" THEN
+    SELF:SCREEN-VALUE = attr_id:SCREEN-VALUE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME attr_label
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL attr_label Dialog-Frame
 ON LEAVE OF attr_label IN FRAME Dialog-Frame /* Attribute Label */
@@ -337,7 +365,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK Dialog-Frame
 ON CHOOSE OF btnOK IN FRAME Dialog-Frame
 DO:
-  FIND ttAttrb WHERE ROWID(ttAttrb) EQ TO-ROWID(attrb_rowid).
+  FIND ttAttrb WHERE ROWID(ttAttrb) EQ TO-ROWID(ipcAttrbRowID).
   ASSIGN 
     ttAttrb.attr_label = attr_label:SCREEN-VALUE
     ttAttrb.attr_name = attr_name:SCREEN-VALUE
@@ -350,6 +378,8 @@ DO:
     ttAttrb.attr_order = INTEGER(attr_order:SCREEN-VALUE)
     ttAttrb.attr_enabled = attr_enabled:SCREEN-VALUE EQ "YES"
     ttAttrb.attr_proc = attr_proc:SCREEN-VALUE
+    ttAttrb.attr_colLabel = attr_colLabel:SCREEN-VALUE
+    ttAttrb.attr_sbField = INTEGER(attr_sbField:SCREEN-VALUE)
     .
   CASE ttAttrb.attr_type:
     WHEN "FILL-IN" THEN DO:
@@ -432,8 +462,7 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  FIND ttAttrb
-      WHERE ROWID(ttAttrb) EQ TO-ROWID(attrb_rowid).
+  FIND FIRST ttAttrb WHERE ROWID(ttAttrb) EQ TO-ROWID(ipcAttrbRowID).
   RUN enable_UI.
   IF hMFPersist NE ? THEN DO:
     attr_proc:LIST-ITEMS = ?.
@@ -463,6 +492,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     attr_order:SCREEN-VALUE = STRING(ttAttrb.attr_order)
     attr_enabled:SCREEN-VALUE = STRING(ttAttrb.attr_enabled)
     attr_proc:SCREEN-VALUE = ttAttrb.attr_proc
+    attr_sbField:SCREEN-VALUE = STRING(ttAttrb.attr_sbField)
+    attr_colLabel:SCREEN-VALUE = ttAttrb.attr_colLabel
     .
   CASE ttAttrb.attr_type:
     WHEN "COMBO-BOX" THEN
@@ -489,6 +520,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       attr_label:HIDDEN = YES
       attr_values:HIDDEN = YES
       attr_default:HIDDEN = YES
+      attr_enabled:HIDDEN = YES
+      attr_proc:HIDDEN = YES
+      attr_sbField:HIDDEN = YES
+      attr_colLabel:HIDDEN = YES
       .
     WHEN "RADIO-SET" THEN
     ASSIGN
@@ -509,6 +544,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ASSIGN
       font-setting:HIDDEN = NO
       font-setting:SCREEN-VALUE = ttAttrb.attr_settings
+      attr_enabled:HIDDEN = YES
+      attr_proc:HIDDEN = YES
+      attr_sbField:HIDDEN = YES
+      attr_colLabel:HIDDEN = YES
       .
   END CASE.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -550,13 +589,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY attr_id attr_order attr_type horz-bar vert-bar attr_enabled attr_label 
-          attr_name attr_values attr_default x-coord y-coord min_value 
-          pixel-height pixel-width max_value data_type data_format font-setting 
-          attr_proc 
+          attr_colLabel attr_name attr_values attr_default x-coord y-coord 
+          min_value attr_sbField pixel-height pixel-width max_value font-setting 
+          data_type data_format attr_proc 
       WITH FRAME Dialog-Frame.
-  ENABLE btnOK btnCancel horz-bar vert-bar attr_enabled attr_label attr_name 
-         attr_values attr_default x-coord y-coord min_value pixel-height 
-         pixel-width max_value data_type data_format font-setting attr_proc 
+  ENABLE btnOK horz-bar vert-bar attr_enabled attr_label attr_colLabel 
+         attr_name attr_values attr_default x-coord y-coord min_value 
+         attr_sbField pixel-height pixel-width max_value font-setting data_type 
+         data_format attr_proc btnCancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
