@@ -47,7 +47,7 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Select_Add Select_dept Select_att ~
-Select_spec Select_frac Select_appl Select_help Select_Home 
+Select_spec Select_frac Select_appl Select_help UDF 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -97,7 +97,7 @@ DEFINE BUTTON Select_help
      LABEL "Help" 
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
-DEFINE BUTTON Select_Home 
+DEFINE BUTTON UDF 
      IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Home" 
@@ -120,7 +120,7 @@ DEFINE FRAME F-Main
      Select_frac AT ROW 1 COL 57
      Select_appl AT ROW 1 COL 33
      Select_help AT ROW 1 COL 41
-     Select_Home AT ROW 1 COL 49
+     UDF AT ROW 1 COL 49
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -273,9 +273,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Select_Home
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_Home s-object
-ON CHOOSE OF Select_Home IN FRAME F-Main /* Home */
+&Scoped-define SELF-NAME UDF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
+ON CHOOSE OF UDF IN FRAME F-Main /* Home */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.
@@ -428,7 +428,7 @@ ASSIGN
   Select_dept:SENSITIVE IN FRAME F-Main = FALSE
   Select_frac:SENSITIVE IN FRAME F-Main = FALSE
   Select_help:SENSITIVE IN FRAME F-Main = FALSE
-  Select_Home:SENSITIVE IN FRAME F-Main = FALSE
+  UDF:SENSITIVE IN FRAME F-Main = FALSE
   Select_spec:SENSITIVE IN FRAME F-Main = FALSE.
 END PROCEDURE.
 
@@ -449,7 +449,7 @@ ASSIGN
   Select_dept:SENSITIVE IN FRAME F-Main = TRUE
   Select_frac:SENSITIVE IN FRAME F-Main = TRUE
   Select_help:SENSITIVE IN FRAME F-Main = TRUE
-  Select_Home:SENSITIVE IN FRAME F-Main = TRUE
+  UDF:SENSITIVE IN FRAME F-Main = TRUE
   Select_spec:SENSITIVE IN FRAME F-Main = TRUE.
 END PROCEDURE.
 
