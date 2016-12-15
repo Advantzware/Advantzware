@@ -13,6 +13,8 @@ OUTPUT STREAM sPending CLOSE.
 OUTPUT STREAM sResource CLOSE.
 OUTPUT STREAM sScenario CLOSE.
 
+RUN updateColumns. /* add newly added columns incase they are missing */
+
 PROCEDURE loadRptLayout:
   DEFINE INPUT PARAMETER ipRptName AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opTextFields AS CHARACTER NO-UNDO.
@@ -107,7 +109,7 @@ PROCEDURE updateColumns:
     BUFFER-COPY bBrowseColumn TO browseColumn.
   END. /* repeat */
   INPUT CLOSE.
-
+  
   OUTPUT TO VALUE(SEARCH('{&data}/' + ID + '/columns.dat')).
   FOR EACH browseColumn NO-LOCK BY browseColumn.colOrder:
     EXPORT browseColumn.

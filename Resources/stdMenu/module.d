@@ -540,6 +540,7 @@
 "" "sys-ctrl." "System Control Parameters" yes 01/31/17 "ASI"
 "" "terms." "Terms" yes 01/31/17 "ASI"
 "" "terr." "Territory" yes 01/31/17 "ASI"
+"" "UDFB" "User Defined Fields Builder" yes 01/31/17 "ASI"
 "" "UDFB" "User Defined Fields Builder" no 01/31/17 "ASI"
 "" "uom." "Units of Measure" yes 01/31/17 "ASI"
 "" "updapinv." "Update AP Invoice" yes 01/31/17 "ASI"
@@ -616,3 +617,15 @@
 "" "w-usrprt." "Batch Procedure Maintenance" yes 01/31/17 "ASI"
 "" "w-void." "Void AP Checks" yes 01/31/17 "ASI"
 "" "zohoCRM." "CRM Contacts" yes 01/31/17 "ASI"
+.
+PSC
+filename=module
+records=0000000000619
+ldbname=asi
+timestamp=2016/12/15-09:33:51
+numformat=44,46
+dateformat=mdy-1950
+map=NO-MAP
+cpstream=ISO8859-1
+.
+0000034996

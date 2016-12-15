@@ -449,8 +449,9 @@ DEFINE FRAME layoutFrame
           "Click to Move Current Column and Row Down"
      ruler-2 AT ROW 1.71 COL 1 NO-LABEL
      ruler-3 AT ROW 2.43 COL 1 NO-LABEL
-     "Unused Layout Fields:" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 12.19 COL 2
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 6.48 COL 1
+          BGCOLOR 0 FGCOLOR 15 FONT 2
      "6" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 10.76 COL 1
           BGCOLOR 0 FGCOLOR 15 FONT 2
@@ -463,15 +464,14 @@ DEFINE FRAME layoutFrame
      "Available Fields" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 14.1 COL 13
           BGCOLOR 14 
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 6.48 COL 1
-          BGCOLOR 0 FGCOLOR 15 FONT 2
-     "4" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 7.91 COL 1
-          BGCOLOR 0 FGCOLOR 15 FONT 2
      "Excel Column Order" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 14.1 COL 56
           BGCOLOR 14 
+     "4" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 7.91 COL 1
+          BGCOLOR 0 FGCOLOR 15 FONT 2
+     "Unused Layout Fields:" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 12.19 COL 2
      "5" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 9.33 COL 1
           BGCOLOR 0 FGCOLOR 15 FONT 2
@@ -633,7 +633,8 @@ DO:
     currentColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN
     selectedColumn:SCREEN-VALUE = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL + ' (' +
          (IF BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME EQ ? THEN 'calcTimeField'
-          ELSE BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME) + ')'.
+          ELSE BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME) + ')'
+    .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -705,7 +706,9 @@ DO:
     selectedColumn:SCREEN-VALUE = ''
     moveColumns = NOT moveColumns
     BROWSE {&BROWSE-NAME}:COLUMN-MOVABLE = moveColumns
-    SELF:LABEL = '~&' + TRIM(STRING(moveColumns,'Stop/Start')) + SELF:PRIVATE-DATA.
+    SELF:LABEL = '~&' + TRIM(STRING(moveColumns,'Stop/Start'))
+               + SELF:PRIVATE-DATA
+    .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -779,14 +782,17 @@ DO:
   RUN saveRptLayout.
   RUN saveRptFormat.
   IF layoutFormat EQ '' THEN DO:
-    FIND FIRST rptFormat EXCLUSIVE-LOCK
+    FIND FIRST rptFormat
          WHERE rptFormat.rptName EQ reportName
-           AND rptFormat.rptFormat EQ '' NO-ERROR.
+           AND rptFormat.rptFormat EQ ''
+         NO-ERROR.
     IF AVAILABLE rptFormat AND rptFormat.exclude NE excludeFormat THEN DO:
       rptFormat.exclude = excludeFormat.
       OUTPUT TO VALUE(staticDat + '{&data}/rptFormat.dat').
-      FOR EACH rptFormat NO-LOCK WHERE rptFormat.rptFormat EQ ''
-            BY rptFormat.rptID BY rptFormat.rptName:
+      FOR EACH rptFormat
+          WHERE rptFormat.rptFormat EQ ''
+            BY rptFormat.rptID BY rptFormat.rptName
+          :
         EXPORT rptFormat.
       END. /* each rptFormat */
       OUTPUT CLOSE.
@@ -867,7 +873,8 @@ END.
 ON DEFAULT-ACTION OF excelOrder IN FRAME layoutFrame
 DO:
   IF reportFormat EQ '' THEN RETURN NO-APPLY.
-  FIND rptLayout EXCLUSIVE-LOCK WHERE ROWID(rptLayout) EQ TO-ROWID(SELF:SCREEN-VALUE).
+  FIND FIRST rptLayout
+       WHERE ROWID(rptLayout) EQ TO-ROWID(SELF:SCREEN-VALUE).
   rptLayout.excelColumn = 0.
   RUN excelBuild.
 END.
@@ -897,7 +904,8 @@ DO:
 
   ASSIGN {&SELF-NAME}
     fieldHandle = WIDGET-HANDLE({&SELF-NAME})
-    fieldHandle:SELECTED = YES.
+    fieldHandle:SELECTED = YES
+    .
   fieldHandle:MOVE-TO-TOP().
   APPLY 'SELECTION':U TO fieldHandle.
 END.
@@ -1009,24 +1017,25 @@ PROCEDURE copyLayout :
 ------------------------------------------------------------------------------*/
   DEFINE BUFFER bRptLayout FOR rptLayout.
 
-  IF reportFormat EQ '' THEN
-  DO:
+  IF reportFormat EQ '' THEN DO:
     MESSAGE 'Default Format: Can not be Altered!' VIEW-AS ALERT-BOX.
     RETURN.
   END.
-  IF reportFormat EQ copyFormat THEN
-  DO:
+  IF reportFormat EQ copyFormat THEN DO:
     MESSAGE 'Formats selected are identical!' VIEW-AS ALERT-BOX.
     RETURN.
   END.
   RUN doDelete.
-  FOR EACH bRptLayout NO-LOCK WHERE bRptLayout.rptName EQ reportName
-                                AND bRptLayout.rptFormat EQ copyFormat:
+  FOR EACH bRptLayout
+      WHERE bRptLayout.rptName EQ reportName
+        AND bRptLayout.rptFormat EQ copyFormat
+      :
     CREATE rptLayout.
     BUFFER-COPY bRptLayout EXCEPT bRptLayout.rptFormat TO rptLayout
       ASSIGN
         rptLayout.rptID = ID
-        rptLayout.rptFormat = reportFormat.
+        rptLayout.rptFormat = reportFormat
+        .
   END. /* each brptlayout */
   RUN createFields.
   RUN excelBuild.
@@ -1135,8 +1144,7 @@ PROCEDURE deleteLayout :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF reportFormat EQ '' THEN
-  DO:
+  IF reportFormat EQ '' THEN DO:
     MESSAGE 'Default Format: Can not be Deleted!' VIEW-AS ALERT-BOX.
     RETURN.
   END. /* if reportformat */
@@ -1146,7 +1154,8 @@ PROCEDURE deleteLayout :
   RUN doDelete.
   ASSIGN
     reportFormat = ' '
-    reportFormat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ' '.
+    reportFormat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ' '
+    .
   RUN createFields.
   RUN excelBuild.
   MESSAGE 'Preform Save Layout for Delete Layout to be Complete!' VIEW-AS ALERT-BOX.
@@ -1197,14 +1206,16 @@ PROCEDURE doDelete :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  FOR EACH rptFormat EXCLUSIVE-LOCK
+  FOR EACH rptFormat
       WHERE rptFormat.rptName EQ reportName
-        AND rptFormat.rptFormat EQ reportFormat:
+        AND rptFormat.rptFormat EQ reportFormat
+      :
     DELETE rptFormat.
   END. /* each rptformat */
-  FOR EACH rptLayout EXCLUSIVE-LOCK
+  FOR EACH rptLayout
       WHERE rptLayout.rptName EQ reportName
-        AND rptLayout.rptFormat EQ reportFormat:
+        AND rptLayout.rptFormat EQ reportFormat
+      :
     DELETE rptLayout.
   END. /* each rptLayout */
 
@@ -1256,13 +1267,16 @@ PROCEDURE excelBuild :
   ASSIGN
     unAssigned:LIST-ITEM-PAIRS IN FRAME layoutFrame = ?
     excelOrder:LIST-ITEM-PAIRS = ?.
-  FOR EACH rptLayout NO-LOCK WHERE rptLayout.rptName EQ reportName
-                               AND rptLayout.rptFormat EQ reportFormat
-                               AND rptLayout.excelColumn NE 0
-      BY rptLayout.excelColumn WITH FRAME layoutFrame:
+  FOR EACH rptLayout NO-LOCK
+      WHERE rptLayout.rptName EQ reportName
+        AND rptLayout.rptFormat EQ reportFormat
+        AND rptLayout.excelColumn NE 0
+      BY rptLayout.excelColumn WITH FRAME layoutFrame
+      :
     ASSIGN
       i = i + 1.
-      rptLayout.excelColumn = i.
+      rptLayout.excelColumn = i
+      .
     excelOrder:ADD-LAST(STRING(rptLayout.excelColumn,'z9') + '. ' +
                                rptLayout.fieldLabel + ' (' +
                                rptLayout.fieldName + ')',STRING(ROWID(rptLayout))).
@@ -1293,11 +1307,12 @@ PROCEDURE findRptLayout :
   DEFINE INPUT PARAMETER ipFieldLabel AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ipFieldName AS CHARACTER NO-UNDO.
 
-  FIND FIRST rptLayout EXCLUSIVE-LOCK
+  FIND FIRST rptLayout
        WHERE rptLayout.rptName EQ reportName
          AND rptLayout.rptFormat EQ reportFormat
          AND rptLayout.fieldLabel EQ ipFieldLabel
-         AND rptLayout.fieldName EQ ipFieldName NO-ERROR.
+         AND rptLayout.fieldName EQ ipFieldName
+       NO-ERROR.
   IF NOT AVAILABLE rptLayout THEN
   DO:
     CREATE rptLayout.
@@ -1306,14 +1321,17 @@ PROCEDURE findRptLayout :
       rptLayout.rptName = reportName
       rptLayout.rptFormat = reportFormat
       rptLayout.fieldLabel = ipFieldLabel
-      rptLayout.fieldName = ipFieldName.
+      rptLayout.fieldName = ipFieldName
+      .
   END. /* if not avail */
-  FIND FIRST rptFormat NO-LOCK
+  FIND FIRST rptFormat
        WHERE rptFormat.rptName EQ reportName
-         AND rptFormat.rptFormat EQ reportFormat NO-ERROR.
+         AND rptFormat.rptFormat EQ reportFormat
+       NO-ERROR.
   ASSIGN
     excludeLayout:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(AVAILABLE rptFormat AND rptFormat.exclude)
-    reportAltName:SCREEN-VALUE = IF AVAILABLE rptFormat THEN rptFormat.rptAltName ELSE ''.
+    reportAltName:SCREEN-VALUE = IF AVAILABLE rptFormat THEN rptFormat.rptAltName ELSE ''
+    .
 
 END PROCEDURE.
 
@@ -1328,7 +1346,9 @@ PROCEDURE getReportLayout :
   Notes:       
 ------------------------------------------------------------------------------*/
   reportName:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = ?.
-  FOR EACH rptNames NO-LOCK WHERE NOT rptNames.exclude:
+  FOR EACH rptNames
+      WHERE rptNames.exclude EQ NO
+      :
     reportName:ADD-LAST(rptNames.rptTitle,rptNames.rptName).
   END.
   reportName:SCREEN-VALUE = 'jobByResource'.
@@ -1360,15 +1380,18 @@ PROCEDURE moveExcel :
   ASSIGN
     saveRowID = ROWID(rptLayout)
     currentCol = rptLayout.excelColumn
-    newCol = rptLayout.excelColumn + ipMove.
-  FIND FIRST bRptLayout EXCLUSIVE-LOCK
+    newCol = rptLayout.excelColumn + ipMove
+    .
+  FIND FIRST bRptLayout
        WHERE bRptLayout.rptName EQ reportName
          AND bRptLayout.rptFormat EQ reportFormat
-         AND bRptLayout.excelColumn EQ newCol NO-ERROR.
+         AND bRptLayout.excelColumn EQ newCol
+       NO-ERROR.
   IF NOT AVAILABLE bRptLayout THEN RETURN.
   ASSIGN
     bRptLayout.excelColumn = currentCol
-    rptLayout.excelColumn = newCol.
+    rptLayout.excelColumn = newCol
+    .
   RUN excelBuild.
   excelOrder:SCREEN-VALUE = STRING(saveRowID).
 
@@ -1395,11 +1418,13 @@ PROCEDURE saveColumns :
   ASSIGN
     colOrder.colOrder = 9999
     colOrder.colHidden = YES
-    colOrder.browseColumnRowID = ROWID(browseColumn).
+    colOrder.browseColumnRowID = ROWID(browseColumn)
+    .
   DO i = 1 TO BROWSE {&BROWSE-NAME}:NUM-COLUMNS:
     ASSIGN
       cellColumn = BROWSE {&BROWSE-NAME}:GET-BROWSE-COLUMN(i)
-      cellName = IF cellColumn:NAME NE ? THEN cellColumn:NAME ELSE 'calcTimeField'.
+      cellName = IF cellColumn:NAME NE ? THEN cellColumn:NAME ELSE 'calcTimeField'
+      .
     FIND FIRST browseColumn WHERE browseColumn.colLabel EQ cellColumn:LABEL
                               AND browseColumn.colName EQ cellName NO-ERROR.
     IF NOT AVAILABLE browseColumn THEN NEXT.
@@ -1408,7 +1433,8 @@ PROCEDURE saveColumns :
       colOrder.colOrder = cellColumn:X
       colOrder.colLocked = browseColumn.colLocked
       colOrder.colHidden = cellColumn:LABEL-BGCOLOR EQ 7
-      colOrder.browseColumnRowID = ROWID(browseColumn).
+      colOrder.browseColumnRowID = ROWID(browseColumn)
+      .
   END. /* do i */
   OUTPUT TO VALUE(SEARCH('{&data}/' + ID + '/columns.dat')).
   i = 0.
@@ -1417,23 +1443,28 @@ PROCEDURE saveColumns :
     EXPORT browseColumn.
   END. /* browsecolumn */
   FOR EACH colOrder NO-LOCK WHERE colOrder.colLocked EQ NO AND colOrder.colHidden EQ NO:
-    FIND browseColumn EXCLUSIVE-LOCK
-         WHERE ROWID(browseColumn) EQ colOrder.browseColumnRowID NO-ERROR.
+    FIND FIRST browseColumn
+         WHERE ROWID(browseColumn) EQ colOrder.browseColumnRowID
+         NO-ERROR.
     IF NOT AVAILABLE browseColumn THEN NEXT.
     ASSIGN
       i = i + 1
       browseColumn.colOrder = i
-      browseColumn.colHidden = NO.
+      browseColumn.colHidden = NO
+      .
     EXPORT browseColumn.
   END. /* each colorder */
-  FOR EACH colOrder NO-LOCK WHERE colOrder.colHidden EQ YES:
+  FOR EACH colOrder NO-LOCK
+      WHERE colOrder.colHidden EQ YES
+      :
     FIND browseColumn EXCLUSIVE-LOCK
          WHERE ROWID(browseColumn) EQ colOrder.browseColumnRowID NO-ERROR.
     IF NOT AVAILABLE browseColumn THEN NEXT.
     ASSIGN
       i = i + 1
       browseColumn.colOrder = i
-      browseColumn.colHidden = YES.
+      browseColumn.colHidden = YES
+      .
     EXPORT browseColumn.
   END. /* each colorder */
   OUTPUT CLOSE.
@@ -1504,7 +1535,8 @@ PROCEDURE setView :
     excelRect:HEIGHT-PIXELS = FRAME layoutFrame:HEIGHT-PIXELS - 295
     unAssigned:HEIGHT-PIXELS = excelRect:HEIGHT-PIXELS - 25
     excelOrder:HEIGHT-PIXELS = excelRect:HEIGHT-PIXELS - 25
-    BROWSE browserFilterFields:HEIGHT-PIXELS = excelRect:HEIGHT-PIXELS.
+    BROWSE browserFilterFields:HEIGHT-PIXELS = excelRect:HEIGHT-PIXELS
+    .
 
 END PROCEDURE.
 
@@ -1531,7 +1563,8 @@ PROCEDURE showCoord :
       layoutFields:SCREEN-VALUE = STRING(ipField:HANDLE)
       linePos:SCREEN-VALUE = '0'
       columnPos:SCREEN-VALUE = '0'
-      ipField:BGCOLOR = 14.
+      ipField:BGCOLOR = 14
+      .
     ipField:MOVE-TO-TOP().
     IF ipField:Y LT lineCoord[1] THEN ipField:Y = lineCoord[1].
     IF ipField:Y LT lineCoord[7] THEN
@@ -1544,7 +1577,8 @@ PROCEDURE showCoord :
         ipField:Y = lineCoord[i] + 1
         ipField:X = (colPos - 1) * 7
         rptLayout.rptLine = i
-        rptLayout.rptColumn = colPos.
+        rptLayout.rptColumn = colPos
+        .
       LEAVE.
     END. /* do i */
   END. /* do with */
@@ -1569,9 +1603,9 @@ PROCEDURE testPrint :
   ASSIGN
     rptTitle = IF reportAltName NE '' THEN reportAltName ELSE ''
     runPrint = findProgram('{&print}/',ID,'/' + reportName + '.r')
-    linesPerPageValue = 66.
-  IF runPrint EQ ? THEN
-  DO:
+    linesPerPageValue = 66
+    .
+  IF runPrint EQ ? THEN DO:
     MESSAGE 'Report:' reportName 'does not exist!' VIEW-AS ALERT-BOX.
     RETURN.
   END. /* if runprint */

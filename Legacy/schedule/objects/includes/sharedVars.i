@@ -22,9 +22,8 @@ DEFINE {1} SHARED VARIABLE userWidth AS INTEGER NO-UNDO EXTENT {&userExtent}.
 
 &IF '{1}' EQ 'NEW' &THEN
 ASSIGN
-  udfLabel = 'Not Used'
-  udfWidth = 10.
-ASSIGN
+  udfLabel  = 'Unused'
+  udfWidth  = 10
   userLabel = 'Not Used'
   userWidth = 10.
 &ENDIF

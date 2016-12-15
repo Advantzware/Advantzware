@@ -9,5 +9,7 @@ DEFINE TEMP-TABLE ttUDF NO-UNDO
     FIELD udfFormat   AS CHARACTER FORMAT "x(20)" LABEL "Format"
     FIELD udfLabel    AS CHARACTER FORMAT "x(50)" LABEL "Label"
     FIELD udfValue    AS CHARACTER FORMAT "x(50)" LABEL "UDF Value"
+    FIELD udfColLabel AS CHARACTER FORMAT "x(20)" LABEL "Col Label"
+    FIELD udfSBField  AS INTEGER   FORMAT ">9"    LABEL "SB Field #"
         INDEX ttUDF IS PRIMARY udfRecKey udfTab udfOrder
     .
