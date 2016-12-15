@@ -112,6 +112,8 @@ PROCEDURE pZohoCRM:
     DEFINE VARIABLE hWebService AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hSalesSoap  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lcAccounts  AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE iCnt        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lDone       AS LOGICAL   NO-UNDO.
 
     RUN pGetAuthToken  (ipcCompany, OUTPUT cAuthToken).
     IF cAuthToken EQ "" THEN
@@ -130,28 +132,37 @@ PROCEDURE pZohoCRM:
 
     RUN Service1Soap SET hSalesSoap ON hWebService.
     
-    RUN HelpCrmZohoAcc IN hSalesSoap (
-        "Accounts",
-        "",
-        "Accounts(ACCOUNTID,Account%20Name,Ticker%20Symbol,Phone,Billing Street,Billing Street 2,Billing City,Billing State,Billing Code)&fromIndex=1&toIndex=125&sortColumnString=Ticker%20Symbol&sortOrderString=desc",
-        "getRecords",
-        cAuthToken,
-        OUTPUT lcAccounts
-        ).
-
-    IF INDEX(STRING(lcAccounts),"<code>4422</code>") NE 0 THEN
-    RETURN "No Data Returned".
-
-    OUTPUT TO "c:\temp\Accounts.xml".
-    PUT UNFORMATTED STRING(lcAccounts) SKIP.
-    OUTPUT CLOSE.
-    RUN pXML ("c:\temp\Accounts.xml", "Accounts").
+    DO WHILE TRUE:
+        RUN HelpCrmZohoAcc IN hSalesSoap (
+            "Accounts",
+            "",
+            "Accounts(ACCOUNTID,Account%20Name,Ticker%20Symbol,Phone,Billing Street,Billing Street 2,Billing City,Billing State,Billing Code)&fromIndex="
+          + STRING(iCnt + 1)
+          + "&toIndex="
+          + STRING(iCnt + 50)
+          + "&sortColumnString=Ticker%20Symbol&sortOrderString=desc",
+            "getRecords",
+            cAuthToken,
+            OUTPUT lcAccounts
+            ).
     
-    FOR EACH ttCRMCustomers
-        WHERE ttCRMCustomers.tickerSymbol EQ ""
-        :
-        DELETE ttCRMCustomers.
-    END. /* each ttCRMCustomers */
+        IF INDEX(STRING(lcAccounts),"<code>4422</code>") NE 0 THEN
+        RETURN "No Data Returned".
+    
+        OUTPUT TO "c:\temp\Accounts.xml".
+        PUT UNFORMATTED STRING(lcAccounts) SKIP.
+        OUTPUT CLOSE.
+        RUN pXML ("c:\temp\Accounts.xml", "Accounts").
+        
+        FOR EACH ttCRMCustomers
+            WHERE ttCRMCustomers.tickerSymbol EQ ""
+            :
+            DELETE ttCRMCustomers.
+            lDone = YES.
+        END. /* each ttCRMCustomers */
+        IF lDone THEN LEAVE.
+        iCnt = iCnt + 50.
+    END. /* while true */
 
     FOR EACH ttCRMCustomers:
         opiRows = opiRows + 1.
