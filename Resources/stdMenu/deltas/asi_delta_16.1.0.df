@@ -291,14 +291,7 @@ ADD INDEX "loginDateTime" ON "userLog"
 ADD INDEX "sessionID" ON "userLog" 
   AREA "Schema Area"
   INDEX-FIELD "sessionID" ASCENDING 
-  
-ADD FIELD "ack-prnt-date" OF "oe-ord" AS date 
-  DESCRIPTION "Order acknowledgement printed date"
-  FORMAT "99/99/9999"
-  INITIAL ?
-  POSITION 127
-  MAX-WIDTH 4
-  ORDER 1240
+
 
 .
 PSC
