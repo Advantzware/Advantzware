@@ -60,15 +60,6 @@
           
           if ("" lt fpcat or "" gt tpcat) and (not avail itemfg) then next.
 
-          FIND FIRST oe-boll NO-LOCK 
-              WHERE oe-boll.company EQ cocode
-                AND oe-boll.bol-no EQ ar-invl.bol-no NO-ERROR .
-          IF AVAIL oe-boll THEN do:
-              FIND FIRST oe-rell WHERE oe-rell.r-no = oe-boll.r-no 
-                  AND oe-rell.s-code = "S" NO-LOCK NO-ERROR.
-              IF AVAIL  oe-rell THEN NEXT .
-          END.
-
           create xtt-report.
 
           assign
