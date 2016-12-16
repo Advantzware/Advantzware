@@ -26,12 +26,13 @@
 /* Parameters Definitions ---                                           */
 
 DEFINE INPUT PARAMETER ipcAttrbRowID AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER ioplSavePrompt AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 
-{methods/defines/miscflds.i}
+{UDF/mfttdefs.i &NEW="SHARED"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -253,7 +254,7 @@ DEFINE FRAME Dialog-Frame
           "Select Display/Load Values Procedure Name"
      btnCancel AT ROW 1.24 COL 100 HELP
           "CANCEL Edit Function"
-     SPACE(12.79) SKIP(11.09)
+     SPACE(0.99) SKIP(11.08)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "User Defined Fields Attribute Editor"
@@ -380,6 +381,7 @@ DO:
     ttAttrb.attr_proc = attr_proc:SCREEN-VALUE
     ttAttrb.attr_colLabel = attr_colLabel:SCREEN-VALUE
     ttAttrb.attr_sbField = INTEGER(attr_sbField:SCREEN-VALUE)
+    ioplSavePrompt = YES
     .
   CASE ttAttrb.attr_type:
     WHEN "FILL-IN" THEN DO:

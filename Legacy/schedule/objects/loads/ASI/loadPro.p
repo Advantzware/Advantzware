@@ -22,6 +22,7 @@
 {schedule/scopDir.i}
 {{&loads}/loadPro.i}
 {UDF/ttUDF.i}
+{UDF/fUDFGroup.i "sbPro."}
 
 /* configuration vars */
 {{&includes}/configVars.i}
@@ -52,7 +53,6 @@ DEFINE VARIABLE useField AS LOGICAL NO-UNDO EXTENT {&userExtent}.
 DEFINE VARIABLE useNotes AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE useSalesRep AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE useStatus AS LOGICAL NO-UNDO INIT YES.
-DEFINE VARIABLE udfGroup AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bJobMch FOR job-mch.
 
@@ -189,14 +189,6 @@ FUNCTION getSetPOQtyRec RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHA
     rtnQty = rtnQty + qty.
   END.
   RETURN STRING(rtnQty).
-END FUNCTION.
-
-FUNCTION getUDFGroup RETURNS CHARACTER ():
-    FIND FIRST mfgroup NO-LOCK
-         WHERE LOOKUP("sbPro.",mfgroup.mfgroup_data,"|") NE 0
-         NO-ERROR.
-    RETURN IF NOT AVAILABLE mfgroup THEN ?
-           ELSE ENTRY(1,mfgroup.mfgroup_data,"|").
 END FUNCTION.
 
 FUNCTION prodQty RETURNS CHARACTER (ipCompany AS CHARACTER,ipResource AS CHARACTER,
@@ -440,7 +432,6 @@ IF asiLocation EQ '' THEN asiLocation = 'Main'.
 ASSIGN
   useDeptSort = SEARCH(findProgram('{&data}/',ID,'/useDeptSort.dat')) NE ?
   useSalesRep = SEARCH(findProgram('{&data}/',ID,'/useSalesRep.dat')) NE ?
-  udfGroup    = getUDFGroup()
   .
 
 IF useSalesRep THEN DO:
@@ -904,10 +895,10 @@ FOR EACH job-hdr NO-LOCK
       FIND FIRST itemfg NO-LOCK
            WHERE itemfg.company EQ job-hdr.company
              AND itemfg.i-no EQ job-hdr.i-no NO-ERROR.
-      IF AVAILABLE itemfg AND udfGroup NE ? THEN DO:
+      IF AVAILABLE itemfg AND cUDFGroup NE ? THEN DO:
           IF CAN-FIND(FIRST mfvalues
                       WHERE mfvalues.rec_key EQ itemfg.rec_key) THEN
-          RUN UDF/UDF.p (udfGroup, itemfg.rec_key, OUTPUT TABLE ttUDF).
+          RUN UDF/UDF.p (cUDFGroup, itemfg.rec_key, OUTPUT TABLE ttUDF).
           FOR EACH ttUDF
               WHERE ttUDF.udfOrder   GT 0
                 AND ttUDF.udfSBField GT 0
@@ -919,7 +910,7 @@ FOR EACH job-hdr NO-LOCK
                   udfWidth[ttUDF.udfSBField] = MAX(20,LENGTH(udfLabel[ttUDF.udfSBField]))
                   .
           END. /* each ttudf */
-      END. /* udfGroup */
+      END. /* cUDFGroup */
     END. /* if ufitemfg */
 
     IF traceON THEN

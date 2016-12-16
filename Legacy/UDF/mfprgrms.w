@@ -29,13 +29,15 @@
 
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
 DEFINE INPUT PARAMETER ipMFGroup AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER ioplSavePrompt AS LOGICAL NO-UNDO.
 &ELSE
 DEFINE VARIABLE ipMFGroup AS CHARACTER NO-UNDO INITIAL "ASIJobCL".
+DEFINE VARIABLE ioplSavePrompt AS LOGICAL NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
 
-{methods/defines/miscflds.i}
+{UDF/mfttdefs.i &NEW="SHARED"}
 
 DEFINE TEMP-TABLE ttblMFPrgrms LIKE ttMFPrgrms.
 
@@ -90,8 +92,8 @@ srchPrgTitle EQ "") NO-LOCK INDEXED-REPOSITION.
     ~{&OPEN-QUERY-browsePrgrms}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnSave btnClearSrchPrgmName srchPrgmName ~
-srchPrgTitle browseMFPrgrms btnClearSrchPrgTitle browsePrgrms btnRestore ~
+&Scoped-Define ENABLED-OBJECTS btnSave srchPrgmName btnClearSrchPrgmName ~
+srchPrgTitle browseMFPrgrms browsePrgrms btnClearSrchPrgTitle btnRestore ~
 btnExit 
 &Scoped-Define DISPLAYED-OBJECTS mfGroup srchPrgmName srchPrgTitle 
 
@@ -187,17 +189,17 @@ DEFINE BROWSE browsePrgrms
 DEFINE FRAME Dialog-Frame
      btnSave AT ROW 1 COL 145 HELP
           "Save" WIDGET-ID 8
-     btnClearSrchPrgmName AT ROW 3.14 COL 99 HELP
-          "Clear Program Search" WIDGET-ID 18
      mfGroup AT ROW 2.19 COL 14 COLON-ALIGNED WIDGET-ID 10
      srchPrgmName AT ROW 3.14 COL 80 COLON-ALIGNED HELP
           "Search Program" WIDGET-ID 14
+     btnClearSrchPrgmName AT ROW 3.14 COL 99 HELP
+          "Clear Program Search" WIDGET-ID 18
      srchPrgTitle AT ROW 3.14 COL 101 COLON-ALIGNED HELP
           "Search Title" NO-LABEL WIDGET-ID 16
      browseMFPrgrms AT ROW 4.33 COL 1 WIDGET-ID 200
+     browsePrgrms AT ROW 4.33 COL 82 WIDGET-ID 100
      btnClearSrchPrgTitle AT ROW 3.14 COL 157 HELP
           "Clear Program Search" WIDGET-ID 20
-     browsePrgrms AT ROW 4.33 COL 82 WIDGET-ID 100
      btnRestore AT ROW 1 COL 137 HELP
           "Reset" WIDGET-ID 12
      btnExit AT ROW 1 COL 153 HELP
@@ -227,7 +229,7 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
 /* BROWSE-TAB browseMFPrgrms srchPrgTitle Dialog-Frame */
-/* BROWSE-TAB browsePrgrms btnClearSrchPrgTitle Dialog-Frame */
+/* BROWSE-TAB browsePrgrms browseMFPrgrms Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -368,6 +370,7 @@ END.
 ON CHOOSE OF btnSave IN FRAME Dialog-Frame /* Save */
 DO:
     RUN saveMFPrgrms.
+    ioplSavePrompt = YES.
     MESSAGE "UDF Attach Programs Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
@@ -478,8 +481,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY mfGroup srchPrgmName srchPrgTitle 
       WITH FRAME Dialog-Frame.
-  ENABLE btnSave btnClearSrchPrgmName srchPrgmName srchPrgTitle browseMFPrgrms 
-         btnClearSrchPrgTitle browsePrgrms btnRestore btnExit 
+  ENABLE btnSave srchPrgmName btnClearSrchPrgmName srchPrgTitle browseMFPrgrms 
+         browsePrgrms btnClearSrchPrgTitle btnRestore btnExit 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
