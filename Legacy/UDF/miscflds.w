@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE widgetPoolName dynamic-widget
 
-{methods/defines/miscflds.i &NEW="NEW"}
+{UDF/mfttdefs.i &NEW="NEW SHARED"}
 
 DEFINE TEMP-TABLE ttDeleteMFValues NO-UNDO
   FIELD mfvalues_recid AS RECID.
@@ -62,6 +62,7 @@ DEFINE VARIABLE continue      AS LOGICAL       NO-UNDO.
 DEFINE VARIABLE currentTab    AS INTEGER       NO-UNDO.
 DEFINE VARIABLE lastID        AS INTEGER       NO-UNDO.
 DEFINE VARIABLE i             AS INTEGER       NO-UNDO.
+DEFINE VARIABLE savePrompt    AS LOGICAL       NO-UNDO.
 
 DEFINE BUFFER bAttrb FOR ttAttrb.
 
@@ -99,11 +100,11 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME fMiscFlds
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnMFPrgrms btnAddTab tabLabelsRect btnCopy ~
-RECT-5 RECT-4 widgetRect tabNavRect RECT-2 RECT-3 RECT-8 portRect ~
-tabNavRect-3 prgrmsRect mfgroupList mfgroupTab btnCombo-Box btnCut ~
-tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle btnSelection-List ~
-btnSlider btnText btnToggle-Box btnDeleteTab btnDownTab btnExit btnExport ~
+&Scoped-Define ENABLED-OBJECTS btnMFPrgrms tabLabelsRect RECT-5 RECT-4 ~
+widgetRect tabNavRect RECT-2 RECT-3 RECT-8 portRect tabNavRect-3 prgrmsRect ~
+mfgroupList mfgroupTab btnCombo-Box tabLabels btnEditor btnFill-In ~
+btnRadio-Set btnRectangle btnSelection-List btnSlider btnText btnToggle-Box ~
+btnAddTab btnCopy btnCut btnDeleteTab btnDownTab btnExit btnExport ~
 btnImport btnNextTab btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab ~
 btnAddGroup btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave ~
 btnTabOrder btnTest 
@@ -114,9 +115,9 @@ textLabel toggle-BoxLabel gapFieldLabel prgrmsLabel
 
 /* Custom List Definitions                                              */
 /* notFoundIn234,widgetLabels,widgetButtons,propertyCutCopy,List-5,List-6 */
-&Scoped-define notFoundIn234 btnAddTab widgetRect mfgroupTab btnPointer ~
-btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle ~
-btnSelection-List btnSlider btnText btnToggle-Box btnDeleteTab btnDownTab ~
+&Scoped-define notFoundIn234 widgetRect mfgroupTab btnPointer btnCombo-Box ~
+tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle btnSelection-List ~
+btnSlider btnText btnToggle-Box btnAddTab btnDeleteTab btnDownTab ~
 btnNextTab btnPrevTab btnRenameTab btnUpTab btnDeleteGroup btnRenameGroup ~
 btnTest widgetLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
 fill-InLabel radio-SetLabel rectangleLabel selection-ListLabel sliderLabel ~
@@ -579,10 +580,6 @@ DEFINE RECTANGLE Rect-Top
 DEFINE FRAME fMiscFlds
      btnMFPrgrms AT ROW 23.86 COL 132 HELP
           "Programs" WIDGET-ID 34
-     btnAddTab AT ROW 7.19 COL 125 HELP
-          "ADD New Tab"
-     btnCopy AT ROW 1.48 COL 88 HELP
-          "Copy Selections"
      mfgroupList AT ROW 1.71 COL 8 COLON-ALIGNED HELP
           "Select Group Name"
      mfgroupField AT ROW 1.71 COL 8 COLON-ALIGNED HELP
@@ -595,8 +592,6 @@ DEFINE FRAME fMiscFlds
           "Create New COMBO-BOX"
      tabField AT ROW 7.19 COL 124 HELP
           "Enter Tab Label" NO-LABEL
-     btnCut AT ROW 1.48 COL 80 HELP
-          "Cut Selections"
      tabLabels AT ROW 8.38 COL 124 HELP
           "Select tab Label" NO-LABEL
      btnEditor AT ROW 8.86 COL 3.2 HELP
@@ -617,6 +612,12 @@ DEFINE FRAME fMiscFlds
           "Create New TOGGLE-BOX"
      gapField AT ROW 22.19 COL 1 COLON-ALIGNED HELP
           "Enter Gap Amount in Pixels" NO-LABEL
+     btnAddTab AT ROW 7.19 COL 125 HELP
+          "ADD New Tab"
+     btnCopy AT ROW 1.48 COL 88 HELP
+          "Copy Selections"
+     btnCut AT ROW 1.48 COL 80 HELP
+          "Cut Selections"
      btnDeleteTab AT ROW 7.19 COL 135 HELP
           "DELETE Tab"
      btnDownTab AT ROW 7.19 COL 140 HELP
@@ -679,9 +680,6 @@ DEFINE FRAME fMiscFlds
      "Copy" VIEW-AS TEXT
           SIZE 5 BY .76 AT ROW 3.62 COL 89 WIDGET-ID 8
           FONT 4
-     "Import" VIEW-AS TEXT
-          SIZE 6 BY .76 AT ROW 26 COL 5 WIDGET-ID 28
-          FONT 4
      "Export" VIEW-AS TEXT
           SIZE 7 BY .76 AT ROW 26 COL 15 WIDGET-ID 30
           FONT 4
@@ -693,17 +691,14 @@ DEFINE FRAME fMiscFlds
           FONT 4
      "Copy" VIEW-AS TEXT
           SIZE 5 BY .95 AT ROW 3.19 COL 25
-     "Atrributes" VIEW-AS TEXT
-          SIZE 9 BY .76 AT ROW 3.62 COL 59
+     "Preview" VIEW-AS TEXT
+          SIZE 8 BY .76 AT ROW 3.62 COL 106 WIDGET-ID 6
           FONT 4
-     "Save" VIEW-AS TEXT
-          SIZE 5 BY .76 AT ROW 3.62 COL 125 WIDGET-ID 12
+     "Tab Order" VIEW-AS TEXT
+          SIZE 10 BY .76 AT ROW 3.62 COL 69
           FONT 4
-     "Paste" VIEW-AS TEXT
-          SIZE 6 BY .76 AT ROW 3.62 COL 97 WIDGET-ID 10
-          FONT 4
-     "Reset" VIEW-AS TEXT
-          SIZE 6 BY .76 AT ROW 3.62 COL 117
+     "Rename" VIEW-AS TEXT
+          SIZE 8.6 BY .95 AT ROW 3.19 COL 36
           FONT 4
      "Add" VIEW-AS TEXT
           SIZE 4 BY .95 AT ROW 3.14 COL 15
@@ -711,14 +706,20 @@ DEFINE FRAME fMiscFlds
      "Cut" VIEW-AS TEXT
           SIZE 4 BY .76 AT ROW 3.62 COL 82
           FONT 4
-     "Preview" VIEW-AS TEXT
-          SIZE 8 BY .76 AT ROW 3.62 COL 106 WIDGET-ID 6
+     "Reset" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 3.62 COL 117
           FONT 4
-     "Rename" VIEW-AS TEXT
-          SIZE 8.6 BY .95 AT ROW 3.19 COL 36
+     "Paste" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 3.62 COL 97 WIDGET-ID 10
           FONT 4
-     "Tab Order" VIEW-AS TEXT
-          SIZE 10 BY .76 AT ROW 3.62 COL 69
+     "Save" VIEW-AS TEXT
+          SIZE 5 BY .76 AT ROW 3.62 COL 125 WIDGET-ID 12
+          FONT 4
+     "Atrributes" VIEW-AS TEXT
+          SIZE 9 BY .76 AT ROW 3.62 COL 59
+          FONT 4
+     "Import" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 26 COL 5 WIDGET-ID 28
           FONT 4
      tabLabelsRect AT ROW 6.24 COL 123
      RECT-1 AT ROW 1.24 COL 2
@@ -1113,6 +1114,7 @@ END.
 ON CHOOSE OF btnCut IN FRAME fMiscFlds /* Cut */
 DO:
   RUN cutWidgets.
+  savePrompt = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1124,6 +1126,7 @@ END.
 ON CHOOSE OF btnDeleteGroup IN FRAME fMiscFlds /* Delete Group */
 DO:
   RUN deleteGroup.
+  savePrompt = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1135,6 +1138,7 @@ END.
 ON CHOOSE OF btnDeleteTab IN FRAME fMiscFlds /* Delete */
 DO:
   RUN deleteTab.
+  savePrompt = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1167,8 +1171,17 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit wMiscFlds
 ON CHOOSE OF btnExit IN FRAME fMiscFlds /* Exit */
 DO:
-  IF hMFPersist NE ? THEN DELETE PROCEDURE hMFPersist.
-  APPLY "CLOSE" TO THIS-PROCEDURE.
+    IF savePrompt THEN DO:
+        MESSAGE "UDF Changes Exist!!!"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
+            TITLE "Warning - Changes Not Saved"
+            UPDATE promptToSave AS LOGICAL.
+        IF promptToSave THEN
+        APPLY "CHOOSE":U TO btnSave IN FRAME {&FRAME-NAME}.
+        ELSE IF promptToSave EQ ? THEN RETURN NO-APPLY.
+    END.
+    IF VALID-HANDLE(hMFPersist) THEN DELETE PROCEDURE hMFPersist.
+    APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1237,6 +1250,7 @@ END.
 ON CHOOSE OF btnPaste IN FRAME fMiscFlds /* Paste */
 DO:
   RUN pasteFromClipboard.
+  savePrompt = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1341,6 +1355,7 @@ ON CHOOSE OF btnRestore IN FRAME fMiscFlds /* Reset */
 DO:
   mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "1".
   RUN loadWidgetData.
+  savePrompt = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1351,7 +1366,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave wMiscFlds
 ON CHOOSE OF btnSave IN FRAME fMiscFlds /* Save */
 DO:
+  {methods/wait.i}
   RUN saveLayout.
+  savePrompt = NO.
+  {methods/nowait.i}
   MESSAGE "UDF Build Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
@@ -1491,6 +1509,7 @@ DO:
       cdummy = {&SELF-NAME}:SCREEN-VALUE
       ldummy = NO
       currentLabel = ""
+      savePrompt = YES
       .
     DO i = 1 TO mfgroupList:NUM-ITEMS: /* see if item already exists */
       IF mfgroupList:ENTRY(i) = cdummy THEN ldummy = YES.
@@ -1943,6 +1962,7 @@ DO:
   IF {&SELF-NAME}:SCREEN-VALUE NE "" THEN DO:
     IF newTab THEN RUN addTab.
     ELSE RUN renameTab.
+    savePrompt = YES.
   END.
   tabField:HIDDEN = YES.
   DISABLE tabField.
@@ -1984,8 +2004,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
-   RUN disable_UI.
+ON CLOSE OF THIS-PROCEDURE
+    RUN disable_UI.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -2196,7 +2216,8 @@ PROCEDURE attachPrgrms :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN UDF/mfprgrms.w (mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+    RUN UDF/mfprgrms.w (mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+                        INPUT-OUTPUT savePrompt).
     RUN btnMFPrgrmsToolTip.
 
 END PROCEDURE.
@@ -2567,7 +2588,7 @@ PROCEDURE deleteGroup :
         UPDATE ldummy.
     IF NOT ldummy THEN RETURN.
     FOR EACH ttAttrb
-        WHERE ttAttrb.attr_mfgroup = mfgroupList:SCREEN-VALUE
+        WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE
         :
       IF CAN-FIND(FIRST mfvalues WHERE mfvalues.mf_id = ttAttrb.attr_id) THEN DO:
         ldummy = NO.
@@ -2580,10 +2601,10 @@ PROCEDURE deleteGroup :
       END.
     END.
     FIND ttMFGroup
-        WHERE ttMFGroup.mfgroup_data = mfgroupList:SCREEN-VALUE.
+        WHERE ttMFGroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE.
     DELETE ttMFGroup.
     FOR EACH ttAttrb
-        WHERE ttAttrb.attr_mfgroup = mfgroupList:SCREEN-VALUE
+        WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE
         :
       RUN deleteMFValues.
       DELETE ttAttrb.
@@ -2613,7 +2634,7 @@ PROCEDURE deleteMFValues :
       WHERE mfvalues.mf_id = ttAttrb.attr_id
       :
     FIND ttDeleteMFValues
-        WHERE mfvalues_recid = RECID(mfvalues)
+        WHERE mfvalues_recid EQ RECID(mfvalues)
         NO-ERROR.
     IF AVAILABLE ttDeleteMFValues THEN NEXT.
     CREATE ttDeleteMFValues.
@@ -2902,14 +2923,14 @@ PROCEDURE enable_UI :
           rectangleLabel selection-ListLabel sliderLabel textLabel 
           toggle-BoxLabel gapFieldLabel prgrmsLabel 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
-  ENABLE btnMFPrgrms btnAddTab tabLabelsRect btnCopy RECT-5 RECT-4 widgetRect 
-         tabNavRect RECT-2 RECT-3 RECT-8 portRect tabNavRect-3 prgrmsRect 
-         mfgroupList mfgroupTab btnCombo-Box btnCut tabLabels btnEditor 
-         btnFill-In btnRadio-Set btnRectangle btnSelection-List btnSlider 
-         btnText btnToggle-Box btnDeleteTab btnDownTab btnExit btnExport 
-         btnImport btnNextTab btnPaste btnPrevTab btnProperty btnRenameTab 
-         btnUpTab btnAddGroup btnCopyGroup btnDeleteGroup btnRenameGroup 
-         btnRestore btnSave btnTabOrder btnTest 
+  ENABLE btnMFPrgrms tabLabelsRect RECT-5 RECT-4 widgetRect tabNavRect RECT-2 
+         RECT-3 RECT-8 portRect tabNavRect-3 prgrmsRect mfgroupList mfgroupTab 
+         btnCombo-Box tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle 
+         btnSelection-List btnSlider btnText btnToggle-Box btnAddTab btnCopy 
+         btnCut btnDeleteTab btnDownTab btnExit btnExport btnImport btnNextTab 
+         btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab btnAddGroup 
+         btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave 
+         btnTabOrder btnTest 
       WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
   {&OPEN-BROWSERS-IN-QUERY-fMiscFlds}
   ENABLE Rect-Top Rect-Left Rect-Right Rect-Bottom 
@@ -3181,6 +3202,7 @@ PROCEDURE moveTab :
         :
       ttAttrb.attr_tab = j.
     END.
+    savePrompt = YES.
   END.
   APPLY "VALUE-CHANGED" TO tabLabels IN FRAME {&FRAME-NAME}.
 
@@ -3235,35 +3257,36 @@ PROCEDURE newWidget :
     ttAttrb.attr_mfgroup = mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
     ttAttrb.attr_tab = INTEGER(mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME})
     ttAttrb.attr_type = currentLabel
-    ttAttrb.attr_label = IF currentLabel = "RECTANGLE" THEN ""
+    ttAttrb.attr_label = IF currentLabel EQ "RECTANGLE" THEN ""
                          ELSE "NEW " + currentLabel
-    ttAttrb.attr_values = IF currentLabel = "RADIO-SET" THEN "Empty,0"
-                     ELSE IF currentLabel = "RECTANGLE" THEN ""
-                     ELSE IF currentLabel = "SLIDER" THEN "0,100"
-                     ELSE IF currentLabel = "TEXT" THEN ""
+    ttAttrb.attr_values = IF currentLabel EQ "RADIO-SET" THEN "Empty,0"
+                     ELSE IF currentLabel EQ "RECTANGLE" THEN ""
+                     ELSE IF currentLabel EQ "SLIDER" THEN "0,100"
+                     ELSE IF currentLabel EQ "TEXT" THEN ""
                      ELSE "Empty"
     ttAttrb.attr_default = IF CAN-DO("RADIO-SET,SLIDER",currentLabel) THEN "0"
-                      ELSE IF currentLabel = "RECTANGLE" THEN ""
-                      ELSE IF currentLabel = "TEXT" THEN ""
-                      ELSE IF currentLabel = "TOGGLE-BOX" THEN "no"
+                      ELSE IF currentLabel EQ "RECTANGLE" THEN ""
+                      ELSE IF currentLabel EQ "TEXT" THEN ""
+                      ELSE IF currentLabel EQ "TOGGLE-BOX" THEN "no"
                       ELSE "Empty"
     ttAttrb.attr_x = LAST-EVENT:X
     ttAttrb.attr_y = LAST-EVENT:Y
-    ttAttrb.attr_width = IF currentLabel = "SLIDER" THEN 70 ELSE 105
-    ttAttrb.attr_height = IF currentLabel = "SLIDER" THEN 31 ELSE 21
-    ttAttrb.attr_settings = IF currentLabel = "EDITOR" THEN "no,yes"
-                       ELSE IF currentLabel = "FILL-IN" THEN "X(256)"
-                       ELSE IF currentLabel = "COMBO-BOX" THEN "X(256)"
-                       ELSE IF currentLabel = "RADIO-SET" THEN "yes"
-                       ELSE IF currentLabel = "SLIDER" THEN "yes"
-                       ELSE IF currentLabel = "TEXT" THEN "4"
+    ttAttrb.attr_width = IF currentLabel EQ "SLIDER" THEN 70 ELSE 105
+    ttAttrb.attr_height = IF currentLabel EQ "SLIDER" THEN 31 ELSE 21
+    ttAttrb.attr_settings = IF currentLabel EQ "EDITOR" THEN "no,yes"
+                       ELSE IF currentLabel EQ "FILL-IN" THEN "X(256)"
+                       ELSE IF currentLabel EQ "COMBO-BOX" THEN "X(256)"
+                       ELSE IF currentLabel EQ "RADIO-SET" THEN "yes"
+                       ELSE IF currentLabel EQ "SLIDER" THEN "yes"
+                       ELSE IF currentLabel EQ "TEXT" THEN "4"
                        ELSE ""
-    ttAttrb.attr_datatype = IF currentLabel = "SLIDER" THEN "integer"
-                       ELSE IF currentLabel = "TOGGLE-BOX" THEN "logical"
+    ttAttrb.attr_datatype = IF currentLabel EQ "SLIDER" THEN "integer"
+                       ELSE IF currentLabel EQ "TOGGLE-BOX" THEN "logical"
                        ELSE "character"
+    ttAttrb.attr_enabled = NOT CAN-DO("RECTANGLE,TEXT",currentLabel)
     .
   RUN dynamicWidget.
-  IF RETURN-VALUE = "CREATE-ERROR" THEN DELETE ttAttrb.
+  IF RETURN-VALUE EQ "CREATE-ERROR" THEN DELETE ttAttrb.
   ELSE DO:
     dynWidget:SELECTED = YES.
     ENABLE {&propertyCutCopy} WITH FRAME {&FRAME-NAME}.
@@ -3324,7 +3347,8 @@ PROCEDURE propertySheet :
   DO WHILE currentWidget NE ?:
     IF currentWidget:SELECTED THEN
     DO WITH FRAME {&FRAME-NAME}:
-      RUN UDF/mfdialog.w (ENTRY(1,currentWidget:PRIVATE-DATA,"|")).
+      RUN UDF/mfdialog.w (ENTRY(1,currentWidget:PRIVATE-DATA,"|"),
+                          INPUT-OUTPUT savePrompt).
       FIND ttAttrb
           WHERE ROWID(ttAttrb) EQ TO-ROWID(ENTRY(1,currentWidget:PRIVATE-DATA,"|")).
       IF NOT CAN-DO("RECTANGLE,TEXT,TOGGLE-BOX",currentWidget:TYPE) THEN DO:
@@ -3462,8 +3486,8 @@ PROCEDURE saveLayout :
            WHERE RECID(mfvalues) EQ ttDeleteMFValues.mfvalues_recid.
       DELETE mfvalues.
       DELETE ttDeleteMFValues.
-    END.
-  END.
+    END. /* each ttdeletemfvalues */
+  END. /* if can-find */
 
   OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/mfgroup.dat").
   EXPORT mfgroupList:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -3475,10 +3499,12 @@ PROCEDURE saveLayout :
     EXPORT ttMFGroup.mfgroup_tabs.
     ELSE
     EXPORT " ".
-  END.
+  END. /* do i */
   OUTPUT CLOSE.
 
-  DELETE FROM mfgroup.
+  FOR EACH mfgroup:
+      DELETE mfgroup.
+  END. /* each mfgroup */
   FOR EACH ttMFGroup:
     textstring = "".
     FOR EACH ttMFPrgrms
@@ -3489,23 +3515,25 @@ PROCEDURE saveLayout :
     CREATE mfgroup.
     BUFFER-COPY ttMFGroup TO mfgroup.
     mfgroup.mfgroup_data = mfgroup.mfgroup_data + textstring.
-  END.
+  END. /* each ttmfprgrms */
 
   OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat").
   FOR EACH ttAttrb:
     EXPORT ttAttrb.attr_mfgroup.
     EXPORT ttAttrb.
-  END.
+  END. /* each ttattrb */
   OUTPUT CLOSE.
   
-  DELETE FROM mfdata.
+  FOR EACH mfdata:
+      DELETE mfdata.
+  END. /* each mfdata */
   INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat").
   REPEAT:
     IMPORT textstring.
     CREATE mfdata.
     mfdata.mfgroup_data = textstring.
     IMPORT UNFORMATTED mfdata.miscflds_data.
-  END.
+  END. /* repeat */
   INPUT CLOSE.
 
 END PROCEDURE.
@@ -3593,7 +3621,9 @@ PROCEDURE selectNewWidgetType :
 
   ASSIGN
     ldummy = FRAME folderFrm:LOAD-MOUSE-POINTER(mousePointer)
-    currentLabel = newWidgetType.
+    currentLabel = newWidgetType
+    savePrompt = YES
+    .
 
 END PROCEDURE.
 
@@ -3681,8 +3711,9 @@ PROCEDURE tabOrder :
   tabOrder = IF NUM-ENTRIES(tabLabels:SCREEN-VALUE IN FRAME {&FRAME-NAME},"|") GT 1 THEN
              ENTRY(2,tabLabels:SCREEN-VALUE,"|") ELSE 'Default'.
   RUN UDF/mftaborder.w (FRAME folderFrm:HANDLE,
-                            ENTRY(1,tabLabels:SCREEN-VALUE,"|"),
-                            INPUT-OUTPUT tabOrder).
+                        ENTRY(1,tabLabels:SCREEN-VALUE,"|"),
+                        INPUT-OUTPUT tabOrder,
+                        INPUT-OUTPUT savePrompt).
   tabLabels:REPLACE(ENTRY(1,tabLabels:SCREEN-VALUE,"|") + "|" + tabOrder,
                     tabLabels:SCREEN-VALUE).
   FIND ttMFGroup
@@ -3739,6 +3770,7 @@ PROCEDURE updateAttrb :
       ELSE IF ttAttrb.attr_type EQ "TEXT" THEN STRING(currentWidget:FONT)
       ELSE ""
     ttAttrb.attr_datatype = currentWidget:DATA-TYPE
+    savePrompt = YES
     .
 
 END PROCEDURE.

@@ -15,7 +15,7 @@ DEFINE INPUT  PARAMETER ipcMFGroup AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcRecKey  AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE FOR ttUDF.
 
-{methods/defines/miscflds.i &NEW="NEW"}
+{UDF/mfttdefs.i &NEW="NEW SHARED"}
 
 EMPTY TEMP-TABLE ttUDF.
     
@@ -24,27 +24,14 @@ FIND FIRST mfgroup NO-LOCK
      NO-ERROR.
 IF NOT AVAILABLE mfgroup THEN RETURN.
 
-RUN pGetMFData.
-RUN pBuildttUDF.
+RUN pGetMFData (ipcMFGroup).
+RUN pBuildttUDF (ipcRecKey).
 
-PROCEDURE pGetMFData:
-    OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/UDF.dat").
-    FOR EACH mfdata NO-LOCK
-        WHERE mfdata.mfgroup_data EQ ipcMFGroup
-        :
-      PUT UNFORMATTED mfdata.miscflds_data SKIP.
-    END.
-    OUTPUT CLOSE.
-    INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/UDF.dat") NO-ECHO.
-    REPEAT:
-      CREATE ttAttrb.
-      IMPORT ttAttrb.
-    END.
-    INPUT CLOSE.
-    IF ttAttrb.attr_type EQ "" THEN DELETE ttAttrb.
-END PROCEDURE.
+{UDF/pGetMFData.i}
 
 PROCEDURE pBuildttUDF:
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+
     DEFINE VARIABLE cName     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cColLabel AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormat   AS CHARACTER NO-UNDO.
