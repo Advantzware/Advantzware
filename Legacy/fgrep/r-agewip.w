@@ -21,6 +21,4 @@ END.
 /*IF SelectRptColumn-log THEN RUN fgrep/r-agewipN.w.
 ELSE RUN fgrep/r-ageinvA.w.     
 */
-    RUN fgrep/r-agewipN.w.
-     
-  
+RUN fgrep/r-agewipN.w PERSISTENT.

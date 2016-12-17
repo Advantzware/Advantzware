@@ -22,8 +22,9 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAMETER ip-post-eom-date AS DATE NO-UNDO.
-DEF INPUT PARAMETER ip-run-what AS CHAR NO-UNDO. /* "SETUP" from initial setup (addon/sshoot/sssetups.w), 
-                                                   else "" */
+DEF INPUT PARAMETER ip-run-what AS CHAR NO-UNDO. /* "SETUP" from initial setup (addon/sshoot/sssetups.w),
+                                                  else "" */
+
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
@@ -41,7 +42,7 @@ assign
  cocode = gcompany
  locode = gloc.
 
-DEF SHARED VAR choice AS LOG NO-UNDO.
+DEFINE SHARED VARIABLE choice AS LOG NO-UNDO.
 
 DEF VAR v-fgpostgl AS CHAR NO-UNDO.
 def var v-fg-value as dec format "->,>>>,>>9.99".
@@ -795,6 +796,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn-cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel C-Win
+ON CHOOSE OF Btn_Cancel IN FRAME FRAME-A /* Cancel */
+DO:
+   APPLY "CLOSE":U TO THIS-PROCEDURE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK C-Win
 ON CHOOSE OF Btn_OK IN FRAME FRAME-A /* OK */
@@ -802,7 +814,6 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-
   FIND FIRST period
       WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -814,10 +825,7 @@ DO:
     APPLY "entry" TO v-post-date.
     RETURN NO-APPLY.
   END.
-
   RUN print-and-post.
-
-
 END.
 
 /* _UIB-CODE-BLOCK-END */

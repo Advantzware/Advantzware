@@ -5,14 +5,14 @@
 v-tot-cases = 0.
 /*for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no,*/
 FOR EACH tt-boll,      
-    first itemfg NO-LOCK
-    where itemfg.company eq cocode
-      and itemfg.i-no    eq tt-boll.i-no
+    FIRST itemfg NO-LOCK
+    WHERE itemfg.company EQ cocode
+      AND itemfg.i-no    EQ tt-boll.i-no
     BREAK BY tt-boll.i-no
           BY tt-boll.po-no
           BY tt-boll.ord-no
           BY tt-boll.line
-          BY tt-boll.cases DESC:
+          BY tt-boll.cases DESCENDING:
 
 IF ll-consol-bolls THEN DO:
 
@@ -27,40 +27,44 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
                        AND bf-ttboll.po-no = tt-boll.po-no
                        AND bf-ttboll.ord-no = tt-boll.ord-no
                        AND bf-ttboll.LINE = tt-boll.LINE
-                BREAK BY bf-ttboll.cases DESC.
-      find first oe-ordl where oe-ordl.company eq cocode
-         and oe-ordl.ord-no  eq tt-boll.ord-no
-         and oe-ordl.i-no    eq tt-boll.i-no
-         and oe-ordl.line    eq tt-boll.LINE no-lock no-error.
+                BREAK BY bf-ttboll.cases DESCENDING.
+
+      FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ cocode
+         AND oe-ordl.ord-no  EQ tt-boll.ord-no
+         AND oe-ordl.i-no    EQ tt-boll.i-no
+         AND oe-ordl.line    EQ tt-boll.LINE  NO-ERROR.
       v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty.
-      find first oe-ord where oe-ord.company eq cocode
-         and oe-ord.ord-no  eq tt-boll.ord-no no-lock no-error.                  
+      FIND FIRST oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
+         AND oe-ord.ord-no  EQ tt-boll.ord-no  NO-ERROR.                  
       i = i + 1.
-      find first w2 where w2.cas-cnt eq bf-ttboll.qty-case no-error.
-      if not avail w2 then create w2.
+      
+      FIND FIRST w2 WHERE w2.cas-cnt EQ bf-ttboll.qty-case NO-ERROR.
+      IF NOT AVAILABLE w2 THEN CREATE w2.
       ASSIGN w2.job-po = ""
              w2.i-no = ""
              w2.cas-cnt = bf-ttboll.qty-case
              w2.cases   = w2.cases + bf-ttboll.cases
-             w2.rec-id = RECID(bf-ttboll).
-
+             w2.rec-id = RECID(bf-ttboll) 
+             w2.partial = w2.partial + bf-ttboll.partial
+             w2.unitCount = bf-ttboll.unitCount  .
+            
       IF i = 1 THEN ASSIGN w2.job-po = bf-ttboll.po-no
                            w2.dscr = oe-ordl.part-no
                            w2.qty = oe-ordl.qty.
       ELSE IF i = 2 THEN 
-          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" else
-                             (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+          ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
+                             (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
                  w2.dscr = oe-ordl.i-name
                  w2.i-no = oe-ordl.i-no.
-      else if i eq 3 THEN 
+      ELSE IF i EQ 3 THEN 
           IF oe-ordl.part-dscr1 NE "" THEN 
               w2.dscr = oe-ordl.part-dscr1.
           ELSE w2.dscr = itemfg.part-dscr1.
-      ELSE if i eq 4 then 
+      ELSE IF i EQ 4 THEN 
           IF oe-ordl.part-dscr2 NE "" THEN 
               w2.dscr = oe-ordl.part-dscr2.
           ELSE w2.dscr = itemfg.part-dscr2.
-      ELSE if i eq 5 then 
+      ELSE IF i EQ 5 THEN 
           IF oe-ordl.part-dscr3 NE "" THEN 
               w2.dscr = oe-ordl.part-dscr3.
           ELSE w2.dscr = itemfg.part-dscr3.
@@ -69,77 +73,78 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
       CREATE w2.
   END.
   i = 0.
-  FOR EACH w2  BREAK BY w2.cases DESC:
-    FIND FIRST bf-ttboll WHERE recid(bf-ttboll) = w2.rec-id NO-LOCK NO-ERROR.
+  FOR EACH w2  BREAK BY w2.cases DESCENDING:
+    FIND FIRST bf-ttboll NO-LOCK WHERE RECID(bf-ttboll) = w2.rec-id  NO-ERROR.
     i = i + 1.
     IF w2.rec-id = ? THEN DO:
-        find first oe-ordl where oe-ordl.company eq cocode
-         and oe-ordl.ord-no  eq tt-boll.ord-no
-         and oe-ordl.i-no    eq tt-boll.i-no
-         and oe-ordl.line    eq tt-boll.LINE no-lock no-error.
+        FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ cocode
+         AND oe-ordl.ord-no  EQ tt-boll.ord-no
+         AND oe-ordl.i-no    EQ tt-boll.i-no
+         AND oe-ordl.line    EQ tt-boll.LINE NO-ERROR.
        w2.i-no = "".
        IF i = 2 THEN 
-          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" else
-                             (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+          ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
+                             (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
                  w2.dscr = oe-ordl.i-name
                  w2.i-no = oe-ordl.i-no.
-       else if i eq 3 then
+       ELSE IF i EQ 3 THEN
             IF oe-ordl.part-dscr1 NE "" THEN 
               w2.dscr = oe-ordl.part-dscr1.
           ELSE w2.dscr = itemfg.part-dscr1.
-       ELSE if i eq 4 then 
+       ELSE IF i EQ 4 THEN 
            IF oe-ordl.part-dscr2 NE "" THEN 
               w2.dscr = oe-ordl.part-dscr2.
           ELSE w2.dscr = itemfg.part-dscr2.
-       ELSE if i eq 5 then 
+       ELSE IF i EQ 5 THEN 
            IF oe-ordl.part-dscr3 NE "" THEN 
               w2.dscr = oe-ordl.part-dscr3.
           ELSE w2.dscr = itemfg.part-dscr3.
     END.
-    IF w2.qty = 0 and w2.i-no = "" AND w2.dscr = "" AND w2.cas-cnt = 0 THEN DELETE w2.
+    IF w2.qty = 0 AND w2.i-no = "" AND w2.dscr = "" AND w2.cas-cnt = 0 THEN DELETE w2.
   END.
   i = 0.  
-  FOR EACH w2  BREAK BY w2.cases DESC:
-    FIND FIRST bf-ttboll WHERE recid(bf-ttboll) = w2.rec-id NO-LOCK NO-ERROR.
+  FOR EACH w2  BREAK BY w2.cases DESCENDING:
+    FIND FIRST bf-ttboll NO-LOCK WHERE RECID(bf-ttboll) = w2.rec-id NO-ERROR.
     i = i + 1.
     IF w2.rec-id = ? THEN DO:
-        find first oe-ordl where oe-ordl.company eq cocode
-         and oe-ordl.ord-no  eq tt-boll.ord-no
-         and oe-ordl.i-no    eq tt-boll.i-no
-         and oe-ordl.line    eq tt-boll.LINE no-lock no-error.
+        FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ cocode
+         AND oe-ordl.ord-no  EQ tt-boll.ord-no
+         AND oe-ordl.i-no    EQ tt-boll.i-no
+         AND oe-ordl.line    EQ tt-boll.LINE NO-ERROR.
        w2.i-no = "".
        IF i = 2 THEN 
-          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" else
-                             (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+          ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
+                             (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
                  w2.dscr = oe-ordl.i-name
                  w2.i-no = oe-ordl.i-no.
-       else if i eq 3 then 
+       ELSE IF i EQ 3 THEN 
            IF oe-ordl.part-dscr1 NE "" THEN 
               w2.dscr = oe-ordl.part-dscr1.
           ELSE w2.dscr = itemfg.part-dscr1.
-       ELSE if i eq 4 then 
+       ELSE IF i EQ 4 THEN 
            IF oe-ordl.part-dscr2 NE "" THEN 
               w2.dscr = oe-ordl.part-dscr2.
           ELSE w2.dscr = itemfg.part-dscr2.
-       ELSE if i eq 5 then 
+       ELSE IF i EQ 5 THEN 
            IF oe-ordl.part-dscr3 NE "" THEN 
               w2.dscr = oe-ordl.part-dscr3.
           ELSE w2.dscr = itemfg.part-dscr3.
     END.
-    IF w2.qty EQ 0 and w2.i-no EQ "" AND w2.dscr EQ "" AND /*NOT last(w2.cases)*/ w2.cases EQ 0 THEN .
+    IF w2.qty EQ 0 AND w2.i-no EQ "" AND w2.dscr EQ "" AND /*NOT last(w2.cases)*/ w2.cases EQ 0 THEN .
     ELSE DO:    
-       
+       ASSIGN icountpallet  = w2.cas-cnt * w2.cases .
        DISPLAY w2.i-no                       
-           trim(string(w2.qty,"->>,>>>,>>>")) WHEN i = 1 @ w2.i-no
+           TRIM(STRING(w2.qty,"->>,>>>,>>>")) WHEN i = 1 @ w2.i-no
             w2.job-po
             w2.dscr
-            w2.cases
-            w2.cas-cnt
-            v-tot-case-qty when first (w2.cases) @ tt-boll.qty
-            bf-ttboll.p-c  WHEN AVAIL bf-ttboll AND first(w2.cases) @ bf-ttboll.p-c                         
+            w2.unitcount @ w2.cases
+            icountpallet
+            w2.partial @  tt-boll.partial
+            v-tot-case-qty + w2.partial WHEN FIRST (w2.cases) @ tt-boll.qty
+            bf-ttboll.p-c  WHEN AVAILABLE bf-ttboll AND first(w2.cases) @ bf-ttboll.p-c                         
            /* 1  WHEN i = 2 AND bf-ttboll.partial > 0  @ w2.cases
             tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt */
-           with frame bol-mid.
+           WITH FRAME bol-mid.
        DOWN WITH FRAME bol-mid.       
        v-printline = v-printline + 1.
     END.
@@ -151,24 +156,23 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
     v-tot-cases = v-tot-cases + w2.cases.
 
     /*delete w2. */
-  end. /* each w2 */
+  END. /* each w2 */
 
-  put {1} skip(1).
+  PUT {1} SKIP(1).
   v-printline = v-printline + 1. 
-  tt-boll.printed = yes.
+  tt-boll.printed = YES.
   
-  if v-print-components AND itemfg.alloc NE YES then
-  for each fg-set
-      where fg-set.company eq cocode
-        and fg-set.set-no  eq tt-boll.i-no
-      no-lock,
+  IF v-print-components AND itemfg.alloc NE YES THEN
+  FOR EACH fg-set NO-LOCK
+      WHERE fg-set.company EQ cocode
+        AND fg-set.set-no  EQ tt-boll.i-no
+      ,
       
-      first b-itemfg
-      where b-itemfg.company eq cocode
-        and b-itemfg.i-no    eq fg-set.part-no
-      no-lock
+      FIRST b-itemfg NO-LOCK
+      WHERE b-itemfg.company EQ cocode
+        AND b-itemfg.i-no    EQ fg-set.part-no
       
-      break by fg-set.set-no:
+      BREAK BY fg-set.set-no:
       
     {sys/inc/part-qty.i v-part-qty fg-set}
 
@@ -178,38 +182,38 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
         {oe/rep/bolacpi.i}
     END.
 
-    display {1}
-            trim(string(oe-ordl.qty * v-part-qty,">>>,>>>,>>>")) 
+    DISPLAY {1}
+            TRIM(STRING(oe-ordl.qty * v-part-qty,">>>,>>>,>>>")) 
                                                     @ w2.i-no
             b-itemfg.part-no                        @ w2.dscr
             tt-boll.qty * v-part-qty                @ tt-boll.qty        
-        with frame bol-mid.
-    down {1} with frame bol-mid.
+        WITH FRAME bol-mid.
+    DOWN {1} WITH FRAME bol-mid.
     v-printline = v-printline + 1.
-    display {1}
+    DISPLAY {1}
             fg-set.part-no                          @ w2.i-no
             v-job-po     @ w2.job-po
             b-itemfg.i-name                         @ w2.dscr
-        with frame bol-mid.
-    down {1} with frame bol-mid.
+        WITH FRAME bol-mid.
+    DOWN {1} WITH FRAME bol-mid.
     
-    put {1} skip(1).
+    PUT {1} SKIP(1).
     v-printline = v-printline + 2.
-  end.
+  END.
 END. /* first-of(tt-boll.line) */
 END. /* ll-consol-bol */
 ELSE DO:
-find first oe-ordl
-      where oe-ordl.company eq cocode
-        and oe-ordl.ord-no  eq tt-boll.ord-no
-        and oe-ordl.i-no    eq tt-boll.i-no
-        and oe-ordl.line    eq tt-boll.line
-      no-lock no-error.
+FIND FIRST oe-ordl NO-LOCK
+      WHERE oe-ordl.company EQ cocode
+        AND oe-ordl.ord-no  EQ tt-boll.ord-no
+        AND oe-ordl.i-no    EQ tt-boll.i-no
+        AND oe-ordl.line    EQ tt-boll.line
+      NO-ERROR.
 
-  find first oe-ord
-      where oe-ord.company eq cocode
-        and oe-ord.ord-no  eq tt-boll.ord-no
-      no-lock no-error.
+  FIND FIRST oe-ord NO-LOCK
+      WHERE oe-ord.company EQ cocode
+        AND oe-ord.ord-no  EQ tt-boll.ord-no
+      NO-ERROR.
 
   IF v-printline >= 42 THEN DO:
         v-printline = 0.
@@ -217,108 +221,110 @@ find first oe-ordl
         {oe/rep/bolacpi.i}
   END.
 
-  if tt-boll.qty-case ne 0 and tt-boll.cases ne 0 then do:
-    find first w2 where w2.cas-cnt eq tt-boll.qty-case no-error.
-    if not avail w2 then create w2.
-    assign
+  IF tt-boll.qty-case NE 0 AND tt-boll.cases NE 0 THEN DO:
+    FIND FIRST w2 WHERE w2.cas-cnt EQ tt-boll.qty-case NO-ERROR.
+    IF NOT AVAILABLE w2 THEN CREATE w2.
+    ASSIGN
      w2.cas-cnt = tt-boll.qty-case
      w2.cases   = w2.cases + tt-boll.cases.
-  end.
+  END.
 
   v-lines = 0.
-  for each w2 break by w2.cases:
+  FOR EACH w2 BREAK BY w2.cases:
       v-lines = v-lines + 1.
-  end.
+  END.
   
-  do i = v-lines + 1 to 5:
-    assign
+  DO i = v-lines + 1 TO 5:
+    ASSIGN
      v-part-dscr = ""
      v-job-po    = "".
 
-    if i eq 1 then
-      assign
+    IF i EQ 1 THEN
+      ASSIGN
        v-part-dscr = oe-ordl.part-no
        v-job-po    = tt-boll.po-no.
 
-    else
-    if i eq 2 then
-      assign
+    ELSE
+    IF i EQ 2 THEN
+      ASSIGN
        v-part-dscr = oe-ordl.i-name
-       v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+       v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE
+                    (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
     
-    else
-    if i eq 3 then 
+    ELSE
+    IF i EQ 3 THEN 
          IF oe-ordl.part-dscr1 NE "" THEN 
               v-part-dscr = oe-ordl.part-dscr1.
           ELSE v-part-dscr = itemfg.part-dscr1.
 
-    else
-    if i eq 4 then
+    ELSE
+    IF i EQ 4 THEN
         IF oe-ordl.part-dscr2 NE "" THEN 
               v-part-dscr = oe-ordl.part-dscr2.
           ELSE v-part-dscr = itemfg.part-dscr2.
 
-    else
-    if i eq 5 then 
+    ELSE
+    IF i EQ 5 THEN 
         IF oe-ordl.part-dscr3 NE "" THEN 
               v-part-dscr = oe-ordl.part-dscr3.
           ELSE v-part-dscr = itemfg.part-dscr3.
         
-    if v-part-dscr ne "" or v-job-po ne "" or i le 2 then v-lines = v-lines + 1.
-  end.
+    IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 THEN v-lines = v-lines + 1.
+  END.
   
   ASSIGN
      v-lines = v-lines + 1
      i = 0.
 
-  for each w2 break by w2.cases:
+  FOR EACH w2 BREAK BY w2.cases:
 
     ASSIGN
        i = i + 1
        v-part-dscr = ""
        v-job-po    = "".
 
-    if i eq 1 then
-      assign
+    IF i EQ 1 THEN
+      ASSIGN
        v-part-dscr = oe-ordl.part-no
        v-job-po    = tt-boll.po-no.
 
-    else
-    if i eq 2 then
-      assign
+    ELSE
+    IF i EQ 2 THEN
+      ASSIGN
        v-part-dscr = oe-ordl.i-name
-       v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+       v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE
+                    (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
 
-    else if i eq 3 then 
+    ELSE IF i EQ 3 THEN 
         IF oe-ordl.part-dscr1 NE "" THEN 
               v-part-dscr = oe-ordl.part-dscr1.
           ELSE v-part-dscr = itemfg.part-dscr1.
 
-    ELSE if i eq 4 then 
+    ELSE IF i EQ 4 THEN 
         IF oe-ordl.part-dscr2 NE "" THEN 
               v-part-dscr = oe-ordl.part-dscr2.
           ELSE v-part-dscr = itemfg.part-dscr2.
 
-    ELSE if i eq 5 then 
+    ELSE IF i EQ 5 THEN 
         IF oe-ordl.part-dscr3 NE "" THEN 
               v-part-dscr = oe-ordl.part-dscr3.
           ELSE v-part-dscr = itemfg.part-dscr3.
 
-    DISPLAY trim(string(oe-ordl.qty,"->>,>>>,>>>")) when i eq 1
+     ASSIGN icountpallet = w2.cas-cnt *  w2.cases .
+    DISPLAY TRIM(STRING(oe-ordl.qty,"->>,>>>,>>>")) WHEN i EQ 1
                                                     @ oe-ordl.i-no
-            oe-ordl.i-no                            when i eq 2
+            oe-ordl.i-no                            WHEN i EQ 2
             v-job-po
             v-part-dscr
-            w2.cases
-            w2.cas-cnt
-            tt-boll.qty + tt-boll.partial when last(w2.cases) @ tt-boll.qty
-            tt-boll.p-c                   when last(w2.cases)                
-            1  WHEN i = 2 AND tt-boll.partial > 0  @ w2.cases
-            tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt
-        with frame bol-mid2.
-    down  with frame bol-mid2.
+            1 @ w2.cases
+            icountpallet 
+            tt-boll.partial
+            tt-boll.qty /*+ tt-boll.partial*/ WHEN LAST(w2.cases) @ tt-boll.qty
+            tt-boll.p-c                   WHEN LAST(w2.cases)                
+            /*1  WHEN i = 2 AND tt-boll.partial > 0  @ w2.cases
+            tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt*/
+        WITH FRAME bol-mid2.
+    DOWN  WITH FRAME bol-mid2.
     v-printline = v-printline + 1.
 
     IF v-printline >= 42 THEN DO:
@@ -328,78 +334,75 @@ find first oe-ordl
     END.
     v-tot-cases = v-tot-cases + w2.cases.
 
-    delete w2.
-  end. /* each w2 */
+    DELETE w2.
+  END. /* each w2 */
 
-  do i = i + 1 to 5:
-    clear frame bol-mid2 no-pause.
+  DO i = i + 1 TO 5:
+    CLEAR FRAME bol-mid2 NO-PAUSE.
 
-    assign
+    ASSIGN
      v-part-dscr = ""
      v-job-po    = "".
 
-    if i eq 1 then
-      assign
+    IF i EQ 1 THEN
+      ASSIGN
        v-part-dscr = oe-ordl.part-no
        v-job-po    = tt-boll.po-no.
 
-    else
-    if i eq 2 then
-      assign
+    ELSE
+    IF i EQ 2 THEN
+      ASSIGN
        v-part-dscr = oe-ordl.i-name
-       v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+       v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE
+                    (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
 
-    else
-    if i eq 3 then 
+    ELSE
+    IF i EQ 3 THEN 
         IF oe-ordl.part-dscr1 NE "" THEN 
               v-part-dscr = oe-ordl.part-dscr1.
           ELSE v-part-dscr = itemfg.part-dscr1.
 
-    else
-    if i eq 4 then 
+    ELSE
+    IF i EQ 4 THEN 
         IF oe-ordl.part-dscr2 NE "" THEN 
               v-part-dscr = oe-ordl.part-dscr2.
           ELSE v-part-dscr = itemfg.part-dscr2.
 
-    else
-    if i eq 5 then 
+    ELSE
+    IF i EQ 5 THEN 
         IF oe-ordl.part-dscr3 NE "" THEN 
               v-part-dscr = oe-ordl.part-dscr3.
           ELSE v-part-dscr = itemfg.part-dscr3.
     IF i = 2 AND v-job-po = "" THEN
-      v-job-po = if tt-boll.job-no eq "" then "" else
-                (trim(tt-boll.job-no) + "-" + string(tt-boll.job-no2,"99"))                 .
+      v-job-po = IF tt-boll.job-no EQ "" THEN "" ELSE
+                (TRIM(tt-boll.job-no) + "-" + string(tt-boll.job-no2,"99"))                 .
 
-    if v-part-dscr ne "" or v-job-po ne "" or i le 2 then do:
-      display {1}
-              oe-ordl.i-no                            when i eq 2
+    IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 THEN DO:
+      DISPLAY {1}
+              oe-ordl.i-no                            WHEN i EQ 2
               v-job-po
               v-part-dscr              
-              1  WHEN tt-boll.partial > 0  @ w2.cases
-              tt-boll.partial WHEN tt-boll.partial > 0 @ w2.cas-cnt
-              with frame bol-mid2.
-      down {1} with frame bol-mid2.
+             /* 1  WHEN tt-boll.partial > 0  @ w2.cases
+              tt-boll.partial WHEN tt-boll.partial > 0 @ w2.cas-cnt*/
+              WITH FRAME bol-mid2.
+      DOWN {1} WITH FRAME bol-mid2.
       v-printline = v-printline + 1.
-    end.
-  end.
+    END.
+  END.
   
-  put {1} skip(1).
+  PUT {1} SKIP(1).
   v-printline = v-printline + 1.
-  tt-boll.printed = yes.
+  tt-boll.printed = YES.
   
-  if v-print-components AND itemfg.alloc NE YES then
-  for each fg-set
-      where fg-set.company eq cocode
-        and fg-set.set-no  eq tt-boll.i-no
-      no-lock,
-      
-      first b-itemfg
-      where b-itemfg.company eq cocode
-        and b-itemfg.i-no    eq fg-set.part-no
-      no-lock
-      
-      break by fg-set.set-no:
+  IF v-print-components AND itemfg.alloc NE YES THEN
+  FOR EACH fg-set NO-LOCK
+      WHERE fg-set.company EQ cocode
+        AND fg-set.set-no  EQ tt-boll.i-no
+      ,
+      FIRST b-itemfg NO-LOCK
+      WHERE b-itemfg.company EQ cocode
+        AND b-itemfg.i-no    EQ fg-set.part-no
+      BREAK BY fg-set.set-no:
       
     {sys/inc/part-qty.i v-part-qty fg-set}
 
@@ -409,26 +412,26 @@ find first oe-ordl
         {oe/rep/bolacpi.i}
     END.
 
-    display {1}
-            trim(string(oe-ordl.qty * v-part-qty,">>>,>>>,>>>")) 
+    DISPLAY {1}
+            TRIM(STRING(oe-ordl.qty * v-part-qty,">>>,>>>,>>>")) 
                                                     @ oe-ordl.i-no
             b-itemfg.part-no                        @ v-part-dscr
             tt-boll.qty * v-part-qty                @ tt-boll.qty        
-        with frame bol-mid2.
-    down {1} with frame bol-mid2.
+        WITH FRAME bol-mid2.
+    DOWN {1} WITH FRAME bol-mid2.
     v-printline = v-printline + 1.
-    display {1}
+    DISPLAY {1}
             fg-set.part-no                          @ oe-ordl.i-no
             v-job-po
             b-itemfg.i-name                         @ v-part-dscr
-        with frame bol-mid2.
-    down {1} with frame bol-mid2.
+        WITH FRAME bol-mid2.
+    DOWN {1} WITH FRAME bol-mid2.
     
-    put {1} skip(1).
+    PUT {1} SKIP(1).
     v-printline = v-printline + 2.
-  end.
+  END.
 END. /* non consol-bol*/
-end. /* for each tt-boll */
+END. /* for each tt-boll */
 
 v-tot-wt = oe-bolh.tot-wt.
 

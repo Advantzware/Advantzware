@@ -18,6 +18,7 @@ DEF BUFFER bf-job-mch2 FOR job-mch.
 DEF BUFFER bf-job-mat FOR job-mat.
 DEF BUFFER bf-item FOR ITEM.
 DEF BUFFER bf-mach FOR mach.
+DEF BUFFER bff-item FOR ITEM.
 
 DEF VAR lv-n-up LIKE job-mat.n-up NO-UNDO.
 DEF VAR ld AS DEC NO-UNDO.
@@ -25,13 +26,19 @@ DEF VAR lInsufficientQty AS LOG NO-UNDO.
 DEF VAR lv-est-type LIKE est.est-type NO-UNDO.
 DEF VAR dNewSheetQty AS DECIMAL NO-UNDO.
 DEF VAR dNewSheetTotQty AS DECIMAL NO-UNDO.
+DEF VAR cRtnChar AS CHARACTER NO-UNDO.
+DEF VAR lRecFound AS LOGICAL NO-UNDO .
+DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRMino AS CHARACTER NO-UNDO .
+
 
 {cec/bestfitc.i SHARED}
 {sys/inc/f16to32.i}
-
+  
 FIND job-mat WHERE ROWID(job-mat) EQ io-rowid NO-LOCK NO-ERROR.
 
 io-rowid = ?.
+cRMino = IF AVAIL job-mat THEN job-mat.rm-i-no ELSE "" .
 
 IF AVAIL job-mat THEN
 FIND FIRST job NO-LOCK
@@ -62,8 +69,8 @@ IF AVAIL job THEN DO:
       WHERE xeb.company EQ xef.company
         AND xeb.est-no  EQ xef.est-no
         AND xeb.form-no EQ xef.form-no:
-
-    RUN cec/bestfitc.p ("", job-mat.qty * job-mat.n-up, job-mat.qty-uom, ipxRMINo).
+   
+    RUN cec/bestfitc.p ("", job-mat.qty * job-mat.n-up, job-mat.qty-uom, ipxRMINo, cRMino).
 
     FIND FIRST tt-ef NO-ERROR.
     FIND FIRST tt-eb NO-ERROR.

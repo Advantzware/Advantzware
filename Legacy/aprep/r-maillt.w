@@ -18,13 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "VR5" }
 END.
 
-IF SelectRptColumn-log THEN RUN aprep/r-mailltN.w.
-ELSE RUN aprep/r-mailltA.w.     
-
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN aprep/r-mailltN.w PERSISTENT.
+ELSE RUN aprep/r-mailltA.w PERSISTENT.     

@@ -19,9 +19,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "ER7" }
 END.
 
-IF SelectRptColumn-log THEN RUN cerep/r-prpmatN.w.
-ELSE RUN cerep/r-prpmatA.w.
-
-
-
-
+IF SelectRptColumn-log THEN RUN cerep/r-prpmatN.w PERSISTENT.
+ELSE RUN cerep/r-prpmatA.w PERSISTENT.

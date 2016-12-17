@@ -90,7 +90,7 @@ FUNCTION resourcePriority RETURNS INTEGER
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Include ASSIGN
-         HEIGHT             = 38.91
+         HEIGHT             = 35.33
          WIDTH              = 59.8.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -1225,16 +1225,18 @@ PROCEDURE newResource :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipWidget AS WIDGET-HANDLE NO-UNDO.
 
-  IF copy2Resource THEN
-  DO:
+  IF copy2Resource THEN DO:
     CREATE buffJob.
     BUFFER-COPY ttblJob TO buffJob.
   END.
+  FIND FIRST ttblResource
+       WHERE ttblResource.resource EQ newResourceWidget:NAME NO-ERROR.
   FIND CURRENT ttblJob EXCLUSIVE-LOCK.
   ASSIGN
     ttblJob.resource = newResourceWidget:NAME
     ttblJob.altResource = newResourceWidget:NAME
     ttblJob.resourceDescription = newResourceWidget:TOOLTIP
+    ttblJob.department = IF AVAIL(ttblResource) THEN ttblResource.department ELSE ''
     /*ttblJob.resourceSequence = 0*/
     newResourceWidget = ?
     copy2Resource = NO.
@@ -1308,15 +1310,20 @@ PROCEDURE pendingReturn :
   DEFINE INPUT PARAMETER ipJob AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opContinue AS LOGICAL NO-UNDO.
 
+  RUN {&prompts}/pendingReturn.w (ipJob,OUTPUT opContinue).
+  /*
   MESSAGE 'Return Job' ipJob 'to Pending?' VIEW-AS ALERT-BOX
     QUESTION BUTTONS YES-NO UPDATE opContinue.
+  */
   IF NOT opContinue THEN RETURN.
+  /*
   FOR EACH ttblJob EXCLUSIVE-LOCK WHERE ttblJob.job EQ ipJob:
     CREATE pendingJob.
     BUFFER-COPY ttblJob TO pendingJob
       ASSIGN pendingJob.origStartTime = ttblJob.timeSpan.
     DELETE ttblJob.
   END. /* each ttbljob */
+  */
   RUN setJobSequence.
   RUN buildBoard (NO).
 
@@ -1389,6 +1396,7 @@ PROCEDURE saveScenario :
       ttblJob.altResSeq
       ttblJob.resourceDescription
       ttblJob.altResource
+      ttblJob.department
       ttblJob.startDate
       ttblJob.startTime
       ttblJob.endDate
@@ -1402,6 +1410,26 @@ PROCEDURE saveScenario :
       ttblJob.jobCompleted
       ttblJob.rowIDs
       ttblJob.keyValue
+      ttblJob.udfField01
+      ttblJob.udfField02
+      ttblJob.udfField03
+      ttblJob.udfField04
+      ttblJob.udfField05
+      ttblJob.udfField06
+      ttblJob.udfField07
+      ttblJob.udfField08
+      ttblJob.udfField09
+      ttblJob.udfField10
+      ttblJob.udfField11
+      ttblJob.udfField12
+      ttblJob.udfField13
+      ttblJob.udfField14
+      ttblJob.udfField15
+      ttblJob.udfField16
+      ttblJob.udfField17
+      ttblJob.udfField18
+      ttblJob.udfField19
+      ttblJob.udfField20
       ttblJob.userField01
       ttblJob.userField02
       ttblJob.userField03
@@ -1482,6 +1510,24 @@ PROCEDURE saveScenario :
       ttblJob.userField78
       ttblJob.userField79
       ttblJob.userField80
+      ttblJob.userField81
+      ttblJob.userField82
+      ttblJob.userField83
+      ttblJob.userField84
+      ttblJob.userField85
+      ttblJob.userField86
+      ttblJob.userField87
+      ttblJob.userField88
+      ttblJob.userField89
+      ttblJob.userField90
+      ttblJob.userField91
+      ttblJob.userField92
+      ttblJob.userField93
+      ttblJob.userField94
+      ttblJob.userField95
+      ttblJob.userField96
+      ttblJob.userField97
+      ttblJob.userField98
       ttblJob.jobStatus
       ttblJob.statusTimeStamp
       ttblJob.liveUpdate

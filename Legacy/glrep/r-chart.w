@@ -18,11 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "GR1" }
 END.
 
-IF SelectRptColumn-log THEN RUN glrep/r-chartN.w.
-ELSE RUN glrep/r-chartA.w.     
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN glrep/r-chartN.w PERSISTENT.
+ELSE RUN glrep/r-chartA.w PERSISTENT.

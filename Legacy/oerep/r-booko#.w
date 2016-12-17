@@ -18,6 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "OR11" }
 END.
 
-IF SelectRptColumn-log THEN RUN oerep/r-booko#N.w.
-ELSE RUN oerep/r-booko#A.w.
-        
+IF SelectRptColumn-log THEN RUN oerep/r-booko#N.w PERSISTENT.
+ELSE RUN oerep/r-booko#A.w PERSISTENT.

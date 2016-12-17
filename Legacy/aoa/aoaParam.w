@@ -42,6 +42,7 @@ DEFINE INPUT PARAMETER ipcParamStr AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hParamFrame      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hAppSrv          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hAppSrvBin       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrinterFile     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrinterList     AS CHARACTER NO-UNDO.
@@ -65,8 +66,8 @@ DEFINE TEMP-TABLE ttParamValue NO-UNDO
         INDEX paramOrder IS PRIMARY paramOrder
     .
 
-RUN aoa\appServer\aoaBin.p PERSISTENT SET hAppSrv.
-SESSION:ADD-SUPER-PROCEDURE (hAppSrv).
+RUN aoa\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
+SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
 
 DEFINE BUFFER bUserPrint FOR user-print.
 
@@ -374,23 +375,6 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 149 BY 18.05.
 
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
-     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
-     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
-     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 40 BY 10.48
-         TITLE "Show/Hide Sections" WIDGET-ID 300.
-
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
      btnDefault AT ROW 1.71 COL 32 HELP
@@ -413,6 +397,23 @@ DEFINE FRAME frameColumns
          AT COL 82 ROW 1
          SIZE 67 BY 10.48
          TITLE "Report Columns" WIDGET-ID 200.
+
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
+     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
+     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 40 BY 10.48
+         TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -650,11 +651,6 @@ ON WINDOW-CLOSE OF W-Win /* AdvantzwareOA */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  
-  IF VALID-HANDLE(hAppSrv) THEN DO:
-      DELETE OBJECT hAppSrv.
-  END. /* valid happsrv */
-
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -707,6 +703,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel W-Win
 ON CHOOSE OF btnCancel IN FRAME paramFrame /* Cancel */
 DO:
+    IF VALID-HANDLE(hAppSrvBin) THEN DELETE OBJECT hAppSrvBin.
+    IF VALID-HANDLE(hAppSrv)    THEN DELETE OBJECT hAppSrv.
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
 END.
@@ -1487,6 +1485,7 @@ PROCEDURE pExcel :
         DELETE OBJECT hQuery.
 
         /* calc header and data */
+        IF iRow GT 0 THEN
         ASSIGN
             chRangeRow = chWorkSheet:Cells(iStatusRow - 2,1)
             chRangeCol = chWorkSheet:Cells(iRow,svSelectedColumns:NUM-ITEMS)

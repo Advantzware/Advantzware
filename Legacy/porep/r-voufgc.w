@@ -18,19 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "PR11" }
 END.
 
-IF SelectRptColumn-log THEN RUN porep/r-voufgcN.w.
-ELSE RUN porep/r-voufgcA.w.     
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN porep/r-voufgcN.w PERSISTENT.
+ELSE RUN porep/r-voufgcA.w PERSISTENT.

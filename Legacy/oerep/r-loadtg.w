@@ -6417,24 +6417,42 @@ PROCEDURE new-cas-lab :
           NO-LOCK NO-ERROR.
       IF AVAIL loadtag THEN DO:
 
-        ASSIGN
-         fi_cas-lab:SCREEN-VALUE   = loadtag.tag-no
-         begin_ord-no:SCREEN-VALUE = STRING(loadtag.ord-no)
-         end_ord-no:SCREEN-VALUE   = STRING(loadtag.ord-no)
-         begin_job:SCREEN-VALUE    = loadtag.job-no
-         end_job:SCREEN-VALUE      = loadtag.job-no
-         begin_job2:SCREEN-VALUE   = STRING(loadtag.job-no2)
-         end_job2:SCREEN-VALUE     = STRING(loadtag.job-no2)
-         begin_i-no:SCREEN-VALUE   = loadtag.i-no
-         end_i-no:SCREEN-VALUE     = loadtag.i-no.
+          FIND FIRST oe-ord NO-LOCK
+          WHERE oe-ord.company EQ loadtag.company
+            AND oe-ord.ord-no  EQ loadtag.ord-no
+            AND oe-ord.job-no  EQ loadtag.job-no
+            AND oe-ord.job-no2 EQ loadtag.job-no2
+            AND oe-ord.ord-no GE 0
+            NO-ERROR.
+        
+         IF AVAIL oe-ord THEN do:
+            ASSIGN
+             begin_ord-no:SCREEN-VALUE = STRING(loadtag.ord-no)
+             end_ord-no:SCREEN-VALUE   = STRING(loadtag.ord-no).
+          END.
+          ELSE
+            ASSIGN
+             begin_ord-no:SCREEN-VALUE = ""
+             end_ord-no:SCREEN-VALUE   = ""
+              .
 
-
-        RUN cas-lab-label-mat-file.
-
-        RUN checkReturns.
-        IF RETURN-VALUE EQ 'ERROR' THEN RETURN 'ERROR'.
-        IF tb_ret:SCREEN-VALUE EQ "NO" THEN
-        RUN ok-button.
+            ASSIGN
+             fi_cas-lab:SCREEN-VALUE   = loadtag.tag-no
+             begin_job:SCREEN-VALUE    = loadtag.job-no
+             end_job:SCREEN-VALUE      = loadtag.job-no
+             begin_job2:SCREEN-VALUE   = STRING(loadtag.job-no2)
+             end_job2:SCREEN-VALUE     = STRING(loadtag.job-no2)
+             begin_i-no:SCREEN-VALUE   = loadtag.i-no
+             end_i-no:SCREEN-VALUE     = loadtag.i-no.
+        
+        
+            RUN cas-lab-label-mat-file.
+        
+            RUN checkReturns.
+            IF RETURN-VALUE EQ 'ERROR' THEN RETURN 'ERROR'.
+            IF tb_ret:SCREEN-VALUE EQ "NO" THEN
+            RUN ok-button.
+         
       END.
       ELSE IF tb_reprint-tag THEN DO: /* task# 09200517*/
            FIND FIRST loadtag WHERE loadtag.company     EQ cocode

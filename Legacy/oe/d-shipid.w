@@ -330,7 +330,7 @@ PROCEDURE setup-ship-from :
 
       /* If the ship from value given in the input parameter is on the users */
       /* list, then default to it */
-      IF LOOKUP(op-ship-from, cLocList) GT 0 THEN
+      IF LOOKUP(op-ship-from, cLocList) GT 0 AND op-ship-from NE "" THEN
         ASSIGN liNumUsrx = 1
                lcLastValue = op-ship-from.
       IF liNumUsrx EQ 1 THEN

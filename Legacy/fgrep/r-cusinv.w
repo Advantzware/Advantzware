@@ -18,7 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IL12" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-cusinvN.w.
-ELSE RUN fgrep/r-cusinvA.w.     
-        
-
+IF SelectRptColumn-log THEN RUN fgrep/r-cusinvN.w PERSISTENT.
+ELSE RUN fgrep/r-cusinvA.w PERSISTENT.

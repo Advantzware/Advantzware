@@ -18,12 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IR7" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-custgN.w.
-ELSE RUN fgrep/r-custgA.w.     
-        
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN fgrep/r-custgN.w PERSISTENT.
+ELSE RUN fgrep/r-custgA.w PERSISTENT.

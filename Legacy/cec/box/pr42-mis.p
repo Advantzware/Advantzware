@@ -100,8 +100,8 @@ for each xef where xef.company = xest.company
                  v-mat-cost       format ">>>>>9.99" to 45
                  v-lab-cost       format ">>>>>9.99" to 55
                  xef.mis-simon[i] format "X" to 59
-                 xef.mis-mkup[i]  to 69
-                 mis-tot[5] + mis-tot[6] to 80 format ">>>,>>9.99" skip with stream-io.
+                 xef.mis-mkup[i]  to 71
+                 mis-tot[5] + mis-tot[6] to 80 format ">>>>>9.99" skip with stream-io.
       end.
    end.
 end.

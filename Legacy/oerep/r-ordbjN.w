@@ -62,6 +62,7 @@ DEFINE VAR job-qty-rcvd AS INT NO-UNDO.
 DEFINE VAR lJob-open AS LOG NO-UNDO.
 DEF VAR qoh AS INT NO-UNDO.
 DEF VAR qprod AS INT NO-UNDO.
+DEF VAR li-qoh AS INTEGER NO-UNDO.
 
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD q-onh  LIKE itemfg.q-onh
@@ -185,8 +186,22 @@ FUNCTION shipQty RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-bal C-Win 
+FUNCTION get-bal RETURNS INTEGER
+    (OUTPUT op-qoh AS INTEGER)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD wipQty C-Win 
 FUNCTION wipQty RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-wip C-Win 
+FUNCTION get-wip RETURNS INTEGER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2649,5 +2664,72 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-bal B-table-Win 
+FUNCTION get-bal RETURNS INTEGER
+  (OUTPUT op-qoh AS INTEGER) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE iTotalJobOnHandQty AS INTEGER     NO-UNDO.
+DEFINE BUFFER bf-job-hdr FOR job-hdr .
+/*   IF AVAIL oe-ordl AND oe-ordl.job-no NE "" THEN */
+
+    FOR EACH bf-job-hdr FIELDS(company job-no job-no2 i-no)
+        WHERE bf-job-hdr.company EQ cocode
+        AND bf-job-hdr.ord-no EQ oe-ordl.ord-no 
+        AND bf-job-hdr.i-no EQ oe-ordl.i-no
+        USE-INDEX ord-no
+        NO-LOCK
+        BREAK BY bf-job-hdr.job-no BY bf-job-hdr.job-no2 BY bf-job-hdr.i-no:
+        IF LAST-OF(bf-job-hdr.i-no) THEN 
+        DO:    
+            FOR EACH fg-bin FIELDS (qty)
+                WHERE fg-bin.company EQ bf-job-hdr.company
+                AND fg-bin.job-no  EQ bf-job-hdr.job-no
+                AND fg-bin.job-no2 EQ bf-job-hdr.job-no2
+                AND fg-bin.i-no    EQ bf-job-hdr.i-no
+                NO-LOCK:
+                iTotalJobOnHandQty = iTotalJobOnHandQty + fg-bin.qty.
+            END.
+        END.
+    END.
+    op-qoh = iTotalJobOnHandQty.
+RETURN iTotalJobOnHandQty.    /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-wip B-table-Win 
+FUNCTION get-wip RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE rtnValue AS INTEGER NO-UNDO.
+
+  DEF BUFFER b-oe-ordl FOR oe-ordl.
+
+
+  FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) NO-LOCK NO-ERROR.
+
+  rtnValue = oe-ordl.qty - (get-bal(li-qoh) + oe-ordl.ship-qty).
+  IF rtnValue LT 0 OR
+     rtnValue LT oe-ordl.qty * b-oe-ordl.under-pct / 100 THEN
+  rtnValue = 0.
+  RETURN rtnValue.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 

@@ -35,9 +35,9 @@ for each xef where xef.company = xest.company
                  xef.spec-dscr[i] s-qty[i] to 50 space(1)
                  e-item.std-uom when available e-item
                  item.cons-uom when not available e-item @ e-item.std-uom
-                 lv-setup-spe when lv-setup-spe ne 0 format ">>>9.99" to 61
-                 s-cost[i] / (t-blkqty[xef.form-no] / 1000) format ">>>>9.99" to 69
-                 s-cost[i] to 80 format ">>>,>>9.99" skip with stream-io.
+                 lv-setup-spe when lv-setup-spe ne 0 format ">>>9.99" to 63
+                 s-cost[i] / (t-blkqty[xef.form-no] / 1000) format ">>>>9.99" to 71
+                 s-cost[i] to 80 format ">>>>>9.99" skip with stream-io.
          lin-count = lin-count + 1.
       end.
    end.

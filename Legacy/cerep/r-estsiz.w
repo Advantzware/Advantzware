@@ -19,8 +19,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "ER8" }
 END.
 
-IF SelectRptColumn-log THEN RUN cerep/r-estsizN.w.
-ELSE RUN cerep/r-estsizA.w.
-
-
-
+IF SelectRptColumn-log THEN RUN cerep/r-estsizN.w PERSISTENT.
+ELSE RUN cerep/r-estsizA.w PERSISTENT.

@@ -19,7 +19,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "GR9" }
 END.
 
-IF SelectRptColumn-log THEN RUN gl/r-gljrnN.w(ip-post).
-ELSE RUN gl/r-gljrnA.w(ip-post).     
-
-
+IF SelectRptColumn-log THEN RUN gl/r-gljrnN.w PERSISTENT (ip-post).
+ELSE RUN gl/r-gljrnA.w PERSISTENT (ip-post).

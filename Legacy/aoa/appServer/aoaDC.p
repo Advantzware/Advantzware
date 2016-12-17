@@ -110,50 +110,6 @@ FUNCTION fProductionAnalysis RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FOR
 &ANALYZE-RESUME
 
 
-/* **********************  Internal Procedures  *********************** */
-
-&IF DEFINED(EXCLUDE-pMachineProductivity) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMachineProductivity Procedure 
-PROCEDURE pMachineProductivity :
-/*------------------------------------------------------------------------------
-  Purpose:     Machine Productivity.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/machprod.p (OUTPUT TABLE ttMachineProductivity, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pProductionAnalysis) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProductionAnalysis Procedure 
-PROCEDURE pProductionAnalysis :
-/*------------------------------------------------------------------------------
-  Purpose:     Production Analysis.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/r-prodlys.p (OUTPUT TABLE ttProductionAnalysis, ipcCompany, ipiBatch, ipcUserID).
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
@@ -192,7 +148,8 @@ FUNCTION fMachineProductivity RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttProductionAnalysis.
     EMPTY TEMP-TABLE ttMachineProductivity.
 
-    RUN pMachineProductivity (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/machprod.p (OUTPUT TABLE ttMachineProductivity, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttMachineProductivity:HANDLE .
 
@@ -213,7 +170,8 @@ FUNCTION fProductionAnalysis RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttProductionAnalysis.
 
-    RUN pProductionAnalysis (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/r-prodlys.p (OUTPUT TABLE ttProductionAnalysis, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttProductionAnalysis:HANDLE .
 

@@ -21,6 +21,8 @@
 
 {schedule/scopDir.i}
 {{&loads}/loadPro.i}
+{UDF/ttUDF.i}
+{UDF/fUDFGroup.i "sbPro."}
 
 /* configuration vars */
 {{&includes}/configVars.i}
@@ -90,7 +92,7 @@ FUNCTION fDueQty RETURNS CHARACTER (ipiRunQty AS INTEGER,ipiProdQty AS INTEGER,
 
     IF dDueQty LT 0 THEN dDueQty = 0.
     
-    RETURN LEFT-TRIM(STRING(dDueQty,'zzz,zzz,zz9')).
+    RETURN LEFT-TRIM(STRING(dDueQty,'-zzz,zzz,zz9')).
 END FUNCTION.
 
 FUNCTION getItemName RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARACTER,
@@ -201,7 +203,7 @@ FUNCTION prodQty RETURNS CHARACTER (ipCompany AS CHARACTER,ipResource AS CHARACT
   PUT UNFORMATTED 'Function prodQty @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
   
   RUN VALUE(ipProdQtyProgram) (ipCompany,ipResource,ipJobNo,ipJobNo2,ipFrm,ipBlankNo,ipPass,OUTPUT prodQty).
-  RETURN LEFT-TRIM(STRING(prodQty,'zzz,zzz,zz9')).
+  RETURN LEFT-TRIM(STRING(prodQty,'-zzz,zzz,zz9')).
 END FUNCTION.
 
 FUNCTION setUserField RETURNS CHARACTER (ipIdx AS INTEGER, ipValue AS CHARACTER):
@@ -413,18 +415,18 @@ END FUNCTION.
 
 FUNCTION noDate RETURN LOGICAL (ipCompany AS CHARACTER):
   RETURN CAN-FIND(FIRST sys-ctrl NO-LOCK
-                  WHERE sys-ctrl.company EQ ipCompany
-                    AND sys-ctrl.name EQ 'Schedule'
+                  WHERE sys-ctrl.company  EQ ipCompany
+                    AND sys-ctrl.name     EQ 'Schedule'
                     AND sys-ctrl.char-fld EQ 'NoDate'
-                    AND sys-ctrl.int-fld EQ 0
-                    AND sys-ctrl.log-fld EQ YES).
+                    AND sys-ctrl.int-fld  EQ 0
+                    AND sys-ctrl.log-fld  EQ YES).
 END FUNCTION.
 
 IF VALID-HANDLE(ipContainerHandle) THEN DO:
     RUN asiCommaList IN ipContainerHandle ('Company',OUTPUT asiCompany).
     RUN asiCommaList IN ipContainerHandle ('Location',OUTPUT asiLocation).
 END.
-IF asiCompany EQ '' THEN asiCompany = '001'.
+IF asiCompany  EQ '' THEN asiCompany  = '001'.
 IF asiLocation EQ '' THEN asiLocation = 'Main'.
 
 ASSIGN
@@ -623,6 +625,7 @@ FOR EACH job-hdr NO-LOCK
       timeSpan = calcJobTime(job-mch.mr-hr,job-mch.run-hr)
       unitFound = NO
       userField = ''
+      udfField  = ''
       .
   
     /* surely, jobs shouldn't be this old, if any, move to pending */
@@ -882,6 +885,7 @@ FOR EACH job-hdr NO-LOCK
     END. /* not salesrepfound */
 
     IF ufItemFG THEN DO:
+      EMPTY TEMP-TABLE ttUDF.
       RELEASE itemfg.
       IF job-mch.i-no NE '' THEN
       FIND FIRST itemfg NO-LOCK
@@ -891,6 +895,22 @@ FOR EACH job-hdr NO-LOCK
       FIND FIRST itemfg NO-LOCK
            WHERE itemfg.company EQ job-hdr.company
              AND itemfg.i-no EQ job-hdr.i-no NO-ERROR.
+      IF AVAILABLE itemfg AND cUDFGroup NE ? THEN DO:
+          IF CAN-FIND(FIRST mfvalues
+                      WHERE mfvalues.rec_key EQ itemfg.rec_key) THEN
+          RUN UDF/UDF.p (cUDFGroup, itemfg.rec_key, OUTPUT TABLE ttUDF).
+          FOR EACH ttUDF
+              WHERE ttUDF.udfOrder   GT 0
+                AND ttUDF.udfSBField GT 0
+              :
+              ASSIGN
+                  udfField[ttUDF.udfSBField] = ttUDF.udfValue
+                  udfLabel[ttUDF.udfSBField] = IF ttUDF.udfColLabel NE "" THEN ttUDF.udfColLabel
+                                               ELSE ttUDF.udfID
+                  udfWidth[ttUDF.udfSBField] = MAX(20,LENGTH(udfLabel[ttUDF.udfSBField]))
+                  .
+          END. /* each ttudf */
+      END. /* cUDFGroup */
     END. /* if ufitemfg */
 
     IF traceON THEN
@@ -1384,6 +1404,7 @@ END PROCEDURE.
 PROCEDURE colCheck:
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE notUsed AS CHARACTER NO-UNDO INITIAL 'Not Used'.
+  DEFINE VARIABLE unused  AS CHARACTER NO-UNDO INITIAL 'Unused'.
 
   CREATE colCheck.
   ASSIGN colCheck.fld1 = 'Seq' colCheck.fld2 = 'jobSequence'
@@ -1529,6 +1550,12 @@ PROCEDURE colCheck:
     CREATE colCheck.
     ASSIGN colCheck.fld1 = notUsed colCheck.fld2 = 'userField' + STRING(i,'99')
            colCheck.fld3 = notUsed colCheck.fld4 = 'userField' + STRING(i,'99').
+  END. /* do i */
+  /* add 12.12.2016 to ttblJob */
+  DO i = 1 TO {&udfExtent}:
+    CREATE colCheck.
+    ASSIGN colCheck.fld1 = unused colCheck.fld2 = 'udfField' + STRING(i,'99')
+           colCheck.fld3 = udfLabel[i] colCheck.fld4 = 'udfField' + STRING(i,'99').
   END. /* do i */
   /* added 6.20.2006 to ttblJob */
   CREATE colCheck.
@@ -1714,6 +1741,8 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[83] = 'Job Status'      userWidth[83] = 12
     userLabel[84] = 'Total Price'     userWidth[84] = 20
     userLabel[85] = 'Due Qty'         userWidth[85] = 12
+    userLabel[86] = 'UnderRun%'       userWidth[86] = 10
+    userLabel[87] = 'OverRun%'        userWidth[87] = 10
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */

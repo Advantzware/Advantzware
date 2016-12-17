@@ -47,7 +47,7 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Select_list Select_frac Select_dept ~
-Select_spec Select_appl Select_help Select_Home 
+Select_spec Select_appl Select_help UDF 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -85,7 +85,7 @@ DEFINE BUTTON Select_help
      LABEL "Help" 
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
-DEFINE BUTTON Select_Home 
+DEFINE BUTTON UDF 
      IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Home" 
@@ -113,7 +113,7 @@ DEFINE FRAME F-Main
      Select_spec AT ROW 1 COL 9
      Select_appl AT ROW 1 COL 17
      Select_help AT ROW 1 COL 25
-     Select_Home AT ROW 1 COL 33
+     UDF AT ROW 1 COL 33
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -237,9 +237,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Select_Home
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_Home s-object
-ON CHOOSE OF Select_Home IN FRAME F-Main /* Home */
+&Scoped-define SELF-NAME UDF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
+ON CHOOSE OF UDF IN FRAME F-Main /* Home */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 END.

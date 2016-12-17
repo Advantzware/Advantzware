@@ -32,6 +32,7 @@
 
 /* Open Order Report.rpa */
 {aoa/tempTable/ttOpenOrderReport.i}
+{aoa/tempTable/ttOpenOrderReportDetail.i}
 
 /* Orders Booked By Order No.rpa */
 {aoa/tempTable/ttOrdersBookedByOrderNo.i}
@@ -96,6 +97,16 @@ FUNCTION fInvoicePostUpdateGL RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FO
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOpenOrderReport Procedure 
 FUNCTION fOpenOrderReport RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fOpenOrderReportDetail) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOpenOrderReportDetail Procedure 
+FUNCTION fOpenOrderReportDetail RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -188,176 +199,6 @@ FUNCTION fRecapProductCategory RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  F
 &ANALYZE-RESUME
 
 
-/* **********************  Internal Procedures  *********************** */
-
-&IF DEFINED(EXCLUDE-pBOLPackingList) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBOLPackingList Procedure 
-PROCEDURE pBOLPackingList :
-/*------------------------------------------------------------------------------
-  Purpose:     BOL Packing List.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/bolpcklst.p (OUTPUT TABLE ttBOLPackingList, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pInvoicePostUpdateGL) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInvoicePostUpdateGL Procedure 
-PROCEDURE pInvoicePostUpdateGL :
-/*------------------------------------------------------------------------------
-  Purpose:     Invoice Post Update GL.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/r-inve&pb.p (OUTPUT TABLE ttInvoicePostUpdateGL, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pOpenOrderReport) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOpenOrderReport Procedure 
-PROCEDURE pOpenOrderReport :
-/*------------------------------------------------------------------------------
-  Purpose:     Open Order Report.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/r-ordopn.p (OUTPUT TABLE ttOpenOrderReport, ipcCompany, ipiBatch, ipcUserID).
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pOrderAcknowledgements) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOrderAcknowledgements Procedure 
-PROCEDURE pOrderAcknowledgements :
-/*------------------------------------------------------------------------------
-  Purpose:     Order Acknowledgements.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/orderack.p (OUTPUT TABLE ttOrderAcknowledgements, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pOrdersBooked) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOrdersBooked Procedure 
-PROCEDURE pOrdersBooked :
-/*------------------------------------------------------------------------------
-Purpose:     Orders Booked.rpa
-Parameters:  Company, Batch Seq, User ID
-Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/r-booked.p (OUTPUT TABLE ttOrdersBooked, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pOrdersBookedByOrderNo) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOrdersBookedByOrderNo Procedure 
-PROCEDURE pOrdersBookedByOrderNo :
-/*------------------------------------------------------------------------------
-Purpose:     Orders Booked by Order No.rpa
-Parameters:  Company, Batch Seq, User ID
-Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/r-booko#.p (OUTPUT TABLE ttOrdersBookedByOrderNo, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pPostBOLCreateInvoice) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostBOLCreateInvoice Procedure 
-PROCEDURE pPostBOLCreateInvoice :
-/*------------------------------------------------------------------------------
-  Purpose:     Post BOL Create Invoice.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/r-bolpst.p (OUTPUT TABLE ttPostBOLCreateInvoice, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pRecapProductCategory) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRecapProductCategory Procedure 
-PROCEDURE pRecapProductCategory :
-/*------------------------------------------------------------------------------
-Purpose:     Recap Product Category.rpa
-Parameters:  Company, Batch Seq, User ID
-Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/recappc.p (OUTPUT TABLE ttRecapProductCategory, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fBOLPackingList) = 0 &THEN
@@ -370,7 +211,8 @@ FUNCTION fBOLPackingList RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttBOLPackingList.
 
-    RUN pBOLPackingList (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/bolpcklst.p (OUTPUT TABLE ttBOLPackingList, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttBOLPackingList:HANDLE .
 
@@ -434,7 +276,8 @@ Notes:
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttInvoicePostUpdateGL.
     
-    RUN pInvoicePostUpdateGL (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/r-inve&pb.p (OUTPUT TABLE ttInvoicePostUpdateGL, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttInvoicePostUpdateGL:HANDLE .
 
@@ -450,14 +293,41 @@ END FUNCTION.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOpenOrderReport Procedure 
 FUNCTION fOpenOrderReport RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
 /*------------------------------------------------------------------------------
-Purpose:  Open Order  Report.rpa
+Purpose:  Open Order Report.rpa
 Notes:  
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttOpenOrderReport.
+    EMPTY TEMP-TABLE ttOpenOrderReportDetail.
     
-    RUN pOpenOrderReport (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/r-ordopn.p (OUTPUT TABLE ttOpenOrderReport,
+                           OUTPUT TABLE ttOpenOrderReportDetail,
+                           ipcCompany, ipiBatch, ipcUserID
+                           ).
     
-    RETURN TEMP-TABLE ttOpenOrderReport:HANDLE .
+    RETURN TEMP-TABLE ttOpenOrderReport:HANDLE.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fOpenOrderReportDetail) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOpenOrderReportDetail Procedure 
+FUNCTION fOpenOrderReportDetail RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+Purpose:  Open Order Report Detail.rpa
+Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttOpenOrderReportDetail.
+    
+    /* subject business logic */
+    RUN aoa/BL/r-ordopnDetail.p (OUTPUT TABLE ttOpenOrderReportDetail, ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttOpenOrderReportDetail:HANDLE.
 
 END FUNCTION.
 
@@ -476,7 +346,8 @@ Notes:
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttOrderAcknowledgements.
     
-    RUN pOrderAcknowledgements (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/orderack.p (OUTPUT TABLE ttOrderAcknowledgements, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttOrderAcknowledgements:HANDLE .
 
@@ -498,7 +369,8 @@ Notes:
     EMPTY TEMP-TABLE ttOrdersBooked.
     EMPTY TEMP-TABLE ttRecapProductCategory.
 
-    RUN pOrdersBooked (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/r-booked.p (OUTPUT TABLE ttOrdersBooked, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttOrdersBooked:HANDLE .
 
@@ -519,7 +391,8 @@ Notes:
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttOrdersBookedByOrderNo.
     
-    RUN pOrdersBookedByOrderNo (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/r-booko#.p (OUTPUT TABLE ttOrdersBookedByOrderNo, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttOrdersBookedByOrderNo:HANDLE .
 
@@ -540,7 +413,8 @@ Notes:
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttPostBOLCreateInvoice.
     
-    RUN pPostBOLCreateInvoice (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/r-bolpst.p (OUTPUT TABLE ttPostBOLCreateInvoice, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttPostBOLCreateInvoice:HANDLE.
 
@@ -562,7 +436,8 @@ Notes:
     EMPTY TEMP-TABLE ttOrdersBooked.
     EMPTY TEMP-TABLE ttRecapProductCategory.
     
-    RUN pRecapProductCategory (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/recappc.p (OUTPUT TABLE ttRecapProductCategory, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttRecapProductCategory:HANDLE .
 

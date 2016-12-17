@@ -95,6 +95,10 @@
 &SCOPED-DEFINE keyValue ''
 &ENDIF
 
+&IF DEFINED(udfField) EQ 0 &THEN
+&SCOPED-DEFINE udfField udfField
+&ENDIF
+
 &IF DEFINED(userField) EQ 0 &THEN
 &SCOPED-DEFINE userField userField
 &ENDIF
@@ -140,9 +144,11 @@ EXPORT STREAM {&streamName}
   {&completed}
   {&strRowID}
   {&keyValue}
+  {&udfField}
   {&userField}
   {&jobStatus}
   {&statusTimeStamp}
   {&liveUpdate}
   {&lagTime}
-  {&jobToolTip}.
+  {&jobToolTip}
+  .

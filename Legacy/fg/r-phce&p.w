@@ -18,6 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IC3" }
 END.
 
-IF SelectRptColumn-log THEN RUN fg\r-phce&pN.w.
-ELSE RUN fg\r-phce&pA.w.     
-        
+IF SelectRptColumn-log THEN RUN fg\r-phce&pN.w PERSISTENT.
+ELSE RUN fg\r-phce&pA.w PERSISTENT.

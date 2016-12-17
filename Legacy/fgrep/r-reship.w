@@ -18,12 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IL9" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-reshipN.w.
-ELSE RUN fgrep/r-reshipA.w.     
-
-   
-        
-
-
-
-
+IF SelectRptColumn-log THEN RUN fgrep/r-reshipN.w PERSISTENT.
+ELSE RUN fgrep/r-reshipA.w PERSISTENT.

@@ -816,7 +816,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
       end.  /* for each xef */
       /* if line-counter > 40 then page.  ??? */
 
-      put "Materials                 Weight Caliper    QTY/Unit    MR $  Matl$/M    TOTAL" skip.
+      put "Materials                 Weight Caliper    QTY/Unit      MR $  Matl$/M   TOTAL" skip.
       assign dm-tot-3  = 0
              dm-tot-4  = 0
              dm-tot-5  = 0
@@ -854,29 +854,29 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
       ASSIGN
        v-brd-cost = v-brd-cost + dm-tot[5]
        ld-board   = dm-tot[5].
-
+   
       /* adders           */
       run cec/box/pr42-add.p (v-vend-list).
-
+   
       FIND CURRENT probe-board NO-ERROR.
       
       IF AVAIL probe-board THEN
          probe-board.val[1] = probe-board.val[1] + dm-tot[5].
 
       FIND CURRENT probe-board NO-LOCK NO-ERROR.
-
+   
       /* i n k s          */
       run cec/box/pr42-ink.p (v-vend-no, INPUT TABLE tt-all-forms-ink).
-
+  
       /* films            */
       run cec/box/pr42-flm.p (v-vend-no).
-
+  
       /* case/tray/pallet */
       run cec/box/pr42-cas.p (v-vend-no).
-
+   
       /* special          */
       run cec/box/pr42-spe.p (v-vend-no).
-
+   
      for each blk where blk.snum eq ef.form-no or (not vmclean2),
          first xeb where xeb.company eq xest.company 
                      and xeb.est-no eq xest.est-no
@@ -903,10 +903,10 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
 
       /* prep             */
       run cec/box/pr42-prp.p.
-
+   
       /* misc.            */
       run cec/box/pr42-mis.p.
-
+   
       x = 2.
       for each est-op where est-op.company = xest.company 
                         and est-op.est-no eq xest.est-no
@@ -938,7 +938,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
       else /* if opsys eq "MSDOS" then */
          /*dos silent copy value(outfile1) value(outfile3).*/
          OS-COPY value(outfile1) value(outfile3).
-         
+
       assign   v-tt-tot[v-form-no]   = tt-tot
                v-fac-tot[v-form-no]  = fac-tot
                v-ord-cost[v-form-no] = ord-cost.

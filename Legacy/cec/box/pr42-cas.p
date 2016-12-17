@@ -151,11 +151,11 @@ for each cas where cas.typ = 1 by cas.snum by cas.bnum with no-labels no-box:
            item.i-name format "x(20)"
            (zzz / cas.qty) format ">>>>9" "Pieces/BDL"
            cas.qty format ">>>>>9" to 50 "BDL"
-           v-setup when v-setup ne 0 format ">>>>9.99" to 61
-           cas.cosm to 69 format ">>,>>9.99"
-           cas.cost to 80 format ">>>,>>9.99" skip
+           v-setup when v-setup ne 0 format ">>>>9.99" to 63
+           cas.cosm to 71 format ">>>>9.99"
+           cas.cost to 80 format ">>>>>9.99" /*skip*/
        with stream-io.
-
+                         
    ASSIGN
       zzz = 0
       yyy = cas.qty.   /* Used in pallets */
@@ -257,10 +257,10 @@ for each cas where cas.typ = 2 by cas.snum by cas.bnum with no-labels no-box:
 
    display string(cas.snum,"99") + "-" + string(cas.bnum,"9") format "x(4)"
            item.i-name cas.qty format ">>>>>9" to 50 "Tr"
-           v-setup when v-setup ne 0 format ">>>>9.99" to 61
-           cas.cosm to 69 format ">>,>>9.99" 
-           cas.cost to 80 format ">>>,>>9.99" skip
-       with stream-io.
+           v-setup when v-setup ne 0 format ">>>>9.99" to 63
+           cas.cosm to 71 format ">>,>>9.99" 
+           cas.cost to 80 format ">>>,>>9.99" /*skip*/
+       with stream-io.   
 end.
 
 /**************** P A L L E T S *************************/
@@ -381,11 +381,11 @@ for each cas where cas.typ = 3 by cas.snum by cas.bnum with no-labels no-box:
               v-pck-code when avail xcas
               space(0)
               cas.qty format ">>>>>9" to 50 "Pal"
-              v-setup when v-setup ne 0 format ">>>>9.99" to 61
-              cas.cosm to 69 format ">>,>>9.99" 
-              cas.cost to 80 format ">>>,>>9.99" skip
+              v-setup when v-setup ne 0 format ">>>>9.99" to 63
+              cas.cosm to 71 format ">>>>9.99" 
+              cas.cost to 80 format ">>>>>9.99" /*skip*/
           with stream-io.
-
+ 
       {cec/pr4-str.i}
 
       if strap-qty ne 0 then do:
@@ -446,11 +446,11 @@ for each cas where cas.typ = 4 by cas.snum by cas.bnum with no-labels no-box:
       display string(cas.snum,"99") + "-" + string(cas.bnum,"9") format "x(4)"
               item.i-name
               strap-qty         format ">>>,>>>"         to 50 "MLI"
-              lv-setup-strap when lv-setup-strap ne 0 format ">>>>9.99" to 61
-              cas.cost / (tt-blk * (if xest.form-qty eq 1 or vmclean2 then v-yld else 1) / 1000) to 69
-              cas.cost          format ">>>,>>9.99"      to 80 skip
+              lv-setup-strap when lv-setup-strap ne 0 format ">>>>9.99" to 63
+              cas.cost / (tt-blk * (if xest.form-qty eq 1 or vmclean2 then v-yld else 1) / 1000) to 71 format ">>>>9.99" 
+              cas.cost          format ">>>>>9.99"      to 80 /*skip*/ 
           with stream-io.
-
+ 
       find first brd
           where brd.form-no  eq xeb.form-no
             and brd.blank-no eq xeb.blank-no

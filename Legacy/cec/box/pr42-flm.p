@@ -367,9 +367,9 @@ for each flm,
           item.i-name flm.qty to 50
           flm.uom at 52 when flm.uom = "MSI"
           "Lbs" when flm.uom = "LB" @ flm.uom
-          w-flm.setup when w-flm.setup ne 0 format ">>>9.99" to 61
-          flm.cosm to 69
-          flm.cost to 80 format ">>>,>>9.99" skip.
+          w-flm.setup when w-flm.setup ne 0 format ">>>9.99" to 63
+          flm.cosm to 71
+          flm.cost to 80 format ">>>>>9.99" skip.
    lin-count = lin-count + 1.
 end.
 

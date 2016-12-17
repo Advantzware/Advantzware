@@ -18,6 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "PR13" }
 END.
 
-IF SelectRptColumn-log THEN RUN jcrep/r-qbprptN.w.
-ELSE RUN jcrep/r-qbprptA.w.     
-
+IF SelectRptColumn-log THEN RUN jcrep/r-qbprptN.w PERSISTENT.
+ELSE RUN jcrep/r-qbprptA.w PERSISTENT.

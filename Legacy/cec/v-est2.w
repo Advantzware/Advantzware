@@ -73,13 +73,16 @@ DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
 DEF VAR lv-n-out LIKE ef.n-out NO-UNDO.
 DEF VAR lv-n-out-d LIKE ef.n-out NO-UNDO.
 DEF VAR lv-n-out-l LIKE ef.n-out NO-UNDO.
+DEF VAR cRtnChar AS CHARACTER NO-UNDO.
+DEF VAR lRecFound AS LOGICAL NO-UNDO .
+DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 
 {cec/bestfitc.i NEW SHARED}
 
 assign cocode = g_company
        locode = g_loc.
 {sys/inc/f16to32.i}
-
+ 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -4572,14 +4575,15 @@ PROCEDURE sheet-calc2 :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* from cec/bestfitc.p */
+    DEFINE BUFFER bf-item FOR ITEM .
 
      find xest where xest.company = ef.company and
                      xest.est-no = ef.est-no
                      no-lock no-error.
      find xef where recid(xef) = recid(ef) NO-LOCK NO-ERROR.
      find xeb where recid(xeb) = recid(eb) NO-LOCK NO-ERROR.
-       
-     run cec/bestfitc.p (ef.m-code:SCREEN-VALUE IN FRAME {&FRAME-NAME}, 0, "","").
+     
+     run cec/bestfitc.p (ef.m-code:SCREEN-VALUE IN FRAME {&FRAME-NAME}, 0, "","",ef.board).
 
      FIND FIRST tt-ef NO-ERROR.
      FIND FIRST tt-eb NO-ERROR.

@@ -8,7 +8,7 @@
         no-lock:
         {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
 
-      {sa/sa-sls03.i "fdate" "tdate"}
+      {sa/sa-sls04.i "fdate" "tdate"}
     end.
 
     for each tt-report

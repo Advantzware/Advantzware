@@ -18,9 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "JL4" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-macmsfN.w.
-ELSE RUN pcrep/r-macmsfA.w.     
-
-
-
-
+IF SelectRptColumn-log THEN RUN pcrep/r-macmsfN.w PERSISTENT.
+ELSE RUN pcrep/r-macmsfA.w PERSISTENT.

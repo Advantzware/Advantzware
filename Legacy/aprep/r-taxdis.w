@@ -18,12 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "VR7" }
 END.
 
-IF SelectRptColumn-log THEN RUN aprep/r-taxdisN.w.
-ELSE RUN aprep/r-taxdisA.w.     
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN aprep/r-taxdisN.w PERSISTENT.
+ELSE RUN aprep/r-taxdisA.w PERSISTENT.

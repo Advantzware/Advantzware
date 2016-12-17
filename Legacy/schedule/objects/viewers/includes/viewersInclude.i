@@ -137,30 +137,39 @@ PROCEDURE getCellColumns :
     IF browseColumn.colName EQ 'calcTimeField' THEN
     ASSIGN
       pHandle = {&BROWSE-NAME}:ADD-CALC-COLUMN('CHARACTER','X(11)','',browseColumn.colName)
-      pHandle:LABEL-BGCOLOR = IF browseColumn.colHidden THEN 7 ELSE ?.
+      pHandle:LABEL-BGCOLOR = IF browseColumn.colHidden THEN 7 ELSE ?
+      .
     ELSE
     ASSIGN
       colField = '{&useTtbl}.' + browseColumn.colName
       pHandle = {&BROWSE-NAME}:ADD-LIKE-COLUMN(colField)
       pHandle:LABEL-BGCOLOR = IF browseColumn.colHidden THEN 7 ELSE 14
-      pHandle:PRIVATE-DATA = '14'.
+      pHandle:PRIVATE-DATA = '14'
+      .
     pHandle:LABEL = browseColumn.colLabel.
   END.
   IF browseColumn.colOrder EQ 0 THEN
   DELETE browseColumn.
   INPUT CLOSE.
-  
+
   DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
     cellColumn[i] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(i).
     IF cellColumn[i]:DATA-TYPE EQ 'DATE' THEN
     cellColumn[i]:WIDTH-CHARS = 10.
     IF cellColumn[i]:NAME EQ 'userValue' THEN
     cellColumn[i]:WIDTH-CHARS = 80.
+    IF cellColumn[i]:NAME BEGINS 'udfField' THEN
+    ASSIGN
+      idx = INTEGER(SUBSTRING(cellColumn[i]:NAME,9,2))
+      cellColumn[i]:LABEL = udfLabel[idx]
+      cellColumn[i]:WIDTH-CHARS = udfWidth[idx]
+      .
     IF cellColumn[i]:NAME BEGINS 'userField' THEN
     ASSIGN
       idx = INTEGER(SUBSTRING(cellColumn[i]:NAME,10,2))
       cellColumn[i]:LABEL = userLabel[idx]
-      cellColumn[i]:WIDTH-CHARS = userWidth[idx].
+      cellColumn[i]:WIDTH-CHARS = userWidth[idx]
+      .
     IF cellColumn[i]:NAME EQ 'startDate' THEN
     startDateCol = i.
     ELSE
@@ -170,8 +179,7 @@ PROCEDURE getCellColumns :
     IF cellColumn[i]:NAME EQ 'lagTime' THEN
     lagTimeCol = i.
     ELSE
-    IF cellColumn[i]:NAME EQ ? THEN
-    DO:
+    IF cellColumn[i]:NAME EQ ? THEN DO:
       CASE cellColumn[i]:LABEL:
         WHEN 'Start Time' THEN
         startTimeCol = i.
@@ -184,8 +192,8 @@ PROCEDURE getCellColumns :
         WHEN 'Total Time' THEN
         totalTimeCol = i.
       END CASE.
-    END.
-  END.
+    END. /* name eq ? */
+  END. /* do i */
 
 END PROCEDURE.
 
@@ -275,6 +283,26 @@ PROCEDURE reopenBrowse :
     WHEN 'userValue' THEN
     IF ascendingSort THEN RUN byUserValueAscending.
     ELSE RUN byUserValueDescending.
+    {{&viewers}/includes/byReopenBrowse.i "udf" 01}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 02}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 03}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 04}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 05}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 06}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 07}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 08}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 09}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 10}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 11}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 12}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 13}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 14}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 15}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 16}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 17}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 18}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 19}
+    {{&viewers}/includes/byReopenBrowse.i "udf" 20}
     {{&viewers}/includes/byReopenBrowse.i "user" 01}
     {{&viewers}/includes/byReopenBrowse.i "user" 02}
     {{&viewers}/includes/byReopenBrowse.i "user" 03}

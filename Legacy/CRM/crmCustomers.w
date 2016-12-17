@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-  File: zohoCRM.w
+  File: crmCustomers.w
 
   Description: import contacts from ZOHO CRM
 

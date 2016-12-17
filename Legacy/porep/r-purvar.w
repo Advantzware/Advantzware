@@ -18,6 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "PR5" }
 END.
 
-IF SelectRptColumn-log THEN RUN porep/r-purvaN.w.
-ELSE RUN porep/r-purvaA.w.     
-        
+IF SelectRptColumn-log THEN RUN porep/r-purvaN.w PERSISTENT.
+ELSE RUN porep/r-purvaA.w PERSISTENT.

@@ -224,9 +224,9 @@ for each ink WHERE
    display "*" space(4)
            ink.i-dscr
            iqty  to 50 space(0) " LB"
-           lv-setup-ink when lv-setup-ink ne 0 format ">>>9.99" to 61
-           icost / (tt-blk * (if xest.form-qty eq 1 or vmclean2 then v-yld else 1) / 1000) to 69 format ">>>>9.99"
-           icost to 80 format ">>>,>>9.99" skip
+           lv-setup-ink when lv-setup-ink ne 0 format ">>>9.99" to 63
+           icost / (tt-blk * (if xest.form-qty eq 1 or vmclean2 then v-yld else 1) / 1000) to 71 format ">>>>9.99"
+           icost to 80 format ">>>>>9.99" /*skip*/
        with stream-io.
 
    ASSIGN                         
@@ -317,9 +317,9 @@ for each glu break by glu.i-code /*BY glu.snum*/ with frame abc  stream-io down 
    display "*" space(4)
            item.i-name
            gqty to 50 "LB"
-           lv-setup-glue when lv-setup-glue ne 0 format ">>>9.99" to 61
-           gcost / (tt-blk * (if xest.form-qty eq 1 or vmclean2 then v-yld else 1) / 1000) to 69
-           gcost to 80 format ">>>,>>9.99" SKIP
+           lv-setup-glue when lv-setup-glue ne 0 format ">>>9.99" to 63
+           gcost / (tt-blk * (if xest.form-qty eq 1 or vmclean2 then v-yld else 1) / 1000) to 71 format ">>>>9.99"
+           gcost to 80 format ">>>>>9.99" SKIP
        WITH STREAM-IO.
 
    for each b-glu where b-glu.i-code = glu.i-code:

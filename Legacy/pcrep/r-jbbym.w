@@ -18,8 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "DR13" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-jbbymN.w.
-ELSE RUN pcrep/r-jbbymA.w.     
-
-
-
+IF SelectRptColumn-log THEN RUN pcrep/r-jbbymN.w PERSISTENT.
+ELSE RUN pcrep/r-jbbymA.w PERSISTENT.

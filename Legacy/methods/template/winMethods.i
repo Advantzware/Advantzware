@@ -64,7 +64,7 @@ DEFINE VARIABLE misc_header_value AS CHARACTER NO-UNDO.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Include ASSIGN
-         HEIGHT             = 21.81
+         HEIGHT             = 23.81
          WIDTH              = 46.8.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -264,10 +264,10 @@ PROCEDURE local-initialize :
       RETURN.
   END.
 
-  &IF "{&FIRST-EXTERNAL-TABLE}" = "address" OR
-      "{&FIRST-EXTERNAL-TABLE}" = "notes" OR
-      "{&FIRST-EXTERNAL-TABLE}" = "phone" OR
-      "{&FIRST-EXTERNAL-TABLE}" = "oe-ord" &THEN
+  &IF "{&FIRST-EXTERNAL-TABLE}" EQ "address" OR
+      "{&FIRST-EXTERNAL-TABLE}" EQ "notes" OR
+      "{&FIRST-EXTERNAL-TABLE}" EQ "phone" OR
+      "{&FIRST-EXTERNAL-TABLE}" EQ "oe-ord" &THEN
     {methods/windows/initial/{&FIRST-EXTERNAL-TABLE}.i}
   &ENDIF
   
@@ -298,6 +298,8 @@ PROCEDURE MF-Message :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-misc-flds AS LOGICAL NO-UNDO.
 
+  IF CAN-FIND(FIRST mfgroup
+              WHERE LOOKUP(v-prgmname,mfgroup.mfgroup_data,"|") NE 0) THEN
   RUN Show-MF-Message IN h_smartmsg (ip-misc-flds).
 
 END PROCEDURE.
@@ -546,6 +548,33 @@ PROCEDURE Set-Rec-Key_Header :
   ASSIGN
     rec_key_value = ip-rec_key
     header_value = ip-header.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE UDF Include 
+PROCEDURE UDF :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE isRunning AS LOGICAL NO-UNDO.
+
+    FOR EACH mfgroup NO-LOCK:
+        IF LOOKUP(v-prgmname,mfgroup.mfgroup_data,"|") EQ 0 THEN NEXT.
+        LEAVE.
+    END. /* each mfgroup */
+
+    IF AVAILABLE(mfgroup) THEN DO:
+        RUN Running_Procedures IN Persistent-Handle ("mfvalues.",OUTPUT isRunning).
+        RUN UDF/mfvalues.w (ENTRY(1,mfgroup.mfgroup_data,"|"),
+                            rec_key_value,
+                            header_value,
+                            h_smartmsg).
+    END. /* avail mfgroup */
 
 END PROCEDURE.
 

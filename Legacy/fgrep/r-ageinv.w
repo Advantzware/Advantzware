@@ -18,14 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IR12" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-ageinN.w.
-ELSE RUN fgrep/r-ageinA.w.     
-        
-
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN fgrep/r-ageinN.w PERSISTENT.
+ELSE RUN fgrep/r-ageinA.w PERSISTENT.

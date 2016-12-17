@@ -262,11 +262,11 @@
       END. /* each job */
 
       shipped-qty = order-qty - wip-qty.
-      on-hand-qty = produced-qty - shipped-qty.
-      tt-report.qty-to-prod = order-qty
+      on-hand-qty = get-bal(li-qoh)  /*produced-qty - shipped-qty*/ .
+      tt-report.qty-to-prod = get-wip() /*order-qty
          - on-hand-qty
          - open-job-qty
-         - shipped-qty.
+         - shipped-qty*/ .
 
       display /*tt-report.key-04 WHEN NOT first-of(tt-report.row-id) @ v-ord-no*/
               v-field1   
@@ -300,7 +300,7 @@
          '"'  oe-ordl.i-name      '",'                               
          '"'        (IF oe-ord.ord-date NE ? THEN
                         string(oe-ord.ord-date,"99/99/99") ELSE "")    '",'  
-         '"'        string(oe-ordl.qty,"->>,>>>,>>9")                 
+         '"'        string(oe-ordl.qty,"->>,>>>,>>9")                  '",'            
          '"'        (IF v-dat NE ? THEN STRING(v-dat)
                    ELSE "")        '",'                                  
          '"'        (IF tt-report.inv THEN STRING(tt-report.inv-no)

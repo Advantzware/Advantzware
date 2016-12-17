@@ -34,13 +34,13 @@ ON CTRL-P HELP.
 
 ON 'CTRL-ALT-D':U ANYWHERE
     DO:
-        RUN aoa/aoaLauncher.w ("Dashboard").
+        RUN aoa/aoaLauncher.w PERSISTENT ("Dashboard").
         RETURN.
     END.
 
 ON 'CTRL-ALT-R':U ANYWHERE
     DO:
-        RUN aoa/aoaLauncher.w ("Report").
+        RUN aoa/aoaLauncher.w PERSISTENT ("Report").
         RETURN.
     END.
    
@@ -64,6 +64,10 @@ ON 'CTRL-ALT-R':U ANYWHERE
 
 /* System Constant Values */
 {system/sysconst.i}
+
+DEFINE TEMP-TABLE ttPersistent NO-UNDO
+    FIELD prgmTitle AS CHARACTER
+	INDEX ttPersistent IS PRIMARY prgmTitle.
 
 DEFINE TEMP-TABLE ttbl NO-UNDO
     FIELD menu-order AS INTEGER
@@ -301,10 +305,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
-    DO:
-   
-        RUN disable_UI.
-    END.    
+    RUN disable_UI.
 
 /* These events will close the window and terminate the procedure.      */
 /* (NOTE: this will override any user-defined triggers previously       */
@@ -334,9 +335,9 @@ ON WINDOW-CLOSE OF {&WINDOW-NAME}
                    userLog.userStatus = "User Logged Out".
             FIND CURRENT userLog NO-LOCK.
         END.
-        
-        APPLY "CLOSE":U TO THIS-PROCEDURE.
-        RETURN NO-APPLY.
+/*      APPLY "CLOSE":U TO THIS-PROCEDURE. */
+/*      RETURN NO-APPLY. */
+        QUIT. /* kills all processes */
     END.
 
 ON ENDKEY, END-ERROR OF {&WINDOW-NAME} ANYWHERE 
@@ -643,18 +644,21 @@ PROCEDURE Run_Button :
     DEFINE VARIABLE current-widget AS WIDGET-HANDLE NO-UNDO.
     DEFINE VARIABLE save-widget    AS WIDGET-HANDLE NO-UNDO.
 
-    IF button-handle:NAME = 'Exit' THEN APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
+    DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE hDelete AS HANDLE  NO-UNDO EXTENT 100.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+
+    IF button-handle:NAME EQ 'Exit' THEN
+    APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
 
     ASSIGN
         current-widget = FRAME {&FRAME-NAME}:HANDLE
         current-widget = current-widget:FIRST-CHILD
         current-widget = current-widget:FIRST-CHILD.
     DO WHILE current-widget NE ?:
-        IF current-widget:TYPE = 'BUTTON' THEN
-        DO:
+        IF current-widget:TYPE = 'BUTTON' THEN DO:
             IF current-widget:COLUMN GT button-handle:COLUMN AND
-                current-widget:DYNAMIC THEN
-            DO:
+                current-widget:DYNAMIC THEN DO:
                 IF NOT CAN-DO('&F File Maintenance >,&I Inquiries >,&R Reports >',
                     current-widget:LABEL) AND
            INDEX(current-widget:LABEL,'&') NE 0 THEN button-count = button-count - 1.
@@ -675,13 +679,11 @@ PROCEDURE Run_Button :
         button-handle:FONT = 6
         button-col         = button-handle:COLUMN + {&button-width} + {&button-gap}.
     IF INDEX(button-handle:NAME,'.') = 0 THEN RUN Create_Buttons(button-handle:NAME).
-    ELSE 
-    DO:
-      
+    ELSE DO:
         /* check module liscense first before run it YSK 08/24/04 TASK# 08060406 */
         RUN util/chk-mod.p ("ASI", button-handle:NAME) NO-ERROR.
         IF NOT ERROR-STATUS:ERROR THEN 
-            RUN Get_Procedure IN Persistent-Handle(button-handle:NAME,OUTPUT run-proc,YES).
+        RUN Get_Procedure IN Persistent-Handle(button-handle:NAME,OUTPUT run-proc,YES).
     END.
 
 END PROCEDURE.

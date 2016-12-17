@@ -18,13 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "JR11" }
 END.
 
-IF SelectRptColumn-log THEN RUN jcrep/r-msfkicN.w.
-ELSE RUN jcrep/r-msfkicA.w.     
-
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN jcrep/r-msfkicN.w PERSISTENT.
+ELSE RUN jcrep/r-msfkicA.w PERSISTENT.

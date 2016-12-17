@@ -162,134 +162,6 @@ FUNCTION fGetTableHandle RETURNS HANDLE
 &ANALYZE-RESUME
 
 
-/* **********************  Internal Procedures  *********************** */
-
-&IF DEFINED(EXCLUDE-pAgedReceivables) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAgedReceivables Procedure 
-PROCEDURE pAgedReceivables :
-/*------------------------------------------------------------------------------
-  Purpose:     Aged Receivables.rpa
-  Parameters:  Company, Batch Seq, User ID  
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/r-araged.p (OUTPUT TABLE ttAgedReceivables, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pAgedReceivablesTotals) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAgedReceivablesTotals Procedure 
-PROCEDURE pAgedReceivablesTotals :
-/*------------------------------------------------------------------------------
-  Purpose:     Aged Receivables Totals.rpa
-  Parameters:  Company, Batch Seq, User ID  
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-
-    /* subject business logic */
-    RUN aoa/BL/agedtot.p (OUTPUT TABLE ttAgedReceivablesTotals, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pCashReceiptBySalesRepName) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCashReceiptBySalesRepName Procedure 
-PROCEDURE pCashReceiptBySalesRepName :
-/*------------------------------------------------------------------------------
-  Purpose:     Cash Receipt By SalesRep Name.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/r-cashs2.p (OUTPUT TABLE ttCashReceiptBySalesRepName, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pCommissionCashReceipt) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCommissionCashReceipt Procedure 
-PROCEDURE pCommissionCashReceipt :
-/*------------------------------------------------------------------------------
-  Purpose:     Commission Cash Receipt.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/r-commcr.p (OUTPUT TABLE ttCommissionCashReceipt, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pCRMContacts) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRMContacts Procedure 
-PROCEDURE pCRMContacts :
-/*------------------------------------------------------------------------------
-  Purpose:     CRM Contacts.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/crmContacts.p (OUTPUT TABLE ttCRMContacts, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pCRMCustomers) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRMCustomers Procedure 
-PROCEDURE pCRMCustomers :
-/*------------------------------------------------------------------------------
-  Purpose:     CRM Customers.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/crmCustomers.p (OUTPUT TABLE ttCRMCustomers, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fAgedReceivables) = 0 &THEN
@@ -303,7 +175,8 @@ FUNCTION fAgedReceivables RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttAgedReceivables.
     EMPTY TEMP-TABLE ttAgedReceivablesTotals.
     
-    RUN pAgedReceivables (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/r-araged.p (OUTPUT TABLE ttAgedReceivables, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttAgedReceivables:HANDLE .
 
@@ -325,7 +198,8 @@ FUNCTION fAgedReceivablesTotals RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttAgedReceivables.
     EMPTY TEMP-TABLE ttAgedReceivablesTotals.
     
-    RUN pAgedReceivablesTotals (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/agedtot.p (OUTPUT TABLE ttAgedReceivablesTotals, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttAgedReceivablesTotals:HANDLE .
 
@@ -346,7 +220,8 @@ FUNCTION fCashReceiptBySalesRepName RETURNS HANDLE ( {aoa/includes/fInputVars.i}
   ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttCashReceiptBySalesRepName.
     
-    RUN pCashReceiptBySalesRepName (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/r-cashs2.p (OUTPUT TABLE ttCashReceiptBySalesRepName, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttCashReceiptBySalesRepName:HANDLE .
 
@@ -367,7 +242,8 @@ FUNCTION fCommissionCashReceipt RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttCommissionCashReceipt.
 
-    RUN pCommissionCashReceipt (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/r-commcr.p (OUTPUT TABLE ttCommissionCashReceipt, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttCommissionCashReceipt:HANDLE .
 
@@ -388,7 +264,8 @@ FUNCTION fCRMContacts RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttCRMContacts.
 
-    RUN pCRMContacts (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/crmContacts.p (OUTPUT TABLE ttCRMContacts, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttCRMContacts:HANDLE .
 
@@ -409,7 +286,8 @@ FUNCTION fCRMCustomers RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttCRMCustomers.
 
-    RUN pCRMCustomers (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/crmCustomers.p (OUTPUT TABLE ttCRMCustomers, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttCRMCustomers:HANDLE .
 

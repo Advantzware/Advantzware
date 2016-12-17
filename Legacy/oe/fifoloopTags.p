@@ -207,7 +207,8 @@ DO:
         /* Using i-no index */
         fifo-loop:
         REPEAT:
-            
+            DEFINE VARIABLE iLastToAssign AS INTEGER.
+            iLastToAssign = 0.
             loop-count:
             DO iFifoLoopCount = 1 TO 2.
                 lFgBinFound = FALSE.
@@ -310,9 +311,12 @@ DO:
                 END. /* end for each fg-bin */
                  fDebugLog("next of loop ").
             END. /* loop-count: do iFifoLoopCount 1 to 2 */
-            /*MESSAGE "ready to leave fifo loop? iRelQtyToAssing" iRelQtyToAssign
-              VIEW-AS ALERT-BOX INFO BUTTONS OK. */
-            IF iRelQtyToAssign LE 0 OR lFgBinFound = FALSE THEN LEAVE fifo-loop.
+
+            IF iRelQtyToAssign LE 0 OR iRelQtyToAssign EQ iLastToAssign OR lFgBinFound = FALSE THEN LEAVE fifo-loop.
+              
+            /* Prevents Repeatedly finding the same tag to no effect */
+            iLastToAssign = iRelQtyToAssign.
+              
         END. /* fifo loop repeat */
     END. /* Not using CSC Index */ 
 END. /* If assigning tag #'s */

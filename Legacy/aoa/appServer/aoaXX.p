@@ -97,29 +97,6 @@ FUNCTION fTemplate RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
 &ANALYZE-RESUME
 
 
-/* **********************  Internal Procedures  *********************** */
-
-&IF DEFINED(EXCLUDE-pTemplate) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTemplate Procedure 
-PROCEDURE pTemplate :
-/*------------------------------------------------------------------------------
-  Purpose:     Template.rpa
-  Parameters:  Company, Batch Seq, User ID
-  Notes:       
-------------------------------------------------------------------------------*/
-    {aoa/includes/aoaInputDefParams.i}
-    
-    /* subject business logic */
-    RUN aoa/BL/template.p (OUTPUT TABLE ttTemplate, ipcCompany, ipiBatch, ipcUserID).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
@@ -154,7 +131,8 @@ FUNCTION fTemplate RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttTemplate.
 
-    RUN pTemplate (ipcCompany, ipiBatch, ipcUserID).
+    /* subject business logic */
+    RUN aoa/BL/template.p (OUTPUT TABLE ttTemplate, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttTemplate:HANDLE .
 

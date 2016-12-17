@@ -18,10 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "VR8" }
 END.
 
-IF SelectRptColumn-log THEN RUN aprep/r-mtdsubN.w.
-ELSE RUN aprep/r-mtdsubA.w.     
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN aprep/r-mtdsubN.w PERSISTENT.
+ELSE RUN aprep/r-mtdsubA.w PERSISTENT.

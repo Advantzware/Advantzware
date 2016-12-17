@@ -18,20 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "PR6" }
 END.
 
-IF SelectRptColumn-log THEN RUN porep/r-venanlN.w.
-ELSE RUN porep/r-venanlA.w.     
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN porep/r-venanlN.w PERSISTENT.
+ELSE RUN porep/r-venanlA.w PERSISTENT.

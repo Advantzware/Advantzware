@@ -19,6 +19,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "DR4" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-promacN.w.
-ELSE RUN pcrep/r-promacA.w.
-
+IF SelectRptColumn-log THEN RUN pcrep/r-promacN.w PERSISTENT.
+ELSE RUN pcrep/r-promacA.w PERSISTENT.

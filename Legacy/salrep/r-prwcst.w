@@ -19,9 +19,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "HR8" }
 END.
 
-IF SelectRptColumn-log THEN RUN salrep/r-prwcstN.w.
-ELSE RUN salrep/r-prwcstA.w.
-
-
-
-
+IF SelectRptColumn-log THEN RUN salrep/r-prwcstN.w PERSISTENT.
+ELSE RUN salrep/r-prwcstA.w PERSISTENT.

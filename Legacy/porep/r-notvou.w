@@ -18,19 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "PR7" }
 END.
 
-IF SelectRptColumn-log THEN RUN porep/r-notvouN.w.
-ELSE RUN porep/r-notvouA.w.     
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN porep/r-notvouN.w PERSISTENT.
+ELSE RUN porep/r-notvouA.w PERSISTENT.
