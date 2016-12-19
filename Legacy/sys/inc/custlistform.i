@@ -29,7 +29,7 @@ IF NOT AVAILABLE sys-ctrl-shipto THEN DO TRANSACTION:
         sys-ctrl-shipto.module   = sys-ctrl.module
         sys-ctrl-shipto.char-fld = {1}
         sys-ctrl-shipto.log-fld  = NO
-        .END.
+END.
 
 IF sys-ctrl.log-fld THEN
 ASSIGN
