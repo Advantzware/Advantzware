@@ -914,6 +914,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete_item B-table-Win 
+PROCEDURE delete_item :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR ll-dumb AS LOG NO-UNDO.
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+  DEF VAR lv-loc LIKE rm-rctd.loc NO-UNDO.
+  DEF VAR ll-renumber AS LOG NO-UNDO.
+  DEF BUFFER b-po-ordl FOR po-ordl.
+
+   RUN local-delete-record .
+  
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -1741,7 +1763,7 @@ PROCEDURE setNavigation :
 ------------------------------------------------------------------------------*/
 def var char-hdl as cha no-undo.
 DEF VAR phandle AS HANDLE NO-UNDO.
-run get-link-handle in adm-broker-hdl(this-procedure,"tableIO",output char-hdl).
+/*run get-link-handle in adm-broker-hdl(this-procedure,"tableIO",output char-hdl).
 
 
 IF avail(oe-relh)  THEN DO:
@@ -1750,7 +1772,7 @@ IF avail(oe-relh)  THEN DO:
   ELSE 
     run set-buttons in widget-handle(char-hdl) ("INITIAL").
 
-END.
+END.*/
 
 END PROCEDURE.
 
