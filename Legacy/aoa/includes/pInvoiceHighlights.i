@@ -20,4 +20,3 @@
         .
 
     RUN pGetColumns (TEMP-TABLE ttInvoiceHighlights:HANDLE, cAvailableColumns, cSelectedColumns).
-

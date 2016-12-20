@@ -40,6 +40,17 @@
 
 /* ************************  Function Prototypes ********************** */
 
+&IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTableHandle Procedure 
+FUNCTION fGetTableHandle RETURNS HANDLE
+  ( ipcProgramID AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-fInvoiceHighlights) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fInvoiceHighlights Procedure 
@@ -87,6 +98,28 @@ FUNCTION fInvoiceHighlights RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORW
 
 
 /* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTableHandle Procedure 
+FUNCTION fGetTableHandle RETURNS HANDLE
+  ( ipcProgramID AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    CASE ipcProgramID:
+        /* Invoice Highlights.edp */
+        WHEN "dbinvmh." THEN
+        RETURN TEMP-TABLE ttInvoiceHighlights:HANDLE.
+    END CASE.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-fInvoiceHighlights) = 0 &THEN
 
