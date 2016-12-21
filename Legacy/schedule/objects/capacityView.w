@@ -836,7 +836,6 @@ PROCEDURE loadView :
                        ELSE INTEGER(ttblJob.startTime / 60)
           iEndTime   = IF ttblJob.endDateTime   GT dEndDateTime   THEN 1440
                        ELSE INTEGER(ttblJob.endTime   / 60)
-          iUsedKicks = 0
           .
         IF iStartTime EQ 0 THEN iStartTime = 1.
         DO jdx = iStartTime TO iEndTime:
