@@ -508,7 +508,7 @@ DEFINE BROWSE Browser-Table
       get-fgitem() @ lc-fgitem COLUMN-LABEL "FG Item#" FORMAT "x(15)":U
             WIDTH 21
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
-      oe-ordl.line FORMAT "99":U
+      oe-ordl.line FORMAT ">>99":U
       oe-ordl.po-no-po FORMAT ">>>>>9":U
       oe-ordl.e-num FORMAT ">>>>>9":U
       oe-ordl.whsed FORMAT "yes/no":U
@@ -737,7 +737,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[26]   > ASI.oe-ordl.i-name
 "oe-ordl.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > ASI.oe-ordl.line
-"oe-ordl.line" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   > ASI.oe-ordl.po-no-po
 "oe-ordl.po-no-po" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[29]   = ASI.oe-ordl.e-num
