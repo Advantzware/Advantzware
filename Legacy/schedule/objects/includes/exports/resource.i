@@ -16,10 +16,15 @@
 &SCOPED-DEFINE department ''
 &ENDIF
 
+&IF DEFINED(kicks) EQ 0 &THEN
+&SCOPED-DEFINE kicks 0
+&ENDIF
+
 EXPORT STREAM {&streamName} 0
   {&resource}
   {&resourceDescription}
   {&sortOrder}
   {&sortOrder}
   {&department}
+  {&kicks}
   .
