@@ -46,7 +46,8 @@ DEFINE VARIABLE boardHandle AS HANDLE    NO-UNDO.
 DEFINE VARIABLE boardType   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cells       AS HANDLE    NO-UNDO EXTENT 600.
 DEFINE VARIABLE col#        AS INTEGER   NO-UNDO.
-DEFINE VARIABLE i           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE jdx         AS INTEGER   NO-UNDO.
 
 DEFINE TEMP-TABLE resources NO-UNDO
   FIELD order    AS INTEGER
@@ -58,14 +59,12 @@ DEFINE TEMP-TABLE resources NO-UNDO
 DEFINE TEMP-TABLE ttblView NO-UNDO
   FIELD boardDate  AS DATE      FORMAT "99.99.9999" COLUMN-LABEL "Resource!Date"
   FIELD dayOfWeek  AS CHARACTER FORMAT "x(5)"       COLUMN-LABEL "Day"
-  FIELD colUsed    AS CHARACTER FORMAT "x(12)" EXTENT 200
-  FIELD colAvail   AS CHARACTER FORMAT "x(12)" EXTENT 200
-  FIELD timeUsed   AS CHARACTER FORMAT "x(30)" EXTENT 200
-  FIELD timeAvail  AS CHARACTER FORMAT "x(12)" EXTENT 200
-  FIELD kicksUsed  AS CHARACTER FORMAT "x(12)" EXTENT 200
-  FIELD kicksAvail AS CHARACTER FORMAT "x(12)" EXTENT 200
-  FIELD usedTime   AS INTEGER   FORMAT ">>>>9" EXTENT 200
-  FIELD availTime  AS INTEGER   FORMAT ">>>>9" EXTENT 200
+  FIELD colUsed    AS CHARACTER FORMAT "x(14)" EXTENT 200
+  FIELD colAvail   AS CHARACTER FORMAT "x(14)" EXTENT 200
+  FIELD timeUsed   AS CHARACTER FORMAT "x(14)" EXTENT 200
+  FIELD timeAvail  AS CHARACTER FORMAT "x(14)" EXTENT 200
+  FIELD kicksUsed  AS CHARACTER FORMAT "x(14)" EXTENT 200
+  FIELD kicksAvail AS CHARACTER FORMAT "x(14)" EXTENT 200
     INDEX ttblView IS PRIMARY UNIQUE boardDate
     .
 
@@ -86,28 +85,28 @@ DEFINE TEMP-TABLE ttblView NO-UNDO
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME fMain
-&Scoped-define BROWSE-NAME BROWSE-1
+&Scoped-define BROWSE-NAME viewBrowse
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES ttblView
 
-/* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttblView.boardDate ttblView.dayOfWeek   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
-&Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttblView
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttblView.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 ttblView
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ttblView
+/* Definitions for BROWSE viewBrowse                                    */
+&Scoped-define FIELDS-IN-QUERY-viewBrowse ttblView.boardDate ttblView.dayOfWeek   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-viewBrowse   
+&Scoped-define SELF-NAME viewBrowse
+&Scoped-define QUERY-STRING-viewBrowse FOR EACH ttblView
+&Scoped-define OPEN-QUERY-viewBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttblView.
+&Scoped-define TABLES-IN-QUERY-viewBrowse ttblView
+&Scoped-define FIRST-TABLE-IN-QUERY-viewBrowse ttblView
 
 
 /* Definitions for FRAME fMain                                          */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-fMain ~
-    ~{&OPEN-QUERY-BROWSE-1}
+    ~{&OPEN-QUERY-viewBrowse}
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS boardDateStart btnCalendar-1 boardDateEnd ~
-btnCalendar-2 btnRefresh btnExit includeDowntime viewType BROWSE-1 
+btnCalendar-2 btnRefresh btnExit includeDowntime viewType viewBrowse 
 &Scoped-Define DISPLAYED-OBJECTS boardDateStart boardDateEnd ~
 includeDowntime viewType 
 
@@ -183,14 +182,14 @@ DEFINE VARIABLE includeDowntime AS LOGICAL INITIAL yes
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY BROWSE-1 FOR 
+DEFINE QUERY viewBrowse FOR 
       ttblView SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE BROWSE-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 wWin _FREEFORM
-  QUERY BROWSE-1 DISPLAY
+DEFINE BROWSE viewBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS viewBrowse wWin _FREEFORM
+  QUERY viewBrowse DISPLAY
       ttblView.boardDate LABEL-FONT 6
   ttblView.dayOfWeek LABEL-FONT 6 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
@@ -215,7 +214,7 @@ DEFINE FRAME fMain
           "Click to Exit"
      includeDowntime AT ROW 1.24 COL 93
      viewType AT ROW 1.24 COL 122 NO-LABEL WIDGET-ID 2
-     BROWSE-1 AT ROW 2.19 COL 1 HELP
+     viewBrowse AT ROW 2.19 COL 1 HELP
           "Select Column and Row"
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -284,13 +283,13 @@ IF NOT wWin:LOAD-ICON("schedule/images/scheduler.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMain
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-1 viewType fMain */
-ASSIGN 
-       BROWSE-1:NUM-LOCKED-COLUMNS IN FRAME fMain     = 2
-       BROWSE-1:SEPARATOR-FGCOLOR IN FRAME fMain      = 0.
-
+/* BROWSE-TAB viewBrowse viewType fMain */
 /* SETTINGS FOR BUTTON btnRefresh IN FRAME fMain
    1 2                                                                  */
+ASSIGN 
+       viewBrowse:NUM-LOCKED-COLUMNS IN FRAME fMain     = 2
+       viewBrowse:SEPARATOR-FGCOLOR IN FRAME fMain      = 0.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
 THEN wWin:HIDDEN = yes.
 
@@ -300,13 +299,13 @@ THEN wWin:HIDDEN = yes.
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
-/* Query rebuild information for BROWSE BROWSE-1
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE viewBrowse
+/* Query rebuild information for BROWSE viewBrowse
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttblView.
      _END_FREEFORM
      _Query            is OPENED
-*/  /* BROWSE BROWSE-1 */
+*/  /* BROWSE viewBrowse */
 &ANALYZE-RESUME
 
  
@@ -432,103 +431,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME BROWSE-1
-&Scoped-define SELF-NAME BROWSE-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 wWin
-ON ROW-DISPLAY OF BROWSE-1 IN FRAME fMain
-DO:
-  DO i = 2 TO col#:
-    IF NOT VALID-HANDLE(cells[i]) THEN NEXT.
-    IF i EQ 2 THEN cells[i]:BGCOLOR = 14. /* yellow */
-    ELSE
-    IF i MOD 2 EQ 0 THEN
-      IF viewType EQ "Time" THEN
-      ASSIGN /* black/light green/bold */
-        cells[i]:FGCOLOR = 0
-        cells[i]:BGCOLOR = 10
-        cells[i]:FONT    = 2 /* 6 */
-        .
-      ELSE /* kicks */
-      ASSIGN /* black/light green */
-        cells[i]:FGCOLOR = 0
-        cells[i]:BGCOLOR = 10
-        cells[i]:FONT    = 2
-        .
-    ELSE
-    ASSIGN /* while/dark blue or gray */
-      cells[i]:FORMAT = "X(9)"
-      cells[i]:FGCOLOR = 15
-      cells[i]:BGCOLOR = IF LENGTH(ttblView.timeUsed[INTEGER(i / 2 - 1)]) GE 8 THEN 1 ELSE 7
-      cells[i]:FONT    = 2
-      .
-    IF i GT 2 AND i MOD 2 EQ 0 THEN DO:
-      IF viewType EQ "Time" THEN DO:
-        IF ttblView.colAvail[INTEGER(i / 2 - 1)] EQ "Pending" THEN
-        ASSIGN /* white/maroon */
-          cells[i]:FGCOLOR = 15
-          cells[i]:BGCOLOR = 4
-          cells[i]:FONT    = 2
-          .
-        ELSE
-        IF ttblView.colAvail[INTEGER(i / 2 - 1)] EQ "00:00" THEN
-        ASSIGN /* white/black */
-          cells[i]:FGCOLOR = 15
-          cells[i]:BGCOLOR = 0
-          cells[i]:FONT    = 2
-          .
-        ELSE
-        IF ttblView.colAvail[INTEGER(i / 2 - 1)] EQ "24:00" THEN
-        ASSIGN /* white/dark green */
-          cells[i]:FGCOLOR = 15
-          cells[i]:BGCOLOR = 2
-          cells[i]:FONT    = 2
-          .
-      END. /* if time */
-      ELSE DO: /* kicks */
-        IF INDEX(ttblView.colAvail[INTEGER(i / 2 - 1)],"/Hr") NE 0 THEN
-        ASSIGN /* white/maroon */
-          cells[i]:FGCOLOR = 15
-          cells[i]:BGCOLOR = 4
-          cells[i]:FONT    = 2
-          .
-        ELSE
-        IF INTEGER(ttblView.colAvail[INTEGER(i / 2 - 1)]) EQ 0 THEN
-        ASSIGN /* white/black */
-          cells[i]:FGCOLOR = 15
-          cells[i]:BGCOLOR = 0
-          cells[i]:FONT    = 2
-          .
-        ELSE DO:
-          FIND FIRST resources
-               WHERE resources.order EQ INTEGER(i / 2 - 1)
-               NO-ERROR.
-          IF AVAILABLE resources AND
-             INTEGER(ttblView.colAvail[INTEGER(i / 2 - 1)]) EQ resources.kicks * 24 THEN
-          ASSIGN /* white/dark green */
-            cells[i]:FGCOLOR = 15
-            cells[i]:BGCOLOR = 2
-            cells[i]:FONT    = 2
-            .
-        END.
-      END. /* else kicks */
-    END. /* if i gt 2 */
-  END. /* do i */
-END.
-
-/*
-          IF viewType EQ "Kicks" THEN DO:
-              FIND FIRST resources
-                   WHERE resources.order EQ i - 2
-                   NO-ERROR.
-              IF AVAILABLE resources THEN
-              ttblView.colAvail[i - 2] = resources.resource.
-          END.
-*/
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 wWin
 ON CHOOSE OF btnCalendar-1 IN FRAME fMain
@@ -585,6 +487,86 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define BROWSE-NAME viewBrowse
+&Scoped-define SELF-NAME viewBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL viewBrowse wWin
+ON ROW-DISPLAY OF viewBrowse IN FRAME fMain
+DO:
+  DO idx = 2 TO col#:
+    IF NOT VALID-HANDLE(cells[idx]) THEN NEXT.
+    jdx = INTEGER(idx / 2 - 1).
+    IF idx EQ 2 THEN cells[idx]:BGCOLOR = 14. /* yellow */
+    ELSE
+    IF idx MOD 2 EQ 0 THEN
+    ASSIGN /* black/light green/bold */
+      cells[idx]:FGCOLOR = 0
+      cells[idx]:BGCOLOR = 10
+      cells[idx]:FONT    = 6
+      .
+    ELSE
+    ASSIGN /* while/dark blue or gray */
+      cells[idx]:FGCOLOR = 15
+      cells[idx]:BGCOLOR = IF LENGTH(ttblView.timeUsed[jdx]) GE 8 THEN 1 ELSE 7
+      cells[idx]:FONT    = 2
+      .
+    IF idx GT 2 AND idx MOD 2 EQ 0 THEN DO:
+      IF viewType EQ "Time" THEN DO:
+        IF ttblView.colAvail[jdx] EQ "Pending" THEN
+        ASSIGN /* white/maroon */
+          cells[idx]:FGCOLOR = 15
+          cells[idx]:BGCOLOR = 4
+          cells[idx]:FONT    = 2
+          .
+        ELSE
+        IF ttblView.colAvail[jdx] EQ "00:00" THEN
+        ASSIGN /* white/black */
+          cells[idx]:FGCOLOR = 15
+          cells[idx]:BGCOLOR = 0
+          cells[idx]:FONT    = 2
+          .
+        ELSE
+        IF ttblView.colAvail[jdx] EQ "24:00" THEN
+        ASSIGN /* white/dark green */
+          cells[idx]:FGCOLOR = 15
+          cells[idx]:BGCOLOR = 2
+          cells[idx]:FONT    = 2
+          .
+      END. /* if time */
+      ELSE DO: /* kicks */
+        IF INDEX(ttblView.colAvail[jdx],"/Hr") NE 0 THEN
+        ASSIGN /* white/maroon */
+          cells[idx]:FGCOLOR = 15
+          cells[idx]:BGCOLOR = 4
+          cells[idx]:FONT    = 2
+          .
+        ELSE
+        IF INTEGER(ttblView.colAvail[jdx]) EQ 0 THEN
+        ASSIGN /* white/black */
+          cells[idx]:FGCOLOR = 15
+          cells[idx]:BGCOLOR = 0
+          cells[idx]:FONT    = 2
+          .
+        ELSE DO:
+          FIND FIRST resources
+               WHERE resources.order EQ jdx
+               NO-ERROR.
+          IF AVAILABLE resources AND
+             INTEGER(ttblView.colAvail[jdx]) EQ resources.kicks * 24 THEN
+          ASSIGN /* white/dark green */
+            cells[idx]:FGCOLOR = 15
+            cells[idx]:BGCOLOR = 2
+            cells[idx]:FONT    = 2
+            .
+        END.
+      END. /* else kicks */
+    END. /* if i gt 2 */
+  END. /* do i */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME viewType
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL viewType wWin
 ON VALUE-CHANGED OF viewType IN FRAME fMain
@@ -635,26 +617,27 @@ PROCEDURE buildCells :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-  DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
+  DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+  DEFINE VARIABLE pHandle AS HANDLE  NO-UNDO.
 
   SESSION:SET-WAIT-STATE('General').
-  i = 0.
+  idx = 0.
   FOR EACH resources NO-LOCK WITH FRAME {&FRAME-NAME}:
     ASSIGN
-      i = i + 1
-      pHandle = {&BROWSE-NAME}:ADD-LIKE-COLUMN('ttblView.colUsed[' + STRING(i) + ']')
-      pHandle:LABEL = resources.resource + '!Used'
-      pHandle:WIDTH-CHARS = 12
-      pHandle:LABEL-FONT = 6
+      idx                   = idx + 1
+      pHandle               = {&BROWSE-NAME}:ADD-LIKE-COLUMN('ttblView.colUsed[' + STRING(idx) + ']')
+      pHandle:LABEL         = resources.resource + '!Booked'
+      pHandle:WIDTH-CHARS   = 14
+      pHandle:LABEL-FONT    = 6
       pHandle:LABEL-BGCOLOR = 8
       pHandle:LABEL-FGCOLOR = 0
-      pHandle = {&BROWSE-NAME}:ADD-LIKE-COLUMN('ttblView.colAvail[' + STRING(i) + ']')
-      pHandle:LABEL = resources.resource + '!Available'
-      pHandle:WIDTH-CHARS = 14
-      pHandle:LABEL-FONT = 6
+      pHandle               = {&BROWSE-NAME}:ADD-LIKE-COLUMN('ttblView.colAvail[' + STRING(idx) + ']')
+      pHandle:LABEL         = resources.resource + '!Available'
+      pHandle:WIDTH-CHARS   = 14
+      pHandle:LABEL-FONT    = 6
       pHandle:LABEL-BGCOLOR = 2
-      pHandle:LABEL-FGCOLOR = 15.
+      pHandle:LABEL-FGCOLOR = 15
+      .
   END. /* each ttblresource */
   DO col# = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
     cells[col#] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(col#).
@@ -700,7 +683,7 @@ PROCEDURE enable_UI :
   DISPLAY boardDateStart boardDateEnd includeDowntime viewType 
       WITH FRAME fMain IN WINDOW wWin.
   ENABLE boardDateStart btnCalendar-1 boardDateEnd btnCalendar-2 btnRefresh 
-         btnExit includeDowntime viewType BROWSE-1 
+         btnExit includeDowntime viewType viewBrowse 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.
@@ -758,7 +741,7 @@ PROCEDURE loadView :
     ttblViewBuff.dayOfWeek  = ""
     ttblViewBuff.timeUsed   = "00:00"
     ttblViewBuff.timeAvail  = "Pending"
-    ttblViewBuff.kicksUsed  = STRING(0,">>>>9")
+    ttblViewBuff.kicksUsed  = STRING(0,">>,>>>,>>9")
     ttblViewBuff.kicksAvail = "?/Hr"
     .
   FOR EACH ttblResource
@@ -775,12 +758,17 @@ PROCEDURE loadView :
     FOR EACH pendingJob
         WHERE pendingJob.resource EQ ttblResource.resource
         :
-      iPending = iPending + pendingJob.timeSpan.
+      ASSIGN
+        iPending = iPending + pendingJob.timeSpan
+        iUsedKicks = iUsedKicks + INTEGER(pendingJob.userField88)
+        .
     END. /* each pendingjob */
     ASSIGN
       ttblViewBuff.timeUsed[idx]   = specialTime(iPending)
       ttblViewBuff.timeUsed[idx]   = SUBSTR(ttblViewBuff.timeUsed[idx],1,R-INDEX(ttblViewBuff.timeUsed[idx],":") - 1)
+      ttblViewBuff.kicksUsed[idx]  = STRING(INTEGER(iUsedKicks),">>,>>>,>>9")
       ttblViewBuff.kicksAvail[idx] = STRING(ttblResource.kicks,">>>,>>9") + "/Hr"
+      iUsedKicks                   = 0
       .
     DO dDate = boardDateStart TO boardDateEnd:
       ASSIGN
@@ -857,8 +845,8 @@ PROCEDURE loadView :
         iAvailTime               = 86400 - iUsedTime
         ttblView.timeUsed[idx]   = STRING(iUsedTime,"HH:MM")
         ttblView.timeAvail[idx]  = STRING(iAvailTime,"HH:MM")
-        ttblView.kicksUsed[idx]  = STRING(INTEGER(iUsedKicks)," >>>,>>9")
-        ttblView.kicksAvail[idx] = STRING(INTEGER(iAvailKicks)," >>>,>>9")
+        ttblView.kicksUsed[idx]  = STRING(INTEGER(iUsedKicks),">>,>>>,>>9")
+        ttblView.kicksAvail[idx] = STRING(INTEGER(iAvailKicks),">>,>>>,>>9")
         iUsedKicks               = 0
         iAvailKicks              = 0
         .
