@@ -1640,13 +1640,13 @@ PROCEDURE cust-city :
      
   DO WITH FRAME {&FRAME-NAME}:
     IF cust.city:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.city EQ cust.city:SCREEN-VALUE
+    FIND FIRST ASI.zipcode
+        WHERE ASI.zipcode.city EQ cust.city:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
+    IF AVAIL ASI.zipcode THEN do:
       ASSIGN
-        cust.state:SCREEN-VALUE = nosweat.zipcode.state
-        cust.zip:SCREEN-VALUE = nosweat.zipcode.zipcode  .      
+        cust.state:SCREEN-VALUE = ASI.zipcode.state
+        cust.zip:SCREEN-VALUE = ASI.zipcode.zipcode  .      
     END.   
   END.
 END PROCEDURE.
@@ -1743,23 +1743,23 @@ PROCEDURE cust-zip :
      
   DO WITH FRAME {&FRAME-NAME}:
     IF cust.zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
-        AND (nosweat.zipcode.city EQ cust.city:SCREEN-VALUE OR cust.city:SCREEN-VALUE = "" )
+    FIND FIRST ASI.zipcode
+        WHERE ASI.zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
+        AND (ASI.zipcode.city EQ cust.city:SCREEN-VALUE OR cust.city:SCREEN-VALUE = "" )
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
+    IF AVAIL ASI.zipcode THEN do:
       ASSIGN
-        cust.state:SCREEN-VALUE = nosweat.zipcode.state
-        cust.city:SCREEN-VALUE = nosweat.zipcode.city.    
+        cust.state:SCREEN-VALUE = ASI.zipcode.state
+        cust.city:SCREEN-VALUE = ASI.zipcode.city.    
     END.
-    ELSE IF NOT AVAIL nosweat.zipcode  THEN DO:
-        FIND FIRST nosweat.zipcode
-            WHERE nosweat.zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
+    ELSE IF NOT AVAIL ASI.zipcode  THEN DO:
+        FIND FIRST ASI.zipcode
+            WHERE ASI.zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
             NO-LOCK NO-ERROR.
-        IF AVAIL nosweat.zipcode THEN do:
+        IF AVAIL ASI.zipcode THEN do:
             ASSIGN
-                cust.state:SCREEN-VALUE = nosweat.zipcode.state
-                cust.city:SCREEN-VALUE = nosweat.zipcode.city.    
+                cust.state:SCREEN-VALUE = ASI.zipcode.state
+                cust.city:SCREEN-VALUE = ASI.zipcode.city.    
         END.
     END.
    /* gdm - 11190903 */
@@ -1886,23 +1886,23 @@ PROCEDURE local-assign-record :
   IF v-zipflg THEN DO:
     IF cust.zip:SCREEN-VALUE NE "" THEN
     DO:
-       FIND FIRST nosweat.zipcode NO-LOCK 
-           WHERE nosweat.zipcode.zipcode EQ cust.zip NO-ERROR.
+       FIND FIRST ASI.zipcode NO-LOCK 
+           WHERE ASI.zipcode.zipcode EQ cust.zip NO-ERROR.
        IF NOT AVAIL zipcode THEN DO:
-         CREATE nosweat.zipcode.
-         ASSIGN nosweat.zipcode.zipcode   = cust.zip
-                nosweat.zipcode.pref_type = "P"
-                nosweat.zipcode.pref#     = 01
-                nosweat.zipcode.city      = cust.city
-                nosweat.zipcode.state     = cust.state
-                nosweat.zipcode.area_code = IF cust.area-code EQ "" 
+         CREATE ASI.zipcode.
+         ASSIGN ASI.zipcode.zipcode   = cust.zip
+                ASI.zipcode.pref_type = "P"
+                ASI.zipcode.pref#     = 01
+                ASI.zipcode.city      = cust.city
+                ASI.zipcode.state     = cust.state
+                ASI.zipcode.area_code = IF cust.area-code EQ "" 
                                               THEN 000 
                                               ELSE INT(cust.area-code) 
-                nosweat.zipcode.carrier   = cust.carrier
-                nosweat.zipcode.del-zone  = cust.del-zone.
+                ASI.zipcode.carrier   = cust.carrier
+                ASI.zipcode.del-zone  = cust.del-zone.
        END.
        v-zipflg = FALSE.
-       RELEASE nosweat.zipcode.
+       RELEASE ASI.zipcode.
     END.
   END.
   /* gdm - 11190903 end */
@@ -2970,18 +2970,18 @@ PROCEDURE zip-carrier :
    DO WITH FRAME {&FRAME-NAME}:
    
    /* gdm - 10010913 */
-   FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ cust.zip:SCREEN-VALUE
+   FIND FIRST ASI.zipcode
+        WHERE ASI.zipcode.zipcode EQ cust.zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
 
    ASSIGN
       cust.carrier:SCREEN-VALUE = IF AVAIL zipcode AND 
-                                     TRIM(nosweat.zipcode.carrier) NE "" 
-                                    THEN nosweat.zipcode.carrier 
+                                     TRIM(ASI.zipcode.carrier) NE "" 
+                                    THEN ASI.zipcode.carrier 
                                     ELSE cust.carrier:SCREEN-VALUE
       cust.del-zone:SCREEN-VALUE = IF AVAIL zipcode AND 
-                                      TRIM(nosweat.zipcode.del-zone) NE "" 
-                                     THEN nosweat.zipcode.del-zone            
+                                      TRIM(ASI.zipcode.del-zone) NE "" 
+                                     THEN ASI.zipcode.del-zone            
                                      ELSE cust.del-zone:SCREEN-VALUE.
       /* gdm - 10010913 end*/
    END.

@@ -1528,7 +1528,7 @@ PROCEDURE local-assign-record :
         DEFINE VARIABLE ls-key AS cha NO-UNDO.
         ASSIGN
         ls-key         = STRING(TODAY,"99999999") +
-                  string(NEXT-VALUE(rec_key_seq,nosweat),"99999999")
+                  string(NEXT-VALUE(rec_key_seq,ASI),"99999999")
         po-ord.rec_key = ls-key.               
         CREATE rec_key.
         ASSIGN rec_key.rec_key    = po-ord.rec_key

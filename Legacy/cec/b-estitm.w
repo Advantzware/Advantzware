@@ -7927,7 +7927,7 @@ PROCEDURE valid-eb-reckey :
                           RECID(bf-eb) <> RECID(eb) NO-LOCK NO-ERROR.
    IF AVAIL bf-eb OR eb.rec_key = "" THEN DO:
       ls-key = string(today,"99999999") +
-               string(next-value(rec_key_seq,nosweat),"99999999").
+               string(next-value(rec_key_seq,ASI),"99999999").
       FIND CURRENT eb.
       eb.rec_key = ls-key.
       FIND CURRENT eb NO-LOCK.               

@@ -1875,13 +1875,13 @@ PROCEDURE vend-city :
      
   DO WITH FRAME {&FRAME-NAME}:
     IF vend.city:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.city EQ vend.city:SCREEN-VALUE
+    FIND FIRST ASI.zipcode
+        WHERE ASI.zipcode.city EQ vend.city:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
+    IF AVAIL ASI.zipcode THEN do:
       ASSIGN
-        vend.state:SCREEN-VALUE = nosweat.zipcode.state
-        vend.zip:SCREEN-VALUE = nosweat.zipcode.zipcode  .      
+        vend.state:SCREEN-VALUE = ASI.zipcode.state
+        vend.zip:SCREEN-VALUE = ASI.zipcode.zipcode  .      
     END.   
   END.
 END PROCEDURE.
@@ -1955,13 +1955,13 @@ PROCEDURE vend-zip :
      
   DO WITH FRAME {&FRAME-NAME}:
     IF vend.zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ vend.zip:SCREEN-VALUE        
+    FIND FIRST ASI.zipcode
+        WHERE ASI.zipcode.zipcode EQ vend.zip:SCREEN-VALUE        
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
+    IF AVAIL ASI.zipcode THEN do:
       ASSIGN
-        vend.state:SCREEN-VALUE = nosweat.zipcode.state
-        vend.city:SCREEN-VALUE = nosweat.zipcode.city.    
+        vend.state:SCREEN-VALUE = ASI.zipcode.state
+        vend.city:SCREEN-VALUE = ASI.zipcode.city.    
     END.   
   END.
 END PROCEDURE.
@@ -1979,14 +1979,14 @@ PROCEDURE zip-carrier :
    DO WITH FRAME {&FRAME-NAME}:
    
    /* gdm - 10010913 */
-   FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ vend.zip:SCREEN-VALUE
+   FIND FIRST ASI.zipcode
+        WHERE ASI.zipcode.zipcode EQ vend.zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
 
    ASSIGN
       vend.carrier:SCREEN-VALUE = IF AVAIL zipcode AND 
-                                     TRIM(nosweat.zipcode.carrier) NE "" 
-                                    THEN nosweat.zipcode.carrier 
+                                     TRIM(ASI.zipcode.carrier) NE "" 
+                                    THEN ASI.zipcode.carrier 
                                     ELSE vend.carrier:SCREEN-VALUE.     
       /* gdm - 10010913 end*/
    END.
