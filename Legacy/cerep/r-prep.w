@@ -19,8 +19,8 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "ER4" }
 END.
 
-IF SelectRptColumn-log THEN RUN cerep/r-prepN.w PERSISTENT .
-ELSE RUN cerep/r-prepA.w PERSISTENT .
+IF SelectRptColumn-log THEN RUN cerep/r-prepN.w PERSISTENT.
+ELSE RUN cerep/r-prepA.w PERSISTENT.
 
 
 

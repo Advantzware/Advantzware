@@ -5608,6 +5608,7 @@ PROCEDURE local-cancel-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-eb FOR eb.
+  DEF BUFFER bff-eb FOR eb.
 
   /* Code placed here will execute PRIOR to standard behavior. */  
 
@@ -5648,6 +5649,17 @@ PROCEDURE local-cancel-record :
   IF AVAIL est AND est.est-type NE 5 AND
      CAN-FIND(b-eb WHERE b-eb.company EQ est.company
                      AND b-eb.est-no  EQ est.est-no) THEN DO:
+      ASSIGN
+          est-qty.eqty:LABEL IN BROWSE {&browse-name} = "Est Qty"
+          eb.yld-qty:LABEL IN BROWSE {&browse-name}   = "Qty/Set".
+     
+      FOR EACH bff-eb
+          WHERE bff-eb.company EQ est.company
+            AND bff-eb.est-no  EQ est.est-no
+            AND bff-eb.form-no NE 0:
+          bff-eb.yld-qty = 1 .
+      END.
+
      FIND CURRENT est.
      est.est-type = 5.
      FIND CURRENT est NO-LOCK.

@@ -35,7 +35,11 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEF INPUT PARAM ip-db-name AS cha NO-UNDO.
+&IF DEFINED(UIB_is_Running) EQ 0 &THEN
+DEFINE INPUT PARAMETER ip-db-name AS CHARACTER NO-UNDO.
+&ELSE
+DEFINE VARIABLE ip-db-name AS CHARACTER NO-UNDO INITIAL "ASI".
+&ENDIF
 
 /* Local Variable Definitions ---                                       */
 

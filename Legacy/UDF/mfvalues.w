@@ -39,7 +39,7 @@ DEFINE INPUT PARAMETER iphSmartMsg AS HANDLE    NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {custom/mfvalues.i}
-{methods/defines/miscflds.i &NEW="NEW"}
+{UDF/mfttdefs.i &NEW="NEW SHARED"}
 
 DEFINE VARIABLE tabImage      AS WIDGET-HANDLE NO-UNDO EXTENT 18.
 DEFINE VARIABLE tabLabel      AS WIDGET-HANDLE NO-UNDO EXTENT 18.
@@ -84,8 +84,8 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnDelete Rect-Top Rect-Left Rect-Right ~
-Rect-Bottom btnSave btnExit 
+&Scoped-Define ENABLED-OBJECTS btnDelete btnSave Rect-Top Rect-Left ~
+Rect-Right Rect-Bottom btnExit 
 &Scoped-Define DISPLAYED-OBJECTS mfgroupList mfRecKey mfgroupLabel ~
 mfRecKeyLabel 
 
@@ -118,7 +118,7 @@ DEFINE BUTTON btnExit
 DEFINE BUTTON btnSave 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
-     SIZE 8 BY 1.91 TOOLTIP "Save and Exit"
+     SIZE 8 BY 1.9 TOOLTIP "Save"
      FONT 4.
 
 DEFINE VARIABLE mfgroupList AS CHARACTER FORMAT "X(256)":U 
@@ -171,11 +171,11 @@ DEFINE RECTANGLE Rect-Top
 DEFINE FRAME DEFAULT-FRAME
      btnDelete AT ROW 21.71 COL 68 HELP
           "Delete" WIDGET-ID 4
+     btnSave AT ROW 21.71 COL 76 HELP
+          "Save" WIDGET-ID 6
      mfgroupList AT ROW 21.48 COL 9 COLON-ALIGNED HELP
           "Select Group Name" NO-LABEL
      mfRecKey AT ROW 22.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     btnSave AT ROW 21.71 COL 76 HELP
-          "Save & Exit" WIDGET-ID 6
      btnExit AT ROW 21.71 COL 84 HELP
           "Exit Design Layout Window" WIDGET-ID 2
      mfgroupLabel AT ROW 21.48 COL 3 NO-LABEL
@@ -832,7 +832,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY mfgroupList mfRecKey mfgroupLabel mfRecKeyLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnDelete Rect-Top Rect-Left Rect-Right Rect-Bottom btnSave btnExit 
+  ENABLE btnDelete btnSave Rect-Top Rect-Left Rect-Right Rect-Bottom btnExit 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -893,12 +893,12 @@ PROCEDURE loadWidgetData :
     MESSAGE "No '" + ipcGroup + "' Group Exists!!!" VIEW-AS ALERT-BOX INFORMATION.
     RETURN "EMPTY".
   END.
-  OUTPUT TO VALUE("users/" + USERID("ASI") + "/miscflds.dat").
+  OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat").
   FOR EACH {&dbnm}mfdata NO-LOCK:
     PUT UNFORMATTED {&dbnm}mfdata.miscflds_data SKIP.
   END.
   OUTPUT CLOSE.
-  INPUT FROM VALUE("users/" + USERID("ASI") + "/miscflds.dat") NO-ECHO.
+  INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat") NO-ECHO.
   REPEAT:
     CREATE ttAttrb.
     IMPORT ttAttrb.

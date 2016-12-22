@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 
+
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
 &Scoped-define NEW NEW GLOBAL
 &ENDIF
@@ -46,8 +47,8 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 {sys/inc/var.i new shared}
 
 assign
- cocode = g_company
- locode = g_loc.
+    cocode = g_company
+    locode = g_loc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -62,7 +63,7 @@ assign
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -80,10 +81,10 @@ cust-markup.run-qty[4] cust-markup.markup[4] cust-markup.run-qty[5] ~
 cust-markup.markup[5] cust-markup.run-qty[6] cust-markup.markup[6] ~
 cust-markup.run-qty[7] cust-markup.markup[7] cust-markup.run-qty[8] ~
 cust-markup.markup[8] cust-markup.run-qty[9] cust-markup.markup[9] ~
-cust-markup.run-qty[10] cust-markup.markup[10] 
+cust-markup.run-qty[10] cust-markup.markup[10] cust-markup.cust-no 
 &Scoped-define ENABLED-TABLES cust-markup
 &Scoped-define FIRST-ENABLED-TABLE cust-markup
-&Scoped-Define ENABLED-OBJECTS RECT-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 custName procatDscr styleDscr 
 &Scoped-Define DISPLAYED-FIELDS cust-markup.style cust-markup.procat ~
 cust-markup.run-qty[1] cust-markup.markup[1] cust-markup.run-qty[2] ~
 cust-markup.markup[2] cust-markup.run-qty[3] cust-markup.markup[3] ~
@@ -91,12 +92,13 @@ cust-markup.run-qty[4] cust-markup.markup[4] cust-markup.run-qty[5] ~
 cust-markup.markup[5] cust-markup.run-qty[6] cust-markup.markup[6] ~
 cust-markup.run-qty[7] cust-markup.markup[7] cust-markup.run-qty[8] ~
 cust-markup.markup[8] cust-markup.run-qty[9] cust-markup.markup[9] ~
-cust-markup.run-qty[10] cust-markup.markup[10] 
+cust-markup.run-qty[10] cust-markup.markup[10] cust-markup.cust-no 
 &Scoped-define DISPLAYED-TABLES cust-markup
 &Scoped-define FIRST-DISPLAYED-TABLE cust-markup
-&Scoped-Define DISPLAYED-OBJECTS cb_markup-on-01 cb_markup-on-02 ~
-cb_markup-on-03 cb_markup-on-04 cb_markup-on-05 cb_markup-on-06 ~
-cb_markup-on-07 cb_markup-on-08 cb_markup-on-09 cb_markup-on-10 F-4 F-2 
+&Scoped-Define DISPLAYED-OBJECTS fiLookupValue cb_markup-on-01 ~
+cb_markup-on-02 cb_markup-on-03 cb_markup-on-04 cb_markup-on-05 ~
+cb_markup-on-06 cb_markup-on-07 cb_markup-on-08 cb_markup-on-09 ~
+cb_markup-on-10 custName procatDscr styleDscr F-4 F-2 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -132,6 +134,29 @@ RUN set-attribute-list (
      Keys-Supplied = "company,uom"':U).
 /**************************
 </EXECUTING-CODE> */
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getCustName V-table-Win 
+FUNCTION getCustName RETURNS CHARACTER
+  ( ipCustNo AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getProCatDscr V-table-Win 
+FUNCTION getProCatDscr RETURNS CHARACTER
+  ( ipProCat AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getStyleDscr V-table-Win 
+FUNCTION getStyleDscr RETURNS CHARACTER
+  ( ipStyle AS CHARACTER )  FORWARD.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -200,6 +225,11 @@ DEFINE VARIABLE cb_markup-on-10 AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 23 BY 1 NO-UNDO.
 
+DEFINE VARIABLE custName AS CHARACTER FORMAT "X(256)":U 
+     LABEL "custName" 
+     VIEW-AS FILL-IN 
+     SIZE 16.4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE F-2 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
       VIEW-AS TEXT 
      SIZE 2.2 BY .52
@@ -210,8 +240,21 @@ DEFINE VARIABLE F-4 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
      SIZE 2.2 BY .52
      BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
 
+DEFINE VARIABLE fiLookupValue AS CHARACTER FORMAT "X(256)":U INITIAL "Square Feet" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1 NO-UNDO.
+
+DEFINE VARIABLE procatDscr AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 16.4 BY 1 NO-UNDO.
+
+DEFINE VARIABLE styleDscr AS CHARACTER FORMAT "X(256)":U 
+     LABEL "styleDscr" 
+     VIEW-AS FILL-IN 
+     SIZE 16.4 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 57 BY 15.24.
 
 
@@ -225,6 +268,7 @@ DEFINE FRAME F-Main
      cust-markup.procat AT ROW 2.19 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
+     fiLookupValue AT ROW 3.24 COL 2 NO-LABEL WIDGET-ID 80
      cust-markup.run-qty[1] AT ROW 4.33 COL 2 NO-LABEL FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
@@ -291,9 +335,6 @@ DEFINE FRAME F-Main
      cust-markup.run-qty[10] AT ROW 15.05 COL 2 NO-LABEL FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     cust-markup.markup[10] AT ROW 15.05 COL 19 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -301,15 +342,22 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     cust-markup.markup[10] AT ROW 15.05 COL 19 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
      cb_markup-on-10 AT ROW 15.05 COL 32 COLON-ALIGNED NO-LABEL
+     cust-markup.cust-no AT ROW 16.48 COL 11.2 COLON-ALIGNED WIDGET-ID 88
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
+     custName AT ROW 16.71 COL 27 COLON-ALIGNED WIDGET-ID 90
+     procatDscr AT ROW 17.86 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+     styleDscr AT ROW 17.86 COL 28 COLON-ALIGNED WIDGET-ID 94
      F-4 AT ROW 1.24 COL 40 NO-LABEL
      F-2 AT ROW 2.19 COL 40 NO-LABEL
-     "Markup On" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 3.38 COL 34
      "Markup" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 3.38 COL 21
-     "Square Ft" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 3.38 COL 3
+          SIZE 12 BY 1 AT ROW 3.24 COL 21
+     "Markup On" VIEW-AS TEXT
+          SIZE 14 BY 1 AT ROW 3.24 COL 34
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -368,7 +416,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -393,6 +441,12 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR COMBO-BOX cb_markup-on-10 IN FRAME F-Main
    NO-ENABLE 2                                                          */
+ASSIGN 
+       cust-markup.cust-no:HIDDEN IN FRAME F-Main           = TRUE.
+
+ASSIGN 
+       custName:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN F-2 IN FRAME F-Main
    NO-ENABLE ALIGN-L 6                                                  */
 ASSIGN 
@@ -403,6 +457,8 @@ ASSIGN
 ASSIGN 
        F-4:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN fiLookupValue IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN cust-markup.markup[10] IN FRAME F-Main
    2                                                                    */
 /* SETTINGS FOR FILL-IN cust-markup.markup[1] IN FRAME F-Main
@@ -425,6 +481,9 @@ ASSIGN
    2                                                                    */
 /* SETTINGS FOR FILL-IN cust-markup.procat IN FRAME F-Main
    1 2                                                                  */
+ASSIGN 
+       procatDscr:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN cust-markup.run-qty[10] IN FRAME F-Main
    ALIGN-L EXP-FORMAT                                                   */
 /* SETTINGS FOR FILL-IN cust-markup.run-qty[1] IN FRAME F-Main
@@ -447,6 +506,9 @@ ASSIGN
    ALIGN-L EXP-FORMAT                                                   */
 /* SETTINGS FOR FILL-IN cust-markup.style IN FRAME F-Main
    EXP-LABEL                                                            */
+ASSIGN 
+       styleDscr:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -582,14 +644,14 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-all V-table-Win 
 PROCEDURE disable-all :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  DO WITH FRAME {&FRAME-NAME}:
-    DISABLE ALL.
-  END.
+    DO WITH FRAME {&FRAME-NAME}:
+        DISABLE ALL.
+    END.
 
 END PROCEDURE.
 
@@ -617,12 +679,12 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-markup-on V-table-Win 
 PROCEDURE display-markup-on :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  DO WITH FRAME {&FRAME-NAME}:
+    DO WITH FRAME {&FRAME-NAME}:
     {viewers/custmark.i 01}
     {viewers/custmark.i 02}
     {viewers/custmark.i 03}
@@ -633,7 +695,7 @@ PROCEDURE display-markup-on :
     {viewers/custmark.i 08}
     {viewers/custmark.i 09}
     {viewers/custmark.i 10}
-  END.
+    END.
 
 END PROCEDURE.
 
@@ -643,27 +705,27 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-   cust-markup.markup-on[01] = SUBSTR(cb_markup-on-01,2,1)
-   cust-markup.markup-on[02] = SUBSTR(cb_markup-on-02,2,1)
-   cust-markup.markup-on[03] = SUBSTR(cb_markup-on-03,2,1)
-   cust-markup.markup-on[04] = SUBSTR(cb_markup-on-04,2,1)
-   cust-markup.markup-on[05] = SUBSTR(cb_markup-on-05,2,1)
-   cust-markup.markup-on[06] = SUBSTR(cb_markup-on-06,2,1)
-   cust-markup.markup-on[07] = SUBSTR(cb_markup-on-07,2,1)
-   cust-markup.markup-on[08] = SUBSTR(cb_markup-on-08,2,1)
-   cust-markup.markup-on[09] = SUBSTR(cb_markup-on-09,2,1)
-   cust-markup.markup-on[10] = SUBSTR(cb_markup-on-10,2,1).
+    /* Code placed here will execute AFTER standard behavior.    */
+    ASSIGN
+        cust-markup.markup-on[01] = SUBSTR(cb_markup-on-01,2,1)
+        cust-markup.markup-on[02] = SUBSTR(cb_markup-on-02,2,1)
+        cust-markup.markup-on[03] = SUBSTR(cb_markup-on-03,2,1)
+        cust-markup.markup-on[04] = SUBSTR(cb_markup-on-04,2,1)
+        cust-markup.markup-on[05] = SUBSTR(cb_markup-on-05,2,1)
+        cust-markup.markup-on[06] = SUBSTR(cb_markup-on-06,2,1)
+        cust-markup.markup-on[07] = SUBSTR(cb_markup-on-07,2,1)
+        cust-markup.markup-on[08] = SUBSTR(cb_markup-on-08,2,1)
+        cust-markup.markup-on[09] = SUBSTR(cb_markup-on-09,2,1)
+        cust-markup.markup-on[10] = SUBSTR(cb_markup-on-10,2,1).
 
 END PROCEDURE.
 
@@ -673,17 +735,17 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
 PROCEDURE local-cancel-record :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  RUN disable-all.
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN disable-all.
 
 END PROCEDURE.
 
@@ -693,22 +755,22 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-   cust-markup.company   = cust.company
-   cust-markup.cust-no   = cust.cust-no
-   cust-markup.markup-on = "N".
+    /* Code placed here will execute AFTER standard behavior.    */
+    ASSIGN
+        cust-markup.company   = cust.company
+        cust-markup.cust-no   = cust.cust-no
+        cust-markup.markup-on = "N".
 
-  RUN display-markup-on.
+    RUN display-markup-on.
 
 END PROCEDURE.
 
@@ -718,17 +780,35 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cLookupDisplay AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound         AS LOGICAL   NO-UNDO.
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+    /* Code placed here will execute AFTER standard behavior.    */
+    IF AVAIL cust-markup THEN 
+    DO:
+        RUN display-markup-on.
+        RUN sys/ref/nk1look.p (cust-markup.company,
+            "CEMarkupMatrixLookup",
+            "C",
+            NO,
+            NO,
+            "",
+            "",
+            OUTPUT cLookupDisplay,
+            OUTPUT lFound).
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF AVAIL cust-markup THEN RUN display-markup-on.
+        IF NOT lFound OR cLookupDisplay EQ "" THEN 
+            cLookupDisplay = "Square Feet".
+        
+        fiLookupValue:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cLookupDisplay.
+    END.
 
 END PROCEDURE.
 
@@ -738,26 +818,26 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  RUN valid-style NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN valid-style NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-procat NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-procat NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-markup NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-markup NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN disable-all.
+    RUN disable-all.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+/* Code placed here will execute AFTER standard behavior.    */
   
 END PROCEDURE.
 
@@ -767,27 +847,27 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF NOT adm-new-record THEN
-      DISABLE cust-markup.style
-              cust-markup.procat.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF NOT adm-new-record THEN
+            DISABLE cust-markup.style
+                cust-markup.procat.
 
-    ENABLE cb_markup-on-01
-           cb_markup-on-02
-           cb_markup-on-03
-           cb_markup-on-04
-           cb_markup-on-05
-           cb_markup-on-06
-           cb_markup-on-07
-           cb_markup-on-08
-           cb_markup-on-09
-           cb_markup-on-10.
-  END.
+        ENABLE cb_markup-on-01
+            cb_markup-on-02
+            cb_markup-on-03
+            cb_markup-on-04
+            cb_markup-on-05
+            cb_markup-on-06
+            cb_markup-on-07
+            cb_markup-on-08
+            cb_markup-on-09
+            cb_markup-on-10.
+    END.
   
 END PROCEDURE.
 
@@ -843,18 +923,18 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
--------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
-  DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    -------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
 
-  CASE p-state:
+    CASE p-state:
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
-      {src/adm/template/vstates.i}
-  END CASE.
+    {src/adm/template/vstates.i}
+    END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -863,27 +943,28 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-key V-table-Win 
 PROCEDURE valid-key :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF BUFFER b-cust-markup FOR cust-markup.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEF BUFFER b-cust-markup FOR cust-markup.
 
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF CAN-FIND(FIRST b-cust-markup
-                WHERE b-cust-markup.company EQ cocode
-                  AND b-cust-markup.cust-no EQ cust-markup.cust-no
-                  AND b-cust-markup.style   EQ cust-markup.style:SCREEN-VALUE
-                  AND b-cust-markup.procat  EQ cust-markup.procat:SCREEN-VALUE
-                  AND ROWID(b-cust-markup)  NE ROWID(cust-markup))
-    THEN DO:
-      MESSAGE "This record already exists for customer, please re-enter..."
-         VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO cust-markup.procat.
-      RETURN ERROR.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF CAN-FIND(FIRST b-cust-markup
+            WHERE b-cust-markup.company EQ cocode
+            AND b-cust-markup.cust-no EQ cust-markup.cust-no
+            AND b-cust-markup.style   EQ cust-markup.style:SCREEN-VALUE
+            AND b-cust-markup.procat  EQ cust-markup.procat:SCREEN-VALUE
+            AND ROWID(b-cust-markup)  NE ROWID(cust-markup))
+            THEN 
+        DO:
+            MESSAGE "This record already exists for customer, please re-enter..."
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cust-markup.procat.
+            RETURN ERROR.
+        END.
     END.
-  END.
 
 END PROCEDURE.
 
@@ -893,92 +974,92 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-markup V-table-Win 
 PROCEDURE valid-markup :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DO WITH FRAME {&FRAME-NAME}:
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
       
-      IF DEC(cust-markup.markup[1]:SCREEN-VALUE) GE 100 THEN
-      DO:
-         MESSAGE "Markup Must Be Less Than 100."
-             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO cust-markup.markup[1].
-         RETURN ERROR.
-      END.
+        IF DEC(cust-markup.markup[1]:SCREEN-VALUE) GE 100 THEN
+        DO:
+            MESSAGE "Markup Must Be Less Than 100."
+                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+            APPLY "ENTRY" TO cust-markup.markup[1].
+            RETURN ERROR.
+        END.
 
-      IF DEC(cust-markup.markup[2]:SCREEN-VALUE) GE 100 THEN
-      DO:
-         MESSAGE "Markup Must Be Less Than 100."
-             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO cust-markup.markup[2].
-         RETURN ERROR.
-      END.
+        IF DEC(cust-markup.markup[2]:SCREEN-VALUE) GE 100 THEN
+        DO:
+            MESSAGE "Markup Must Be Less Than 100."
+                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+            APPLY "ENTRY" TO cust-markup.markup[2].
+            RETURN ERROR.
+        END.
 
-      IF DEC(cust-markup.markup[3]:SCREEN-VALUE) GE 100 THEN
-      DO:
-         MESSAGE "Markup Must Be Less Than 100."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO cust-markup.markup[3].
-         RETURN ERROR.
-      END.
+        IF DEC(cust-markup.markup[3]:SCREEN-VALUE) GE 100 THEN
+        DO:
+            MESSAGE "Markup Must Be Less Than 100."
+                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+            APPLY "ENTRY" TO cust-markup.markup[3].
+            RETURN ERROR.
+        END.
 
-      IF DEC(cust-markup.markup[4]:SCREEN-VALUE) GE 100 THEN
-      DO:
-         MESSAGE "Markup Must Be Less Than 100."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO cust-markup.markup[4].
-         RETURN ERROR.
-      END.
+        IF DEC(cust-markup.markup[4]:SCREEN-VALUE) GE 100 THEN
+        DO:
+            MESSAGE "Markup Must Be Less Than 100."
+                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+            APPLY "ENTRY" TO cust-markup.markup[4].
+            RETURN ERROR.
+        END.
 
-      IF DEC(cust-markup.markup[5]:SCREEN-VALUE) GE 100 THEN
-      DO:
-         MESSAGE "Markup Must Be Less Than 100."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO cust-markup.markup[5].
-         RETURN ERROR.
-      END.
+        IF DEC(cust-markup.markup[5]:SCREEN-VALUE) GE 100 THEN
+        DO:
+            MESSAGE "Markup Must Be Less Than 100."
+                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+            APPLY "ENTRY" TO cust-markup.markup[5].
+            RETURN ERROR.
+        END.
 
-      IF DEC(cust-markup.markup[6]:SCREEN-VALUE) GE 100 THEN
-      DO:
-         MESSAGE "Markup Must Be Less Than 100."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO cust-markup.markup[6].
-         RETURN ERROR.
-      END.
+        IF DEC(cust-markup.markup[6]:SCREEN-VALUE) GE 100 THEN
+        DO:
+            MESSAGE "Markup Must Be Less Than 100."
+                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+            APPLY "ENTRY" TO cust-markup.markup[6].
+            RETURN ERROR.
+        END.
 
-      IF DEC(cust-markup.markup[7]:SCREEN-VALUE) GE 100 THEN
-      DO:
-         MESSAGE "Markup Must Be Less Than 100."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO cust-markup.markup[7].
-         RETURN ERROR.
-      END.
+        IF DEC(cust-markup.markup[7]:SCREEN-VALUE) GE 100 THEN
+        DO:
+            MESSAGE "Markup Must Be Less Than 100."
+                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+            APPLY "ENTRY" TO cust-markup.markup[7].
+            RETURN ERROR.
+        END.
 
-      IF DEC(cust-markup.markup[8]:SCREEN-VALUE) GE 100 THEN
-      DO:
-         MESSAGE "Markup Must Be Less Than 100."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO cust-markup.markup[8].
-         RETURN ERROR.
-      END.
+        IF DEC(cust-markup.markup[8]:SCREEN-VALUE) GE 100 THEN
+        DO:
+            MESSAGE "Markup Must Be Less Than 100."
+                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+            APPLY "ENTRY" TO cust-markup.markup[8].
+            RETURN ERROR.
+        END.
 
-      IF DEC(cust-markup.markup[9]:SCREEN-VALUE) GE 100 THEN
-      DO:
-         MESSAGE "Markup Must Be Less Than 100."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO cust-markup.markup[9].
-         RETURN ERROR.
-      END.
+        IF DEC(cust-markup.markup[9]:SCREEN-VALUE) GE 100 THEN
+        DO:
+            MESSAGE "Markup Must Be Less Than 100."
+                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+            APPLY "ENTRY" TO cust-markup.markup[9].
+            RETURN ERROR.
+        END.
 
-      IF DEC(cust-markup.markup[10]:SCREEN-VALUE) GE 100 THEN
-      DO:
-         MESSAGE "Markup Must Be Less Than 100."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO cust-markup.markup[10].
-         RETURN ERROR.
-      END.
-   END.
+        IF DEC(cust-markup.markup[10]:SCREEN-VALUE) GE 100 THEN
+        DO:
+            MESSAGE "Markup Must Be Less Than 100."
+                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+            APPLY "ENTRY" TO cust-markup.markup[10].
+            RETURN ERROR.
+        END.
+    END.
   
 END PROCEDURE.
 
@@ -988,29 +1069,30 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-procat V-table-Win 
 PROCEDURE valid-procat :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
   
-  DO WITH FRAME {&FRAME-NAME}:
-    cust-markup.procat:SCREEN-VALUE =
-        CAPS(cust-markup.procat:SCREEN-VALUE).
+    DO WITH FRAME {&FRAME-NAME}:
+        cust-markup.procat:SCREEN-VALUE =
+            CAPS(cust-markup.procat:SCREEN-VALUE).
 
-    IF cust-markup.procat:SCREEN-VALUE NE "" AND
-        NOT CAN-FIND(FIRST fgcat
-                    WHERE fgcat.company EQ cocode
-                      AND fgcat.procat  EQ cust-markup.procat:SCREEN-VALUE)
-    THEN DO:
-      MESSAGE TRIM(cust-markup.procat:LABEL) + " is invalid, try help..."
-         VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO cust-markup.procat.
-      RETURN ERROR.
+        IF cust-markup.procat:SCREEN-VALUE NE "" AND
+            NOT CAN-FIND(FIRST fgcat
+            WHERE fgcat.company EQ cocode
+            AND fgcat.procat  EQ cust-markup.procat:SCREEN-VALUE)
+            THEN 
+        DO:
+            MESSAGE TRIM(cust-markup.procat:LABEL) + " is invalid, try help..."
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cust-markup.procat.
+            RETURN ERROR.
+        END.
+
+        RUN valid-key NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN ERROR.
     END.
-
-    RUN valid-key NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-  END.
 
 END PROCEDURE.
 
@@ -1020,31 +1102,123 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-style V-table-Win 
 PROCEDURE valid-style :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  DO WITH FRAME {&FRAME-NAME}:
-    cust-markup.style:SCREEN-VALUE =
-        CAPS(cust-markup.style:SCREEN-VALUE).
+    DO WITH FRAME {&FRAME-NAME}:
+        cust-markup.style:SCREEN-VALUE =
+            CAPS(cust-markup.style:SCREEN-VALUE).
 
-    IF cust-markup.style:SCREEN-VALUE NE "" AND
-       NOT CAN-FIND(FIRST style
-                    WHERE style.company EQ cocode
-                      AND style.style   EQ cust-markup.style:SCREEN-VALUE)
-    THEN DO:
-      MESSAGE TRIM(cust-markup.style:LABEL) + " is invalid, try help..."
-         VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO cust-markup.style.
-      RETURN ERROR.
+        IF cust-markup.style:SCREEN-VALUE NE "" AND
+            NOT CAN-FIND(FIRST style
+            WHERE style.company EQ cocode
+            AND style.style   EQ cust-markup.style:SCREEN-VALUE)
+            THEN 
+        DO:
+            MESSAGE TRIM(cust-markup.style:LABEL) + " is invalid, try help..."
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cust-markup.style.
+            RETURN ERROR.
+        END.
+
+        RUN valid-key NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN ERROR.
     END.
 
-    RUN valid-key NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-  END.
-
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getCustName V-table-Win 
+FUNCTION getCustName RETURNS CHARACTER
+  ( ipCustNo AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCust AS CHARACTER NO-UNDO. 
+    
+    IF ipCustNo EQ "" THEN 
+        cCust = "All Customers".
+    ELSE 
+    DO:     
+        FIND FIRST cust NO-LOCK
+            WHERE cust.company EQ g_company
+            AND cust.cust-no EQ ipCustNo
+            NO-ERROR.
+        IF AVAILABLE cust THEN 
+            cCust = cust.name.
+        ELSE 
+            cCust = "Invalid Customer".
+    END.    
+    RETURN cCust.
+
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getProCatDscr V-table-Win 
+FUNCTION getProCatDscr RETURNS CHARACTER
+  ( ipProCat AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+  
+    IF ipProCat EQ "" THEN 
+        cDescription = "All Categories".
+    ELSE 
+    DO: 
+        FIND FIRST fgcat NO-LOCK
+            WHERE fgcat.company EQ g_company
+            AND fgcat.procat EQ ipProCat
+            NO-ERROR.
+        IF AVAILABLE fgcat THEN 
+            cDescription = fgcat.dscr.
+        ELSE
+            cDescription = "Invalid Category".
+    END.
+    RETURN cDescription.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getStyleDscr V-table-Win 
+FUNCTION getStyleDscr RETURNS CHARACTER
+  ( ipStyle AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cStyle AS CHARACTER NO-UNDO.
+    
+    IF ipStyle EQ "" THEN
+        cStyle = "All Styles".
+    ELSE 
+    DO:
+        
+        FIND FIRST style NO-LOCK
+            WHERE style.company EQ g_company
+            AND style.style EQ ipStyle
+            NO-ERROR.
+        IF AVAILABLE style THEN 
+            cStyle = style.dscr.
+        ELSE 
+            cStyle = "Invalid Style".
+    END.
+    RETURN cStyle.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -18,8 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "OR12" }
 END.
 
-IF SelectRptColumn-log THEN RUN oerep/r-shed2N.w.
-ELSE RUN oerep/r-shed2A.w.     
-
-
-
+IF SelectRptColumn-log THEN RUN oerep/r-shed2N.w PERSISTENT.
+ELSE RUN oerep/r-shed2A.w PERSISTENT.

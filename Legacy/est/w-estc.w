@@ -145,8 +145,8 @@ DEFINE VARIABLE h_xferjobdata AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btNextItemfg 
-     LABEL "Next Item" 
-     IMAGE-UP FILE "Graphics/32x32/plus.ico":U
+     LABEL "Add Item" 
+     /*IMAGE-UP FILE "Graphics/32x32/plus.ico":U*/
      SIZE 11 BY 1.67
      .
 
@@ -1111,6 +1111,16 @@ PROCEDURE disable-enable-farm :
 ------------------------------------------------------------------------------*/
   {est/farmTab.i}
 
+ DO WITH FRAME {&FRAME-NAME}:
+      
+    ASSIGN
+      btNextItemfg:VISIBLE = li-page[1] EQ 2 AND AVAIL est AND est.est-type = 6 
+      btNextItemfg:SENSITIVE = li-page[1] EQ 2 AND AVAIL est AND est.est-type = 6 .
+    IF li-page[1] EQ 2 AND NOT CAN-DO(winObjects,'btNextItemfg') AND rowDiff NE 0 THEN
+    ASSIGN
+      btNextItemfg:ROW = btNextItemfg:ROW + rowDiff
+      winObjects = winObjects + 'btNextItemfg' + ','.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1297,9 +1307,10 @@ ELSE
   END.
  
   DO WITH FRAME {&FRAME-NAME}:
+      
     ASSIGN
-      btNextItemfg:VISIBLE = li-page[1] EQ 2
-      btNextItemfg:SENSITIVE = li-page[1] EQ 2.
+      btNextItemfg:VISIBLE = li-page[1] EQ 2 AND AVAIL est AND est.est-type = 6 
+      btNextItemfg:SENSITIVE = li-page[1] EQ 2 AND AVAIL est AND est.est-type = 6 .
     IF li-page[1] EQ 2 AND NOT CAN-DO(winObjects,'btNextItemfg') AND rowDiff NE 0 THEN
     ASSIGN
       btNextItemfg:ROW = btNextItemfg:ROW + rowDiff

@@ -1,10 +1,5 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS Procedure
-USING Advantzware.WinKit.Forms.* FROM PROPATH.
-USING Consultingwerk.Util.* FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Forms.* FROM PROPATH.
-&ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
 /*------------------------------------------------------------------------
@@ -27,8 +22,6 @@ USING Consultingwerk.WindowIntegrationKit.Forms.* FROM PROPATH.
      cleanup will occur on deletion of the procedure. */
 
 CREATE WIDGET-POOL.
-
-DEFINE VARIABLE oNotesForm AS INotes NO-UNDO . 
 
 /* ***************************  Definitions  ************************** */
 
@@ -230,46 +223,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize Procedure
-PROCEDURE local-initialize:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-
-  DEFINE VARIABLE hContainer AS HANDLE NO-UNDO.
-  DEFINE VARIABLE cContainer AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE oForm AS IEmbeddedWindowForm NO-UNDO .
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-    RUN get-link-handle IN adm-broker-hdl
-       (INPUT THIS-PROCEDURE, INPUT 'CONTAINER-SOURCE':U, OUTPUT cContainer).
-       
-       
-  ASSIGN hContainer = WIDGET-HANDLE (cContainer) .     
-
-
-  IF VALID-HANDLE (hContainer) AND ProcedureHelper:HasEntry (hContainer, "getEmbeddedWindowForm") THEN DO:
-
-    oForm = DYNAMIC-FUNCTION ("getEmbeddedWindowForm" IN hContainer) .
-    
-    IF VALID-OBJECT (oForm) AND TYPE-OF (oForm, INotes) THEN 
-        ASSIGN oNotesForm = CAST (oForm, INotes) .
-  END.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-insensitive s-object 
 PROCEDURE make-insensitive :
 /*------------------------------------------------------------------------------
@@ -277,11 +230,12 @@ PROCEDURE make-insensitive :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-mf-message:SENSITIVE IN FRAME F-Main = FALSE.
-notes-message:SENSITIVE IN FRAME F-Main = FALSE.
-
-IF VALID-OBJECT (oNotesForm) THEN 
-    oNotesForm:DisableNotes() .
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            mf-message:SENSITIVE    = FALSE
+            notes-message:SENSITIVE = FALSE
+            .
+    END.
 
 END PROCEDURE.
 
@@ -295,11 +249,12 @@ PROCEDURE make-sensitive :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-mf-message:SENSITIVE IN FRAME F-Main = TRUE.
-notes-message:SENSITIVE IN FRAME F-Main = TRUE.
-
-IF VALID-OBJECT (oNotesForm) THEN 
-    oNotesForm:EnableNotes() .
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            mf-message:SENSITIVE    = TRUE
+            notes-message:SENSITIVE = TRUE
+            .
+    END.
 
 END PROCEDURE.
 
@@ -325,8 +280,6 @@ PROCEDURE Show-MF-Message :
                                       ELSE ""
             .
     END.
-    IF VALID-OBJECT (oNotesForm) THEN
-        oNotesForm:HasCustomFields = ip-misc-flds . 
 
 END PROCEDURE.
 
@@ -349,9 +302,7 @@ PROCEDURE Show-Notes-Message :
           " Notes Exist " ELSE ""
       .
   END.
-  IF VALID-OBJECT (oNotesForm) THEN 
-      oNotesForm:HasNotes = ip-notes .
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -19,9 +19,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "ER6" }
 END.
 
-IF SelectRptColumn-log THEN RUN cerep/r-quotesN.w.
-ELSE RUN cerep/r-quotesA.w.
-
-
-
-
+IF SelectRptColumn-log THEN RUN cerep/r-quotesN.w PERSISTENT.
+ELSE RUN cerep/r-quotesA.w PERSISTENT.

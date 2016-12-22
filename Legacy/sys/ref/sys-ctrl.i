@@ -14,8 +14,8 @@ name-fld-list =
 /* 46     47        48      49      50       51       52        53       54        55      56      57       58      59      60     61       62       63       64      65     66      67     68      69      70      71      72       73        74       75      76       77       78       79      80      81       82      83     84      85     86      87      88  */
 /*  89       90       91     92      93      94       95    96   97     98      99       100       101      102     103    104      105       106    107   108       109       110       111      112       113       114      115       116       117    118      119      120       121     122        123        124         125     126     127     128        129  */
 "stmtprint,TSFinish,appaper,cecunit,fgpost,corsuply,fgitemsf,GP,oeprep,celayout,1099misc,RFQPrint,oecredit,maxbreak,aptax,rmemails,sspostfg,bolfmtx,schdcard,TSTIME,FGReOrder,ARMEMO,APCheckFile,OEPrompt,SSBOLSCAN,INVCOPYS,CORRCHOICE,BORELDATE,OEINQ,ECBROWSE,VENDXFER,CUSTXFER,ORDERXFER,MISCJOBCL,RMUnderOver,CEPREPPRICE,RELTYPE,SSMoveFG,CEMISC,BolPostTime,CEDeliveryZone," +
-/* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147        148        149       150          151        152    153   */
-"BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster".
+/* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147        148        149       150          151        152    153               154*/
+"BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup".
                                   /* 126*/
 
 DEF VAR str-init  AS CHAR EXTENT 155 NO-UNDO.
@@ -235,7 +235,29 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[151] = "Xprint,bolfmt1,GPI"
        str-init[152] = ",Open,Hold"
        str-init[153] = "Trailer#,ShipTo,Indiana"
+       str-init[154] = "Square Feet,Board Cost"
     .
+
+	
+IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
+     ASSIGN
+	   str-init[1]  = "quoprint 1,quoprint 2"
+       str-init[2]  = "invprint 1,invprint 2"
+       str-init[8]  = "poprint 1,poprint 2"
+       str-init[9]  = "relprint 1,relprint 2"
+       str-init[10] = "bolfmt 1,bolfmt 2"
+       str-init[11] = "chkfmt 1,chkfmt 2"
+       str-init[13] = "ackhead 1,ackhead 2"
+       str-init[29] = "bolcert 1,bolcert 2"
+       str-init[30] = "cerunc 1,cerunc 2"
+       str-init[31] = "cerunf 1,cerunf 2"
+       str-init[32] = "jobcardc 1,jobcardc 2"
+       str-init[33] = "jobcardf 1,jobcardf 2"
+       str-init[89] = "stmtprint 1,stmtprint 2"  /*stmtprin*/
+       str-init[141] = "AckMaster 1,AckMaster 2" /*"3CPack"*/
+       str-init[151] = "bolfmt1" .
+
+end.
 
 FOR EACH ASI.item-spec FIELDS(CODE) WHERE
     ASI.item-spec.company = g_company AND

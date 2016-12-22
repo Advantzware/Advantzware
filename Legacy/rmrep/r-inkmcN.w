@@ -57,7 +57,10 @@ DEF VAR is-xprint-form AS LOGICAL.
 DEF VAR ls-fax-file AS CHARACTER NO-UNDO.
 
 DEF TEMP-TABLE tt-report LIKE report
-    FIELD ink-code AS CHAR EXTENT 15 .
+    FIELD ink-code AS CHAR EXTENT 15
+    FIELD rm-name AS CHAR EXTENT 15
+    FIELD rm-dscr AS CHAR EXTENT 15 
+    FIELD qty AS CHAR EXTENT 15 .
 
 DEF STREAM excel.
 
@@ -79,11 +82,16 @@ DEF BUFFER b-job-hdr FOR job-hdr .
 
                                 
 ASSIGN cTextListToSelect = "JOB#,FORM,CUSTOMER,NAME,FG ITEM #,BOARD,ADDER 1,ADDER 2,DUE DATE,PCT-COV," +
-                           "QTY-SHEETS,INK1,INK2,INK3,INK4,INK5,INK6,QTY-LBS "
+                           "QTY-SHEETS,INK1,INK2,INK3,INK4,INK5,INK6,RM NAME,RM NAME2,RM NAME3," +
+                           "RM NAME4,RM NAME5,RM NAME6,RM DESCRIPTION,RM DESCRIPTION2,RM DESCRIPTION3,RM DESCRIPTION4," +
+                           "RM DESCRIPTION5,RM DESCRIPTION6,QTY PER INK,QTY PER INK2,QTY PER INK3,QTY PER INK4,QTY PER INK5,QTY PER INK6"
            cFieldListToSelect = "job,frm,cust,name,ino,board,addr1,addr2,date,cov," +
-                                "qty,ink1,ink2,ink3,ink4,ink5,ink6,qtylb "
-           cFieldLength = "9,4,8,20,15,10,10,10,8,7," + "10,11,11,11,11,11,11,7"
-           cFieldType = "c,i,c,c,c,c,c,c,c,i," + "i,c,c,c,c,c,c,i"
+                                "qty,ink1,ink2,ink3,ink4,ink5,ink6,ink1rmname,ink2rmname,ink3rmname," +
+                                "ink4rmname,ink5rmname,ink6rmname,ink1rmdscr,ink2rmdscr,ink3rmdscr,ink4rmdscr," +
+                                "ink5rmdscr,ink6rmdscr,qtyperink1,qtyperink2,qtyperink3,qtyperink4,qtyperink5,qtyperink6"
+           cFieldLength = "9,4,8,20,15,10,10,10,8,7," + "10,11,11,11,11,11,11,30,30,30," + "30,30,30,30,30,30,30," +
+                          "30,30,12,12,12,12,12,12"
+           cFieldType = "c,i,c,c,c,c,c,c,c,i," + "i,c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c"
            .
 
 {sys/inc/ttRptSel.i}
@@ -1294,7 +1302,7 @@ DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR v-page AS LOGICAL NO-UNDO.
-{sys/form/r-top5DL.f} 
+{sys/form/r-topw3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
@@ -1356,6 +1364,10 @@ FOR EACH tt-report:
   DELETE tt-report.
 END.
 
+ VIEW FRAME r-top.
+  
+ 
+
   assign
    v-fjob = fill(" ",6 - length(trim(v-fjob))) +
             trim(v-fjob) + "-" + string(v-fjob2,"99")
@@ -1363,12 +1375,10 @@ END.
             trim(v-tjob) + "-" + string(v-tjob2,"99").
 
   /* {custom/statusMsg.i "'Processing...'"}  */
-
+  
     for each job-hdr
         where job-hdr.opened eq yes
     {rm/rep/inkbymchN.i}
-
-    VIEW FRAME r-top.
     
     for each tt-report where tt-report.term-id eq "",
     
@@ -1389,8 +1399,8 @@ END.
         first cust
         where cust.company eq cocode
           and cust.cust-no eq job-hdr.cust-no
-        no-lock  
-        
+        NO-LOCK
+
         break by tt-report.key-01
               by tt-report.key-02
               by tt-report.key-03
@@ -1401,7 +1411,20 @@ END.
        
          {custom/statusMsg.i "'Processing Item # ' + string(job-hdr.i-no)"} 
 
-      if first-of(tt-report.key-01) then page.
+      if first-of(tt-report.key-01) THEN do:
+
+
+           page.
+           PUT 
+
+     str-tit3 format "x(112)"
+     skip
+     str-tit4 format "x(800)"
+     skip
+     str-tit5 format "x(800)"
+     skip(1)  .
+
+      END.
       
       if first-of(tt-report.key-03) then do:
         find first b-jm
@@ -1488,7 +1511,26 @@ END.
                      WHEN "ink4" THEN cVarValue = STRING(tt-report.ink-code[4]).
                      WHEN "ink5" THEN cVarValue = STRING(tt-report.ink-code[5]).
                      WHEN "ink6" THEN cVarValue = STRING(tt-report.ink-code[6]).    
-                     WHEN "qtylb" THEN cVarValue = STRING(job-mat.qty,">>,>>9"). 
+                     /*WHEN "qtylb" THEN cVarValue = STRING(job-mat.qty,">>,>>9").*/
+                     WHEN "ink1rmname" THEN cVarValue = STRING(tt-report.rm-name[1]).
+                     WHEN "ink2rmname" THEN cVarValue = STRING(tt-report.rm-name[2]).
+                     WHEN "ink3rmname" THEN cVarValue = STRING(tt-report.rm-name[3]).
+                     WHEN "ink4rmname" THEN cVarValue = STRING(tt-report.rm-name[4]).
+                     WHEN "ink5rmname" THEN cVarValue = STRING(tt-report.rm-name[5]).
+                     WHEN "ink6rmname" THEN cVarValue = STRING(tt-report.rm-name[6]).
+                     WHEN "ink1rmdscr" THEN cVarValue = STRING(tt-report.rm-dscr[1]).
+                     WHEN "ink2rmdscr" THEN cVarValue = STRING(tt-report.rm-dscr[2]).
+                     WHEN "ink3rmdscr" THEN cVarValue = STRING(tt-report.rm-dscr[3]).
+                     WHEN "ink4rmdscr" THEN cVarValue = STRING(tt-report.rm-dscr[4]).
+                     WHEN "ink5rmdscr" THEN cVarValue = STRING(tt-report.rm-dscr[5]).
+                     WHEN "ink6rmdscr" THEN cVarValue = STRING(tt-report.rm-dscr[6]).
+                     WHEN "qtyperink1" THEN cVarValue = STRING(tt-report.qty[1]).
+                     WHEN "qtyperink2" THEN cVarValue = STRING(tt-report.qty[2]).
+                     WHEN "qtyperink3" THEN cVarValue = STRING(tt-report.qty[3]).
+                     WHEN "qtyperink4" THEN cVarValue = STRING(tt-report.qty[4]).
+                     WHEN "qtyperink5" THEN cVarValue = STRING(tt-report.qty[5]).
+                     WHEN "qtyperink6" THEN cVarValue = STRING(tt-report.qty[6]).
+
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  

@@ -95,6 +95,7 @@ DEF VAR v-rec-key-list AS CHAR NO-UNDO.
 DEF VAR v-last-shipto LIKE oe-ordl.ship-id NO-UNDO.
 DEFINE VARIABLE dTotQtyRet AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dTotRetInv AS DECIMAL NO-UNDO.
+DEFINE VARIABLE iHandQtyNoalloc AS INTEGER NO-UNDO .
 DEF VAR lActive AS LOG NO-UNDO.
 
  DO TRANSACTION:
@@ -239,7 +240,8 @@ get-act-bol-qty() @ li-act-bol-qty  ~
 oe-ordl.cust-no oe-ord.cust-name oe-ordl.qty oe-ordl.ship-qty ~
 oe-ordl.req-date oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no ~
 oe-ordl.job-no oe-ordl.job-no2 oe-ord.ord-date oe-ord.stat oe-ordl.inv-qty ~
-oe-ordl.i-name getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv
+oe-ordl.i-name getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
+fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-ordl oe-ord
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ordl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ord
@@ -379,6 +381,13 @@ FUNCTION get-price-disc RETURNS DECIMAL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-prod B-table-Win 
 FUNCTION get-prod RETURNS INTEGER
   ( OUTPUT op-bal AS INT )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fget-qty-nothand B-table-Win 
+FUNCTION fget-qty-nothand RETURNS INTEGER
+  (ipBal AS INTEGER,ipHand AS INTEGER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -615,7 +624,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 21
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
-      oe-ordl.line FORMAT "99":U
+      oe-ordl.line FORMAT ">>99":U
       get-cost() @ ld-cost COLUMN-LABEL "Cost" WIDTH 20
       get-cost-uom() @ ld-cost-uom COLUMN-LABEL "Cost!UOM"
       oe-ordl.po-no-po FORMAT ">>>>>9":U
@@ -624,6 +633,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 15.4  LABEL-BGCOLOR 14  /* mod 01 Task 10111317  */
       getTotalReturned() @ dTotQtyRet COLUMN-LABEL "Total Qty Returned" FORMAT ">>>,>>9":U
       getReturnedInv() @ dTotRetInv COLUMN-LABEL "Qty Ret. Inventory" FORMAT ">>>,>>9":U
+      fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
             
   ENABLE
       oe-ordl.ord-no
@@ -855,7 +865,7 @@ oe-ordl.ord-no eq 999999999"
      _FldNameList[28]   > ASI.oe-ordl.i-name
 "oe-ordl.i-name" "Item Name" ? "character" ? ? ? 14 ? ? yes "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[29]   > ASI.oe-ordl.line
-"oe-ordl.line" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[30]   > "_<CALC>"
 "get-cost() @ ld-cost" "Cost" ? ? ? ? ? ? ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[31]   > "_<CALC>"
@@ -870,6 +880,8 @@ oe-ordl.ord-no eq 999999999"
 "getTotalReturned() @ dTotQtyRet" "Total Qty Returned" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[35]   > "_<CALC>"
 "getReturnedInv() @ dTotRetInv" "Qty Ret. Inventory" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[35]   > "_<CALC>"
+"fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -3740,6 +3752,25 @@ END.
  
 op-bal = iTotalProdQty.
 RETURN iTotalProdQty.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fget-qty-nothand B-table-Win 
+FUNCTION fget-qty-nothand RETURNS INTEGER
+  (ipBal AS INTEGER,ipHand AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE irtnValue AS INTEGER NO-UNDO.
+
+    irtnValue = (ipHand  - ipBal ).
+   
+  
+  RETURN irtnValue.
 
 END FUNCTION.
 

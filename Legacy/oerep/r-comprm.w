@@ -18,7 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "OZ5" }
 END.
 
-IF SelectRptColumn-log THEN RUN oerep/r-comprN.w.
-ELSE RUN oerep/r-comprA.w.     
-
-
+IF SelectRptColumn-log THEN RUN oerep/r-comprN.w PERSISTENT.
+ELSE RUN oerep/r-comprA.w PERSISTENT.

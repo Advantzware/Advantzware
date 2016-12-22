@@ -18,11 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "DR7" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-labestN.w.
-ELSE RUN pcrep/r-labestA.w.     
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN pcrep/r-labestN.w PERSISTENT.
+ELSE RUN pcrep/r-labestA.w PERSISTENT.

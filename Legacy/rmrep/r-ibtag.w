@@ -18,6 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "MR3" }
 END.
 
-IF SelectRptColumn-log THEN RUN rmrep/r-ibtagN.w.
-ELSE RUN rmrep/r-ibtagA.w.     
-        
+IF SelectRptColumn-log THEN RUN rmrep/r-ibtagN.w PERSISTENT.
+ELSE RUN rmrep/r-ibtagA.w PERSISTENT.

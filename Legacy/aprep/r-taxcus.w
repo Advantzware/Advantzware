@@ -18,13 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "VR9" }
 END.
 
-IF SelectRptColumn-log THEN RUN aprep/r-taxcusN.w.
-ELSE RUN aprep/r-taxcusA.w.     
-
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN aprep/r-taxcusN.w PERSISTENT.
+ELSE RUN aprep/r-taxcusA.w PERSISTENT.

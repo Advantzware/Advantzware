@@ -19,9 +19,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "HY" }
 END.
 
-IF SelectRptColumn-log THEN RUN salrep/r-yeavolN.w.
-ELSE RUN salrep/r-yeavolA.w.
-
-
-
-
+IF SelectRptColumn-log THEN RUN salrep/r-yeavolN.w PERSISTENT.
+ELSE RUN salrep/r-yeavolA.w PERSISTENT.

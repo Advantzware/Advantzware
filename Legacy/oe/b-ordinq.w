@@ -81,6 +81,7 @@ DEF VAR lc-mi AS CHAR NO-UNDO.
 DEF VAR lr-rel-lib AS HANDLE NO-UNDO.
 DEFINE VARIABLE dTotQtyRet AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dTotRetInv AS DECIMAL NO-UNDO.
+DEFINE VARIABLE iHandQtyNoalloc AS INTEGER NO-UNDO .
 DEF VAR lActive AS LOG NO-UNDO.
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
@@ -203,7 +204,8 @@ get-act-rel-qty() @ li-act-rel-qty get-wip() @ li-wip ~
 get-pct(li-bal) @ li-pct get-fgitem() @ lc-fgitem oe-ordl.i-name ~
 oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
 get-act-bol-qty() @ li-act-bol-qty getTotalReturned() @ dTotQtyRet ~
-getReturnedInv() @ dTotRetInv oe-ordl.s-man[1]
+getReturnedInv() @ dTotRetInv oe-ordl.s-man[1] ~
+fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.stat oe-ord.ord-date oe-ordl.req-date ~
 oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no ~
@@ -290,6 +292,13 @@ FUNCTION get-pct RETURNS INTEGER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-prod B-table-Win 
 FUNCTION get-prod RETURNS INTEGER
   (OUTPUT op-bal AS INT)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fget-qty-nothand B-table-Win 
+FUNCTION fget-qty-nothand RETURNS INTEGER
+  (ipBal AS INTEGER,ipHand AS INTEGER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -499,7 +508,7 @@ DEFINE BROWSE Browser-Table
       get-fgitem() @ lc-fgitem COLUMN-LABEL "FG Item#" FORMAT "x(15)":U
             WIDTH 21
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
-      oe-ordl.line FORMAT "99":U
+      oe-ordl.line FORMAT ">>99":U
       oe-ordl.po-no-po FORMAT ">>>>>9":U
       oe-ordl.e-num FORMAT ">>>>>9":U
       oe-ordl.whsed FORMAT "yes/no":U
@@ -507,6 +516,7 @@ DEFINE BROWSE Browser-Table
       getTotalReturned() @ dTotQtyRet COLUMN-LABEL "Tot Returned" FORMAT ">>>,>>9":U
       getReturnedInv() @ dTotRetInv COLUMN-LABEL "Qty Returned Inv" FORMAT ">>>,>>9":U
       oe-ordl.s-man[1] COLUMN-LABEL "Rep" FORMAT "x(3)":U LABEL-BGCOLOR 14
+      fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
   ENABLE
       oe-ordl.ord-no
       oe-ordl.cust-no
@@ -550,6 +560,12 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 107.4
           FGCOLOR 9 FONT 6
+     "Sorted By:" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 3.62 COL 72.4
+          FONT 6
+     "Order#" VIEW-AS TEXT
+          SIZE 10 BY .71 AT ROW 1.24 COL 5
+          FGCOLOR 9 FONT 6
      "Cust Part#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 54
           FGCOLOR 9 FONT 6
@@ -567,12 +583,6 @@ DEFINE FRAME F-Main
           FONT 6
      "CAD#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 123
-          FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 3.62 COL 72.4
-          FONT 6
-     "Order#" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COL 5
           FGCOLOR 9 FONT 6
      "Customer#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 17
@@ -727,7 +737,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[26]   > ASI.oe-ordl.i-name
 "oe-ordl.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > ASI.oe-ordl.line
-"oe-ordl.line" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   > ASI.oe-ordl.po-no-po
 "oe-ordl.po-no-po" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[29]   = ASI.oe-ordl.e-num
@@ -741,6 +751,8 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "getReturnedInv() @ dTotRetInv" "Qty Returned Inv" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
  _FldNameList[34]   > ASI.oe-ordl.s-man[1]
 "oe-ordl.s-man[1]" "Rep" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[35]   > "_<CALC>"
+"fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -2536,6 +2548,25 @@ END.
 op-bal = iTotalProdQty.
 RETURN iTotalProdQty.   /* Function return value. */
 
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fget-qty-nothand B-table-Win 
+FUNCTION fget-qty-nothand RETURNS INTEGER
+  (ipBal AS INTEGER,ipHand AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE irtnValue AS INTEGER NO-UNDO.
+
+    irtnValue = (ipHand - ipBal).
+   
+  
+  RETURN irtnValue.
 
 END FUNCTION.
 

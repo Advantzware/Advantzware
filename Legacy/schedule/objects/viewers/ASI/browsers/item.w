@@ -35,6 +35,14 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+{UDF/mfttDefs.i}
+{UDF/ttUDF.i}
+{UDF/fUDFGroup.i "sbPro."}
+{UDF/pGetMFData.i}
+
+DEFINE VARIABLE cellColumn AS HANDLE  NO-UNDO EXTENT 100.
+DEFINE VARIABLE idx        AS INTEGER NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -48,7 +56,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -60,7 +68,7 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job, job-mch.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES eb style
+&Scoped-define INTERNAL-TABLES eb style itemfg
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -76,7 +84,11 @@ AND (eb.blank-no EQ job-mch.blank-no ~
 OR job-mch.blank-no EQ 0) NO-LOCK, ~
       FIRST style WHERE TRUE /* Join to eb incomplete */ ~
       AND style.company EQ eb.company ~
-AND style.style EQ eb.style NO-LOCK ~
+AND style.style EQ eb.style NO-LOCK, ~
+      FIRST itemfg WHERE TRUE /* Join to eb incomplete */ ~
+      AND itemfg.company EQ eb.company ~
+AND itemfg.part-no EQ eb.part-no ~
+AND itemfg.i-no EQ eb.stock-no NO-LOCK ~
     BY eb.form-no ~
        BY eb.blank-no
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH eb WHERE ~{&KEY-PHRASE} ~
@@ -87,12 +99,17 @@ AND (eb.blank-no EQ job-mch.blank-no ~
 OR job-mch.blank-no EQ 0) NO-LOCK, ~
       FIRST style WHERE TRUE /* Join to eb incomplete */ ~
       AND style.company EQ eb.company ~
-AND style.style EQ eb.style NO-LOCK ~
+AND style.style EQ eb.style NO-LOCK, ~
+      FIRST itemfg WHERE TRUE /* Join to eb incomplete */ ~
+      AND itemfg.company EQ eb.company ~
+AND itemfg.part-no EQ eb.part-no ~
+AND itemfg.i-no EQ eb.stock-no NO-LOCK ~
     BY eb.form-no ~
        BY eb.blank-no.
-&Scoped-define TABLES-IN-QUERY-br_table eb style
+&Scoped-define TABLES-IN-QUERY-br_table eb style itemfg
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table eb
 &Scoped-define SECOND-TABLE-IN-QUERY-br_table style
+&Scoped-define THIRD-TABLE-IN-QUERY-br_table itemfg
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -159,7 +176,8 @@ RUN set-attribute-list (
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
       eb, 
-      style SCROLLING.
+      style, 
+      itemfg SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -233,7 +251,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -247,9 +265,9 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "asi.eb,asi.style WHERE asi.eb   ..."
+     _TblList          = "asi.eb,asi.style WHERE asi.eb   ...,asi.itemfg WHERE asi.eb ..."
      _Options          = "NO-LOCK KEY-PHRASE"
-     _TblOptList       = ", FIRST"
+     _TblOptList       = ", FIRST, FIRST,"
      _OrdList          = "asi.eb.form-no|yes,asi.eb.blank-no|yes"
      _Where[1]         = "eb.company EQ job.company
 AND eb.est-no EQ job.est-no
@@ -258,10 +276,13 @@ AND (eb.blank-no EQ job-mch.blank-no
 OR job-mch.blank-no EQ 0)"
      _Where[2]         = "style.company EQ eb.company
 AND style.style EQ eb.style"
+     _Where[3]         = "itemfg.company EQ eb.company
+AND itemfg.part-no EQ eb.part-no
+AND itemfg.i-no EQ eb.stock-no"
      _FldNameList[1]   > asi.eb.est-no
-"eb.est-no" ? "x(8)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"eb.est-no" ? "x(8)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.eb.part-no
-"eb.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" ""
+"eb.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   = asi.eb.part-dscr1
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
@@ -282,6 +303,26 @@ AND style.style EQ eb.style"
 
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ROW-DISPLAY OF br_table IN FRAME F-Main
+DO:
+    FOR EACH ttAttrb
+        WHERE ttAttrb.attr_sbField GT 0
+           BY ttAttrb.attr_sbField
+        :
+        FIND FIRST mfvalues
+             WHERE mfvalues.rec_key EQ itemfg.rec_key
+               AND mfvalues.mf_id   EQ ttAttrb.attr_id
+             NO-ERROR.
+        IF NOT AVAILABLE mfvalues THEN NEXT.
+        cellColumn[ttAttrb.attr_sbField + 3]:SCREEN-VALUE = mfvalues.mf_value.
+    END. /* each ttattrb */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
@@ -403,6 +444,53 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  DEFINE VARIABLE hItemBrowse AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE cName       AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cLabel      AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFormat     AS CHARACTER NO-UNDO.
+
+  RUN pGetMFData (cUDFGroup).
+  DO WITH FRAME {&FRAME-NAME}:
+      FOR EACH ttAttrb
+          WHERE ttAttrb.attr_sbField GT 0
+             BY ttAttrb.attr_sbField
+          :
+          IF CAN-DO("Rectangle,Text",ttAttrb.attr_type) THEN NEXT.
+          ASSIGN
+              cName   = IF ttAttrb.attr_name EQ "" THEN ttAttrb.attr_id
+                        ELSE ttAttrb.attr_name
+              cLabel  = IF ttAttrb.attr_colLabel EQ "" THEN cName
+                        ELSE ttAttrb.attr_colLabel
+              cFormat = IF CAN-DO("Editor,Radio-Set,Slider",ttAttrb.attr_type) THEN ?
+                        ELSE ttAttrb.attr_settings
+              ttAttrb.attr_colLabel = cLabel
+              hItemBrowse = {&BROWSE-NAME}:ADD-CALC-COLUMN(ttAttrb.attr_datatype,cFormat,"",cLabel)
+              hItemBrowse:WIDTH-PIXELS = ttAttrb.attr_width
+              .
+      END. /* each ttAttrb */
+      DO idx = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
+          cellColumn[idx] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(idx).
+      END. /* idx */
+  END.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-key B-table-Win  adm/support/_key-snd.p
 PROCEDURE send-key :
 /*------------------------------------------------------------------------------
@@ -434,6 +522,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-list.i "job-mch"}
   {src/adm/template/snd-list.i "eb"}
   {src/adm/template/snd-list.i "style"}
+  {src/adm/template/snd-list.i "itemfg"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

@@ -18,6 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IC1" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-cycntN.w .
-ELSE RUN fgrep/r-cycntA.w .
-        
+IF SelectRptColumn-log THEN RUN fgrep/r-cycntN.w PERSISTENT.
+ELSE RUN fgrep/r-cycntA.w PERSISTENT.

@@ -12,10 +12,9 @@ FIND FIRST asi.module NO-LOCK
      NO-ERROR.
 IF AVAILABLE asi.module AND
   (NOT asi.module.is-used OR
-   asi.module.expire-date LT TODAY)
-THEN DO:
-    MESSAGE "System License Error!" SKIP
-            "Contact Advance Software Inc. to purchase this module."
-        VIEW-AS ALERT-BOX ERROR.
+   asi.module.expire-date LT TODAY) THEN DO:
+    MESSAGE "System License Error for" "~"" + asi.module.dscr + "~"!" SKIP(1)
+            "Contact Advantzware (215.369.7800) to Obtain a License for this Module."
+        VIEW-AS ALERT-BOX ERROR TITLE "System License".
     RETURN ERROR.
 END.

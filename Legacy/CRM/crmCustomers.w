@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-  File: zohoCRM.w
+  File: crmCustomers.w
 
   Description: import contacts from ZOHO CRM
 
@@ -172,9 +172,9 @@ DEFINE FRAME Dialog-Frame
      svStatus AT ROW 7.19 COL 2 NO-LABEL WIDGET-ID 78
      "CRM Accounts" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.24 COL 26 WIDGET-ID 80
-     "Customers" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.24 COL 126 WIDGET-ID 82
-     SPACE(91.00) SKIP(6.56)
+     "Advantzware Customers" VIEW-AS TEXT
+          SIZE 24 BY .62 AT ROW 1.24 COL 126 WIDGET-ID 82
+     SPACE(77.00) SKIP(6.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "ZOHO CRM (Customers)" WIDGET-ID 100.

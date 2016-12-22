@@ -1567,7 +1567,7 @@ PROCEDURE local-assign-record :
          END.
   END.
 
-  IF lv-prev-vend-no NE po-ord.vend-no THEN DO:
+  IF NOT adm-new-record AND lv-prev-vend-no NE po-ord.vend-no THEN DO:
      MESSAGE "Do you want to update the Item Cost for all line items?"
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-anse AS LOG.
      

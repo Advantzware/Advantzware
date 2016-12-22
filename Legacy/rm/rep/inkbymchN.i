@@ -23,8 +23,8 @@
   find first est
       where est.company eq job.company
         and est.est-no  eq job.est-no
-      no-lock no-error.
-  
+      no-lock no-error.  
+
   if v-indus ne "B" then
     if avail est then
       if (v-indus eq "F" and est.est-type ge 5) or
@@ -97,8 +97,12 @@
                                   and item.i-no      eq job-mat.i-no
                                   and (item.mat-type eq "I" or
                                        item.mat-type eq "V"))
-      use-index seq-idx no-lock
-
+      use-index seq-idx no-lock,
+      first item no-lock
+        where item.company   eq cocode
+        and item.i-no      eq job-mat.rm-i-no
+          
+      
       transaction:
       
     assign
@@ -162,11 +166,17 @@
              tt-report.key-08  = v-set
              tt-report.rec-id  = recid(job-mat)
              tt-report.ink-code[1] = job-mat.i-no
+             tt-report.rm-name[1] = item.i-name
+             tt-report.rm-dscr[1] = item.i-dscr
+             tt-report.qty[1] = string(job-mat.qty,">>,>>9")
              k = 2 .
     END.
     ELSE DO:
         IF k GT 15 THEN NEXT .
         tt-report.ink-code[k] = job-mat.i-no .
+        tt-report.rm-name[k] = item.i-name.
+        tt-report.rm-dscr[k] = item.i-dscr .
+        tt-report.qty[k] = string(job-mat.qty,">>,>>9").
         k = k + 1 . 
     END.
 

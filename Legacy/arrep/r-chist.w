@@ -87,8 +87,8 @@ DO TRANSACTION:
          sys-ctrl.char-fld = ".\AUDIT TRAILS".
    end.
   
-   lv-audit-dir = sys-ctrl.char-fld.
-  
+IF SelectRptColumn-log THEN RUN arrep/r-chistN.w PERSISTENT.
+ELSE RUN arrep/r-chistA.w PERSISTENT.
    IF LOOKUP(SUBSTR(lv-audit-dir,LENGTH(lv-audit-dir),1),"/,\") > 0 THEN
       lv-audit-dir = SUBSTR(lv-audit-dir,1,LENGTH(lv-audit-dir) - 1).
   
@@ -1050,4 +1050,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

@@ -18,12 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "JR15" }
 END.
 
-IF SelectRptColumn-log THEN RUN jcrep/r-wiptagN.w.
-ELSE RUN jcrep/r-wiptagA.w.     
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN jcrep/r-wiptagN.w PERSISTENT.
+ELSE RUN jcrep/r-wiptagA.w PERSISTENT.

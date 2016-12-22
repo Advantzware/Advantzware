@@ -18,11 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "DR2" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-mbacklN.w.
-ELSE RUN pcrep/r-mbacklA.w.     
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN pcrep/r-mbacklN.w PERSISTENT.
+ELSE RUN pcrep/r-mbacklA.w PERSISTENT.

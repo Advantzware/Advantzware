@@ -4,11 +4,11 @@
           "<P14><R8><C46><B>Bill of lading #:" /*OE-BOLH.BOL-NO*/ iBolno "</B><P10> "
             SKIP /* pacific package */             
               "<R12><C1>"
-               space(7) "Sold To:" SPACE(39) "Ship To:"  SKIP(1)
-               SPACE(7) v-comp-name v-ship-name AT 55 skip
-               SPACE(7) v-comp-addr[1] v-ship-addr[1] AT 55 SKIP
-               SPACE(7) v-comp-addr[2] v-ship-addr[2] AT 55 SKIP
-               SPACE(7) v-comp-addr3 v-ship-addr3 AT 55 SKIP
+               space(7) /*"Sold To:"*/ SPACE(45) "Ship To:"  SKIP(1)
+               SPACE(7) /*v-comp-name*/ v-ship-name AT 55 skip
+               SPACE(7) /*v-comp-addr[1]*/ v-ship-addr[1] AT 55 SKIP
+               SPACE(7) /*v-comp-addr[2]*/ v-ship-addr[2] AT 55 SKIP
+               SPACE(7) /*v-comp-addr3*/ v-ship-addr3 AT 55 SKIP
              "<R9><C46><#3>" SKIP
                 "<=#3><R+1>Ship Date:" /*oe-bolh.bol-date*/ dBoldate        SKIP
              /*   "<=#3><R+2>" /*Ship Date:" oe-bolh.ship-date        */ SKIP

@@ -1822,29 +1822,29 @@ PROCEDURE itemfg-sman :
 
   IF NOT AVAIL oe-ord THEN
     FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
-      AND oe-ord.ord-no  EQ oe-ordl.ord-no
+      AND oe-ord.ord-no  EQ b-oe-ordl.ord-no
     NO-ERROR.
 
   /* if order is from an estimate, use the esitmate sales rep # */
-  IF oe-ordl.est-no GT "" THEN
+  IF b-oe-ordl.est-no GT "" THEN
     RETURN.
 
    
     FIND FIRST itemfg
         WHERE itemfg.company = g_company
-          AND itemfg.i-no = oe-ordl.i-no
+          AND itemfg.i-no = b-oe-ordl.i-no
         NO-LOCK NO-ERROR.
     IF NOT AVAIL itemfg THEN
       RETURN.
 
     RUN fg/fgSlsRep.p (INPUT cocode,
                    INPUT oe-ord.cust-no,
-                   INPUT oe-ordl.part-no,
+                   INPUT b-oe-ordl.part-no,
                    INPUT itemfg.i-no,
                    OUTPUT cNewRep).
    
-    IF cNewRep GT "" AND cNewRep NE oe-ordl.s-man[1] THEN DO:
-     oe-ordl.s-man[1] = cNewRep. 
+    IF cNewRep GT "" AND cNewRep NE b-oe-ordl.s-man[1] THEN DO:
+     b-oe-ordl.s-man[1] = cNewRep. 
      /* RUN new-s-man (1). */
     END.
       

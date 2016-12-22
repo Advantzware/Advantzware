@@ -7,7 +7,7 @@ FIND FIRST sys-ctrl NO-LOCK
     where sys-ctrl.company eq cocode
       and sys-ctrl.name    eq "CustomerList"
      NO-ERROR.
-IF NOT AVAILABLE sys-ctrl THEN DO :
+IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
    create sys-ctrl.
   assign
    sys-ctrl.company  = cocode
@@ -16,13 +16,12 @@ IF NOT AVAILABLE sys-ctrl THEN DO :
    sys-ctrl.char-fld = ""
         sys-ctrl.descrip  = "Define Customer List for Reporting"
         .
-  
-end.
+END.
 
 FIND FIRST sys-ctrl-shipto OF sys-ctrl NO-LOCK 
      WHERE sys-ctrl-shipto.char-fld EQ {1}
      NO-ERROR.
-IF NOT AVAILABLE sys-ctrl-shipto THEN DO :
+IF NOT AVAILABLE sys-ctrl-shipto THEN DO TRANSACTION:
           create sys-ctrl-shipto .
           assign
               sys-ctrl-shipto.company = cocode
@@ -31,12 +30,10 @@ IF NOT AVAILABLE sys-ctrl-shipto THEN DO :
               sys-ctrl-shipto.char-fld = {1}
         sys-ctrl-shipto.log-fld  = NO
         .
-      end.
+END.
 
 IF sys-ctrl.log-fld THEN
        ASSIGN
            ou-log = sys-ctrl-shipto.log-fld
     ou-cust-int = sys-ctrl-shipto.int-fld
     .
-
-

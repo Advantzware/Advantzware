@@ -19,9 +19,4 @@ DO TRANSACTION:
 END.
 
 IF SelectRptColumn-log THEN RUN arrep/r-pstdueN.w.
-ELSE RUN arrep/r-pstdueA.w.     
-
-
-
-
-
+ELSE RUN arrep/r-pstdueA.w.

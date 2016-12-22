@@ -27,10 +27,11 @@
 DEFINE INPUT PARAMETER ipFrameHandle AS WIDGET NO-UNDO.
 DEFINE INPUT PARAMETER ipTabLabel AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopttTabOrder AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER ioplSavePrompt AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
-{methods/defines/miscflds.i}
+{UDF/mfttdefs.i &NEW="SHARED"}
 
 DEFINE TEMP-TABLE ttTabOrder NO-UNDO
   FIELD objOrder AS INTEGER
@@ -55,7 +56,7 @@ DEFINE TEMP-TABLE ttTabOrder NO-UNDO
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExit btnSave tabOptions tabObjects 
+&Scoped-Define ENABLED-OBJECTS btnExit tabOptions btnSave tabObjects 
 &Scoped-Define DISPLAYED-OBJECTS tabLabel tabOptions tabObjects 
 
 /* Custom List Definitions                                              */
@@ -133,15 +134,15 @@ DEFINE VARIABLE tabObjects AS CHARACTER
 DEFINE FRAME Dialog-Frame
      btnExit AT ROW 25.76 COL 88 HELP
           "Exit Design Layout Window" WIDGET-ID 4
-     btnSave AT ROW 25.76 COL 80 HELP
-          "Save" WIDGET-ID 8
-     btnMoveDown AT ROW 8.86 COL 81 HELP
-          "Move Selected Tabbable Object Down"
      tabLabel AT ROW 1.24 COL 5 COLON-ALIGNED WIDGET-ID 2
      tabOptions AT ROW 1.24 COL 67 COLON-ALIGNED HELP
           "Select Tabbing Option"
+     btnSave AT ROW 25.76 COL 80 HELP
+          "Save" WIDGET-ID 8
      tabObjects AT ROW 2.43 COL 2 HELP
           "Select Tabbable Object to Move" NO-LABEL
+     btnMoveDown AT ROW 8.86 COL 81 HELP
+          "Move Selected Tabbable Object Down"
      btnMoveFirst AT ROW 6.48 COL 81 HELP
           "Move Selected Tabbable Object to First Object"
      btnMoveLast AT ROW 10.05 COL 81 HELP
@@ -255,7 +256,10 @@ END.
 ON CHOOSE OF btnSave IN FRAME Dialog-Frame /* Save */
 DO:
     RUN setTabOrder.
-    iopttTabOrder = tabOptions.
+    ASSIGN
+        iopttTabOrder = tabOptions
+        ioplSavePrompt = YES
+        .
     MESSAGE "UDF Tab Order Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
@@ -361,7 +365,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY tabLabel tabOptions tabObjects 
       WITH FRAME Dialog-Frame.
-  ENABLE btnExit btnSave tabOptions tabObjects 
+  ENABLE btnExit tabOptions btnSave tabObjects 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

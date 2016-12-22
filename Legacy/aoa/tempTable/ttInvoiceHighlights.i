@@ -2,6 +2,7 @@
 
 /* Invoice Hightlights.edp */
 DEFINE TEMP-TABLE ttInvoiceHighlights NO-UNDO
+    {aoa/tempTable/ttFields.i}
     FIELD company      AS CHARACTER LABEL "Company"
     FIELD salesYear    AS INTEGER   LABEL "Year"
     FIELD dateIdx      AS DATE      LABEL "Date"

@@ -2187,27 +2187,28 @@ PROCEDURE displayCADFormInfo :
                iCompQty-8:screen-value = string(tt-CompStyle.compQty[8])
                iCompQty-9:screen-value = string(tt-CompStyle.compQty[9])
                iCompQty-10:screen-value = string(tt-CompStyle.compQty[10])
-               iNumUp-1:screen-value = string(bf-CompStyle.compNumUp[1])
-               iNumUp-2:screen-value = string(bf-CompStyle.compNumUp[2])
-               iNumUp-3:screen-value = string(bf-CompStyle.compNumUp[3])
-               iNumUp-4:screen-value = string(bf-CompStyle.compNumUp[4])
-               iNumUp-5:screen-value = string(bf-CompStyle.compNumUp[5])
-               iNumUp-6:screen-value = string(bf-CompStyle.compNumUp[6])
-               iNumUp-7:screen-value = string(bf-CompStyle.compNumUp[7])
-               iNumUp-8:screen-value = string(bf-CompStyle.compNumUp[8])
-               iNumUp-9:screen-value = string(bf-CompStyle.compNumUp[9])
-               iNumUp-10:screen-value = string(bf-CompStyle.compNumUp[10])
-
-               rs-man-pur-1:screen-value = IF bf-CompStyle.compPurMan[1] EQ NO THEN "M" ELSE "P"
-               rs-man-pur-2:screen-value = IF bf-CompStyle.compPurMan[2] EQ NO THEN "M" ELSE "P"
-               rs-man-pur-3:screen-value = IF bf-CompStyle.compPurMan[3] EQ NO THEN "M" ELSE "P"
-               rs-man-pur-4:screen-value = IF bf-CompStyle.compPurMan[4] EQ NO THEN "M" ELSE "P"
-               rs-man-pur-5:screen-value = IF bf-CompStyle.compPurMan[5] EQ NO THEN "M" ELSE "P"
-               rs-man-pur-6:screen-value = IF bf-CompStyle.compPurMan[6] EQ NO THEN "M" ELSE "P"
-               rs-man-pur-7:screen-value = IF bf-CompStyle.compPurMan[7] EQ NO THEN "M" ELSE "P"
-               rs-man-pur-8:screen-value = IF bf-CompStyle.compPurMan[8] EQ NO THEN "M" ELSE "P"
-               rs-man-pur-9:screen-value = IF bf-CompStyle.compPurMan[9] EQ NO THEN "M" ELSE "P"
-               rs-man-pur-10:screen-value = IF bf-CompStyle.compPurMan[10] EQ NO THEN "M" ELSE "P".
+               iNumUp-1:screen-value = string(tt-CompStyle.compNumUp[1])
+               iNumUp-2:screen-value = string(tt-CompStyle.compNumUp[2])
+               iNumUp-3:screen-value = string(tt-CompStyle.compNumUp[3])
+               iNumUp-4:screen-value = string(tt-CompStyle.compNumUp[4])
+               iNumUp-5:screen-value = string(tt-CompStyle.compNumUp[5])
+               iNumUp-6:screen-value = string(tt-CompStyle.compNumUp[6])
+               iNumUp-7:screen-value = string(tt-CompStyle.compNumUp[7])
+               iNumUp-8:screen-value = string(tt-CompStyle.compNumUp[8])
+               iNumUp-9:screen-value = string(tt-CompStyle.compNumUp[9])
+               iNumUp-10:screen-value = string(tt-CompStyle.compNumUp[10])
+                
+               rs-man-pur:SCREEN-VALUE   = IF tt-CompStyle.pur-man EQ NO THEN "M" ELSE "P"
+               rs-man-pur-1:screen-value = IF tt-CompStyle.compPurMan[1] EQ NO THEN "M" ELSE "P"
+               rs-man-pur-2:screen-value = IF tt-CompStyle.compPurMan[2] EQ NO THEN "M" ELSE "P"
+               rs-man-pur-3:screen-value = IF tt-CompStyle.compPurMan[3] EQ NO THEN "M" ELSE "P"
+               rs-man-pur-4:screen-value = IF tt-CompStyle.compPurMan[4] EQ NO THEN "M" ELSE "P"
+               rs-man-pur-5:screen-value = IF tt-CompStyle.compPurMan[5] EQ NO THEN "M" ELSE "P"
+               rs-man-pur-6:screen-value = IF tt-CompStyle.compPurMan[6] EQ NO THEN "M" ELSE "P"
+               rs-man-pur-7:screen-value = IF tt-CompStyle.compPurMan[7] EQ NO THEN "M" ELSE "P"
+               rs-man-pur-8:screen-value = IF tt-CompStyle.compPurMan[8] EQ NO THEN "M" ELSE "P"
+               rs-man-pur-9:screen-value = IF tt-CompStyle.compPurMan[9] EQ NO THEN "M" ELSE "P"
+               rs-man-pur-10:screen-value = IF tt-CompStyle.compPurMan[10] EQ NO THEN "M" ELSE "P".
                
         else assign
                cStyle:screen-value = ""

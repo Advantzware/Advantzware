@@ -18,11 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "DR10" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-opbdueN.w.
-ELSE RUN pcrep/r-opbdueA.w.     
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN pcrep/r-opbdueN.w PERSISTENT.
+ELSE RUN pcrep/r-opbdueA.w PERSISTENT.

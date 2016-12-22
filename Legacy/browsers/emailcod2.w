@@ -66,8 +66,10 @@ DEF BUFFER b-phone FOR phone.
 emailcod.description CheckNotice() @ vlShipNotice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} NO-LOCK ~
+      /*AND can-do(emailcod.emailTo,vHeaderValue) or emailcod.emailTo = ""*/ NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} NO-LOCK ~
+      /*AND can-do(emailcod.emailTo,vHeaderValue) or emailcod.emailTo = ""*/ NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table emailcod
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table emailcod

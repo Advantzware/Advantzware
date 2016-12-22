@@ -18,6 +18,6 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "VR2" }
 END.
 
-IF SelectRptColumn-log THEN RUN aprep/r-cashqN.w .
-ELSE RUN aprep/r-cashqA.w .
+IF SelectRptColumn-log THEN RUN aprep/r-cashqN.w PERSISTENT.
+ELSE RUN aprep/r-cashqA.w PERSISTENT.
 

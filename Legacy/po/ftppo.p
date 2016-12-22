@@ -81,6 +81,7 @@ IF poexport-int EQ 0 THEN
        WHERE sys-ctrl.company EQ cocode
          AND sys-ctrl.name    EQ ip-ftp-where
       NO-ERROR.
+     
 IF AVAIL sys-ctrl THEN
   RUN set-config-based.
 
@@ -135,22 +136,22 @@ END. /* Kiwi */
  
 
 
-IF ip-ftp-where EQ "Welsh" THEN DO:
-  OUTPUT TO VALUE(".\po\ftpWelsh.txt").    /* ftp text file */
-
-  PUT UNFORMATTED 
-      "open ftp.corrchain.com" SKIP   /* ftp server ip address */
-      "ctiasiwelsh"              SKIP   /* userid */
-      "a1w2!2oiz"                   SKIP   /* password */
-      "cd /asi/southcorr/"   SKIP
-      "put " ip-exp-file           SKIP   /* file to transfer */
-      "quit" .
-  OUTPUT CLOSE.
-
-  OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpWelsh.txt").
-END. /* Welsh */
-
-ELSE
+/*IF ip-ftp-where EQ "Welsh" THEN DO:                              */
+/*  OUTPUT TO VALUE(".\po\ftpWelsh.txt").    /* ftp text file */   */
+/*                                                                 */
+/*  PUT UNFORMATTED                                                */
+/*      "open ftp.corrchain.com" SKIP   /* ftp server ip address */*/
+/*      "ctiasiwelsh"              SKIP   /* userid */             */
+/*      "a1w2!2oiz"                   SKIP   /* password */        */
+/*      "cd /asi/southcorr/"   SKIP                                */
+/*      "put " ip-exp-file           SKIP   /* file to transfer */ */
+/*      "quit" .                                                   */
+/*  OUTPUT CLOSE.                                                  */
+/*                                                                 */
+/*  OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpWelsh.txt").            */
+/*END. /* Welsh */                                                 */
+/*                                                                 */
+/*ELSE                                                             */
 IF AVAIL sys-ctrl THEN DO:
 
   IF ip-ftp-where EQ "CorSuply" THEN DO:
@@ -518,7 +519,32 @@ IF AVAIL sys-ctrl THEN DO:
             ELSE
                 OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpaf.txt").
         END.
+      WHEN "ipaper" THEN DO:     
         
+        IF   getWinScpFile() NE ?
+           THEN 
+        DO:
+            cExec = getWinScpFile().
+            IF cWinScpIniFile GT "" THEN 
+              cExec = cExec + " " + "/ini=" + cWinScpIniFile.  
+            
+            OS-COMMAND VALUE(cExec + " /script=.\po\ftpip.txt").
+        END.
+        ELSE
+          OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpcmdip.txt").
+      END.        
+      WHEN "Welsh" THEN DO:
+   
+        IF cExec NE ? AND cExec NE "" THEN DO:      
+          cExec = getWinScpFile().
+          IF cWinScpIniFile GT "" THEN 
+              cExec = cExec + " " + "/ini=" + cWinScpIniFile.    
+             
+          OS-COMMAND SILENT VALUE(cExec + " /script=.\po\ftpct.txt").
+        END.
+        ELSE
+          OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpcc.txt").
+      END.      
     END CASE.
   END. /* If lSendTheFile */
 END. /* If avail sys-ctrl */
@@ -630,6 +656,7 @@ PROCEDURE set-config-based:
   FIND FIRST ttConfig WHERE ttConfig.exportFormat EQ ip-ftp-where
    AND ttConfig.destName EQ sys-ctrl.char-fld
   NO-LOCK NO-ERROR.
+  
 
   IF AVAIL ttConfig THEN
     lConfigBased = TRUE.

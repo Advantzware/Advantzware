@@ -13,10 +13,9 @@ c.	P:\asi10ship\rco1010\nosweat
 d.	P:\asi10ship\patch\rco1010\nosweat
 */
 
-
-DEFINE INPUT PARAMETER ip-group AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-rec_key AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-header AS CHARACTER NO-UNDO.                            
+DEFINE INPUT PARAMETER ipcGroup  AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcHeader AS CHARACTER NO-UNDO.
                             
 &SCOPED-DEFINE dbnm ASI.
-{nosweat/mfvalues.w}
+{UDF/mfvalues.w}

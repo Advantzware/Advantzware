@@ -18,11 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "DR3" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-prodepN.w.
-ELSE RUN pcrep/r-prodepA.w.     
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN pcrep/r-prodepN.w PERSISTENT.
+ELSE RUN pcrep/r-prodepA.w PERSISTENT.

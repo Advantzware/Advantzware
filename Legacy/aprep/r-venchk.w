@@ -18,11 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "VR13" }
 END.
 
-IF SelectRptColumn-log THEN RUN aprep/r-venchkN.w.
-ELSE RUN aprep/r-venchkA.w.     
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN aprep/r-venchkN.w PERSISTENT.
+ELSE RUN aprep/r-venchkA.w PERSISTENT.

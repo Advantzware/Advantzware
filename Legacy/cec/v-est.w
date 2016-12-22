@@ -1344,6 +1344,10 @@ DO:
          /* eb.dep:screen-value  = string( dep-num +  op-dec) . */
       END.
    END.
+   IF ll-auto-calc-selected THEN DO:
+       ASSIGN
+       eb.lin-in:SCREEN-VALUE = eb.dep:SCREEN-VALUE .
+   END.
 
 END.
 
@@ -2515,7 +2519,7 @@ PROCEDURE calc-blank-size2 :
                     no-lock no-error.
    if AVAIL style AND style.material[7] ne "" then do:
      eb.adhesive = style.material[7].
-     if eb.gluelap ne 0 then eb.lin-in = eb.dep.
+     /*if eb.gluelap ne 0 then*/ eb.lin-in = eb.dep.  /* Ticket 13021 */
    end.
 
    {est/u2estc.i eb.gluelap 1}

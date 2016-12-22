@@ -18,10 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "DR8" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-wiplstN.w.
-ELSE RUN pcrep/r-wiplstA.w.     
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN pcrep/r-wiplstN.w PERSISTENT.
+ELSE RUN pcrep/r-wiplstA.w PERSISTENT.

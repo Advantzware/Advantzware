@@ -18,10 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "DR1" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-maceffN.w.
-ELSE RUN pcrep/r-maceffA.w.     
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN pcrep/r-maceffN.w PERSISTENT.
+ELSE RUN pcrep/r-maceffA.w PERSISTENT.

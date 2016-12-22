@@ -183,8 +183,9 @@ END.
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-IF INDEX(PROGRAM-NAME(3),"windows/cust") > 0 THEN
+IF INDEX(PROGRAM-NAME(3),"windows/cust") > 0 OR PROGRAM-NAME(3) MATCHES "*touch/w-mchtrn*" THEN
    SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2.png").
+
 
 RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 

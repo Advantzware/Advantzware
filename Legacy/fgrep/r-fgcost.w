@@ -18,6 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "IR14" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-fgcosN.w.
-ELSE RUN fgrep/r-fgcosA.w.     
-
+IF SelectRptColumn-log THEN RUN fgrep/r-fgcosN.w PERSISTENT.
+ELSE RUN fgrep/r-fgcosA.w PERSISTENT.

@@ -714,6 +714,7 @@ DO:
   DEF VAR lv-fax-type AS cha NO-UNDO.
   DEF VAR vlSkipRec   AS LOG NO-UNDO.
   DEF VAR ll-secure AS LOG INIT YES NO-UNDO.
+  DEFINE VARIABLE lCheckHoldStat AS LOGICAL NO-UNDO .
   DEFINE BUFFER bf-cust FOR cust.
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -773,6 +774,22 @@ DO:
   END.
 
   IF begin_bol EQ end_bol THEN DO:
+
+      for each buf-inv-head WHERE
+                      buf-inv-head.company eq cocode AND
+                      buf-inv-head.cust-no ge begin_cust AND
+                      buf-inv-head.cust-no le end_cust AND
+                      INDEX(vcHoldStats, buf-inv-head.stat) EQ 0 AND
+                      ((not tb_reprint and buf-inv-head.inv-no EQ 0) or
+                       (tb_reprint and buf-inv-head.inv-no ne 0 and
+                       buf-inv-head.inv-no ge begin_inv and
+                       buf-inv-head.inv-no le end_inv)) AND
+                       buf-inv-head.bol-no EQ begin_bol
+                       NO-LOCK:
+             ASSIGN lCheckHoldStat = YES .
+             LEAVE .
+          END.
+      IF NOT lCheckHoldStat THEN
       for each buf-inv-head WHERE
                       buf-inv-head.company eq cocode AND
                       buf-inv-head.cust-no ge begin_cust AND

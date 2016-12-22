@@ -18,10 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "AL2" }
 END.
 
-IF SelectRptColumn-log THEN RUN ar/r-mishstN.w.
-ELSE RUN ar/r-mishstA.w.     
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN ar/r-mishstN.w PERSISTENT.
+ELSE RUN ar/r-mishstA.w PERSISTENT.

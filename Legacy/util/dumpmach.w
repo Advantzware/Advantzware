@@ -38,6 +38,12 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 DEF VAR v-dummy AS LOG NO-UNDO.
+DEF TEMP-TABLE tt-mach LIKE mach .
+DEF TEMP-TABLE tt-mmty LIKE mmty .
+DEF TEMP-TABLE tt-mmtx LIKE mmtx .
+DEF TEMP-TABLE tt-mach-calendar LIKE mach-calendar .
+DEF TEMP-TABLE tt-mmtx2 LIKE mmtx2 .
+DEFINE TEMP-TABLE tt-mstd LIKE mstd .
 
 DEF STREAM st-mstd .
 DEF STREAM st-mmtx .
@@ -58,15 +64,15 @@ DEF STREAM st-mmtx2 .
 
 &Scoped-define ADM-CONTAINER DIALOG-BOX
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS cb-company mach-list mach-selected-list ~
-btn_select-all btn_close-all-2 btn_add btn_remove btn_selected-all ~
-btn_close-all Btn_Cancel btn_ok 
-&Scoped-Define DISPLAYED-OBJECTS cb-company mach-list mach-selected-list ~
-v-dumpfile 
+&Scoped-Define ENABLED-OBJECTS cb-company to-company mach-list ~
+mach-selected-list btn_select-all btn_close-all-2 btn_add btn_remove ~
+btn_selected-all btn_close-all Btn_Cancel btn_ok 
+&Scoped-Define DISPLAYED-OBJECTS cb-company to-company mach-list ~
+mach-selected-list v-dumpfile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -127,6 +133,12 @@ DEFINE VARIABLE cb-company AS CHARACTER FORMAT "X(256)":U
      SIZE 17 BY 1
      FONT 6 NO-UNDO.
 
+DEFINE VARIABLE to-company AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST
+     SIZE 17 BY 1
+     FONT 6 NO-UNDO.
+
 DEFINE VARIABLE v-dumpfile AS CHARACTER FORMAT "X(256)":U INITIAL "c:~\tmp~\machine.dat" 
      LABEL "Export to" 
      VIEW-AS FILL-IN 
@@ -144,7 +156,8 @@ DEFINE VARIABLE mach-selected-list AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     cb-company AT ROW 2.19 COL 31 COLON-ALIGNED NO-LABEL
+     cb-company AT ROW 2 COL 3.2 COLON-ALIGNED NO-LABEL
+     to-company AT ROW 2 COL 52 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      mach-list AT ROW 3.86 COL 4 HELP
           "Jobs to be closed" NO-LABEL
      mach-selected-list AT ROW 3.86 COL 54 NO-LABEL
@@ -158,16 +171,19 @@ DEFINE FRAME D-Dialog
           "Use this function to CANCEL field selecition"
      btn_ok AT ROW 23.38 COL 34
      v-dumpfile AT ROW 25.29 COL 17 COLON-ALIGNED
-     "Company" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.48 COL 36
-          FONT 6
-     "Machine Selected" VIEW-AS TEXT
-          SIZE 23 BY 1 AT ROW 2.91 COL 54
+     "Copy To Company" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 1.29 COL 54.4 WIDGET-ID 4
           FONT 6
      "Available Machine" VIEW-AS TEXT
           SIZE 23 BY 1 AT ROW 2.91 COL 5
           FONT 6
-     SPACE(53.79) SKIP(23.22)
+     "Machine Selected" VIEW-AS TEXT
+          SIZE 23 BY 1 AT ROW 2.91 COL 54
+          FONT 6
+     "Company" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 1.29 COL 5.6
+          FONT 6
+     SPACE(64.19) SKIP(25.22)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Export Machines"
@@ -200,7 +216,7 @@ DEFINE FRAME D-Dialog
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX D-Dialog
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
@@ -291,7 +307,7 @@ DO:
   DEF VAR v-fin-qty AS INT NO-UNDO.
   DEF VAR v AS INT NO-UNDO.
 
-  ASSIGN v-dumpfile cb-company.
+  ASSIGN v-dumpfile cb-company to-company.
 
   IF NOT v-process THEN
     MESSAGE "Are you sure you want to dump all the selected machines to " v-dumpfile " ?"
@@ -374,6 +390,17 @@ ON DEFAULT-ACTION OF mach-selected-list IN FRAME D-Dialog
 DO:
   APPLY "choose" TO btn_remove.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME to-company
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL to-company D-Dialog
+ON VALUE-CHANGED OF to-company IN FRAME D-Dialog
+DO:
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -532,6 +559,12 @@ PROCEDURE dump-mach :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR i AS INT NO-UNDO.
+  EMPTY TEMP-TABLE tt-mach .
+  EMPTY TEMP-TABLE tt-mstd .
+  EMPTY TEMP-TABLE tt-mmty .
+  EMPTY TEMP-TABLE tt-mmtx .
+  EMPTY TEMP-TABLE tt-mach-calendar .
+  EMPTY TEMP-TABLE tt-mmtx2 .
   
   OUTPUT TO VALUE(v-dumpfile).
   OUTPUT STREAM st-mstd TO VALUE(v-dumpfile + "1").
@@ -543,23 +576,49 @@ PROCEDURE dump-mach :
   DO i = 1 TO mach-selected-list:NUM-ITEMS IN FRAME {&FRAME-NAME}:
      FOR EACH mach NO-LOCK WHERE mach.company = cb-company 
                             AND mach.m-code = ENTRY(i,mach-selected-list:LIST-ITEMS) :
-         EXPORT mach.
+         CREATE tt-mach .
+         BUFFER-COPY mach EXCEPT company TO tt-mach .
+         ASSIGN tt-mach.company = to-company .
+
+         EXPORT  tt-mach  .
          FOR EACH mstd OF mach NO-LOCK:
-             EXPORT STREAM st-mstd mstd.
+             CREATE tt-mstd .
+                 BUFFER-COPY mstd EXCEPT company TO tt-mstd .
+                 ASSIGN 
+                     tt-mstd.company = to-company .
+             EXPORT STREAM  st-mstd tt-mstd  .
+
              FOR EACH mmty OF mstd NO-LOCK:
-                 EXPORT STREAM st-mmty mmty.
+                 CREATE tt-mmty .
+                 BUFFER-COPY mmty EXCEPT company TO tt-mmty .
+                 ASSIGN 
+                     tt-mmty.company = to-company .
+                 EXPORT STREAM st-mmty tt-mmty.
+
              END.
              FOR EACH mmtx OF mstd NO-LOCK:
-                 EXPORT STREAM st-mmtx mmtx.
+                 CREATE tt-mmtx .
+                 BUFFER-COPY mmtx EXCEPT company TO tt-mmtx .
+                 ASSIGN 
+                     tt-mmtx.company = to-company .
+                 EXPORT STREAM st-mmtx tt-mmtx.
              END.
          END.
          FOR EACH mach-calendar NO-LOCK WHERE mach-calendar.company = mach.company
                                           AND mach-calendar.m-code = mach.m-code :
-             export STREAM st-cal mach-calendar.
+             CREATE tt-mach-calendar .
+                 BUFFER-COPY mach-calendar EXCEPT company TO tt-mach-calendar .
+                 ASSIGN 
+                     tt-mach-calendar.company = to-company .
+             export STREAM st-cal tt-mach-calendar.
          END.
          FOR EACH mmtx2 NO-LOCK WHERE mmtx2.company = mach.company
                                   AND mmtx2.m-code = mach.m-code.
-             EXPORT STREAM st-mmtx2 mmtx2.
+             CREATE tt-mmtx2 .
+                 BUFFER-COPY mmtx2 EXCEPT company TO tt-mmtx2 .
+                 ASSIGN 
+                     tt-mmtx2.company = to-company .
+             EXPORT STREAM st-mmtx2 tt-mmtx2.
          END.
      END.
   END.
@@ -600,10 +659,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cb-company mach-list mach-selected-list v-dumpfile 
+  DISPLAY cb-company to-company mach-list mach-selected-list v-dumpfile 
       WITH FRAME D-Dialog.
-  ENABLE cb-company mach-list mach-selected-list btn_select-all btn_close-all-2 
-         btn_add btn_remove btn_selected-all btn_close-all Btn_Cancel btn_ok 
+  ENABLE cb-company to-company mach-list mach-selected-list btn_select-all 
+         btn_close-all-2 btn_add btn_remove btn_selected-all btn_close-all 
+         Btn_Cancel btn_ok 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -645,8 +705,10 @@ PROCEDURE load-comp :
   
   FOR EACH company NO-LOCK:
       v-dummy = cb-company:ADD-LAST(company.company) IN FRAME {&FRAME-NAME}.
+      v-dummy = to-company:ADD-LAST(company.company) IN FRAME {&FRAME-NAME}.
   END.
   cb-company:SCREEN-VALUE IN FRAME {&FRAME-NAME} = g_company.
+  to-company:SCREEN-VALUE IN FRAME {&FRAME-NAME} = g_company.
   
 END PROCEDURE.
 

@@ -15,4 +15,6 @@ DEFINE TEMP-TABLE ttMachineEmployeeTransactions NO-UNDO
     FIELD rateType      LIKE machemp.ratetype
     FIELD rate          LIKE machemp.rate
     FIELD xxTableRecKey LIKE machemp.table_rec_key
+    FIELD loginDateTime   AS CHARACTER                LABEL "Log In Date-Time"   
+    FIELD logoutDateTime  AS CHARACTER                LABEL "Log Out Date-Time"  
     .

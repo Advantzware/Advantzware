@@ -87,6 +87,7 @@ DEFINE VARIABLE h_b-itemsp AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-ordfgi AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_fg-set AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_fgijob AS HANDLE NO-UNDO.
@@ -731,8 +732,8 @@ PROCEDURE adm-create-objects :
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 21.00 ) NO-ERROR.
+             OUTPUT h_export2 ).
+       RUN set-position IN h_export2 ( 1.00 , 21.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -763,8 +764,8 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_itemfg2-2. */
        RUN add-link IN adm-broker-hdl ( h_itemfg-2 , 'Record':U , h_itemfg2-2 ).
 
-       /* Links to SmartViewer h_export. */
-       RUN add-link IN adm-broker-hdl ( h_fg-set , 'export-xl':U , h_export ).
+       /* Links to SmartViewer h_export2. */
+       RUN add-link IN adm-broker-hdl ( h_fg-set , 'export-xl':U , h_export2 ).
 
        /* Links to SmartBrowser h_fg-set. */
        RUN add-link IN adm-broker-hdl ( h_itemfg-2 , 'Record':U , h_fg-set ).

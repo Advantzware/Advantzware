@@ -3,4 +3,4 @@
                  
 DEF NEW SHARED VAR choice AS LOG NO-UNDO.
 
-RUN fg/fgpstall.w (?,"").
+RUN fg/fgpstall.w PERSISTENT (?,"").

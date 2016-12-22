@@ -1,12 +1,12 @@
 /* loadPro.p - ASI as of 2.3.2016 @ 5:45pm */
 
-&SCOPED-DEFINE sbDB ASI
+&SCOPED-DEFINE sbDB nosweat
 &SCOPED-DEFINE ID ASI/ALL
 &SCOPED-DEFINE HOP ASI/HOP
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 88
+&SCOPED-DEFINE nextUserField 89
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -22,6 +22,7 @@
 {schedule/scopDir.i}
 {{&loads}/loadPro.i}
 {UDF/ttUDF.i}
+{UDF/fUDFGroup.i "sbPro."}
 
 /* configuration vars */
 {{&includes}/configVars.i}
@@ -52,7 +53,6 @@ DEFINE VARIABLE useField AS LOGICAL NO-UNDO EXTENT {&userExtent}.
 DEFINE VARIABLE useNotes AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE useSalesRep AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE useStatus AS LOGICAL NO-UNDO INIT YES.
-DEFINE VARIABLE udfGroup AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bJobMch FOR job-mch.
 
@@ -191,14 +191,6 @@ FUNCTION getSetPOQtyRec RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHA
   RETURN STRING(rtnQty).
 END FUNCTION.
 
-FUNCTION getUDFGroup RETURNS CHARACTER ():
-    FIND FIRST mfgroup NO-LOCK
-         WHERE LOOKUP("sbPro.",mfgroup.mfgroup_data,"|") NE 0
-         NO-ERROR.
-    RETURN IF NOT AVAILABLE mfgroup THEN ?
-           ELSE ENTRY(1,mfgroup.mfgroup_data,"|").
-END FUNCTION.
-
 FUNCTION prodQty RETURNS CHARACTER (ipCompany AS CHARACTER,ipResource AS CHARACTER,
                                     ipJobNo AS CHARACTER,ipJobNo2 AS INTEGER,
                                     ipFrm AS INTEGER,ipBlankNo AS INTEGER,
@@ -322,6 +314,7 @@ DEFINE TEMP-TABLE tResource NO-UNDO
   FIELD resource AS CHARACTER
   FIELD mDscr AS CHARACTER
   FIELD department AS CHARACTER
+  FIELD kicks AS INTEGER
     INDEX tResource IS PRIMARY dSeq mSeq resource.
 
 DISABLE TRIGGERS FOR LOAD OF reftable.
@@ -440,7 +433,6 @@ IF asiLocation EQ '' THEN asiLocation = 'Main'.
 ASSIGN
   useDeptSort = SEARCH(findProgram('{&data}/',ID,'/useDeptSort.dat')) NE ?
   useSalesRep = SEARCH(findProgram('{&data}/',ID,'/useSalesRep.dat')) NE ?
-  udfGroup    = getUDFGroup()
   .
 
 IF useSalesRep THEN DO:
@@ -457,8 +449,13 @@ RUN fixSBRefTable.
 RUN loadRptLayout ('jobText',OUTPUT jobText).
 RUN loadRptLayout ('jobToolTip',OUTPUT jobToolTip).
 
-FOR EACH mach NO-LOCK WHERE mach.company EQ asiCompany AND mach.m-code GT ''
-    BREAK BY mach.d-seq BY mach.m-seq BY mach.m-code:
+FOR EACH mach NO-LOCK
+    WHERE mach.company EQ asiCompany
+      AND mach.m-code GT ''
+    BREAK BY mach.d-seq
+          BY mach.m-seq
+          BY mach.m-code
+    :
   IF FIRST-OF(mach.m-code) THEN DO:
     &IF '{&Board}' EQ 'Pro' &THEN
     IF capacityLoad THEN
@@ -486,8 +483,10 @@ FOR EACH mach NO-LOCK WHERE mach.company EQ asiCompany AND mach.m-code GT ''
     &ENDIF
     lvResource = IF mach.sch-m-code NE '' THEN mach.sch-m-code ELSE mach.m-code.
     IF NOT CAN-FIND(FIRST tResource WHERE tResource.resource EQ lvResource) THEN DO:
-      FIND FIRST bMach NO-LOCK WHERE bMach.company EQ asiCompany
-                                 AND bMach.m-code EQ lvResource NO-ERROR.
+      FIND FIRST bMach NO-LOCK
+           WHERE bMach.company EQ asiCompany
+             AND bMach.m-code EQ lvResource
+           NO-ERROR.
       IF AVAILABLE bMach THEN DO:
         CREATE tResource.
         ASSIGN
@@ -495,7 +494,9 @@ FOR EACH mach NO-LOCK WHERE mach.company EQ asiCompany AND mach.m-code GT ''
           tResource.mDscr = bMach.m-dscr
           tResource.dSeq = bMach.d-seq
           tResource.mSeq = bMach.m-seq
-          tResource.department = STRING(bMach.d-seq,'99') + STRING(bMach.m-seq,'99').
+          tResource.department = STRING(bMach.d-seq,'99') + STRING(bMach.m-seq,'99')
+          tResource.kicks = bMach.spare-int-1  
+          .
         IF NOT useDeptSort THEN tResource.department = '0000'.
       END. /* avail bmach */
     END. /* if not */
@@ -504,11 +505,14 @@ END. /* each mach */
 
 FOR EACH tResource EXCLUSIVE-LOCK:
   sortOrder = sortOrder + 1.
-  {{&exports}/resource.i &streamName=sResource
+  {{&exports}/resource.i
+      &streamName=sResource
       &resourceDescription=tResource.mDscr
       &resource=tResource.resource
       &sortOrder=sortOrder
-      &department=tResource.department}
+      &department=tResource.department
+      &kicks=tResource.kicks
+      }
 END. /* each tresource */
 
 IF traceON THEN DO:
@@ -904,10 +908,10 @@ FOR EACH job-hdr NO-LOCK
       FIND FIRST itemfg NO-LOCK
            WHERE itemfg.company EQ job-hdr.company
              AND itemfg.i-no EQ job-hdr.i-no NO-ERROR.
-      IF AVAILABLE itemfg AND udfGroup NE ? THEN DO:
+      IF AVAILABLE itemfg AND cUDFGroup NE ? THEN DO:
           IF CAN-FIND(FIRST mfvalues
                       WHERE mfvalues.rec_key EQ itemfg.rec_key) THEN
-          RUN UDF/UDF.p (udfGroup, itemfg.rec_key, OUTPUT TABLE ttUDF).
+          RUN UDF/UDF.p (cUDFGroup, itemfg.rec_key, OUTPUT TABLE ttUDF).
           FOR EACH ttUDF
               WHERE ttUDF.udfOrder   GT 0
                 AND ttUDF.udfSBField GT 0
@@ -919,7 +923,7 @@ FOR EACH job-hdr NO-LOCK
                   udfWidth[ttUDF.udfSBField] = MAX(20,LENGTH(udfLabel[ttUDF.udfSBField]))
                   .
           END. /* each ttudf */
-      END. /* udfGroup */
+      END. /* cUDFGroup */
     END. /* if ufitemfg */
 
     IF traceON THEN
@@ -993,6 +997,7 @@ FOR EACH job-hdr NO-LOCK
       userField[64] = setUserField(64,IF AVAILABLE itemfg THEN itemfg.part-no ELSE '')
       userField[83] = setUserField(83,job.stat)
       userField[85] = setUserField(85,fDueQty(INT(userField[15]),INT(userField[57]),DEC(userField[86]),DEC(userField[87])))
+      userField[88] = setUserField(88,IF job-mch.speed EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.speed,'zz,zz9')))
       jobDescription = jobText
       .
     IF AVAILABLE itemfg AND NOT job-mch.run-qty * itemfg.t-sqft / 1000 LT 1000000 THEN
@@ -1038,6 +1043,10 @@ FOR EACH job-hdr NO-LOCK
                        OUTPUT userField[29],
                        OUTPUT userField[30],
                        OUTPUT userField[31]).
+
+    IF AVAILABLE eb AND INTEGER(userField[31]) EQ 0 THEN
+    userField[31] = STRING(eb.num-up,'>>>9').
+
     ASSIGN
       userField[32] = setUserField(32,STRING(DECIMAL(userField[29]) * (DECIMAL(userField[30]) / 12),'>>,>>>,>>9'))
       userField[33] = setUserField(33,STRING(DECIMAL(userField[29]) * DECIMAL(userField[31]),'>>,>>>,>>9.99<'))
@@ -1221,24 +1230,26 @@ PROCEDURE ipJobSet:
   IF NOT ufIPJobSet THEN RETURN.
 
   FIND FIRST bEB1 NO-LOCK
-       WHERE bEB1.company EQ ipCompany
-         AND bEB1.est-no  EQ ipEstNo
-         AND bEB1.form-no NE 0
+       WHERE bEB1.company  EQ ipCompany
+         AND bEB1.est-no   EQ ipEstNo
+         AND bEB1.form-no  NE 0
          AND bEB1.blank-no NE 0
-       USE-INDEX est-qty NO-ERROR.
+       USE-INDEX est-qty
+       NO-ERROR.
   
   IF AVAIL bEB1 THEN DO:
     ASSIGN
       opInternalLength = setUserField(65,k16(bEB1.k-len-array2[2],ipKFrac,ipDecimalFormat))
       opEndCellLength = setUserField(66,k16(bEB1.k-len-array2[ipDimDF + 1],ipKFrac,ipDecimalFormat)).
     FIND FIRST bEB2 NO-LOCK
-         WHERE bEB2.company EQ ipCompany
-           AND bEB2.est-no  EQ ipEstNo
-           AND bEB2.form-no NE 0
+         WHERE bEB2.company  EQ ipCompany
+           AND bEB2.est-no   EQ ipEstNo
+           AND bEB2.form-no  NE 0
            AND bEB2.blank-no NE 0
            AND ROWID(bEB2) NE ROWID(bEB1)
-         USE-INDEX est-qty NO-ERROR.
-    IF AVAIL bEB2 THEN
+         USE-INDEX est-qty
+         NO-ERROR.
+    IF AVAILABLE bEB2 THEN
     ASSIGN
       opInternalWidth = setUserField(67,k16(bEB2.k-len-array2[2],ipKFrac,ipDecimalFormat))
       opEndCellWidth = setUserField(68,k16(bEB2.k-len-array2[ipDimDF + 1],ipKFrac,ipDecimalFormat)).
@@ -1281,7 +1292,8 @@ PROCEDURE ipJobMaterial:
         AND job-mat.job EQ ipJob
         AND job-mat.job-no EQ ipJobNo
         AND job-mat.job-no2 EQ ipJobNo2
-        AND job-mat.frm EQ ipForm:
+        AND job-mat.frm EQ ipForm
+      :
     FOR EACH item OF job-mat NO-LOCK:
       CASE item.mat-type:
         WHEN '5' THEN
@@ -1300,12 +1312,12 @@ PROCEDURE ipJobMaterial:
             opBoardWidth = job-mat.wid
             opJobBoard = CAN-FIND(FIRST mat-act
                                   WHERE mat-act.company EQ job-mat.company
-                                    AND mat-act.job EQ job-mat.job
-                                    AND mat-act.job-no EQ job-mat.job-no
+                                    AND mat-act.job     EQ job-mat.job
+                                    AND mat-act.job-no  EQ job-mat.job-no
                                     AND mat-act.job-no2 EQ job-mat.job-no2
-                                    AND mat-act.i-no EQ job-mat.i-no
-                                    AND mat-act.s-num EQ job-mat.frm
-                                    AND mat-act.b-num EQ job-mat.blank-no USE-INDEX job).
+                                    AND mat-act.i-no    EQ job-mat.i-no
+                                    AND mat-act.s-num   EQ job-mat.frm
+                                    AND mat-act.b-num   EQ job-mat.blank-no USE-INDEX job).
           IF NOT CAN-DO(opBoard,job-mat.i-no) THEN
           opBoard = opBoard + comma(opBoard) + job-mat.i-no.
         END. /* B */
@@ -1365,12 +1377,14 @@ PROCEDURE ipJobMatField:
   IF traceON THEN
   PUT UNFORMATTED 'Function ipJobMatField @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
   
-  FIND FIRST job-mat NO-LOCK WHERE job-mat.company eq ipCompany
-                               AND job-mat.j-no EQ ipJNo
-                               AND job-mat.i-no EQ ipINo
-                               AND job-mat.frm EQ ipForm
-                               AND job-mat.blank-no EQ ipBlank
-                               AND job-mat.qty GT 0 NO-ERROR.
+  FIND FIRST job-mat NO-LOCK
+       WHERE job-mat.company  EQ ipCompany
+         AND job-mat.j-no     EQ ipJNo
+         AND job-mat.i-no     EQ ipINo
+         AND job-mat.frm      EQ ipForm
+         AND job-mat.blank-no EQ ipBlank
+         AND job-mat.qty      GT 0
+       NO-ERROR.
   IF AVAILABLE job-mat THEN
   ASSIGN
     opUserField29 = STRING(job-mat.qty,ipFormat29)
@@ -1661,7 +1675,7 @@ PROCEDURE loadUserFieldLabelWidth:
   ASSIGN
     cascadeJob = SEARCH(findProgram('{&data}/',ID,'/noCascade.dat')) EQ ?
     changeResource = YES
-    loginID = USERID('ASI') + '.' + STRING(TODAY,'999999') + '.' + STRING(TIME,'99999')
+    loginID = USERID('NoSweat') + '.' + STRING(TODAY,'999999') + '.' + STRING(TIME,'99999')
     statusObject[1] = ',Ready/Pending'
     statusObject[2] = 'Machine MR,Completed/Pending'
     statusObject[3] = 'Machine Run,Completed/Pending'
@@ -1752,6 +1766,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[85] = 'Due Qty'         userWidth[85] = 12
     userLabel[86] = 'UnderRun%'       userWidth[86] = 10
     userLabel[87] = 'OverRun%'        userWidth[87] = 10
+    userLabel[88] = 'Speed'           userWidth[88] = 10
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1815,7 +1830,7 @@ PROCEDURE setUseFields:
     ufIPJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64]
-    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85]
+    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88]
     ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]
     ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]
     ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35]

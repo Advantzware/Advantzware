@@ -18,12 +18,5 @@ DO TRANSACTION:
    {sys/inc/selrptcol.i "JL3" }
 END.
 
-IF SelectRptColumn-log THEN RUN jcrep/r-totwsaN.w.
-ELSE RUN jcrep/r-totwsaA.w.     
-
-
-
-
-
-
-
+IF SelectRptColumn-log THEN RUN jcrep/r-totwsaN.w PERSISTENT.
+ELSE RUN jcrep/r-totwsaA.w PERSISTENT.
