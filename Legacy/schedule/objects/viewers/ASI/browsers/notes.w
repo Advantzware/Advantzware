@@ -2,7 +2,6 @@
 &ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
-          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -253,22 +252,22 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "nosweat.notes WHERE asi.job <external> ..."
+     _TblList          = "ASI.notes WHERE asi.job <external> ..."
      _Options          = "NO-LOCK KEY-PHRASE"
      _TblOptList       = ", FIRST"
      _Where[1]         = "notes.rec_key EQ job.rec_key
 AND notes.note_type NE 'S'"
-     _FldNameList[1]   > nosweat.notes.note_date
+     _FldNameList[1]   > ASI.notes.note_date
 "notes.note_date" "Date" "99.99.9999" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[2]   > "_<CALC>"
 "STRING(notes.note_time,'HH:MM:SSam') @ noteTime" "Time" "X(10)" ? ? ? ? ? ? ? no ? no no "10.8" yes no no "U" "" ""
-     _FldNameList[3]   > nosweat.notes.note_title
+     _FldNameList[3]   > ASI.notes.note_title
 "notes.note_title" "Title" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[4]   = nosweat.notes.user_id
-     _FldNameList[5]   > nosweat.notes.note_code
+     _FldNameList[4]   = ASI.notes.user_id
+     _FldNameList[5]   > ASI.notes.note_code
 "notes.note_code" "Dept" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[6]   = nosweat.notes.note_form_no
-     _FldNameList[7]   = nosweat.notes.note_type
+     _FldNameList[6]   = ASI.notes.note_form_no
+     _FldNameList[7]   = ASI.notes.note_type
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME

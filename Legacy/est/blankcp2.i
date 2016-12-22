@@ -339,7 +339,7 @@ IF lv-copied NE ? THEN DO:
          notes.rec_key      = est.rec_key
          notes.note_date    = TODAY
          notes.note_time    = TIME
-         notes.user_id      = USERID("nosweat")
+         notes.user_id      = USERID("ASI")
          notes.note_form_no = ef.form-no.
       END.
 

@@ -1,0 +1,1019 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element msdata:IsDataSet="true" name="root">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+                <xsd:element minOccurs="0" msdata:Ordinal="2" name="comment" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute msdata:Ordinal="1" name="name" type="xsd:string" use="required"/>
+              <xsd:attribute msdata:Ordinal="3" name="type" type="xsd:string"/>
+              <xsd:attribute msdata:Ordinal="4" name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartSecurityAssignment_Restricted_Label.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted_Label.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted_Label.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="appearance1.TextHAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="appearance1.TextVAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartSecurityAssignment_Restricted_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted_Label.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted_Label.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted_Label.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted_Label.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted_Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="eSmartSecurityAssignment_Restricted_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>14, 126</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted_Label.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted_Label.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>44, 14</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted_Label.Text" xml:space="preserve">
+    <value>Access:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSecurityAssignment_Restricted_Label.Name" xml:space="preserve">
+    <value>eSmartSecurityAssignment_Restricted_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSecurityAssignment_Restricted_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSecurityAssignment_Restricted_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartSecurityAssignment_Restricted_Label.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.AutoSize" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <data name="smartBusinessEntityBindingSource1.BindTo" xml:space="preserve">
+    <value>QUERY</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1.EntityJoin" xml:space="preserve">
+    <value>YES</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1.EntityName" xml:space="preserve">
+    <value>Consultingwerk.SmartFramework.Authorization.SecurityAssignmentBusinessEntity</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1.EntityTable" xml:space="preserve">
+    <value>eSmartSecurityAssignment</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1.EntityView" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 123</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="eSmartSecurityAssignment_Restricted.Text" xml:space="preserve">
+    <value>Restricted</value>
+  </data>
+  <data name="&gt;&gt;eSmartSecurityAssignment_Restricted.Name" xml:space="preserve">
+    <value>eSmartSecurityAssignment_Restricted</value>
+  </data>
+  <data name="&gt;&gt;eSmartSecurityAssignment_Restricted.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSecurityAssignment_Restricted.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartSecurityAssignment_Restricted.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="appearance2.TextHAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="appearance2.TextVAlignAsString" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>14, 19</value>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>84, 14</value>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="eSmartSecurityAssignment_SecurityRealmGuid_Label.Text" xml:space="preserve">
+    <value>&amp;Security Realm:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSecurityAssignment_SecurityRealmGuid_Label.Name" xml:space="preserve">
+    <value>eSmartSecurityAssignment_SecurityRealmGuid_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSecurityAssignment_SecurityRealmGuid_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSecurityAssignment_SecurityRealmGuid_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartSecurityAssignment_SecurityRealmGuid_Label.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="coSecurityRealm.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="coSecurityRealm.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="coSecurityRealm.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="coSecurityRealm.AppServerPartition" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="coSecurityRealm.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="coSecurityRealm.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="coSecurityRealm.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="coSecurityRealm.DisplayFields" xml:space="preserve">
+    <value>SecurityRealmCode,SecurityRealmDescription</value>
+  </data>
+  <data name="coSecurityRealm.DisplaySubstitute" xml:space="preserve">
+    <value>&amp;1 - &amp;2</value>
+  </data>
+  <data name="coSecurityRealm.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="coSecurityRealm.EntityName" xml:space="preserve">
+    <value>Consultingwerk.SmartFramework.Authorization.SecurityRealmBusinessEntity</value>
+  </data>
+  <data name="coSecurityRealm.EntityTable" xml:space="preserve">
+    <value>eSmartSecurityRealm</value>
+  </data>
+  <data name="coSecurityRealm.FlagText" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="coSecurityRealm.FlagValue" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="coSecurityRealm.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="coSecurityRealm.ImageField" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="coSecurityRealm.ImageKeyField" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="coSecurityRealm.ImageKeyFieldSubstitute" xml:space="preserve">
+    <value>&amp;1</value>
+  </data>
+  <data name="coSecurityRealm.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="coSecurityRealm.KeyField" xml:space="preserve">
+    <value>SecurityRealmGuid</value>
+  </data>
+  <data name="coSecurityRealm.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 15</value>
+  </data>
+  <data name="coSecurityRealm.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="coSecurityRealm.QueryString" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="coSecurityRealm.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="coSecurityRealm.Size" type="System.Drawing.Size, System.Drawing">
+    <value>441, 21</value>
+  </data>
+  <data name="coSecurityRealm.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;coSecurityRealm.Name" xml:space="preserve">
+    <value>coSecurityRealm</value>
+  </data>
+  <data name="&gt;&gt;coSecurityRealm.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartComboEditor, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;coSecurityRealm.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;coSecurityRealm.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="loSecurityItem.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="loSecurityItem.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="loSecurityItem.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="loSecurityItem.AppServerPartition" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="loSecurityItem.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="loSecurityItem.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="editorButton1.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="editorButton1.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="editorButton1.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="loSecurityItem.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="loSecurityItem.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="loSecurityItem.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="loSecurityItem.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 42</value>
+  </data>
+  <data name="loSecurityItem.LookupAdditionalFields" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupBrowserExcludeFields" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupBrowserFields" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupControls" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupDialogClassName" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupDialogFilterFields" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupDialogFilterOperators" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupDialogQuerySort" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupDialogQueryString" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupDialogTitle" xml:space="preserve">
+    <value>Lookup</value>
+  </data>
+  <data name="loSecurityItem.LookupEntityName" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupEntityTable" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupEntityView" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupFields" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupKeyField" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupKeyValue" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupKeyValueColumn" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupQuerySort" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.LookupQueryString" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="loSecurityItem.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="loSecurityItem.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="loSecurityItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>441, 21</value>
+  </data>
+  <data name="loSecurityItem.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;loSecurityItem.Name" xml:space="preserve">
+    <value>loSecurityItem</value>
+  </data>
+  <data name="&gt;&gt;loSecurityItem.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;loSecurityItem.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;loSecurityItem.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="ultraLabel1.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabel1.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabel1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="ultraLabel1.AutoSize" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="ultraLabel1.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabel1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="ultraLabel1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="ultraLabel1.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabel1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraLabel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>14, 46</value>
+  </data>
+  <data name="ultraLabel1.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="ultraLabel1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraLabel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 23</value>
+  </data>
+  <data name="ultraLabel1.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="ultraLabel1.Text" xml:space="preserve">
+    <value>Security Item:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Name" xml:space="preserve">
+    <value>ultraLabel1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.AppServerPartition" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="editorButton2.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="editorButton2.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="editorButton2.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 69</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupAdditionalFields" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupBrowserExcludeFields" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupBrowserFields" xml:space="preserve">
+    <value>UserName,UserFullName,LoginCompanyName</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupControls" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupDialogClassName" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupDialogFilterFields" xml:space="preserve">
+    <value>UserName,UserFullName</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupDialogFilterOperators" xml:space="preserve">
+    <value>BEGINS,BEGINS</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupDialogQuerySort" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupDialogQueryString" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupDialogTitle" xml:space="preserve">
+    <value>Lookup User</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupEntityName" xml:space="preserve">
+    <value>Consultingwerk.SmartFramework.Authentication.UserBusinessEntity</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupEntityTable" xml:space="preserve">
+    <value>eSmartUser</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupEntityView" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupFields" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupKeyField" xml:space="preserve">
+    <value>UserName</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupKeyValue" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupKeyValueColumn" xml:space="preserve">
+    <value>UserGuid</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupQuerySort" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupQueryString" xml:space="preserve">
+    <value>for each eSmartUser where eSmartUser.UserName begins "&amp;1"</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>441, 21</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup1.Name" xml:space="preserve">
+    <value>smartBusinessEntityLookup1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup1.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.AppServerPartition" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="editorButton3.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="editorButton3.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="editorButton3.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 96</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupAdditionalFields" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupBrowserExcludeFields" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupBrowserFields" xml:space="preserve">
+    <value>GroupName,ParentGroupName,LoginCompanyName</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupControls" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupDialogClassName" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupDialogFilterFields" xml:space="preserve">
+    <value>GroupName</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupDialogFilterOperators" xml:space="preserve">
+    <value>BEGINS</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupDialogQuerySort" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupDialogQueryString" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupDialogTitle" xml:space="preserve">
+    <value>Lookup User Group</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupEntityName" xml:space="preserve">
+    <value>Consultingwerk.SmartFramework.Authorization.GroupBusinessEntity</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupEntityTable" xml:space="preserve">
+    <value>eSmartGroup</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupEntityView" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupFields" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupKeyField" xml:space="preserve">
+    <value>GroupName</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupKeyValue" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupKeyValueColumn" xml:space="preserve">
+    <value>GroupGuid</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupQuerySort" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="smartBusinessEntityLookup2.LookupQueryString" xml:space="preserve">
+    <value>for each eSmartGroup where eSmartGroup.GroupName begins "&amp;1"</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>441, 21</value>
+  </data>
+  <data name="smartBusinessEntityLookup2.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup2.Name" xml:space="preserve">
+    <value>smartBusinessEntityLookup2</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup2.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup2.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ultraLabel2.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabel2.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabel2.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="ultraLabel2.AutoSize" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="ultraLabel2.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabel2.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="ultraLabel2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="ultraLabel2.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabel2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraLabel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>14, 73</value>
+  </data>
+  <data name="ultraLabel2.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="ultraLabel2.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraLabel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 23</value>
+  </data>
+  <data name="ultraLabel2.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="ultraLabel2.Text" xml:space="preserve">
+    <value>User:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Name" xml:space="preserve">
+    <value>ultraLabel2</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="ultraLabel3.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabel3.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabel3.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left</value>
+  </data>
+  <data name="ultraLabel3.AutoSize" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="ultraLabel3.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabel3.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="ultraLabel3.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="ultraLabel3.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="ultraLabel3.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraLabel3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>14, 100</value>
+  </data>
+  <data name="ultraLabel3.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="ultraLabel3.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="ultraLabel3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 23</value>
+  </data>
+  <data name="ultraLabel3.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="ultraLabel3.Text" xml:space="preserve">
+    <value>Group:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Name" xml:space="preserve">
+    <value>ultraLabel3</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v13.1, Version=13.1.20131.2089, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AccessibleDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="$this.AccessibleName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.AutoScroll" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="$this.AutoSize" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="$this.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
+    <value>GrowOnly</value>
+  </data>
+  <data name="$this.BackgroundImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="$this.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Tile</value>
+  </data>
+  <data name="$this.Font" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value/>
+  </data>
+  <data name="$this.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="$this.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="$this.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="$this.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Inherit</value>
+  </data>
+  <data name="$this.SecurityKey" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>605, 348</value>
+  </data>
+  <data name="$this.SmartTableIOState" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="$this.ViewerLogicClass" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartSecurityAssignmentViewerControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartViewerControl, OEProxyAssembly, Version=11.3.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+</root>

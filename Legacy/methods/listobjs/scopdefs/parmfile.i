@@ -1,6 +1,6 @@
 /* parmfile.i
 "parmfile"
-"NOSWEAT"
+"ASI"
 "parmfile"
 "parmfile"
 "Parameter File"

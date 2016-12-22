@@ -71,7 +71,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -96,7 +96,7 @@ DEFINE BUTTON btn-die
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 67 BY 1.76.
 
 
@@ -146,6 +146,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -160,7 +161,7 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -196,6 +197,11 @@ DO:
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
    IF valid-handle(widget-handle(char-hdl))
       THEN RUN die-image IN WIDGET-HANDLE(char-hdl).
+
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:08:39 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 
 END.
 

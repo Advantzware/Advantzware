@@ -19,7 +19,7 @@
 "users. " ~
 */
 
-&Scoped-define search-db NOSWEAT.
+&Scoped-define search-db ASI.
 &Scoped-define search-file users
 &Scoped-define where-statement TRUE
 &Scoped-define return-field user_id

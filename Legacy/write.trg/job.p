@@ -11,7 +11,7 @@ DISABLE TRIGGERS FOR LOAD OF job-hdr.
 
 ASSIGN
  {&TABLENAME}.opened  = LOOKUP({&TABLENAME}.stat,"C,Z") EQ 0
- {&TABLENAME}.user-id = USERID("nosweat")
+ {&TABLENAME}.user-id = USERID("ASI")
  {&TABLENAME}.est-no  = FILL(" ",8 - LENGTH(TRIM({&TABLENAME}.est-no))) +
                         TRIM({&TABLENAME}.est-no).
 

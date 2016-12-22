@@ -964,8 +964,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
 
     ASSIGN
-      begin_userid:SCREEN-VALUE = USERID("nosweat")
-      end_userid:SCREEN-VALUE   = USERID("nosweat")
+      begin_userid:SCREEN-VALUE = USERID("ASI")
+      end_userid:SCREEN-VALUE   = USERID("ASI")
       v-fgpostgl                = fgpostgl
       tb_glnum:SCREEN-VALUE     = STRING(v-fgpostgl NE "None" OR v-adjustgl).
 
@@ -1016,8 +1016,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      ldt-to       = 12/31/9999
      begin_job-no = ""
      end_job-no   = "zzzzzzzzzzzzzzzzzzzzzzzz"
-     begin_userid = USERID("nosweat")
-     end_userid   = USERID("nosweat").
+     begin_userid = USERID("ASI")
+     end_userid   = USERID("ASI").
 
     /*IF ip-run-what EQ "SETUP" THEN DO :
       ASSIGN
@@ -2427,7 +2427,7 @@ IF ip-run-what EQ "" THEN
 ASSIGN
  str-tit2 = CURRENT-WINDOW:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
- str-tit3 = "Period Date: " + string(v-post-date,"99/99/9999") + "             Posted by: " + USERID('nosweat') + "  As of " + string(TODAY,"99/99/9999")
+ str-tit3 = "Period Date: " + string(v-post-date,"99/99/9999") + "             Posted by: " + USERID("ASI") + "  As of " + string(TODAY,"99/99/9999")
  {sys/inc/ctrtext.i str-tit3 132}
 
  v-postlst   = (IF t-receipt THEN "R," ELSE "") +
@@ -2689,7 +2689,7 @@ PROCEDURE send-fgemail :
   DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 
   FIND FIRST users WHERE
-       users.user_id EQ USERID("NOSWEAT")
+       users.user_id EQ USERID("ASI")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN

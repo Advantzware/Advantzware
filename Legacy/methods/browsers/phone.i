@@ -1,5 +1,5 @@
 /* phone.i
-"NOSWEAT" "phone"
+"ASI" "phone"
 "attention" "Attention" ""
 "" "" ""
 "" "" ""

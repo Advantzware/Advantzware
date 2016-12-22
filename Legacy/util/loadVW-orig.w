@@ -133,11 +133,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -263,14 +259,14 @@ DO:
             vend-whse-item.company           = cust-itm.company 
             vend-whse-item.create-date       = TODAY
             vend-whse-item.create-time       = TIME
-            vend-whse-item.create-userid     = USERID("nosweat")
+            vend-whse-item.create-userid     = USERID("ASI")
             vend-whse-item.cust-no           = cust-itm.cust-no 
             vend-whse-item.cust-part-no      = itemfg.part-no  
             vend-whse-item.fg-item-no        = cust-itm.i-no
             vend-whse-item.plant-tot-oh-qty  = cust-itm.qty
             vend-whse-item.upd-date          = TODAY
             vend-whse-item.upd-time          = TIME
-            vend-whse-item.upd-userid        = USERID("nosweat")
+            vend-whse-item.upd-userid        = USERID("ASI")
             vend-whse-item.vendor-code       = vend-plant.vendor-code
             vend-whse-item.vendor-dept-code  = vend-plant.vendor-dept-code
             vend-whse-item.vendor-plant-code = vend-plant.plant-id

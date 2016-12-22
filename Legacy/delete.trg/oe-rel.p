@@ -19,7 +19,7 @@ IF oeuserid-log THEN
 FOR EACH oe-ord
     WHERE oe-ord.company EQ {&TABLENAME}.company
       AND oe-ord.ord-no  EQ {&TABLENAME}.ord-no:
-  oe-ord.user-id = USERID("nosweat").
+  oe-ord.user-id = USERID("ASI").
 END.
 
 FOR EACH reftable

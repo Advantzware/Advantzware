@@ -10,7 +10,7 @@ DEF BUFFER b-{&TABLENAME} FOR {&TABLENAME}.
 
 ASSIGN
  {&TABLENAME}.company = g_company
- {&TABLENAME}.cust-no = FILL(" ",100) + STRING(USERID("nosweat"),"x(20)") + STRING(TIME,"9999999999")
+ {&TABLENAME}.cust-no = FILL(" ",100) + STRING(USERID("ASI"),"x(20)") + STRING(TIME,"9999999999")
  {&TABLENAME}.loc     = g_loc
  {&TABLENAME}.active  = "A".
 

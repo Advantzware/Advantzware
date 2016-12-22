@@ -7,4 +7,4 @@ TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
 ASSIGN
  {&TABLENAME}.entered-date = TODAY
- {&TABLENAME}.entered-id   = USERID("nosweat").
+ {&TABLENAME}.entered-id   = USERID("ASI").

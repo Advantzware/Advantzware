@@ -54,5 +54,5 @@ RETURN.
 PROCEDURE update-est.
   ASSIGN
    est.updated-date = TODAY
-   est.updated-id   = USERID("nosweat").
+   est.updated-id   = USERID("ASI").
 END PROCEDURE.

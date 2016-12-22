@@ -44,7 +44,7 @@ CREATE WIDGET-POOL.
 &ENDIF
 
 /* Temp-Tables */
-DEFINE TEMP-TABLE ttContacts        LIKE NOSWEAT.phone.
+DEFINE TEMP-TABLE ttContacts        LIKE ASI.phone.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -271,8 +271,8 @@ DO:
   DO i = 1 TO brContacts:NUM-SELECTED-ROWS:
      x = brContacts:FETCH-SELECTED-ROW(i).
      IF x THEN DO:
-       CREATE NOSWEAT.phone.
-       BUFFER-COPY ttContacts TO NOSWEAT.phone.
+       CREATE ASI.phone.
+       BUFFER-COPY ttContacts TO ASI.phone.
        i2 = i2 + 1.
      END.
  END.
@@ -386,15 +386,15 @@ PROCEDURE Initialize :
       FOR EACH  ASI.cust             NO-LOCK
           WHERE  ASI.cust.company   = bf-cust.company
             AND ASI.cust.active    = 'X',
-           EACH  NOSWEAT.phone        NO-LOCK
-          WHERE  NOSWEAT.phone.TABLE_rec_key = ASI.cust.rec_key:
+           EACH  ASI.phone        NO-LOCK
+          WHERE  ASI.phone.TABLE_rec_key = ASI.cust.rec_key:
     
         IF NOT CAN-FIND (FIRST ttContacts 
                          WHERE ttContacts.table_rec_key = icShipRecKey
-                           AND ttContacts.attention     = NOSWEAT.phone.attention) 
+                           AND ttContacts.attention     = ASI.phone.attention) 
         THEN DO:
              CREATE ttContacts.
-             BUFFER-COPY NOSWEAT.phone TO ttContacts.
+             BUFFER-COPY ASI.phone TO ttContacts.
              ASSIGN ttContacts.table_rec_key = icShipRecKey.
         END.
       END.
@@ -406,15 +406,15 @@ PROCEDURE Initialize :
           WHERE  ASI.cust.company   = ASI.shipto.company
             AND (ASI.cust.cust-no   = ASI.shipto.cust-no
              /*OR  ASI.cust.active    = 'X'*/),
-           EACH  NOSWEAT.phone        NO-LOCK
-          WHERE  NOSWEAT.phone.TABLE_rec_key = ASI.cust.rec_key:
+           EACH  ASI.phone        NO-LOCK
+          WHERE  ASI.phone.TABLE_rec_key = ASI.cust.rec_key:
     
         IF NOT CAN-FIND (FIRST ttContacts 
                          WHERE ttContacts.table_rec_key = icShipRecKey
-                           AND ttContacts.attention     = NOSWEAT.phone.attention) 
+                           AND ttContacts.attention     = ASI.phone.attention) 
         THEN DO:
              CREATE ttContacts.
-             BUFFER-COPY NOSWEAT.phone TO ttContacts.
+             BUFFER-COPY ASI.phone TO ttContacts.
              ASSIGN ttContacts.table_rec_key = icShipRecKey.
         END.
       END.

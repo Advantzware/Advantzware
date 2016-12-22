@@ -2573,7 +2573,7 @@ PROCEDURE create-multi-line :
             AVAILABLE job AND NOT CAN-FIND(FIRST w-po-ordl) THEN
         DO:
     
-            FOR EACH xreport WHERE xreport.term-id EQ v-term + USERID("nosweat"):
+            FOR EACH xreport WHERE xreport.term-id EQ v-term + USERID("ASI"):
                 DELETE xreport.
             END.
 
@@ -2602,7 +2602,7 @@ PROCEDURE create-multi-line :
         
                 CREATE xreport.
                 ASSIGN
-                    xreport.term-id = v-term + USERID("nosweat")
+                    xreport.term-id = v-term + USERID("ASI")
                     xreport.rec_key = STRING(ROWID(b2-job-mat)).
             END.
 
@@ -2635,7 +2635,7 @@ PROCEDURE create-multi-line :
                 NO-LOCK,
                 FIRST report WHERE
                 report.rec_key = string(ROWID(b2-job-mat)) AND
-                report.term-id EQ v-term + USERID("nosweat")
+                report.term-id EQ v-term + USERID("ASI")
                 NO-LOCK:
       
                 li = li + 1.
@@ -2747,7 +2747,7 @@ PROCEDURE create-multi-line :
                     ,
                     FIRST report NO-LOCK WHERE
                     report.rec_key = string(ROWID(b2-job-mat)) AND
-                    report.term-id EQ v-term + USERID("nosweat")
+                    report.term-id EQ v-term + USERID("ASI")
                     :
       
                     CREATE w-po-ordl.

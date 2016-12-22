@@ -14,6 +14,6 @@
 IF false then
 */
 FIND prgrms WHERE prgrms.prgmname = "rates" NO-LOCK NO-ERROR.
-IF CAN-DO(prgrms.can_run,USERID("NOSWEAT")) or
+IF CAN-DO(prgrms.can_run,USERID("ASI")) or
    CAN-DO(prgrms.can_run,"*") THEN
 

@@ -111,18 +111,18 @@ DEFINE FRAME F-Main
          SIZE 152.6 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 34 ROW 1
-         SIZE 119 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 90 ROW 2.91
          SIZE 63 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 34 ROW 1
+         SIZE 119 BY 1.91
          BGCOLOR 15 .
 
 
@@ -133,7 +133,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: asi.po-ordl,asi.po-ord
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 3
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -151,27 +151,22 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = NO
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
-/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -203,7 +198,7 @@ ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-fram
 /* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = YES.
+THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -559,7 +554,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page EQ 0 
+  IF adm-current-page eq 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -705,11 +700,11 @@ PROCEDURE select_add :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR char-hdl AS cha NO-UNDO.
+  def var char-hdl as cha no-undo.
   
-  RUN select-page(2).
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-po-target", OUTPUT char-hdl).
-  RUN add-po IN WIDGET-HANDLE(char-hdl).
+  run select-page(2).
+  run get-link-handle in adm-broker-hdl(this-procedure,"add-po-target", output char-hdl).
+  run add-po in widget-handle(char-hdl).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -722,11 +717,11 @@ PROCEDURE select_addbest :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR char-hdl AS cha NO-UNDO.
+   def var char-hdl as cha no-undo.
   
-   RUN select-page(1).
-   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-po-best-target", OUTPUT char-hdl).
-   RUN add-po-best IN WIDGET-HANDLE(char-hdl).
+   run select-page(1).
+   run get-link-handle in adm-broker-hdl(this-procedure,"add-po-best-target", output char-hdl).
+   run add-po-best in widget-handle(char-hdl).
 
 END PROCEDURE.
 

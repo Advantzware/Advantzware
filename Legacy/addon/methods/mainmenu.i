@@ -15,12 +15,12 @@
     wk-ptrs.menu-name = "popup"
     wk-ptrs.smenu-ptr = popup-ptr.
 
-  FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK.
+  FIND users WHERE users.user_id = USERID("ASI") NO-LOCK.
   j = IF users.developer THEN 2 ELSE 1.
   DO i = 1 TO j:
     IF i = 1 THEN
-      IF SEARCH("users/" + USERID("NOSWEAT") + "/menu.lst") NE ? THEN
-      INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/menu.lst") NO-ECHO.
+      IF SEARCH("users/" + USERID("ASI") + "/menu.lst") NE ? THEN
+      INPUT FROM VALUE("users/" + USERID("ASI") + "/menu.lst") NO-ECHO.
       ELSE
       INPUT FROM menu.lst NO-ECHO.
     ELSE
@@ -40,8 +40,8 @@
 
   DO i = 1 TO j:
     IF i = 1 THEN
-      IF SEARCH("users/" + USERID("NOSWEAT") + "/menu.lst") NE ? THEN
-      INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/menu.lst") NO-ECHO.
+      IF SEARCH("users/" + USERID("ASI") + "/menu.lst") NE ? THEN
+      INPUT FROM VALUE("users/" + USERID("ASI") + "/menu.lst") NO-ECHO.
       ELSE
       INPUT FROM VALUE("menu.lst") NO-ECHO.
     ELSE
@@ -144,7 +144,7 @@
 
   RUN enable_UI.
   {methods/enhance.i}
-  users_user_id = USERID("NOSWEAT") /*+ " - " + users.user_name*/ .
+  users_user_id = USERID("ASI") /*+ " - " + users.user_name*/ .
   DISPLAY users_user_id
       WITH FRAME {&FRAME-NAME} IN WINDOW {&WINDOW-NAME}.
   v_image_filename = users.image_filename.

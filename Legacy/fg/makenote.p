@@ -28,7 +28,7 @@ IF v-prt-inst AND (AVAIL io-ordl OR AVAIL io-qqty OR AVAIL io-invl) THEN DO:
    notes.rec_key    = ip-rec_key
    notes.note_date  = TODAY
    notes.note_time  = TIME
-   notes.user_id    = USERID("NOSWEAT")
+   notes.user_id    = USERID("ASI")
    notes.note_type  = "S"
    notes.note_code  = "CS"
 

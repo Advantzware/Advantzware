@@ -237,11 +237,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -745,7 +741,7 @@ PROCEDURE CreateOrder :
          oe-ord.loc = g_loc
          oe-ord.ord-date = today
          oe-ord.ord-no = ttHeader.Order#
-         oe-ord.user-id = userid("nosweat")
+         oe-ord.user-id = USERID("ASI")
          oe-ord.type = "O"
          oe-ord.stat = "W"  /* OW menu */
          oe-ord.due-code = "ON"
@@ -1045,7 +1041,7 @@ PROCEDURE CreateSpecNote :
          notes.note_text =  ttDetail.Notes
          notes.note_date = TODAY
          notes.note_time = TIME
-         notes.user_id = USERID("NOSWEAT").
+         notes.user_id = USERID("ASI").
 
 END PROCEDURE.
 

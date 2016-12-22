@@ -1,5 +1,5 @@
 &Scoped-define ACTION DELETE
-&Scoped-define DBNAME PDBNAME('NOSWEAT')
+&Scoped-define DBNAME PDBNAME("ASI")
 &Scoped-define TABLENAME acclrtrs
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.

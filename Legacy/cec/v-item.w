@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR k_frac     AS   DEC   INIT 6.25 NO-UNDO.
+def var k_frac     as   dec   init 6.25 no-undo.
 {custom/gcompany.i}
 {custom/gloc.i}
 {custom/globdefs.i}
@@ -225,12 +225,12 @@ DEFINE VARIABLE group4-text AS CHARACTER FORMAT "X(256)":U INITIAL "Bundle/Palle
      SIZE 17 BY .62
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE group5-text AS CHARACTER FORMAT "X(256)":U INITIAL "" 
+DEFINE VARIABLE group5-text AS CHARACTER FORMAT "X(256)":U INITIAL "-" 
       VIEW-AS TEXT 
      SIZE 2.4 BY .62
      FONT 4 NO-UNDO.
 
-DEFINE VARIABLE group6-text AS CHARACTER FORMAT "X(256)":U INITIAL "" 
+DEFINE VARIABLE group6-text AS CHARACTER FORMAT "X(256)":U INITIAL "-" 
       VIEW-AS TEXT 
      SIZE 2.4 BY .62
      FONT 4 NO-UNDO.
@@ -1051,47 +1051,47 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-   DEF VAR ls-cur-val AS cha NO-UNDO.
-   DEF VAR lv-eb-tmpid AS RECID NO-UNDO.  
-   DEF VAR lv-handle AS HANDLE NO-UNDO.          
-   DEF VAR char-val AS cha NO-UNDO.
+   def var ls-cur-val as cha no-undo.
+   def var lv-eb-tmpid as recid no-undo.  
+   def var lv-handle as handle no-undo.          
+   def var char-val as cha no-undo.
             
-   CASE FOCUS:NAME :
-     WHEN "flute" OR WHEN "fi_flute" THEN DO:
+   case focus:name :
+     when "flute" or when "fi_flute" then do:
            /*run est/l-flute.w (output char-val).  using reftable*/
-           RUN windows/l-flute.w (gcompany,OUTPUT char-val).  /* using flute */
-           IF char-val <> "" THEN 
-              ASSIGN FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val)
-                     item.cal:screen-value = ENTRY(3,char-val).
-           RETURN NO-APPLY.   
-     END. 
-     WHEN "reg-no" THEN DO: /* test*/
-           RUN est/l-test.w 
-              (gcompany, gloc, item.flute:screen-value /*, focus:screen-value in frame {&frame-name}*/ , OUTPUT char-val).
-           IF char-val <> "" THEN 
-              FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
-           RETURN NO-APPLY.  
-     END. 
-     WHEN "dept-name" THEN DO: /* dept-name*/
-           RUN windows/l-dept.w 
-              ("",FOCUS:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT char-val).
-           IF char-val <> "" THEN 
-              FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
-           RETURN NO-APPLY.  
-     END.
-     OTHERWISE DO:
-           lv-handle = FOCUS:HANDLE.
-           RUN applhelp.p.
+           run windows/l-flute.w (gcompany,output char-val).  /* using flute */
+           if char-val <> "" then 
+              assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                     item.cal:screen-value = entry(3,char-val).
+           return no-apply.   
+     end. 
+     when "reg-no" then do: /* test*/
+           run est/l-test.w 
+              (gcompany, gloc, item.flute:screen-value /*, focus:screen-value in frame {&frame-name}*/ , output char-val).
+           if char-val <> "" then 
+              focus:screen-value in frame {&frame-name} = entry(1,char-val).
+           return no-apply.  
+     end. 
+     when "dept-name" then do: /* dept-name*/
+           run windows/l-dept.w 
+              ("",focus:screen-value in frame {&frame-name}, output char-val).
+           if char-val <> "" then 
+              focus:screen-value in frame {&frame-name} = entry(1,char-val).
+           return no-apply.  
+     end.
+     otherwise do:
+           lv-handle = focus:handle.
+           run applhelp.p.
              
-           IF g_lookup-var <> "" THEN DO:
-              lv-handle:SCREEN-VALUE = g_lookup-var.
+           if g_lookup-var <> "" then do:
+              lv-handle:screen-value = g_lookup-var.
         
-           END.   /* g_lookup-var <> "" */
-           APPLY "entry" TO lv-handle.
-           RETURN NO-APPLY.
+           end.   /* g_lookup-var <> "" */
+           apply "entry" to lv-handle.
+           return no-apply.
 
-     END.  /* otherwise */
-  END CASE.  
+     end.  /* otherwise */
+  end case.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1104,15 +1104,15 @@ ON LEAVE OF item.cost-type IN FRAME F-Main /* Cost Type */
 DO:
   /*{methods/dispflds.i}*/
   
-  IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
-     NOT CAN-FIND(costtype WHERE costtype.company = gcompany
+  if lastkey <> -1 and self:screen-value <> "" and
+     not can-find(costtype where costtype.company = gcompany
           AND costtype.loc = gloc
           AND costtype.cost-type = {&FIRST-EXTERNAL-TABLE}.cost-type:SCREEN-VALUE
           )
-  THEN DO:
-     MESSAGE "Invalid Cost Type. Try Help."  VIEW-AS ALERT-BOX ERROR.
-     RETURN NO-APPLY.
-  END.
+  then do:
+     message "Invalid Cost Type. Try Help."  view-as alert-box error.
+     return no-apply.
+  end.
 
   
    FIND costtype
@@ -1122,7 +1122,7 @@ DO:
         NO-LOCK NO-ERROR.
     costtype_descr = IF NOT AVAILABLE costtype THEN ""
                      ELSE costtype.descr.
-    DISPLAY costtype_descr WITH FRAME {&frame-name}.
+    DISPLAY costtype_descr with frame {&frame-name}.
 
 END.
 
@@ -1134,16 +1134,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.dept-name[10] V-table-Win
 ON LEAVE OF item.dept-name[10] IN FRAME F-Main /* Dept.[10] */
 DO:
-     IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = SELF:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99
+     if lastkey <> -1 and self:screen-value <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = self:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99
                                  )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-     END.                            
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          return no-apply.
+     end.                            
 
 END.
 
@@ -1155,16 +1155,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.dept-name[1] V-table-Win
 ON LEAVE OF item.dept-name[1] IN FRAME F-Main /* Department */
 DO:
-     IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = SELF:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99
+     if lastkey <> -1 and self:screen-value <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = self:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99
                                  )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-     END.                            
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          return no-apply.
+     end.                            
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1175,16 +1175,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.dept-name[2] V-table-Win
 ON LEAVE OF item.dept-name[2] IN FRAME F-Main /* Dept.[2] */
 DO:
-       IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = SELF:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99
+       if lastkey <> -1 and self:screen-value <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = self:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99
                                  )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-     END.                            
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          return no-apply.
+     end.                            
 
 END.
 
@@ -1196,15 +1196,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.dept-name[3] V-table-Win
 ON LEAVE OF item.dept-name[3] IN FRAME F-Main /* Dept.[3] */
 DO:
-       IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = SELF:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99      )
+       if lastkey <> -1 and self:screen-value <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = self:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99      )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-     END.                            
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          return no-apply.
+     end.                            
 
 END.
 
@@ -1216,16 +1216,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.dept-name[4] V-table-Win
 ON LEAVE OF item.dept-name[4] IN FRAME F-Main /* Dept.[4] */
 DO:
-       IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = SELF:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99
+       if lastkey <> -1 and self:screen-value <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = self:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99
                                  )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-     END.                            
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          return no-apply.
+     end.                            
 
 END.
 
@@ -1237,16 +1237,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.dept-name[5] V-table-Win
 ON LEAVE OF item.dept-name[5] IN FRAME F-Main /* Dept.[5] */
 DO:
-       IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = SELF:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99
+       if lastkey <> -1 and self:screen-value <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = self:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99
                                  )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-     END.                            
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          return no-apply.
+     end.                            
 
 END.
 
@@ -1258,16 +1258,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.dept-name[6] V-table-Win
 ON LEAVE OF item.dept-name[6] IN FRAME F-Main /* Dept.[6] */
 DO:
-       IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = SELF:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99
+       if lastkey <> -1 and self:screen-value <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = self:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99
                                  )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-     END.                            
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          return no-apply.
+     end.                            
 
 END.
 
@@ -1279,16 +1279,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.dept-name[7] V-table-Win
 ON LEAVE OF item.dept-name[7] IN FRAME F-Main /* Dept.[7] */
 DO:
-       IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = SELF:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99
+       if lastkey <> -1 and self:screen-value <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = self:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99
                                  )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-     END.                            
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          return no-apply.
+     end.                            
 
 END.
 
@@ -1300,16 +1300,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.dept-name[8] V-table-Win
 ON LEAVE OF item.dept-name[8] IN FRAME F-Main /* Dept.[8] */
 DO:
-       IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = SELF:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99
+       if lastkey <> -1 and self:screen-value <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = self:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99
                                  )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-     END.                            
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          return no-apply.
+     end.                            
 
 END.
 
@@ -1321,16 +1321,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.dept-name[9] V-table-Win
 ON LEAVE OF item.dept-name[9] IN FRAME F-Main /* Dept.[9] */
 DO:
-       IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = SELF:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99
+       if lastkey <> -1 and self:screen-value <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = self:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99
                                  )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-     END.                            
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          return no-apply.
+     end.                            
 
 END.
 
@@ -1370,7 +1370,7 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-mat-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    IF LOOKUP(fi_mat-type:SCREEN-VALUE IN FRAME {&frame-name},"B,P") = 0 THEN
+    IF LOOKUP(fi_mat-type:SCREEN-VALUE in frame {&frame-name},"B,P,1,2,3,4") = 0 THEN
       asi.item.spare-char-1:HIDDEN = TRUE.
     ELSE
       asi.item.spare-char-1:HIDDEN = FALSE.
@@ -1443,10 +1443,10 @@ END.
 
 &Scoped-define SELF-NAME item.i-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.i-code V-table-Win
-ON RETURN OF item.i-code IN FRAME F-Main /* Item Code */
+ON return OF item.i-code IN FRAME F-Main /* Item Code */
 DO:
-   APPLY "tab" TO SELF.
-   RETURN NO-APPLY.
+   apply "tab" to self.
+   return no-apply.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1478,7 +1478,7 @@ DO:
         NO-LOCK NO-ERROR.
     procat_dscr = IF NOT AVAILABLE procat THEN ""
                   ELSE procat.dscr.
-    DISPLAY procat_dscr WITH FRAME {&frame-name}.
+    DISPLAY procat_dscr with frame {&frame-name}.
 
 END.
 
@@ -1503,22 +1503,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.s-wid V-table-Win
 ON LEAVE OF item.s-wid IN FRAME F-Main /* Test */
 DO:
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
-        IF LASTKEY <> -1 AND
-            decimal(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0) >= v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter 16ths decimal from .01 to .15."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
+    IF sys-ctrl.char-fld = "16th's" THEN do:
+        IF lastkey <> -1 and
+            decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
+            then do:
+            message "Please enter 16ths decimal from .01 to .15."
+                view-as alert-box error.
+            return no-apply.
         END.
     END.
     IF sys-ctrl.char-fld = "32nd's" THEN DO:
-        IF LASTKEY <> -1 AND
-            decimal(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0) > v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter decimal from .01 to .32."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
+        IF lastkey <> -1 and
+            decimal(self:screen-value) - trunc(decimal(self:screen-value),0) > v-16-or-32 
+            then do:
+            message "Please enter decimal from .01 to .32."
+                view-as alert-box error.
+            return no-apply.
         END.
 
     END.
@@ -1532,22 +1532,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.s-len V-table-Win
 ON LEAVE OF item.s-len IN FRAME F-Main /* Test */
 DO:
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
-        IF LASTKEY <> -1 AND
-            decimal(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0) >= v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter 16ths decimal from .01 to .15."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
+    IF sys-ctrl.char-fld = "16th's" THEN do:
+        IF lastkey <> -1 and
+            decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
+            then do:
+            message "Please enter 16ths decimal from .01 to .15."
+                view-as alert-box error.
+            return no-apply.
         END.
     END.
     IF sys-ctrl.char-fld = "32nd's" THEN DO:
-        IF LASTKEY <> -1 AND
-            decimal(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0) > v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter decimal from .01 to .32."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
+        IF lastkey <> -1 and
+            decimal(self:screen-value) - trunc(decimal(self:screen-value),0) > v-16-or-32 
+            then do:
+            message "Please enter decimal from .01 to .32."
+                view-as alert-box error.
+            return no-apply.
         END.
 
     END.
@@ -1561,22 +1561,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.r-wid V-table-Win
 ON LEAVE OF item.r-wid IN FRAME F-Main /* Test */
 DO:
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
-        IF LASTKEY <> -1 AND
-            decimal(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0) >= v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter 16ths decimal from .01 to .15."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
+    IF sys-ctrl.char-fld = "16th's" THEN do:
+        IF lastkey <> -1 and
+            decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
+            then do:
+            message "Please enter 16ths decimal from .01 to .15."
+                view-as alert-box error.
+            return no-apply.
         END.
     END.
     IF sys-ctrl.char-fld = "32nd's" THEN DO:
-        IF LASTKEY <> -1 AND
-            decimal(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0) > v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter decimal from .01 to .32."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
+        IF lastkey <> -1 and
+            decimal(self:screen-value) - trunc(decimal(self:screen-value),0) > v-16-or-32 
+            then do:
+            message "Please enter decimal from .01 to .32."
+                view-as alert-box error.
+            return no-apply.
         END.
 
     END.
@@ -1591,22 +1591,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.s-dep V-table-Win
 ON LEAVE OF item.s-dep IN FRAME F-Main /* Test */
 DO:
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
-        IF LASTKEY <> -1 AND
-            decimal(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0) >= v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter 16ths decimal from .01 to .15."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
+    IF sys-ctrl.char-fld = "16th's" THEN do:
+        IF lastkey <> -1 and
+            decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
+            then do:
+            message "Please enter 16ths decimal from .01 to .15."
+                view-as alert-box error.
+            return no-apply.
         END.
     END.
     IF sys-ctrl.char-fld = "32nd's" THEN DO:
-        IF LASTKEY <> -1 AND
-            decimal(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0) > v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter decimal from .01 to .32."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
+        IF lastkey <> -1 and
+            decimal(self:screen-value) - trunc(decimal(self:screen-value),0) > v-16-or-32 
+            then do:
+            message "Please enter decimal from .01 to .32."
+                view-as alert-box error.
+            return no-apply.
         END.
 
     END.
@@ -1625,7 +1625,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {custom/getcmpny.i}
 {custom/getloc.i}
-SESSION:DATA-ENTRY-RETURN = YES.
+session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
@@ -1746,7 +1746,7 @@ PROCEDURE enable-item :
     ENABLE fi_mat-type.
     IF INDEX("DC",item.mat-type) GT 0 THEN ENABLE fi_cas-pal-w. 
     IF item.mat-type EQ "C" THEN ENABLE fi_flute fi_reg-no.
-    IF INDEX("BAP",item.mat-type) GT 0 THEN ENABLE fi_ect.
+    IF INDEX("BAP1234",item.mat-type) GT 0 THEN ENABLE fi_ect.
   END.
 
 END PROCEDURE.
@@ -1775,16 +1775,16 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER bf-item FOR item.
-  DEF BUFFER xstack-f FOR stack-flute.
-  DEF BUFFER xstack-s FOR stack-size.
-  DEF VAR v-i-no LIKE item.i-no NO-UNDO.
-  DEF VAR cocode AS cha NO-UNDO.
-  DEF VAR locode AS cha NO-UNDO.
-  DEF BUFFER bf-e-item FOR e-item .
-  DEF BUFFER bf-e-vend FOR e-item-vend.
-  DEF BUFFER bf-item-bom FOR item-bom .
-  DEF VAR ls-prev-i-no LIKE item.i-no NO-UNDO.
+  def buffer bf-item for item.
+  def buffer xstack-f for stack-flute.
+  def buffer xstack-s for stack-size.
+  def var v-i-no like item.i-no no-undo.
+  def var cocode as cha no-undo.
+  def var locode as cha no-undo.
+  def buffer bf-e-item for e-item .
+  def buffer bf-e-vend for e-item-vend.
+  def buffer bf-item-bom for item-bom .
+  def var ls-prev-i-no like item.i-no no-undo.
   DEF VAR lv-mat-type LIKE ITEM.mat-type NO-UNDO.
   DEF VAR lv-cas-pal-w LIKE ITEM.basis-w NO-UNDO.
   DEF VAR lv-ect AS DEC NO-UNDO.
@@ -1793,14 +1793,14 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ls-prev-i-no = item.i-no.
-  IF /*adm-new-record and YSK error in assign-statement for ? */ 
-     fi_mat-type:screen-value IN FRAME {&frame-name} <> "I" 
-  THEN DO:
-     IF item.ink-type:screen-value = "?" OR item.ink-type:screen-value = ?
-        THEN item.ink-type:screen-value = "I".
-     IF item.press-type:screen-value = "?" OR item.press-type:screen-value = ?
-        THEN item.press-type:screen-value = "F".
-  END.
+  if /*adm-new-record and YSK error in assign-statement for ? */ 
+     fi_mat-type:screen-value in frame {&frame-name} <> "I" 
+  then do:
+     if item.ink-type:screen-value = "?" or item.ink-type:screen-value = ?
+        then item.ink-type:screen-value = "I".
+     if item.press-type:screen-value = "?" or item.press-type:screen-value = ?
+        then item.press-type:screen-value = "F".
+  end.
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
@@ -1815,29 +1815,29 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/assign/item.i}
 
-  SESSION:SET-WAIT-STATE("general").  
+  session:set-wait-state("general").  
 
-  ASSIGN cocode = gcompany
+  assign cocode = gcompany
          locode = gloc
          fi_mat-type = lv-mat-type
          item.mat-type = lv-mat-type.
   
-  IF adm-new-record AND item.mat-type = "D" THEN DO:  /* from rm/cpall.i */
-     FIND FIRST bf-item WHERE bf-item.company = gcompany AND
-                              bf-item.mat-type = "D" AND
+  if adm-new-record and item.mat-type = "D" then do:  /* from rm/cpall.i */
+     find first bf-item where bf-item.company = gcompany and
+                              bf-item.mat-type = "D" and
                               bf-item.i-no <> item.i-no
-                              USE-INDEX i-no /*mat-type*/ NO-LOCK NO-ERROR.    
-     v-i-no = IF AVAIL bf-item THEN CAPS(bf-item.i-no) ELSE "".
-     REPEAT:
-       MESSAGE "Please enter pallet you wish to copy to the stacking info from:" 
-               UPDATE v-i-no .
-       FIND FIRST bf-item WHERE bf-item.company = gcompany AND
+                              use-index i-no /*mat-type*/ no-lock no-error.    
+     v-i-no = if avail bf-item then caps(bf-item.i-no) else "".
+     repeat:
+       message "Please enter pallet you wish to copy to the stacking info from:" 
+               update v-i-no .
+       find first bf-item where bf-item.company = gcompany and
                                 bf-item.i-no = v-i-no 
-                                NO-LOCK NO-ERROR.    
-       IF NOT AVAIL bf-item THEN  NEXT.
-       ELSE LEAVE.
-     END.  /* repeat v-i-no */
-     SESSION:SET-WAIT-STATE("general").    
+                                no-lock no-error.    
+       if not avail bf-item then  next.
+       else leave.
+     end.  /* repeat v-i-no */
+     session:set-wait-state("general").    
 
      DO WHILE TRUE:
        FIND FIRST stack-flute
@@ -1868,31 +1868,31 @@ PROCEDURE local-assign-record :
            AND stack-flute.pallet  EQ v-i-no:
 
        CREATE xstack-f.
-       BUFFER-COPY stack-flute EXCEPT rec_key TO xstack-f
+       BUFFER-COPY stack-flute EXCEPT rec_key to xstack-f
        ASSIGN 
         xstack-f.code   = flute.code
         xstack-f.pallet = CAPS(item.i-no).
      END.
 
-      FOR EACH stack-size WHERE stack-size.company EQ cocode
-                            AND stack-size.loc     EQ locode
-                            AND stack-size.pallet  EQ item.i-no:
-          DELETE stack-size.
-      END.
-      FOR EACH stack-size WHERE stack-size.company EQ cocode
-                            AND stack-size.loc     EQ locode
-                            AND stack-size.pallet  EQ v-i-no
-                            NO-LOCK:
-          CREATE xstack-s.
-          BUFFER-COPY stack-size EXCEPT rec_key TO xstack-s
-          ASSIGN xstack-s.pallet = CAPS(item.i-no).
-      END.                     
-  END.  /* adm-new-record , item-type = "D" */
+      for each stack-size where stack-size.company eq cocode
+                            and stack-size.loc     eq locode
+                            and stack-size.pallet  eq item.i-no:
+          delete stack-size.
+      end.
+      for each stack-size where stack-size.company eq cocode
+                            and stack-size.loc     eq locode
+                            and stack-size.pallet  eq v-i-no
+                            no-lock:
+          create xstack-s.
+          buffer-copy stack-size EXCEPT rec_key to xstack-s
+          assign xstack-s.pallet = caps(item.i-no).
+      end.                     
+  end.  /* adm-new-record , item-type = "D" */
 
-  IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy */
-         FIND bf-item WHERE bf-item.company = gcompany AND
+  if adm-new-record and not adm-adding-record then do: /* copy */
+         find bf-item where bf-item.company = gcompany and
                             bf-item.i-no = ls-prev-i-no
-                            NO-LOCK NO-ERROR.
+                            no-lock no-error.
          DO WITH FRAME {&FRAME-NAME}:
            BUFFER-COPY bf-item EXCEPT rec_key TO ITEM
            ASSIGN
@@ -1903,66 +1903,66 @@ PROCEDURE local-assign-record :
             item.q-back   = 0
             item.q-avail  = 0
             item.mat-type = lv-mat-type
-            item.pur-uom  = IF bf-item.pur-uom  EQ "" THEN "MSF"
-                                                      ELSE bf-item.pur-uom
-            item.cons-uom = IF bf-item.cons-uom EQ "" THEN "EA"
-                                                      ELSE bf-item.cons-uom.
+            item.pur-uom  = if bf-item.pur-uom  EQ "" then "MSF"
+                                                      else bf-item.pur-uom
+            item.cons-uom = if bf-item.cons-uom EQ "" then "EA"
+                                                      else bf-item.cons-uom.
          END.
-         FOR EACH e-item WHERE e-item.company = cocode AND
+         for each e-item where e-item.company = cocode and
                                 e-item.i-no = item.i-no:
-               DELETE e-item.  /* delete rec if exists before create */                
-         END.                             
-         FOR EACH e-item WHERE e-item.company = cocode AND
+               delete e-item.  /* delete rec if exists before create */                
+         end.                             
+         for each e-item where e-item.company = cocode and
                                e-item.i-no = bf-item.i-no:
-             CREATE bf-e-item.
-             BUFFER-COPY e-item EXCEPT e-item.i-no TO bf-e-item.
-             ASSIGN bf-e-item.i-no = item.i-no.                  
-         END.                             
-         FOR EACH e-item-vend WHERE e-item-vend.company = cocode AND
+             create bf-e-item.
+             buffer-copy e-item except e-item.i-no to bf-e-item.
+             assign bf-e-item.i-no = item.i-no.                  
+         end.                             
+         for each e-item-vend where e-item-vend.company = cocode and
                                     e-item-vend.i-no = item.i-no:
-             DELETE e-item-vend.  /* delete rec if exists before create */                
-         END.                             
-         FOR EACH e-item-vend WHERE e-item-vend.company = cocode AND
+             delete e-item-vend.  /* delete rec if exists before create */                
+         end.                             
+         for each e-item-vend where e-item-vend.company = cocode and
                                     e-item-vend.i-no = bf-item.i-no:
-             CREATE bf-e-vend.
-             BUFFER-COPY e-item-vend EXCEPT e-item-vend.i-no TO bf-e-vend.
-             ASSIGN bf-e-vend.i-no      = item.i-no
-                    bf-e-vend.item-type = YES.                  
-         END.
-         FOR EACH item-bom WHERE item-bom.company = cocode AND
+             create bf-e-vend.
+             buffer-copy e-item-vend except e-item-vend.i-no to bf-e-vend.
+             assign bf-e-vend.i-no      = item.i-no
+                    bf-e-vend.item-type = yes.                  
+         end.
+         for each item-bom where item-bom.company = cocode and
                                 item-bom.parent-i = item.i-no:
-               DELETE item-bom.  /* delete rec if exists before create */                
-         END.                             
-         FOR EACH item-bom WHERE item-bom.company = cocode AND
+               delete item-bom.  /* delete rec if exists before create */                
+         end.                             
+         for each item-bom where item-bom.company = cocode and
                                item-bom.parent-i = bf-item.i-no:
-             CREATE bf-item-bom.
-             BUFFER-COPY item-bom EXCEPT rec_key TO bf-item-bom
-             ASSIGN bf-item-bom.parent-i = item.i-no.                  
-         END. 
-   END.  /* not adding-record */
+             create bf-item-bom.
+             buffer-copy item-bom except rec_key to bf-item-bom
+             assign bf-item-bom.parent-i = item.i-no.                  
+         end. 
+   end.  /* not adding-record */
 
-   IF INDEX("BAP",item.mat-type) > 0 THEN DO:  
+   if index("BAP",item.mat-type) > 0 then do:  
         {sys/inc/k16bb.i item.s-wid}
         {sys/inc/k16bb.i item.s-len}
         {sys/inc/k16bb.i item.r-wid}
         item.ect = lv-ect * (IF item.mat-type EQ "P" THEN 10000 ELSE 1).
-  END.      
-  ELSE IF INDEX("1234",item.mat-type) > 0 THEN DO:  
+  end.      
+  else if index("1234",item.mat-type) > 0 then do:  
         {sys/inc/k16bb.i item.s-wid}
         {sys/inc/k16bb.i item.s-len}
         {sys/inc/k16bb.i item.s-dep}
         {sys/inc/k16bb.i item.r-wid}
-  END.      
-  ELSE IF INDEX("DC",item.mat-type) > 0 THEN DO:  
+  end.      
+  else if index("DC",item.mat-type) > 0 then do:  
         {sys/inc/k16bb.i item.case-w}
         {sys/inc/k16bb.i item.case-l}
         {sys/inc/k16bb.i item.case-d}
         
-        ASSIGN
+        assign
          item.basis-w = lv-cas-pal-w
          item.flute   = fi_flute
          item.reg-no  = fi_reg-no.
-  END. 
+  end. 
 
   IF adm-adding-record THEN DO:
      IF INDEX("MOXY789@",ITEM.mat-type) GT 0 THEN
@@ -1971,7 +1971,7 @@ PROCEDURE local-assign-record :
           
   END.
 
-  SESSION:SET-WAIT-STATE("").
+  session:set-wait-state("").
 
 END PROCEDURE.
 
@@ -2012,7 +2012,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
  /* {methods/viewers/create/item.i} */
-  ASSIGN item.company = gcompany
+  assign item.company = gcompany
          item.loc = gloc
          item.industry = "2"
          item.mat-type = ""
@@ -2051,16 +2051,16 @@ PROCEDURE local-display-fields :
 
     fi_mat-type = item.mat-type.
 
-    IF LOOKUP(fi_mat-type,"B,P") = 0  THEN
+    IF LOOKUP(fi_mat-type,"B,P,1,2,3,4") = 0  THEN
       asi.item.spare-char-1:HIDDEN = TRUE.
     ELSE
       asi.item.spare-char-1:HIDDEN = FALSE.
       
-    IF INDEX("BAP",fi_mat-type) GT 0 THEN DO:
-      ASSIGN
-       item.s-wid:screen-value = STRING({sys/inc/k16v.i item.s-wid})
-       item.s-len:screen-value = STRING({sys/inc/k16v.i item.s-len})
-       item.r-wid:screen-value = STRING({sys/inc/k16v.i item.r-wid}).
+    if index("BAP1234",fi_mat-type) gt 0 then do:
+      assign
+       item.s-wid:screen-value = string({sys/inc/k16v.i item.s-wid})
+       item.s-len:screen-value = string({sys/inc/k16v.i item.s-len})
+       item.r-wid:screen-value = string({sys/inc/k16v.i item.r-wid}).
 
       IF ect-label EQ "" THEN
         ASSIGN
@@ -2081,27 +2081,27 @@ PROCEDURE local-display-fields :
          fi_ect:HELP   = ect-help
          fi_ect:FORMAT = ect-format
          fi_ect        = item.ect.
-    END.
+    end.
 
-    ELSE
-    IF INDEX("1234",fi_mat-type) GT 0 THEN DO:
-      ASSIGN
-       item.s-wid:screen-value = STRING({sys/inc/k16v.i item.s-wid})
-       item.s-len:screen-value = STRING({sys/inc/k16v.i item.s-len})
-       item.s-dep:screen-value = STRING({sys/inc/k16v.i item.s-dep})
-       item.r-wid:screen-value = STRING({sys/inc/k16v.i item.r-wid}).
-    END.
+    else
+    if index("1234",fi_mat-type) gt 0 then do:
+      assign
+       item.s-wid:screen-value = string({sys/inc/k16v.i item.s-wid})
+       item.s-len:screen-value = string({sys/inc/k16v.i item.s-len})
+       item.s-dep:screen-value = string({sys/inc/k16v.i item.s-dep})
+       item.r-wid:screen-value = string({sys/inc/k16v.i item.r-wid}).
+    end.
 
-    ELSE
-    IF INDEX("DC",fi_mat-type) GT 0 THEN DO:
-      ASSIGN
-       item.case-l:screen-value  = STRING({sys/inc/k16v.i item.case-l})
-       item.case-w:screen-value  = STRING({sys/inc/k16v.i item.case-w})
+    else
+    if index("DC",fi_mat-type) gt 0 then do:
+      assign
+       item.case-l:screen-value  = string({sys/inc/k16v.i item.case-l})
+       item.case-w:screen-value  = string({sys/inc/k16v.i item.case-w})
        item.case-d:screen-value  = string({sys/inc/k16v.i item.case-d})
        fi_cas-pal-w:screen-value = string(item.basis-w)
        fi_flute:screen-value     = item.flute
        fi_reg-no:screen-value    = item.reg-no.
-    END.
+    end.
   END.
  
   /* Dispatch standard ADM method.                             */
@@ -2145,7 +2145,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR is-new-record AS LOG NO-UNDO.
+  def var is-new-record as log no-undo.
   DEF VAR char-hdl AS CHAR NO-UNDO.
   
   
@@ -2164,138 +2164,138 @@ PROCEDURE local-update-record :
   RUN valid-16th&32th NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-     IF item.dept-name[1]:screen-value IN FRAME {&frame-name} <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = item.dept-name[1]:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99 )
+     if item.dept-name[1]:screen-value in frame {&frame-name} <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = item.dept-name[1]:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99 )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO item.dept-name[1] IN FRAME {&frame-name}.
-          RETURN NO-APPLY.
-     END.                            
-     IF item.dept-name[2]:screen-value IN FRAME {&frame-name} <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = item.dept-name[2]:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99 )
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          apply "entry" to item.dept-name[1] in frame {&frame-name}.
+          return no-apply.
+     end.                            
+     if item.dept-name[2]:screen-value in frame {&frame-name} <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = item.dept-name[2]:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99 )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO item.dept-name[2] IN FRAME {&frame-name}.
-          RETURN NO-APPLY.
-     END.                            
-     IF item.dept-name[3]:screen-value IN FRAME {&frame-name} <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = item.dept-name[3]:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99 )
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          apply "entry" to item.dept-name[2] in frame {&frame-name}.
+          return no-apply.
+     end.                            
+     if item.dept-name[3]:screen-value in frame {&frame-name} <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = item.dept-name[3]:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99 )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO item.dept-name[3] IN FRAME {&frame-name}.
-          RETURN NO-APPLY.
-     END.                            
-     IF item.dept-name[3]:screen-value IN FRAME {&frame-name} <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = item.dept-name[3]:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99 )
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          apply "entry" to item.dept-name[3] in frame {&frame-name}.
+          return no-apply.
+     end.                            
+     if item.dept-name[3]:screen-value in frame {&frame-name} <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = item.dept-name[3]:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99 )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO item.dept-name[3] IN FRAME {&frame-name}.
-          RETURN NO-APPLY.
-     END.                            
-     IF item.dept-name[4]:screen-value IN FRAME {&frame-name} <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = item.dept-name[4]:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99 )
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          apply "entry" to item.dept-name[3] in frame {&frame-name}.
+          return no-apply.
+     end.                            
+     if item.dept-name[4]:screen-value in frame {&frame-name} <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = item.dept-name[4]:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99 )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO item.dept-name[4] IN FRAME {&frame-name}.
-          RETURN NO-APPLY.
-     END.                            
-     IF item.dept-name[5]:screen-value IN FRAME {&frame-name} <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = item.dept-name[5]:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99 )
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          apply "entry" to item.dept-name[4] in frame {&frame-name}.
+          return no-apply.
+     end.                            
+     if item.dept-name[5]:screen-value in frame {&frame-name} <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = item.dept-name[5]:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99 )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO item.dept-name[5] IN FRAME {&frame-name}.
-          RETURN NO-APPLY.
-     END.                            
-     IF item.dept-name[6]:screen-value IN FRAME {&frame-name} <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = item.dept-name[6]:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99 )
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          apply "entry" to item.dept-name[5] in frame {&frame-name}.
+          return no-apply.
+     end.                            
+     if item.dept-name[6]:screen-value in frame {&frame-name} <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = item.dept-name[6]:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99 )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO item.dept-name[6] IN FRAME {&frame-name}.
-          RETURN NO-APPLY.
-     END.                            
-     IF item.dept-name[7]:screen-value IN FRAME {&frame-name} <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = item.dept-name[7]:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99 )
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          apply "entry" to item.dept-name[6] in frame {&frame-name}.
+          return no-apply.
+     end.                            
+     if item.dept-name[7]:screen-value in frame {&frame-name} <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = item.dept-name[7]:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99 )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO item.dept-name[7] IN FRAME {&frame-name}.
-          RETURN NO-APPLY.
-     END.                            
-     IF item.dept-name[8]:screen-value IN FRAME {&frame-name} <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = item.dept-name[8]:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99 )
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          apply "entry" to item.dept-name[7] in frame {&frame-name}.
+          return no-apply.
+     end.                            
+     if item.dept-name[8]:screen-value in frame {&frame-name} <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = item.dept-name[8]:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99 )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO item.dept-name[8] IN FRAME {&frame-name}.
-          RETURN NO-APPLY.
-     END.                            
-     IF item.dept-name[9]:screen-value IN FRAME {&frame-name} <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = item.dept-name[9]:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99 )
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          apply "entry" to item.dept-name[8] in frame {&frame-name}.
+          return no-apply.
+     end.                            
+     if item.dept-name[9]:screen-value in frame {&frame-name} <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = item.dept-name[9]:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99 )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO item.dept-name[9] IN FRAME {&frame-name}.
-          RETURN NO-APPLY.
-     END.                            
-     IF item.dept-name[10]:screen-value IN FRAME {&frame-name} <> "" AND
-        NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = item.dept-name[10]:screen-value
-                            AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
-                                 OR dept.therm <> 99 )
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          apply "entry" to item.dept-name[9] in frame {&frame-name}.
+          return no-apply.
+     end.                            
+     if item.dept-name[10]:screen-value in frame {&frame-name} <> "" and
+        not can-find(first dept where dept.company = "" and dept.code = item.dept-name[10]:screen-value
+                            and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
+                                 or dept.therm <> 99 )
                      )
-     THEN DO:
-          MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO item.dept-name[10] IN FRAME {&frame-name}.
-          RETURN NO-APPLY.
-     END.
+     then do:
+          message "Invalid Department. Try Help." view-as alert-box error.
+          apply "entry" to item.dept-name[10] in frame {&frame-name}.
+          return no-apply.
+     end.
 
      RUN valid-mat-type NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
      
-     IF /*fi_mat-type:screen-value <> "" and*/
-        NOT CAN-FIND(FIRST procat WHERE procat.company = gcompany AND
+     if /*fi_mat-type:screen-value <> "" and*/
+        not can-find(first procat where procat.company = gcompany and
                                         procat.procat = item.procat:screen-value)
-     THEN DO:
-        MESSAGE "Invalid Product Category. Try Help."  VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO item.procat IN FRAME {&frame-name}.
-        RETURN NO-APPLY.
-     END.
-     IF item.i-code:screen-value = "R" AND
-        NOT CAN-FIND(costtype WHERE costtype.company = gcompany
+     then do:
+        message "Invalid Product Category. Try Help."  view-as alert-box error.
+        apply "entry" to item.procat in frame {&frame-name}.
+        return no-apply.
+     end.
+     if item.i-code:screen-value = "R" and
+        not can-find(costtype where costtype.company = gcompany
           AND costtype.loc = gloc
           AND costtype.cost-type = {&FIRST-EXTERNAL-TABLE}.cost-type:SCREEN-VALUE
           )
-     THEN DO:
-        MESSAGE "Invalid Cost Type for real item. Try Help."  VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO item.cost-type IN FRAME {&frame-name}.
-        RETURN NO-APPLY.
-     END.
+     then do:
+        message "Invalid Cost Type for real item. Try Help."  view-as alert-box error.
+        apply "entry" to item.cost-type in frame {&frame-name}.
+        return no-apply.
+     end.
 
    RUN valid-dimensions NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -2314,58 +2314,58 @@ PROCEDURE local-update-record :
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    END.
      
-   IF INDEX("BAP",fi_mat-type:screen-value) > 0 THEN DO:
-     IF dec(item.cal:screen-value) = 0 THEN DO:
-        MESSAGE "Caliper is mandatory" VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO item.cal.
-        RETURN NO-APPLY.
-     END. 
-     IF dec(item.basis-w:screen-value) = 0 THEN DO:
-        MESSAGE "Basis Weight is mandatory" VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO item.basis-w.
-        RETURN NO-APPLY.
-     END. 
-     IF dec(item.r-wid:screen-value) = 0 AND item.i-code:screen-value = "R" AND
-        (dec(item.s-len:screen-value) = 0 OR dec(item.s-wid:screen-value) = 0 )
-     THEN DO:
-        MESSAGE "Dimensions are mandatory for Real Items!" VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO item.r-wid.
-        RETURN NO-APPLY.
-     END. 
-   END.  /* "BAP" */
-   ELSE IF INDEX("W",fi_mat-type:screen-value) > 0 THEN DO:
-        IF dec(item.shrink:screen-value) = 0 THEN DO:
-           MESSAGE "Pickup% is mandatory!" VIEW-AS ALERT-BOX ERROR.
-           APPLY "entry" TO item.shrink.
-           RETURN NO-APPLY.
-        END. 
-   END.  /* "W"  */ 
-   ELSE IF INDEX("GTS",fi_mat-type:screen-value) > 0 THEN DO:
-        IF dec(item.linin-lb:screen-value) EQ 0 AND
-           dec(item.sqin-lb:screen-value) EQ 0 THEN DO:
-           MESSAGE "For " + (IF fi_mat-type:screen-value EQ "S" THEN "Stitch" 
-                             ELSE IF fi_mat-type:screen-value EQ "T" THEN "Tape" 
-                             ELSE "Glue") +
+   if index("BAP1234",fi_mat-type:screen-value) > 0 then do:
+     if dec(item.cal:screen-value) = 0 then do:
+        message "Caliper is mandatory" view-as alert-box error.
+        apply "entry" to item.cal.
+        return no-apply.
+     end. 
+     if dec(item.basis-w:screen-value) = 0 then do:
+        message "Basis Weight is mandatory" view-as alert-box error.
+        apply "entry" to item.basis-w.
+        return no-apply.
+     end. 
+     if dec(item.r-wid:screen-value) = 0 and item.i-code:screen-value = "R" and
+        (dec(item.s-len:screen-value) = 0 or dec(item.s-wid:screen-value) = 0 )
+     then do:
+        message "Dimensions are mandatory for Real Items!" view-as alert-box error.
+        apply "entry" to item.r-wid.
+        return no-apply.
+     end. 
+   end.  /* "BAP" */
+   else if index("W",fi_mat-type:screen-value) > 0 then do:
+        if dec(item.shrink:screen-value) = 0 then do:
+           message "Pickup% is mandatory!" view-as alert-box error.
+           apply "entry" to item.shrink.
+           return no-apply.
+        end. 
+   end.  /* "W"  */ 
+   else if index("GTS",fi_mat-type:screen-value) > 0 then do:
+        if dec(item.linin-lb:screen-value) eq 0 and
+           dec(item.sqin-lb:screen-value) eq 0 then do:
+           message "For " + (if fi_mat-type:screen-value eq "S" then "Stitch" 
+                             else if fi_mat-type:screen-value eq "T" then "Tape" 
+                             else "Glue") +
                     ", " +
                     trim(item.sqin-lb:label) " OR " +
                     trim(item.linin-lb:label) " must be entered..."
-               VIEW-AS ALERT-BOX ERROR.
-           APPLY "entry" TO item.linin-lb.
-           RETURN NO-APPLY.
-        END. 
-   END.  /* "GTS"  */ 
-   ELSE IF INDEX("DC",fi_mat-type:screen-value) > 0 THEN DO:
-        IF dec(item.box-case:screen-value) <> 0 AND
-           dec(item.avg-w:screen-value) <> 0 THEN DO:
-               MESSAGE "You can enter either Case Weight or Number of blanks per Case!" SKIP
+               view-as alert-box error.
+           apply "entry" to item.linin-lb.
+           return no-apply.
+        end. 
+   end.  /* "GTS"  */ 
+   else if index("DC",fi_mat-type:screen-value) > 0 then do:
+        if dec(item.box-case:screen-value) <> 0 and
+           dec(item.avg-w:screen-value) <> 0 then do:
+               message "You can enter either Case Weight or Number of blanks per Case!" skip
                        "Only one field can be entered."
-                       VIEW-AS ALERT-BOX ERROR.
-               IF dec(item.box-case:screen-value) = 0 
-                  THEN APPLY "entry" TO item.box-case.
-                  ELSE APPLY "entry" TO item.avg-w.
-               RETURN NO-APPLY.
-        END. 
-   END.
+                       view-as alert-box error.
+               if dec(item.box-case:screen-value) = 0 
+                  then apply "entry" to item.box-case.
+                  else apply "entry" to item.avg-w.
+               return no-apply.
+        end. 
+   end.
   /* ======== end validation =================== */
   
   /* Dispatch standard ADM method.                             */
@@ -2377,10 +2377,6 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
-  IF is-new-record THEN do:
-      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(item)). 
-  END.
-
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("row-changed").
 
 END PROCEDURE.
@@ -2599,74 +2595,74 @@ PROCEDURE valid-16th&32th :
 ------------------------------------------------------------------------------*/
 
 DO WITH FRAME {&FRAME-NAME}:
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
-        IF DECIMAL(item.s-wid:screen-value) - trunc(DECIMAL(item.s-wid:screen-value),0) >= v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter 16ths decimal from .01 to .15."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN ERROR.
+    IF sys-ctrl.char-fld = "16th's" THEN do:
+        IF decimal(item.s-wid:screen-value) - trunc(decimal(item.s-wid:screen-value),0) >= v-16-or-32 
+            then do:
+            message "Please enter 16ths decimal from .01 to .15."
+                view-as alert-box error.
+            return ERROR.
         END.
     END.
     IF sys-ctrl.char-fld = "32nd's" THEN DO:
-        IF DECIMAL(item.s-wid:screen-value) - trunc(DECIMAL(item.s-wid:screen-value),0) > v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter decimal from .01 to .32."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN ERROR.
+        IF decimal(item.s-wid:screen-value) - trunc(decimal(item.s-wid:screen-value),0) > v-16-or-32 
+            then do:
+            message "Please enter decimal from .01 to .32."
+                view-as alert-box error.
+            return ERROR.
         END.
 
     END.
 
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
-        IF DECIMAL(item.s-len:screen-value) - trunc(DECIMAL(item.s-len:screen-value),0) >= v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter 16ths decimal from .01 to .15."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN ERROR.
+    IF sys-ctrl.char-fld = "16th's" THEN do:
+        IF decimal(item.s-len:screen-value) - trunc(decimal(item.s-len:screen-value),0) >= v-16-or-32 
+            then do:
+            message "Please enter 16ths decimal from .01 to .15."
+                view-as alert-box error.
+            return ERROR.
         END.
     END.
     IF sys-ctrl.char-fld = "32nd's" THEN DO:
-        IF DECIMAL(item.s-len:screen-value) - trunc(DECIMAL(item.s-len:screen-value),0) > v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter decimal from .01 to .32."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN ERROR.
+        IF decimal(item.s-len:screen-value) - trunc(decimal(item.s-len:screen-value),0) > v-16-or-32 
+            then do:
+            message "Please enter decimal from .01 to .32."
+                view-as alert-box error.
+            return ERROR.
         END.
     END.
 
  
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
-        IF DECIMAL(item.r-wid:screen-value) - trunc(DECIMAL(item.r-wid:screen-value),0) >= v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter 16ths decimal from .01 to .15."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN ERROR.
+    IF sys-ctrl.char-fld = "16th's" THEN do:
+        IF decimal(item.r-wid:screen-value) - trunc(decimal(item.r-wid:screen-value),0) >= v-16-or-32 
+            then do:
+            message "Please enter 16ths decimal from .01 to .15."
+                view-as alert-box error.
+            return ERROR.
         END.
     END.
     IF sys-ctrl.char-fld = "32nd's" THEN DO:
-        IF DECIMAL(item.r-wid:screen-value) - trunc(DECIMAL(item.r-wid:screen-value),0) > v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter decimal from .01 to .32."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN ERROR.
+        IF decimal(item.r-wid:screen-value) - trunc(decimal(item.r-wid:screen-value),0) > v-16-or-32 
+            then do:
+            message "Please enter decimal from .01 to .32."
+                view-as alert-box error.
+            return ERROR.
         END.            
     END.
 
 
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
-        IF DECIMAL(item.s-dep:screen-value) - trunc(DECIMAL(item.s-dep:screen-value),0) >= v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter 16ths decimal from .01 to .15."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN ERROR.
+    IF sys-ctrl.char-fld = "16th's" THEN do:
+        IF decimal(item.s-dep:screen-value) - trunc(decimal(item.s-dep:screen-value),0) >= v-16-or-32 
+            then do:
+            message "Please enter 16ths decimal from .01 to .15."
+                view-as alert-box error.
+            return ERROR.
         END.
     END.
     IF sys-ctrl.char-fld = "32nd's" THEN DO:
-        IF DECIMAL(item.s-dep:screen-value) - trunc(DECIMAL(item.s-dep:screen-value),0) > v-16-or-32 
-            THEN DO:
-            MESSAGE "Please enter decimal from .01 to .32."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN ERROR.
+        IF decimal(item.s-dep:screen-value) - trunc(decimal(item.s-dep:screen-value),0) > v-16-or-32 
+            then do:
+            message "Please enter decimal from .01 to .32."
+                view-as alert-box error.
+            return ERROR.
         END.
     END.
 END.

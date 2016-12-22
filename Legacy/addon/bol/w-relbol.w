@@ -73,21 +73,21 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 150 BY 24
-         BGCOLOR 15 .
+         BGCOLOR 4 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
-         BGCOLOR 15 .
+         BGCOLOR 4 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 23 ROW 2.91
          SIZE 128 BY 1.43
-         BGCOLOR 15 .
+         BGCOLOR 4 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -124,17 +124,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
-/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 

@@ -425,11 +425,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1767,7 +1763,7 @@ assign
             po-ordl.item-type
             NO-LOCK:
 
-            {custom/statusMsg.i "'Processing Item # ' + string(ITEM.i-no)"}
+            {custom/statusMsg.i "'Processing Item # ' + string(ITEM.i-no)"} 
             
 
             FIND FIRST tt-po WHERE

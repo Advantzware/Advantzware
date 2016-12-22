@@ -1232,7 +1232,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
 /*         NO-LOCK NO-ERROR.                               */
 /*                                                         */
 /*    IF AVAIL usergrps AND                                */
-/*       (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND */
+/*       (NOT CAN-DO(usergrps.users,USERID("ASI")) AND */
 /*        TRIM(usergrps.users) NE "*") THEN                */
 /*        ASSIGN itemfg.std-mat-cost:VISIBLE = NO          */
 /*               itemfg.std-lab-cost:VISIBLE = NO          */
@@ -1460,7 +1460,7 @@ DO WITH FRAME {&FRAME-NAME}:
         NO-LOCK NO-ERROR.
 
    IF AVAIL usergrps AND
-      (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
+      (NOT CAN-DO(usergrps.users,USERID("ASI")) AND
        TRIM(usergrps.users) NE "*") THEN
        ASSIGN itemfg.std-mat-cost:SENSITIVE = NO
               itemfg.std-lab-cost:SENSITIVE = NO
@@ -2561,7 +2561,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT YES,
                             OUTPUT lActive).
 
-{sys/inc/chblankcust.i ""IF1""}
+{sys/inc/chblankcust.i}
 
   IF ou-log THEN
     DO WITH FRAME {&FRAME-NAME}:

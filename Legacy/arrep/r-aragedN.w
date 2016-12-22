@@ -23,7 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR list-name AS cha NO-UNDO.
+def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
@@ -38,7 +38,7 @@ DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {sys/inc/var.i new shared}
 
-ASSIGN
+assign
  cocode = gcompany
  locode = gloc.
 
@@ -50,10 +50,10 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 DEF VAR lv-default-comp AS CHAR NO-UNDO.
 DEF VAR v-count AS INT NO-UNDO INIT 0.
 
-FOR EACH usercomp WHERE usercomp.USER_id = USERID("nosweat") AND  usercomp.loc = "" NO-LOCK :
+FOR EACH usercomp WHERE usercomp.USER_id = USERID("ASI") AND  usercomp.loc = "" NO-LOCK :
     v-count = v-count + 1 .
 END.
-FIND FIRST usercomp WHERE usercomp.USER_id = USERID("nosweat") AND
+FIND FIRST usercomp WHERE usercomp.USER_id = USERID("ASI") AND
                                   usercomp.company_default NO-LOCK NO-ERROR.
 ASSIGN     
 lv-default-comp = IF AVAIL usercomp THEN usercomp.company ELSE "001".
@@ -61,7 +61,7 @@ lv-default-comp = IF AVAIL usercomp THEN usercomp.company ELSE "001".
 
 {ar/ar-agng2.i new}
 {custom/formtext.i NEW}
-DEF TEMP-TABLE w-sort FIELD w-int AS INT.
+DEF TEMP-TABLE w-sort field w-int as int.
 DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
@@ -344,49 +344,49 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
      SIZE 31.8 BY .62 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .95
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_fuel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_fuel AS LOGICAL INITIAL yes 
      LABEL "Include Fuel Surcharges?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_include-factored AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_include-factored AS LOGICAL INITIAL no 
      LABEL "Include Factored FG Items?" 
      VIEW-AS TOGGLE-BOX
      SIZE 31 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_paid AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_paid AS LOGICAL INITIAL no 
      LABEL "Include Paid Invoices?" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .95
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_separate-fc AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_separate-fc AS LOGICAL INITIAL no 
      LABEL "Separate Finance Charges?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tgInactiveCust AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tgInactiveCust AS LOGICAL INITIAL no 
      LABEL "Inactive Customers?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .81 NO-UNDO.
@@ -485,22 +485,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -657,7 +653,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -698,7 +694,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL as-of-date C-Win
 ON LEAVE OF as-of-date IN FRAME FRAME-A /* As of */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -709,7 +705,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_comp C-Win
 ON LEAVE OF begin_comp IN FRAME FRAME-A /* Beginning Company# */
 DO:
-   ASSIGN {&self-name}.
+   assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -720,7 +716,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_curr C-Win
 ON LEAVE OF begin_curr IN FRAME FRAME-A /* Beginning Currency */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -731,7 +727,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
-   ASSIGN {&self-name}.
+   assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -742,7 +738,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv-date C-Win
 ON LEAVE OF begin_inv-date IN FRAME FRAME-A /* Beginning Date */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -753,7 +749,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slsmn C-Win
 ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning SalesRep# */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -764,7 +760,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_term C-Win
 ON LEAVE OF begin_term IN FRAME FRAME-A /* Beginning Terms */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -775,7 +771,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   APPLY "close" TO THIS-PROCEDURE.
+   apply "close" to this-procedure.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -792,22 +788,19 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN DO:
-      EMPTY TEMP-TABLE ttCustList.
-      RUN BuildCustList(INPUT cocode,
-                        INPUT tb_cust-list AND glCustListActive,
-                        INPUT begin_cust-no,
-                        INPUT END_cust-no).
-  END.
+  EMPTY TEMP-TABLE ttCustList.
+  RUN BuildCustList(INPUT cocode,
+                    INPUT tb_cust-list AND glCustListActive,
+                    INPUT begin_cust-no,
+                    INPUT END_cust-no).
   RUN GetSelectionList.
-  RUN run-report. 
+  run run-report. 
 
-  CASE rd-dest:
-       WHEN 1 THEN RUN output-to-printer.
-       WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN RUN output-to-file.
-       WHEN 4 THEN DO:
+  case rd-dest:
+       when 1 then run output-to-printer.
+       when 2 then run output-to-screen.
+       when 3 then run output-to-file.
+       when 4 then do:
            /*run output-to-fax.*/
            {custom/asifax.i &type= 'begin_cust=begin_cust-slsmn'
                             &begin_cust= "begin_slsmn"
@@ -816,7 +809,7 @@ DO:
                             &fax-body=c-win:title
                             &fax-file=list-name }
        END. 
-       WHEN 5 THEN DO:
+       when 5 then do:
            IF is-xprint-form THEN DO:
                RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
                {custom/asimail2.i &TYPE = "Customer"
@@ -839,8 +832,8 @@ DO:
            END.
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
-  END CASE.
-   CURRENT-WINDOW:WINDOW-STATE  = WINDOW-NORMAL.
+  end case.
+   current-window:WINDOW-STATE  = WINDOW-NORMAL.
 
 END.
 
@@ -887,7 +880,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_curr C-Win
 ON LEAVE OF end_curr IN FRAME FRAME-A /* Ending Currency */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -898,7 +891,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -909,7 +902,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv-date C-Win
 ON LEAVE OF end_inv-date IN FRAME FRAME-A /* Ending Date */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -920,7 +913,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slsmn C-Win
 ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending SalesRep# */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -931,7 +924,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_term C-Win
 ON LEAVE OF end_term IN FRAME FRAME-A /* Ending Currency */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -942,7 +935,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Excel File Name */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -953,7 +946,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -982,9 +975,9 @@ ON HELP OF begin_term IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN windows/l-terms.w 
+    run windows/l-terms.w 
                (gcompany,{&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT char-val).
-           IF char-val <> "" THEN 
+           if char-val <> "" then 
               ASSIGN {&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val) .
            
 END.
@@ -999,9 +992,9 @@ ON HELP OF end_term IN FRAME FRAME-A /* Font */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
-    RUN windows/l-terms.w 
+    run windows/l-terms.w 
                (gcompany,{&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT char-val).
-           IF char-val <> "" THEN 
+           if char-val <> "" then 
               ASSIGN {&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val) .
            
 END.
@@ -1045,7 +1038,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-1 C-Win
 ON LEAVE OF period-days-1 IN FRAME FRAME-A /* Period Days 1 */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1056,7 +1049,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-2 C-Win
 ON LEAVE OF period-days-2 IN FRAME FRAME-A /* 2 */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1067,7 +1060,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-3 C-Win
 ON LEAVE OF period-days-3 IN FRAME FRAME-A /* 3 */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1078,7 +1071,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1089,7 +1082,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort C-Win
 ON VALUE-CHANGED OF rd_sort IN FRAME FRAME-A
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1100,7 +1093,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort2 C-Win
 ON VALUE-CHANGED OF rd_sort2 IN FRAME FRAME-A
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1174,7 +1167,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-list C-Win
 ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
   RUN SetCustRange(INPUT tb_cust-list).
 END.
 
@@ -1186,7 +1179,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1197,7 +1190,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_include-factored C-Win
 ON VALUE-CHANGED OF tb_include-factored IN FRAME FRAME-A /* Include Factored FG Items? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1208,7 +1201,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_paid C-Win
 ON VALUE-CHANGED OF tb_paid IN FRAME FRAME-A /* Include Paid Invoices? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1219,7 +1212,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1230,7 +1223,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    ASSIGN {&self-name}.
+    assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1241,7 +1234,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL trend_days C-Win
 ON LEAVE OF trend_days IN FRAME FRAME-A /* Days for Recent Trend */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1279,12 +1272,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
-  ASSIGN
-   as-of-date    = TODAY
+  assign
+   as-of-date    = today
    period-days-1 = 30
    period-days-2 = 60
    period-days-3 = 90
-   end_inv-date  = TODAY
+   end_inv-date  = today
    fi_file = "c:\tmp\ar-aging.csv" 
    begin_comp = lv-default-comp
    end_comp   = lv-default-comp
@@ -1333,7 +1326,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
       
-   IF ou-log AND ou-cust-int = 0 THEN DO:
+   IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
@@ -1601,9 +1594,9 @@ PROCEDURE GetSelectionList :
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
            ttRptSelected.DisplayOrder = i
-           ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
+           ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
            
@@ -1693,7 +1686,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1706,12 +1699,12 @@ PROCEDURE print-cust-add :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DISPLAY cust.addr[1]                                                SKIP
-            cust.addr[2]                                                SKIP
-            TRIM(cust.city) + ", " +
-            trim(cust.state) + "  " + trim(cust.zip) FORMAT "x(50)"
+ display cust.addr[1]                                                skip
+            cust.addr[2]                                                skip
+            trim(cust.city) + ", " +
+            trim(cust.state) + "  " + trim(cust.zip) format "x(50)"
             
-        WITH NO-LABELS NO-BOX FRAME cust-detail WIDTH 132.
+        with no-labels no-box frame cust-detail width 132.
 
 END PROCEDURE.
 
@@ -1726,7 +1719,7 @@ PROCEDURE run-report :
 
 /*{sys/form/r-top3w.f}*/
 
-DEF VAR li AS INT NO-UNDO.
+def var li as int no-undo.
 DEF VAR v-hdr AS CHAR INIT "Customer,Name,Contact,SalesRep,Terms,Address1,Address2,City,State,Zip,Credit Limit,Phone,Fax,Check/Memo,DaysOld,Type,Invoice#,InvoiceDate,InvoiceAmt,Current,ADTP,TD," NO-UNDO.  /*Task# 11151304*/
 DEF VAR v-hdr2 AS CHAR NO-UNDO.
 DEF VAR v-rpt-type AS CHAR NO-UNDO.
@@ -1745,7 +1738,6 @@ DEF VAR str-tit5 AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 
-
 IF rs_detail = 1 THEN 
     v-rpt-type = "DETAIL".
   ELSE IF rs_detail = 2  THEN
@@ -1758,7 +1750,7 @@ IF rs_detail = 1 THEN
 ELSE
    v-hdr2 = "Customer,Name,Phone,Amount,Current,ADTP,TD,".*/
 
-ASSIGN
+assign
  str-tit2 = c-win:TITLE + " - " + v-rpt-type
  {sys/inc/ctrtext.i str-tit2 112}
    
@@ -1796,46 +1788,39 @@ ASSIGN
  sPrtInvNote = NO
  sPrtCollectionNote = NO
  str-line = "" 
- lSelected  = tb_cust-list
 
  str-tit3 = "Company From: " + STRING(begin_comp) + " To: " + STRING(end_comp) +  "    As of Date: " + STRING(v-date) 
  {sys/inc/ctrtext.i str-tit3 132}.
 
 SESSION:SET-WAIT-STATE ("general").
 
-DO WITH FRAME {&frame-name}:
- FOR EACH w-sort:
-    DELETE w-sort.
-  END.
-  DO li = 1 TO 3:
-    CREATE w-sort.
+do with frame {&frame-name}:
+ for each w-sort:
+    delete w-sort.
+  end.
+  do li = 1 to 3:
+    create w-sort.
     w-int = v-days[li].
-  END.
+  end.
   li = 0.
-  FOR EACH w-sort BY w-int:
+  for each w-sort by w-int:
     li = li + 1.
     v-days[li] = w-int.
-    IF i GT 2 THEN LEAVE.
-  END.
-  ASSIGN
-   period-days-1:screen-value = STRING(v-days[1])
+    if i gt 2 then leave.
+  end.
+  assign
+   period-days-1:screen-value = string(v-days[1])
    period-days-1
-   period-days-2:screen-value = STRING(v-days[2])
+   period-days-2:screen-value = string(v-days[2])
    period-days-2
-   period-days-3:screen-value = STRING(v-days[3])
+   period-days-3:screen-value = string(v-days[3])
    period-days-3.
-END.
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN v-s-cust = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN v-e-cust = ttCustList.cust-no .
-END.
+end.
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
-     IF LOOKUP(ttRptSelected.TextList, "INVOICE NOTE,COLLECTION NOTE") <> 0    THEN DO:
+     IF LOOKUP(ttRptSelected.TextList, "INVOICE NOTE,COLLECTION NOTE") <> 0    THEN do:
          IF ttRptSelected.TextList = "INVOICE NOTE"  THEN
              sPrtInvNote = YES.
          IF ttRptSelected.TextList = "COLLECTION NOTE"  THEN
@@ -1847,7 +1832,7 @@ DEF VAR cslist AS cha NO-UNDO.
    THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
                str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
                excelheader = excelHeader + ttRptSelected.TextList + "," .        
-   ELSE DO: 
+   ELSE do: 
        IF ttRptSelected.TextList =  "PERIOD DAY1" THEN
            ASSIGN str-tit4 = str-tit4 + 
            (IF ttRptSelected.HeadingFromLeft THEN
@@ -1899,21 +1884,21 @@ ASSIGN grand-t = 0
        grand-t-pri = 0
        grand-t-fc = 0.
 
-  IF td-show-parm THEN RUN show-param.
+  if td-show-parm then run show-param.
   
-  IF tb_excel THEN DO:
-    OUTPUT stream s-temp to value(v-exp-name).
+  if tb_excel then do:
+    output stream s-temp to value(v-exp-name).
     
     IF det-rpt = 1 THEN DO:
-      v-hdr = v-hdr + trim(STRING(v-days[1],">,>>>")) + "," +
-                      trim(STRING(v-days[2],">,>>>")) + "," +
-                      trim(STRING(v-days[3],">,>>>")) + "+". 
+      v-hdr = v-hdr + trim(string(v-days[1],">,>>>")) + "," +
+                      trim(string(v-days[2],">,>>>")) + "," +
+                      trim(string(v-days[3],">,>>>")) + "+". 
       /*IF tb_cust-po THEN do:
             v-hdr = v-hdr + "," + trim(string("Customer PO#")) .                /*Task# 02071402*/
             put stream s-temp unformatted v-hdr skip.
       END.
       ELSE*/
-          PUT STREAM s-temp UNFORMATTED excelheader SKIP.
+          put stream s-temp unformatted excelheader skip.
     /*END.*/
     /*ELSE DO:
        v-hdr2 = v-hdr2 + trim(string(v-days[1],">,>>>")) + "," +
@@ -1922,40 +1907,40 @@ ASSIGN grand-t = 0
            put stream s-temp unformatted v-hdr2 skip.
     END.*/
     END.
-  END.
+  end.
 
 
-  IF v-sort2 BEGINS "Due" THEN
-    IF v-sort EQ "Name" THEN
-        RUN ar/ar-agng1N.p.
-    ELSE
-    IF v-sort EQ "#Number" THEN
-       RUN ar/ar-agng2N.p.
-    ELSE
-      RUN ar/ar-agng7N.p.
+  if v-sort2 begins "Due" then
+    if v-sort eq "Name" then
+        run ar/ar-agng1N.p.
+    else
+    if v-sort eq "#Number" then
+       run ar/ar-agng2N.p.
+    else
+      run ar/ar-agng7N.p.
         
-  ELSE
-  IF v-sort2 BEGINS "InvD" THEN
-    IF v-sort EQ "Name" THEN
-      RUN ar/ar-agng3N.p.
+  else
+  if v-sort2 begins "InvD" then
+    if v-sort eq "Name" then
+      run ar/ar-agng3N.p.
         
-    ELSE
-    IF v-sort EQ "#Number" THEN
-      RUN ar/ar-agng4N.p.
+    else
+    if v-sort eq "#Number" then
+      run ar/ar-agng4N.p.
         
-    ELSE
-      RUN ar/ar-agng8N.p.
+    else
+      run ar/ar-agng8N.p.
         
-  ELSE
-    IF v-sort EQ "Name" THEN
-      RUN ar/ar-agng5N.p.
+  else
+    if v-sort eq "Name" then
+      run ar/ar-agng5N.p.
        
-    ELSE
-    IF v-sort EQ "#Number" THEN
-      RUN ar/ar-agng6N.p.
+    else
+    if v-sort eq "#Number" then
+      run ar/ar-agng6N.p.
          
-    ELSE
-      RUN ar/ar-agng9N.p.
+    else
+      run ar/ar-agng9N.p.
        
 
   IF tb_excel THEN DO:
@@ -1970,7 +1955,7 @@ ASSIGN grand-t = 0
   
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
-END PROCEDURE.
+end procedure.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2005,16 +1990,16 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-frame-hdl AS HANDLE NO-UNDO.
-  DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
-  DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
-  DEF VAR lv-field2-hdl AS HANDLE NO-UNDO.
-  DEF VAR parm-fld-list AS cha NO-UNDO.
-  DEF VAR parm-lbl-list AS cha NO-UNDO.
-  DEF VAR i AS INT NO-UNDO.
-  DEF VAR lv-label AS cha.
+  def var lv-frame-hdl as handle no-undo.
+  def var lv-group-hdl as handle no-undo.
+  def var lv-field-hdl as handle no-undo.
+  def var lv-field2-hdl as handle no-undo.
+  def var parm-fld-list as cha no-undo.
+  def var parm-lbl-list as cha no-undo.
+  def var i as int no-undo.
+  def var lv-label as cha.
   
-  lv-frame-hdl = FRAME {&frame-name}:handle.
+  lv-frame-hdl = frame {&frame-name}:handle.
   RUN sys/ref/getParms.p (INPUT lv-frame-hdl, 
                           OUTPUT parm-fld-list, 
                           OUTPUT parm-lbl-list).
@@ -2047,25 +2032,25 @@ PROCEDURE show-param :
 /*      lv-field-hdl = lv-field-hdl:next-sibling.                                         */
 /*   end.                                                                                 */
 
-  PUT SPACE(28)
+  put space(28)
       "< Selection Parameters >"
-      SKIP(1).
+      skip(1).
   
-  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
-    IF ENTRY(i,parm-fld-list) NE "" OR
-       entry(i,parm-lbl-list) NE "" THEN DO:
+  do i = 1 to num-entries(parm-fld-list,","):
+    if entry(i,parm-fld-list) ne "" or
+       entry(i,parm-lbl-list) ne "" then do:
        
-      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
-                 trim(ENTRY(i,parm-lbl-list)) + ":".
+      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
+                 trim(entry(i,parm-lbl-list)) + ":".
                  
-      PUT lv-label FORMAT "x(35)" AT 5
-          SPACE(1)
-          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
-          SKIP.              
-    END.
-  END.
+      put lv-label format "x(35)" at 5
+          space(1)
+          trim(entry(i,parm-fld-list)) format "x(40)"
+          skip.              
+    end.
+  end.
  
-  PUT FILL("-",80) FORMAT "x(80)" SKIP.
+  put fill("-",80) format "x(80)" skip.
 
   PAGE.
   
@@ -2084,7 +2069,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN STRING(hipField:BUFFER-VALUE).
+  RETURN string(hipField:BUFFER-VALUE).
 
 END FUNCTION.
 

@@ -61,7 +61,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON loadTag 
-     IMAGE-UP FILE "Graphics/32x32/printer_barcode.ico":U
+     IMAGE-UP FILE "Graphics/32x32/printer_barcode.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Load Tag Creation".
@@ -111,6 +111,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -154,6 +155,11 @@ ASSIGN
 ON CHOOSE OF loadTag IN FRAME F-Main
 DO:
   {methods/run_link.i "LOADTAG-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:11:59 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

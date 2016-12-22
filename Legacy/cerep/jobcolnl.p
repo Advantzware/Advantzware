@@ -344,7 +344,7 @@ FOR EACH job-hdr NO-LOCK
            IF AVAILABLE job THEN
              ASSIGN
               job.pr-printed    = YES
-              job.pr-user-id-p  = USERID("nosweat")
+              job.pr-user-id-p  = USERID("ASI")
               job.pr-print-date = TODAY
               job.pr-print-time = TIME
               li                = 1000.
@@ -374,14 +374,14 @@ FOR EACH job-hdr NO-LOCK
             IF NOT job.cs-printed THEN
               ASSIGN
                job.cs-printed    = YES
-               job.cs-user-id-p  = USERID("nosweat")
+               job.cs-user-id-p  = USERID("ASI")
                job.cs-print-date = TODAY
                job.cs-print-time = TIME.
       
             IF approve THEN
               ASSIGN
                job.cs-to-pr      = YES
-               job.cs-user-id-t  = USERID("nosweat")
+               job.cs-user-id-t  = USERID("ASI")
                job.cs-trans-date = TODAY
                job.cs-trans-time = TIME.
           END.
@@ -512,7 +512,7 @@ FOR EACH job-hdr NO-LOCK
             "Shipto:</B>" v-shipto[1] SPACE(6) "Prev.Ord#:" v-per-ord v-req-date AT 67 v-due-date AT 79 TRIM(job-hdr.est-no) FORMAT "x(8)" AT 92
             TODAY FORMAT "99/99/9999" AT 112
             SKIP
-            v-shipto[2] AT 7 /*"Order Qty:" AT 62   "Job Qty:" AT 87*/  STRING(TIME,"HH:MM am/pm") AT 107 " by " USERID("nosweat")
+            v-shipto[2] AT 7 /*"Order Qty:" AT 62   "Job Qty:" AT 87*/  STRING(TIME,"HH:MM am/pm") AT 107 " by " USERID("ASI")
             v-shipto[4] AT 7  /*"QC/SPC#:" AT 38 v-spc-no*/
             /*ord-qty format "->,>>>,>>9" AT 62 v-job-qty format "->,>>>,>>9" AT 85*/  SKIP
             /*"Pharma Code:" AT 38 v-upc-no*/ "Overrun: " AT 65 lv-over-run "Underrun: " AT 86 lv-under-run SKIP

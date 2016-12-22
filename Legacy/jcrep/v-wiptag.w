@@ -627,7 +627,7 @@ PROCEDURE local-update-record :
 
   /* Dispatch standard ADM method.                             */
    
-   IF USERID("NOSWEAT") NE "ASI" THEN do:
+   IF USERID("ASI") NE "ASI" THEN do:
        MESSAGE "User not ASI update not allow... " VIEW-AS ALERT-BOX ERROR .
        RETURN NO-APPLY.
    END.

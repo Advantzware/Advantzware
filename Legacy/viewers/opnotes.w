@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -167,7 +167,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: NOSWEAT.notes
+   External Tables: ASI.notes
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -442,7 +442,7 @@ PROCEDURE local-create-record :
 
   ASSIGN notes.note_date = TODAY
          notes.note_time = TIME
-         notes.USER_id = USERID("nosweat")
+         notes.USER_id = USERID("ASI")
          notes.note_type = "O"  /* Touch Screen OP note*/
          notes.note_group = ip-header_value  /* job.job : touch OP notes for the job*/
          v-got-dept = YES

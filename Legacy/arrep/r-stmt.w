@@ -353,11 +353,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -608,6 +604,7 @@ DO:
   DO:
   FOR EACH ttCustList NO-LOCK  :
    
+           find first ar-inv where ar-inv.company eq cocode    and
           /* find first ar-inv where ar-inv.company eq cocode    and
                             ar-inv.cust-no eq ttCustList.cust-no and
                             ar-inv.posted                and
@@ -615,6 +612,7 @@ DO:
                             ar-inv.inv-date le stmt-date and
                             ar-inv.due-date le stmt-date no-lock no-error.
            
+           if not avail ar-inv THEN next.
            if not avail ar-inv THEN next.*/
 
       
@@ -1047,7 +1045,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN SetEmailBoxes.
 
     FIND FIRST users WHERE
-         users.user_id EQ USERID("NOSWEAT")
+         users.user_id EQ USERID("ASI")
          NO-LOCK NO-ERROR.
 
     IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -1061,6 +1059,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'AR4',
                           INPUT NO,
                           OUTPUT glCustListActive).
+{sys/inc/chblankcust.i}
 {sys/inc/chblankcust.i ""AR4""}
 
   IF ou-log THEN DO:
@@ -1615,20 +1614,21 @@ find first company where company.company eq cocode no-lock no-error.
 IF v-stmt-char = "Badger" THEN do:
     IF company.company EQ "003" THEN
         ASSIGN ls-image1 =  "images\Badger_CA.jpg" 
+        ASSIGN ls-image1 =  "Graphics\clientImages\Badger_CA.jpg" 
             FILE-INFO:FILE-NAME = ls-image1
             ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
     ELSE
-        ASSIGN ls-image1 =  "images\badger statement.JPG" 
+        ASSIGN ls-image1 =  "Graphics\clientImages\badger statement.JPG" 
             FILE-INFO:FILE-NAME = ls-image1
             ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 END.
 ELSE do:
-ASSIGN ls-image1 = IF v-stmt-char = "Premier" THEN "images\premierinv.jpg"
-                   ELSE IF v-stmt-char = "LoyLang" THEN "images\loystmt.jpg"
-                   ELSE IF v-stmt-char = "Printers" THEN "images\loyprinters.jpg"
+ASSIGN ls-image1 = IF v-stmt-char = "Premier" THEN "Graphics\clientImages\premierinv.jpg"
+                   ELSE IF v-stmt-char = "LoyLang" THEN "Graphics\clientImages\loystmt.jpg"
+                   ELSE IF v-stmt-char = "Printers" THEN "Graphics\clientImages\loyprinters.jpg"
                  /*  ELSE IF v-stmt-char = "Badger" THEN "images\badger statement.JPG" */
-                   ELSE IF v-stmt-char = "RFC" THEN "images\RFC.JPG"
-                   ELSE "images\asilogo.jpg"
+                   ELSE IF v-stmt-char = "RFC" THEN "Graphics\clientImages\RFC.JPG"
+                   ELSE "Graphics\clientImages\asilogo.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 END.

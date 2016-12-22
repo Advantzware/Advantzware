@@ -672,10 +672,10 @@ IF AVAILABLE b-prgrms THEN DO:
     group-ok = yes.
     /*LEAVE. */
   END.
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
+  IF NOT CAN-DO(b-prgrms.can_run,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_update,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_create,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_delete,USERID("ASI")) AND NOT group-ok THEN
   DO:
     MESSAGE "Program :" PROGRAM-NAME(1) SKIP "Title :" b-prgrms.prgtitle SKIP(1)
         "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
@@ -684,7 +684,7 @@ IF AVAILABLE b-prgrms THEN DO:
 
   END.
   ELSE DO:
-      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT"))
+      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("ASI"))
             THEN v-can-update = YES.      
   END.
 END. 

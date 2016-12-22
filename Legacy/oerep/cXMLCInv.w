@@ -274,7 +274,7 @@ DO:
                 STRING(DAY(TODAY),'99') +
                 STRING(TIME,'99999') +
                 PROGRAM-NAME(1) +
-                USERID('NoSweat')
+                USERID("ASI")
     .
   IF cXMLCustomer EQ ? THEN DO:
     MESSAGE 'Please Select a Customer' VIEW-AS ALERT-BOX.

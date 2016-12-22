@@ -593,7 +593,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            end_item:SCREEN-VALUE       = pcItemTo        
            end_type:SCREEN-VALUE       = pctypeTo   .
 
-       FIND FIRST users WHERE users.user_id = userid("nosweat")  NO-LOCK NO-ERROR.
+       FIND FIRST users WHERE users.user_id = USERID("ASI")  NO-LOCK NO-ERROR.
        IF AVAIL users AND users.USER_program[2] <> "" THEN
         ASSIGN fi_file:SCREEN-VALUE = users.USER_program[2] +  "\r-itmcom.csv" .
     

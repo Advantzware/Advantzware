@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -171,7 +171,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: NOSWEAT.notes
+   External Tables: ASI.notes
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -435,7 +435,7 @@ PROCEDURE display-note-type :
 ------------------------------------------------------------------------------*/
 IF AVAIL notes THEN DO:
       notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = notes.note_code.
-      CASE NOSWEAT.notes.note_code:
+      CASE ASI.notes.note_code:
         WHEN "RDC" THEN
           spec-desc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Release Date Change" .
         WHEN "DDC" THEN
@@ -500,8 +500,8 @@ ASSIGN
   notes.rec_key = ip-rec_key
   notes.note_date = TODAY
   notes.note_time = TIME
-  notes.user_id = USERID("NOSWEAT").
-  cScreenNoteCode = NOSWEAT.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
+  notes.user_id = USERID("ASI").
+  cScreenNoteCode = ASI.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
   IF cScreenNoteCode EQ "" THEN 
     cScreenNoteCode = ENTRY(1, gvcNoteCode).
 
@@ -515,8 +515,8 @@ ASSIGN
 
    
     
- NOSWEAT.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
- NOSWEAT.notes.note_code = ENTRY(1, gvcNoteCode).
+ ASI.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
+ ASI.notes.note_code = ENTRY(1, gvcNoteCode).
  RUN display-note-type.
 
 END PROCEDURE.
@@ -541,7 +541,7 @@ PROCEDURE local-display-fields :
     IF adm-new-record THEN 
     DO:
         ASSIGN 
-            NOSWEAT.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
+            ASI.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
   
         IF gvcNoteCode EQ "RDC" THEN
             spec-desc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Release Date Change" .
@@ -619,10 +619,10 @@ PROCEDURE local-update-record :
   IF NOT ll THEN RUN custom/notewtrg.p (ROWID(notes)).
  
   IF notes.note_title EQ "" OR notes.note_title = ? THEN DO:
-    FIND CURRENT nosweat.notes EXCLUSIVE-LOCK.
+    FIND CURRENT ASI.notes EXCLUSIVE-LOCK.
     IF cbTitle:SCREEN-VALUE GT "" THEN
-    ASSIGN nosweat.notes.note_title = cbTitle:SCREEN-VALUE.
-    FIND CURRENT nosweat.notes NO-LOCK.
+    ASSIGN ASI.notes.note_title = cbTitle:SCREEN-VALUE.
+    FIND CURRENT ASI.notes NO-LOCK.
   END.
     
 END PROCEDURE.

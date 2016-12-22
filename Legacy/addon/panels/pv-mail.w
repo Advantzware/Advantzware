@@ -1,4 +1,4 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -41,10 +41,11 @@ CREATE WIDGET-POOL.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartViewer
+&Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -88,7 +89,7 @@ DEFINE BUTTON btn_mail
      SIZE 15 BY 1.14.
 
 DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 17 BY 1.67.
 
 
@@ -116,7 +117,7 @@ DEFINE FRAME F-Main
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT."
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
 END.
@@ -134,14 +135,25 @@ END.
                                                                         */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{advantzware/winkit/winkit-panel.i}
+{src/adm/method/viewer.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -162,16 +174,6 @@ ASSIGN
  
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
-/* ************************* Included-Libraries *********************** */
-
-{src/adm/method/viewer.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 
 /* ************************  Control Triggers  ************************ */
 
@@ -184,6 +186,11 @@ DO:
     
     run get-link-handle in adm-broker-hdl(this-procedure,"maillist-target",output char-hdl).
     run update-maillist in widget-handle(char-hdl).
+
+
+
+  /* Added by WinKit Migration tool 07.02.2016 23:06:05 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 
 END.
 
@@ -210,7 +217,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win _ADM-ROW-AVAILABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
   Purpose:     Dispatched to this procedure when the Record-
@@ -232,8 +239,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -251,8 +257,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win _ADM-SEND-RECORDS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
   Purpose:     Send record ROWID's for all tables used by
@@ -268,7 +273,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
@@ -289,5 +293,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

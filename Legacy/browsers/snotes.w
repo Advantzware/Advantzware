@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -271,16 +271,16 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "NOSWEAT.notes,NOSWEAT.rec_key OF NOSWEAT.notes,NOSWEAT.prgmxref OF NOSWEAT.rec_key"
+     _TblList          = "ASI.notes,ASI.rec_key OF ASI.notes,ASI.prgmxref OF ASI.rec_key"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,,"
      _Where[1]         = "notes.note_text CONTAINS word_search OR word_search = ''"
-     _FldNameList[1]   = NOSWEAT.notes.note_date
+     _FldNameList[1]   = ASI.notes.note_date
      _FldNameList[2]   > "_<CALC>"
 "STRING(notes.note_time,'HH:MM:SS am') @ notetime" "Note Time" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   = NOSWEAT.notes.note_title
-     _FldNameList[4]   = NOSWEAT.rec_key.table_name
-     _FldNameList[5]   = NOSWEAT.prgmxref.prgmname
+     _FldNameList[3]   = ASI.notes.note_title
+     _FldNameList[4]   = ASI.rec_key.table_name
+     _FldNameList[5]   = ASI.prgmxref.prgmname
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

@@ -253,11 +253,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -570,7 +566,7 @@ PROCEDURE loadPatchData :
         patchhst.run-once = tPatchDat.run-once
         patchhst.descr = tPatchDat.descr
         patchhst.dependancy = tPatchDat.dependancy
-        patchhst.user_id = USERID('NoSweat').
+        patchhst.user_id = USERID("ASI").
     END. /* repeat */
     INPUT CLOSE.
   END.

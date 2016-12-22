@@ -473,7 +473,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-  cellColumnDat = 'users/' + USERID('nosweat') + '/{&cellColumnDat}.dat'.  
+  cellColumnDat = 'users/' + USERID("ASI") + '/{&cellColumnDat}.dat'.  
   
   {&browse-name}:SET-REPOSITIONED-ROW (1,"CONDITIONAL").
 

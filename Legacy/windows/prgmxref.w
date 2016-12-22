@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -113,7 +113,7 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: NOSWEAT.prgmxref
+   External Tables: ASI.prgmxref
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -204,6 +204,7 @@ THEN W-Win:HIDDEN = yes.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 

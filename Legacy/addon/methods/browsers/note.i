@@ -1,5 +1,5 @@
 /* notes.i
-"NOSWEAT" "note"
+"ASI" "note"
 "note_date" "Note Date" ""
 "" "" ""
 "" "" ""

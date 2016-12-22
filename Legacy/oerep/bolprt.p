@@ -484,7 +484,7 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
   END.
 
   FIND FIRST users WHERE
-       users.user_id EQ USERID("NOSWEAT")
+       users.user_id EQ USERID("ASI")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -1290,10 +1290,10 @@ DO:
     LEAVE.
   END.
 
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
+  IF NOT CAN-DO(b-prgrms.can_run,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_update,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_create,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_delete,USERID("ASI")) AND NOT group-ok THEN
   DO:
     /*MESSAGE 
         "User access to POST BOL this Program Denied - Contact Systems Manager" 
@@ -1459,7 +1459,7 @@ PROCEDURE email-reorderitems :
   DEF VAR v-qty-onOrder AS INT NO-UNDO.
 
   FIND FIRST users WHERE
-        users.user_id EQ USERID("NOSWEAT")
+        users.user_id EQ USERID("ASI")
         NO-LOCK NO-ERROR.
   IF AVAIL users AND users.user_program[2] NE "" THEN v-dir = users.user_program[2] + "\".
   ELSE v-dir = "c:\tmp\".

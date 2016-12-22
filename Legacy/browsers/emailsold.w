@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
@@ -285,23 +285,23 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "asi.emaildtl OF asi.emailcod ,NOSWEAT.phone WHERE asi.emaildtl ...,asi.soldto WHERE NOSWEAT.phone ..."
+     _TblList          = "asi.emaildtl OF asi.emailcod ,ASI.phone WHERE asi.emaildtl ...,asi.soldto WHERE ASI.phone ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, USED, FIRST,"
-     _JoinCode[2]      = "NOSWEAT.phone.rec_key = asi.emaildtl.table_rec_key"
+     _JoinCode[2]      = "ASI.phone.rec_key = asi.emaildtl.table_rec_key"
      _Where[2]         = "~{&KEY-PHRASE}"
-     _JoinCode[3]      = "asi.soldto.rec_key = NOSWEAT.phone.table_rec_key"
+     _JoinCode[3]      = "asi.soldto.rec_key = ASI.phone.table_rec_key"
      _FldNameList[1]   > asi.soldto.cust-no
 "soldto.cust-no" ? ? "character" ? ? ? 2 15 ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.soldto.sold-id
 "soldto.sold-id" ? ? "character" ? ? ? 2 15 ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.soldto.sold-name
 "soldto.sold-name" ? ? "character" ? ? ? 2 15 ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > NOSWEAT.phone.attention
+     _FldNameList[4]   > ASI.phone.attention
 "phone.attention" ? ? "character" ? ? ? 2 15 ? no ? no no "38" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > NOSWEAT.phone.titlcode
+     _FldNameList[5]   > ASI.phone.titlcode
 "phone.titlcode" "Title" ? "character" ? ? ? 2 15 ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   = NOSWEAT.phone.rec_key
+     _FldNameList[6]   = ASI.phone.rec_key
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

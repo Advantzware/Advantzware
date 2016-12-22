@@ -37,7 +37,6 @@ DEFINE VARIABLE gvlAddStatus AS LOGICAL     NO-UNDO.
 DEFINE SHARED VAR   vrPhone         AS RECID    NO-UNDO.
 DEF BUFFER b-phone FOR phone.
 /* DEFINE VARIABLE     vrPhone         AS RECID    NO-UNDO. */
-define var vHeaderValue as cha no-undo.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -66,10 +65,10 @@ define var vHeaderValue as cha no-undo.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table emailcod.emailcod ~
 emailcod.description CheckNotice() @ vlShipNotice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} NO-LOCK ~
       /*AND can-do(emailcod.emailTo,vHeaderValue) or emailcod.emailTo = ""*/ NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} NO-LOCK ~
       /*AND can-do(emailcod.emailTo,vHeaderValue) or emailcod.emailTo = ""*/ NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table emailcod
@@ -581,27 +580,6 @@ PROCEDURE local-hide :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'hide':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
-PROCEDURE local-open-query :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-  run get-link-handle in adm-broker-hdl(this-procedure,"container-source", output char-hdl).
-  run get-ip-header in widget-handle(char-hdl) (output vHeaderValue).
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
 

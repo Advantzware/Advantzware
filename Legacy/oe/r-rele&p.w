@@ -367,11 +367,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1494,7 +1490,7 @@ IF g_batch THEN
 FIND FIRST user-print NO-LOCK WHERE ROWID(user-print) EQ g_batch-rowid NO-ERROR.
 ELSE 
 FIND FIRST user-print NO-LOCK
-     {&where-phrase} AND user-print.user-id EQ USERID("nosweat") NO-ERROR.
+     {&where-phrase} AND user-print.user-id EQ USERID("ASI") NO-ERROR.
 
 IF NOT AVAIL user-print THEN
 FIND FIRST user-print NO-LOCK {&where-phrase} AND user-print.user-id EQ "" NO-ERROR.

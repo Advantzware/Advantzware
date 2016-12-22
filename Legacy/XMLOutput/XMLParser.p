@@ -56,7 +56,7 @@ PROCEDURE processChildren:
 
   DO i = 1 TO hParent:NUM-CHILDREN : 
     hParent:GET-CHILD(hChild,i). 
-    IF hChild:NAME EQ '#text' OR hChild:NAME EQ '#cdata-section' THEN DO:
+    IF hChild:NAME EQ '#text' THEN DO:
       IF i GT 1 THEN DO:
         CREATE ttNodes. 
         ASSIGN 

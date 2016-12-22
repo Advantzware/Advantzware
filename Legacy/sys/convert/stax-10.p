@@ -85,7 +85,7 @@ DO TRANSACTION:
     CREATE reftable.
     ASSIGN reftable.reftable = "v10-TaxCode-Upgrade"
            reftable.CODE     = "10 Extents"
-           reftable.code2    = STRING(NOW) + " " + USERID("nosweat").
+           reftable.code2    = STRING(NOW) + " " + USERID("ASI").
 END.
 
 /* _UIB-CODE-BLOCK-END */

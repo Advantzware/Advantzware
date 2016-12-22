@@ -32,7 +32,7 @@
 {methods/defines/hndldefs.i &NEW="NEW"}
 
 DEFINE NEW SHARED VARIABLE quit_login AS LOGICAL NO-UNDO.
-DEFINE VARIABLE m_id LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE VARIABLE m_id LIKE ASI._user._userid NO-UNDO.
 DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEF NEW GLOBAL SHARED VAR g-sharpshooter AS LOG NO-UNDO.  /* no, it's yes only from sharpsh.p */

@@ -5,59 +5,59 @@
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
-DEF BUFFER xoe-bolh     FOR oe-bolh.
-DEF BUFFER xoe-boll     FOR oe-boll.
-DEF BUFFER xitemfg      FOR itemfg.
-DEF BUFFER xxreport     FOR report.
+def buffer xoe-bolh     for oe-bolh.
+def buffer xoe-boll     for oe-boll.
+def buffer xitemfg      for itemfg.
+def buffer xxreport     for report.
 
 {oe/rep/oe-lad.i}
 
-DEF VAR v-salesman          AS   CHAR FORMAT "x(26)" NO-UNDO.
-DEF VAR v-fob               AS   CHAR FORMAT "x(12)" NO-UNDO.
-DEF VAR v-tot-cases         AS   INT FORMAT ">>>>9" NO-UNDO.
-DEF VAR v-tot-wt            AS   DEC FORMAT "->,>>>,>>9" NO-UNDO.
+def var v-salesman          as   char format "x(26)" NO-UNDO.
+def var v-fob               as   char format "x(12)" NO-UNDO.
+def var v-tot-cases         as   int format ">>>>9" NO-UNDO.
+def var v-tot-wt            as   dec format "->,>>>,>>9" NO-UNDO.
 
-DEF VAR v-tot-pkgs          AS   INT FORMAT ">>9" NO-UNDO.
-DEF VAR v-ord-qty           LIKE oe-ordl.qty NO-UNDO.
-DEF VAR v-bol-qty           LIKE oe-boll.qty NO-UNDO.
-DEF VAR v-ship-qty          LIKE oe-ordl.ship-qty NO-UNDO.
-DEF VAR v-bol-wt            AS   DEC NO-UNDO.
-DEF VAR v-part-dscr         AS   CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-part-comp         AS   CHAR FORMAT "x" NO-UNDO.
-DEF VAR v-part-qty          AS   DEC NO-UNDO.
-DEF VAR v-ord-no            LIKE oe-boll.ord-no NO-UNDO.
-DEF VAR v-po-no             LIKE oe-bolh.po-no NO-UNDO.
-DEF VAR v-job-no            AS   CHAR FORMAT "x(13)" NO-UNDO.
-DEF VAR v-phone-num         AS   CHAR FORMAT "x(13)" NO-UNDO.
-DEF VAR v-dock-note AS   CHAR FORMAT "x(20)" NO-UNDO.
+def var v-tot-pkgs          as   int format ">>9" NO-UNDO.
+def var v-ord-qty           like oe-ordl.qty NO-UNDO.
+def var v-bol-qty           like oe-boll.qty NO-UNDO.
+def var v-ship-qty          like oe-ordl.ship-qty NO-UNDO.
+def var v-bol-wt            as   dec NO-UNDO.
+def var v-part-dscr         as   char format "x(30)" NO-UNDO.
+def var v-part-comp         as   char format "x" NO-UNDO.
+def var v-part-qty          as   DEC NO-UNDO.
+def var v-ord-no            like oe-boll.ord-no NO-UNDO.
+def var v-po-no             like oe-bolh.po-no NO-UNDO.
+def var v-job-no            as   char format "x(13)" no-undo.
+def var v-phone-num         as   char format "x(13)" no-undo.
+DEF VAR v-dock-note as   char format "x(20)" no-undo.
 
-DEF VAR v-ship-name  LIKE shipto.ship-name NO-UNDO.
-DEF VAR v-ship-addr  LIKE shipto.ship-addr NO-UNDO.
-DEF VAR v-ship-city  LIKE shipto.ship-city NO-UNDO.
-DEF VAR v-ship-state LIKE shipto.ship-state NO-UNDO.
-DEF VAR v-ship-zip   LIKE shipto.ship-zip NO-UNDO.
-DEF VAR v-ship-addr3 AS   CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-comp-name  LIKE company.name NO-UNDO.
-DEF VAR v-comp-addr  LIKE company.addr NO-UNDO.
-DEF VAR v-comp-city  LIKE company.city NO-UNDO.
-DEF VAR v-comp-state LIKE company.state NO-UNDO.
-DEF VAR v-comp-zip   LIKE company.zip NO-UNDO.
-DEF VAR v-comp-addr3 AS   CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-cust-addr3 AS   CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-1          LIKE oe-boll.cases INIT 1 NO-UNDO.
+def var v-ship-name  like shipto.ship-name NO-UNDO.
+def var v-ship-addr  like shipto.ship-addr NO-UNDO.
+def var v-ship-city  like shipto.ship-city NO-UNDO.
+def var v-ship-state like shipto.ship-state NO-UNDO.
+def var v-ship-zip   like shipto.ship-zip NO-UNDO.
+def var v-ship-addr3 as   char format "x(30)" NO-UNDO.
+def var v-comp-name  like company.name NO-UNDO.
+def var v-comp-addr  like company.addr NO-UNDO.
+def var v-comp-city  like company.city NO-UNDO.
+def var v-comp-state like company.state NO-UNDO.
+def var v-comp-zip   like company.zip NO-UNDO.
+def var v-comp-addr3 as   char format "x(30)" NO-UNDO.
+def var v-cust-addr3 as   char format "x(30)" NO-UNDO.
+def var v-1          LIKE oe-boll.cases INIT 1 no-undo.
 DEF VAR lv-cases LIKE oe-boll.cases NO-UNDO.
 
-DEF VAR v-terms LIKE oe-ord.terms-d NO-UNDO.
-DEF VAR v-frt-terms AS CHAR FORMAT "x(10)" NO-UNDO.
-DEF VAR v-zone LIKE carr-mtx.del-zone NO-UNDO.
+def var v-terms like oe-ord.terms-d NO-UNDO.
+def var v-frt-terms as char format "x(10)" no-undo.
+def var v-zone like carr-mtx.del-zone no-undo.
 DEF VAR v-pal AS INT NO-UNDO.
 
-DEF WORKFILE w2 NO-UNDO
-    FIELD cases            AS   INT FORMAT ">9"
-    FIELD cas-cnt          AS   INT FORMAT ">>>>9".
+def workfile w2 no-undo
+    field cases            as   int format ">9"
+    field cas-cnt          as   int format ">>>>9".
 
-DEF WORKFILE w3 NO-UNDO
-    FIELD ship-i           AS   CHAR FORMAT "x(60)".
+def workfile w3 no-undo
+    field ship-i           as   char format "x(60)".
 
 DEF VAR lv-pg-num AS INT NO-UNDO.
 DEF VAR lv-tot-pg AS INT NO-UNDO.
@@ -88,8 +88,8 @@ DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-line-total AS DEC NO-UNDO.
 DEF VAR v-quo-total AS DEC NO-UNDO.
-DEF VAR v-t-tax      AS   DEC EXTENT 3 NO-UNDO.
-DEF VAR v-bot-lab    AS   CHAR FORMAT "x(63)" EXTENT 3 NO-UNDO.
+def var v-t-tax      as   dec extent 3 NO-UNDO.
+def var v-bot-lab    as   char format "x(63)" extent 3 NO-UNDO.
 DEF VAR v-q-no LIKE oe-ord.q-no NO-UNDO.
 DEF VAR v-printline AS INT NO-UNDO.
 DEF VAR lv-comp-unit AS INT NO-UNDO.
@@ -108,11 +108,11 @@ DEF VAR lv-ord-type-list AS cha INIT
 DEF VAR v-lot-no AS CHAR NO-UNDO.
 DEF VAR lv-print-img AS LOG NO-UNDO.
 
-ASSIGN tmpstore = FILL("-",80).
+assign tmpstore = fill("-",80).
 
-FIND FIRST oe-bolh NO-LOCK NO-ERROR.
-FIND FIRST carrier NO-LOCK NO-ERROR.
-FIND FIRST cust NO-LOCK NO-ERROR.
+find first oe-bolh no-lock no-error.
+find first carrier no-lock no-error.
+find first cust no-lock no-error.
 {sa/sa-sls01.i}
 
 FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company = cocode
@@ -133,21 +133,21 @@ ASSIGN v-comp-add1 = company.addr[1]
        .
        
 
-FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
-    FIRST oe-bolh WHERE RECID(oe-bolh)   EQ xxreport.rec-id,
+for each xxreport where xxreport.term-id eq v-term-id,
+    first oe-bolh where recid(oe-bolh)   eq xxreport.rec-id,
 
-    FIRST cust
-    WHERE cust.company EQ cocode
-      AND cust.cust-no EQ oe-bolh.cust-no
-    NO-LOCK
+    first cust
+    where cust.company eq cocode
+      and cust.cust-no eq oe-bolh.cust-no
+    no-lock
 
-    BREAK BY oe-bolh.bol-no:
+    break by oe-bolh.bol-no:
       
-    IF FIRST-OF(oe-bolh.bol-no) THEN DO:
-    FIND FIRST carrier
-        WHERE carrier.company EQ oe-bolh.company
-          AND carrier.carrier EQ oe-bolh.carrier
-        NO-LOCK NO-ERROR.
+    if first-of(oe-bolh.bol-no) then do:
+    find first carrier
+        where carrier.company eq oe-bolh.company
+          and carrier.carrier eq oe-bolh.carrier
+        no-lock no-error.
 
     /* tests where customer specific forms have CCCWPP*/
     DO:
@@ -182,90 +182,90 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
                       cust.zip
      v-dock-note = shipto.dock-hour .
 
-    IF TRIM(v-comp-addr3) EQ "," THEN v-comp-addr3 = "".
+    if trim(v-comp-addr3) eq "," then v-comp-addr3 = "".
               
-    IF v-comp-addr[2] EQ "" THEN
-      ASSIGN
+    if v-comp-addr[2] eq "" then
+      assign
        v-comp-addr[2] = v-comp-addr3
        v-comp-addr3   = "".
-    IF v-ship-addr[2] EQ "" THEN
-      ASSIGN
+    if v-ship-addr[2] eq "" then
+      assign
        v-ship-addr[2] = v-ship-addr3
        v-ship-addr3   = "".
 
-    IF TRIM(v-ship-addr3) EQ "," THEN v-ship-addr3 = "".
-    IF TRIM(v-cust-addr3) EQ "," THEN v-cust-addr3 = "".
+    if trim(v-ship-addr3) eq "," then v-ship-addr3 = "".
+    if trim(v-cust-addr3) eq "," then v-cust-addr3 = "".
 
-    ASSIGN
+    assign
      v-salesman = ""
      v-fob      = ""
      v-terms    = "".
 
 
-    FOR EACH oe-boll WHERE oe-boll.company EQ oe-bolh.company AND oe-boll.b-no EQ oe-bolh.b-no NO-LOCK,
-        FIRST oe-ord
-	    WHERE oe-ord.company EQ oe-boll.company
-	      AND oe-ord.ord-no  EQ oe-boll.ord-no
+    FOR EACH oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK,
+        first oe-ord
+	    where oe-ord.company eq oe-boll.company
+	      and oe-ord.ord-no  eq oe-boll.ord-no
 	    NO-LOCK:
 
-      IF NOT AVAILABLE carrier THEN
+      if not available carrier then
       FIND FIRST carrier NO-LOCK WHERE carrier.company = oe-ord.company
         AND carrier.carrier = oe-ord.carrier NO-ERROR.
 
-      DO i = 1 TO 3:
-        IF oe-ord.sman[i] NE "" THEN
-          v-salesman = TRIM(v-salesman) + " " + oe-ord.sman[i] + ",".
-      END.
+      do i = 1 to 3:
+        if oe-ord.sman[i] ne "" then
+          v-salesman = trim(v-salesman) + " " + oe-ord.sman[i] + ",".
+      end.
 
 /*    if can-do("COD,CIA", oe-ord.terms) then v-terms = oe-ord.terms-d. */
-      ASSIGN v-terms = oe-ord.terms-d
+      assign v-terms = oe-ord.terms-d
             /* v-frt-terms = if cust.frt-pay eq "P" then "Prepaid"
                            else if cust.frt-pay eq "B" then "Bill"
                            else if cust.frt-pay eq "C" then "Collect"
                            else if cust.frt-pay eq "T" then "Third Party"
                            else ""*/
-          v-frt-terms = IF oe-bolh.frt-pay EQ "P" THEN "Prepaid"
-                           ELSE IF oe-bolh.frt-pay EQ "B" THEN "PPD/Add"
-                           ELSE IF oe-bolh.frt-pay EQ "C" THEN "Collect"
-                           ELSE IF oe-bolh.frt-pay EQ "T" THEN "Third Party"
-                           ELSE ""
+          v-frt-terms = if oe-bolh.frt-pay eq "P" then "Prepaid"
+                           else if oe-bolh.frt-pay eq "B" then "PPD/Add"
+                           else if oe-bolh.frt-pay eq "C" then "Collect"
+                           else if oe-bolh.frt-pay eq "T" then "Third Party"
+                           else ""
              v-zone = cust.del-zone.
              
-      IF v-terms EQ "" THEN
-      DO:
+      if v-terms eq "" then
+      do:
         FIND FIRST terms NO-LOCK WHERE terms.t-code EQ oe-ord.terms  NO-ERROR.
-        IF AVAIL terms THEN
-          ASSIGN v-terms = terms.dscr.
-      END.
+        if avail terms then
+          assign v-terms = terms.dscr.
+      end.
       
       ASSIGN
-      v-salesman = TRIM(v-salesman)
+      v-salesman = trim(v-salesman)
       v-po-no = oe-boll.po-no
       /*v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>"))*/ .
-      IF v-salesman GT '' THEN
-        IF substr(v-salesman,LENGTH(TRIM(v-salesman)),1) EQ "," THEN
-          substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".
+      if v-salesman gt '' then
+        if substr(v-salesman,length(trim(v-salesman)),1) eq "," then
+          substr(v-salesman,length(trim(v-salesman)),1) = "".
 
-      v-fob = IF oe-ord.fob-code BEGINS "ORIG" THEN "Origin" ELSE "Destination".
+      v-fob = if oe-ord.fob-code begins "ORIG" then "Origin" else "Destination".
       
       LEAVE.
-    END.
+    end.
 
-    FOR EACH w3:
-      DELETE w3.
-    END.
-  END. /* first-of(oe-bolh.bol-no) */
+    for each w3:
+      delete w3.
+    end.
+  end. /* first-of(oe-bolh.bol-no) */
 
-  DO i = 1 TO 4:
-    IF oe-bolh.ship-i[i] NE "" THEN DO:
-      FIND FIRST w3 WHERE w3.ship-i EQ oe-bolh.ship-i[i] NO-ERROR.
-      IF NOT AVAIL w3 THEN CREATE w3.
+  do i = 1 to 4:
+    if oe-bolh.ship-i[i] ne "" then do:
+      find first w3 where w3.ship-i eq oe-bolh.ship-i[i] no-error.
+      if not avail w3 then create w3.
       w3.ship-i = oe-bolh.ship-i[i].
-    END.
-  END.
+    end.
+  end.
 
 
-  FOR EACH oe-boll WHERE oe-boll.company EQ oe-bolh.company AND oe-boll.b-no EQ oe-bolh.b-no:
+  for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no:
 
 
 /*     FIND FIRST reftable WHERE                       */
@@ -280,17 +280,17 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 /*        v-lot-no = "".                               */
     v-lot-no = oe-boll.lot-no.
 
-    CREATE report.
-    ASSIGN
+    create report.
+    assign
      report.term-id  = v-term-id
      report.key-01   = oe-boll.i-no
-     report.key-02   = STRING(oe-boll.ord-no,"9999999999")
+     report.key-02   = string(oe-boll.ord-no,"9999999999")
      /* key-03 is for the break by to separate lines if any of these 4 are different */
      report.key-03   = oe-boll.i-no + oe-boll.po-no + string(oe-boll.qty-case) + v-lot-no
-     report.rec-id   = RECID(oe-boll)
-     oe-boll.printed = YES.
-  END.
-  IF LAST-OF(oe-bolh.bol-no) THEN DO:
+     report.rec-id   = recid(oe-boll)
+     oe-boll.printed = yes.
+  end.
+  if last-of(oe-bolh.bol-no) then do:
      IF v-comp-addr[2] = "" THEN
            ASSIGN v-comp-addr[2] = v-comp-addr3
                   v-comp-addr3 = "".
@@ -303,35 +303,35 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
      v-tot-wt = 0
      lv-tot-pg = 1
      ln-cnt = 0.
-     FOR EACH report WHERE report.term-id EQ v-term-id,
-         FIRST oe-boll WHERE RECID(oe-boll) EQ report.rec-id,
-         FIRST xoe-bolh WHERE xoe-bolh.b-no EQ oe-boll.b-no NO-LOCK,
-         FIRST itemfg WHERE itemfg.company EQ oe-boll.company
-                      AND itemfg.i-no    EQ oe-boll.i-no NO-LOCK
-                BREAK BY report.key-01
-                BY report.key-02:
+     for each report where report.term-id eq v-term-id,
+         first oe-boll where recid(oe-boll) eq report.rec-id,
+         first xoe-bolh where xoe-bolh.b-no eq oe-boll.b-no no-lock,
+         first itemfg where itemfg.company eq oe-boll.company
+                      and itemfg.i-no    eq oe-boll.i-no no-lock
+                break by report.key-01
+                by report.key-02:
          ASSIGN v-tot-wt = v-tot-wt + oe-boll.weight.
    
-         IF oe-boll.weight EQ 0 THEN
+         if oe-boll.weight eq 0 then
              v-tot-wt = v-tot-wt + (oe-boll.qty / 100 * itemfg.weight-100).
 
           /*========*/
           ln-cnt = ln-cnt + 2.
           FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ cocode
-                          AND oe-ordl.ord-no  EQ oe-boll.ord-no
+                          and oe-ordl.ord-no  eq oe-boll.ord-no
                           AND oe-ordl.i-no    EQ oe-boll.i-no NO-ERROR.
 
           IF oe-ordl.part-dscr1 <> "" OR oe-boll.partial > 0 THEN ln-cnt = ln-cnt + 1.
-          IF itemfg.isaset THEN
-          FOR EACH fg-set WHERE fg-set.company EQ cocode
-	                       AND fg-set.set-no  EQ itemfg.i-no   NO-LOCK:
+          if itemfg.isaset then
+          for each fg-set where fg-set.company eq cocode
+	                       and fg-set.set-no  eq itemfg.i-no   no-lock:
 
              FIND FIRST xitemfg NO-LOCK WHERE xitemfg.company EQ cocode
 	                           AND xitemfg.i-no    EQ fg-set.part-no NO-ERROR.
 
              FIND FIRST fg-bin NO-LOCK WHERE fg-bin.company EQ cocode
-                            AND fg-bin.i-no    EQ xitemfg.i-no
-                            AND fg-bin.job-no = oe-boll.job-no
+                            and fg-bin.i-no    eq xitemfg.i-no
+                            and fg-bin.job-no = oe-boll.job-no
                             AND fg-bin.job-no2 = oe-boll.job-no2  NO-ERROR.
              ln-cnt = ln-cnt + 1.
              IF AVAIL fg-bin AND fg-bin.partial-count <> 0 THEN ln-cnt = ln-cnt + 1.
@@ -349,14 +349,14 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
   
     {oe/rep/bolcccx.i}
 
-    v-last-page = PAGE-NUMBER.
+    v-last-page = page-number.
 
 
-    FOR EACH report WHERE report.term-id EQ v-term-id,
-        FIRST oe-boll WHERE RECID(oe-boll) EQ report.rec-id NO-LOCK:
-      DELETE report.
-    END.
-  END.
+    for each report where report.term-id eq v-term-id,
+        first oe-boll where recid(oe-boll) eq report.rec-id no-lock:
+      delete report.
+    end.
+  end.
 
   PUT "<R39><C50><#7>Initial"
       "<=7><C+10><FROM><R+2><C+20><RECT> " 
@@ -377,7 +377,7 @@ PUT
     "Customer ________________________________________                       Carrier _______________________________________" AT 23 SKIP(1)
     "Date ____________________________________________                       Date __________________________________________" AT 23 SKIP   
     "<C1>" lv-prt-date "  " STRING(lv-prt-time,"HH:MM AM") "  " lv-prt-sts
-    "Page " AT 202 STRING(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" SKIP
+    "Page " AT 202 string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" SKIP
     "<R51><C1><P6>RECEIVED, SUBJECT TO THE CLASSIFCATION AND LAWFULLY FILED TARIFFS IN EFFECT ON THE DATE OF THIS Bill of Lading. The property described above, except as noted, marked or consigned and" 
     "<R51.6><C1>destined as indicated below, which said carrier (the word carrier being understood through this contract as meaning any person or corporation in possession of the property under the contract) agrees to carry to" SKIP
     "<R52.2><C1>its usual place of delivery at said destination. Its is mutually agreed, as to each carrier of all or any property over all or any portion of said route to destination, as to each party at any time interested" SKIP
@@ -410,14 +410,14 @@ PUT "<R57><C48><FROM><R57><C80><LINE><||3>" SKIP
       "<=15><R+2>       DO NOT BREAK DOWN        "  SKIP.
 
   v-printline = v-printline + 14.
-  IF LAST-OF(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUM .
+  IF last-of(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUM .
 
   IF v-printline < 45 THEN PUT SKIP(60 - v-printline).
   ASSIGN
      v-printline = 0
-     oe-bolh.printed = YES.
+     oe-bolh.printed = yes.
 
-END. /* for each oe-bolh */
+end. /* for each oe-bolh */
 
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
@@ -426,7 +426,7 @@ PROCEDURE get-pallets-num:
 
   DEF OUTPUT PARAM op-pallets AS DEC NO-UNDO.
 
-  DEF VAR v-qty-pal AS DEC NO-UNDO.
+  DEF VAR v-qty-pal AS dec NO-UNDO.
   DEF VAR v-int AS DEC NO-UNDO.
 
   IF oe-boll.tot-pallets EQ 0 THEN

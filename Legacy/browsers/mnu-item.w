@@ -397,7 +397,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-ls-user-id = userid("nosweat").
+ls-user-id = USERID("ASI").
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).     

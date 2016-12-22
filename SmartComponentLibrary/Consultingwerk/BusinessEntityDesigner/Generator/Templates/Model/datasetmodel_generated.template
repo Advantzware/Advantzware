@@ -1,0 +1,44 @@
+/*------------------------------------------------------------------------
+    File        : &1_Generated
+    Purpose     : Auto Generated portion of the &1 class
+    Syntax      : 
+    Description : 
+    Author(s)   : @USER@
+    Created     : @DATE@
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.OERA.* FROM PROPATH .
+USING &2.* FROM PROPATH .  
+USING Progress.Lang.* FROM PROPATH .
+
+@FILEANNOTATION@
+
+CLASS &2.&1DatasetModel_Generated 
+    INHERITS DatasetModel ABSTRACT: 
+
+    { &8/&3.i &&ACCESS=PROTECTED }
+
+&5    /*------------------------------------------------------------------------------
+        Purpose: Returns the name of the Business Entity this model belongs to 
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    DEFINE OVERRIDE PUBLIC PROPERTY EntityName AS CHARACTER NO-UNDO INIT "&6.&7":U
+    GET.
+    PROTECTED SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &1DatasetModel_Generated class
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC &1DatasetModel_Generated ():
+        SUPER (DATASET &3:HANDLE).
+
+&4       
+    END CONSTRUCTOR.
+
+&9  
+
+END CLASS.

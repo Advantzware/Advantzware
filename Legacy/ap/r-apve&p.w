@@ -353,11 +353,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -917,7 +913,7 @@ PROCEDURE clear-ap :
   for each ap-inv
     where ap-inv.company  eq cocode
       and ap-inv.posted   eq no
-      AND ap-inv.user-id  EQ USERID("nosweat")
+      AND ap-inv.user-id  EQ USERID("ASI")
       /*
       and xap-inv.inv-date ge v-s-date
       and xap-inv.inv-date le v-e-date 

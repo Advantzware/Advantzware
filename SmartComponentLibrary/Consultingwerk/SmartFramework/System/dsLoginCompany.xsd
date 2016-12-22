@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsLoginCompany" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartLoginCompany" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartLoginCompanyBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="LoginCompanyGuid" type="xsd:string" nillable="true" prodata:fieldName="LoginCompanyGuid" prodata:format="x(36)"/>
+              <xsd:element name="LoginCompanyName" type="xsd:string" nillable="true" prodata:fieldName="LoginCompanyName" prodata:format="x(20)"/>
+              <xsd:element name="LoginCompanyShort" type="xsd:string" nillable="true" prodata:fieldName="LoginCompanyShort" prodata:format="x(20)" prodata:label="Short Name"/>
+              <xsd:element name="LoginCompanyImageLarge" type="xsd:string" nillable="true" prodata:fieldName="LoginCompanyImageLarge" prodata:format="x(50)" prodata:label="Large Image"/>
+              <xsd:element name="LoginCompanyImageSmall" type="xsd:string" nillable="true" prodata:fieldName="LoginCompanyImageSmall" prodata:format="x(50)" prodata:label="Small Image"/>
+              <xsd:element name="LoginCompanyReferenceChar" type="xsd:string" nillable="true" prodata:fieldName="LoginCompanyReferenceChar" prodata:format="x(50)" prodata:label="Foreign Reference Character"/>
+              <xsd:element name="LoginCompanyReferenceDecimal" type="xsd:decimal" nillable="true" prodata:fieldName="LoginCompanyReferenceDecimal" prodata:format="->,>>,>>>,>>9.999999999" prodata:label="Foreign Reference Decimal"/>
+              <xsd:element name="LoginCompanyReferenceInteger" type="xsd:int" nillable="true" prodata:fieldName="LoginCompanyReferenceInteger" prodata:label="Foreign Reference Integer"/>
+              <xsd:element name="LoginCompanyTenantDomain" type="xsd:string" nillable="true" prodata:fieldName="LoginCompanyTenantDomain" prodata:format="x(50)" prodata:label="Multi-Tenancy Domain"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="LoginCompanyGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartLoginCompany"/>
+      <xsd:field xpath="LoginCompanyGuid"/>
+    </xsd:unique>
+  </xsd:element>
+</xsd:schema>

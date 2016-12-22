@@ -86,7 +86,7 @@ IF AVAIL sys-ctrl THEN
   RUN set-config-based.
 
 /* For testing the ftp cmd */
-IF poexport-int EQ 2 AND USERID("nosweat") EQ "ASI" THEN
+IF poexport-int EQ 2 AND USERID("ASI") EQ "ASI" THEN
     MESSAGE "Do you want to ftp the file?"
   VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
   TITLE "" UPDATE lSendTheFile AS LOGICAL.

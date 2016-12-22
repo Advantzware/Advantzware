@@ -1051,7 +1051,7 @@ PROCEDURE proc-enable :
     IF v-msg EQ "" AND ap-inv.posted THEN
       v-msg = "This invoice has been posted, no changes are allowed!".
 
-    IF v-msg EQ "" AND apsecure-log AND ap-inv.user-id NE USERID("nosweat") THEN
+    IF v-msg EQ "" AND apsecure-log AND ap-inv.user-id NE USERID("ASI") THEN
       v-msg = "This invoice may only be updated by UserID: " +
               TRIM(ap-inv.user-id) + "...".
   END.

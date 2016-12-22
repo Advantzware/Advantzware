@@ -587,7 +587,7 @@ PROCEDURE local-create-record :
     user-print.company = g_company
     user-print.batch-seq = lv-last-batch
     user-print.batch = "Batch"
-    user-print.user-id = USERID('nosweat')
+    user-print.user-id = USERID("ASI")
     user-batch.company = user-print.company
     user-batch.batch-seq = user-print.batch-seq
     user-batch.prog-seq = user-print.prog-seq.

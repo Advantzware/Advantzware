@@ -668,7 +668,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'EQ',
                             INPUT YES,
                             OUTPUT lActive).
-{sys/inc/chblankcust.i ""EQ""}
+{sys/inc/chblankcust.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).   

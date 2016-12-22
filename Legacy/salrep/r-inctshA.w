@@ -387,11 +387,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1031,7 +1027,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         .
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
-   
+
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1392,17 +1388,17 @@ FOR EACH xreport:
 END.
 
 
- FOR each cust
+  for each cust
       where cust.company eq cocode
-        AND cust.cust-no GE fcust
-        AND cust.cust-no LE tcust
+        and cust.cust-no ge fcust
+        and cust.cust-no le tcust
         AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
         AND ttCustList.log-fld no-lock) else true)
         and cust.type    ge begin_cust-type
         and cust.type    le end_cust-type
       use-index cust no-lock:
       {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
-   {sa/sa-sls03.i "fdate" "tdate"} 
+   {sa/sa-sls03.i "fdate" "tdate"}    
   end.
  
   for each tt-report
@@ -1422,7 +1418,6 @@ END.
       no-lock
 
       transaction:
-
       {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
     if tt-report.key-10 eq "ar-inv" then do:
       find ar-inv where recid(ar-inv) eq tt-report.rec-id no-lock.
@@ -1597,8 +1592,8 @@ END.
          ""               le titem and
          cust.sman        ge fsman and
          cust.sman        le tsman and
-         ar-cashl.cust-no GE fship and
-         ar-cashl.cust-no le tship AND
+         ar-cashl.cust-no ge fship and
+         ar-cashl.cust-no le tship and
          cust.zip         ge fshpz and
          cust.zip         le tshpz then v-exc = no.
 

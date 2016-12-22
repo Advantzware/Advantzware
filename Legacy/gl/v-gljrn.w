@@ -959,8 +959,8 @@ PROCEDURE proc-enable :
         RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source", OUTPUT char-hdl).
         RUN apply-cancel IN WIDGET-HANDLE(char-hdl).
      END.
-    /* ticket 15382  */
-     /*IF USERID("nosweat") NE gl-jrn.user-id AND
+    
+     IF USERID("ASI") NE gl-jrn.user-id AND
         gl-jrn.user-id NE ""                THEN DO:
         MESSAGE "This Journal was created by User: " +
                TRIM(gl-jrn.user-id) + ", do you wish update anyway?"
@@ -970,7 +970,7 @@ PROCEDURE proc-enable :
            RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source", OUTPUT char-hdl).
            RUN apply-cancel IN WIDGET-HANDLE(char-hdl).
        END.
-     END.*/
+     END.
   END.
 
   DO WITH FRAME {&FRAME-NAME}:

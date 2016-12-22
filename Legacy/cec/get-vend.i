@@ -45,7 +45,7 @@ DO:
                  NO-LOCK NO-ERROR.
            
             IF AVAIL usergrps AND
-               (CAN-DO(usergrps.users,USERID("NOSWEAT")) OR
+               (CAN-DO(usergrps.users,USERID("ASI")) OR
                 TRIM(usergrps.users) EQ "*") THEN
                DO:
                   v-valid = YES.

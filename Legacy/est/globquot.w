@@ -296,11 +296,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -838,7 +834,7 @@ lv-reft = "est/globquot.w"              + " " +
           STRING(MONTH(TODAY),"99")     +
           STRING(DAY(TODAY),"99")       + " " +
           STRING(TIME,"99999")          + " " +
-          USERID("nosweat")             + " " +
+          USERID("ASI")             + " " +
           STRING(cocode,"x(10)")        + " " +
           STRING(locode,"x(10)").
 

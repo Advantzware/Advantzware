@@ -169,11 +169,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -434,7 +430,7 @@ FOR EACH bf-itemfg
        fg-rctd.po-no = TRIM(STRING(bf-fg-bin.po-no,">>>>>>>>>>")).
        
 
-       begin_userid = USERID("NOSWEAT").
+       begin_userid = USERID("ASI").
        END_userid   = begin_userid.
 
        {fg/fg-cpost.i}

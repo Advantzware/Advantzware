@@ -61,10 +61,10 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_ONote 
-     IMAGE-UP FILE "Graphics/32x32/gearwheels.ico":U
+     IMAGE-UP FILE "Graphics/32x32/gearwheels.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8 BY 1.81 TOOLTIP "Job Notes".
+     LABEL "Operator Notes" 
+     SIZE 8 BY 1.81 TOOLTIP "Notes".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -111,6 +111,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -155,6 +156,11 @@ ON CHOOSE OF Select_ONote IN FRAME F-Main /* Operator Notes */
 DO:
   
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:12:47 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

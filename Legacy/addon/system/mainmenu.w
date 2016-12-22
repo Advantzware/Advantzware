@@ -48,9 +48,6 @@ ON CTRL-P HELP.
 &Scoped-define max-window {&start-button-row} - .5 + ~
 ({&button-height} + {&button-gap}) * ttbl-menu.menu-count
 
-/* System Constant Values */
-{system/sysconst.i}
-
 {methods/defines/mainmenu.i}
 
 DEFINE TEMP-TABLE ttbl NO-UNDO
@@ -100,12 +97,13 @@ END.
 &Scoped-define PROCEDURE-TYPE WINDOW
 &Scoped-define DB-AWARE no
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME FRAME-USER
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS boxes menu-image RECT-2 
-&Scoped-Define DISPLAYED-OBJECTS users_user_id company_name loc_loc 
+&Scoped-Define ENABLED-OBJECTS boxes menu-image RECT-2 Use-Buttons 
+&Scoped-Define DISPLAYED-OBJECTS Use-Buttons users_user_id company_name ~
+loc_loc 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -145,26 +143,33 @@ DEFINE IMAGE menu-image
      SIZE 79 BY 4.52.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 8    
+     EDGE-PIXELS 8  
      SIZE 120 BY 1.91
-     BGCOLOR 0 .
+     BGCOLOR 4 .
+
+DEFINE VARIABLE Use-Buttons AS LOGICAL INITIAL yes 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 4 BY .62
+     BGCOLOR 4 FGCOLOR 15  NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-USER
+     Use-Buttons AT ROW 1.95 COL 116
      users_user_id AT ROW 1.95 COL 14 COLON-ALIGNED NO-LABEL
      company_name AT ROW 1.95 COL 41 COLON-ALIGNED NO-LABEL
      loc_loc AT ROW 1.95 COL 97 COLON-ALIGNED NO-LABEL
      "Location:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.95 COL 87
-          BGCOLOR 0 FGCOLOR 15 FONT 6
+          BGCOLOR 4 FGCOLOR 15 FONT 6
      "Company:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.95 COL 31
-          BGCOLOR 0 FGCOLOR 15 FONT 6
+          BGCOLOR 4 FGCOLOR 15 FONT 6
      " User ID:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.95 COL 5
-          BGCOLOR 0 FGCOLOR 15 FONT 6
+          BGCOLOR 4 FGCOLOR 15 FONT 6
      boxes AT ROW 8.14 COL 43
      menu-image AT ROW 3.38 COL 43
      RECT-2 AT ROW 1.24 COL 2
@@ -190,7 +195,7 @@ DEFINE FRAME FRAME-USER
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW MAINMENU ASSIGN
          HIDDEN             = YES
-         TITLE              = "Main Menu - Advantzware Addon version {&awversion}"
+         TITLE              = "Main Menu"
          HEIGHT             = 19
          WIDTH              = 122
          MAX-HEIGHT         = 40
@@ -207,12 +212,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT MAINMENU:LOAD-ICON("adeicon/progress.ico":U) THEN
-    MESSAGE "Unable to load icon: adeicon/progress.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
-/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 
@@ -223,7 +222,7 @@ IF NOT MAINMENU:LOAD-ICON("adeicon/progress.ico":U) THEN
 /* SETTINGS FOR WINDOW MAINMENU
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-USER
-   FRAME-NAME                                                           */
+                                                                        */
 /* SETTINGS FOR FILL-IN company_name IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN loc_loc IN FRAME FRAME-USER
@@ -267,6 +266,30 @@ END.
 ON HELP OF FRAME FRAME-USER
 DO:
   RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,yes).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Use-Buttons
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Use-Buttons MAINMENU
+ON VALUE-CHANGED OF Use-Buttons IN FRAME FRAME-USER
+DO:
+  ASSIGN {&SELF-NAME}.
+  IF {&SELF-NAME} THEN
+  RUN Read_Menus.
+  ELSE
+  DO:
+    ASSIGN
+      {&WINDOW-NAME}:HEIGHT-CHARS = {&min-window-height}
+      {&WINDOW-NAME}:VIRTUAL-HEIGHT-CHARS = {&min-window-height}
+      {&WINDOW-NAME}:MAX-HEIGHT-CHARS = {&min-window-height}
+      {&WINDOW-NAME}:WIDTH-CHARS = {&min-window-width}
+      {&WINDOW-NAME}:VIRTUAL-WIDTH-CHARS = {&min-window-width}
+      {&WINDOW-NAME}:MAX-WIDTH-CHARS = {&min-window-width}.
+    DELETE WIDGET-POOL "dyn-buttons" NO-ERROR.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -405,9 +428,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY users_user_id company_name loc_loc 
+  DISPLAY Use-Buttons users_user_id company_name loc_loc 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-  ENABLE boxes menu-image RECT-2 
+  ENABLE boxes menu-image RECT-2 Use-Buttons 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   VIEW MAINMENU.
@@ -608,3 +631,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

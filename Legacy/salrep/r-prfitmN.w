@@ -412,11 +412,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1050,6 +1046,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
 
+  RUN sys/inc/CustListForm.p ( "HV",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
@@ -1584,7 +1584,7 @@ IF v-cost2 THEN DO:
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
   v-cost2 = ll-secure. 
 END.
- 
+        
 
 
  DEF VAR cslist AS cha NO-UNDO.
@@ -1619,7 +1619,7 @@ if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(fi_file).
- 
+
 PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 /*IF TB_style-flute-test-lwd = NO THEN */

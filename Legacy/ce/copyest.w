@@ -303,11 +303,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1093,7 +1089,7 @@ PROCEDURE run-process :
    kest.ord-date = ?
    kest.est-date = today
    kest.rec_key = ls-key
-   kest.entered-id = USERID("nosweat")   .
+   kest.entered-id = USERID("ASI")   .
 
   DISABLE TRIGGERS FOR LOAD OF keb.
 

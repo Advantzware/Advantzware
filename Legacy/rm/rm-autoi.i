@@ -118,7 +118,6 @@ DO WHILE {4} GT 0 OR ll-neg:
   /* End test to see if a new record is required */
 
   IF NOT AVAIL {1} THEN DO:
-
     li = 0.
     RUN sys/ref/asiseq.p (INPUT job-mat.company, INPUT "rm_rcpt_seq", OUTPUT li) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN
@@ -198,39 +197,14 @@ DO WHILE {4} GT 0 OR ll-neg:
         BY tt-date BY tt-bin.rec_key:
           LEAVE.
     END.
-    
-   /* Wade Kaldawi   3/10/2016   Ticket 12826
-      Items where the inventory is not tracked can go below 0 */    
-    IF NOT AVAIL tt-bin AND item.inv-by-cust THEN DO:
-        FOR EACH tt-bin WHERE tt-bin.qty LE 0 
-          BY tt-date BY tt-bin.rec_key:
-          LEAVE.
-        END.
-    END.
-    
     IF AVAIL tt-bin THEN DO:  
-    
       ll-bin = TRUE.
-      /* Wade Kaldawi   3/10/2016   Ticket 12826
-         Items where the inventory is not tracked can go below 0 */
-      IF item.inv-by-cust AND tt-bin.qty LE 0 THEN
+      ASSIGN
+        {2}.qty      = {2}.qty + MIN({4},tt-bin.qty)
+        {4}          = {4} - MIN({4},tt-bin.qty)
+        dLastAssigned = {2}.qty.
       
-        ASSIGN
-          {2}.qty      = {2}.qty + {4}
-          {4}          = 0.
-      
-      ELSE
-      
-        ASSIGN
-          {2}.qty      = {2}.qty + MIN({4},tt-bin.qty)
-          {4}          = {4} - MIN({4},tt-bin.qty).
-        
-        
-      dLastAssigned = {2}.qty.
-        
- 
       DELETE tt-bin.
-      
     END.
 
     DELETE tt-rm-rctd-qty.
