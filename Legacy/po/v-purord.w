@@ -1430,7 +1430,11 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
    po-ord.ship-no = lv-ship-no
-   po-ord.cust-no = ls-drop-custno.
+   po-ord.cust-no = ls-drop-custno .
+  DO WITH FRAME {&FRAME-NAME} :
+      IF po-ord.stat:SCREEN-VALUE NE "C" THEN
+          po-ord.stat    = "H" .
+  END.
 
   /* 10021210 */
   FIND FIRST shipto WHERE shipto.company EQ cocode
