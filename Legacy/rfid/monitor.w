@@ -132,11 +132,8 @@ PROCEDURE postMonitor:
                   fg-rctd.cases-unit   = fg-bin.cases-unit
                   fg-rctd.cost-uom     = fg-bin.pur-uom
                   fg-rctd.loc-bin      = loadtag.loc-bin
-                  fg-rctd.loc2         = loadtag.loc /* assume within same warehouse */
-                  /* is this where this goes ???
                   fg-rctd.loc2         = IF rfidData.toWarehouse EQ "" THEN loadtag.loc
                                          ELSE rfidData.toWarehouse
-                  */
                   fg-rctd.loc-bin2     = rfidData.toLocation
                   fg-rctd.partial      = fg-bin.partial-count
                   fg-rctd.pur-uom      = fg-bin.pur-uom
