@@ -729,6 +729,10 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
       PUT UNFORMATTED "</PROGRESS><P7>" skip.
       RUN cecrep/jobaxis.p (lv-format-c).
   END.
+  ELSE IF lv-format-c = "Printers" THEN DO:
+      PUT UNFORMATTED "</PROGRESS><P7>" skip.
+      RUN cecrep/jobprint.p (lv-format-c).
+  END.
   ELSE IF lv-format-c = "VINELAND" THEN DO:
       IF lv-ornt = "P" THEN do:
           PUT UNFORMATTED "</PROGRESS><P7>" skip.
