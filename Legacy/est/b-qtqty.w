@@ -448,10 +448,13 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE lvUom AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvRels AS INTEGER NO-UNDO.
   DEFINE VARIABLE v-tot-cost AS DEC NO-UNDO.
+  DEFINE VARIABLE iPrvQty AS INTEGER NO-UNDO.
+  DEFINE VARIABLE rowidqty AS ROWID NO-UNDO.
   IF AVAIL quoteqty THEN
   ASSIGN
     lvPrice = quoteqty.price
-    lvUom = quoteqty.uom.
+    lvUom = quoteqty.uom
+    iPrvQty = quoteqty.qty .
   
 
   /* Dispatch standard ADM method.                             */
@@ -494,11 +497,27 @@ PROCEDURE local-assign-record :
     END. /* if est-no = "" */
   END.
 
-  IF NOT AVAILABLE quotehd OR quotehd.rfq EQ '' THEN RETURN.
+  IF quoteqty.qty NE iPrvQty AND NOT adm-new-record  THEN DO:
+  
+      FOR EACH quotechg EXCLUSIVE-LOCK
+         WHERE quotechg.company eq quoteqty.company 
+           AND quotechg.loc eq quoteqty.loc 
+           AND quotechg.q-no eq quoteqty.q-no 
+           AND ASI.quotechg.line eq quoteqty.line
+           AND quotechg.qty eq iPrvQty  :
+          ASSIGN quotechg.qty = quoteqty.qty  .
+      END.
+      ASSIGN rowidqty = ROWID(quoteqty) .
+       BROWSE {&BROWSE-NAME}:REFRESH().
+       RUN dispatch ('open-query').
+       reposition {&browse-name} to rowid rowidqty no-error.
+       run dispatch in this-procedure ("row-changed").
+       APPLY "value-changed" TO BROWSE {&browse-name}.
+  END.
+
+   IF NOT AVAILABLE quotehd OR quotehd.rfq EQ '' THEN RETURN.
   {custom/rfq-qty.i}
   /* update rfqitem qty - end */
-
-
 
 END PROCEDURE.
 
@@ -541,10 +560,21 @@ PROCEDURE local-delete-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   {custom/askdel.i}
 
+  /* Code Placed here after confirm delete*/
+  FOR EACH quotechg EXCLUSIVE-LOCK
+      WHERE quotechg.company eq quoteqty.company 
+        AND quotechg.loc eq quoteqty.loc 
+        AND quotechg.q-no eq quoteqty.q-no 
+        AND ASI.quotechg.line eq quoteqty.line
+        AND quotechg.qty eq quoteqty.qty  :
+      DELETE quotechg .
+  END.
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  
 
 END PROCEDURE.
 
