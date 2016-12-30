@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&SCOPED-DEFINE enable-hlp-head enable-hlp-head
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -49,7 +50,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -60,19 +61,17 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR hlp-head.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS hlp-head.FLD-NAME hlp-head.FRM-TITLE ~
-hlp-head.FIL-NAME hlp-head.FRM-NAME hlp-head.help-txt hlp-head.showinglossary ~
-hlp-head.reviewstatus
+&Scoped-Define ENABLED-FIELDS hlp-head.showInGlossary hlp-head.FLD-NAME ~
+hlp-head.FRM-TITLE hlp-head.FIL-NAME hlp-head.FRM-NAME hlp-head.help-txt 
 &Scoped-define ENABLED-TABLES hlp-head
 &Scoped-define FIRST-ENABLED-TABLE hlp-head
-&Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS hlp-head.MSG-NUM hlp-head.FLD-NAME ~
-hlp-head.FRM-TITLE hlp-head.FIL-NAME hlp-head.FRM-NAME hlp-head.help-txt ~
-hlp-head.showinglossary hlp-head.reviewstatus
+&Scoped-Define ENABLED-OBJECTS RECT-1 tb_re-view 
+&Scoped-Define DISPLAYED-FIELDS hlp-head.MSG-NUM hlp-head.showInGlossary ~
+hlp-head.FLD-NAME hlp-head.FRM-TITLE hlp-head.FIL-NAME hlp-head.FRM-NAME ~
+hlp-head.help-txt 
 &Scoped-define DISPLAYED-TABLES hlp-head
 &Scoped-define FIRST-DISPLAYED-TABLE hlp-head
-
-
+&Scoped-Define DISPLAYED-OBJECTS tb_re-view 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -109,8 +108,13 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 144 BY 17.14.     
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 144 BY 17.14.
+
+DEFINE VARIABLE tb_re-view AS LOGICAL INITIAL no 
+     LABEL "Reviewed?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -118,14 +122,9 @@ DEFINE RECTANGLE RECT-1
 DEFINE FRAME F-Main
      hlp-head.MSG-NUM AT ROW 1.24 COL 29 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 11 BY 1 
-    hlp-head.reviewstatus AT ROW 1.25 COL 60 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL 
-          RADIO-BUTTONS 
-             "Blank", "B":U,
-             "Reviewed", "R":U
-          SIZE 35 BY .81
-    hlp-head.showinglossary AT ROW 1.25 COL 100 LABEL "Show in Glossary"
+          SIZE 11 BY 1
+     tb_re-view AT ROW 1.24 COL 73.6
+     hlp-head.showInGlossary AT ROW 1.24 COL 100
           VIEW-AS TOGGLE-BOX
           SIZE 29 BY .81
      hlp-head.FLD-NAME AT ROW 2.19 COL 29 COLON-ALIGNED
@@ -147,7 +146,7 @@ DEFINE FRAME F-Main
      "Help Contents:" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 4.33 COL 10
      "Status:" VIEW-AS TEXT
-          SIZE 10 BY .81 AT ROW 1.24 COL 50
+          SIZE 10 BY .81 AT ROW 1.24 COL 63.6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -206,7 +205,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -215,7 +214,6 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN hlp-head.FRM-TITLE IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
-
 ASSIGN 
        hlp-head.help-txt:RETURN-INSERTED IN FRAME F-Main  = TRUE.
 
@@ -285,6 +283,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-fields V-table-Win 
+PROCEDURE disable-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+   DO WITH FRAME {&FRAME-NAME}.
+     DISABLE tb_re-view .
+   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -298,6 +313,44 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-hlp-head V-table-Win 
+PROCEDURE enable-hlp-head :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+   DO WITH FRAME {&FRAME-NAME}.
+     ENABLE tb_re-view .
+   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
+PROCEDURE local-assign-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  /* Code placed here will execute PRIOR to standard behavior. */
+ 
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  hlp-head.reviewstatus = IF tb_re-view:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes" THEN "R" ELSE "B" .
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -330,56 +383,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
-PROCEDURE local-update-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-/* mod - sewa for Web Services task 08211210 */
-    DEF VAR vconn AS CHAR  NO-UNDO.
-    DEFINE VARIABLE vhWebService AS HANDLE NO-UNDO.
-    DEFINE VARIABLE vhSalesSoap AS HANDLE NO-UNDO.
-    DEFINE VARIABLE parameters1 AS LONGCHAR NO-UNDO.
-/*mod - sewa*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  session:set-wait-state("general").
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  session:set-wait-state("").
-
-/* mod - sewa for Web Services task 08211210 */
-  
-find first sys-ctrl  WHERE sys-ctrl.name    eq "UpdateService"
-        no-lock no-error.
-  IF AVAIL sys-ctrl THEN
-      ASSIGN vconn = sys-ctrl.char-fld .
-  ELSE
-      vconn = "".
-
-      CREATE SERVER vhWebService.
-      vhWebService:CONNECT(vconn) NO-ERROR.
-
-      IF NOT vhWebService:CONNECTED() THEN
-      DO:
-        STOP.
-      END.
-
-      RUN Service1Soap SET vhSalesSoap ON vhWebService .
-
-      RUN HelpInsert IN vhSalesSoap(INPUT string(hlp-head.MSG-NUM),INPUT STRING(hlp-head.FLD-NAME),INPUT STRING(hlp-head.FRM-TITLE),INPUT string(hlp-head.FIL-NAME),INPUT STRING(hlp-head.FRM-NAME),INPUT STRING(hlp-head.help-txt),  OUTPUT parameters1).
-/* mod- sewa */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
 PROCEDURE local-delete-record :
@@ -436,7 +439,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -446,14 +448,16 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL hlp-head THEN DO:
-    
-    IF hlp-head.reviewstatus EQ "" OR hlp-head.reviewstatus NE "R" THEN
-        ASSIGN 
-            hlp-head.reviewstatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "B" .
+      tb_re-view = IF hlp-head.reviewstatus = "R" THEN TRUE ELSE FALSE . 
+      tb_re-view:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF hlp-head.reviewstatus = "R" THEN "Yes" ELSE "No" .
   END.
 
     /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  DO WITH FRAME {&FRAME-NAME}:
+    DISABLE tb_re-view .
+  END.
 
   
 END PROCEDURE.
@@ -461,6 +465,57 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+/* mod - sewa for Web Services task 08211210 */
+    DEF VAR vconn AS CHAR  NO-UNDO.
+    DEFINE VARIABLE vhWebService AS HANDLE NO-UNDO.
+    DEFINE VARIABLE vhSalesSoap AS HANDLE NO-UNDO.
+    DEFINE VARIABLE parameters1 AS LONGCHAR NO-UNDO.
+/*mod - sewa*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  session:set-wait-state("general").
+  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  session:set-wait-state("").
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    DISABLE tb_re-view .
+  END.
+/* mod - sewa for Web Services task 08211210 */
+  
+find first sys-ctrl  WHERE sys-ctrl.name    eq "UpdateService"
+        no-lock no-error.
+  IF AVAIL sys-ctrl THEN
+      ASSIGN vconn = sys-ctrl.char-fld .
+  ELSE
+      vconn = "".
+
+      CREATE SERVER vhWebService.
+      vhWebService:CONNECT(vconn) NO-ERROR.
+
+      IF NOT vhWebService:CONNECTED() THEN
+      DO:
+        STOP.
+      END.
+
+      RUN Service1Soap SET vhSalesSoap ON vhWebService .
+
+      RUN HelpInsert IN vhSalesSoap(INPUT string(hlp-head.MSG-NUM),INPUT STRING(hlp-head.FLD-NAME),INPUT STRING(hlp-head.FRM-TITLE),INPUT string(hlp-head.FIL-NAME),INPUT STRING(hlp-head.FRM-NAME),INPUT STRING(hlp-head.help-txt),  OUTPUT parameters1).
+/* mod- sewa */
+              
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
