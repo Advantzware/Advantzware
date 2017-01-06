@@ -450,11 +450,12 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE v-tot-cost AS DEC NO-UNDO.
   DEFINE VARIABLE iPrvQty AS INTEGER NO-UNDO.
   DEFINE VARIABLE rowidqty AS ROWID NO-UNDO.
-  IF AVAIL quoteqty THEN
-  ASSIGN
-    lvPrice = quoteqty.price
-    lvUom = quoteqty.uom
-    iPrvQty = quoteqty.qty .
+  IF AVAIL quoteqty THEN DO:
+      ASSIGN
+          lvPrice = quoteqty.price .
+          lvUom = quoteqty.uom .
+          iPrvQty = quoteqty.qty .
+  END.
   
 
   /* Dispatch standard ADM method.                             */
@@ -500,18 +501,18 @@ PROCEDURE local-assign-record :
   IF quoteqty.qty NE iPrvQty AND NOT adm-new-record  THEN DO:
   
       FOR EACH quotechg EXCLUSIVE-LOCK
-         WHERE quotechg.company eq quoteqty.company 
-           AND quotechg.loc eq quoteqty.loc 
-           AND quotechg.q-no eq quoteqty.q-no 
-           AND ASI.quotechg.line eq quoteqty.line
-           AND quotechg.qty eq iPrvQty  :
+         WHERE quotechg.company EQ quoteqty.company 
+           AND quotechg.loc EQ quoteqty.loc 
+           AND quotechg.q-no EQ quoteqty.q-no 
+           AND ASI.quotechg.line EQ quoteqty.line
+           AND quotechg.qty EQ iPrvQty  :
           ASSIGN quotechg.qty = quoteqty.qty  .
       END.
       ASSIGN rowidqty = ROWID(quoteqty) .
        BROWSE {&BROWSE-NAME}:REFRESH().
        RUN dispatch ('open-query').
-       reposition {&browse-name} to rowid rowidqty no-error.
-       run dispatch in this-procedure ("row-changed").
+       REPOSITION {&browse-name} TO ROWID rowidqty NO-ERROR.
+       RUN dispatch IN THIS-PROCEDURE ("row-changed").
        APPLY "value-changed" TO BROWSE {&browse-name}.
   END.
 
@@ -562,11 +563,11 @@ PROCEDURE local-delete-record :
 
   /* Code Placed here after confirm delete*/
   FOR EACH quotechg EXCLUSIVE-LOCK
-      WHERE quotechg.company eq quoteqty.company 
-        AND quotechg.loc eq quoteqty.loc 
-        AND quotechg.q-no eq quoteqty.q-no 
-        AND ASI.quotechg.line eq quoteqty.line
-        AND quotechg.qty eq quoteqty.qty  :
+      WHERE quotechg.company EQ quoteqty.company 
+        AND quotechg.loc EQ quoteqty.loc 
+        AND quotechg.q-no EQ quoteqty.q-no 
+        AND ASI.quotechg.line EQ quoteqty.line
+        AND quotechg.qty EQ quoteqty.qty  :
       DELETE quotechg .
   END.
 
