@@ -173,6 +173,8 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
 
         oCustomizer = {Consultingwerk/get-service.i Consultingwerk.WindowIntegrationKit.ITabFolderCustomizer} .
 
+        THIS-OBJECT:MinimumSize = NEW System.Drawing.Size (800, 600) .
+
     END CONSTRUCTOR.
 
     /*------------------------------------------------------------------------------
@@ -327,10 +329,10 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
         DEFINE VARIABLE hFrame           AS HANDLE                                       NO-UNDO.
 
         CREATE WINDOW hWindow
-            ASSIGN VIRTUAL-WIDTH  = THIS-OBJECT:EmbeddedWindow:WIDTH
-                   VIRTUAL-HEIGHT = THIS-OBJECT:EmbeddedWindow:HEIGHT
-                   WIDTH          = THIS-OBJECT:EmbeddedWindow:WIDTH
-                   HEIGHT         = THIS-OBJECT:EmbeddedWindow:HEIGHT
+            ASSIGN VIRTUAL-WIDTH  = SESSION:WIDTH
+                   VIRTUAL-HEIGHT = SESSION:HEIGHT
+                   WIDTH          = SESSION:WIDTH
+                   HEIGHT         = SESSION:HEIGHT
                    BGCOLOR        = WinKitForms:TabFolderBGColor
                    MAX-WIDTH      = 320
                    MAX-HEIGHT     = 200
@@ -351,6 +353,7 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
                    PARENT         = hWindow
                    BGCOLOR        = WinKitForms:TabFolderBGColor
                    BOX            = FALSE
+                   SCROLLABLE     = TRUE
                    NAME           = "Folderpage Frame ":U + STRING (piPage).
 
         oTab = ultraTabControl1:Tabs:Add (GUID, STRING (piPage)) .
@@ -464,7 +467,8 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
         @param phWindow The handle of the Window to embed
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC VOID EmbedWindow (phWindow AS HANDLE):
-        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
+
+//        DEFINE VARIABLE nestedvar0 AS System.Windows.Forms.AnchorStyles NO-UNDO.
 
         ASSIGN
             iWindowStartHeight         = phWindow:HEIGHT-PIXELS
@@ -491,10 +495,12 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
            within this .NET Form. Enables "hiding" of the empty space resulting
            that results from a hidden toolbar  */
 
-        RepositionWindowContainer () .
+        //RepositionWindowContainer () .
 
-        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom), System.Windows.Forms.AnchorStyles), System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-        WinContainer:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
+        WinContainer:Dock = System.Windows.Forms.DockStyle:FILL .
+
+//        nestedvar0 = CAST(Progress.Util.EnumHelper:Or(CAST(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom), System.Windows.Forms.AnchorStyles), System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
+//        WinContainer:Anchor = CAST(Progress.Util.EnumHelper:Or(nestedvar0, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
 
     END METHOD.
 
@@ -541,10 +547,10 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
 
         WinContainer:Parent = THIS-OBJECT:ClientArea.
 
-        WinContainer:Size = NEW System.Drawing.Size (
+/*        WinContainer:Size = NEW System.Drawing.Size (
                 MAX(THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Width + deltaCol, 0),
                 MAX(THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Height + deltaRow, 0)).
-
+*/
         THIS-OBJECT:EmbeddedWindowTabFolderFormDesigner_Fill_Panel:Dock = System.Windows.Forms.DockStyle:Fill.
 
         THIS-OBJECT:Size = NEW System.Drawing.Size (
@@ -645,16 +651,14 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
                 END.
             END.
 
-
             ASSIGN
                 ttFolderPages.FrameHandle:WIDTH-PIXELS = iMaxX + 1 - iMinX
                 ttFolderPages.FrameHandle:HEIGHT-PIXELS = iMaxY + 1 - iMinY
                 ttFolderPages.FrameHandle:VIRTUAL-WIDTH-PIXELS = ttFolderPages.FrameHandle:WIDTH-PIXELS
                 ttFolderPages.FrameHandle:VIRTUAL-HEIGHT-PIXELS = ttFolderPages.FrameHandle:HEIGHT-PIXELS
-/*                ttFolderPages.WindowHandle:VIRTUAL-WIDTH-PIXELS = ttFolderPages.FrameHandle:WIDTH-PIXELS  */
-/*                ttFolderPages.WindowHandle:VIRTUAL-HEIGHT-PIXELS = ttFolderPages.FrameHandle:HEIGHT-PIXELS*/
+                ttFolderPages.WindowHandle:VIRTUAL-WIDTH-PIXELS = ttFolderPages.FrameHandle:WIDTH-PIXELS
+                ttFolderPages.WindowHandle:VIRTUAL-HEIGHT-PIXELS = ttFolderPages.FrameHandle:HEIGHT-PIXELS
                 .
-
         END.
 
     END METHOD.
@@ -960,6 +964,7 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
             APPLY "WINDOW-CLOSE":U TO hWindow .
         END.
 
+        @SuppressUnusedWarnings.
         CATCH err AS Progress.Lang.Error :
             /* noop */
         END CATCH.
@@ -1045,8 +1050,6 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
                                           e AS ToolClickEventArgs):
 
         DEFINE VARIABLE hMenuItem   AS HANDLE NO-UNDO.
-        DEFINE VARIABLE hFrame      AS HANDLE NO-UNDO.
-        DEFINE VARIABLE ReturnValue AS INTEGER NO-UNDO.
 
         THIS-OBJECT:UpdateControlsForEventHandler () .
 

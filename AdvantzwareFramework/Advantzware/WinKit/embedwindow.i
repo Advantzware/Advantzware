@@ -11,7 +11,7 @@
  **********************************************************************/
 /*------------------------------------------------------------------------
     File        : embedwindow.i
-    Purpose     : 
+    Purpose     :
 
     Syntax      :
 
@@ -20,14 +20,14 @@
 
     Author(s)   : Mike Fechner / Consultingwerk Ltd.
     Created     : Wed Dec 03 16:54:43 CET 2008
-    Notes       : The preprocessor varible WinKitIgnoreCustomizations should 
-                  be used to avoid any impact of customer customizations to 
+    Notes       : The preprocessor varible WinKitIgnoreCustomizations should
+                  be used to avoid any impact of customer customizations to
                   the execution of the WinKit utilities.
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
 
-{src/winkit/winkitactive.i} 
+{src/winkit/winkitactive.i}
 
 &IF DEFINED (winkitactive) NE 0 &THEN
 
@@ -52,23 +52,23 @@ DEFINE VARIABLE oFormControl AS Consultingwerk.WindowIntegrationKit.Forms.Embedd
 /* ************************  Function Prototypes ********************** */
 
 &IF DEFINED (winkitactive) NE 0 &THEN
-FUNCTION getEmbeddedWindowForm RETURNS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm 
-	(  ) FORWARD.	
-&ENDIF	
+FUNCTION getEmbeddedWindowForm RETURNS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm
+    (  ) FORWARD.
+&ENDIF
 
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED (winkitactive) NE 0 &THEN
 
-FUNCTION getEmbeddedWindowForm RETURNS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm 
-	    (  ):
+FUNCTION getEmbeddedWindowForm RETURNS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm
+        (  ):
 /*------------------------------------------------------------------------------
-	Purpose:  																	  
-	Notes:  																	  
-------------------------------------------------------------------------------*/	
+    Purpose:
+    Notes:
+------------------------------------------------------------------------------*/
 
-	RETURN oForm .
-		
+    RETURN oForm .
+
 END FUNCTION.
 &ENDIF
 
@@ -79,12 +79,12 @@ END FUNCTION.
 /* Mike Fechner, Consultingwerk Ltd. 23.08.2012
    An CHARCATER to hold a list of all frames in case  */
 DEFINE VARIABLE cWinKitListOfFrameHandles AS CHARACTER NO-UNDO.
-IF Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE, 
+IF Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE,
                                                  "WinKitAssignFrameHandles":U,
-                                                 "PROCEDURE":U) THEN 
-    RUN WinKitAssignFrameHandles . 
+                                                 "PROCEDURE":U) THEN
+    RUN WinKitAssignFrameHandles .
 
-/* Mike Fechner, Consultingwerk Ltd. 08.03.2012 - WinKit 
+/* Mike Fechner, Consultingwerk Ltd. 08.03.2012 - WinKit
    Allow to not embed specific windows even when the session is configured to */
 &IF DEFINED (WinKitDontEmbed) EQ 0 &THEN
 
@@ -92,51 +92,57 @@ IF Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE,
 
 /* Mike Fechner, Consultingwerk Ltd. 08.12.2008
    Only create embedded window when WinKit has been activated */
-IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive THEN 
+IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive THEN
 DO ON ERROR UNDO, THROW:
 
-    DEFINE VARIABLE hWinKitTmpMenuBar AS HANDLE NO-UNDO . 
-    
+    DEFINE VARIABLE hWinKitTmpMenuBar AS HANDLE NO-UNDO .
+
     ASSIGN hWinKitTmpMenuBar = {&WINDOW-NAME}:MENU-BAR .
 
     /* Mike Fechner, Consultingwerk Ltd. 09.07.2012
        Possible Openedge 11.x issue: When starting the first EmbeddedWindowForm,
-       the BaseForm constructor raises an SysError with no message... In this 
+       the BaseForm constructor raises an SysError with no message... In this
        case retrying the Embedding does work. */
     DO ON ERROR UNDO, THROW:
-        RUN Advantzware/WinKit/embedwindow.p ({&WINDOW-NAME}:HANDLE, "{&WinKitFormType}":U, OUTPUT oForm) . 
-        
+        RUN Advantzware/WinKit/embedwindow.p ({&WINDOW-NAME}:HANDLE, "{&WinKitFormType}":U, OUTPUT oForm) .
+
         CATCH tmperr AS Progress.Lang.SysError :
-            IF tmperr:NumMessages = 0 THEN 
-                RUN winkit/embedwindow.p ({&WINDOW-NAME}:HANDLE, "{&WinKitFormType}":U, OUTPUT oForm) . 
-            ELSE 
-                UNDO, THROW tmperr . 
+            IF tmperr:NumMessages = 0 THEN
+                RUN winkit/embedwindow.p ({&WINDOW-NAME}:HANDLE, "{&WinKitFormType}":U, OUTPUT oForm) .
+            ELSE
+                UNDO, THROW tmperr .
         END CATCH.
     END.
-        
+
 &IF "{&WinKitFormType}":U <> "":U &THEN
-    ASSIGN oFormControl = CAST(CAST(oForm, Progress.Lang.Object), {&WinKitFormType}) 
+    ASSIGN oFormControl = CAST(CAST(oForm, Progress.Lang.Object), {&WinKitFormType})
 &ELSE
-    ASSIGN oFormControl = CAST(CAST(oForm, Progress.Lang.Object), Consultingwerk.WindowIntegrationKit.Forms.EmbeddedWindowForm) 
+    ASSIGN oFormControl = CAST(CAST(oForm, Progress.Lang.Object), Consultingwerk.WindowIntegrationKit.Forms.EmbeddedWindowForm)
 &ENDIF
-           oForm:WindowPositionRegistryKey = THIS-PROCEDURE:FILE-NAME 
-           oForm:ProcedureHandle           = THIS-PROCEDURE 
-           oForm:MENU-BAR                  = hWinKitTmpMenuBar 
-           oForm:OriginalWindowTitle       = {&window-name}:TITLE . 
+           oForm:WindowPositionRegistryKey = THIS-PROCEDURE:FILE-NAME
+           oForm:ProcedureHandle           = THIS-PROCEDURE
+           oForm:MENU-BAR                  = hWinKitTmpMenuBar
+           oForm:OriginalWindowTitle       = {&window-name}:TITLE .
 
     /* Mike Fechner, Consultingwerk Ltd. 28.03.2011
-       WinKit Windows will get deleted by closewindow.i, the 
-       new functionality in BaseForm:OnFormClosed / DeleteOnFormClosed 
+       WinKit Windows will get deleted by closewindow.i, the
+       new functionality in BaseForm:OnFormClosed / DeleteOnFormClosed
        is not required here */
-    IF TYPE-OF (oFormControl, Consultingwerk.Forms.BaseForm) THEN 
+    IF TYPE-OF (oFormControl, Consultingwerk.Forms.BaseForm) THEN
         CAST (oFormControl, Consultingwerk.Forms.BaseForm):DeleteOnFormClosed = FALSE .
 
     CATCH ple AS Progress.Lang.Error:
 
         Consultingwerk.Util.ErrorHelper:ShowErrorMessage (ple, "Error during embedding of ABL Window") .
 
-    END CATCH.    
+    END CATCH.
 END.
 &ENDIF
-&ENDIF 
 &ENDIF
+&ENDIF
+
+// Trigger for resizable windows
+ON "window-resized":U OF {&WINDOW-NAME} DO:
+    RUN winReSize .
+END.
+
