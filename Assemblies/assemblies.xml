@@ -84,7 +84,7 @@
 <assembly name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
 <assembly name="System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
 <assembly name="clrzmq"/>
-<assembly name="proparse.net, Version=4.0.1.1114, Culture=neutral, PublicKeyToken=cda1b098b1034b24"/>
+<assembly name="proparse.net, Version=4.0.1.1163, Culture=neutral, PublicKeyToken=cda1b098b1034b24"/>
 <assembly name="Telerik.WinControls, Version=2015.1.225.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e"/>
 <assembly name="Telerik.WinControls.GridView, Version=2015.1.225.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e"/>
 <assembly name="Telerik.WinControls.UI, Version=2015.1.225.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e"/>
