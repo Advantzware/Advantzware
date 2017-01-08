@@ -143,16 +143,12 @@ PROCEDURE winkit-initialize:
     DEFINE VARIABLE oForm AS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowForm NO-UNDO . 
     DEFINE VARIABLE iPage AS INTEGER             NO-UNDO .
 
-    
     RUN dispatch IN THIS-PROCEDURE ("initialize") .
 
     RUN get-link-handle IN adm-broker-hdl
            (INPUT THIS-PROCEDURE, INPUT 'CONTAINER-SOURCE':U, OUTPUT char-hdl).
     ASSIGN container-hdl = WIDGET-HANDLE(char-hdl).
     
-/* rstark 11.18.2016 - prevent .net grid rendering */
-    IF TRUE THEN RETURN .
-
     IF VALID-HANDLE (container-hdl) AND Consultingwerk.Util.ProcedureHelper:HasEntry (container-hdl, "getEmbeddedWindowForm") THEN DO:
         
         RUN get-attribute IN container-hdl ("current-page") .
@@ -184,12 +180,34 @@ PROCEDURE winkit-initialize:
             IF Consultingwerk.Util.ProcedureHelper:HasEntry (THIS-PROCEDURE, "InitializeGrid") THEN 
                 RUN InitializeGrid IN THIS-PROCEDURE .  
 
-
-/*oRenderedBrowseControl:Dock = System.Windows.Forms.DockStyle:FILL.*/
+            // Manage Anchoring of the .NET Grid
+            &IF '{&sizeOption}' EQ 'HEIGHT' &THEN
+                // Anchor Top, Left, Bottom
+                oRenderedBrowseControl:Anchor = CAST (Progress.Util.EnumHelper:Or (
+                                                      Progress.Util.EnumHelper:Or (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom),
+                                                                                   System.Windows.Forms.AnchorStyles:Left),
+                                                                                   System.Windows.Forms.AnchorStyles) .         
+            &ELSEIF '{&sizeOption}' EQ 'WIDTH' &THEN
+                // Anchor Top, Left, Right 
+                oRenderedBrowseControl:Anchor = CAST (Progress.Util.EnumHelper:Or (
+                                                      Progress.Util.EnumHelper:Or (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left),
+                                                                                   System.Windows.Forms.AnchorStyles:Right),
+                                                                                   System.Windows.Forms.AnchorStyles) .         
+        
+            &ELSE
+                oRenderedBrowseControl:Anchor = CAST (Progress.Util.EnumHelper:Or (
+                                                      Progress.Util.EnumHelper:Or (
+                                                      Progress.Util.EnumHelper:Or (System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left),
+                                                                                   System.Windows.Forms.AnchorStyles:Right),
+                                                                                   System.Windows.Forms.AnchorStyles:Bottom),
+                                                                                   System.Windows.Forms.AnchorStyles) .         
+        
+            &ENDIF            
+            
+            /*oRenderedBrowseControl:Dock = System.Windows.Forms.DockStyle:FILL.*/
 
         END.
     END.     
-
 
 END PROCEDURE.
 	
