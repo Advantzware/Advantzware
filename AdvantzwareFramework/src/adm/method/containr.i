@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r2 GUI
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Method-Library
 /*********************************************************************
 * Copyright (C) 2000 by Progress Software Corporation. All rights    *
 * reserved. Prior versions of this work may contain portions         *
@@ -8,14 +8,14 @@
 *                                                                    *
 *********************************************************************/
 /*-------------------------------------------------------------------------
-    Library     : containr.i  
+    Library     : containr.i
     Purpose     : Default Main Block code and Method Procedures
                   for UIB-generated ADM Container procedures.
-  
+
     Syntax      : {src/adm/method/containr.i}
 
     Description :
-  
+
     Author(s)   :
     Created     :
     HISTORY:
@@ -53,7 +53,7 @@ DEFINE VARIABLE iWinKitTabInitialized AS INTEGER INIT 0 NO-UNDO.
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: Method-Library
-   Allow: 
+   Allow:
    Frames: 0
    Add Fields to: Neither
    Other Settings: INCLUDE-ONLY
@@ -63,16 +63,16 @@ DEFINE VARIABLE iWinKitTabInitialized AS INTEGER INIT 0 NO-UNDO.
 /* *************************  Create Window  ************************** */
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
+/* DESIGN Window definition (used by the UIB)
   CREATE WINDOW Method-Library ASSIGN
          HEIGHT             = 1.5
          WIDTH              = 38.43.
                                                                         */
 &ANALYZE-RESUME
- 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Method-Library 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Method-Library
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/smart.i}
@@ -82,14 +82,14 @@ DEFINE VARIABLE iWinKitTabInitialized AS INTEGER INIT 0 NO-UNDO.
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Method-Library
 
 
 /* ***************************  Main Block  *************************** */
 
 /* Initialize page number and object handle attributes. */
 RUN set-attribute-list ("CURRENT-PAGE=0,ADM-OBJECT-HANDLE=":U +
-    STRING(adm-object-hdl)). 
+    STRING(adm-object-hdl)).
 
 /* Best default for GUI applications - this will apply to the whole session: */
 PAUSE 0 BEFORE-HIDE.
@@ -102,7 +102,7 @@ PAUSE 0 BEFORE-HIDE.
 
 &IF DEFINED(EXCLUDE-adm-change-page) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-change-page Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-change-page Method-Library
 PROCEDURE adm-change-page :
 /* -----------------------------------------------------------
       Purpose:    Views objects on a newly selected page, initializing
@@ -112,7 +112,7 @@ PROCEDURE adm-change-page :
                   to a page which is another window (in GUI), the
                   main window's default frame must be hidden; and when
                   returning it must be viewed. This is done below.
-    -------------------------------------------------------------*/   
+    -------------------------------------------------------------*/
 
   RUN broker-change-page IN adm-broker-hdl (INPUT THIS-PROCEDURE) NO-ERROR.
 
@@ -124,20 +124,20 @@ PROCEDURE adm-change-page :
 
   IF VALID-OBJECT (oFormControl) THEN DO:
 
-      RUN GET-ATTRIBUTE ("current-page") . 
-    
-      ASSIGN iPage = Consultingwerk.Util.DataTypeHelper:ToInteger 
+      RUN GET-ATTRIBUTE ("current-page") .
+
+      ASSIGN iPage = Consultingwerk.Util.DataTypeHelper:ToInteger
                           (RETURN-VALUE) .
 
       oFormControl:FinalizeTabPage (iPage) .
-    
+
       /* Mike Fechner, Consultingwerk Ltd. 11.11.2010
          Set FRAME BGCOLOR to 33, which matches the Form Background color
          of Office 2007 applications, color33=227,239,255 */
       Consultingwerk.Util.WidgetHelper:SetFrameBackgroundColor
-              (oFormControl:GetTabPageWindow (iPage), 
-               Consultingwerk.WindowIntegrationKit.Forms.WinKitForms:TabFolderBGColor, 
-               15, 
+              (oFormControl:GetTabPageWindow (iPage),
+               Consultingwerk.WindowIntegrationKit.Forms.WinKitForms:TabFolderBGColor,
+               15,
                15) .
   END.
 
@@ -146,7 +146,7 @@ PROCEDURE adm-change-page :
 
 
 
-  
+
   END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -156,19 +156,19 @@ PROCEDURE adm-change-page :
 
 &IF DEFINED(EXCLUDE-delete-page) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete-page Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete-page Method-Library
 PROCEDURE delete-page :
 /* -----------------------------------------------------------
       Purpose:     Destroys all objects on the current page.
       Parameters:  INPUT page number
-      Notes:       
-    -------------------------------------------------------------*/   
-  
+      Notes:
+    -------------------------------------------------------------*/
+
   DEFINE INPUT PARAMETER p-page# AS INTEGER NO-UNDO.
-  
-  RUN broker-delete-page IN adm-broker-hdl 
+
+  RUN broker-delete-page IN adm-broker-hdl
       (INPUT THIS-PROCEDURE, INPUT p-page#).
-  
+
   END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -178,24 +178,24 @@ PROCEDURE delete-page :
 
 &IF DEFINED(EXCLUDE-init-object) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE init-object Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE init-object Method-Library
 PROCEDURE init-object :
 /* -----------------------------------------------------------
    Purpose:     RUNS an object procedure PERSISTENT and initializes
                 default links
    Parameters:  INPUT procedure name, parent handle, attribute-list,
                 OUTPUT procedure handle
-   Notes:       init-object calls are generated by the UIB 
+   Notes:       init-object calls are generated by the UIB
                 in adm-create-objects
--------------------------------------------------------------*/   
+-------------------------------------------------------------*/
   DEFINE INPUT PARAMETER  p-proc-name   AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER  p-parent-hdl  AS HANDLE    NO-UNDO.
   DEFINE INPUT PARAMETER  p-attr-list   AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER p-proc-hdl    AS HANDLE    NO-UNDO.
 
   /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
-     WinKit: When a SmartObject is loaded for a Page > 0, we 
-     will send that to the default form of the dynamically 
+     WinKit: When a SmartObject is loaded for a Page > 0, we
+     will send that to the default form of the dynamically
      created window created in the .NET TabFolder */
   &IF "{&WinKitFormType}" EQ "Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm" &THEN
 
@@ -203,55 +203,55 @@ PROCEDURE init-object :
   DEFINE VARIABLE iCreatePage AS INTEGER NO-UNDO.
   DEFINE VARIABLE hTabFrame AS HANDLE NO-UNDO.
 
-  RUN GET-ATTRIBUTE ("current-page") . 
+  RUN GET-ATTRIBUTE ("current-page") .
 
-  ASSIGN iPage = Consultingwerk.Util.DataTypeHelper:ToInteger 
+  ASSIGN iPage = Consultingwerk.Util.DataTypeHelper:ToInteger
                       (RETURN-VALUE) .
 
   IF VALID-OBJECT (oFormControl) THEN DO:
       IF iPage > 0 THEN DO:
-    
+
           DO iCreatePage = iWinKitTabInitialized + 1 TO iPage:
               oFormControl:CreateTab (SUBSTITUTE ("Tab &1", iCreatePage),
                                       iPage) .
-          END. 
-          
+          END.
+
           ASSIGN iWinKitTabInitialized = MAX (iWinKitTabInitialized, iPage) .
-          
+
           ASSIGN hTabFrame = oFormControl:GetTabPageFrame (iPage) .
-          
-          IF VALID-HANDLE (hTabFrame) THEN 
+
+          IF VALID-HANDLE (hTabFrame) THEN
               ASSIGN p-parent-hdl = hTabFrame .
-          ELSE 
-              
-            MESSAGE p-proc-name SKIP 
+          ELSE
+
+            MESSAGE p-proc-name SKIP
                     p-attr-list SKIP (2)
                     "Page" iPage
                 VIEW-AS ALERT-BOX.
       END.
-  END.  
-  
+  END.
+
   &ENDIF
 
 
   RUN broker-init-object IN adm-broker-hdl
       (INPUT THIS-PROCEDURE, INPUT p-proc-name, INPUT p-parent-hdl,
        INPUT p-attr-list, OUTPUT p-proc-hdl) NO-ERROR.
-       
-       
+
+
   /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
-     When we've inited a SmartPanel, call into this to 
+     When we've inited a SmartPanel, call into this to
      create a Ribbon Group for it */
   &IF "{&WinKitFormType}" EQ "Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm" &THEN
-           
-  IF Consultingwerk.Util.ProcedureHelper:HasEntry (p-proc-hdl, "winkit-make-ribbon-group") THEN 
-      RUN winkit-make-ribbon-group IN p-proc-hdl 
+
+  IF Consultingwerk.Util.ProcedureHelper:HasEntry (p-proc-hdl, "winkit-make-ribbon-group") THEN
+      RUN winkit-make-ribbon-group IN p-proc-hdl
            (oForm, iPage) .
 
-  &ENDIF         
-         
-       
-       
+  &ENDIF
+
+
+
   RETURN.
 END PROCEDURE.
 
@@ -262,11 +262,11 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-init-pages) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE init-pages Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE init-pages Method-Library
 PROCEDURE init-pages :
 /* -----------------------------------------------------------
       Purpose:     Initializes one or more pages in a paging
-                   control without actually viewing them. 
+                   control without actually viewing them.
                    This can be used either for initializing pages
                    at startup without waiting for them to be
                    selected, or for creating additional or
@@ -280,17 +280,17 @@ PROCEDURE init-pages :
                    page, the UIB will automatically generate the calls
                    to init-pages to assure that the right other pages have been
                    initialized when a page is selected for the first time.
-    -------------------------------------------------------------*/   
+    -------------------------------------------------------------*/
 
-  DEFINE INPUT PARAMETER p-page-list      AS CHARACTER NO-UNDO.  
+  DEFINE INPUT PARAMETER p-page-list      AS CHARACTER NO-UNDO.
 
   RUN broker-init-pages IN adm-broker-hdl (INPUT THIS-PROCEDURE,
       INPUT p-page-list) NO-ERROR.
-      
+
   /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
-     WinKit: Calls the FinalizeTabPage method for each 
-     inited tab page. This method will actually show the 
-     .NET Tab Page and align the Smarties with the top left 
+     WinKit: Calls the FinalizeTabPage method for each
+     inited tab page. This method will actually show the
+     .NET Tab Page and align the Smarties with the top left
      corner */
 
   &IF "{&WinKitFormType}" EQ "Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm" &THEN
@@ -299,25 +299,25 @@ PROCEDURE init-pages :
   DEFINE VARIABLE iPage AS INTEGER NO-UNDO.
 
   IF VALID-OBJECT (oFormControl) THEN DO:
-      DO i = 1 TO NUM-ENTRIES (p-page-list):    
+      DO i = 1 TO NUM-ENTRIES (p-page-list):
 
-          ASSIGN iPage = INTEGER (ENTRY (i, p-page-list)) .        
+          ASSIGN iPage = INTEGER (ENTRY (i, p-page-list)) .
 
           oFormControl:FinalizeTabPage (iPage) .
-        
+
           /* Mike Fechner, Consultingwerk Ltd. 11.11.2010
              Set FRAME BGCOLOR to 33, which matches the Form Background color
              of Office 2007 applications, color33=227,239,255 */
           Consultingwerk.Util.WidgetHelper:SetFrameBackgroundColor
-                  (oFormControl:GetTabPageWindow (iPage), 
-                   Consultingwerk.WindowIntegrationKit.Forms.WinKitForms:TabFolderBGColor, 
-                   15, 
+                  (oFormControl:GetTabPageWindow (iPage),
+                   Consultingwerk.WindowIntegrationKit.Forms.WinKitForms:TabFolderBGColor,
+                   15,
                    15) .
     END.
   END.
 
   &ENDIF
-      
+
   END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -327,7 +327,7 @@ PROCEDURE init-pages :
 
 &IF DEFINED(EXCLUDE-select-page) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select-page Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select-page Method-Library
 PROCEDURE select-page :
 /* -----------------------------------------------------------
       Purpose:     Makes a new set of objects associated with a page number
@@ -335,16 +335,16 @@ PROCEDURE select-page :
                    creating the objects in the new page if the page hasn't
                    been initialized, and viewing the new page.
       Parameters:  INPUT new page number
-      Notes:       
-    -------------------------------------------------------------*/   
+      Notes:
+    -------------------------------------------------------------*/
 
   DEFINE INPUT PARAMETER p-page#     AS INTEGER   NO-UNDO.
 
   RUN broker-select-page IN adm-broker-hdl (INPUT THIS-PROCEDURE,
       INPUT p-page#) NO-ERROR.
-    
+
   /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
-     WinKit: When code selects a different tab page, 
+     WinKit: When code selects a different tab page,
      ensure the .NET side reflects that. */
   &IF "{&WinKitFormType}" EQ "Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm" &THEN
 
@@ -361,12 +361,12 @@ PROCEDURE select-page :
 /*                   15,                                                                    */
 /*                   15) .                                                                  */
 
-      oFormControl:SelectTab (p-page#) . 
+      oFormControl:SelectTab (p-page#) .
 
    END.
 
-  &ENDIF    
-    
+  &ENDIF
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -376,7 +376,7 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-view-page) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE view-page Method-Library 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE view-page Method-Library
 PROCEDURE view-page :
 /* -----------------------------------------------------------
       Purpose:     Makes a new set of objects associated with a page number
@@ -388,13 +388,13 @@ PROCEDURE view-page :
                    because the new page is being viewed without hiding the
                    old one. adm-current-page is the most recently "selected"
                    page.
-    -------------------------------------------------------------*/   
+    -------------------------------------------------------------*/
 
   DEFINE INPUT PARAMETER p-page#      AS INTEGER   NO-UNDO.
 
   RUN broker-view-page IN adm-broker-hdl (INPUT THIS-PROCEDURE,
       INPUT p-page#).
-       
+
   END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-winkit-destroy) = 0 &THEN
@@ -408,11 +408,11 @@ PROCEDURE winkit-destroy:
 
     RUN dispatch IN THIS-PROCEDURE ("destroy") .
 
-    IF VALID-OBJECT (oForm) AND TYPE-OF (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm) THEN 
-        CAST (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):CloseTabs () .     
+    IF VALID-OBJECT (oForm) AND TYPE-OF (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm) THEN
+        CAST (oForm, Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):CloseTabs () .
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -434,9 +434,9 @@ PROCEDURE winkit-initialize:
     &IF DEFINED (WinKitFormType) NE 0 &THEN
     Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager) .
     &ENDIF
-        
+
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -453,3 +453,23 @@ END PROCEDURE.
 
 &ENDIF
 
+
+&IF DEFINED(EXCLUDE-winkit-view) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winkit-initialize Method-Library
+PROCEDURE winkit-view:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    RUN dispatch IN THIS-PROCEDURE ("view") .
+
+    IF VALID-OBJECT (oFormControl) THEN
+        oFormControl:Activate () .
+
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
