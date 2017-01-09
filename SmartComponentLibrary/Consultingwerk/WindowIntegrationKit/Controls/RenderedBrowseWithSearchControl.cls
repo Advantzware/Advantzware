@@ -89,7 +89,7 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchContr
             ASSIGN cKey        = oColumn:Key 
                    oFilterCell = CAST(oFilterRow:Cells[cKey], UltraGridFilterCell) 
                    cValue      = STRING (UNBOX (oFilterCell:Value)). 
-            
+    
             IF cValue > "":U THEN 
                 THIS-OBJECT:FilterValues:Add (cKey, cValue) .
          END.

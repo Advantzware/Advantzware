@@ -378,6 +378,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE customizeGrid B-table-Win
+PROCEDURE customizeGrid:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    oRenderedBrowseControl:DisplayLayout:Bands[0]:Columns["run-spoil"]:FilterOperandStyle = Infragistics.Win.UltraWinGrid.FilterOperandStyle:None .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -410,6 +426,34 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE gridSearchHandler B-table-Win
+PROCEDURE gridSearchHandler:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER sender AS System.Object    NO-UNDO .
+    DEFINE INPUT PARAMETER e      AS System.EventArgs NO-UNDO .
+    
+    DEFINE VARIABLE oGrid AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl NO-UNDO .
+    
+    oGrid = CAST (sender, Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl) .
+    MESSAGE oGrid:FilterValues:Keys 
+    VIEW-AS ALERT-BOX.
+    IF oGrid:FilterValues:ContainsKey ("m-dscr") THEN 
+        OPEN QUERY {&BROWSE-NAME}
+        FOR EACH mach NO-LOCK
+            WHERE mach.company EQ cocode
+              AND mach.m-dscr  BEGINS oGrid:FilterValues:GetValue ("m-dscr") .
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :

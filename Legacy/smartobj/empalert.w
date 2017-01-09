@@ -58,7 +58,7 @@ CREATE WIDGET-POOL.
 DEFINE BUTTON Select_empalert 
      IMAGE-UP FILE "Graphics/32x32/businesspeople2.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
+     LABEL "Emp Alert" 
      SIZE 7.8 BY 1.81 TOOLTIP "Employee Alert".
 
 
@@ -147,7 +147,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Select_empalert
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_empalert s-object
-ON CHOOSE OF Select_empalert IN FRAME F-Main
+ON CHOOSE OF Select_empalert IN FRAME F-Main /* Emp Alert */
 DO:
     {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
