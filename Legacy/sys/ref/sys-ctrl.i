@@ -236,7 +236,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[152] = ",Open,Hold"
        str-init[153] = "Trailer#,ShipTo,Indiana"
        str-init[154] = "Square Feet,Board Cost"
-       .
+    .
 
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:

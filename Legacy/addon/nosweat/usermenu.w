@@ -301,9 +301,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -407,7 +405,7 @@ DO:
   IF RETURN-VALUE = "ERROR" THEN
   RETURN NO-APPLY.
 
-  OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/menu.tmp").
+  OUTPUT TO VALUE("users/" + USERID("ASI") + "/menu.tmp").
   RUN Save_Menu.
   OUTPUT CLOSE.
 
@@ -425,7 +423,7 @@ DO:
     wk-ptrs.menu-name = "popup"
     wk-ptrs.smenu-ptr = popup-ptr.
 
-  INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/menu.tmp") NO-ECHO.
+  INPUT FROM VALUE("users/" + USERID("ASI") + "/menu.tmp") NO-ECHO.
   REPEAT:                          
     IMPORT m_item1 m_item2.
     IF CAN-DO("RULE,SKIP",m_item1) OR INDEX(m_item1,".") NE 0 THEN
@@ -438,7 +436,7 @@ DO:
     wk-ptrs.smenu-ptr = menu-bar-ptr.
   END.
 
-  INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/menu.tmp") NO-ECHO.
+  INPUT FROM VALUE("users/" + USERID("ASI") + "/menu.tmp") NO-ECHO.
   REPEAT:
     IMPORT m_item1 m_item2.
     IF m_item1 = m_item2 THEN
@@ -488,8 +486,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel C-Win
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
-  IF SEARCH("users/" + USERID("NOSWEAT") + "/menu.tmp") NE ? THEN
-  OS-DELETE VALUE("users/" + USERID("NOSWEAT") + "/menu.tmp").
+  IF SEARCH("users/" + USERID("ASI") + "/menu.tmp") NE ? THEN
+  OS-DELETE VALUE("users/" + USERID("ASI") + "/menu.tmp").
   APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
@@ -501,7 +499,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Default C-Win
 ON CHOOSE OF Btn_Default IN FRAME DEFAULT-FRAME /* Default */
 DO:
-  OS-COPY "./menu.lst" VALUE("users/" + USERID("NOSWEAT") + "/menu.lst").
+  OS-COPY "./menu.lst" VALUE("users/" + USERID("ASI") + "/menu.lst").
   APPLY "CHOOSE" TO Btn_Reset.
 END.
 
@@ -563,14 +561,14 @@ DO:
       program-names:LIST-ITEMS = ""
       menu-items:LIST-ITEMS = "".
     FOR EACH prgrms WHERE
-             prgrms.menu_item AND CAN-DO(prgrms.can_run,USERID("NOSWEAT"))
+             prgrms.menu_item AND CAN-DO(prgrms.can_run,USERID("ASI"))
         NO-LOCK USE-INDEX si-prgtitle:
       ldummy = IF INDEX(prgrms.prgmname,".") = 0 THEN
                menu-names:ADD-LAST(prgrms.prgtitle) ELSE
                program-names:ADD-LAST(prgrms.prgtitle).
     END.
-    IF SEARCH("users/" + USERID("NOSWEAT") + "/menu.lst") NE ? THEN
-    INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/menu.lst") NO-ECHO.
+    IF SEARCH("users/" + USERID("ASI") + "/menu.lst") NE ? THEN
+    INPUT FROM VALUE("users/" + USERID("ASI") + "/menu.lst") NO-ECHO.
     ELSE
     INPUT FROM VALUE("menu.lst") NO-ECHO.
     RUN Build_Menu_Items.
@@ -609,7 +607,7 @@ DO:
   RUN Check_Menu.
   IF ERROR-STATUS:ERROR THEN
   RETURN NO-APPLY.
-  OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/menu.lst").
+  OUTPUT TO VALUE("users/" + USERID("ASI") + "/menu.lst").
   RUN Save_Menu.
   OUTPUT CLOSE.
   APPLY "CHOOSE" TO Btn_Build.

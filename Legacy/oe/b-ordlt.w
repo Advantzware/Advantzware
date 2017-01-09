@@ -287,7 +287,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       oe-ordl.line FORMAT ">>99":U WIDTH 6 LABEL-BGCOLOR 14
       oe-ordl.est-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
-      oe-ordl.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14  WIDTH 21 
+      oe-ordl.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.qty FORMAT "->>,>>>,>>9":U LABEL-BGCOLOR 14
       oe-ordl.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       oe-ordl.part-no COLUMN-LABEL "Part #" FORMAT "x(15)":U LABEL-BGCOLOR 14
@@ -419,7 +419,7 @@ ASI.oe-ordl.line LT 99999999"
      _FldNameList[2]   > ASI.oe-ordl.est-no
 "oe-ordl.est-no" ? "x(8)" "character" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-ordl.i-no
-"oe-ordl.i-no" ? ? "character" ? ? ? 14 ? ? no ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.i-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-ordl.qty
 "oe-ordl.qty" ? "->>,>>>,>>9" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-ordl.i-name

@@ -1,5 +1,5 @@
 /* addon/touch/savenoteA.p   save notes to asi nosweat database */
-  DEF INPUT PARAM ip-rec_key LIKE nosweat.notes.rec_key.
+  DEF INPUT PARAM ip-rec_key LIKE ASI.notes.rec_key.
   DEF INPUT PARAM ip-header_value AS cha.
   IF SEARCH("..\asinos.pf") EQ ? THEN DO:
     MESSAGE "A File is missing: ..\asinos.pf"

@@ -555,11 +555,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1646,7 +1642,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   FIND FIRST users WHERE
-       users.user_id EQ USERID("NOSWEAT")
+       users.user_id EQ USERID("ASI")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -2517,10 +2513,10 @@ DO:
     LEAVE.
   END.
 
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
+  IF NOT CAN-DO(b-prgrms.can_run,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_update,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_create,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_delete,USERID("ASI")) AND NOT group-ok THEN
   DO:
     /*MESSAGE 
         "User access to POST BOL this Program Denied - Contact Systems Manager" 
@@ -2692,7 +2688,7 @@ PROCEDURE email-reorderitems :
   DEF VAR v-qty-onOrder AS INT NO-UNDO.
 
   FIND FIRST users WHERE
-        users.user_id EQ USERID("NOSWEAT")
+        users.user_id EQ USERID("ASI")
         NO-LOCK NO-ERROR.
   IF AVAIL users AND users.user_program[2] NE "" THEN v-dir = users.user_program[2] + "\".
   ELSE v-dir = "c:\tmp\".
@@ -3194,7 +3190,7 @@ PROCEDURE output-to-mail :
   DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
   DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
   DEFINE INPUT PARAMETER ip-ship-id AS CHARACTER NO-UNDO.
-  
+
   ASSIGN
     v-s-bol             = begin_bol#
     v-e-bol             = end_bol#
@@ -4206,7 +4202,7 @@ PROCEDURE SendMail-1 :
 ------------------------------------------------------------------------------*/
   
   DEFINE INPUT PARAM icIdxKey   AS CHAR NO-UNDO.
-  DEFINE INPUT PARAM icRecType  AS CHAR NO-UNDO.  
+  DEFINE INPUT PARAM icRecType  AS CHAR NO-UNDO.    
   DEFINE INPUT PARAMETER icShipId AS CHARACTER NO-UNDO.  
 
   DEFINE VARIABLE vcSubject   AS CHARACTER  NO-UNDO.

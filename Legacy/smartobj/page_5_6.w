@@ -60,13 +60,13 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Page_5 
-     IMAGE-UP FILE "Graphics/32x32/window_split_ver.ico":U
+     IMAGE-UP FILE "Graphics/32x32/window_split_ver.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Browser" 
      SIZE 7.8 BY 1.81 TOOLTIP "Browser".
 
 DEFINE BUTTON Select_Page_6 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Viewer" 
      SIZE 7.8 BY 1.81 TOOLTIP "Viewer".
@@ -145,6 +145,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -160,6 +161,11 @@ ASSIGN
 ON CHOOSE OF Select_Page_5 IN FRAME F-Main /* Page_5 */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:13:17 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -171,6 +177,11 @@ END.
 ON CHOOSE OF Select_Page_6 IN FRAME F-Main /* Page_6 */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+
+
+  /* Added by WinKit Migration tool 07.02.2016 21:13:17 */
+  { Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

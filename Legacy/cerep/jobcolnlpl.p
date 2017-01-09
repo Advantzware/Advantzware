@@ -339,7 +339,7 @@ for each job-hdr NO-LOCK
            IF AVAIL job THEN
              ASSIGN
               job.pr-printed    = YES
-              job.pr-user-id-p  = USERID("nosweat")
+              job.pr-user-id-p  = USERID("ASI")
               job.pr-print-date = TODAY
               job.pr-print-time = TIME
               li                = 1000.
@@ -369,14 +369,14 @@ for each job-hdr NO-LOCK
              IF NOT job.cs-printed THEN
                ASSIGN
                 job.cs-printed    = YES
-                job.cs-user-id-p  = USERID("nosweat")
+                job.cs-user-id-p  = USERID("ASI")
                 job.cs-print-date = TODAY
                 job.cs-print-time = TIME.
         
              IF approve THEN
                ASSIGN
                 job.cs-to-pr      = YES
-                job.cs-user-id-t  = USERID("nosweat")
+                job.cs-user-id-t  = USERID("ASI")
                 job.cs-trans-date = TODAY
                 job.cs-trans-time = TIME.
            END.
@@ -787,9 +787,9 @@ for each job-hdr NO-LOCK
                 ASSIGN v-fgdsc[eb.blank-no] = eb.part-dscr1.
                                                              
             v-upc-lbl = "   CAD#".
-            IF FIRST-OF(eb.form-no) THEN  /* ticket 15507  */
+            IF FIRST-OF(eb.form-no) THEN
               PUT "<P9><B> PRESS" SKIP
-                  " F/B   FG Item #       Cust Part #     Artwork #       Description       Order Qty    MAX QTY    MIN QTY </B>" SKIP.
+                  " F/B   FG Item #       Description       Order Qty    MAX QTY    MIN QTY </B>" SKIP.
               
            v-job-qty = 0.
            for each xjob-hdr fields(qty) where
@@ -835,14 +835,9 @@ for each job-hdr NO-LOCK
                v-case-qty = round(v-job-qty / v-case-count,0)
                v-itm-printed = v-itm-printed + 1.
 
-             FIND FIRST itemfg WHERE itemfg.company = job-hdr.company
-                            AND itemfg.i-no = job-hdr.i-no NO-LOCK NO-ERROR.
-
             display SPACE(1) trim(string(eb.form-no,">>9")) + "-" +
                     trim(string(eb.blank-no,">>9")) FORM "x(5)" 
                     SPACE(1) eb.stock-no @ job-hdr.i-no 
-                    (IF AVAIL oe-ordl  THEN oe-ordl.part-no ELSE IF AVAIL itemfg THEN itemfg.part-no ELSE "") FORM "x(15)"   SPACE(1)
-                    (IF eb.plate-no <> "" THEN eb.plate-no  ELSE IF AVAIL itemfg THEN itemfg.plate-no ELSE "" ) FORM "x(15)"
                     SPACE(1) v-dsc[1] FORM "x(16)"
                     oe-ordl.qty WHEN AVAIL oe-ordl format "->,>>>,>>9"  /* Task #01240503*/   SPACE(4)
                     v-max-qty     SPACE(3)
@@ -914,7 +909,7 @@ for each job-hdr NO-LOCK
                x = 1.
              end. /* each wrk-sheet */   
              
-             PUT "<B> PASS             LBS INK NAME            UNIT#      PASS             LBS INK NAME            UNIT#       </B>"  /*PLATE #*/
+             PUT "<B> PASS             LBS INK NAME            UNIT#      PASS             LBS INK NAME            UNIT#       PLATE #</B>"
                  SKIP.
 
              ASSIGN
@@ -988,7 +983,7 @@ for each job-hdr NO-LOCK
                    IF v-skip THEN do:
                        PUT v-ink1[j] FORM "x(52)" .
                        IF j = 2 THEN do:
-                           /*PUT eb.plate-no AT 107.*/
+                           PUT eb.plate-no AT 107.
                            v-plate-printed = YES.
                        END.
                        PUT SKIP.
@@ -998,7 +993,7 @@ for each job-hdr NO-LOCK
                 END.
              END.
 
-             IF NOT v-plate-printed THEN PUT /*eb.plate-no AT 107*/ SKIP.
+             IF NOT v-plate-printed THEN PUT eb.plate-no AT 107 SKIP.
 
              DO j = 1 TO 20:
                  IF TRIM(v-ink2[j]) = "-" THEN v-ink2[j] = "".                 

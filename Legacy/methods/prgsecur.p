@@ -53,7 +53,7 @@ END FUNCTION.
 IF ip-group-override THEN DO:
     v_groups = "". /* YSK need to reset */
     FOR EACH usergrps NO-LOCK:
-        IF CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN
+        IF CAN-DO(usergrps.users,USERID("ASI")) THEN
         v_groups = v_groups + usergrps.usergrps + ",".  /* YSK "," added  */
     END.
 END.
@@ -62,7 +62,7 @@ ELSE
 
 IF INDEX(ip-program,".uib") NE 0 OR
    INDEX(ip-program,".ab")  NE 0 OR
-   INDEX(ip-program,".ped") NE 0 THEN v-prgmname = USERID("NOSWEAT") + "..".
+   INDEX(ip-program,".ped") NE 0 THEN v-prgmname = USERID("ASI") + "..".
 ELSE DO:
    v-prgmname = ip-program.
 
@@ -126,10 +126,10 @@ DO:
     /* LEAVE.  */
   END.
 
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
+  IF NOT CAN-DO(b-prgrms.can_run,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_update,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_create,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_delete,USERID("ASI")) AND NOT group-ok THEN
   DO:
     IF ip-show-messages THEN
     MESSAGE "Program :" ip-program SKIP "Title :" b-prgrms.prgtitle SKIP(1)
@@ -149,13 +149,13 @@ DO:
   
   END.
   ELSE DO:
-      IF NOT v-can-run AND CAN-DO(b-prgrms.can_run,USERID("NOSWEAT"))
+      IF NOT v-can-run AND CAN-DO(b-prgrms.can_run,USERID("ASI"))
             THEN v-can-run = YES.
-      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT"))
+      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("ASI"))
             THEN v-can-update = YES.
-      IF NOT v-can-create AND CAN-DO(b-prgrms.can_create,USERID("NOSWEAT"))
+      IF NOT v-can-create AND CAN-DO(b-prgrms.can_create,USERID("ASI"))
             THEN v-can-create = YES.
-      IF NOT v-can-delete AND CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT"))
+      IF NOT v-can-delete AND CAN-DO(b-prgrms.can_delete,USERID("ASI"))
             THEN v-can-delete = YES.
       IF v-can-run THEN
           run-access = NO.

@@ -147,7 +147,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -373,11 +373,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -523,6 +519,7 @@ DO:
   RUN GetSelectionList.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
@@ -939,6 +936,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'AL3',
                           INPUT NO,
                           OUTPUT glCustListActive).
+  {sys/inc/chblankcust.i}
   {sys/inc/chblankcust.i ""AL3""}
 
   IF ou-log THEN DO:
@@ -1361,6 +1359,7 @@ DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEF VAR fcust AS CHAR NO-UNDO .
 DEF VAR tcust AS CHAR NO-UNDO .
@@ -1368,6 +1367,7 @@ DEF VAR tcust AS CHAR NO-UNDO .
 
 {sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
+
 ASSIGN
     lSelected  = tb_cust-list
     fcust      = begin_cust
@@ -1450,10 +1450,15 @@ FOR EACH tt-report:
 END.
 
 DISPLAY "" WITH FRAME r-top.
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+   EACH ar-ledger
 FOR EACH ar-ledger
     WHERE ar-ledger.company EQ cocode
       /*AND ar-ledger.cust-no GE begin_cust
       AND ar-ledger.cust-no LE end_cust*/
+      AND ar-ledger.cust-no EQ ttCustList.cust-no
       AND ar-ledger.cust-no  GE fcust
       AND ar-ledger.cust-no  LE tcust
       AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-ledger.cust-no

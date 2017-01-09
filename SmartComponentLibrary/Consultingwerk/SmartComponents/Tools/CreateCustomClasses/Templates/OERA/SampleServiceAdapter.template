@@ -1,0 +1,29 @@
+/*------------------------------------------------------------------------
+    File        : &2ServiceAdapter
+    Purpose     : 
+    Syntax      : 
+    Description : 
+    Author(s)   : &3
+    Created     : Sun Aug 07 20:58:25 CEST 2011
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.OERA.* FROM PROPATH .
+USING Progress.Lang.*       FROM PROPATH .
+
+CLASS &1.&2ServiceAdapter 
+    INHERITS ServiceAdapter 
+    USE-WIDGET-POOL: 
+		
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor of the &2ServiceAdapter class                                                                        
+        Notes:                                                                           
+    ------------------------------------------------------------------------------*/
+	CONSTRUCTOR PUBLIC &2ServiceAdapter ():
+		SUPER ().
+		
+	END CONSTRUCTOR.
+
+END CLASS.

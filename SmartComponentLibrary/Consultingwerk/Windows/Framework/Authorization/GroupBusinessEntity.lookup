@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<ttSmartBusinessEntityLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ttSmartBusinessEntityLookupRow>
+    <AdapterType>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter</AdapterType>
+    <AppServerPartition/>
+    <LookupBrowserFields>GroupName</LookupBrowserFields>
+    <LookupControls/>
+    <LookupDialogClassName/>
+    <LookupDialogFilterFields>GroupName</LookupDialogFilterFields>
+    <LookupDialogFilterOperators>BEGINS</LookupDialogFilterOperators>
+    <LookupDialogQuerySort/>
+    <LookupDialogQueryString>FOR EACH eSmartGroup</LookupDialogQueryString>
+    <LookupDialogTitle>Group Lookup</LookupDialogTitle>
+    <LookupEntityName>Consultingwerk.SmartFramework.Authorization.GroupBusinessEntity</LookupEntityName>
+    <LookupEntityTable>eSmartGroup</LookupEntityTable>
+    <LookupEntityView/>
+    <LookupFields/>
+    <LookupKeyField>GroupName</LookupKeyField>
+    <LookupKeyValueColumn>GroupGuid</LookupKeyValueColumn>
+    <LookupQuerySort/>
+    <LookupQueryString>FOR EACH eSmartGroup WHERE eSmartGroup.GroupName = &quot;&amp;1&quot;</LookupQueryString>
+    <LookupTimerDelay>750</LookupTimerDelay>
+  </ttSmartBusinessEntityLookupRow>
+</ttSmartBusinessEntityLookup>

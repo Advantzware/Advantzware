@@ -39,7 +39,7 @@ DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {sys/inc/var.i new shared}
 
-ASSIGN
+assign
  cocode = gcompany
  locode = gloc.
 
@@ -280,65 +280,65 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 31 BY 5 NO-UNDO.
 
-DEFINE VARIABLE tb_adj AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_adj AS LOGICAL INITIAL no 
      LABEL "Adjustments" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE tb_count AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_count AS LOGICAL INITIAL no 
      LABEL "Cycle Counts" 
      VIEW-AS TOGGLE-BOX
      SIZE 39 BY .81
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
      SIZE 30.2 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_rec AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_rec AS LOGICAL INITIAL no 
      LABEL "Receipts" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY .81
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE tb_ret AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_ret AS LOGICAL INITIAL no 
      LABEL "Credit Returns" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_ship AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_ship AS LOGICAL INITIAL no 
      LABEL "Shipments" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE tb_total AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_total AS LOGICAL INITIAL no 
      LABEL "Show Totals?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_tran AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_tran AS LOGICAL INITIAL no 
      LABEL "Transfers" 
      VIEW-AS TOGGLE-BOX
      SIZE 17 BY .71
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -437,22 +437,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -562,7 +558,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -618,7 +614,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
 ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 DO:
-   ASSIGN {&self-name}.
+   assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -629,7 +625,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no C-Win
 ON LEAVE OF begin_i-no IN FRAME FRAME-A /* Beginning Item# */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -640,7 +636,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_user C-Win
 ON LEAVE OF begin_user IN FRAME FRAME-A /* Beginning Order User ID */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -651,7 +647,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   APPLY "close" TO THIS-PROCEDURE.
+   apply "close" to this-procedure.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -676,15 +672,15 @@ DO:
                     INPUT begin_cust,
                     INPUT end_cust).
   END.
-  RUN run-report. 
+  run run-report. 
   STATUS DEFAULT "Processing Complete". 
   SESSION:SET-WAIT-STATE("general").
 
-  CASE rd-dest:
-       WHEN 1 THEN RUN output-to-printer.
-       WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN RUN output-to-file.
-       WHEN 4 THEN DO:
+  case rd-dest:
+       when 1 then run output-to-printer.
+       when 2 then run output-to-screen.
+       when 3 then run output-to-file.
+       when 4 then do:
            /*run output-to-fax.*/
            {custom/asifax.i &begin_cust=from_date
                             &END_cust=to_date
@@ -692,7 +688,7 @@ DO:
                             &fax-body= c-win:title 
                             &fax-file=list-name }
        END.
-       WHEN 5 THEN DO:
+       when 5 then do:
            IF is-xprint-form THEN DO:
               RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
               {custom/asimail.i &TYPE = ''
@@ -713,8 +709,8 @@ DO:
            END.
  
        END. 
-       WHEN 6 THEN RUN output-to-port.
-  END CASE. 
+       WHEN 6 THEN run output-to-port.
+  end case. 
    SESSION:SET-WAIT-STATE("").
 END.
 
@@ -831,7 +827,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
 ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -842,7 +838,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no C-Win
 ON LEAVE OF end_i-no IN FRAME FRAME-A /* Ending Item# */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -853,7 +849,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_user C-Win
 ON LEAVE OF end_user IN FRAME FRAME-A /* Ending Order User ID */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -864,7 +860,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Excel File Name */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -875,7 +871,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL from_date C-Win
 ON LEAVE OF from_date IN FRAME FRAME-A /* Beginning Post Date */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -886,7 +882,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -954,7 +950,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1028,7 +1024,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_adj C-Win
 ON VALUE-CHANGED OF tb_adj IN FRAME FRAME-A /* Adjustments */
 DO:
-      ASSIGN {&self-name}.
+      assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1039,7 +1035,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-list C-Win
 ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
   EMPTY TEMP-TABLE ttCustList.
   RUN SetCustRange(INPUT tb_cust-list).
 END.
@@ -1052,7 +1048,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1063,7 +1059,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_rec C-Win
 ON VALUE-CHANGED OF tb_rec IN FRAME FRAME-A /* Receipts */
 DO:
-    ASSIGN {&self-name}.
+    assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1074,7 +1070,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1085,7 +1081,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_ship C-Win
 ON VALUE-CHANGED OF tb_ship IN FRAME FRAME-A /* Shipments */
 DO:
-      ASSIGN {&self-name}.
+      assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1096,7 +1092,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_total C-Win
 ON VALUE-CHANGED OF tb_total IN FRAME FRAME-A /* Show Totals? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1107,7 +1103,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_tran C-Win
 ON VALUE-CHANGED OF tb_tran IN FRAME FRAME-A /* Transfers */
 DO:
-      ASSIGN {&self-name}.
+      assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1118,7 +1114,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    ASSIGN {&self-name}.
+    assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1129,7 +1125,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL to_date C-Win
 ON LEAVE OF to_date IN FRAME FRAME-A /* Ending Post Date */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1180,6 +1176,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
 
+  RUN sys/inc/CustListForm.p ( "IL6",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
   DO WITH FRAME {&FRAME-NAME}:      
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
@@ -1208,7 +1208,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
       
-   IF ou-log AND ou-cust-int = 0 THEN DO:
+   IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
@@ -1294,36 +1294,36 @@ IF NOT AVAILABLE bf-fg-rcpth THEN
 IF NOT AVAILABLE bf-fg-rdtlh THEN
     RETURN.
 
-    IF bf-fg-rdtlh.qty-case EQ 0 THEN DO:
-      FIND FIRST fg-bin
-          WHERE fg-bin.company EQ bf-fg-rcpth.company
-            AND fg-bin.job-no  EQ bf-fg-rcpth.job-no
-            AND fg-bin.job-no2 EQ bf-fg-rcpth.job-no2
-            AND fg-bin.i-no    EQ bf-fg-rcpth.i-no
-            AND fg-bin.loc     EQ bf-fg-rdtlh.loc
-            AND fg-bin.loc-bin EQ bf-fg-rdtlh.loc-bin
-            AND fg-bin.tag     EQ bf-fg-rdtlh.tag
-          USE-INDEX job NO-LOCK NO-ERROR.   
+    if bf-fg-rdtlh.qty-case eq 0 then do:
+      find first fg-bin
+          where fg-bin.company eq bf-fg-rcpth.company
+            and fg-bin.job-no  eq bf-fg-rcpth.job-no
+            and fg-bin.job-no2 eq bf-fg-rcpth.job-no2
+            and fg-bin.i-no    eq bf-fg-rcpth.i-no
+            and fg-bin.loc     eq bf-fg-rdtlh.loc
+            and fg-bin.loc-bin eq bf-fg-rdtlh.loc-bin
+            and fg-bin.tag     eq bf-fg-rdtlh.tag
+          use-index job no-lock no-error.   
 
       IF AVAILABLE fg-bin THEN
-        ASSIGN
+        assign
          opv-cases    = trunc((v-fg-qty / fg-bin.case-count),0)
          opv-qty-case = fg-bin.case-count.
          
-      ELSE DO:
-        FIND FIRST itemfg
-            WHERE itemfg.company EQ cocode
-              AND itemfg.i-no    EQ bf-fg-rcpth.i-no
-            NO-LOCK NO-ERROR.
+      else do:
+        find first itemfg
+            where itemfg.company eq cocode
+              and itemfg.i-no    eq bf-fg-rcpth.i-no
+            no-lock no-error.
         IF AVAILABLE itemfg THEN
-          ASSIGN
+          assign
            opv-cases    = trunc((v-fg-qty / itemfg.case-count),0)
            opv-qty-case = itemfg.case-count.
-      END.
-    END.
+      end.
+    end.
     
-    ELSE
-      ASSIGN
+    else
+      assign
        opv-cases    = bf-fg-rdtlh.cases
        opv-qty-case = bf-fg-rdtlh.qty-case.             
 
@@ -1363,7 +1363,7 @@ PROCEDURE calc-fg-value :
     ELSE IF ipv-sell-uom = "M" THEN
         opv-fg-value = ipv-sell-price * (bf-fg-rdtlh.qty / 1000).
     ELSE DO:
-        FIND FIRST uom
+        FIND first uom
             WHERE uom.uom  EQ ipv-sell-uom
             AND uom.mult NE 0 NO-LOCK NO-ERROR.
         IF AVAILABLE uom THEN
@@ -1404,81 +1404,81 @@ IF NOT AVAILABLE bf-fg-rdtlh THEN
     RETURN.
 
       opv-on = 1.
-      FIND FIRST job-hdr
-           WHERE job-hdr.company EQ cocode
-             AND job-hdr.job-no  EQ bf-fg-rcpth.job-no
-             AND job-hdr.job-no2 EQ bf-fg-rcpth.job-no2
-             AND job-hdr.i-no    EQ bf-fg-rcpth.i-no
-           USE-INDEX job-no NO-LOCK NO-ERROR.
+      find first job-hdr
+           where job-hdr.company eq cocode
+             and job-hdr.job-no  eq bf-fg-rcpth.job-no
+             and job-hdr.job-no2 eq bf-fg-rcpth.job-no2
+             and job-hdr.i-no    eq bf-fg-rcpth.i-no
+           use-index job-no no-lock no-error.
 
       /* For calculating the quantity per pallet. */
-      IF AVAILABLE job-hdr THEN DO:
-        FIND FIRST fg-bin
-            WHERE fg-bin.company EQ cocode
-              AND fg-bin.job-no  EQ job-hdr.job-no
-              AND fg-bin.job-no2 EQ job-hdr.job-no2
-              AND fg-bin.i-no    EQ job-hdr.i-no
-              AND fg-bin.loc-bin EQ bf-fg-rdtlh.loc-bin
-              AND fg-bin.tag     EQ bf-fg-rdtlh.tag
-            NO-LOCK NO-ERROR.
+      if available job-hdr then do:
+        find first fg-bin
+            where fg-bin.company eq cocode
+              and fg-bin.job-no  eq job-hdr.job-no
+              and fg-bin.job-no2 eq job-hdr.job-no2
+              and fg-bin.i-no    eq job-hdr.i-no
+              and fg-bin.loc-bin eq bf-fg-rdtlh.loc-bin
+              and fg-bin.tag     eq bf-fg-rdtlh.tag
+            no-lock no-error.
         ASSIGN opv-qty-pallet = bf-fg-rdtlh.cases * IF AVAILABLE fg-bin THEN
-                                          fg-bin.cases-unit ELSE 1.
-      END.
+                                          fg-bin.cases-unit else 1.
+      end.
       
       IF AVAILABLE job-hdr AND job-hdr.est-no = "" THEN DO:
-        RELEASE ef.
+        release ef.
 
-        RUN sys/inc/numup.p (job-hdr.company, job-hdr.est-no, job-hdr.frm, OUTPUT opv-on).
+        run sys/inc/numup.p (job-hdr.company, job-hdr.est-no, job-hdr.frm, output opv-on).
 
-        FIND FIRST ef
-            WHERE ef.company   EQ job-hdr.company
+        find first ef
+            where ef.company   EQ job-hdr.company
               AND ef.est-no    EQ job-hdr.est-no
-              AND ef.form-no   EQ job-hdr.frm
-            NO-LOCK NO-ERROR.
+              and ef.form-no   EQ job-hdr.frm
+            no-lock no-error.
 
         IF AVAILABLE ef THEN RUN est/ef-#out.p (ROWID(ef), OUTPUT opv-on).
 
-        IF ipr-lastof-key-02 THEN           
-            FOR EACH mch-act FIELDS(waste)
-                WHERE mch-act.company  EQ cocode
-                  AND mch-act.job      EQ job-hdr.job
-                  AND mch-act.job-no   EQ job-hdr.job-no
-                  AND mch-act.job-no2  EQ job-hdr.job-no2
-                  AND mch-act.frm      EQ job-hdr.frm
-                USE-INDEX job NO-LOCK:
+        if ipr-lastof-key-02 then           
+            for each mch-act FIELDS(waste)
+                where mch-act.company  eq cocode
+                  and mch-act.job      eq job-hdr.job
+                  and mch-act.job-no   eq job-hdr.job-no
+                  and mch-act.job-no2  eq job-hdr.job-no2
+                  and mch-act.frm      eq job-hdr.frm
+                use-index job no-lock:
               opv-msf-2 = opv-msf-2 + (mch-act.waste * job-hdr.sq-in / 100).
-            END.
+            end.
 
-        FOR EACH job-mat
-            WHERE job-mat.company EQ cocode
-              AND job-mat.job     EQ job-hdr.job
-              AND job-mat.job-no  EQ job-hdr.job-no
-              AND job-mat.job-no2 EQ job-hdr.job-no2
-              AND job-mat.frm     EQ job-hdr.frm
-            NO-LOCK,
-            FIRST item
-            WHERE item.company    EQ cocode
-              AND item.i-no       EQ job-mat.i-no
-              AND item.mat-type   EQ "B"
-            NO-LOCK:
-          LEAVE.
-        END.
+        for each job-mat
+            where job-mat.company eq cocode
+              and job-mat.job     eq job-hdr.job
+              and job-mat.job-no  eq job-hdr.job-no
+              and job-mat.job-no2 eq job-hdr.job-no2
+              and job-mat.frm     eq job-hdr.frm
+            no-lock,
+            first item
+            where item.company    eq cocode
+              and item.i-no       eq job-mat.i-no
+              and item.mat-type   eq "B"
+            no-lock:
+          leave.
+        end.
 
         IF AVAILABLE job-mat THEN DO:
-          ASSIGN
+          assign
            opv-msf-1 = bf-fg-rdtlh.qty / opv-on * (job-mat.len * job-mat.wid)
            opv-msf-2 = opv-msf-2      / opv-on * (job-mat.len * job-mat.wid).
 
-          IF ipv-corr THEN
-            ASSIGN
+          if ipv-corr then
+            assign
              opv-msf-1 = opv-msf-1 * .007
              opv-msf-2 = opv-msf-2 * .007.
-          ELSE
-            ASSIGN
+          else
+            assign
              opv-msf-1 = opv-msf-1 / 144
              opv-msf-2 = opv-msf-2 / 144.
-        END.
-      END.
+        end.
+      end.
 
 END PROCEDURE.
 
@@ -1615,7 +1615,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
   DO:
 
     FOR EACH fg-rcpth
-        WHERE fg-rcpth.company EQ cocode
+        where fg-rcpth.company eq cocode
           AND fg-rcpth.i-no    GE begin_i-no
           AND fg-rcpth.i-no    LE end_i-no
         NO-LOCK,
@@ -1635,44 +1635,44 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
       v-i-no = fg-rcpth.i-no.
    
       /* Create tt-report file for History Records */
-      DO i = 1 TO LENGTH(TRIM(v-types)):
-        IF INDEX("RSTAEC",substr(v-types,i,1)) GT 0 THEN
+      do i = 1 to length(trim(v-types)):
+        if index("RSTAEC",substr(v-types,i,1)) gt 0 then
         DO:
            v-type = substr(v-types,i,1).
           
-           FOR EACH fg-rcpth 
-               WHERE fg-rcpth.company                  EQ cocode
-                 AND fg-rcpth.i-no                     EQ v-i-no
-                 AND fg-rcpth.rita-code                EQ v-type
-                 AND ((fg-rcpth.post-date              GE b-post-date AND
-                       fg-rcpth.post-date              LE e-post-date AND
-                       fg-rcpth.post-date              NE ?) OR
-                      (fg-rcpth.trans-date             GE b-post-date AND
-                       fg-rcpth.trans-date             LE e-post-date AND
-                       fg-rcpth.post-date              EQ ?))
+           for each fg-rcpth 
+               where fg-rcpth.company                  eq cocode
+                 and fg-rcpth.i-no                     eq v-i-no
+                 and fg-rcpth.rita-code                eq v-type
+                 and ((fg-rcpth.post-date              ge b-post-date and
+                       fg-rcpth.post-date              le e-post-date and
+                       fg-rcpth.post-date              ne ?) or
+                      (fg-rcpth.trans-date             ge b-post-date and
+                       fg-rcpth.trans-date             le e-post-date and
+                       fg-rcpth.post-date              eq ?))
                  AND fg-rcpth.USER-ID GE begin_user
                  AND fg-rcpth.USER-ID LE END_user
-               USE-INDEX i-no NO-LOCK,
-               EACH fg-rdtlh
-               WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-                 AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-               NO-LOCK:
+               use-index i-no no-lock,
+               each fg-rdtlh
+               where fg-rdtlh.r-no      eq fg-rcpth.r-no
+                 and fg-rdtlh.rita-code eq fg-rcpth.rita-code
+               no-lock:
            
-               CREATE tt-report.
-               ASSIGN
+               create tt-report.
+               assign
                   tt-report.term-id = ""
                   tt-report.key-01  = fg-rdtlh.loc
                   tt-report.key-02  = fg-rcpth.i-no
                   tt-report.key-03  = fg-rdtlh.loc-bin
                   tt-report.key-04  = fg-rdtlh.tag
-                  tt-report.rec-id  = RECID(fg-rdtlh)
+                  tt-report.rec-id  = recid(fg-rdtlh)
                   tt-report.DATE    = fg-rcpth.trans-date.
-           END.
+           end.
         END.
-      END.
+      end.
       
       FOR EACH fg-rcpth WHERE
-          fg-rcpth.company EQ cocode AND
+          fg-rcpth.company eq cocode AND
           fg-rcpth.i-no    GT v-i-no AND
           fg-rcpth.i-no    GE begin_i-no AND
           fg-rcpth.i-no    LE end_i-no
@@ -1687,21 +1687,21 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                 NO-LOCK:
           LEAVE.
        END.
-    END.
+    end.
   END. /*begin_i-no eq blank*/
   ELSE
   DO:
-     DO i = 1 TO LENGTH(TRIM(v-types)):
-        IF INDEX("RSTAEC",substr(v-types,i,1)) GT 0 THEN
+     do i = 1 to length(trim(v-types)):
+        if index("RSTAEC",substr(v-types,i,1)) gt 0 then
         DO:
            v-type = substr(v-types,i,1).
           
            IF NOT(begin_cust EQ "" AND END_cust EQ "zzzzzzzz") THEN
            DO v-date = b-post-date TO e-post-date:
               FOR EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
-                  WHERE fg-rcpth.company                EQ cocode
-                    AND fg-rcpth.rita-code              EQ v-type
-                    AND fg-rcpth.post-date              EQ v-date
+                  where fg-rcpth.company                eq cocode
+                    and fg-rcpth.rita-code              eq v-type
+                    and fg-rcpth.post-date              EQ v-date
                     AND CAN-FIND(FIRST itemfg WHERE
                         itemfg.company EQ cocode AND
                         itemfg.i-no    EQ fg-rcpth.i-no AND
@@ -1712,30 +1712,30 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                   AND fg-rcpth.USER-ID GE begin_user
                  AND fg-rcpth.USER-ID LE END_user
                   USE-INDEX post-date
-                  NO-LOCK,
-                  EACH fg-rdtlh FIELDS(loc loc-bin tag)
-                  WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-                    AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+                  no-lock,
+                  each fg-rdtlh FIELDS(loc loc-bin tag)
+                  where fg-rdtlh.r-no      eq fg-rcpth.r-no
+                    and fg-rdtlh.rita-code eq fg-rcpth.rita-code
                   NO-LOCK:
 
               
-                  CREATE tt-report.
-                  ASSIGN
+                  create tt-report.
+                  assign
                      tt-report.term-id = ""
                      tt-report.key-01  = fg-rdtlh.loc
                      tt-report.key-02  = fg-rcpth.i-no
                      tt-report.key-03  = fg-rdtlh.loc-bin
                      tt-report.key-04  = fg-rdtlh.tag
-                     tt-report.rec-id  = RECID(fg-rdtlh)
+                     tt-report.rec-id  = recid(fg-rdtlh)
                      tt-report.rec-id2 = RECID(fg-rcpth)
                      tt-report.DATE    = fg-rcpth.trans-date.
                   RELEASE tt-report.
-              END.
+              end.
              
               FOR EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date)
-                  WHERE fg-rcpth.company                EQ cocode AND
-                        fg-rcpth.rita-code              EQ v-type AND
-                        fg-rcpth.post-date              EQ ? AND
+                  where fg-rcpth.company                eq cocode AND
+                        fg-rcpth.rita-code              eq v-type AND
+                        fg-rcpth.post-date              eq ? AND
                         fg-rcpth.trans-date             EQ v-date AND
                         NOT CAN-FIND(FIRST tt-report WHERE
                                      tt-report.rec-id2  = recid(fg-rcpth))
@@ -1750,19 +1750,19 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                  AND fg-rcpth.USER-ID LE END_user
                         USE-INDEX post-date
                         NO-LOCK,
-                   EACH fg-rdtlh FIELDS(loc loc-bin tag) WHERE
-                        fg-rdtlh.r-no      EQ fg-rcpth.r-no AND
-                        fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+                   each fg-rdtlh FIELDS(loc loc-bin tag) WHERE
+                        fg-rdtlh.r-no      eq fg-rcpth.r-no AND
+                        fg-rdtlh.rita-code eq fg-rcpth.rita-code
                         NO-LOCK:
              
-                        CREATE tt-report.
-                        ASSIGN
+                        create tt-report.
+                        assign
                            tt-report.term-id = ""
                            tt-report.key-01  = fg-rdtlh.loc
                            tt-report.key-02  = fg-rcpth.i-no
                            tt-report.key-03  = fg-rdtlh.loc-bin
                            tt-report.key-04  = fg-rdtlh.tag
-                           tt-report.rec-id  = RECID(fg-rdtlh)
+                           tt-report.rec-id  = recid(fg-rdtlh)
                            tt-report.DATE    = fg-rcpth.trans-date. 
                         RELEASE tt-report.
               END.
@@ -1770,36 +1770,36 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
            ELSE
            DO v-date = b-post-date TO e-post-date:
 
-              FOR EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
-                  WHERE fg-rcpth.company                EQ cocode
-                    AND fg-rcpth.rita-code              EQ v-type
-                    AND fg-rcpth.post-date              EQ v-date
+              for each fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
+                  where fg-rcpth.company                eq cocode
+                    and fg-rcpth.rita-code              eq v-type
+                    and fg-rcpth.post-date              EQ v-date
                   USE-INDEX post-date
-                  NO-LOCK,
-                  EACH fg-rdtlh FIELDS(loc loc-bin tag)
-                  WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-                    AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+                  no-lock,
+                  each fg-rdtlh FIELDS(loc loc-bin tag)
+                  where fg-rdtlh.r-no      eq fg-rcpth.r-no
+                    and fg-rdtlh.rita-code eq fg-rcpth.rita-code
                   AND fg-rcpth.USER-ID GE begin_user
                  AND fg-rcpth.USER-ID LE END_user
                   NO-LOCK:
               
-                  CREATE tt-report.
-                  ASSIGN
+                  create tt-report.
+                  assign
                      tt-report.term-id = ""
                      tt-report.key-01  = fg-rdtlh.loc
                      tt-report.key-02  = fg-rcpth.i-no
                      tt-report.key-03  = fg-rdtlh.loc-bin
                      tt-report.key-04  = fg-rdtlh.tag
-                     tt-report.rec-id  = RECID(fg-rdtlh)
+                     tt-report.rec-id  = recid(fg-rdtlh)
                      tt-report.rec-id2 = RECID(fg-rcpth)
                      tt-report.DATE    = fg-rcpth.trans-date.
                   RELEASE tt-report.
-              END.
+              end.
              
-              FOR EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date)
-                  WHERE fg-rcpth.company                EQ cocode AND
-                        fg-rcpth.rita-code              EQ v-type AND
-                        fg-rcpth.post-date              EQ ? AND
+              for each fg-rcpth FIELDS(r-no rita-code i-no trans-date)
+                  where fg-rcpth.company                eq cocode AND
+                        fg-rcpth.rita-code              eq v-type AND
+                        fg-rcpth.post-date              eq ? AND
                         fg-rcpth.trans-date             EQ v-date AND
                         NOT CAN-FIND(FIRST tt-report WHERE
                                      tt-report.rec-id2  = recid(fg-rcpth))
@@ -1807,25 +1807,25 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                  AND fg-rcpth.USER-ID LE END_user
                         USE-INDEX post-date
                         NO-LOCK,
-                   EACH fg-rdtlh FIELDS(loc loc-bin tag) WHERE
-                        fg-rdtlh.r-no      EQ fg-rcpth.r-no AND
-                        fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+                   each fg-rdtlh FIELDS(loc loc-bin tag) WHERE
+                        fg-rdtlh.r-no      eq fg-rcpth.r-no AND
+                        fg-rdtlh.rita-code eq fg-rcpth.rita-code
                         NO-LOCK:
              
-                        CREATE tt-report.
-                        ASSIGN
+                        create tt-report.
+                        assign
                            tt-report.term-id = ""
                            tt-report.key-01  = fg-rdtlh.loc
                            tt-report.key-02  = fg-rcpth.i-no
                            tt-report.key-03  = fg-rdtlh.loc-bin
                            tt-report.key-04  = fg-rdtlh.tag
-                           tt-report.rec-id  = RECID(fg-rdtlh)
+                           tt-report.rec-id  = recid(fg-rdtlh)
                            tt-report.DATE    = fg-rcpth.trans-date. 
                         RELEASE tt-report.
               END.
            END. /*v-date loop*/
         END.
-      END.
+      end.
   END.
 
 END PROCEDURE.
@@ -2027,7 +2027,7 @@ PROCEDURE GetSelectionList :
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
            ttRptSelected.DisplayOrder = i
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
@@ -2153,7 +2153,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2242,22 +2242,22 @@ DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth .
 DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh .
 {ce/msfcalc.i}
 
-FORM fg-rcpth.trans-date            LABEL "DATE"   FORMAT "99/99/99"
-     fg-rcpth.i-no   FORMAT "x(15)" LABEL "ITEM"
-     fg-rcpth.i-name FORMAT "x(9)"  LABEL "DESCRIPTN"
-     fg-rcpth.po-no                 LABEL "P.O. #"
-     po-ord.vend-no                 LABEL "VENDOR"
-     v-tran-type                    LABEL "T"
-     fg-rdtlh.tag                   LABEL "TAG #"
-     v-cases                        LABEL "UNITS"   FORMAT "->>,>>9"
-     v-qty-case                     LABEL "COUNT"   FORMAT "->>>,>>9"
-     fg-rdtlh.qty-case              LABEL "COUNT"   FORMAT "->>>,>>9"
-     fg-rdtlh.loc-bin               LABEL "BIN"
-     lv-cost-uom                    LABEL "CUOM"
-     v-fg-qty                       LABEL "TOT QTY"
-     v-fg-cost                      LABEL "TOT COST"
-     v-fg-value                     LABEL "TOT SELL VALUE"    
-    WITH FRAME itemx NO-BOX DOWN STREAM-IO WIDTH 200.
+form fg-rcpth.trans-date            label "DATE"   format "99/99/99"
+     fg-rcpth.i-no   format "x(15)" label "ITEM"
+     fg-rcpth.i-name format "x(9)"  label "DESCRIPTN"
+     fg-rcpth.po-no                 label "P.O. #"
+     po-ord.vend-no                 label "VENDOR"
+     v-tran-type                    label "T"
+     fg-rdtlh.tag                   label "TAG #"
+     v-cases                        label "UNITS"   format "->>,>>9"
+     v-qty-case                     label "COUNT"   format "->>>,>>9"
+     fg-rdtlh.qty-case              label "COUNT"   format "->>>,>>9"
+     fg-rdtlh.loc-bin               label "BIN"
+     lv-cost-uom                    label "CUOM"
+     v-fg-qty                       label "TOT QTY"
+     v-fg-cost                      label "TOT COST"
+     v-fg-value                     label "TOT SELL VALUE"    
+    with frame itemx no-box down STREAM-IO width 200.
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(fi_file).
@@ -2271,8 +2271,8 @@ IF tb_excel THEN DO:
    */
 END.
 
-ASSIGN
- str-tit2 = "I-L-6 "+ c-win:TITLE
+assign
+ str-tit2 = "I-L-6 "+ c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
 
  b-post-date   = from_date
@@ -2299,7 +2299,7 @@ END.
 
 {sys/inc/print1.i}
 {sys/inc/outprint.i value(lines-per-page)}
-IF td-show-parm THEN RUN show-param.
+if td-show-parm then run show-param.
 
 SESSION:SET-WAIT-STATE("general").
 RUN create-tt-report.
@@ -2308,16 +2308,16 @@ IF tb_excel THEN PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","')
 
 {fgrep/r-fgpstrN.i}
 
-  IF v-pr-tots THEN
-    PUT " " TO 124 SKIP       
+  if v-pr-tots then
+    put " " to 124 skip       
         "MSF->  FG: " + trim(STRING(v-msf[5],"->>,>>9.9<<")) +
         "  Wst: " + trim(STRING(v-msf[6],"->>,>>9.9<<"))    +
         "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],"->>,>>9.9<<"))
-                             FORMAT "x(63)" AT 15
-        "GRAND TOTAL COST & SELL VALUE:" TO 111
-        v-grd-tot-cost TO v-tot-pos2
-        v-grd-tot-value TO v-tot-pos3
-        SKIP .  
+                             format "x(63)" at 15
+        "GRAND TOTAL COST & SELL VALUE:" to 111
+        v-grd-tot-cost to v-tot-pos2
+        v-grd-tot-value to v-tot-pos3
+        skip .  
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
@@ -2383,73 +2383,73 @@ DEFINE BUFFER b-fgrdtlh FOR fg-rdtlh.
 
 {ce/msfcalc.i}
 
-FORM fg-rcpth.trans-date            LABEL "DATE"   FORMAT "99/99/99"
-     fg-rcpth.i-no   FORMAT "x(15)" LABEL "ITEM"
-     fg-rcpth.i-name FORMAT "x(9)"  LABEL "DESCRIPTN"
-     fg-rcpth.po-no                 LABEL "P.O. #"
-     po-ord.vend-no                 LABEL "VENDOR"
-     v-tran-type                    LABEL "T"
-     fg-rdtlh.tag                   LABEL "TAG #"
-     v-cases                        LABEL "UNITS"   FORMAT "->>,>>9"
-     v-qty-case                     LABEL "COUNT"   FORMAT "->>>,>>9"
-     fg-rdtlh.qty-case              LABEL "COUNT"   FORMAT "->>>,>>9"
-     fg-rdtlh.loc-bin               LABEL "BIN"
-     lv-cost-uom                    LABEL "CUOM"
-     v-fg-qty                       LABEL "TOT QTY"
-     v-fg-cost                      LABEL "TOT COST"
-     v-fg-value                     LABEL "TOT SELL VALUE"    
-    WITH FRAME itemx NO-BOX DOWN STREAM-IO WIDTH 200.
+form fg-rcpth.trans-date            label "DATE"   format "99/99/99"
+     fg-rcpth.i-no   format "x(15)" label "ITEM"
+     fg-rcpth.i-name format "x(9)"  label "DESCRIPTN"
+     fg-rcpth.po-no                 label "P.O. #"
+     po-ord.vend-no                 label "VENDOR"
+     v-tran-type                    label "T"
+     fg-rdtlh.tag                   label "TAG #"
+     v-cases                        label "UNITS"   format "->>,>>9"
+     v-qty-case                     label "COUNT"   format "->>>,>>9"
+     fg-rdtlh.qty-case              label "COUNT"   format "->>>,>>9"
+     fg-rdtlh.loc-bin               label "BIN"
+     lv-cost-uom                    label "CUOM"
+     v-fg-qty                       label "TOT QTY"
+     v-fg-cost                      label "TOT COST"
+     v-fg-value                     label "TOT SELL VALUE"    
+    with frame itemx no-box down STREAM-IO width 200.
 
-FORM fg-rcpth.trans-date            LABEL "DATE"   FORMAT "99/99/99"
-     fg-rcpth.i-no   FORMAT "x(15)" LABEL "ITEM"
-     fg-rcpth.i-name FORMAT "x(9)"  LABEL "DESCRIPTN"
-     fg-rcpth.po-no                 LABEL "P.O. #"
-     fg-rcpth.job-no                LABEL "Job" FORMAT "x(11)"
-     v-tran-type                    LABEL "T"
-     fg-rdtlh.tag                   LABEL "TAG #"
-     v-cases                        LABEL "UNITS"   FORMAT "->>,>>9"
-     v-qty-case                     LABEL "COUNT"   FORMAT "->>>,>>9"
-     fg-rdtlh.qty-case              LABEL "COUNT"   FORMAT "->>>,>>9"
-     fg-rdtlh.loc-bin               LABEL "BIN"
-     lv-cost-uom                    LABEL "CUOM"
-     v-fg-qty                       LABEL "TOT QTY"
-     v-fg-cost                      LABEL "TOT COST"
-     v-fg-value                     LABEL "TOT SELL VALUE"    
-    WITH FRAME itemy NO-BOX DOWN STREAM-IO WIDTH 200.
+form fg-rcpth.trans-date            label "DATE"   format "99/99/99"
+     fg-rcpth.i-no   format "x(15)" label "ITEM"
+     fg-rcpth.i-name format "x(9)"  label "DESCRIPTN"
+     fg-rcpth.po-no                 label "P.O. #"
+     fg-rcpth.job-no                label "Job" FORMAT "x(11)"
+     v-tran-type                    label "T"
+     fg-rdtlh.tag                   label "TAG #"
+     v-cases                        label "UNITS"   format "->>,>>9"
+     v-qty-case                     label "COUNT"   format "->>>,>>9"
+     fg-rdtlh.qty-case              label "COUNT"   format "->>>,>>9"
+     fg-rdtlh.loc-bin               label "BIN"
+     lv-cost-uom                    label "CUOM"
+     v-fg-qty                       label "TOT QTY"
+     v-fg-cost                      label "TOT COST"
+     v-fg-value                     label "TOT SELL VALUE"    
+    with frame itemy no-box down STREAM-IO width 200.
 
-FORM fg-rcpth.trans-date            LABEL "DATE"   FORMAT "99/99/99"
-     fg-rcpth.i-no   FORMAT "x(15)" LABEL "ITEM"
-     fg-rcpth.i-name FORMAT "x(9)"  LABEL "DESCRIPTN"
-     fg-rcpth.po-no                 LABEL "P.O. #"
-     po-ord.vend-no                 LABEL "VENDOR"
-     v-tran-type                    LABEL "T"
+form fg-rcpth.trans-date            label "DATE"   format "99/99/99"
+     fg-rcpth.i-no   format "x(15)" label "ITEM"
+     fg-rcpth.i-name format "x(9)"  label "DESCRIPTN"
+     fg-rcpth.po-no                 label "P.O. #"
+     po-ord.vend-no                 label "VENDOR"
+     v-tran-type                    label "T"
      rfidtag.rfidtag                COLUMN-LABEL "RFID!TAG #"
-     v-cases                        LABEL "UNITS"   FORMAT "->>,>>9"
-     v-qty-case                     LABEL "COUNT"   FORMAT "->>>,>>9"
-     fg-rdtlh.qty-case              LABEL "COUNT"   FORMAT "->>>,>>9"
-     fg-rdtlh.loc-bin               LABEL "BIN"
-     lv-cost-uom                    LABEL "CUOM"
-     v-fg-qty                       LABEL "TOT QTY"
-     v-fg-cost                      LABEL "TOT COST"
-     v-fg-value                     LABEL "TOT SELL VALUE"    
-    WITH FRAME itemz NO-BOX DOWN STREAM-IO WIDTH 200.
+     v-cases                        label "UNITS"   format "->>,>>9"
+     v-qty-case                     label "COUNT"   format "->>>,>>9"
+     fg-rdtlh.qty-case              label "COUNT"   format "->>>,>>9"
+     fg-rdtlh.loc-bin               label "BIN"
+     lv-cost-uom                    label "CUOM"
+     v-fg-qty                       label "TOT QTY"
+     v-fg-cost                      label "TOT COST"
+     v-fg-value                     label "TOT SELL VALUE"    
+    with frame itemz no-box down STREAM-IO width 200.
 
-FORM fg-rcpth.trans-date            LABEL "DATE"   FORMAT "99/99/99"
-     fg-rcpth.i-no   FORMAT "x(15)" LABEL "ITEM"
-     fg-rcpth.i-name FORMAT "x(9)"  LABEL "DESCRIPTN"
-     fg-rcpth.po-no                 LABEL "P.O. #"
-     fg-rcpth.job-no                LABEL "Job" FORMAT "x(11)"
-     v-tran-type                    LABEL "T"
+form fg-rcpth.trans-date            label "DATE"   format "99/99/99"
+     fg-rcpth.i-no   format "x(15)" label "ITEM"
+     fg-rcpth.i-name format "x(9)"  label "DESCRIPTN"
+     fg-rcpth.po-no                 label "P.O. #"
+     fg-rcpth.job-no                label "Job" FORMAT "x(11)"
+     v-tran-type                    label "T"
      rfidtag.rfidtag                COLUMN-LABEL "RFID!TAG #"
-     v-cases                        LABEL "UNITS"   FORMAT "->>,>>9"
-     v-qty-case                     LABEL "COUNT"   FORMAT "->>>,>>9"
-     fg-rdtlh.qty-case              LABEL "COUNT"   FORMAT "->>>,>>9"
-     fg-rdtlh.loc-bin               LABEL "BIN"
-     lv-cost-uom                    LABEL "CUOM"
-     v-fg-qty                       LABEL "TOT QTY"
-     v-fg-cost                      LABEL "TOT COST"
-     v-fg-value                     LABEL "TOT SELL VALUE"    
-    WITH FRAME itemzz NO-BOX DOWN STREAM-IO WIDTH 200.
+     v-cases                        label "UNITS"   format "->>,>>9"
+     v-qty-case                     label "COUNT"   format "->>>,>>9"
+     fg-rdtlh.qty-case              label "COUNT"   format "->>>,>>9"
+     fg-rdtlh.loc-bin               label "BIN"
+     lv-cost-uom                    label "CUOM"
+     v-fg-qty                       label "TOT QTY"
+     v-fg-cost                      label "TOT COST"
+     v-fg-value                     label "TOT SELL VALUE"    
+    with frame itemzz no-box down STREAM-IO width 200.
 
 
 IF tb_excel THEN DO:
@@ -2459,8 +2459,8 @@ IF tb_excel THEN DO:
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
-ASSIGN
- str-tit2 = "I-L-6 "+ c-win:TITLE
+assign
+ str-tit2 = "I-L-6 "+ c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
 
  b-post-date   = from_date
@@ -2473,23 +2473,23 @@ ASSIGN
 {sys/inc/print1.i}
 {sys/inc/outprint.i value(lines-per-page)}
 
-IF td-show-parm THEN RUN show-param.
+if td-show-parm then run show-param.
 
 SESSION:SET-WAIT-STATE("general").
 
 RUN create-tt-report.
 
-  FOR EACH tt-report WHERE tt-report.term-id EQ "" NO-LOCK,
-      FIRST fg-rdtlh WHERE RECID(fg-rdtlh) EQ tt-report.rec-id NO-LOCK,
+  for each tt-report where tt-report.term-id eq "" no-lock,
+      first fg-rdtlh where recid(fg-rdtlh) eq tt-report.rec-id no-lock,
       /* find fg-rcpth */
-      FIRST fg-rcpth
-      WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-        AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-      NO-LOCK
-      BREAK BY tt-report.key-01
-            BY tt-report.key-02
-            BY tt-report.key-03
-            BY tt-report.key-04
+      first fg-rcpth
+      where fg-rdtlh.r-no      eq fg-rcpth.r-no
+        and fg-rdtlh.rita-code eq fg-rcpth.rita-code
+      no-lock
+      break by tt-report.key-01
+            by tt-report.key-02
+            by tt-report.key-03
+            by tt-report.key-04
             BY tt-report.DATE
       /* with frame itemx */:
 
@@ -2502,29 +2502,29 @@ RUN create-tt-report.
       ELSE
           ASSIGN v-new-job = NO.
 
-    IF FIRST-OF(tt-report.key-01) THEN DO:             
+    if first-of(tt-report.key-01) then do:             
       v-whse = fg-rdtlh.loc.
       
-      IF FIRST(tt-report.key-01) THEN DO:
-        HIDE FRAME r-top.
-        VIEW FRAME r-top.
-        PAGE.
-      END.
-      ELSE PUT SKIP(3) "WHSE: " v-whse SKIP(1).
-    END.
+      if first(tt-report.key-01) then do:
+        hide frame r-top.
+        VIEW frame r-top.
+        page.
+      end.
+      else put skip(3) "WHSE: " v-whse skip(1).
+    end.
 
-    IF fg-rcpth.rita-code EQ "S" THEN DO:
-      FIND FIRST fg-bin
-          WHERE fg-bin.company EQ fg-rcpth.company
-            AND fg-bin.job-no  EQ fg-rcpth.job-no
-            AND fg-bin.job-no2 EQ fg-rcpth.job-no2
-            AND fg-bin.i-no    EQ fg-rcpth.i-no
-            AND fg-bin.loc     EQ fg-rdtlh.loc
-            AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
-            AND fg-bin.tag     EQ fg-rdtlh.tag
-          USE-INDEX job NO-LOCK NO-ERROR.
+    if fg-rcpth.rita-code eq "S" then do:
+      find first fg-bin
+          where fg-bin.company eq fg-rcpth.company
+            and fg-bin.job-no  eq fg-rcpth.job-no
+            and fg-bin.job-no2 eq fg-rcpth.job-no2
+            and fg-bin.i-no    eq fg-rcpth.i-no
+            and fg-bin.loc     eq fg-rdtlh.loc
+            and fg-bin.loc-bin eq fg-rdtlh.loc-bin
+            and fg-bin.tag     eq fg-rdtlh.tag
+          use-index job no-lock no-error.
       ASSIGN lv-cost-uom = IF AVAILABLE fg-bin THEN fg-bin.pur-uom ELSE "M".
-    END.
+    end.
     ELSE 
         ASSIGN lv-cost-uom = fg-rcpth.pur-uom.
 
@@ -2533,10 +2533,10 @@ RUN create-tt-report.
      lv-sell-price = 0
      lv-sell-uom   = "EA".
 
-    FIND FIRST itemfg
-        WHERE itemfg.company EQ cocode
-          AND itemfg.i-no    EQ fg-rcpth.i-no
-        USE-INDEX i-no NO-LOCK NO-ERROR.
+    find first itemfg
+        where itemfg.company eq cocode
+          and itemfg.i-no    eq fg-rcpth.i-no
+        use-index i-no no-lock no-error.
     IF AVAILABLE itemfg THEN DO:
       ASSIGN
        lv-sell-price = itemfg.sell-price
@@ -2544,26 +2544,26 @@ RUN create-tt-report.
        lv-cost-uom   = itemfg.prod-uom.
 
     /* calculate the cost based on fg-rcpth.pur-uom. */
-    ASSIGN
+    assign
      v-fg-qty   = fg-rdtlh.qty
      v-fg-cost  = fg-rdtlh.cost * (v-fg-qty / IF lv-cost-uom EQ "M" THEN 1000 ELSE 1)
      v-fg-value = 0
      v-msf[1]   = 0
      v-msf[2]   = 0.
 
-    RELEASE job-mat.
-    IF fg-rcpth.rita-code EQ "R" THEN
+    release job-mat.
+    if fg-rcpth.rita-code eq "R" then
         RUN calc-msf-for-r (INPUT ROWID(fg-rcpth),
                             INPUT ROWID(fg-rdtlh),
-                            INPUT LAST-OF(tt-report.key-02),
+                            INPUT last-of(tt-report.key-02),
                             INPUT v-corr,
                             OUTPUT v-on,
                             OUTPUT v-qty-pallet,
                             OUTPUT v-msf[1],
                             OUTPUT v-msf[2]).
 
-      IF fg-rcpth.rita-code EQ "R" THEN DO:
-        IF v-msf[1] GT fg-rdtlh.qty * itemfg.t-sqft THEN
+      if fg-rcpth.rita-code eq "R" then do:
+        if v-msf[1] gt fg-rdtlh.qty * itemfg.t-sqft then
           v-msf[2] = v-msf[2] +
                      (v-msf[1] - (fg-rdtlh.qty * itemfg.t-sqft)).
           v-msf[1] = fg-rdtlh.qty * itemfg.t-sqft.
@@ -2579,21 +2579,21 @@ RUN create-tt-report.
                        INPUT lv-sell-uom,
                        INPUT ROWID(fg-rdtlh),
                        OUTPUT v-fg-value).
-    ASSIGN
+    assign
      v-msf[1] = v-msf[1] / 1000
      v-msf[2] = v-msf[2] / 1000.
 
-    IF INDEX("RTASEC", fg-rcpth.rita-code) NE 0 THEN
-      v-tran-type = ENTRY(INDEX("RTASEC", fg-rcpth.rita-code),v-entrytype).
-    ELSE v-tran-type = "".
+    if index("RTASEC", fg-rcpth.rita-code) ne 0 then
+      v-tran-type = entry(index("RTASEC", fg-rcpth.rita-code),v-entrytype).
+    else v-tran-type = "".
 
-    IF LINE-COUNTER EQ 56 THEN PAGE.
+    if line-counter eq 56 then page.
 
-    IF fg-rcpth.po-no NE " " THEN
-    FIND FIRST po-ord
-        WHERE po-ord.company EQ cocode
-          AND po-ord.po-no   EQ int(fg-rcpth.po-no)
-        NO-LOCK NO-ERROR.                
+    if fg-rcpth.po-no ne " " then
+    find first po-ord
+        where po-ord.company eq cocode
+          and po-ord.po-no   eq int(fg-rcpth.po-no)
+        no-lock no-error.                
     RUN calc-case-and-tag (INPUT ROWID(fg-rcpth),
                            INPUT ROWID(fg-rdtlh),
                            INPUT v-fg-qty,
@@ -2601,9 +2601,9 @@ RUN create-tt-report.
                            OUTPUT v-qty-case,
                            OUTPUT v-tag).
 
-    FIND FIRST loadtag WHERE loadtag.item-type = NO
-                         AND loadtag.company EQ cocode
-                         AND loadtag.i-no    EQ fg-rcpth.i-no
+    find first loadtag where loadtag.item-type = NO
+                         AND loadtag.company eq cocode
+                         and loadtag.i-no    eq fg-rcpth.i-no
                          AND loadtag.tag-no  EQ fg-rdtlh.tag
                        NO-LOCK NO-ERROR.
     IF AVAILABLE loadtag THEN
@@ -2611,7 +2611,7 @@ RUN create-tt-report.
 
     IF rsShowVendor = "Vendor" AND rsShowTag = "Tag#" THEN DO:
 
-        DISPLAY fg-rcpth.trans-date     /*  when first-of(tt-report.key-02) */
+        display fg-rcpth.trans-date     /*  when first-of(tt-report.key-02) */
                 fg-rcpth.i-no           /*  when first-of(tt-report.key-02) */
                 fg-rcpth.i-name
                 fg-rcpth.po-no
@@ -2626,13 +2626,13 @@ RUN create-tt-report.
                 v-fg-cost           /* (sub-total by fg-rcpth.i-no) */
                 v-fg-value
                                                  
-            WITH FRAME itemx.
-        DOWN WITH FRAME itemx.
+            with frame itemx.
+        down with frame itemx.
 
     END.
     ELSE IF rsShowVendor = "Job#" AND rsShowTag = "Tag#" THEN DO:
 
-        DISPLAY fg-rcpth.trans-date     /*  when first-of(tt-report.key-02) */
+        display fg-rcpth.trans-date     /*  when first-of(tt-report.key-02) */
                 fg-rcpth.i-no           /*  when first-of(tt-report.key-02) */
                 fg-rcpth.i-name
                 fg-rcpth.po-no
@@ -2648,19 +2648,19 @@ RUN create-tt-report.
                 v-fg-cost           /* (sub-total by fg-rcpth.i-no) */
                 v-fg-value
                                                  
-            WITH FRAME itemy.
-        DOWN WITH FRAME itemy.
+            with frame itemy.
+        down with frame itemy.
 
     END.
     ELSE IF rsShowVendor = "Vendor" AND rsShowTag = "RFID#" THEN DO:
 
-            DISPLAY fg-rcpth.trans-date     /*  when first-of(tt-report.key-02) */
+            display fg-rcpth.trans-date     /*  when first-of(tt-report.key-02) */
                     fg-rcpth.i-no           /*  when first-of(tt-report.key-02) */
                     fg-rcpth.i-name
                     fg-rcpth.po-no
                     po-ord.vend-no            WHEN AVAILABLE po-ord AND fg-rcpth.po-no <> ""                     
                     v-tran-type
-                    SUBSTRING(rfidtag.rfidtag, 13)  WHEN AVAIL(rfidtag) @ rfidtag.rfidtag
+                    substring(rfidtag.rfidtag, 13)  WHEN AVAIL(rfidtag) @ rfidtag.rfidtag
                     v-cases
                     v-qty-case
                     v-fg-qty            /* (sub-total by fg-rcpth.i-no) */
@@ -2669,20 +2669,20 @@ RUN create-tt-report.
                     v-fg-cost           /* (sub-total by fg-rcpth.i-no) */
                     v-fg-value
     
-                WITH FRAME itemz.
-            DOWN WITH FRAME itemz.
+                with frame itemz.
+            down with frame itemz.
 
     END.
     ELSE IF rsShowVendor = "Job#" AND rsShowTag = "RFID#" THEN DO:
 
-            DISPLAY fg-rcpth.trans-date     /*  when first-of(tt-report.key-02) */
+            display fg-rcpth.trans-date     /*  when first-of(tt-report.key-02) */
                     fg-rcpth.i-no           /*  when first-of(tt-report.key-02) */
                     fg-rcpth.i-name
                     fg-rcpth.po-no
                     /* po-ord.vend-no            when avail po-ord AND fg-rcpth.po-no <> "" */
                     fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2) WHEN fg-rcpth.job-no GT ""  @ fg-rcpth.job-no
                     v-tran-type
-                    SUBSTRING(rfidtag.rfidtag, 13) WHEN AVAIL(rfidtag) @ rfidtag.rfidtag
+                    substring(rfidtag.rfidtag, 13) WHEN AVAIL(rfidtag) @ rfidtag.rfidtag
                     v-cases
                     v-qty-case
                     v-fg-qty            /* (sub-total by fg-rcpth.i-no) */
@@ -2690,8 +2690,8 @@ RUN create-tt-report.
                     lv-cost-uom       
                     v-fg-cost           /* (sub-total by fg-rcpth.i-no) */
                     v-fg-value
-                WITH FRAME itemzz.
-            DOWN WITH FRAME itemzz.
+                with frame itemzz.
+            down with frame itemzz.
 
     END.
 
@@ -2715,10 +2715,10 @@ RUN create-tt-report.
           '"' STRING(v-fg-value,"->>,>>>,>>9.99")                      '",'
           SKIP.
 
-    IF fg-rdtlh.rita-code EQ "T" THEN
-      PUT "To: " TO 94 fg-rdtlh.loc2 fg-rdtlh.loc-bin2 SKIP.
+    if fg-rdtlh.rita-code eq "T" then
+      put "To: " to 94 fg-rdtlh.loc2 fg-rdtlh.loc-bin2 skip.
 
-    IF v-pr-tots THEN DO:    
+    if v-pr-tots then do:    
       IF rsShowVendor = "Vendor" AND rsShowTag = "TAG#" THEN
       ASSIGN v-tot-pos1 = 116
              v-tot-pos2 = 128
@@ -2733,7 +2733,7 @@ RUN create-tt-report.
              v-tot-pos2 = 135
              v-tot-pos3 = 150.
 
-      ASSIGN
+      assign
        v-tot-qty = v-tot-qty + v-fg-qty
        v-tot-cost = v-tot-cost + v-fg-cost
        v-grd-tot-cost = v-grd-tot-cost + v-fg-cost   
@@ -2748,32 +2748,32 @@ RUN create-tt-report.
           ASSIGN v-tot-value = v-tot-value + v-fg-value
                  v-grd-tot-value = v-grd-tot-value + v-fg-value.
 
-      IF fg-rdtlh.rita-code EQ "R" OR
-         fg-rdtlh.rita-code EQ "A" OR
-         fg-rdtlh.rita-code EQ "E" THEN
+      if fg-rdtlh.rita-code eq "R" or
+         fg-rdtlh.rita-code eq "A" or
+         fg-rdtlh.rita-code eq "E" then
         v-cum-tot  = v-cum-tot + v-fg-cost.
-      ELSE
-      IF fg-rdtlh.rita-code EQ "S" THEN
+      else
+      if fg-rdtlh.rita-code eq "S" then
         v-cum-tot  = v-cum-tot - v-fg-cost.
-    END.  /*   if v-pr-tots   */ 
+    end.  /*   if v-pr-tots   */ 
     
-    IF v-pr-tots THEN DO:                                                              IF LAST-OF(tt-report.key-02) THEN DO:
-        PUT "-----------" TO v-tot-pos1
-            "----------" TO v-tot-pos2
-            "--------------" TO v-tot-pos3
-            SKIP.                
+    if v-pr-tots then do:                                                              if last-of(tt-report.key-02) then do:
+        put "-----------" to v-tot-pos1
+            "----------" to v-tot-pos2
+            "--------------" to v-tot-pos3
+            skip.                
 
-        IF fg-rcpth.rita-code EQ "R" THEN
-          PUT "MSF->  FG: " + trim(STRING(v-msf[3],"->>,>>9.9<<")) +
+        if fg-rcpth.rita-code eq "R" then
+          put "MSF->  FG: " + trim(STRING(v-msf[3],"->>,>>9.9<<")) +
               "  Wst: " + trim(STRING(v-msf[4],"->>,>>9.9<<"))    +
               "  Tot: " + trim(STRING(v-msf[3] + v-msf[4],"->>,>>9.9<<"))
-                             FORMAT "x(63)" AT 15.
+                             format "x(63)" at 15.
 
-        PUT v-tot-qty TO v-tot-pos1
-            v-tot-cost TO v-tot-pos2
-            v-tot-value TO v-tot-pos3 SKIP(1).
+        put v-tot-qty to v-tot-pos1
+            v-tot-cost to v-tot-pos2
+            v-tot-value to v-tot-pos3 skip(1).
 
-        ASSIGN
+        assign
          v-msf[5]    = v-msf[5] + v-msf[3]
          v-msf[6]    = v-msf[6] + v-msf[4]
          v-tot-qty   = 0
@@ -2781,20 +2781,20 @@ RUN create-tt-report.
          v-tot-value = 0
          v-msf[3]    = 0
          v-msf[4]    = 0.
-      END.  /* if last-of(fg-rcpth.i-no) */        
-    END. /* if v-pr-tots */
-  END.
+      end.  /* if last-of(fg-rcpth.i-no) */        
+    end. /* if v-pr-tots */
+  end.
 
-  IF v-pr-tots THEN
-    PUT " " TO 124 SKIP       
+  if v-pr-tots then
+    put " " to 124 skip       
         "MSF->  FG: " + trim(STRING(v-msf[5],"->>,>>9.9<<")) +
         "  Wst: " + trim(STRING(v-msf[6],"->>,>>9.9<<"))    +
         "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],"->>,>>9.9<<"))
-                             FORMAT "x(63)" AT 15
-        "GRAND TOTAL COST & SELL VALUE:" TO 111
-        v-grd-tot-cost TO v-tot-pos2
-        v-grd-tot-value TO v-tot-pos3
-        SKIP .  
+                             format "x(63)" at 15
+        "GRAND TOTAL COST & SELL VALUE:" to 111
+        v-grd-tot-cost to v-tot-pos2
+        v-grd-tot-value to v-tot-pos3
+        skip .  
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
@@ -2808,7 +2808,7 @@ SESSION:SET-WAIT-STATE("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
-END PROCEDURE.
+end procedure.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2853,52 +2853,52 @@ PROCEDURE show-param :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-label AS cha.
   
-  lv-frame-hdl = FRAME {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
-  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
+  lv-frame-hdl = frame {&frame-name}:handle.
+  lv-group-hdl = lv-frame-hdl:first-child.
+  lv-field-hdl = lv-group-hdl:first-child .
   
-  DO WHILE TRUE:
-     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
-     IF LOOKUP("parm",lv-field-hdl:PRIVATE-DATA) > 0
-        THEN DO:
-        IF lv-field-hdl:LABEL <> ? THEN 
-              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
+  do while true:
+     if not valid-handle(lv-field-hdl) then leave.
+     if lookup("parm",lv-field-hdl:private-data) > 0
+        then do:
+        if lv-field-hdl:label <> ? then 
+              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
                      .
-           ELSE DO:  /* radio set */
-              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+           else do:  /* radio set */
+              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
                      .
-              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
-              REPEAT:
-                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
-                  IF LOOKUP(lv-field-hdl:NAME,lv-field2-hdl:PRIVATE-DATA) > 0 THEN DO:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
-                  END.
-                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
-              END.       
-           END.                 
-        END.            
-     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
-  END.
-  PUT SPACE(28)
+              lv-field2-hdl = lv-group-hdl:first-child.
+              repeat:
+                  if not valid-handle(lv-field2-hdl) then leave. 
+                  if lookup(lv-field-hdl:NAME,lv-field2-hdl:private-data) > 0 then do:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
+                  end.
+                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
+              end.       
+           end.                 
+        end.            
+     lv-field-hdl = lv-field-hdl:next-sibling.   
+  end.
+  put space(28)
       "< Selection Parameters >"
-      SKIP(1).
+      skip(1).
   
-  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
-    IF ENTRY(i,parm-fld-list) NE "" OR
-       entry(i,parm-lbl-list) NE "" THEN DO:
+  do i = 1 to num-entries(parm-fld-list,","):
+    if entry(i,parm-fld-list) ne "" or
+       entry(i,parm-lbl-list) ne "" then do:
        
-      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
-                 trim(ENTRY(i,parm-lbl-list)) + ":".
+      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
+                 trim(entry(i,parm-lbl-list)) + ":".
                  
-      PUT lv-label FORMAT "x(35)" AT 5
-          SPACE(1)
-          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
-          SKIP.              
-    END.
-  END.
+      put lv-label format "x(35)" at 5
+          space(1)
+          trim(entry(i,parm-fld-list)) format "x(40)"
+          skip.              
+    end.
+  end.
  
-  PUT FILL("-",80) FORMAT "x(80)" SKIP.
+  put fill("-",80) format "x(80)" skip.
   
 END PROCEDURE.
 
@@ -2915,7 +2915,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN STRING(hipField:BUFFER-VALUE).
+  RETURN string(hipField:BUFFER-VALUE).
 
 END FUNCTION.
 

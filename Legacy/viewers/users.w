@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
@@ -296,7 +296,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: NOSWEAT.users,asi.usr
+   External Tables: ASI.users,asi.usr
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -728,9 +728,9 @@ PROCEDURE local-assign-record :
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans .
   IF ll-ans THEN DO:
    
-     FIND NOSWEAT._user
-          WHERE NOSWEAT._user._userid = users.user_id EXCLUSIVE-LOCK NO-ERROR.
-     IF AVAILABLE NOSWEAT._user THEN         
+     FIND ASI._user
+          WHERE ASI._user._userid = users.user_id EXCLUSIVE-LOCK NO-ERROR.
+     IF AVAILABLE ASI._user THEN         
      DO:
          RUN windows/d-passwd.w (RECID(_user)).
          /*
@@ -744,7 +744,7 @@ PROCEDURE local-assign-record :
          HIDE FRAME f-password2 NO-PAUSE.
          /*
          ASSIGN
-             NOSWEAT._user._password = ENCODE(v-new-pass).
+             ASI._user._password = ENCODE(v-new-pass).
          */
          /*ll-dummy = SETUSERID(_user._USERid,encode(v-new-pass),ldbname(1)) .
          */
@@ -886,7 +886,7 @@ PROCEDURE proc-enable :
          tb_security:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
 
   /* task 04101303*/
-    IF USERID("NOSWEAT") EQ "asi" THEN
+    IF USERID("ASI") EQ "asi" THEN
          ASSIGN users.track_usage:SENSITIVE = YES 
                 users.use_colors:SENSITIVE = YES
                 users.use_fonts:SENSITIVE = YES

@@ -766,14 +766,14 @@
     create fg-rdtlh.
     {fg/fg-rdtl.i fg-rdtlh {2}} /* Create Detail History Records */
     {fg/fg-fgact.i {1} {2}}         /* Create Job Costing F/G WIP Record */
-    ASSIGN fg-rdtlh.user-id = USERID('nosweat')
+    ASSIGN fg-rdtlh.user-id = USERID("ASI")
            fg-rdtlh.upd-date = TODAY
            fg-rdtlh.upd-time = TIME.
   END.
 
   create fg-rcpth.
   {fg/fg-rcpts.i fg-rcpth {1}}  /* Create Header History Records */
-  ASSIGN fg-rcpth.user-id = USERID('nosweat')
+  ASSIGN fg-rcpth.user-id = USERID("ASI")
          fg-rcpth.upd-date = TODAY
          fg-rcpth.upd-time = TIME.
 

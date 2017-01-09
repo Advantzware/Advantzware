@@ -1661,7 +1661,7 @@ PROCEDURE hold-approve :
        SESSION:SET-WAIT-STATE("General").
 
        ASSIGN
-          oe-ord.user-id   = USERID("nosweat")
+          oe-ord.user-id   = USERID("ASI")
           oe-ord.t-freight = 0.
       
        IF oe-ord.type EQ "" THEN oe-ord.type = "O".
@@ -1962,7 +1962,7 @@ PROCEDURE lib-create-record :
          oe-ord.loc = g_loc
          oe-ord.ord-date = TODAY
          oe-ord.ord-no = li-next-ordno
-         oe-ord.user-id = USERID("nosweat")
+         oe-ord.user-id = USERID("ASI")
          oe-ord.type = ip-type
          oe-ord.cust-no = bf-orig-ord.cust-no
          oe-ord.due-date = bf-orig-ord.due-date

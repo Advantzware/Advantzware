@@ -276,7 +276,7 @@ DISCONNECT asihlp NO-ERROR.
 DISCONNECT emptrack NO-ERROR.
 DISCONNECT nosweat NO-ERROR.
 
-CONNECT -pf {&dbDir}/nosweat.pf.
+/* CONNECT -pf {&dbDir}/nosweat.pf. */
 CONNECT -pf {&dbDir}/asi.pf.
 CONNECT -pf {&dbDir}/asihelp.pf.
 CONNECT -pf {&dbDir}/addon/emptrack-tst.pf.

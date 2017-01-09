@@ -101,7 +101,7 @@ DEFINE BUTTON UDF
      IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "UDF" 
-     SIZE 7.8 BY 1.81 TOOLTIP "UDF Viewer".
+     SIZE 7.8 BY 1.81 TOOLTIP "UDF".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -155,6 +155,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{advantzware/winkit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */

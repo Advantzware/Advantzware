@@ -953,7 +953,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'IF1',
                             INPUT YES,
                             OUTPUT lActive).
-{sys/inc/chblankcust.i ""IF1""}
+{sys/inc/chblankcust.i}
 
 /* {methods/browsers/setCellColumns.i} */
 {methods/winReSize.i}

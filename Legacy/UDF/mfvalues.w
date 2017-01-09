@@ -893,12 +893,12 @@ PROCEDURE loadWidgetData :
     MESSAGE "No '" + ipcGroup + "' Group Exists!!!" VIEW-AS ALERT-BOX INFORMATION.
     RETURN "EMPTY".
   END.
-  OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat").
+  OUTPUT TO VALUE("users/" + USERID("ASI") + "/miscflds.dat").
   FOR EACH {&dbnm}mfdata NO-LOCK:
     PUT UNFORMATTED {&dbnm}mfdata.miscflds_data SKIP.
   END.
   OUTPUT CLOSE.
-  INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat") NO-ECHO.
+  INPUT FROM VALUE("users/" + USERID("ASI") + "/miscflds.dat") NO-ECHO.
   REPEAT:
     CREATE ttAttrb.
     IMPORT ttAttrb.

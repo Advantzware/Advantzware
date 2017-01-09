@@ -6,13 +6,13 @@ RUN get-attribute('ADM-NEW-RECORD':U).
 ASSIGN lAdding = (IF RETURN-VALUE = 'yes' THEN YES ELSE NO).
 
 MESSAGE 'avail rfidtag? ' AVAILABLE rfidtag SKIP
-        'asi? ' userid("nosweat") = "asi" SKIP
+        'asi? ' USERID("ASI") = "asi" SKIP
         'adding?' lAdding SKIP
-        'enable field? ' AVAILABLE rfidtag AND userid("nosweat") = "asi" AND NOT lAdding
+        'enable field? ' AVAILABLE rfidtag AND USERID("ASI") = "asi" AND NOT lAdding
     VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
 /* Enable rfidtag when record is available and user is ASI and not adding record. */
-IF AVAILABLE rfidtag AND userid("nosweat") = "asi" AND NOT lAdding THEN
+IF AVAILABLE rfidtag AND USERID("ASI") = "asi" AND NOT lAdding THEN
     ENABLE v-rfidtag WITH FRAME {&FRAME-NAME}.
 ELSE
     DISABLE v-rfidtag WITH FRAME {&FRAME-NAME}.

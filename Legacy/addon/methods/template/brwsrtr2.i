@@ -1,4 +1,4 @@
-/* brwsrtrg.i */
+/* brwsrtr2.i */
 
 {methods/template/brwsord.i 1}
 {methods/template/brwsord.i 2}

@@ -1,0 +1,39 @@
+/*------------------------------------------------------------------------
+    File        : &2DataObjectAdapter
+    Purpose     : 
+    Syntax      : 
+    Description : 
+    Author(s)   : &3
+    Created     : Sun Aug 07 20:48:37 CEST 2011
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
+USING Progress.Lang.*                                 FROM PROPATH .
+
+CLASS &1.&2DataObjectAdapter 
+    INHERITS SmartDataObjectAdapter 
+    USE-WIDGET-POOL: 
+		
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &2DataObjectAdapter class
+        Notes:   
+        @param poContainer The IContainer to add the &2DataObjectAdapter to                                                                        
+    ------------------------------------------------------------------------------*/
+	CONSTRUCTOR PUBLIC &2DataObjectAdapter (poContainer AS System.ComponentModel.IContainer):
+		SUPER (INPUT poContainer).
+		
+	END CONSTRUCTOR.
+		
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &2DataObjectAdapter class
+        Notes:   
+    ------------------------------------------------------------------------------*/
+	CONSTRUCTOR PUBLIC &2DataObjectAdapter ():
+		SUPER ().
+		
+	END CONSTRUCTOR.
+
+END CLASS.

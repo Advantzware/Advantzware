@@ -66,10 +66,10 @@ INDEX pi-tsrep tt-date.
 
 DEFINE NEW SHARED TEMP-TABLE tt-note NO-UNDO
   FIELD employee LIKE emplogin.employee
-  FIELD rec_key LIKE nosweat.notes.rec_key
-  FIELD note_date LIKE nosweat.notes.note_date
-  FIELD note_title LIKE nosweat.notes.note_title
-  FIELD note_text LIKE nosweat.notes.note_text
+  FIELD rec_key LIKE ASI.notes.rec_key
+  FIELD note_date LIKE ASI.notes.note_date
+  FIELD note_title LIKE ASI.notes.note_title
+  FIELD note_text LIKE ASI.notes.note_text
   FIELD note_src AS CHARACTER.
 
 DEF TEMP-TABLE tt-emp

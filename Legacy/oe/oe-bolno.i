@@ -136,14 +136,14 @@ end.*/
    oe-bolh.trailer  = oe-relh.trailer
    oe-bolh.upd-date = TODAY
    oe-bolh.upd-time = TIME
-   oe-bolh.user-id  = USERID("nosweat").
+   oe-bolh.user-id  = USERID("ASI").
 
   /*task 01121106 disable trigger oe-bolh preventing this from happening*/
   IF oe-bolh.rec_key EQ "" THEN
   DO:
      CREATE rec_key.
      ASSIGN
-        oe-bolh.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
+        oe-bolh.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
         rec_key.rec_key = oe-bolh.rec_key
         rec_key.table_name = "oe-bolh".
      RELEASE rec_key.

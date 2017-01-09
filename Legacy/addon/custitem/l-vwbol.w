@@ -54,7 +54,7 @@ DEF VAR period_pos AS INTEGER NO-UNDO.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-v-prgmname = USERID("NOSWEAT") + "..".
+v-prgmname = USERID("ASI") + "..".
 ELSE
 ASSIGN
   period_pos = INDEX(PROGRAM-NAME(1),".")
@@ -451,11 +451,11 @@ FOR EACH tt-bol WHERE tt-bol.selected-flag = YES:
       vend-whse-trans.trans-date    = tt-bol.bol-date
       vend-whse-trans.create-date   = TODAY
       vend-whse-trans.create-time   = TIME
-      vend-whse-trans.create-userid = USERID("nosweat")
+      vend-whse-trans.create-userid = USERID("ASI")
       vend-whse-trans.rec_key       = STRING(YEAR(TODAY), "9999") + STRING(MONTH(TODAY), "99") + STRING(DAY(TODAY), "99") + STRING(TIME)
       vend-whse-trans.upd-date      = TODAY
       vend-whse-trans.upd-time      = TIME
-      vend-whse-trans.upd-userid    = USERID("nosweat")
+      vend-whse-trans.upd-userid    = USERID("ASI")
       vend-whse-trans.cust-no       = CAPS(tt-bol.cust-no)         
       vend-whse-trans.fg-item-no    = CAPS(tt-bol.i-no)
       vend-whse-trans.item-line-no  = tt-bol.line

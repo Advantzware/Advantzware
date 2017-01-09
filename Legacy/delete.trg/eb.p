@@ -100,7 +100,7 @@ FOR EACH est
       AND est.est-no  EQ {&TABLENAME}.est-no:
   ASSIGN
    est.updated-date = TODAY
-   est.updated-id   = USERID("nosweat").
+   est.updated-id   = USERID("ASI").
   LEAVE.
 END.
 

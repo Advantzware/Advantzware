@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Consultingwerk.Framework.MessageInteraction</title>
+</head>
+<body load="onload">
+
+<p>The <b>Consultingwerk.Framework.MessageInteraction</b> package provides utility classes to 
+allow questions from backend code being raised indirectly on the client.</p>
+
+<p>When client calls into a method (Business Entity or Business Task) on the backend, the backend code 
+might require to issue a question to the user. This may be particulary frequently the case when migrating 
+existing business logic from a client-server/fat-client environment.</p> 
+
+<p>As the request/response pattern typically implemented with the AppServer does not allow this type of 
+interaction, the following pattern can be used as a workaround:</p>
+
+<p>When the business logic encounters the need for a question to the user, it returns a Message object 
+(more specifically a list of Message objects).</p>
+
+<p>Each message provides:</p>
+
+<ul>
+<li>Message Title</li>
+<li>Message Text</li>
+<li>Message Detail</li>
+<li>Possible replies: combinations of yes/no/cancel/ignore/retry</li>
+<li>Default reply</li>
+</ul>
+
+<p>Messages are identified by:</p>
+
+<ul>
+<li>a key (e.g. a guid) representing the location in code they are needed</li>
+<li>an instance id (useful when the same location in code is occurred multiple times, e.g. in a loop).</li> 
+</ul>
+
+<p>Messages do provide after processed by client (user):</p>
+
+<ul>
+<li>actual response</li>
+</ul>
+
+
+<p>The flow would be:</p>
+
+<ul>
+<li>server code calls into message service (IMessageInteractionService:AskQuestion())
+<li>message service provides message object (list of message objects) for client (ListQuestion)
+<li>server code stops/undoes current processing and returns message object to client (because AskQuestion returns unanswered)
+<li>ListQuestion returned to client and client visualizes questions, e.g. using MessageFormHelper:ProcessQuestions
+<li>client provides object and calls into server again - same call as earlier - but providing the message object with a response
+<li>server code calls into message service at same location in code/instance, same parameters as above
+<li>message service realizes that reply from user is already available
+<li>server code continues processing depending on response given by user, because return value from AskQuestion is not unanswered
+</ul>
+
+<p>The interaction is repeated for as long as there are messages encountered in the code.</p> 
+
+<p>All replies to earlier questions stay in the message object, so that replies to questions already given 
+by the user are kept and the system does not need to ask the same question more than once.</p>
+
+<p>See <a href="http://jira.consultingwerkcloud.com/browse/SCL-996" target="_blank">SCL-996</a> for details.</p>
+
+</body>
+</html>

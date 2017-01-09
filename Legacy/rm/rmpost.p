@@ -9,8 +9,8 @@ DEF VAR v-post-date AS DATE NO-UNDO.
 DEF VAR ll-auto AS LOG NO-UNDO.
 
 ASSIGN
-  begin_userid = USERID("nosweat")
-  end_userid   = USERID("nosweat")
+  begin_userid = USERID("ASI")
+  end_userid   = USERID("ASI")
   v-post-date = TODAY.
 
 /*IF INDEX(PROGRAM-NAME(1),"rm/r-rmtpst") NE 0 OR

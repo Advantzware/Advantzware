@@ -1,5 +1,5 @@
  /* oe/rep/cocxprnt.i  */  
-PUT "<FArial>"  SKIP
+put "<FArial>"  SKIP
     "<P15><C+40><B>Packing Slip</B> " SKIP
     /*"<P15><C+40><B>" oe-bolh.bol-no "</B> " SKIP*/
     "<C1><#1><R+7><C+47><IMAGE#1=" ls-full-img1   SKIP /* APC package */  
@@ -10,14 +10,14 @@ PUT "<FArial>"  SKIP
     "<=1><R+11><P10>"
     "<C7>BILLED TO:" SPACE(35) "SHIPPED TO:"  /*SKIP*/
     "<FCourier New>" SKIP
-     cust.name                    AT 17
-     v-ship-name                  AT 63
-     cust.addr[1]                 AT 17
-     v-ship-addr[1]               AT 63
-     cust.addr[2]                 AT 17
-     v-ship-addr[2]               AT 63
-     v-cust-addr3                 AT 17
-     v-ship-addr3                 AT 63 
+     cust.name                    at 17
+     v-ship-name                  at 63
+     cust.addr[1]                 at 17
+     v-ship-addr[1]               at 63
+     cust.addr[2]                 at 17
+     v-ship-addr[2]               at 63
+     v-cust-addr3                 at 17
+     v-ship-addr3                 at 63 
     /* skip(1)
      v-po-no[1]                   at 33
      v-po-no[2]                   at 77

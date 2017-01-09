@@ -671,7 +671,7 @@ DO:
            
             FIND CURRENT e-item-vend.
             ASSIGN
-            e-item-vend.updated-id[1] = USERID("NOSWEAT")
+            e-item-vend.updated-id[1] = USERID("ASI")
             e-item-vend.updated-date[1] = TODAY.
             FIND CURRENT e-item-vend NO-LOCK.
 

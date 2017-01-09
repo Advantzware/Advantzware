@@ -61,11 +61,11 @@ def var lv-first-time as log no-undo.
 &Scoped-define FIELDS-IN-QUERY-br_table usr-menu.menu-num usr-menu.descrip 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH usr-menu ~
-      WHERE USER_ID = USERID('NOSWEAT') NO-LOCK ~
+      WHERE USER_ID = USERID("ASI") NO-LOCK ~
     BY usr-menu.user_id ~
        BY usr-menu.menu-num
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH usr-menu ~
-      WHERE USER_ID = USERID('NOSWEAT') NO-LOCK ~
+      WHERE USER_ID = USERID("ASI") NO-LOCK ~
     BY usr-menu.user_id ~
        BY usr-menu.menu-num.
 &Scoped-define TABLES-IN-QUERY-br_table usr-menu
@@ -242,7 +242,7 @@ ASSIGN
      _TblList          = "ASI.usr-menu"
      _Options          = "NO-LOCK"
      _OrdList          = "ASI.usr-menu.user_id|yes,ASI.usr-menu.menu-num|yes"
-     _Where[1]         = "USER_ID = USERID('NOSWEAT')"
+     _Where[1]         = "USER_ID = USERID("ASI")"
      _FldNameList[1]   = ASI.usr-menu.menu-num
      _FldNameList[2]   = ASI.usr-menu.descrip
      _Query            is NOT OPENED
@@ -377,7 +377,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-ls-user-id = userid("nosweat").
+ls-user-id = USERID("ASI").
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -478,7 +478,7 @@ PROCEDURE local-enable-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  if userid('nosweat') <> "ASI" then return no-apply.
+  if USERID("ASI") <> "ASI" then return no-apply.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .

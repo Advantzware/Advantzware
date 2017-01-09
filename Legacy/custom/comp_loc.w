@@ -68,14 +68,14 @@ DEF BUFFER b-usercomp FOR usercomp .
 &Scoped-define FIELDS-IN-QUERY-companies company.company company.name 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-companies 
 &Scoped-define QUERY-STRING-companies FOR EACH usercomp ~
-      WHERE usercomp.user_id = USERID('NOSWEAT') AND ~
+      WHERE usercomp.user_id = USERID("ASI") AND ~
 usercomp.loc = '' AND ~
 (IF g_init THEN usercomp.company_default = yes ~
  ELSE TRUE) NO-LOCK, ~
       EACH company WHERE TRUE /* Join to usercomp incomplete */ ~
       AND company.company = usercomp.company NO-LOCK
 &Scoped-define OPEN-QUERY-companies OPEN QUERY companies FOR EACH usercomp ~
-      WHERE usercomp.user_id = USERID('NOSWEAT') AND ~
+      WHERE usercomp.user_id = USERID("ASI") AND ~
 usercomp.loc = '' AND ~
 (IF g_init THEN usercomp.company_default = yes ~
  ELSE TRUE) NO-LOCK, ~
@@ -90,14 +90,14 @@ usercomp.loc = '' AND ~
 &Scoped-define FIELDS-IN-QUERY-locations loc.loc loc.dscr 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-locations 
 &Scoped-define QUERY-STRING-locations FOR EACH usercomp ~
-      WHERE usercomp.user_id = USERID("NOSWEAT") AND ~
+      WHERE usercomp.user_id = USERID("ASI") AND ~
 usercomp.company = company.company AND ~
 usercomp.loc NE "" AND ~
 (IF g_init THEN  usercomp.loc_default = yes ~
  ELSE TRUE) NO-LOCK, ~
       EACH loc OF usercomp NO-LOCK
 &Scoped-define OPEN-QUERY-locations OPEN QUERY locations FOR EACH usercomp ~
-      WHERE usercomp.user_id = USERID("NOSWEAT") AND ~
+      WHERE usercomp.user_id = USERID("ASI") AND ~
 usercomp.company = company.company AND ~
 usercomp.loc NE "" AND ~
 ( IF g_init THEN  usercomp.loc_default = yes ~
@@ -230,11 +230,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -262,7 +258,7 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for BROWSE companies
      _TblList          = "ASI.usercomp,ASI.company WHERE ASI.usercomp ..."
      _Options          = "NO-LOCK"
-     _Where[1]         = "usercomp.user_id = USERID('NOSWEAT') AND
+     _Where[1]         = "usercomp.user_id = USERID("ASI") AND
 usercomp.loc = '' AND
 (IF g_init THEN usercomp.company_default = yes
  ELSE TRUE)"
@@ -277,7 +273,7 @@ usercomp.loc = '' AND
 /* Query rebuild information for BROWSE locations
      _TblList          = "ASI.usercomp,ASI.loc OF ASI.usercomp"
      _Options          = "NO-LOCK"
-     _Where[1]         = "usercomp.user_id = USERID(""NOSWEAT"") AND
+     _Where[1]         = "usercomp.user_id = USERID(""ASI"") AND
 usercomp.company = company.company AND
 usercomp.loc NE """" AND
 (IF g_init THEN usercomp.loc_default = yes
@@ -494,12 +490,12 @@ PROCEDURE Set-comp_loc :
   Notes:       
 ------------------------------------------------------------------------------*/
   IF g_init THEN do: /* Task 07081401*/
-       FIND FIRST  b-usercomp WHERE b-usercomp.user_id = USERID("NOSWEAT") 
+       FIND FIRST  b-usercomp WHERE b-usercomp.user_id = USERID("ASI") 
           AND b-usercomp.company = company.company AND 
           b-usercomp.loc NE "" AND
           b-usercomp.loc_default = YES NO-LOCK NO-ERROR.
       IF NOT AVAIL b-usercomp THEN DO:
-        FIND FIRST  b-usercomp WHERE b-usercomp.user_id = USERID("NOSWEAT") 
+        FIND FIRST  b-usercomp WHERE b-usercomp.user_id = USERID("ASI") 
             AND b-usercomp.company = company.company AND 
             b-usercomp.loc = "MAIN" EXCLUSIVE-LOCK NO-ERROR.
         IF AVAIL b-usercomp THEN 

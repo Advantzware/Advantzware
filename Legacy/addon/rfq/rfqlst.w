@@ -228,12 +228,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
-/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 
@@ -769,7 +763,7 @@ PROCEDURE run-report :
   DEF VAR lv-delimiter AS cha FORM "x" NO-UNDO.
 
   FIND FIRST users WHERE
-     users.user_id EQ USERID("NOSWEAT")
+     users.user_id EQ USERID("ASI")
      NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN
@@ -982,7 +976,7 @@ PROCEDURE run-report-detail :
   DEF VAR lv-delimiter AS cha FORM "x" NO-UNDO.
   
   FIND FIRST users WHERE
-       users.user_id EQ USERID("NOSWEAT")
+       users.user_id EQ USERID("ASI")
        NO-LOCK NO-ERROR.
 
   IF AVAIL users AND users.user_program[2] NE "" THEN

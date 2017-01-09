@@ -1850,16 +1850,13 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN disable-item.
-  
+
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
-
-  IF is-new-record THEN do:
-      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(item)). 
-      RUN reset-init-values IN WIDGET-HANDLE(char-hdl).
-   END.
   
+  IF is-new-record THEN
+    RUN reset-init-values IN WIDGET-HANDLE(char-hdl).
+    
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("row-changed").
-
 
 END PROCEDURE.
 

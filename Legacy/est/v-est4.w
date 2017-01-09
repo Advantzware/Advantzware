@@ -183,11 +183,11 @@ DEFINE VARIABLE fi_spec-qty-08 AS DECIMAL FORMAT ">>>>>>>>9.9<<<<" INITIAL 0
 
 DEFINE RECTANGLE RECT-15
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 114 BY 7.62.
+     SIZE 110 BY 7.62.
 
 DEFINE RECTANGLE RECT-24
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 114 BY 9.29.
+     SIZE 110 BY 9.29.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -209,16 +209,16 @@ DEFINE FRAME F-Main
      ef.mis-labf[1] AT ROW 2.43 COL 49 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-matm[1] AT ROW 2.43 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
+     ef.mis-matm[1] AT ROW 2.43 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.mis-labm[1] AT ROW 2.43 COL 79.6 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
+          SIZE 16 BY 1
+     ef.mis-labm[1] AT ROW 2.43 COL 77.4 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.mis-simon[1] AT ROW 2.43 COL 98.6 COLON-ALIGNED NO-LABEL
+          SIZE 16 BY 1
+     ef.mis-simon[1] AT ROW 2.43 COL 94 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ef.mis-mkup[1] AT ROW 2.43 COL 103 COLON-ALIGNED NO-LABEL
+     ef.mis-mkup[1] AT ROW 2.43 COL 98.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      ef.mis-snum[2] AT ROW 3.43 COL 2 NO-LABEL FORMAT ">9"
@@ -236,16 +236,16 @@ DEFINE FRAME F-Main
      ef.mis-labf[2] AT ROW 3.43 COL 49 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-matm[2] AT ROW 3.43 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
+     ef.mis-matm[2] AT ROW 3.43 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.mis-labm[2] AT ROW 3.43 COL 79.6 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
+          SIZE 16 BY 1
+     ef.mis-labm[2] AT ROW 3.43 COL 77.4 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.mis-simon[2] AT ROW 3.43 COL 98.6 COLON-ALIGNED NO-LABEL
+          SIZE 16 BY 1
+     ef.mis-simon[2] AT ROW 3.43 COL 94 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ef.mis-mkup[2] AT ROW 3.43 COL 103 COLON-ALIGNED NO-LABEL
+     ef.mis-mkup[2] AT ROW 3.43 COL 98.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      ef.mis-snum[3] AT ROW 4.43 COL 2 NO-LABEL FORMAT ">9"
@@ -263,16 +263,16 @@ DEFINE FRAME F-Main
      ef.mis-labf[3] AT ROW 4.43 COL 49 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-matm[3] AT ROW 4.43 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
+     ef.mis-matm[3] AT ROW 4.43 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.mis-labm[3] AT ROW 4.43 COL 79.6 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
+          SIZE 16 BY 1
+     ef.mis-labm[3] AT ROW 4.43 COL 77.4 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.mis-simon[3] AT ROW 4.43 COL 98.6 COLON-ALIGNED NO-LABEL
+          SIZE 16 BY 1
+     ef.mis-simon[3] AT ROW 4.43 COL 94 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ef.mis-mkup[3] AT ROW 4.43 COL 103 COLON-ALIGNED NO-LABEL
+     ef.mis-mkup[3] AT ROW 4.43 COL 98.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -297,16 +297,16 @@ DEFINE FRAME F-Main
      ef.mis-labf[4] AT ROW 5.43 COL 49 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-matm[4] AT ROW 5.43 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
+     ef.mis-matm[4] AT ROW 5.43 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.mis-labm[4] AT ROW 5.43 COL 79.6 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
+          SIZE 16 BY 1
+     ef.mis-labm[4] AT ROW 5.43 COL 77.4 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.mis-simon[4] AT ROW 5.43 COL 98.6 COLON-ALIGNED NO-LABEL
+          SIZE 16 BY 1
+     ef.mis-simon[4] AT ROW 5.43 COL 94 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ef.mis-mkup[4] AT ROW 5.43 COL 103 COLON-ALIGNED NO-LABEL
+     ef.mis-mkup[4] AT ROW 5.43 COL 98.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      ef.mis-snum[5] AT ROW 6.43 COL 2 NO-LABEL FORMAT ">9"
@@ -324,16 +324,16 @@ DEFINE FRAME F-Main
      ef.mis-labf[5] AT ROW 6.43 COL 49 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-matm[5] AT ROW 6.43 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
+     ef.mis-matm[5] AT ROW 6.43 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.mis-labm[5] AT ROW 6.43 COL 79.6 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
+          SIZE 16 BY 1
+     ef.mis-labm[5] AT ROW 6.43 COL 77.4 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.mis-simon[5] AT ROW 6.43 COL 98.6 COLON-ALIGNED NO-LABEL
+          SIZE 16 BY 1
+     ef.mis-simon[5] AT ROW 6.43 COL 94 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ef.mis-mkup[5] AT ROW 6.43 COL 103 COLON-ALIGNED NO-LABEL
+     ef.mis-mkup[5] AT ROW 6.43 COL 98.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      ef.mis-snum[6] AT ROW 7.43 COL 2 NO-LABEL FORMAT ">9"
@@ -351,13 +351,13 @@ DEFINE FRAME F-Main
      ef.mis-labf[6] AT ROW 7.43 COL 49 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.mis-matm[6] AT ROW 7.43 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
+     ef.mis-matm[6] AT ROW 7.43 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.mis-labm[6] AT ROW 7.43 COL 79.6 COLON-ALIGNED NO-LABEL FORMAT ">>,>>>,>>9.99"
+          SIZE 16 BY 1
+     ef.mis-labm[6] AT ROW 7.43 COL 77.4 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.mis-simon[6] AT ROW 7.43 COL 98.6 COLON-ALIGNED NO-LABEL
+          SIZE 16 BY 1
+     ef.mis-simon[6] AT ROW 7.43 COL 94 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -367,7 +367,7 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     ef.mis-mkup[6] AT ROW 7.43 COL 103 COLON-ALIGNED NO-LABEL
+     ef.mis-mkup[6] AT ROW 7.43 COL 98.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      ef.spec-no[1] AT ROW 10.05 COL 2 COLON-ALIGNED NO-LABEL
@@ -459,9 +459,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
      "Simon" VIEW-AS TEXT
-          SIZE 7.8 BY .62 AT ROW 1.71 COL 97.8
+          SIZE 7.8 BY .62 AT ROW 1.71 COL 93.2
      "Markup" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 105.6
+          SIZE 9 BY .62 AT ROW 1.71 COL 100.8
      "Qty / FG (Set)" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 9.33 COL 71
      "Labor/SU" VIEW-AS TEXT
@@ -481,7 +481,7 @@ DEFINE FRAME F-Main
      "Special Materials" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 8.62 COL 3
      "Labor /M" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.71 COL 81.8
+          SIZE 12 BY .62 AT ROW 1.71 COL 79.6
      "Mat'l/SU" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 40
      RECT-15 AT ROW 1 COL 1
@@ -1945,6 +1945,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-mis-upcost V-table-Win 
 PROCEDURE new-mis-upcost :

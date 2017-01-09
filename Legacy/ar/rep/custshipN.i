@@ -11,13 +11,15 @@ DO:
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
   END. /* if tb_excel */
   
-for EACH cust NO-LOCK
+FOR EACH ttCustList
+    WHERE ttCustList.log-fld
+    NO-LOCK,  
+    EACH cust NO-LOCK
       WHERE cust.company GE fco
         AND cust.company LE tco
-        AND cust.cust-no GE fcust
-        AND cust.cust-no LE tcust
-        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-        AND ttCustList.log-fld no-lock) else true)
+        /*AND cust.cust-no GE fcust
+        AND cust.cust-no LE tcust*/
+        AND cust.cust-no EQ ttCustList.cust-no 
         AND cust.type GE ftype
         AND cust.type LE ttype
         AND cust.sman  GE fsman

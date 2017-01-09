@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsAuthorizationMaintenance" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="ttAuthorizationMaintenance" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="SecurityItemGuid" type="xsd:string" nillable="true" prodata:format="x(36)" prodata:label="Security Item"/>
+              <xsd:element name="Restricted" type="xsd:boolean" nillable="true" minOccurs="20" maxOccurs="20"/>
+              <xsd:element name="DefaultLevel" type="xsd:string" nillable="true" minOccurs="20" maxOccurs="20" default="DEFUNRES" prodata:format="X(20)" prodata:label="Default Level"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="SecurityItemGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//ttAuthorizationMaintenance"/>
+      <xsd:field xpath="SecurityItemGuid"/>
+    </xsd:unique>
+  </xsd:element>
+</xsd:schema>

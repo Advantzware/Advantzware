@@ -1,0 +1,30 @@
+        /*  */
+        /* &1 */
+        /*  */
+        THIS-OBJECT:&1:AddLookupButton = FALSE.
+        &7:Key = "ShowLookupDialog":U.
+        &7:Text = "...":U.
+        THIS-OBJECT:&1:ButtonsRight:Add(&7).
+        THIS-OBJECT:&1:DisplayStyle = Infragistics.Win.EmbeddableElementDisplayStyle:Office2010.
+        THIS-OBJECT:&1:Location = NEW System.Drawing.Point(&4, &5).
+        THIS-OBJECT:&1:LookupAdditionalFields = "@LookupAdditionalFields@":U.
+        THIS-OBJECT:&1:LookupBrowserExcludeFields = "@LookupAdditionalFields@":U.
+        THIS-OBJECT:&1:LookupBrowserFields = "@LookupBrowserFields@":U.
+        THIS-OBJECT:&1:LookupControls = "@LookupControls@":U.
+        THIS-OBJECT:&1:LookupDialogClassName = "@LookupDialogClassName@":U.
+        THIS-OBJECT:&1:LookupDialogFilterFields = "@LookupDialogFilterFields@":U.
+        THIS-OBJECT:&1:LookupDialogFilterOperators = "@LookupDialogFilterOperators@":U.
+        THIS-OBJECT:&1:LookupDialogQuerySort = "@LookupDialogQuerySort@":U.
+        THIS-OBJECT:&1:LookupDialogQueryString = "@LookupDialogQueryString@":U.
+        THIS-OBJECT:&1:LookupDialogTitle = "@LookupDialogTitle@":U.
+        THIS-OBJECT:&1:LookupEntityName = "@LookupEntityName@":U.
+        THIS-OBJECT:&1:LookupEntityTable = "@LookupEntityTable@":U.
+        THIS-OBJECT:&1:LookupEntityView = "@LookupEntityView@":U.
+        THIS-OBJECT:&1:LookupFields = "@LookupFields@":U.
+        THIS-OBJECT:&1:LookupKeyField = "@LookupKeyField@":U.
+        THIS-OBJECT:&1:LookupKeyValueColumn = "@LookupKeyValueColumn@":U.
+        THIS-OBJECT:&1:LookupQuerySort = "@LookupQuerySort@":U.
+        THIS-OBJECT:&1:LookupQueryString = "@LookupQueryString@":U.
+        THIS-OBJECT:&1:Name = "&1":U.
+        THIS-OBJECT:&1:Size = NEW System.Drawing.Size(@Width@, @Height@).
+        THIS-OBJECT:&1:TabIndex = &6.        

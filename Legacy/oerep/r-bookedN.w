@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
-&SCOPED-DEFINE WINDOW-NAME C-Win
+&Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
@@ -34,36 +34,36 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/getcmpny.i}
 {custom/getloc.i}
 
-{sys/inc/var.i NEW SHARED}
+{sys/inc/var.i new shared}
 
-ASSIGN 
+assign
  cocode = gcompany
  locode = gloc.
 
 DEFINE TEMP-TABLE w-data NO-UNDO 
-  FIELD ord-no LIKE oe-ord.ord-no
-  FIELD LINE LIKE oe-ordl.LINE 
+  field ord-no like oe-ord.ord-no
+  field line   like oe-ordl.line
   FIELD sman AS CHARACTER FORMAT "x(3)"
-  FIELD item-n LIKE itemfg.i-name COLUMN-LABEL "Item Description"
-        FORMAT "x(27)"
-  FIELD procat LIKE itemfg.procat COLUMN-LABEL "Prod!Code"
-  FIELD qty LIKE oe-ordl.qty COLUMN-LABEL "Quantity!Ordered/EA"
-        FORMAT ">,>>>,>>>"
-  FIELD sqft LIKE itemfg.t-sqft COLUMN-LABEL "Sq Ft" FORMAT ">>,>>>.999"
-  FIELD t-sqft LIKE itemfg.t-sqft COLUMN-LABEL "Total!Sq Ft/M" FORMAT "->,>>>.999"
+  field item-n like itemfg.i-name column-label "Item Description"
+        format "x(27)"
+  field procat like itemfg.procat column-label "Prod!Code"
+  field qty like oe-ordl.qty column-label "Quantity!Ordered/EA"
+        format ">,>>>,>>>"
+  field sqft like itemfg.t-sqft column-label "Sq Ft" format ">>,>>>.999"
+  field t-sqft like itemfg.t-sqft column-label "Total!Sq Ft/M" format "->,>>>.999"
   FIELD t-tons AS DECIMAL COLUMN-LABEL "Total!  Tons" FORMAT "->,>>>.9"
-  FIELD price LIKE oe-ordl.price FORMAT ">>>,>>9.99<<<<"
-  FIELD revenue LIKE oe-ordl.t-price COLUMN-LABEL "Order!Amount"
+  field price like oe-ordl.price format ">>>,>>9.99<<<<"
+  field revenue like oe-ordl.t-price column-label "Order!Amount"
   FIELD misc AS LOGICAL
   FIELD cost AS DECIMAL
   FIELD comm AS DECIMAL LABEL "Comm %"
   FIELD margin AS DECIMAL.
 
 DEFINE TEMP-TABLE wkrecap NO-UNDO     /* recap by product category */
-  FIELD procat LIKE itemfg.procat COLUMN-LABEL "Cat"
-  FIELD t-sqft LIKE itemfg.t-sqft  EXTENT 2 COLUMN-LABEL "Sq Ft" FORMAT ">>,>>>.999"
+  field procat like itemfg.procat column-label "Cat"
+  field t-sqft like itemfg.t-sqft  extent 2 column-label "Sq Ft" format ">>,>>>.999"
   FIELD t-tons AS DECIMAL COLUMN-LABEL "Tons" EXTENT 2 FORMAT "->,>>>.9"
-  FIELD revenue LIKE oe-ordl.t-price   EXTENT 2 COLUMN-LABEL "Amount"
+  field revenue like oe-ordl.t-price   extent 2 column-label "Amount"
   FIELD price-per-m  AS DECIMAL COLUMN-LABEL "$/MSF" EXTENT 2
   FIELD price-per-t  AS DECIMAL COLUMN-LABEL "$/TON" EXTENT 2
   FIELD num-of-ord AS INTEGER COLUMN-LABEL "#Orders".
@@ -134,20 +134,20 @@ ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER NAME,COMM %,PROD CODE," +
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE WINDOW 
-&SCOPED-DEFINE DB-AWARE NO 
+&Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME FRAME-A
+&Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS RECT-7 RECT-8 begin_cust-no end_cust-no ~
+&Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 begin_cust-no end_cust-no ~
 begin_ord-date end_ord-date begin_slsmn end_slsmn begin_fg-cat end_fg-cat ~
 tb_prepmisc tb_smn-no tb_exclude-set-comps tb_rep-tot tb_exclude-transfer ~
 tb_Under% tb_Over% Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up ~
 btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
 tb_runExcel fi_file tb_batch btn-ok btn-cancel 
-&SCOPED-DEFINE DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_ord-date ~
+&Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_ord-date ~
 end_ord-date lbl_sqft begin_slsmn end_slsmn begin_fg-cat end_fg-cat ~
 tb_prepmisc tb_smn-no tb_exclude-set-comps tb_rep-tot tb_exclude-transfer ~
 tb_Under% fUnder% fOver% tb_Over% sl_avail sl_selected rd-dest lv-ornt ~
@@ -318,85 +318,85 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 35 BY 5.24 NO-UNDO.
 
-DEFINE VARIABLE tb_batch AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_batch AS LOGICAL INITIAL no 
      LABEL "Run In Batch Mode?" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY .81
      BGCOLOR 14  NO-UNDO.
 
-DEFINE VARIABLE tb_comm AS LOGICAL INITIAL YES  
+DEFINE VARIABLE tb_comm AS LOGICAL INITIAL yes 
      LABEL "Print Commission?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES  
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .95
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_exclude-set-comps AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_exclude-set-comps AS LOGICAL INITIAL no 
      LABEL "Exclude Set Components" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_exclude-transfer AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_exclude-transfer AS LOGICAL INITIAL no 
      LABEL "Exclude Transfer Releases/Orders" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_margin AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_margin AS LOGICAL INITIAL no 
      LABEL "Print Avail Margin?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_Over% AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_Over% AS LOGICAL INITIAL no 
      LABEL "Print Order Over(%) +" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_prepmisc AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_prepmisc AS LOGICAL INITIAL no 
      LABEL "Include Prep / Misc Charges?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_prft AS LOGICAL INITIAL YES  
+DEFINE VARIABLE tb_prft AS LOGICAL INITIAL yes 
      LABEL "Print Profit?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_rep-tot AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_rep-tot AS LOGICAL INITIAL no 
      LABEL "Rep Sub Totals?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_smn-no AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_smn-no AS LOGICAL INITIAL no 
      LABEL "Page By SalesRep?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_sortby AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_sortby AS LOGICAL INITIAL no 
      LABEL "Sort by Order#?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_ton AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_ton AS LOGICAL INITIAL no 
      LABEL "Print $/Ton?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_Under% AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_Under% AS LOGICAL INITIAL no 
      LABEL "Print Order Under(%) -" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO  
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -512,22 +512,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES 
-         SCROLL-BARS        = NO 
-         STATUS-AREA        = YES 
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES 
-         THREE-D            = YES 
-         MESSAGE-AREA       = NO 
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -674,7 +670,7 @@ THEN C-Win:HIDDEN = no.
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE SELF-NAME C-Win
+&Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Orders Booked */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
@@ -700,62 +696,62 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_cust-no
+&Scoped-define SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_fg-cat
+&Scoped-define SELF-NAME begin_fg-cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_fg-cat C-Win
 ON LEAVE OF begin_fg-cat IN FRAME FRAME-A /* Beginning Product Category */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_ord-date
+&Scoped-define SELF-NAME begin_ord-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord-date C-Win
 ON LEAVE OF begin_ord-date IN FRAME FRAME-A /* Beginning Order Date */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_slsmn
+&Scoped-define SELF-NAME begin_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slsmn C-Win
 ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning SalesRep# */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn-cancel
+&Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   APPLY "close" TO THIS-PROCEDURE.
+   apply "close" to this-procedure.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn-ok
+&Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
@@ -772,47 +768,47 @@ DO:
   RUN GetSelectionList.
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
-  CASE rd-dest:
-       WHEN 1 THEN RUN output-to-printer.
-       WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN RUN output-to-file.
-       WHEN 4 THEN DO:
+  case rd-dest:
+       when 1 then run output-to-printer.
+       when 2 then run output-to-screen.
+       when 3 then run output-to-file.
+       when 4 then do:
            /*run output-to-fax.*/
-           {custom/asifax.i &TYPE= "Customer "
+           {custom/asifax.i &type= "Customer "
                             &begin_cust= "begin_cust-no"
                             &END_cust= "begin_cust-no" 
-                            &fax-subject=c-win:TITLE 
-                            &fax-body=c-win:TITLE 
+                            &fax-subject=c-win:title
+                            &fax-body=c-win:title
                             &fax-file=list-name }
        END. 
-       WHEN 5 then do:
+       when 5 then do:
            IF is-xprint-form THEN DO:
               {custom/asimail.i &TYPE = "Customer "
                                 &begin_cust= "begin_cust-no"
                                 &END_cust= "begin_cust-no"
-                                &mail-subject=c-win:TITLE 
-                                &mail-body=c-win:TITLE 
+                                &mail-subject=c-win:title
+                                &mail-body=c-win:title
                                 &mail-file=list-name }
            END.
            ELSE DO:
                {custom/asimailr.i &TYPE = "Customer "
                                   &begin_cust= "begin_cust-no"
                                   &END_cust= "begin_cust-no"
-                                  &mail-subject=c-win:TITLE 
-                                  &mail-body=c-win:TITLE 
+                                  &mail-subject=c-win:title
+                                  &mail-body=c-win:title
                                   &mail-file=list-name }
 
            END.
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
-  END CASE.
+  end case.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Add
+&Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
@@ -838,7 +834,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Def
+&Scoped-define SELF-NAME Btn_Def
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
@@ -853,7 +849,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_down
+&Scoped-define SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down C-Win
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
@@ -864,7 +860,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Remove
+&Scoped-define SELF-NAME Btn_Remove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove C-Win
 ON CHOOSE OF Btn_Remove IN FRAME FRAME-A /* << Remove */
 DO:
@@ -880,7 +876,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_Up
+&Scoped-define SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up C-Win
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
@@ -891,73 +887,73 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_cust-no
+&Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_fg-cat
+&Scoped-define SELF-NAME end_fg-cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_fg-cat C-Win
 ON LEAVE OF end_fg-cat IN FRAME FRAME-A /* Ending Product Category */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_ord-date
+&Scoped-define SELF-NAME end_ord-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ord-date C-Win
 ON LEAVE OF end_ord-date IN FRAME FRAME-A /* Ending Order Date */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_slsmn
+&Scoped-define SELF-NAME end_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slsmn C-Win
 ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending SalesRep# */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_file
+&Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lines-per-page
+&Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lv-font-no
+&Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
@@ -983,7 +979,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lv-ornt
+&Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
 DO:
@@ -1004,29 +1000,29 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME rd-dest
+&Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME rd_sqft
+&Scoped-define SELF-NAME rd_sqft
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sqft C-Win
 ON VALUE-CHANGED OF rd_sqft IN FRAME FRAME-A
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME sl_avail
+&Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
@@ -1065,13 +1061,13 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME sl_selected
+&Scoped-define SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected C-Win
 ON DEFAULT-ACTION OF sl_selected IN FRAME FRAME-A
 DO:
    DO i = 1 TO {&SELF-NAME}:NUM-ITEMS:
     IF {&SELF-NAME}:IS-SELECTED(i) THEN DO:
-       ASSIGN ldummy = sl_Avail:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
+       ASSIGN ldummy = sl_Avail:add-last({&SELF-NAME}:SCREEN-VALUE)
               ldummy = /*{&SELF-NAME}:DELETE(i)*/
                        {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
               .
@@ -1089,62 +1085,62 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_comm
+&Scoped-define SELF-NAME tb_comm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_comm C-Win
 ON VALUE-CHANGED OF tb_comm IN FRAME FRAME-A /* Print Commission? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_excel
+&Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_exclude-set-comps
+&Scoped-define SELF-NAME tb_exclude-set-comps
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_exclude-set-comps C-Win
 ON VALUE-CHANGED OF tb_exclude-set-comps IN FRAME FRAME-A /* Exclude Set Components */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_exclude-transfer
+&Scoped-define SELF-NAME tb_exclude-transfer
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_exclude-transfer C-Win
 ON VALUE-CHANGED OF tb_exclude-transfer IN FRAME FRAME-A /* Exclude Transfer Releases/Orders */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_margin
+&Scoped-define SELF-NAME tb_margin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_margin C-Win
 ON VALUE-CHANGED OF tb_margin IN FRAME FRAME-A /* Print Avail Margin? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_Over%
+&Scoped-define SELF-NAME tb_Over%
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_Over% C-Win
 ON VALUE-CHANGED OF tb_Over% IN FRAME FRAME-A /* Print Order Over(%) + */
 DO:
@@ -1162,73 +1158,73 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_prepmisc
+&Scoped-define SELF-NAME tb_prepmisc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prepmisc C-Win
 ON VALUE-CHANGED OF tb_prepmisc IN FRAME FRAME-A /* Include Prep / Misc Charges? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_prft
+&Scoped-define SELF-NAME tb_prft
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prft C-Win
 ON VALUE-CHANGED OF tb_prft IN FRAME FRAME-A /* Print Profit? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_rep-tot
+&Scoped-define SELF-NAME tb_rep-tot
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_rep-tot C-Win
 ON VALUE-CHANGED OF tb_rep-tot IN FRAME FRAME-A /* Rep Sub Totals? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_runExcel
+&Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_smn-no
+&Scoped-define SELF-NAME tb_smn-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_smn-no C-Win
 ON VALUE-CHANGED OF tb_smn-no IN FRAME FRAME-A /* Page By SalesRep? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_sortby
+&Scoped-define SELF-NAME tb_sortby
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sortby C-Win
 ON VALUE-CHANGED OF tb_sortby IN FRAME FRAME-A /* Sort by Order#? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_ton
+&Scoped-define SELF-NAME tb_ton
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_ton C-Win
 ON VALUE-CHANGED OF tb_ton IN FRAME FRAME-A /* Print $/Ton? */
 DO:
@@ -1240,7 +1236,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_Under%
+&Scoped-define SELF-NAME tb_Under%
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_Under% C-Win
 ON VALUE-CHANGED OF tb_Under% IN FRAME FRAME-A /* Print Order Under(%) - */
 DO:
@@ -1258,11 +1254,11 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME td-show-parm
+&Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    ASSIGN {&self-name}.
+    assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1300,9 +1296,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
    
-  ASSIGN 
-   begin_ord-date = TODAY 
-   end_ord-date   = TODAY.
+  assign
+   begin_ord-date = today
+   end_ord-date   = today.
 
   IF g_batch THEN tb_batch = YES.
 
@@ -1680,9 +1676,9 @@ DEFINE VARIABLE tot-renv AS DECIMAL NO-UNDO.
 DEFINE VARIABLE tot-ton AS DECIMAL NO-UNDO.
 
 DEFINE VARIABLE v-revenue LIKE oe-ordl.t-price FORMAT "->,>>>,>>9.99" NO-UNDO
-  COLUMN-LABEL "Order!Amount".
+  column-label "Order!Amount".
 DEFINE VARIABLE v-profit AS DECIMAL FORMAT "->>,>>9.9" NO-UNDO
-  COLUMN-LABEL "% Profit".
+  column-label "% Profit".
 DEFINE VARIABLE v-margin AS DECIMAL FORMAT "->>,>>9.9" NO-UNDO COLUMN-LABEL "% Margin".
 DEFINE VARIABLE v-sname LIKE sman.sname.
 
@@ -1708,15 +1704,15 @@ DEF BUFFER boe-ordl FOR oe-ordl.
 DEF BUFFER bcust FOR cust.
 DEF BUFFER bw-data FOR w-data.
 
-FIND FIRST w-data NO-ERROR.
+find first w-data no-error.
 
-FORM HEADER "Sales Rep:"
+form header "Sales Rep:"
             w-data.sman
             "-"
             v-sname
-    WITH FRAME r-top1 NO-BOX NO-ATTR-SPACE PAGE-TOP STREAM-IO WIDTH 180.
- 
-ASSIGN 
+    with frame r-top1 no-box no-attr-space page-top stream-io width 180.
+
+assign
  str-tit2 = c-win:TITLE + "   (O-R-5)"
  {sys/inc/ctrtext.i str-tit2 112}
 
@@ -1734,10 +1730,10 @@ ASSIGN
 /*IF tb_margin THEN prt-profit = NO.*/
 prt-profit = CAN-DO(cSelectedlist,"% PROFIT").
 prt-sqft = NO.
-IF prt-profit THEN DO:
+if prt-profit then do:
   IF NOT security-flag THEN RUN sys/ref/d-passwd.w (3, OUTPUT security-flag).
   prt-profit = security-flag.
-END.
+end.
 
 FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
     IF ttRptSelected.TextList MATCHES "*SQ FT*" THEN prt-sqft = YES.
@@ -1785,7 +1781,7 @@ ASSIGN str-tit4 =
 
 {sys/inc/print1.i}
 
-{sys/inc/outprint.i VALUE(lines-per-page)}
+{sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
@@ -1817,7 +1813,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
-END PROCEDURE.
+end procedure.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1839,53 +1835,53 @@ PROCEDURE show-param :
   DEFINE VARIABLE lv-label as CHARACTER.
   
   ASSIGN
-  lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE
-  lv-group-hdl = lv-frame-hdl:FIRST-CHILD
-  lv-field-hdl = lv-group-hdl:FIRST-CHILD.
+  lv-frame-hdl = frame {&frame-name}:HANDLE
+  lv-group-hdl = lv-frame-hdl:first-child
+  lv-field-hdl = lv-group-hdl:first-child.
   
-  DO WHILE TRUE:
-     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+  do while true:
+     if not valid-handle(lv-field-hdl) then leave.
      IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") GT 0
-        THEN DO:
+        then do:
            IF lv-field-hdl:label NE ? THEN 
-              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
+              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
                      .
-           ELSE DO:  /* radio set */
-              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+           else do:  /* radio set */
+              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
                      .
-              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
-              REPEAT:
-                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
-                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
-                  END.
-                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
-              END.       
-           END.                 
-        END.            
-     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
-  END.
+              lv-field2-hdl = lv-group-hdl:first-child.
+              repeat:
+                  if not valid-handle(lv-field2-hdl) then leave. 
+                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
+                  end.
+                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
+              end.       
+           end.                 
+        end.            
+     lv-field-hdl = lv-field-hdl:next-sibling.   
+  end.
 
-  PUT SPACE(28)
+  put space(28)
       "< Selection Parameters >"
       skip(1).
   
-  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
-    IF ENTRY(i,parm-fld-list) NE "" OR 
-       ENTRY(i,parm-lbl-list) NE "" THEN DO:
+  do i = 1 to num-entries(parm-fld-list,","):
+    if entry(i,parm-fld-list) ne "" or
+       entry(i,parm-lbl-list) ne "" then do:
        
-      lv-label = FILL(" ",34 - LENGTH(TRIM(ENTRY(i,parm-lbl-list)))) +
-                 TRIM(ENTRY(i,parm-lbl-list)) + ":".
+      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
+                 trim(entry(i,parm-lbl-list)) + ":".
                  
-      PUT lv-label FORMAT "x(35)" AT 5
-          SPACE(1)
-          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
-          SKIP.              
-    END.
-  END.
+      put lv-label format "x(35)" at 5
+          space(1)
+          trim(entry(i,parm-fld-list)) format "x(40)"
+          skip.              
+    end.
+  end.
  
-  PUT FILL("-",80) FORMAT "x(80)" SKIP.
+  put fill("-",80) format "x(80)" skip.
   
 END PROCEDURE.
 
@@ -1902,7 +1898,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN STRING(hipField:BUFFER-VALUE).
+  RETURN string(hipField:BUFFER-VALUE).
 
 END FUNCTION.
 

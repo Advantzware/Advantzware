@@ -114,7 +114,6 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Prototypes ********************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GEtFieldValue C-Win 
@@ -123,7 +122,6 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -396,11 +394,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1700,11 +1694,12 @@ IF lselected THEN DO:
 END.
 
 IF tb_excel THEN DO:
-      OUTPUT STREAM excel TO VALUE(fi_file).
+          OUTPUT STREAM excel TO VALUE(fi_file).
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
 END. 
 
 /*display "" with frame r-top.*/
+
 FOR EACH ar-inv
     WHERE ar-inv.company  EQ cocode
       AND ar-inv.cust-no  GE fcus
@@ -2293,6 +2288,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

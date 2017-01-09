@@ -6,9 +6,11 @@ PROCEDURE winReSize:
   DEFINE INPUT PARAMETER ipColDiff AS DECIMAL NO-UNDO.
 
   DEFINE VARIABLE currentWidget AS WIDGET-HANDLE NO-UNDO.
-
+  
   ASSIGN
-    winReSize = YES
+      winReSize = YES
+      /* shouldn't be needed, but here because of .net object sizing setting */
+      FRAME {&FRAME-NAME}:SCROLLABLE = YES
     &IF '{&sizeOption}' EQ 'HEIGHT' &THEN
       FRAME {&FRAME-NAME}:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT + ipRowDiff
     &ELSEIF '{&sizeOption}' EQ 'WIDTH' &THEN
@@ -19,7 +21,8 @@ PROCEDURE winReSize:
     &ENDIF
     currentWidget = FRAME {&FRAME-NAME}:HANDLE
     currentWidget = currentWidget:FIRST-CHILD
-    currentWidget = currentWidget:FIRST-CHILD.
+    currentWidget = currentWidget:FIRST-CHILD
+    .
   DO WHILE currentWidget NE ?:
     IF currentWidget:TYPE EQ 'BROWSE' THEN DO:
       ASSIGN

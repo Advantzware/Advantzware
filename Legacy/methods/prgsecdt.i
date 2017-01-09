@@ -20,7 +20,7 @@ DEF VAR v-can-delete AS LOG NO-UNDO.
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
-   INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN v-prgmname = USERID("NOSWEAT") + "..".
+   INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN v-prgmname = USERID("ASI") + "..".
 ELSE DO:
    v-prgmname = PROGRAM-NAME(1).
 
@@ -60,10 +60,10 @@ DO:
     group-ok = yes.
     /*LEAVE. */
   END.
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
+  IF NOT CAN-DO(b-prgrms.can_run,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_update,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_create,USERID("ASI")) AND
+     NOT CAN-DO(b-prgrms.can_delete,USERID("ASI")) AND NOT group-ok THEN
   DO:
     MESSAGE "Program :" PROGRAM-NAME(1) SKIP "Title :" b-prgrms.prgtitle SKIP(1)
         "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
@@ -72,13 +72,13 @@ DO:
 
   END.
   ELSE DO:
-      IF NOT v-can-run AND CAN-DO(b-prgrms.can_run,USERID("NOSWEAT"))
+      IF NOT v-can-run AND CAN-DO(b-prgrms.can_run,USERID("ASI"))
             THEN v-can-run = YES.
-      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT"))
+      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("ASI"))
             THEN v-can-update = YES.
-      IF NOT v-can-create AND CAN-DO(b-prgrms.can_create,USERID("NOSWEAT"))
+      IF NOT v-can-create AND CAN-DO(b-prgrms.can_create,USERID("ASI"))
             THEN v-can-create = YES.
-      IF NOT v-can-delete AND CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT"))
+      IF NOT v-can-delete AND CAN-DO(b-prgrms.can_delete,USERID("ASI"))
             THEN v-can-delete = YES.
 
   END.

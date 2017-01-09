@@ -87,7 +87,7 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -266,11 +266,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -407,7 +403,7 @@ DO:
   END.
 
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -690,6 +686,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'IL12',
                           INPUT NO,
                           OUTPUT glCustListActive).
+  {sys/inc/chblankcust.i}
   {sys/inc/chblankcust.i ""IL12""}
 
   IF ou-log THEN DO:
@@ -900,6 +897,7 @@ def var v-class         as   char.
 def var li              as   int.
 DEF VAR lv-rowid        AS   ROWID NO-UNDO.
 DEF VAR excelheader     AS   CHAR NO-UNDO.
+
 DEF VAR v-cust AS CHAR EXTENT 2 NO-UNDO .
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 form header skip(1)
@@ -963,8 +961,14 @@ IF tb_excel THEN DO:
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
+FOR EACH ttCustList 
+    WHERE ttCustList.log-fld
+    NO-LOCK,
+    each itemfg
 FOR each itemfg
     where itemfg.company eq cocode
+      /*and itemfg.cust-no ge begin_cust*/
+      and itemfg.cust-no EQ ttCustList.cust-no
       and itemfg.cust-no ge v-cust[1]
       and itemfg.cust-no LE v-cust[2]
       AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no

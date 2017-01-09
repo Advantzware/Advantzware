@@ -1509,7 +1509,7 @@ END.
                             INPUT 'EC',
                             INPUT YES,
                             OUTPUT lActive).
-{sys/inc/chblankcust.i ""EC""}
+{sys/inc/chblankcust.i}
 FIND LAST blast-eb WHERE blast-eb.company = gcompany 
                      AND blast-eb.est-type > 4 NO-LOCK NO-ERROR.
 lv-last-est-no = IF AVAIL blast-eb THEN blast-eb.est-no ELSE "".

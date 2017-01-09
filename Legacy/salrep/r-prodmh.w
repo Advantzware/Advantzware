@@ -228,11 +228,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -350,7 +346,7 @@ DO:
 
     FOR EACH reftable WHERE
         reftable.reftable EQ "HM5" AND
-        reftable.company EQ USERID("NOSWEAT") AND
+        reftable.company EQ USERID("ASI") AND
         reftable.loc = fi_company
         EXCLUSIVE-LOCK:
 
@@ -367,7 +363,7 @@ DO:
 
        CREATE reftable.
        ASSIGN reftable.reftable = "HM5"
-              reftable.company = USERID("NOSWEAT")
+              reftable.company = USERID("ASI")
               reftable.loc = fi_company
               reftable.CODE = mach.m-code.
 
@@ -424,7 +420,7 @@ DO:
 
          FOR EACH reftable WHERE
              reftable.reftable EQ "HM5" AND
-             reftable.company EQ USERID("NOSWEAT") AND
+             reftable.company EQ USERID("ASI") AND
              reftable.loc = fi_company:SCREEN-VALUE
              NO-LOCK,
              FIRST mach WHERE
@@ -506,7 +502,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   FOR EACH reftable WHERE
       reftable.reftable EQ "HM5" AND
-      reftable.company EQ USERID("NOSWEAT") AND
+      reftable.company EQ USERID("ASI") AND
       reftable.loc = fi_company:SCREEN-VALUE
       NO-LOCK,
       FIRST mach WHERE

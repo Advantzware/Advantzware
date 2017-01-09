@@ -193,6 +193,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -307,7 +308,7 @@ DO:
         NO-LOCK NO-ERROR.
 
    IF AVAIL usergrps AND
-      (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
+      (NOT CAN-DO(usergrps.users,USERID("ASI")) AND
        TRIM(usergrps.users) NE "*") THEN
       ASSIGN
          oe-ordl.cost:VISIBLE IN BROWSE {&browse-name} = NO.

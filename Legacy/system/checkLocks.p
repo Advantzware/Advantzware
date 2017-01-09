@@ -63,30 +63,30 @@ FOR EACH asi._lock WHERE  .
      IF asi._Lock._Lock-Usr = ? THEN LEAVE.
 END.
 
-FIND FIRST nosweat._myconnection.
+FIND FIRST ASI._myconnection.
 
-FOR EACH nosweat._lock WHERE  .
-IF nosweat._Lock._Lock-Usr = ? THEN LEAVE.
-IF nosweat._lock._lock-usr = nosweat._myconnection._MyConn-UserId THEN DO:
+FOR EACH ASI._lock WHERE  .
+IF ASI._Lock._Lock-Usr = ? THEN LEAVE.
+IF ASI._lock._lock-usr = ASI._myconnection._MyConn-UserId THEN DO:
   lIslocks = TRUE.
-      FIND nosweat._file WHERE nosweat._file._file-number = nosweat._lock._lock-table NO-LOCK NO-ERROR.
+      FIND ASI._file WHERE ASI._file._file-number = ASI._lock._lock-table NO-LOCK NO-ERROR.
     
       FIND FIRST tt-allLocks
-        WHERE allFileName = nosweat._file._file-name
-         AND allTableNumber = nosweat._file._file-number
-         AND allUserNum = nosweat._lock._lock-usr
-         AND allType = nosweat._lock._lock-type
-         AND allFlags = nosweat._lock._lock-flags
+        WHERE allFileName = ASI._file._file-name
+         AND allTableNumber = ASI._file._file-number
+         AND allUserNum = ASI._lock._lock-usr
+         AND allType = ASI._lock._lock-type
+         AND allFlags = ASI._lock._lock-flags
          NO-ERROR
          .
     IF NOT AVAIL tt-allLocks THEN DO: 
     CREATE tt-allLocks.
     ASSIGN
-     allFileName = nosweat._file._file-name
-     allTableNumber = nosweat._file._file-number
-     allUserNum = nosweat._lock._lock-usr
-     allType = nosweat._lock._lock-type
-     allFlags = nosweat._lock._lock-flags.
+     allFileName = ASI._file._file-name
+     allTableNumber = ASI._file._file-number
+     allUserNum = ASI._lock._lock-usr
+     allType = ASI._lock._lock-type
+     allFlags = ASI._lock._lock-flags.
     END.
      
     allCnt = allCnt + 1.

@@ -272,7 +272,7 @@ PROCEDURE local-initialize :
   &ENDIF
   
         /* check if maximized for user */
-  IF SEARCH('users/' + USERID('NOSWEAT') + '/' + v-prgmname + 'winReSize') NE ? OR
+  IF SEARCH('users/' + USERID('ASI') + '/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users */
      SEARCH('users/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users all programs */
@@ -348,7 +348,7 @@ PROCEDURE Run-Search :
   Parameters:  
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF CAN-DO(g_developer,USERID("NOSWEAT")) THEN
+  IF CAN-DO(g_developer,USERID("ASI")) THEN
   DO:
     MESSAGE "Update Search Program?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE updatesrch AS LOGICAL.
@@ -597,9 +597,9 @@ PROCEDURE winReSize PRIVATE :
     DEFINE VARIABLE winReSizeDat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE currentWidget AS HANDLE NO-UNDO.
     
-    IF {&WINDOW-NAME}:WINDOW-STATE NE 1 THEN RETURN.
+/*    IF {&WINDOW-NAME}:WINDOW-STATE NE 1 THEN RETURN.*/
 
-    winReSizeDat = 'users/' + USERID('NOSWEAT') + '/winReSize.dat'.
+    winReSizeDat = 'users/' + USERID('ASI') + '/winReSize.dat'.
     IF SEARCH(winReSizeDat) NE ? THEN DO:
       INPUT FROM VALUE(winReSizeDat).
       IMPORT ^ screenRatio.
@@ -625,9 +625,7 @@ PROCEDURE winReSize PRIVATE :
       rowDiff = FRAME {&FRAME-NAME}:HEIGHT - rowDiff
       colDiff = FRAME {&FRAME-NAME}:WIDTH - colDiff
       FRAME message-frame:WIDTH-PIXELS = FRAME message-frame:WIDTH-PIXELS + wPixels
-      /*
-      FRAME options-frame:WIDTH-PIXELS = FRAME options-frame:WIDTH-PIXELS + wPixels
-      */
+/*      FRAME options-frame:WIDTH-PIXELS = FRAME options-frame:WIDTH-PIXELS + wPixels*/
       .
 
     IF VALID-HANDLE(h_folder) THEN
@@ -637,7 +635,7 @@ PROCEDURE winReSize PRIVATE :
     {methods/sizeBrowse.i 02}
     {methods/sizeBrowse.i 03}
 
-    /*{methods/winReSizeOptions.i}*/
+/*    {methods/winReSizeOptions.i}*/
   &ENDIF
 
 END PROCEDURE.

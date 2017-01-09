@@ -15,7 +15,7 @@ if avail bf-est then do:
         disp bf-est.rec_key bf-est.est-no.
         
         ls-key = string(today,"99999999") +
-                 string(next-value(rec_key_seq,nosweat),"99999999").
+                 string(next-value(rec_key_seq,ASI),"99999999").
 
         bf-est.rec_key = ls-key.               
 

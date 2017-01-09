@@ -84,7 +84,7 @@ IF v-rec-found THEN
 IR12-char = v-rtn-char.
 
 /* Default */
-v-custom-user = USERID("NOSWEAT").
+v-custom-user = USERID("ASI").
 
 DEF VAR v-num-saved AS INT.
 DEF NEW SHARED TEMP-TABLE tt-fg-bin NO-UNDO LIKE fg-bin
@@ -737,11 +737,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -1743,6 +1739,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'IR12',
                           INPUT NO,
                           OUTPUT glCustListActive).
+  {sys/inc/chblankcust.i}
   
   {sys/inc/chblankcust.i ""IR12""}
   IF v-custom THEN DO:
@@ -3517,7 +3514,7 @@ for each tt-file WHERE
 end. /* each tt-file */
 
 /* If utilizing a special user id, don't save parameters to that record */
-IF v-custom-user EQ USERID("NOSWEAT") THEN DO:
+IF v-custom-user EQ USERID("ASI") THEN DO:
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 END.
  IF tb_excel THEN DO:

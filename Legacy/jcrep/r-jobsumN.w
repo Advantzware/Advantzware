@@ -37,7 +37,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {sys/inc/var.i NEW SHARED}
 
-ASSIGN
+assign
  cocode = gcompany
  locode = gloc.
 
@@ -278,109 +278,109 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 31 BY 4.52 NO-UNDO.
 
-DEFINE VARIABLE tb_corr AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_corr AS LOGICAL INITIAL yes 
      LABEL "Corrugated" 
      VIEW-AS TOGGLE-BOX
      SIZE 15 BY .71 NO-UNDO.
 
-DEFINE VARIABLE tb_curr AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_curr AS LOGICAL INITIAL yes 
      LABEL "Calculate Using Current Machine Rates?" 
      VIEW-AS TOGGLE-BOX
      SIZE 42 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_curr-crew AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_curr-crew AS LOGICAL INITIAL no 
      LABEL "and Crew Sizes?" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no 
      LABEL "Export Grand Totals to Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_excel2 AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_excel2 AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_exclude_prep AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_exclude_prep AS LOGICAL INITIAL no 
      LABEL "Exclude Prep?" 
      VIEW-AS TOGGLE-BOX
      SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_exclude_run_if_no_prod AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_exclude_run_if_no_prod AS LOGICAL INITIAL no 
      LABEL "Exclude run hours if ZERO production?" 
      VIEW-AS TOGGLE-BOX
      SIZE 44 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_fold AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_fold AS LOGICAL INITIAL yes 
      LABEL "Folding" 
      VIEW-AS TOGGLE-BOX
      SIZE 12 BY .71 NO-UNDO.
 
-DEFINE VARIABLE tb_incl_farmout AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_incl_farmout AS LOGICAL INITIAL no 
      LABEL "Include Farmout Costs" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_inv_tot_only AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_inv_tot_only AS LOGICAL INITIAL no 
      LABEL "Invoiced Totals Only" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_JobsSheets AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_JobsSheets AS LOGICAL INITIAL no 
      LABEL "Show Jobs Estimated Sheets" 
      VIEW-AS TOGGLE-BOX
      SIZE 35.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_prep AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_prep AS LOGICAL INITIAL no 
      LABEL "Add Billable Prep Charges?" 
      VIEW-AS TOGGLE-BOX
      SIZE 31 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_show-dl AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_show-dl AS LOGICAL INITIAL no 
      LABEL "Show Direct Labor?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_show-fo AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_show-fo AS LOGICAL INITIAL no 
      LABEL "Show Fixed Overhead?" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_show-vo AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_show-vo AS LOGICAL INITIAL no 
      LABEL "Show Variable Overhead?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_sum-mischg AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_sum-mischg AS LOGICAL INITIAL no 
      LABEL "Subtotal Miscellaneous Charges" 
      VIEW-AS TOGGLE-BOX
      SIZE 35.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_sum_mat AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_sum_mat AS LOGICAL INITIAL no 
      LABEL "Summarize Materials" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_totals AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_totals AS LOGICAL INITIAL no 
      LABEL "Print Totals" 
      VIEW-AS TOGGLE-BOX
      SIZE 19 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_waste-from-issued AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_waste-from-issued AS LOGICAL INITIAL no 
      LABEL "Waste = Board Issued - Quantity Posted" 
      VIEW-AS TOGGLE-BOX
      SIZE 44 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -477,22 +477,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -644,7 +640,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -685,7 +681,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -696,7 +692,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no C-Win
 ON LEAVE OF begin_job-no IN FRAME FRAME-A /* Beginning Job# */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -707,7 +703,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no2 C-Win
 ON LEAVE OF begin_job-no2 IN FRAME FRAME-A
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -718,7 +714,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   APPLY "close" TO THIS-PROCEDURE.
+   apply "close" to this-procedure.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -735,13 +731,13 @@ DO:
 
   RUN GetSelectionList.
       
-  RUN run-report. 
+  run run-report. 
   STATUS DEFAULT "Processing Complete". 
 
-  CASE rd-dest:
-       WHEN 1 THEN RUN output-to-printer.
-       WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN RUN output-to-file.
+  case rd-dest:
+       when 1 then run output-to-printer.
+       when 2 then run output-to-screen.
+       when 3 then run output-to-file.
        WHEN 5 THEN
        DO:
           DEFINE VARIABLE lv-tmp AS CHARACTER INIT "-0" NO-UNDO.
@@ -753,7 +749,7 @@ DO:
                              &mail-body=c-win:title
                              &mail-file=list-name }
        END.
-  END CASE. 
+  end case. 
 
 END.
 
@@ -787,7 +783,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Date */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -798,7 +794,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no C-Win
 ON LEAVE OF end_job-no IN FRAME FRAME-A /* Ending Job# */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -809,7 +805,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no2 C-Win
 ON LEAVE OF end_job-no2 IN FRAME FRAME-A
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -820,7 +816,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL labor-mkup C-Win
 ON LEAVE OF labor-mkup IN FRAME FRAME-A /* Labor Markup */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -831,7 +827,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file2 C-Win
 ON LEAVE OF fi_file2 IN FRAME FRAME-A /* If Yes, File Name */
 DO:
-     ASSIGN {&self-name}.
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -841,7 +837,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -899,7 +895,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -910,7 +906,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_jstat C-Win
 ON VALUE-CHANGED OF rd_jstat IN FRAME FRAME-A
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -921,7 +917,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_corr C-Win
 ON VALUE-CHANGED OF tb_corr IN FRAME FRAME-A /* Corrugated */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -932,7 +928,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_curr C-Win
 ON VALUE-CHANGED OF tb_curr IN FRAME FRAME-A /* Calculate Using Current Machine Rates? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
   IF tb_curr THEN 
       tb_curr-crew:SENSITIVE = YES.
   ELSE 
@@ -951,7 +947,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_curr-crew C-Win
 ON VALUE-CHANGED OF tb_curr-crew IN FRAME FRAME-A /* and Crew Sizes? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -962,7 +958,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export Grand Totals to Excel? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -973,7 +969,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_exclude_prep C-Win
 ON VALUE-CHANGED OF tb_exclude_prep IN FRAME FRAME-A /* Exclude Prep? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -984,7 +980,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_exclude_run_if_no_prod C-Win
 ON VALUE-CHANGED OF tb_exclude_run_if_no_prod IN FRAME FRAME-A /* Exclude run hours if ZERO production? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -995,7 +991,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_fold C-Win
 ON VALUE-CHANGED OF tb_fold IN FRAME FRAME-A /* Folding */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1006,7 +1002,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_incl_farmout C-Win
 ON VALUE-CHANGED OF tb_incl_farmout IN FRAME FRAME-A /* Include Farmout Costs */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1017,7 +1013,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inv_tot_only C-Win
 ON VALUE-CHANGED OF tb_inv_tot_only IN FRAME FRAME-A /* Invoiced Totals Only */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1028,7 +1024,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_JobsSheets C-Win
 ON VALUE-CHANGED OF tb_JobsSheets IN FRAME FRAME-A /* Show Jobs Estimated Sheets */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1039,7 +1035,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prep C-Win
 ON VALUE-CHANGED OF tb_prep IN FRAME FRAME-A /* Add Billable Prep Charges? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1050,7 +1046,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_show-dl C-Win
 ON VALUE-CHANGED OF tb_show-dl IN FRAME FRAME-A /* Show Direct Labor? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1061,7 +1057,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_show-fo C-Win
 ON VALUE-CHANGED OF tb_show-fo IN FRAME FRAME-A /* Show Fixed Overhead? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1072,7 +1068,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_show-vo C-Win
 ON VALUE-CHANGED OF tb_show-vo IN FRAME FRAME-A /* Show Variable Overhead? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1083,7 +1079,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sum-mischg C-Win
 ON VALUE-CHANGED OF tb_sum-mischg IN FRAME FRAME-A /* Subtotal Miscellaneous Charges */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1094,7 +1090,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sum_mat C-Win
 ON VALUE-CHANGED OF tb_sum_mat IN FRAME FRAME-A /* Summarize Materials */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1105,7 +1101,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_totals C-Win
 ON VALUE-CHANGED OF tb_totals IN FRAME FRAME-A /* Print Totals */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1116,7 +1112,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_waste-from-issued C-Win
 ON VALUE-CHANGED OF tb_waste-from-issued IN FRAME FRAME-A /* Waste = Board Issued - Quantity Posted */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1127,7 +1123,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel2 C-Win
 ON VALUE-CHANGED OF tb_excel2 IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1138,7 +1134,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1150,7 +1146,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    ASSIGN {&self-name}.
+    assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1188,10 +1184,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
  
-  FIND FIRST sys-ctrl
-      WHERE sys-ctrl.company EQ cocode
-         AND sys-ctrl.name   EQ "CEMENU"
-       NO-LOCK NO-ERROR.
+  find first sys-ctrl
+      where sys-ctrl.company eq cocode
+         and sys-ctrl.name   eq "CEMENU"
+       no-lock no-error.
   IF AVAILABLE sys-ctrl THEN
     ASSIGN
      tb_fold = INDEX(" FB",SUBSTR(sys-ctrl.char-fld,1,1)) GT 0
@@ -1348,9 +1344,9 @@ PROCEDURE GetSelectionList :
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
            ttRptSelected.DisplayOrder = i
-           ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
+           ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
            
@@ -1409,7 +1405,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1460,8 +1456,8 @@ DEFINE VARIABLE misc-str-line AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
 
-ASSIGN
- str-tit2 = c-win:TITLE
+assign
+ str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
 
   v-stat        = SUBSTR(rd_jstat,1,1)
@@ -1469,9 +1465,9 @@ ASSIGN
                     IF tb_corr THEN "B" ELSE "F"
                   ELSE
                     IF tb_corr THEN "C" ELSE ""
-  v-job-no[1]   = FILL(" ",6 - length(TRIM(begin_job-no))) +
+  v-job-no[1]   = fill(" ",6 - length(trim(begin_job-no))) +
                   trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-job-no[2]   = FILL(" ",6 - length(TRIM(end_job-no)))   +
+  v-job-no[2]   = fill(" ",6 - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99") 
   
   v-date[1]     = begin_date
@@ -1522,7 +1518,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
              ASSIGN fg-str-tit = fg-str-tit +   " OVER-" + " "
                     fg-str-tit2 = fg-str-tit2 + " RUN %" + " "
                     fg-str-tit3 = fg-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " " .
-             ELSE DO:
+             ELSE do:
 
                  IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
                      THEN ASSIGN fg-str-tit2 = fg-str-tit2 + ttRptSelected.TextList + " "
@@ -1611,7 +1607,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
                     mach-str-tit2 = mach-str-tit2 + "     VAR%" + " "
                     mach-str-tit3 = mach-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " " .
 
-             ELSE DO:
+             ELSE do:
 
                  IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
                      THEN ASSIGN mach-str-tit2 = mach-str-tit2 + ttRptSelected.TextList + " "
@@ -1674,7 +1670,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
              ASSIGN item-str-tit =  item-str-tit +  "    COST" + " "
                     item-str-tit2 = item-str-tit2 + "   VAR %" + " "
                     item-str-tit3 = item-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " " .
-             ELSE DO:  
+             ELSE do:  
                  
                  IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
                      THEN ASSIGN item-str-tit2 = item-str-tit2 + ttRptSelected.TextList + " "
@@ -1712,7 +1708,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
              ASSIGN misc-str-tit =  misc-str-tit +  "  ACT COST" + " "
                     misc-str-tit3 = misc-str-tit3 + "          " + " "
                     misc-str-tit2 = misc-str-tit2 + FILL("-",ttRptSelected.FieldLength) + " " .
-         ELSE DO:
+         ELSE do:
 
              IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
                  THEN ASSIGN misc-str-tit = misc-str-tit + ttRptSelected.TextList + " "
@@ -1737,7 +1733,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
           ELSE
               misc-str-line = misc-str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
      END.
-  
+
  END.
 
 IF tb_excel2 THEN DO:
@@ -1758,9 +1754,9 @@ SESSION:SET-WAIT-STATE ("general").
 
 {sys/inc/outprint.i value(lines-per-page)}
 
-IF td-show-parm THEN RUN show-param.
+if td-show-parm then run show-param.
 
-DISPLAY "" WITH FRAME r-top.
+display "" with frame r-top.
 
 {jcrep/r-jobsumN.i}
 
@@ -1783,7 +1779,7 @@ SESSION:SET-WAIT-STATE ("").
     
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
-END PROCEDURE.
+end procedure.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1804,53 +1800,53 @@ PROCEDURE show-param :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-label AS cha.
   
-  lv-frame-hdl = FRAME {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
-  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
+  lv-frame-hdl = frame {&frame-name}:handle.
+  lv-group-hdl = lv-frame-hdl:first-child.
+  lv-field-hdl = lv-group-hdl:first-child .
   
-  DO WHILE TRUE:
-     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
-     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
-        THEN DO:
-           IF lv-field-hdl:LABEL <> ? THEN 
-              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
+  do while true:
+     if not valid-handle(lv-field-hdl) then leave.
+     if lookup(lv-field-hdl:private-data,"parm") > 0
+        then do:
+           if lv-field-hdl:label <> ? then 
+              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
                      .
-           ELSE DO:  /* radio set */
-              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+           else do:  /* radio set */
+              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
                      .
-              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
-              REPEAT:
-                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
-                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
-                  END.
-                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
-              END.       
-           END.                 
-        END.            
-     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
-  END.
+              lv-field2-hdl = lv-group-hdl:first-child.
+              repeat:
+                  if not valid-handle(lv-field2-hdl) then leave. 
+                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
+                  end.
+                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
+              end.       
+           end.                 
+        end.            
+     lv-field-hdl = lv-field-hdl:next-sibling.   
+  end.
 
-  PUT SPACE(28)
+  put space(28)
       "< Selection Parameters >"
-      SKIP(1).
+      skip(1).
 
-  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
-    IF ENTRY(i,parm-fld-list) NE "" OR
-       entry(i,parm-lbl-list) NE "" THEN DO:
+  do i = 1 to num-entries(parm-fld-list,","):
+    if entry(i,parm-fld-list) ne "" or
+       entry(i,parm-lbl-list) ne "" then do:
        
-      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
-                 trim(ENTRY(i,parm-lbl-list)) + ":".
+      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
+                 trim(entry(i,parm-lbl-list)) + ":".
                  
-      PUT lv-label FORMAT "x(35)" AT 5
-          SPACE(1)
-          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
-          SKIP.              
-    END.
-  END.
+      put lv-label format "x(35)" at 5
+          space(1)
+          trim(entry(i,parm-fld-list)) format "x(40)"
+          skip.              
+    end.
+  end.
  
-  PUT FILL("-",80) FORMAT "x(80)" SKIP.
+  put fill("-",80) format "x(80)" skip.
   
 END PROCEDURE.
 
@@ -1892,7 +1888,7 @@ ASSIGN cDisplay = ""
          
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):  
                 IF LOOKUP(ENTRY(i,cSelectedList), v-header-2) = 0    THEN NEXT .
-               cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "machine"    THEN cVarValue = "" .
                          WHEN "mach-desc"   THEN cVarValue = "" .
@@ -1905,8 +1901,8 @@ ASSIGN cDisplay = ""
                          WHEN "act-speed"  THEN cVarValue = /*IF work-mch.run-speed <> ? THEN  STRING(work-mch.run-speed,">>>9.9-") ELSE*/ "" .
                          WHEN "act-cost"    THEN cVarValue = IF v-qty4 <> ? AND v-qty4 <> 0 THEN STRING(v-qty4,">>>>>9-") ELSE "" .
 
-                         WHEN "cost-vari"   THEN cVarValue = IF v-qty5 <> ? AND v-qty5 <> 0 THEN  STRING(v-qty5,">>>>,>>>,>>9-") ELSE "".
-                         WHEN "cost-var%"   THEN cVarValue = IF v-qty6 <> ? AND v-qty6 <> 0 THEN STRING(v-qty6,">>>9.9-") ELSE "".
+                         WHEN "cost-vari"   THEN cVarValue = IF v-qty5 <> ? AND v-qty5 <> 0 THEN  string(v-qty5,">>>>,>>>,>>9-") ELSE "".
+                         WHEN "cost-var%"   THEN cVarValue = IF v-qty6 <> ? AND v-qty6 <> 0 THEN string(v-qty6,">>>9.9-") ELSE "".
                          WHEN "est-qty"  THEN cVarValue = /*IF work-mch.run-waste <> ? THEN  STRING(work-mch.run-waste,">>>>,>>>,>>9-") ELSE*/ "".
                          WHEN "actual"   THEN cVarValue = /*IF work-mch.wst-qty <> ? THEN  STRING(work-mch.wst-qty,">,>>>,>>9-") ELSE*/ "".
                          WHEN "var-per"   THEN cVarValue = /*IF v-run-wst-var <> ? THEN  STRING(v-run-wst-var,">>>>>>9.9-") ELSE*/ "".
@@ -1914,14 +1910,14 @@ ASSIGN cDisplay = ""
                       
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
           
             PUT UNFORMATTED "        " + string(v-header,"x(27)")  + substring(cDisplay,36,250) SKIP .
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED ','  v-header 
-                     SUBSTRING(cExcelDisplay,6,300) SKIP.
+                     substring(cExcelDisplay,6,300) SKIP.
              END.
 
    
@@ -2014,7 +2010,7 @@ FOR EACH oe-ord WHERE oe-ord.company EQ cocode
                    v-save-x       = ar-invl.x-no.
 
             /* Avoid doing a break by since assiging inv-total each time */
-            v-inv-freight = IF NOT(ar-inv.freight EQ 0 OR NOT ar-inv.f-bill) THEN
+            v-inv-freight = IF NOT(ar-inv.freight eq 0 or not ar-inv.f-bill) THEN
                           ar-inv.freight 
                        ELSE 0.
             

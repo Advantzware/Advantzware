@@ -13,7 +13,7 @@ DISABLE TRIGGERS FOR LOAD OF reftable.
 ll-ans = YES.
 
 IF SEARCH (".\prgrms.d") <> ? AND
-   (userid("nosweat") = "ASI" OR userid("nosweat") = "Nosweat") THEN
+   (USERID("ASI") = "ASI" OR USERID("ASI") = "ASI") THEN
    DO:
 
    IF ll-ans THEN DO:
@@ -125,7 +125,7 @@ IF SEARCH (".\prgrms.d") <> ? AND
 END.
 
 IF SEARCH (".\lookups.d") <> ? AND
-   (userid("nosweat") = "ASI" OR userid("nosweat") = "Nosweat")
+   (USERID("ASI") = "ASI" OR USERID("ASI") = "ASI")
 THEN DO:
   
      DEF VAR v1 AS cha FORM "x(15)" NO-UNDO.
@@ -161,7 +161,7 @@ THEN DO:
    END.
 END.
 
-IF SEARCH(".\emailcod.d") NE ? AND CAN-DO('ASI,NoSweat',USERID('NoSweat')) THEN DO:
+IF SEARCH(".\emailcod.d") NE ? AND CAN-DO('ASI,NoSweat',USERID("ASI")) THEN DO:
   CREATE tt-emailcod.
   IF NOT ll-ans THEN
   MESSAGE "Load Email Codes Data?" VIEW-AS ALERT-BOX WARNING
@@ -188,7 +188,7 @@ IF SEARCH(".\emailcod.d") NE ? AND CAN-DO('ASI,NoSweat',USERID('NoSweat')) THEN 
 END.
 
 /* reftable: utility notes */
-IF SEARCH(".\notes.d") NE ? AND CAN-DO('ASI,NoSweat',USERID('NoSweat')) THEN DO:
+IF SEARCH(".\notes.d") NE ? AND CAN-DO('ASI,NoSweat',USERID("ASI")) THEN DO:
   CREATE tt-notes.
   IF NOT ll-ans THEN
   MESSAGE "Load Utility Code Notes Data?" VIEW-AS ALERT-BOX WARNING
@@ -220,7 +220,7 @@ IF SEARCH(".\notes.d") NE ? AND CAN-DO('ASI,NoSweat',USERID('NoSweat')) THEN DO:
   END. /* if ll-ans */
 END. /* if search */
 
-IF SEARCH(".\reftable.d") NE ? AND CAN-DO('ASI,NoSweat',USERID('NoSweat')) THEN DO:
+IF SEARCH(".\reftable.d") NE ? AND CAN-DO('ASI,NoSweat',USERID("ASI")) THEN DO:
   CREATE tt-reftable.
   IF NOT ll-ans THEN
   MESSAGE "Load Utility Codes Data?" VIEW-AS ALERT-BOX WARNING

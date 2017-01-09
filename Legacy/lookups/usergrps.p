@@ -18,7 +18,7 @@
 "usergrps. " ~
 */
 
-&Scoped-define lookup-db NOSWEAT.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file usergrps
 &Scoped-define where-statement TRUE
 &Scoped-define return-field usergrps

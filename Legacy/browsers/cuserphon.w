@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
@@ -298,19 +298,19 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "NOSWEAT.empalert WHERE asi.emailcod <external> ... ...,asi.cust WHERE NOSWEAT.empalert ...,NOSWEAT.users WHERE NOSWEAT.empalert ..."
+     _TblList          = "ASI.empalert WHERE asi.emailcod <external> ... ...,asi.cust WHERE ASI.empalert ...,ASI.users WHERE ASI.empalert ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, FIRST USED, FIRST"
-     _JoinCode[1]      = "NOT NOSWEAT.empalert.table_rec_key = ''"
+     _JoinCode[1]      = "NOT ASI.empalert.table_rec_key = ''"
      _JoinCode[2]      = "cust.rec_key EQ empalert.table_rec_key"
      _JoinCode[3]      = "users.rec_key EQ empalert.titlcod"
      _FldNameList[1]   > asi.cust.cust-no
 "cust.cust-no" ? ? "character" ? ? ? 4 15 ? no "" no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.cust.name
 "cust.name" ? ? "character" ? ? ? 4 15 ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > NOSWEAT.users.user_id
+     _FldNameList[3]   > ASI.users.user_id
 "users.user_id" "User ID" ? "character" ? ? ? 4 15 ? no "" no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > NOSWEAT.users.user_name
+     _FldNameList[4]   > ASI.users.user_name
 "users.user_name" ? ? "character" ? ? ? 4 15 ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

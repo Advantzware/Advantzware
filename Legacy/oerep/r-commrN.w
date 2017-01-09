@@ -144,7 +144,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -419,11 +419,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -570,15 +566,11 @@ DO:
   END.
          
   RUN GetSelectionList.
-  FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
-      EMPTY TEMP-TABLE ttCustList.
-      RUN BuildCustList(INPUT cocode,
-                        INPUT tb_cust-list AND glCustListActive,
-                        INPUT begin_cust-no,
-                        INPUT END_cust-no).
-  END.
-
+  EMPTY TEMP-TABLE ttCustList.
+  RUN BuildCustList(INPUT cocode,
+                    INPUT tb_cust-list AND glCustListActive,
+                    INPUT begin_cust-no,
+                    INPUT END_cust-no).
   run run-report. 
   STATUS DEFAULT "Processing Complete".
 
@@ -971,16 +963,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT NO,
                           OUTPUT glCustListActive).
 
- {sys/inc/chblankcust.i ""AR15""}
-
- IF ou-log THEN DO:
+ IF glCustListActive THEN DO:
       ASSIGN 
-        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = YES
-        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "yes"
-        tb_cust-list = YES 
         .
-      RUN SetCustRange(INPUT tb_cust-list).
+      RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
   END.
   ELSE
       ASSIGN
@@ -988,15 +976,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-  IF ou-log AND ou-cust-int = 0 THEN do:
-       ASSIGN 
-        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
-        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No"
-        tb_cust-list = NO
-        .
-      RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
-   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1432,7 +1411,7 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF BUFFER bar-inv FOR ar-inv.
-DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+                                 
 
 ASSIGN
  str-tit2 = TRIM(c-win:TITLE) + " (A-R-15)"
@@ -1447,9 +1426,7 @@ ASSIGN
  v-sman[1]   = begin_slsmn
  v-sman[2]   = end_slsmn
  v-cust[1]   = begin_cust-no
- v-cust[2]   = end_cust-no 
- lSelected   = tb_cust-list
-.
+ v-cust[2]   = end_cust-no.
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -1465,13 +1442,6 @@ FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
         str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
     ELSE
         str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
-END.
-
-IF lselected THEN DO:
-    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-    IF AVAIL ttCustList THEN ASSIGN v-cust[1] = ttCustList.cust-no .
-    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-    IF AVAIL ttCustList THEN ASSIGN v-cust[2] = ttCustList.cust-no .
 END.
 
 {sys/inc/print1.i}

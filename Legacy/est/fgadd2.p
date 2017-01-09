@@ -228,17 +228,14 @@ do on error undo:
 
                                  /** CREATE FINISHED GOODS SET PARTS **/
   {fg/addset.i eb.stock-no}
-/* Wade Kaldawi   3/9/16
-   Ticket 13466, ll-on-part should not change itemfg.alloc */
-/*   IF ll-one-part THEN DO: */
-/*     FIND FIRST itemfg */
-/*         WHERE itemfg.company EQ cocode */
-/*           AND itemfg.i-no    EQ eb.stock-no */
-/*         EXCLUSIVE NO-ERROR. */
-/*     IF AVAIL itemfg THEN itemfg.alloc = YES. */
-/*     FIND CURRENT itemfg NO-LOCK. */
-/*     RELEASE itemfg. */
-/*   END. */
+
+  IF ll-one-part THEN DO:
+    FIND FIRST itemfg
+        WHERE itemfg.company EQ cocode
+          AND itemfg.i-no    EQ eb.stock-no
+        EXCLUSIVE NO-ERROR.
+    IF AVAIL itemfg THEN itemfg.alloc = YES.
+  END.
 
   hide frame eb-part no-pause.
 end.

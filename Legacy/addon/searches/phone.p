@@ -19,7 +19,7 @@
 " ~{methods/defines/phone.i} ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i NEW SHARED} " ~
 */
 
-&Scoped-define search-db NOSWEAT.
+&Scoped-define search-db ASI.
 &Scoped-define search-file phone
 &Scoped-define where-statement phone.table_rec_key = s-rec_key
 &Scoped-define return-field attention

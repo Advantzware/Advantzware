@@ -1174,12 +1174,12 @@ PROCEDURE hold-release :
         FIND bf-po-ord EXCLUSIVE-LOCK WHERE RECID(bf-po-ord) EQ recid(po-ord) NO-ERROR.
         IF bf-po-ord.stat = "H" then
            ASSIGN bf-po-ord.approved-date = today
-                  bf-po-ord.approved-id = userid('nosweat')
+                  bf-po-ord.approved-id = userid("ASI")
                   bf-po-ord.approved-time = TIME. 
         ELSE ASSIGN bf-po-ord.approved-date = ?
                   bf-po-ord.approved-id = ""
                   bf-po-ord.approved-time = 0.           
-        bf-po-ord.stat = IF bf-po-ord.stat EQ "H" THEN "O" ELSE "H".   
+        bf-po-ord.stat = IF bf-po-ord.stat EQ "H" THEN "O" ELSE "H".    
         
      END.
      FIND CURRENT bf-po-ord NO-LOCK NO-ERROR.
@@ -1532,7 +1532,7 @@ PROCEDURE local-assign-record :
         DEFINE VARIABLE ls-key AS cha NO-UNDO.
         ASSIGN
         ls-key         = STRING(TODAY,"99999999") +
-                  string(NEXT-VALUE(rec_key_seq,nosweat),"99999999")
+                  string(NEXT-VALUE(rec_key_seq,ASI),"99999999")
         po-ord.rec_key = ls-key.               
         CREATE rec_key.
         ASSIGN rec_key.rec_key    = po-ord.rec_key
@@ -1666,12 +1666,12 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   
   RUN sys/ref/asiseq.p (cocode,'po_seq',OUTPUT iNextPO) NO-ERROR.
-  
+
   ASSIGN po-ord.company        = cocode
          po-ord.po-no          = inextPO         
          po-ord.po-date        = TODAY
          po-ord.loc            = locode
-         po-ord.buyer          = USERID("NOSWEAT")  /*global-uid*/
+         po-ord.buyer          = USERID("ASI")  /*global-uid*/
          po-ord.under-pct      = 10
          po-ord.over-pct       = 10         
          po-ord.due-date       = po-ord.po-date + 
@@ -1722,7 +1722,7 @@ PROCEDURE local-create-record :
  FIND CURRENT po-ordl NO-LOCK NO-ERROR.
  FIND CURRENT b-po-ordl NO-LOCK NO-ERROR.
  FIND CURRENT reftable NO-LOCK NO-ERROR.
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1852,7 +1852,7 @@ PROCEDURE local-update-record :
                notes.rec_key   = po-ord.rec_key
                notes.note_date = TODAY
                notes.note_time = TIME
-               notes.user_id   = USERID("NOSWEAT").
+               notes.user_id   = USERID("ASI").
         END.
 
         RELEASE b-po-ord.
