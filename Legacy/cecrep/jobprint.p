@@ -64,7 +64,7 @@ FORMAT HEADER
        SPACE(3)
        v-iso
        SPACE(30)
-       "PRINTER'S Finishing Job Ticket"   SPACE(110)
+       "PRINTER'S FINISHING Job Ticket"   SPACE(110)
        /* was 196*/
        /*fill(chr(95),130)               at 2    format "x(130)"         */      
       "<#1><C+80><LINE#1><|3>" 
@@ -269,7 +269,7 @@ DO v-local-loop = 1 TO v-local-copies:
               v-cus[2] AT 3 SKIP
               v-cus[3] AT 3 SKIP
               v-cus[4] AT 3 SKIP
-              cContact FORMAT "x(25)" AT 3 SKIP
+            "Contact:" AT 3  cContact FORMAT "x(25)" SKIP
             "<=#3><R-6><b> ORDER INFORMATION"
             "<=#3><R-5> PO #:" 
             xoe-ord.po-no WHEN AVAILABLE xoe-ord
